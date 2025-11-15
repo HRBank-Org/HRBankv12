@@ -20,10 +20,16 @@ const LoginForm = () => {
   const theme = useTheme();
   const [searchParams] = useSearchParams();
 
-  // Check for OAuth error
+  // Check for OAuth error and set initial user type from URL
   React.useEffect(() => {
     if (searchParams.get('error') === 'google_auth_failed') {
       setError('Google sign-in failed. Please try again or use email/password.');
+    }
+    
+    // Set user type from URL parameter
+    const typeParam = searchParams.get('type');
+    if (typeParam && ['workforce', 'employer', 'institution'].includes(typeParam)) {
+      setSelectedUserType(typeParam);
     }
   }, [searchParams]);
 
