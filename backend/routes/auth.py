@@ -283,6 +283,15 @@ async def google_login(request: Request, user_type: str = "workforce"):
     Initiate Google OAuth login
     user_type: workforce, employer, or institution
     """
+    import os
+    
+    # Check if Google OAuth is configured
+    if not os.environ.get('GOOGLE_OAUTH_CLIENT_ID') or not os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET'):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth is not configured. Please use email/password login or contact support."
+        )
+    
     from auth.oauth_config import oauth
     
     # Store user_type in session for callback
