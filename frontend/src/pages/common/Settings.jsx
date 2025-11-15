@@ -119,6 +119,17 @@ const Settings = () => {
             Documents & Verification
           </button>
           <button
+            onClick={() => setActiveTab('calendar')}
+            className={`px-6 py-3 font-medium transition-colors ${
+              activeTab === 'calendar'
+                ? 'border-b-2 text-gray-900'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            style={{ borderColor: activeTab === 'calendar' ? theme.primaryColor : 'transparent' }}
+          >
+            Google Calendar
+          </button>
+          <button
             onClick={() => setActiveTab('account')}
             className={`px-6 py-3 font-medium transition-colors ${
               activeTab === 'account'
