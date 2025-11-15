@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "1) Implement comprehensive Google Calendar-style availability and shift management system. 2) Add invitation system for employers to invite workforce members not on platform to specific jobs/shifts."
+user_problem_statement: "1) Implement comprehensive Google Calendar-style availability and shift management system. 2) Add invitation system for employers to invite workforce members not on platform to specific jobs/shifts. 3) Implement workforce management system for employment termination, offboarding, and rehiring."
 
 backend:
   - task: "Calendar API - Workforce Availability Endpoints"
