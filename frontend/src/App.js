@@ -36,6 +36,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageAdmins from './pages/admin/ManageAdmins';
 import ManageZones from './pages/admin/ManageZones';
+import Analytics from './pages/admin/Analytics';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
