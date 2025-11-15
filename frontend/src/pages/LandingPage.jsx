@@ -4,27 +4,38 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Briefcase, Building2, GraduationCap, Users, TrendingUp, Shield, Clock, Award, ChevronRight } from 'lucide-react';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [currentLogoIndex, setCurrentLogoIndex] = useState(0);
+  const [partnerLogos, setPartnerLogos] = useState([
+    // Default mock logos shown until real logos are loaded
+    { id: 1, institution_name: 'Partner 1', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+1' },
+    { id: 2, institution_name: 'Partner 2', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+2' },
+    { id: 3, institution_name: 'Partner 3', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+3' },
+    { id: 4, institution_name: 'Partner 4', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+4' },
+    { id: 5, institution_name: 'Partner 5', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+5' },
+    { id: 6, institution_name: 'Partner 6', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+6' },
+  ]);
 
-  // Mock partner logos - will be replaced with actual uploads from backend
-  const partnerLogos = [
-    { id: 1, name: 'Partner 1', url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+1' },
-    { id: 2, name: 'Partner 2', url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+2' },
-    { id: 3, name: 'Partner 3', url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+3' },
-    { id: 4, name: 'Partner 4', url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+4' },
-    { id: 5, name: 'Partner 5', url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+5' },
-    { id: 6, name: 'Partner 6', url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+6' },
-  ];
-
-  // Auto-scroll partner logos
+  // Fetch partner logos from backend
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentLogoIndex((prev) => (prev + 1) % partnerLogos.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [partnerLogos.length]);
+    const fetchPartnerLogos = async () => {
+      try {
+        const response = await fetch(`${API}/partner-logos/`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setPartnerLogos(data);
+        }
+      } catch (error) {
+        console.error('Error fetching partner logos:', error);
+        // Keep using mock logos if fetch fails
+      }
+    };
+    
+    fetchPartnerLogos();
+  }, []);
 
   const userCategories = [
     {
