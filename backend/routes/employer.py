@@ -373,3 +373,314 @@ async def duplicate_shift(
         "data": {"shift_ids": created_shifts},
         "message": f"Created {len(created_shifts)} shifts from template"
     }
+
+
+# ==================== INVITATION ENDPOINTS ====================
+
+@router.post("/shifts/{shift_id}/invite", response_model=Dict)
+async def invite_to_shift(
+    shift_id: str,
+    invite_data: dict,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Invite workforce member(s) to a specific shift
+    Sends email invitation with link to signup and auto-apply to shift
+    """
+    from models.invites import InviteToken
+    from datetime import timedelta
+    import os
+    
+    # Verify shift belongs to employer
+    shift = await db.shifts.find_one({
+        "shift_id": shift_id,
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not shift:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Shift not found"
+        )
+    
+    # Get employer profile for company name
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": current_user["user_id"]},
+        {"_id": 0, "company_name": 1}
+    )
+    company_name = employer.get("company_name", "Company") if employer else "Company"
+    
+    # Process invitations (can be single email or list)
+    emails = invite_data.get("emails", [])
+    if isinstance(emails, str):
+        emails = [emails]
+    
+    if not emails:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one email address is required"
+        )
+    
+    successful_invites = []
+    failed_invites = []
+    
+    for email in emails:
+        email = email.strip()
+        
+        # Validate email
+        if not email or "@" not in email:
+            failed_invites.append({"email": email, "reason": "Invalid email format"})
+            continue
+        
+        # Check if user already exists
+        existing = await db.users.find_one({"email": email})
+        if existing:
+            failed_invites.append({"email": email, "reason": "User already registered"})
+            continue
+        
+        # Create invite token
+        invite = InviteToken(
+            invited_by_user_id=current_user["user_id"],
+            invited_by_user_type="employer",
+            email=email,
+            full_name="",
+            shift_id=shift_id,
+            workplace_id=shift.get("workplace_id"),
+            expires_at=datetime.utcnow() + timedelta(days=14)
+        )
+        
+        await db.invite_tokens.insert_one(invite.model_dump())
+        
+        # Send invitation email
+        try:
+            from utils.email_service import email_service
+            
+            invite_link = f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/signup?invite={invite.invite_token}"
+            
+            shift_date = shift.get("shift_date", "")
+            shift_time = f"{shift.get('start_time', '')} - {shift.get('end_time', '')}"
+            workplace_name = shift.get("workplace_name", "")
+            
+            subject = f"Shift Invitation from {company_name}"
+            
+            html_content = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: #ff5f00; padding: 20px; text-align: center;">
+                    <h1 style="color: white; margin: 0;">HR Bank</h1>
+                </div>
+                
+                <div style="padding: 30px; background: #f9f9f9;">
+                    <h2 style="color: #333;">You're Invited to Work a Shift!</h2>
+                    
+                    <p style="color: #666; line-height: 1.6;">
+                        <strong>{company_name}</strong> has invited you to work a shift on HR Bank.
+                    </p>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h3 style="color: #ff5f00; margin-top: 0;">Shift Details</h3>
+                        <p style="margin: 10px 0;"><strong>Location:</strong> {workplace_name}</p>
+                        <p style="margin: 10px 0;"><strong>Date:</strong> {shift_date}</p>
+                        <p style="margin: 10px 0;"><strong>Time:</strong> {shift_time}</p>
+                    </div>
+                    
+                    <p style="color: #666; line-height: 1.6;">
+                        To accept this invitation, create your HR Bank account and you'll be automatically connected to this shift.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{invite_link}" 
+                           style="background: #ff5f00; color: white; padding: 15px 30px; 
+                                  text-decoration: none; border-radius: 5px; display: inline-block;">
+                            Create Account & View Shift
+                        </a>
+                    </div>
+                    
+                    <p style="color: #999; font-size: 12px; margin-top: 30px;">
+                        This invitation expires in 14 days. If you didn't expect this invitation, you can safely ignore this email.
+                    </p>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+                    © 2024 HR Bank. All rights reserved.
+                </div>
+            </div>
+            """
+            
+            await email_service.send_email(
+                to_email=email,
+                subject=subject,
+                html_content=html_content
+            )
+            
+            successful_invites.append(email)
+            
+        except Exception as e:
+            print(f"Failed to send email to {email}: {e}")
+            failed_invites.append({"email": email, "reason": f"Email send failed: {str(e)}"})
+    
+    return {
+        "success": True,
+        "data": {
+            "successful_invites": len(successful_invites),
+            "failed_invites": len(failed_invites),
+            "successes": successful_invites,
+            "failures": failed_invites
+        },
+        "message": f"Sent {len(successful_invites)} shift invitation(s)"
+    }
+
+
+@router.post("/jobs/{job_id}/invite", response_model=Dict)
+async def invite_to_job(
+    job_id: str,
+    invite_data: dict,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Invite workforce member(s) to a specific job posting
+    Sends email invitation with link to signup and view job
+    """
+    from models.invites import InviteToken
+    from datetime import timedelta
+    import os
+    
+    # Verify job belongs to employer
+    job = await db.jobs.find_one({
+        "job_id": job_id,
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+    
+    # Get employer profile for company name
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": current_user["user_id"]},
+        {"_id": 0, "company_name": 1}
+    )
+    company_name = employer.get("company_name", "Company") if employer else "Company"
+    
+    # Process invitations
+    emails = invite_data.get("emails", [])
+    if isinstance(emails, str):
+        emails = [emails]
+    
+    if not emails:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one email address is required"
+        )
+    
+    successful_invites = []
+    failed_invites = []
+    
+    for email in emails:
+        email = email.strip()
+        
+        # Validate email
+        if not email or "@" not in email:
+            failed_invites.append({"email": email, "reason": "Invalid email format"})
+            continue
+        
+        # Check if user already exists
+        existing = await db.users.find_one({"email": email})
+        if existing:
+            failed_invites.append({"email": email, "reason": "User already registered"})
+            continue
+        
+        # Create invite token
+        invite = InviteToken(
+            invited_by_user_id=current_user["user_id"],
+            invited_by_user_type="employer",
+            email=email,
+            full_name="",
+            job_id=job_id,
+            workplace_id=job.get("workplace_id"),
+            suggested_occupation=job.get("job_title"),
+            expires_at=datetime.utcnow() + timedelta(days=30)
+        )
+        
+        await db.invite_tokens.insert_one(invite.model_dump())
+        
+        # Send invitation email
+        try:
+            from utils.email_service import email_service
+            
+            invite_link = f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/signup?invite={invite.invite_token}"
+            
+            job_title = job.get("job_title", "Position")
+            workplace_name = job.get("workplace_name", "")
+            job_description = job.get("job_description", "")[:200]
+            
+            subject = f"Job Opportunity from {company_name}"
+            
+            html_content = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: #ff5f00; padding: 20px; text-align: center;">
+                    <h1 style="color: white; margin: 0;">HR Bank</h1>
+                </div>
+                
+                <div style="padding: 30px; background: #f9f9f9;">
+                    <h2 style="color: #333;">You're Invited to Apply!</h2>
+                    
+                    <p style="color: #666; line-height: 1.6;">
+                        <strong>{company_name}</strong> thinks you'd be a great fit for an open position on HR Bank.
+                    </p>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h3 style="color: #ff5f00; margin-top: 0;">{job_title}</h3>
+                        <p style="margin: 10px 0;"><strong>Location:</strong> {workplace_name}</p>
+                        <p style="margin: 10px 0; color: #666;">{job_description}...</p>
+                    </div>
+                    
+                    <p style="color: #666; line-height: 1.6;">
+                        Create your HR Bank account to view the full job details and apply directly.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{invite_link}" 
+                           style="background: #ff5f00; color: white; padding: 15px 30px; 
+                                  text-decoration: none; border-radius: 5px; display: inline-block;">
+                            Create Account & View Job
+                        </a>
+                    </div>
+                    
+                    <p style="color: #999; font-size: 12px; margin-top: 30px;">
+                        This invitation expires in 30 days. If you didn't expect this invitation, you can safely ignore this email.
+                    </p>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+                    © 2024 HR Bank. All rights reserved.
+                </div>
+            </div>
+            """
+            
+            await email_service.send_email(
+                to_email=email,
+                subject=subject,
+                html_content=html_content
+            )
+            
+            successful_invites.append(email)
+            
+        except Exception as e:
+            print(f"Failed to send email to {email}: {e}")
+            failed_invites.append({"email": email, "reason": f"Email send failed: {str(e)}"})
+    
+    return {
+        "success": True,
+        "data": {
+            "successful_invites": len(successful_invites),
+            "failed_invites": len(failed_invites),
+            "successes": successful_invites,
+            "failures": failed_invites
+        },
+        "message": f"Sent {len(successful_invites)} job invitation(s)"
+    }
+
