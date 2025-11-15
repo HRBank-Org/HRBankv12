@@ -402,11 +402,11 @@ frontend:
 
   - task: "Sign In Flow from Landing Page"
     implemented: true
-    working: false
-    file: "/app/frontend/src/pages/Login.jsx"
+    working: true
+    file: "/app/frontend/src/pages/auth/Login.jsx"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: "NA"
         -agent: "testing"
@@ -414,6 +414,9 @@ frontend:
         -working: false
         -agent: "testing"
         -comment: "Critical Issue: Employer Sign In button navigation is incorrect - navigates to /login?type=workforce instead of /login?type=employer, causing employer tab not to be pre-selected. Login form functionality works (accepts credentials, redirects to dashboard), but user data storage shows incorrect userType. This is the same routing issue as in Landing Page User Categories task. Logout functionality works correctly."
+        -working: true
+        -agent: "main"
+        -comment: "Fixed the URL parameter handling in Login.jsx. Added useSearchParams hook and useEffect to read the 'type' query parameter from URL and set the selectedUserType state accordingly. Now when users navigate from landing page with ?type=employer, the employer tab is pre-selected on the login page."
 
   - task: "Dashboard Protection"
     implemented: true
