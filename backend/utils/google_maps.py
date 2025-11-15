@@ -18,6 +18,9 @@ class GoogleMapsService:
         Convert address to lat/long coordinates
         Returns: (latitude, longitude) or None if failed
         """
+        if not self.gmaps:
+            logger.error("Google Maps client not initialized")
+            return None
         try:
             geocode_result = self.gmaps.geocode(address)
             if geocode_result:
