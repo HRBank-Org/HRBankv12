@@ -13,12 +13,41 @@ import PendingApproval from './pages/auth/PendingApproval';
 // Landing & Common
 import LandingPage from './pages/LandingPage';
 import ForgotPassword from './pages/ForgotPassword';
-import InstitutionSettings from './pages/InstitutionSettings';
 
-// Dashboards
+// Workforce pages
 import WorkforceDashboard from './pages/workforce/Dashboard';
+import WorkforceProfile from './pages/workforce/Profile';
+import WorkforceOnboarding from './pages/workforce/Onboarding';
+import ProfileWizard from './pages/workforce/ProfileWizard';
+import OccupationProfiles from './pages/workforce/OccupationProfiles';
+import CreateOccupation from './pages/workforce/CreateOccupation';
+import OccupationDetail from './pages/workforce/OccupationDetail';
+import AddCertification from './pages/workforce/AddCertification';
+import Availability from './pages/workforce/Availability';
+import ClockInOut from './pages/workforce/ClockInOut';
+
+// Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
+import EmployerProfile from './pages/employer/Profile';
+import EmployerOnboarding from './pages/employer/Onboarding';
+import WorkplaceSetup from './pages/employer/WorkplaceSetup';
+import Workplaces from './pages/employer/Workplaces';
+import WorkplaceDetail from './pages/employer/WorkplaceDetail';
+import EditWorkplace from './pages/employer/EditWorkplace';
+import PostJob from './pages/employer/PostJob';
+import CreateShift from './pages/employer/CreateShift';
+import ShiftDetail from './pages/employer/ShiftDetail';
+import ShiftAttendance from './pages/employer/ShiftAttendance';
+import Timesheets from './pages/employer/Timesheets';
+import ManageTasks from './pages/employer/ManageTasks';
+
+// Institution pages
 import InstitutionDashboard from './pages/institution/Dashboard';
+import InstitutionSettings from './pages/InstitutionSettings';
+import IssueCredential from './pages/institution/IssueCredential';
+import ManageCredentials from './pages/institution/ManageCredentials';
+import VerificationQueue from './pages/institution/VerificationQueue';
+import BulkInvite from './pages/institution/BulkInvite';
 
 import { Toaster } from './components/ui/toaster';
 
