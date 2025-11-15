@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input';
 import { useToast } from '../hooks/use-toast';
 import { Upload, Trash2, LogOut } from 'lucide-react';
 import axios from 'axios';
+import { LOGOS } from '../utils/logoUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
