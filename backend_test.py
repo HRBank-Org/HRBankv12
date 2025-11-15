@@ -1553,9 +1553,13 @@ def test_eula_check_not_accepted(results, token, user_type):
 def test_eula_accept(results, token, user_type):
     """Test EULA acceptance endpoint"""
     try:
+        # Add custom headers to test metadata capture
+        headers = get_auth_headers(token)
+        headers["User-Agent"] = f"HR-Bank-Test-Client-{user_type}/1.0"
+        
         response = requests.post(
             f"{BASE_URL}/eula/accept",
-            headers=get_auth_headers(token),
+            headers=headers,
             timeout=10
         )
         
