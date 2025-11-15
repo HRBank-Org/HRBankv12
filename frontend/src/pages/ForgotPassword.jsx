@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useToast } from '../hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
+import { LOGOS } from '../utils/logoUtils';
 
 const ForgotPassword = () => {
   const { toast } = useToast();
