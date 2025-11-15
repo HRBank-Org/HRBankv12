@@ -51,3 +51,17 @@ class Zone(BaseModel):
     
     active: bool = True
     created_date: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Notification(BaseModel):
+    """Notification model (for compatibility)"""
+    model_config = ConfigDict(extra="ignore")
+    
+    notification_id: str = Field(default_factory=lambda: f"notif_{uuid.uuid4().hex[:12]}")
+    user_id: str
+    type: str
+    title: str
+    message: str
+    data: Optional[dict] = None
+    read: bool = False
+    created_date: datetime = Field(default_factory=datetime.utcnow)
