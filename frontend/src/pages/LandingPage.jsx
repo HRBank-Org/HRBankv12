@@ -296,18 +296,18 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Platform Features Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose HR Bank?</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We provide a comprehensive platform for workforce management and development
+              Revolutionary technology meets workforce management—blockchain security, real-time tracking, and smart matching
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
+            {platformFeatures.map((feature, index) => {
               const IconComponent = feature.icon;
               return (
                 <div key={index} className="text-center">
@@ -319,6 +319,79 @@ const LandingPage = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Detailed Features by User Type */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Workforce Features */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-[#30496d] rounded-xl p-3 w-14 h-14 flex items-center justify-center">
+                  <img 
+                    src={getLogoByUserType('workforce')}
+                    alt="Workforce"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">For Workers</h3>
+              </div>
+              <div className="space-y-4">
+                {workforceFeatures.map((feature, index) => (
+                  <div key={index} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
+                    <p className="text-sm text-gray-600">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Employer Features */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-[#ff5f00] rounded-xl p-3 w-14 h-14 flex items-center justify-center">
+                  <img 
+                    src={getLogoByUserType('employer')}
+                    alt="Employers"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">For Employers</h3>
+              </div>
+              <div className="space-y-4">
+                {employerFeatures.map((feature, index) => (
+                  <div key={index} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
+                    <p className="text-sm text-gray-600">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Institution Features */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-gray-900 rounded-xl p-3 w-14 h-14 flex items-center justify-center">
+                  <img 
+                    src={getLogoByUserType('institution')}
+                    alt="Institutions"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">For Institutions</h3>
+              </div>
+              <div className="space-y-4">
+                {institutionFeatures.map((feature, index) => (
+                  <div key={index} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
+                    <p className="text-sm text-gray-600">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
