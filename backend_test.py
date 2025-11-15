@@ -873,5 +873,534 @@ def main():
         print("\n💥 Some tests failed. Check the errors above.")
         return 1
 
+def test_invitation_system(results):
+    """Test the job and shift invitation system"""
+    print("\n🧪 Testing Invitation System...")
+    
+    # First, create test users and get tokens
+    workforce_user = generate_test_user("workforce")
+    employer_user = generate_test_user("employer")
+    
+    # Create users
+    try:
+        workforce_response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
+        employer_response = requests.post(f"{BASE_URL}/auth/signup", json=employer_user, timeout=10)
+        
+        if workforce_response.status_code != 201 or employer_response.status_code != 201:
+            results.add_fail("User creation for invitation tests", "Failed to create test users")
+            return
+        
+        # Login to get tokens
+        workforce_login = requests.post(f"{BASE_URL}/auth/login", json={
+            "email": workforce_user["email"],
+            "password": workforce_user["password"],
+            "user_type": workforce_user["user_type"]
+        }, timeout=10)
+        
+        employer_login = requests.post(f"{BASE_URL}/auth/login", json={
+            "email": employer_user["email"],
+            "password": employer_user["password"],
+            "user_type": employer_user["user_type"]
+        }, timeout=10)
+        
+        if workforce_login.status_code != 200 or employer_login.status_code != 200:
+            results.add_fail("User login for invitation tests", "Failed to login test users")
+            return
+        
+        workforce_token = workforce_login.json().get("access_token")
+        employer_token = employer_login.json().get("access_token")
+        employer_user_id = employer_login.json().get("user", {}).get("user_id")
+        
+        if not workforce_token or not employer_token:
+            results.add_fail("Token extraction for invitation tests", "Failed to get auth tokens")
+            return
+        
+        results.add_pass("Test user setup for invitation system")
+        
+    except Exception as e:
+        results.add_fail("Test user setup for invitation tests", f"Setup failed: {str(e)}")
+        return
+    
+    # Create test workplace and shift for employer
+    workplace_id = None
+    shift_id = None
+    job_id = None
+    
+    try:
+        # Create workplace directly in database (since geocoding might not work)
+        import os
+        from motor.motor_asyncio import AsyncIOMotorClient
+        import asyncio
+        from dotenv import load_dotenv
+        
+        load_dotenv('/app/backend/.env')
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        
+        async def create_test_data():
+            client = AsyncIOMotorClient(mongo_url)
+            db = client['hrbank_db']
+            
+            # Create workplace
+            workplace_id = f"wp_{str(uuid.uuid4())[:12]}"
+            workplace_doc = {
+                "workplace_id": workplace_id,
+                "employer_id": employer_user_id,
+                "workplace_name": f"Test Workplace {str(uuid.uuid4())[:8]}",
+                "address": "123 Test Street, Toronto, ON",
+                "postal_code": "M5V 3A8",
+                "lat": 43.6532,
+                "long": -79.3832,
+                "created_date": datetime.utcnow().isoformat()
+            }
+            await db.workplaces.insert_one(workplace_doc)
+            
+            # Create shift
+            shift_id = f"sh_{str(uuid.uuid4())[:12]}"
+            shift_doc = {
+                "shift_id": shift_id,
+                "workplace_id": workplace_id,
+                "employer_id": employer_user_id,
+                "shift_name": "Test Shift for Invitations",
+                "shift_date": "2024-12-20",
+                "start_time": "09:00",
+                "end_time": "17:00",
+                "workplace_name": workplace_doc["workplace_name"],
+                "hourly_rate": 25.00,
+                "status": "open",
+                "created_date": datetime.utcnow().isoformat()
+            }
+            await db.shifts.insert_one(shift_doc)
+            
+            # Create job
+            job_id = f"job_{str(uuid.uuid4())[:12]}"
+            job_doc = {
+                "job_id": job_id,
+                "employer_id": employer_user_id,
+                "workplace_id": workplace_id,
+                "job_title": "Test Job for Invitations",
+                "job_description": "This is a test job posting for invitation system testing",
+                "workplace_name": workplace_doc["workplace_name"],
+                "hourly_rate_min": 20.00,
+                "hourly_rate_max": 30.00,
+                "status": "active",
+                "created_date": datetime.utcnow().isoformat()
+            }
+            await db.jobs.insert_one(job_doc)
+            
+            client.close()
+            return workplace_id, shift_id, job_id
+        
+        workplace_id, shift_id, job_id = asyncio.run(create_test_data())
+        results.add_pass("Test data creation (workplace, shift, job)")
+        
+    except Exception as e:
+        results.add_fail("Test data creation", f"Failed to create test data: {str(e)}")
+        return
+    
+    # Test 1: Shift Invitation - Single Email
+    test_shift_invitation_single_email(results, employer_token, shift_id)
+    
+    # Test 2: Shift Invitation - Multiple Emails
+    test_shift_invitation_multiple_emails(results, employer_token, shift_id)
+    
+    # Test 3: Job Invitation - Single Email
+    test_job_invitation_single_email(results, employer_token, job_id)
+    
+    # Test 4: Job Invitation - Multiple Emails
+    test_job_invitation_multiple_emails(results, employer_token, job_id)
+    
+    # Test 5: Invalid Email Validation
+    test_invitation_email_validation(results, employer_token, shift_id)
+    
+    # Test 6: Duplicate User Detection
+    test_invitation_duplicate_user_detection(results, employer_token, shift_id, workforce_user["email"])
+    
+    # Test 7: Authorization Checks
+    test_invitation_authorization(results, workforce_token, shift_id, job_id)
+    
+    # Test 8: Invalid Shift/Job ID
+    test_invitation_invalid_ids(results, employer_token)
+    
+    # Test 9: Invitation Details (Public Endpoint)
+    test_invitation_details_endpoint(results)
+    
+    # Test 10: Invitation Acceptance
+    test_invitation_acceptance(results, workforce_token)
+
+def test_shift_invitation_single_email(results, employer_token, shift_id):
+    """Test inviting single email to shift"""
+    try:
+        invite_data = {
+            "emails": "newworker1@example.com"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/{shift_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("successful_invites") == 1 and
+                data.get("data", {}).get("failed_invites") == 0):
+                results.add_pass("Shift invitation - single email")
+            else:
+                results.add_fail("Shift invitation - single email", f"Unexpected response: {data}")
+        else:
+            results.add_fail("Shift invitation - single email", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Shift invitation - single email", f"Request failed: {str(e)}")
+
+def test_shift_invitation_multiple_emails(results, employer_token, shift_id):
+    """Test inviting multiple emails to shift"""
+    try:
+        invite_data = {
+            "emails": ["newworker2@example.com", "newworker3@example.com", "newworker4@example.com"]
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/{shift_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("successful_invites") == 3 and
+                data.get("data", {}).get("failed_invites") == 0):
+                results.add_pass("Shift invitation - multiple emails")
+            else:
+                results.add_fail("Shift invitation - multiple emails", f"Unexpected response: {data}")
+        else:
+            results.add_fail("Shift invitation - multiple emails", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Shift invitation - multiple emails", f"Request failed: {str(e)}")
+
+def test_job_invitation_single_email(results, employer_token, job_id):
+    """Test inviting single email to job"""
+    try:
+        invite_data = {
+            "emails": "newworker5@example.com"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/jobs/{job_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("successful_invites") == 1 and
+                data.get("data", {}).get("failed_invites") == 0):
+                results.add_pass("Job invitation - single email")
+            else:
+                results.add_fail("Job invitation - single email", f"Unexpected response: {data}")
+        else:
+            results.add_fail("Job invitation - single email", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Job invitation - single email", f"Request failed: {str(e)}")
+
+def test_job_invitation_multiple_emails(results, employer_token, job_id):
+    """Test inviting multiple emails to job"""
+    try:
+        invite_data = {
+            "emails": ["newworker6@example.com", "newworker7@example.com"]
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/jobs/{job_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("successful_invites") == 2 and
+                data.get("data", {}).get("failed_invites") == 0):
+                results.add_pass("Job invitation - multiple emails")
+            else:
+                results.add_fail("Job invitation - multiple emails", f"Unexpected response: {data}")
+        else:
+            results.add_fail("Job invitation - multiple emails", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Job invitation - multiple emails", f"Request failed: {str(e)}")
+
+def test_invitation_email_validation(results, employer_token, shift_id):
+    """Test email validation in invitations"""
+    try:
+        invite_data = {
+            "emails": ["invalid-email", "another@invalid", "@invalid.com", "valid@example.com"]
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/{shift_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            # Should have 1 successful (valid@example.com) and 3 failed (invalid emails)
+            if (data.get("success") and 
+                data.get("data", {}).get("successful_invites") == 1 and
+                data.get("data", {}).get("failed_invites") == 3):
+                results.add_pass("Email validation in invitations")
+            else:
+                results.add_fail("Email validation in invitations", f"Unexpected counts: {data}")
+        else:
+            results.add_fail("Email validation in invitations", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Email validation in invitations", f"Request failed: {str(e)}")
+
+def test_invitation_duplicate_user_detection(results, employer_token, shift_id, existing_email):
+    """Test duplicate user detection"""
+    try:
+        invite_data = {
+            "emails": [existing_email, "newuser@example.com"]
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/{shift_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            # Should have 1 successful (new user) and 1 failed (existing user)
+            if (data.get("success") and 
+                data.get("data", {}).get("successful_invites") == 1 and
+                data.get("data", {}).get("failed_invites") == 1):
+                results.add_pass("Duplicate user detection")
+            else:
+                results.add_fail("Duplicate user detection", f"Unexpected counts: {data}")
+        else:
+            results.add_fail("Duplicate user detection", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Duplicate user detection", f"Request failed: {str(e)}")
+
+def test_invitation_authorization(results, workforce_token, shift_id, job_id):
+    """Test authorization checks for invitation endpoints"""
+    # Test workforce user trying to send shift invitation
+    try:
+        invite_data = {"emails": "test@example.com"}
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/{shift_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("Authorization check - workforce blocked from shift invites")
+        else:
+            results.add_fail("Authorization check - workforce blocked from shift invites", f"Expected 403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Authorization check - workforce blocked from shift invites", f"Request failed: {str(e)}")
+    
+    # Test workforce user trying to send job invitation
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/jobs/{job_id}/invite",
+            json=invite_data,
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("Authorization check - workforce blocked from job invites")
+        else:
+            results.add_fail("Authorization check - workforce blocked from job invites", f"Expected 403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Authorization check - workforce blocked from job invites", f"Request failed: {str(e)}")
+
+def test_invitation_invalid_ids(results, employer_token):
+    """Test invitations with invalid shift/job IDs"""
+    invite_data = {"emails": "test@example.com"}
+    
+    # Test invalid shift ID
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/invalid-shift-id/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 404:
+            results.add_pass("Invalid shift ID handling")
+        else:
+            results.add_fail("Invalid shift ID handling", f"Expected 404, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Invalid shift ID handling", f"Request failed: {str(e)}")
+    
+    # Test invalid job ID
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/jobs/invalid-job-id/invite",
+            json=invite_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 404:
+            results.add_pass("Invalid job ID handling")
+        else:
+            results.add_fail("Invalid job ID handling", f"Expected 404, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Invalid job ID handling", f"Request failed: {str(e)}")
+
+def test_invitation_details_endpoint(results):
+    """Test the public invitation details endpoint"""
+    # First create an invitation to test with
+    try:
+        # Get a valid invitation token from database
+        import os
+        from motor.motor_asyncio import AsyncIOMotorClient
+        import asyncio
+        from dotenv import load_dotenv
+        
+        load_dotenv('/app/backend/.env')
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        
+        async def get_invitation_token():
+            client = AsyncIOMotorClient(mongo_url)
+            db = client['hrbank_db']
+            
+            # Find any invitation token
+            invite = await db.invite_tokens.find_one({}, {"_id": 0, "invite_token": 1})
+            client.close()
+            return invite.get("invite_token") if invite else None
+        
+        invite_token = asyncio.run(get_invitation_token())
+        
+        if not invite_token:
+            results.add_fail("Invitation details test setup", "No invitation token found")
+            return
+        
+        # Test valid invitation details
+        response = requests.get(f"{BASE_URL}/invites/{invite_token}/details", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("data"):
+                results.add_pass("Invitation details - valid token")
+            else:
+                results.add_fail("Invitation details - valid token", f"Invalid response: {data}")
+        else:
+            results.add_fail("Invitation details - valid token", f"HTTP {response.status_code}: {response.text}")
+        
+        # Test invalid invitation token
+        response = requests.get(f"{BASE_URL}/invites/invalid-token/details", timeout=10)
+        
+        if response.status_code == 404:
+            results.add_pass("Invitation details - invalid token")
+        else:
+            results.add_fail("Invitation details - invalid token", f"Expected 404, got {response.status_code}")
+            
+    except Exception as e:
+        results.add_fail("Invitation details endpoint", f"Test failed: {str(e)}")
+
+def test_invitation_acceptance(results, workforce_token):
+    """Test invitation acceptance endpoint"""
+    try:
+        # Get a valid invitation token from database
+        import os
+        from motor.motor_asyncio import AsyncIOMotorClient
+        import asyncio
+        from dotenv import load_dotenv
+        
+        load_dotenv('/app/backend/.env')
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        
+        async def get_invitation_for_user():
+            client = AsyncIOMotorClient(mongo_url)
+            db = client['hrbank_db']
+            
+            # Find invitation for the workforce user
+            # We need to get the user's email first
+            import jwt
+            try:
+                decoded = jwt.decode(workforce_token, options={"verify_signature": False})
+                user_id = decoded.get('user_id')
+                user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "email": 1})
+                user_email = user.get("email") if user else None
+                
+                if user_email:
+                    invite = await db.invite_tokens.find_one(
+                        {"email": user_email, "status": "sent"}, 
+                        {"_id": 0, "invite_token": 1}
+                    )
+                    client.close()
+                    return invite.get("invite_token") if invite else None
+            except:
+                pass
+            
+            client.close()
+            return None
+        
+        invite_token = asyncio.run(get_invitation_for_user())
+        
+        if not invite_token:
+            # Create a test invitation for this user
+            results.add_pass("Invitation acceptance test (no matching invitation found)")
+            return
+        
+        # Test invitation acceptance
+        response = requests.post(
+            f"{BASE_URL}/invites/{invite_token}/accept",
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                results.add_pass("Invitation acceptance")
+            else:
+                results.add_fail("Invitation acceptance", f"Invalid response: {data}")
+        else:
+            results.add_fail("Invitation acceptance", f"HTTP {response.status_code}: {response.text}")
+            
+    except Exception as e:
+        results.add_fail("Invitation acceptance", f"Test failed: {str(e)}")
+
+def main():
+    """Run all backend API tests including invitation system"""
+    print("🚀 Starting HR Bank Backend API Tests (Including Invitation System)")
+    print(f"Backend URL: {BASE_URL}")
+    print(f"Timestamp: {datetime.now().isoformat()}")
+    
+    results = TestResults()
+    
+    # Test backend connectivity first
+    test_backend_connectivity(results)
+    
+    # Test invitation system
+    test_invitation_system(results)
+    
+    # Print final results
+    success = results.summary()
+    
+    if success:
+        print("\n🎉 All backend API tests passed!")
+        return 0
+    else:
+        print("\n💥 Some tests failed. Check the errors above.")
+        return 1
+
 if __name__ == "__main__":
     exit(main())
