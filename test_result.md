@@ -160,20 +160,41 @@ backend:
         -comment: "Database integration working perfectly. Users are correctly stored in MongoDB, user_type field is properly saved, password hashing works correctly with bcrypt, data persists correctly between signup and login operations. All database operations functioning as expected."
 
 frontend:
-  - task: "Landing Page Hero Section"
+  - task: "Workforce Availability Calendar Page"
     implemented: true
-    working: true
-    file: "/app/frontend/src/pages/LandingPage.jsx"
+    working: "NA"
+    file: "/app/frontend/src/pages/workforce/AvailabilityCalendar.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: "NA"
-        -agent: "testing"
-        -comment: "Testing required for hero section with YouTube video background, Get Started button navigation to /signup, Learn More button smooth scroll to categories section, Sign In button navigation to /login"
-        -working: true
-        -agent: "testing"
-        -comment: "All hero section functionality working perfectly. YouTube video background iframe found and visible, hero title text correct, Get Started button navigates to /signup, Learn More button successfully scrolls down the page, Sign In button in navigation navigates to /login. Hero section displays correctly with proper styling and video background."
+        -agent: "main"
+        -comment: "Created comprehensive availability calendar page using react-big-calendar. Features include: click-and-drag to create availability blocks with specific start/end times (30-minute increments), click on existing blocks to delete, event creation modal with recurring event support (daily, weekly, biweekly patterns), color-coded events (green for available, red for blackout), week view with navigation, and conflict detection integration. Route: /workforce/availability-calendar"
+
+  - task: "Employer Shift Calendar Page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/employer/ShiftCalendar.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created comprehensive shift calendar page for employers using react-big-calendar. Features include: click-and-drag to create shifts with specific times, workplace filter dropdown, shift creation/edit modal with all required fields (title, workplace, positions needed, description), recurring shift support, click on shifts to view/edit/delete, validation for active bookings before deletion, and color-coded shift display. Route: /employer/shift-calendar"
+
+  - task: "Reusable Calendar Component"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/common/Calendar.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created reusable Calendar wrapper component around react-big-calendar with customizable props. Supports event selection, slot selection (drag to create), editable mode (drag & resize), different views (day/week/month), custom event styling based on type, 30-minute time increments, and customizable time range (default 6 AM - 10 PM). Used by both workforce and employer calendar pages."
 
   - task: "Landing Page User Categories"
     implemented: true
