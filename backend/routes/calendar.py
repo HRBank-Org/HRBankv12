@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, List
 from datetime import datetime, timedelta
-from utils.auth import require_role
-from database import get_db
+from auth.dependencies import require_role
+from motor.motor_asyncio import AsyncIOMotorDatabase
 import uuid
 
 router = APIRouter(prefix="/api", tags=["calendar"])
