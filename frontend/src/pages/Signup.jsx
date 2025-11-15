@@ -5,6 +5,7 @@ import UserTypeTabs from '../components/UserTypeTabs';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useToast } from '../hooks/use-toast';
+import { getLogoByUserType, getLogoBackgroundColor } from '../utils/logoUtils';
 
 const Signup = () => {
   const navigate = useNavigate();
