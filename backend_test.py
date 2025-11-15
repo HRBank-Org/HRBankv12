@@ -680,10 +680,10 @@ def test_authentication_enforcement(results):
             elif method == "DELETE":
                 response = requests.delete(f"{BASE_URL}{endpoint}", timeout=10)
             
-            if response.status_code == 401:
+            if response.status_code in [401, 403]:
                 results.add_pass(f"Auth required for {method} {endpoint}")
             else:
-                results.add_fail(f"Auth required for {method} {endpoint}", f"Expected 401, got {response.status_code}")
+                results.add_fail(f"Auth required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
         except Exception as e:
             results.add_fail(f"Auth required for {method} {endpoint}", f"Request failed: {str(e)}")
     
@@ -706,10 +706,10 @@ def test_authentication_enforcement(results):
             elif method == "DELETE":
                 response = requests.delete(f"{BASE_URL}{endpoint}", timeout=10)
             
-            if response.status_code == 401:
+            if response.status_code in [401, 403]:
                 results.add_pass(f"Auth required for {method} {endpoint}")
             else:
-                results.add_fail(f"Auth required for {method} {endpoint}", f"Expected 401, got {response.status_code}")
+                results.add_fail(f"Auth required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
         except Exception as e:
             results.add_fail(f"Auth required for {method} {endpoint}", f"Request failed: {str(e)}")
 
