@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the new HR Bank landing page and complete authentication flow with comprehensive scenarios covering Landing Page, Sign Up Flow, Sign In Flow, Dashboard Protection, and Navigation Flow"
+user_problem_statement: "Implement comprehensive Google Calendar-style availability and shift management system for HR Bank. Replace the old grid-based availability system with a full calendar interface supporting specific times (not just days), recurring events, and different views (day, week, month)."
 
 backend:
   - task: "Signup API (/api/auth/signup)"
