@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { LogOut, Briefcase, Users, Building2 } from 'lucide-react';
+import { getLogoByUserType, getLogoBackgroundColor } from '../utils/logoUtils';
 
 const Dashboard = () => {
   const navigate = useNavigate();
