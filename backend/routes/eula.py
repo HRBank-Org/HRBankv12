@@ -367,7 +367,14 @@ async def get_eula_history(
     """
     acceptances = await db.eula_acceptances.find({
         "user_id": current_user["user_id"]
-    }).sort("accepted_date", -1).to_list(100)
+    }, {"_id": 0}).sort("accepted_date", -1).to_list(100)
+    
+    # Convert datetime objects to ISO strings for JSON serialization
+    for acceptance in acceptances:
+        if isinstance(acceptance.get("accepted_date"), datetime):
+            acceptance["accepted_date"] = acceptance["accepted_date"].isoformat()
+        if isinstance(acceptance.get("created_date"), datetime):
+            acceptance["created_date"] = acceptance["created_date"].isoformat()
     
     return {
         "success": True,
