@@ -114,6 +114,15 @@ const Dashboard = () => {
                 <Button variant="outline" className="w-full justify-start">
                   Edit Profile
                 </Button>
+                {user.userType === 'institution' && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate('/institution/settings')}
+                  >
+                    Manage Partner Logo
+                  </Button>
+                )}
                 <Button variant="outline" className="w-full justify-start">
                   Settings
                 </Button>
