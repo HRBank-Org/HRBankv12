@@ -1528,11 +1528,21 @@ def test_eula_check_not_accepted(results, token, user_type):
                 # Verify user-type specific EULA content
                 eula_type = data.get("data", {}).get("eula_type")
                 expected_type = "worker" if user_type == "workforce" else user_type
+                eula_content = data.get("data", {}).get("eula_content", "")
                 
-                if eula_type == expected_type:
+                # Verify EULA content is appropriate for user type
+                content_valid = False
+                if expected_type == "worker" and "Workers" in eula_content and len(eula_content) > 1000:
+                    content_valid = True
+                elif expected_type == "employer" and "Employers" in eula_content:
+                    content_valid = True
+                elif expected_type == "institution" and "Institutions" in eula_content:
+                    content_valid = True
+                
+                if eula_type == expected_type and content_valid:
                     results.add_pass(f"EULA check not accepted - {user_type}")
                 else:
-                    results.add_fail(f"EULA check not accepted - {user_type}", f"Wrong EULA type: expected {expected_type}, got {eula_type}")
+                    results.add_fail(f"EULA check not accepted - {user_type}", f"Wrong EULA type: expected {expected_type}, got {eula_type}, content_valid: {content_valid}")
             else:
                 results.add_fail(f"EULA check not accepted - {user_type}", f"Invalid response structure: {data}")
         else:
