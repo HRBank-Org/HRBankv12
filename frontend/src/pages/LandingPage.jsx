@@ -170,7 +170,7 @@ const LandingPage = () => {
               <Button
                 size="lg"
                 onClick={() => navigate('/signup')}
-                className="bg-[#4267B2] hover:bg-[#365899] text-white h-12 px-8 text-lg"
+                className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-12 px-8 text-lg"
               >
                 Get Started
                 <ChevronRight className="ml-2 w-5 h-5" />
