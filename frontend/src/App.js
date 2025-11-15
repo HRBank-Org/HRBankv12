@@ -169,10 +169,10 @@ function AppRoutes() {
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/document-review" element={<DocumentReview />} />
-        <Route path="/admin/manage-admins" element={<ManageAdmins />} />
-        <Route path="/admin/manage-zones" element={<ManageZones />} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/document-review" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentReview /></ProtectedRoute>} />
+        <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageAdmins /></ProtectedRoute>} />
+        <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageZones /></ProtectedRoute>} />
         <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionSettings /></ProtectedRoute>} />
         <Route path="/institution/credentials/issue" element={<ProtectedRoute allowedUserTypes={['institution']}><IssueCredential /></ProtectedRoute>} />
         <Route path="/institution/credentials/manage" element={<ProtectedRoute allowedUserTypes={['institution']}><ManageCredentials /></ProtectedRoute>} />
