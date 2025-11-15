@@ -277,6 +277,24 @@ async def logout():
         "message": "Logged out successfully"
     }
 
+@router.get("/google/status")
+async def google_oauth_status():
+    """Check if Google OAuth is configured"""
+    import os
+    
+    configured = bool(
+        os.environ.get('GOOGLE_OAUTH_CLIENT_ID') and 
+        os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "available": configured,
+            "message": "Google OAuth is ready" if configured else "Google OAuth not configured"
+        }
+    }
+
 @router.get("/google/login")
 async def google_login(request: Request, user_type: str = "workforce"):
     """
