@@ -32,6 +32,10 @@ import Messages from './pages/common/Messages';
 import Notifications from './pages/common/Notifications';
 import Settings from './pages/common/Settings';
 import DocumentReview from './pages/admin/DocumentReview';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageAdmins from './pages/admin/ManageAdmins';
+import ManageZones from './pages/admin/ManageZones';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
