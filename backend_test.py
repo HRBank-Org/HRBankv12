@@ -786,41 +786,42 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Create test users for calendar testing
-    workforce_user = generate_test_user("workforce")
-    employer_user = generate_test_user("employer")
+    # Use existing verified users for testing
+    workforce_user = {
+        "email": "workforce@hrbank.ca",
+        "password": "password123",
+        "user_type": "workforce"
+    }
     
-    # Sign up users
+    employer_user = {
+        "email": "employer@hrbank.ca", 
+        "password": "password123",
+        "user_type": "employer"
+    }
+    
+    # Login to get tokens
     workforce_token = None
     employer_token = None
     
     try:
-        # Sign up workforce user
-        response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
-        if response.status_code == 200:
-            # Login to get token
-            login_response = requests.post(f"{BASE_URL}/auth/login", json={
-                "email": workforce_user["email"],
-                "password": workforce_user["password"],
-                "user_type": workforce_user["user_type"]
-            }, timeout=10)
-            if login_response.status_code == 200:
-                workforce_token = login_response.json().get("access_token")
+        # Login workforce user
+        login_response = requests.post(f"{BASE_URL}/auth/login", json=workforce_user, timeout=10)
+        if login_response.status_code == 200:
+            workforce_token = login_response.json()["data"]["access_token"]
+            results.add_pass("Workforce user authentication")
+        else:
+            results.add_fail("Workforce user authentication", f"HTTP {login_response.status_code}: {login_response.text}")
         
-        # Sign up employer user
-        response = requests.post(f"{BASE_URL}/auth/signup", json=employer_user, timeout=10)
-        if response.status_code == 200:
-            # Login to get token
-            login_response = requests.post(f"{BASE_URL}/auth/login", json={
-                "email": employer_user["email"],
-                "password": employer_user["password"],
-                "user_type": employer_user["user_type"]
-            }, timeout=10)
-            if login_response.status_code == 200:
-                employer_token = login_response.json().get("access_token")
+        # Login employer user
+        login_response = requests.post(f"{BASE_URL}/auth/login", json=employer_user, timeout=10)
+        if login_response.status_code == 200:
+            employer_token = login_response.json()["data"]["access_token"]
+            results.add_pass("Employer user authentication")
+        else:
+            results.add_fail("Employer user authentication", f"HTTP {login_response.status_code}: {login_response.text}")
     
     except Exception as e:
-        results.add_fail("User setup for calendar tests", f"Failed to create test users: {str(e)}")
+        results.add_fail("User setup for calendar tests", f"Failed to authenticate test users: {str(e)}")
     
     if not workforce_token or not employer_token:
         results.add_fail("User authentication setup", "Failed to get authentication tokens")
