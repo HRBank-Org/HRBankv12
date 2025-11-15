@@ -42,6 +42,7 @@ import ShiftDetail from './pages/employer/ShiftDetail';
 import ShiftAttendance from './pages/employer/ShiftAttendance';
 import Timesheets from './pages/employer/Timesheets';
 import ManageTasks from './pages/employer/ManageTasks';
+import WorkforceManagement from './pages/employer/WorkforceManagement';
 
 // Institution pages
 import InstitutionDashboard from './pages/institution/Dashboard';
