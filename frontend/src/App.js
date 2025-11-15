@@ -30,6 +30,7 @@ import ShiftCalendar from './pages/employer/ShiftCalendar';
 import EmploymentHistory from './pages/workforce/EmploymentHistory';
 import Messages from './pages/common/Messages';
 import Notifications from './pages/common/Notifications';
+import Settings from './pages/common/Settings';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
