@@ -211,6 +211,30 @@ frontend:
         -agent: "testing"
         -comment: "Reusable calendar component working perfectly. ✅ React Big Calendar integration successful with proper localizer (moment.js), ✅ Calendar CSS loaded and styled correctly, ✅ Component supports all required props (events, onSelectSlot, onSelectEvent, selectable, view, step, timeslots), ✅ Default event styling works with color coding (green for availability, blue for shifts, red for blackout), ✅ Time range configuration (6 AM - 10 PM) working correctly, ✅ 30-minute time increments (step=30, timeslots=2) configured properly, ✅ Week view as default with proper navigation, ✅ Event prop getter for custom styling based on event type, ✅ Component is reusable and used by both workforce and employer calendar pages successfully."
 
+  - task: "Job/Shift Invitation System - Backend"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/employer.py, /app/backend/routes/invites.py, /app/backend/models/invites.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created comprehensive invitation system allowing employers to invite external workers to specific jobs/shifts. Backend endpoints: POST /api/employer/shifts/{shift_id}/invite (invite to shift), POST /api/employer/jobs/{job_id}/invite (invite to job), GET /api/invites/{invite_token}/details (get invitation details for signup), POST /api/invites/{invite_token}/accept (accept invitation after signup). Enhanced InviteToken model with job_id and shift_id fields. Email invitations include job/shift details and signup link. Invitation acceptance auto-applies worker to shift if applicable."
+
+  - task: "Job/Shift Invitation System - Frontend"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/employer/InviteModal.jsx, /app/frontend/src/pages/employer/ShiftDetail.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created reusable InviteModal component for sending invitations to external workers. Modal supports comma-separated email input, displays success/failure feedback, and shows invitation counts. Integrated invite button into ShiftDetail page with user-specific branding. Workers can be invited directly from shift management interface."
+
   - task: "Landing Page User Categories"
     implemented: true
     working: false
