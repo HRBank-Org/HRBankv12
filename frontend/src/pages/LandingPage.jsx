@@ -328,16 +328,16 @@ const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-[#4267B2] to-[#2C4A6B]">
+      <section className="py-20 bg-gradient-to-r from-[#ff5f00] to-[#30496d]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-orange-100 mb-8">
             Join thousands of professionals, employers, and institutions transforming the workforce
           </p>
           <Button
             size="lg"
             onClick={() => navigate('/signup')}
-            className="bg-white text-[#4267B2] hover:bg-gray-100 h-14 px-10 text-lg font-semibold"
+            className="bg-white text-[#30496d] hover:bg-gray-100 h-14 px-10 text-lg font-semibold"
           >
             Create Your Account
             <ChevronRight className="ml-2 w-5 h-5" />
