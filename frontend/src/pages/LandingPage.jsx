@@ -252,14 +252,14 @@ const LandingPage = () => {
                     <div className="space-y-2">
                       <Button
                         onClick={() => navigate(`/signup?type=${category.id}`)}
-                        className={`w-full bg-gradient-to-r ${category.color} hover:opacity-90 text-white h-11`}
+                        className={`w-full ${category.buttonColor} text-white h-11`}
                       >
                         Sign Up
                       </Button>
                       <Button
                         onClick={() => navigate(`/login?type=${category.id}`)}
                         variant="outline"
-                        className="w-full h-11"
+                        className="w-full h-11 hover:bg-gray-50"
                       >
                         Sign In
                       </Button>
