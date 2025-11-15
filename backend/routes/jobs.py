@@ -245,6 +245,30 @@ async def accept_job_offer(
     
     await db.bookings.insert_one(booking.model_dump())
     
+    # AUTO-CREATE EMPLOYMENT RELATIONSHIP if first time working with this employer
+    shift = await db.shifts.find_one({"shift_id": role["shift_id"]})
+    if shift:
+        employer_id = shift.get("employer_id")
+        
+        # Check if employment relationship already exists
+        existing_relationship = await db.employment_relationships.find_one({
+            "employer_id": employer_id,
+            "workforce_id": current_user["user_id"],
+            "status": "active"
+        })
+        
+        if not existing_relationship:
+            from models.employment import EmploymentRelationship
+            relationship = EmploymentRelationship(
+                employer_id=employer_id,
+                workforce_id=current_user["user_id"],
+                workplace_id=shift.get("workplace_id"),
+                employment_type="contract",
+                position_title=role.get("role_title"),
+                status="active"
+            )
+            await db.employment_relationships.insert_one(relationship.model_dump())
+    
     # Update role status to filled
     await db.roles.update_one(
         {"role_id": role_id},
