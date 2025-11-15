@@ -21,6 +21,8 @@ class InviteToken(BaseModel):
     program: Optional[str] = None  # For institution invites
     graduation_year: Optional[int] = None
     workplace_id: Optional[str] = None  # For employer invites
+    job_id: Optional[str] = None  # For job-specific invites
+    shift_id: Optional[str] = None  # For shift-specific invites
     
     # Token
     invite_token: str = Field(default_factory=lambda: uuid.uuid4().hex)
