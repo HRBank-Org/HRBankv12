@@ -7,6 +7,11 @@ import uuid
 
 router = APIRouter(prefix="/api", tags=["calendar"])
 
+def get_db():
+    """Dependency to get database instance"""
+    from server import db
+    return db
+
 # Workforce Calendar Endpoints
 @router.get("/workforce/availability/calendar", response_model=Dict)
 async def get_workforce_availability_calendar(
