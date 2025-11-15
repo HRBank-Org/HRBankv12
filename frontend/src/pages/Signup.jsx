@@ -34,48 +34,78 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: 'Error',
+        description: 'Passwords do not match',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Mock signup validation
-    setTimeout(() => {
-      if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
-        toast({
-          title: 'Error',
-          description: 'Please fill in all fields',
-          variant: 'destructive'
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      if (formData.password !== formData.confirmPassword) {
-        toast({
-          title: 'Error',
-          description: 'Passwords do not match',
-          variant: 'destructive'
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      toast({
-        title: 'Account Created',
-        description: 'Your account has been created successfully',
+    try {
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          full_name: formData.fullName,
+          password: formData.password,
+          user_type: activeTab
+        }),
       });
-      
-      // Store mock user data
-      localStorage.setItem('hrbank_user', JSON.stringify({
-        fullName: formData.fullName,
-        email: formData.email,
-        userType: activeTab,
-        isAuthenticated: true
-      }));
-      
-      navigate('/dashboard');
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Account Created',
+          description: 'Your account has been created successfully',
+        });
+        
+        // Store user data
+        localStorage.setItem('hrbank_user', JSON.stringify({
+          ...data.user,
+          userType: data.user.user_type,
+          fullName: data.user.full_name,
+          isAuthenticated: true
+        }));
+        
+        navigate('/dashboard');
+      } else {
+        toast({
+          title: 'Signup Failed',
+          description: data.detail || 'Failed to create account',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to connect to server. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
