@@ -34,8 +34,8 @@ class Workplace(BaseModel):
     city: Optional[str] = None  # For Canada-wide expansion
     province: Optional[str] = None  # ON, BC, AB, QC, etc.
     postal_code: str
-    lat: float
-    long: float
+    lat: Optional[float] = None
+    long: Optional[float] = None
     attendance_geofence_radius_m: int = 100  # Fixed 100m for attendance
     job_matching_radius_km: int = 20  # 5-50km for job discovery
     timezone: str = 'America/Toronto'
