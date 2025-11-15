@@ -968,51 +968,11 @@ def main():
     # Test admin authentication system
     admin_token = test_admin_authentication_system(results)
     
-    # Load test tokens from file
-    workforce_token = None
-    employer_token = None
-    
-    try:
-        with open('/tmp/test_tokens.json', 'r') as f:
-            tokens = json.load(f)
-            
-        if 'workforce' in tokens:
-            workforce_token = tokens['workforce']['token']
-            results.add_pass("Workforce user authentication")
-        else:
-            results.add_fail("Workforce user authentication", "No workforce token found")
-            
-        if 'employer' in tokens:
-            employer_token = tokens['employer']['token']
-            results.add_pass("Employer user authentication")
-        else:
-            results.add_fail("Employer user authentication", "No employer token found")
-    
-    except Exception as e:
-        results.add_fail("User setup for calendar tests", f"Failed to load test tokens: {str(e)}")
-    
-    if not workforce_token or not employer_token:
-        results.add_fail("User authentication setup", "Failed to get authentication tokens")
-        results.summary()
-        return 1
-    
-    # Test authentication enforcement
-    test_authentication_enforcement(results)
-    
-    # Test role-based access control
-    test_role_based_access(results, workforce_token, employer_token)
-    
-    # Create test workplace for employer
-    workplace_id = create_test_workplace(results, employer_token)
-    
-    # Test workforce availability calendar
-    test_workforce_availability_calendar(results, workforce_token)
-    
-    # Test employer shift calendar (only if workplace was created)
-    if workplace_id:
-        test_employer_shift_calendar(results, employer_token, workplace_id)
+    # Focus on admin authentication testing as requested
+    if not admin_token:
+        results.add_fail("Admin authentication system", "Failed to authenticate admin user - cannot proceed with further tests")
     else:
-        results.add_fail("Employer shift calendar tests", "Could not create test workplace")
+        results.add_pass("Admin authentication system setup complete")
     
     # Print final results
     success = results.summary()
