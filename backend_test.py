@@ -786,42 +786,28 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Use existing verified users for testing
-    workforce_user = {
-        "email": "workforce@hrbank.ca",
-        "password": "password123",
-        "user_type": "workforce"
-    }
-    
-    employer_user = {
-        "email": "employer@hrbank.ca", 
-        "password": "password123",
-        "user_type": "employer"
-    }
-    
-    # Login to get tokens
+    # Load test tokens from file
     workforce_token = None
     employer_token = None
     
     try:
-        # Login workforce user
-        login_response = requests.post(f"{BASE_URL}/auth/login", json=workforce_user, timeout=10)
-        if login_response.status_code == 200:
-            workforce_token = login_response.json()["data"]["access_token"]
+        with open('/tmp/test_tokens.json', 'r') as f:
+            tokens = json.load(f)
+            
+        if 'workforce' in tokens:
+            workforce_token = tokens['workforce']['token']
             results.add_pass("Workforce user authentication")
         else:
-            results.add_fail("Workforce user authentication", f"HTTP {login_response.status_code}: {login_response.text}")
-        
-        # Login employer user
-        login_response = requests.post(f"{BASE_URL}/auth/login", json=employer_user, timeout=10)
-        if login_response.status_code == 200:
-            employer_token = login_response.json()["data"]["access_token"]
+            results.add_fail("Workforce user authentication", "No workforce token found")
+            
+        if 'employer' in tokens:
+            employer_token = tokens['employer']['token']
             results.add_pass("Employer user authentication")
         else:
-            results.add_fail("Employer user authentication", f"HTTP {login_response.status_code}: {login_response.text}")
+            results.add_fail("Employer user authentication", "No employer token found")
     
     except Exception as e:
-        results.add_fail("User setup for calendar tests", f"Failed to authenticate test users: {str(e)}")
+        results.add_fail("User setup for calendar tests", f"Failed to load test tokens: {str(e)}")
     
     if not workforce_token or not employer_token:
         results.add_fail("User authentication setup", "Failed to get authentication tokens")
