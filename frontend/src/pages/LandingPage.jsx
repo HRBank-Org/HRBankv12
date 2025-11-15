@@ -176,34 +176,34 @@ const LandingPage = () => {
             allow="autoplay; encrypted-media"
             allowFullScreen
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
         </div>
 
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-          <div className="text-center w-full">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+        {/* Hero Content - Positioned Lower Left */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end pb-16">
+          <div className="max-w-xl">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
               Your Workforce,
               <br />
-              <span className="text-blue-400">Simplified & Standardized</span>
+              <span className="text-blue-300">Simplified & Standardized</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+            <p className="text-base md:text-lg text-gray-200 mb-6">
               Connecting verified workers, employers, and institutions for a better workforce marketplace
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap gap-3">
               <Button
-                size="lg"
+                size="default"
                 onClick={() => navigate('/signup')}
-                className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-12 px-8 text-lg"
+                className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-10 px-6"
               >
                 Get Started
-                <ChevronRight className="ml-2 w-5 h-5" />
+                <ChevronRight className="ml-1 w-4 h-4" />
               </Button>
               <Button
-                size="lg"
+                size="default"
                 variant="outline"
                 onClick={() => document.getElementById('categories').scrollIntoView({ behavior: 'smooth' })}
-                className="bg-white/10 border-white text-white hover:bg-white/20 h-12 px-8 text-lg backdrop-blur-sm"
+                className="bg-white/10 border-white text-white hover:bg-white/20 h-10 px-6 backdrop-blur-sm"
               >
                 Learn More
               </Button>
