@@ -98,7 +98,7 @@ const ShiftDetail = () => {
             <p className="text-sm text-gray-600 mb-6">
               Manage this shift's details, attendance, and tasks
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <button
                 onClick={() => navigate(`/employer/shifts/${shift?.shift_id}/attendance`)}
                 className="px-4 py-3 rounded-lg text-white font-medium"
@@ -115,6 +115,13 @@ const ShiftDetail = () => {
                 className="px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
               >
                 ✓ Manage Tasks
+              </button>
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="px-4 py-3 border-2 rounded-lg text-white font-medium hover:opacity-90"
+                style={{ backgroundColor: theme.primaryColor, borderColor: theme.primaryColor }}
+              >
+                ✉️ Invite Workers
               </button>
               <button
                 onClick={() => navigate('/employer/dashboard')}
