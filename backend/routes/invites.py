@@ -6,6 +6,7 @@ from typing import Dict, List
 from datetime import datetime, timedelta
 import csv
 import io
+import uuid
 
 router = APIRouter(prefix="/invites", tags=["Invites"])
 
