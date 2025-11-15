@@ -1,0 +1,382 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
+import { Briefcase, Building2, GraduationCap, Users, TrendingUp, Shield, Clock, Award, ChevronRight } from 'lucide-react';
+
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const [currentLogoIndex, setCurrentLogoIndex] = useState(0);
+
+  // Mock partner logos - will be replaced with actual uploads from backend
+  const partnerLogos = [
+    { id: 1, name: 'Partner 1', url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+1' },
+    { id: 2, name: 'Partner 2', url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+2' },
+    { id: 3, name: 'Partner 3', url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+3' },
+    { id: 4, name: 'Partner 4', url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+4' },
+    { id: 5, name: 'Partner 5', url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+5' },
+    { id: 6, name: 'Partner 6', url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+6' },
+  ];
+
+  // Auto-scroll partner logos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentLogoIndex((prev) => (prev + 1) % partnerLogos.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [partnerLogos.length]);
+
+  const userCategories = [
+    {
+      id: 'workforce',
+      title: 'Workforce',
+      icon: Briefcase,
+      description: 'Join a network of verified professionals and access quality job opportunities',
+      metrics: [
+        { label: 'Verified Workers', value: '10,000+' },
+        { label: 'Compliance Rate', value: '95%' },
+        { label: 'Active Jobs', value: '2,500+' },
+      ],
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50',
+    },
+    {
+      id: 'employer',
+      title: 'Employers',
+      icon: Building2,
+      description: 'Access a trusted pool of vetted workers and streamline your hiring process',
+      metrics: [
+        { label: 'Active Employers', value: '500+' },
+        { label: 'Jobs Posted', value: '3,000+' },
+        { label: 'Avg. Time to Hire', value: '3 days' },
+      ],
+      color: 'from-orange-500 to-orange-600',
+      bgColor: 'bg-orange-50',
+    },
+    {
+      id: 'institution',
+      title: 'Institutions',
+      icon: GraduationCap,
+      description: 'Partner with us to provide certification and training for workforce development',
+      metrics: [
+        { label: 'Partner Institutions', value: '50+' },
+        { label: 'Certifications', value: '200+' },
+        { label: 'Trained Workers', value: '8,000+' },
+      ],
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50',
+    },
+  ];
+
+  const features = [
+    {
+      icon: Shield,
+      title: 'Verified & Vetted',
+      description: 'All workers are thoroughly verified and background checked for compliance',
+    },
+    {
+      icon: Clock,
+      title: 'Fast Hiring',
+      description: 'Connect with qualified workers in days, not weeks',
+    },
+    {
+      icon: Award,
+      title: 'Certified Professionals',
+      description: 'Access workers with industry-recognized certifications and training',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Career Growth',
+      description: 'Continuous training and development opportunities for workforce',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-3">
+              <div className="bg-[#2C4A6B] rounded-xl p-2 w-10 h-10 flex items-center justify-center">
+                <img 
+                  src="https://customer-assets.emergentagent.com/job_hrsite-validator/artifacts/7kpg5ub1_HRB%20App%20Icon%20Workforce.jpg" 
+                  alt="HR Bank Logo" 
+                  className="w-full h-full object-contain rounded-lg"
+                />
+              </div>
+              <span className="text-xl font-bold text-gray-900">HR Bank</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/login')}
+                className="text-gray-700 hover:text-[#4267B2]"
+              >
+                Sign In
+              </Button>
+              <Button
+                onClick={() => navigate('/signup')}
+                className="bg-[#4267B2] hover:bg-[#365899] text-white"
+              >
+                Get Started
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section with Video */}
+      <section className="relative pt-16 h-[600px] overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0">
+          <iframe
+            className="w-full h-full object-cover scale-150"
+            src="https://www.youtube.com/embed/H8vQs5nbJzo?autoplay=1&mute=1&loop=1&playlist=H8vQs5nbJzo&controls=0&showinfo=0&modestbranding=1"
+            title="HR Bank Video"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="text-center w-full">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              Your Workforce,
+              <br />
+              <span className="text-blue-400">Simplified & Standardized</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+              Connecting verified workers, employers, and institutions for a better workforce marketplace
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button
+                size="lg"
+                onClick={() => navigate('/signup')}
+                className="bg-[#4267B2] hover:bg-[#365899] text-white h-12 px-8 text-lg"
+              >
+                Get Started
+                <ChevronRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => document.getElementById('categories').scrollIntoView({ behavior: 'smooth' })}
+                className="bg-white/10 border-white text-white hover:bg-white/20 h-12 px-8 text-lg backdrop-blur-sm"
+              >
+                Learn More
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Bar */}
+      <section className="bg-gradient-to-r from-[#4267B2] to-[#2C4A6B] py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">10,000+</div>
+              <div className="text-blue-100 text-sm">Verified Workers</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">500+</div>
+              <div className="text-blue-100 text-sm">Active Employers</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">50+</div>
+              <div className="text-blue-100 text-sm">Partner Institutions</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">95%</div>
+              <div className="text-blue-100 text-sm">Compliance Rate</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* User Categories Section */}
+      <section id="categories" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Path</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Whether you're seeking work, hiring talent, or providing training - we have the right solution for you
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {userCategories.map((category) => {
+              const IconComponent = category.icon;
+              return (
+                <Card key={category.id} className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                  <CardContent className="p-8">
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.color} flex items-center justify-center mb-6`}>
+                      <IconComponent className="w-8 h-8 text-white" />
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{category.title}</h3>
+                    <p className="text-gray-600 mb-6">{category.description}</p>
+
+                    {/* Metrics */}
+                    <div className={`${category.bgColor} rounded-xl p-4 mb-6 space-y-3`}>
+                      {category.metrics.map((metric, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-sm text-gray-700">{metric.label}</span>
+                          <span className="text-lg font-bold text-gray-900">{metric.value}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-2">
+                      <Button
+                        onClick={() => navigate(`/signup?type=${category.id}`)}
+                        className={`w-full bg-gradient-to-r ${category.color} hover:opacity-90 text-white h-11`}
+                      >
+                        Sign Up
+                      </Button>
+                      <Button
+                        onClick={() => navigate(`/login?type=${category.id}`)}
+                        variant="outline"
+                        className="w-full h-11"
+                      >
+                        Sign In
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose HR Bank?</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We provide a comprehensive platform for workforce management and development
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <div key={index} className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+                    <IconComponent className="w-8 h-8 text-[#4267B2]" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Partner Logos Carousel */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Trusted By Leading Institutions</h2>
+            <p className="text-gray-600">Partnering with top organizations for workforce excellence</p>
+          </div>
+
+          {/* Logo Carousel */}
+          <div className="relative overflow-hidden">
+            <div className="flex items-center justify-center gap-12 animate-scroll">
+              {[...partnerLogos, ...partnerLogos].map((logo, index) => (
+                <div
+                  key={`${logo.id}-${index}`}
+                  className="flex-shrink-0 w-40 h-20 bg-white rounded-lg shadow-md flex items-center justify-center p-4 hover:shadow-lg transition-shadow"
+                >
+                  <img
+                    src={logo.url}
+                    alt={logo.name}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-[#4267B2] to-[#2C4A6B]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Join thousands of professionals, employers, and institutions transforming the workforce
+          </p>
+          <Button
+            size="lg"
+            onClick={() => navigate('/signup')}
+            className="bg-white text-[#4267B2] hover:bg-gray-100 h-14 px-10 text-lg font-semibold"
+          >
+            Create Your Account
+            <ChevronRight className="ml-2 w-5 h-5" />
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-400 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-[#2C4A6B] rounded-lg p-1.5 w-8 h-8 flex items-center justify-center">
+                  <img 
+                    src="https://customer-assets.emergentagent.com/job_hrsite-validator/artifacts/7kpg5ub1_HRB%20App%20Icon%20Workforce.jpg" 
+                    alt="HR Bank Logo" 
+                    className="w-full h-full object-contain rounded"
+                  />
+                </div>
+                <span className="text-white font-bold">HR Bank</span>
+              </div>
+              <p className="text-sm">Your trusted workforce marketplace</p>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">For Workers</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Find Jobs</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Get Certified</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Training Programs</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">For Employers</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Post Jobs</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Find Workers</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Workforce Management</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-8 text-center text-sm">
+            <p>&copy; 2024 HR Bank. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default LandingPage;
