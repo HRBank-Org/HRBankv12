@@ -1,85 +1,396 @@
-from fastapi import APIRouter, HTTPException
-from models import User, UserCreate, UserLogin
-from database import get_database
-import logging
-from passlib.context import CryptContext
+from fastapi import APIRouter, HTTPException, status, Depends
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from models.user import UserCreate, UserLogin, TokenResponse, User, UserInDB, EmailVerification
+from auth.password import hash_password, verify_password
+from auth.jwt_handler import create_access_token, create_refresh_token
+from datetime import datetime, timedelta
+from typing import Dict
+import uuid
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
 
-logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def get_db():
+    """Dependency to get database instance"""
+    from server import db
+    return db
 
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-@router.post("/signup")
-async def signup(user_data: UserCreate):
+@router.post("/signup", response_model=Dict, status_code=status.HTTP_201_CREATED)
+async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
-    Register a new user
+    User signup endpoint
+    Creates new user account and sends email verification
     """
-    try:
-        db = await get_database()
-        
-        # Check if user already exists
-        existing_user = await db.users.find_one({"email": user_data.email})
-        if existing_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
-        
-        # Create user
-        user = User(
-            email=user_data.email,
-            full_name=user_data.full_name,
-            user_type=user_data.user_type,
-            password_hash=hash_password(user_data.password)
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered"
         )
-        
-        # Save to database
-        await db.users.insert_one(user.dict())
-        
-        # Return user without password
-        user_dict = user.dict()
-        del user_dict['password_hash']
-        
-        return {"message": "User created successfully", "user": user_dict}
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error during signup: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create user")
+    
+    # Check if phone already exists
+    existing_phone = await db.users.find_one({"phone": user_data.phone})
+    if existing_phone:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Phone number already registered"
+        )
+    
+    # Create user
+    user_id = f"usr_{uuid.uuid4().hex[:12]}"
+    hashed_password = hash_password(user_data.password)
+    
+    user_doc = {
+        "user_id": user_id,
+        "email": user_data.email,
+        "password_hash": hashed_password,
+        "user_type": user_data.user_type,
+        "profile_status": "pending",  # All new users start as pending
+        "email_verified": False,
+        "mfa_enabled": False,
+        "created_date": datetime.utcnow().isoformat(),
+        "last_login_date": None,
+        "deleted_at": None
+    }
+    
+    await db.users.insert_one(user_doc)
+    
+    # Create corresponding profile based on user type
+    profile_doc = {
+        f"{user_data.user_type}_id": user_id,
+        "full_name": user_data.full_name,
+        "phone": user_data.phone,
+        "created_date": datetime.utcnow().isoformat(),
+        "onboarding_completed": False  # Track onboarding status
+    }
+    
+    if user_data.user_type == "workforce":
+        profile_doc.update({
+            "skills": [],
+            "certifications": [],
+            "rating_avg": 0.0,
+            "rating_count": 0,
+            "profile_completeness": 20,  # 20% for basic info
+            "completed_jobs_count": 0
+        })
+        await db.workforce_profiles.insert_one(profile_doc)
+    elif user_data.user_type == "employer":
+        profile_doc["company_name"] = user_data.full_name  # Will be updated in onboarding
+        profile_doc["rating_avg"] = 0.0
+        profile_doc["rating_count"] = 0
+        profile_doc["address"] = ""
+        profile_doc["postal_code"] = ""
+        profile_doc["industry"] = ""
+        await db.employer_profiles.insert_one(profile_doc)
+    elif user_data.user_type == "institution":
+        profile_doc["institution_name"] = user_data.full_name
+        profile_doc["verified_status"] = "pending"
+        await db.institution_profiles.insert_one(profile_doc)
+    
+    # Create email verification token
+    verification_token = uuid.uuid4().hex
+    verification_doc = {
+        "user_id": user_id,
+        "verification_token": verification_token,
+        "created_at": datetime.utcnow().isoformat(),
+        "expires_at": (datetime.utcnow() + timedelta(hours=24)).isoformat(),
+        "verified": False
+    }
+    await db.email_verifications.insert_one(verification_doc)
+    
+    # Send verification email via SendGrid
+    from utils.email_service import email_service
+    await email_service.send_verification_email(
+        to_email=user_data.email,
+        full_name=user_data.full_name,
+        verification_token=verification_token
+    )
+    
+    # Create admin notification for new signup
+    from models.admin import Notification
+    admin_users = await db.users.find({"user_type": "admin"}, {"user_id": 1}).to_list(10)
+    
+    for admin in admin_users:
+        admin_notif = Notification(
+            user_id=admin["user_id"],
+            notification_type="account",
+            notification_subtype="new_signup",
+            title=f"New {user_data.user_type.title()} Signup",
+            message=f"{user_data.full_name} ({user_data.email}) signed up as {user_data.user_type}. Phone: {user_data.phone}. Please review and approve.",
+            action_url=f"/admin/users/{user_id}",
+            action_button_text="Review Account",
+            priority="high"
+        )
+        await db.notifications.insert_one(admin_notif.model_dump())
+    
+    return {
+        "success": True,
+        "data": {
+            "user_id": user_id,
+            "email": user_data.email,
+            "user_type": user_data.user_type,
+            "email_verified": False,
+            "profile_status": "pending",
+            "verification_token_sent": True
+        },
+        "message": "Account created. Please verify your email."
+    }
 
-@router.post("/login")
-async def login(credentials: UserLogin):
+@router.post("/login", response_model=Dict)
+async def login(credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
-    Login user
+    User login endpoint
+    Returns JWT access and refresh tokens
     """
+    # Find user by email
+    user = await db.users.find_one({"email": credentials.email})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
+        )
+    
+    # Verify password
+    if not verify_password(credentials.password, user["password_hash"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
+        )
+    
+    # Check if email is verified
+    if not user.get("email_verified", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email first"
+        )
+    
+    # Check profile status and return appropriate redirect
+    profile_status = user.get("profile_status", "pending")
+    needs_onboarding = False
+    
+    if profile_status == "pending":
+        # User is pending admin approval
+        pass  # Frontend will redirect to pending page
+    elif profile_status == "active":
+        # Check if onboarding is completed
+        user_type = user.get("user_type")
+        if user_type == "employer":
+            profile = await db.employer_profiles.find_one({"employer_id": user["user_id"]})
+            needs_onboarding = not profile.get("onboarding_completed", False)
+        elif user_type == "workforce":
+            profile = await db.workforce_profiles.find_one({"workforce_id": user["user_id"]})
+            needs_onboarding = not profile.get("onboarding_completed", False)
+    
+    # Check if account is suspended
+    if profile_status == "suspended":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account suspended. Contact support for assistance."
+        )
+    
+    # Create tokens
+    token_data = {
+        "user_id": user["user_id"],
+        "email": user["email"],
+        "user_type": user["user_type"]
+    }
+    
+    access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token(token_data)
+    
+    # Update last login
+    await db.users.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {"last_login_date": datetime.utcnow().isoformat()}}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "user_id": user["user_id"],
+            "email": user["email"],
+            "user_type": user["user_type"],
+            "profile_status": profile_status,
+            "needs_onboarding": needs_onboarding,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "expires_in": 86400,
+            "mfa_required": False
+        },
+        "message": "Login successful"
+    }
+
+@router.get("/verify-email")
+async def verify_email(token: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Verify email with token from email link
+    """
+    # Find verification record
+    verification = await db.email_verifications.find_one({
+        "verification_token": token,
+        "verified": False
+    })
+    
+    if not verification:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification token"
+        )
+    
+    # Check if expired
+    expires_at = datetime.fromisoformat(verification["expires_at"])
+    if datetime.utcnow() > expires_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Verification token expired"
+        )
+    
+    # Mark email as verified
+    await db.users.update_one(
+        {"user_id": verification["user_id"]},
+        {"$set": {"email_verified": True, "profile_status": "active"}}
+    )
+    
+    await db.email_verifications.update_one(
+        {"verification_token": token},
+        {"$set": {"verified": True}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Email verified successfully"
+    }
+
+@router.post("/logout")
+async def logout():
+    """
+    Logout endpoint (client-side token removal)
+    """
+    return {
+        "success": True,
+        "message": "Logged out successfully"
+    }
+
+@router.get("/google/login")
+async def google_login(request: Request, user_type: str = "workforce"):
+    """
+    Initiate Google OAuth login
+    user_type: workforce, employer, or institution
+    """
+    from auth.oauth_config import oauth
+    
+    # Store user_type in session for callback
+    redirect_uri = f"{request.base_url}api/auth/google/callback?user_type={user_type}"
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+@router.get("/google/callback")
+async def google_callback(
+    request: Request,
+    user_type: str = "workforce",
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Google OAuth callback
+    Creates user if doesn't exist, or logs in existing user
+    """
+    from auth.oauth_config import oauth
+    
     try:
-        db = await get_database()
+        # Get token from Google
+        token = await oauth.google.authorize_access_token(request)
+        user_info = token.get('userinfo')
         
-        # Find user
-        user = await db.users.find_one({"email": credentials.email})
-        if not user:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
+        if not user_info:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to get user info from Google"
+            )
         
-        # Verify password
-        if not verify_password(credentials.password, user['password_hash']):
-            raise HTTPException(status_code=401, detail="Invalid credentials")
+        email = user_info.get('email')
+        full_name = user_info.get('name')
+        google_id = user_info.get('sub')
         
-        # Verify user type
-        if user['user_type'] != credentials.user_type:
-            raise HTTPException(status_code=401, detail="Invalid user type")
+        # Check if user exists
+        existing_user = await db.users.find_one({"email": email})
         
-        # Return user without password
-        user_dict = dict(user)
-        del user_dict['password_hash']
-        del user_dict['_id']
+        if existing_user:
+            # User exists - log them in
+            user_id = existing_user["user_id"]
+            
+            # Update last login
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"last_login_date": datetime.utcnow().isoformat()}}
+            )
+        else:
+            # Create new user
+            user_id = f"usr_{uuid.uuid4().hex[:12]}"
+            
+            user_doc = {
+                "user_id": user_id,
+                "email": email,
+                "password_hash": "",  # No password for OAuth users
+                "user_type": user_type,
+                "profile_status": "active",  # Auto-activate OAuth users
+                "email_verified": True,  # Google verified the email
+                "mfa_enabled": False,
+                "google_id": google_id,
+                "oauth_provider": "google",
+                "created_date": datetime.utcnow().isoformat(),
+                "last_login_date": datetime.utcnow().isoformat(),
+                "deleted_at": None
+            }
+            
+            await db.users.insert_one(user_doc)
+            
+            # Create profile based on user type
+            profile_doc = {
+                f"{user_type}_id": user_id,
+                "full_name": full_name,
+                "phone": "",  # Will be filled later
+                "created_date": datetime.utcnow().isoformat()
+            }
+            
+            if user_type == "workforce":
+                profile_doc.update({
+                    "skills": [],
+                    "certifications": [],
+                    "rating_avg": 0.0,
+                    "rating_count": 0,
+                    "profile_completeness": 20,
+                    "completed_jobs_count": 0
+                })
+                await db.workforce_profiles.insert_one(profile_doc)
+            elif user_type == "employer":
+                profile_doc["company_name"] = full_name
+                profile_doc["rating_avg"] = 0.0
+                profile_doc["rating_count"] = 0
+                await db.employer_profiles.insert_one(profile_doc)
+            elif user_type == "institution":
+                profile_doc["institution_name"] = full_name
+                profile_doc["verified_status"] = "pending"
+                await db.institution_profiles.insert_one(profile_doc)
         
-        return {"message": "Login successful", "user": user_dict}
-    except HTTPException:
-        raise
+        # Create JWT tokens
+        token_data = {
+            "user_id": user_id,
+            "email": email,
+            "user_type": user_type
+        }
+        
+        access_token = create_access_token(token_data)
+        refresh_token = create_refresh_token(token_data)
+        
+        # Redirect to frontend with tokens in URL
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://hrsite-validator.preview.emergentagent.com')
+        callback_url = f"{frontend_url}/auth/google/callback?access_token={access_token}&refresh_token={refresh_token}&user_type={user_type}"
+        
+        return RedirectResponse(url=callback_url)
+        
     except Exception as e:
-        logger.error(f"Error during login: {str(e)}")
-        raise HTTPException(status_code=500, detail="Login failed")
+        # Redirect to login with error
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://hrsite-validator.preview.emergentagent.com')
+        error_url = f"{frontend_url}/login?error=google_auth_failed"
+        return RedirectResponse(url=error_url)
