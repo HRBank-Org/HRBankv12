@@ -337,6 +337,18 @@ frontend:
         -agent: "main"
         -comment: "Super admin account created successfully for user qnizami@hrbank.ca. Fixed admin authentication issues: (1) Updated AdminLogin.jsx to use AuthContext login function instead of manual localStorage management, (2) Protected admin routes in App.js with ProtectedRoute component, (3) Fixed backend auth.py to allow admin users to bypass email verification requirement, (4) Updated profile status checks to treat admin users as always active. Admin login and authentication flow now working correctly."
 
+  - task: "CEO Analytics Dashboard"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/admin_management.py, /app/frontend/src/pages/admin/Analytics.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented comprehensive analytics dashboard for CEO-level platform insights. Backend features (GET /api/admin/analytics/platform): Revenue calculation based on $2/hour model ($1 from workforce + $1 from employer), User aggregations by type (workforce/employer/institution) with active/inactive counts and 30-day growth, Shift statistics (completed, pending, active, avg duration), Zone-based performance metrics (revenue, hours worked, shifts, workforce count, employer count per zone), Hours calculation from completed shifts with start/end times, Top zones ranking by revenue. Frontend features (/admin/analytics): Overview cards displaying total revenue, active users, completed shifts, avg shift duration, User statistics section with breakdown by type (total, active, new in 30 days), Top 5 performing zones table with ranking medals, All zones grid view with revenue and metrics, Shift statistics breakdown, Real-time refresh capability, Responsive design with gradient cards. Analytics page accessible from admin dashboard."
+
   - task: "Landing Page User Categories"
     implemented: true
     working: false
