@@ -300,6 +300,15 @@ const SignupForm = ({ selectedUserType, setSelectedUserType }) => {
 
 const Signup = () => {
   const [selectedUserType, setSelectedUserType] = useState('workforce');
+  const [searchParams] = useSearchParams();
+
+  // Set initial user type from URL parameter
+  React.useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam && ['workforce', 'employer', 'institution'].includes(typeParam)) {
+      setSelectedUserType(typeParam);
+    }
+  }, [searchParams]);
 
   return (
     <ThemeProvider key={selectedUserType} userType={selectedUserType}>
