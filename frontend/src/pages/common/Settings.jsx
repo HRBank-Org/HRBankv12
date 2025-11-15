@@ -142,7 +142,9 @@ const Settings = () => {
           </button>
         </div>
 
-        {activeTab === 'documents' ? (
+        {activeTab === 'calendar' ? (
+          <GoogleCalendarSettings theme={theme} />
+        ) : activeTab === 'documents' ? (
           <>
             {/* Compliance Dashboard */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
