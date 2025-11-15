@@ -19,26 +19,23 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await api.post('/api/auth/login', {
+      // Use the login function from AuthContext
+      const response = await login({
         ...formData,
         user_type: 'admin'
       });
 
-      if (response.data.success) {
-        localStorage.setItem('token', response.data.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.data.user));
-        
+      if (response.success) {
         // Verify it's an admin
-        if (response.data.data.user.user_type === 'admin') {
+        if (response.data.user_type === 'admin') {
           navigate('/admin/dashboard');
         } else {
           setError('Access denied. Admin credentials required.');
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          logout();
         }
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid credentials');
+      setError(err.detail || err.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
