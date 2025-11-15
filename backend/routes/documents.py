@@ -199,7 +199,7 @@ async def delete_document(
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
-    """Delete a document"""
+    """Delete a document (only if not approved or pending)"""
     document = await db.documents.find_one({
         "document_id": document_id,
         "user_id": current_user["user_id"]
@@ -209,6 +209,13 @@ async def delete_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Document not found"
+        )
+    
+    # Prevent deletion if approved or pending review
+    if document.get("verification_status") in ["verified", "pending"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot delete documents that are approved or pending review. Please contact HR Bank support."
         )
     
     # Delete file
