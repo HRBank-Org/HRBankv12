@@ -262,6 +262,30 @@ frontend:
         -agent: "main"
         -comment: "Created workforce management UI for employers and employment history for workers. Employer page (/employer/workforce-management) features: Active/Inactive worker tabs, worker cards with performance metrics (shifts, hours, ratings), terminate employment modal with reason selection and options (cancel shifts, rehire eligibility, notify worker), rehire modal for past workers with employment type and position title. Worker page (/workforce/employment-history) features: Stats dashboard (total/active/past employers), employment history cards with company info, dates, performance metrics, termination reasons, rehire eligibility status. Both pages use user-specific branding."
 
+  - task: "EULA (End User License Agreement) System - Backend"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/eula.py, /app/backend/models/eula.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented comprehensive EULA system with three endpoints: GET /api/eula/check (check if user accepted EULA, returns content if not), POST /api/eula/accept (record acceptance with IP and user agent), GET /api/eula/history (view acceptance history). Features: User-type specific EULAs (worker, employer, institution), version tracking (1.0), acceptance tracking with metadata (IP address, user agent, timestamp), full worker EULA content from provided PDF document. System tracks acceptance per user per version."
+
+  - task: "EULA (End User License Agreement) System - Frontend"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/common/EULAModal.jsx, /app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created modal-based EULA acceptance UI integrated into protected routes. Features: Full-screen modal with EULA content, scroll tracking (must scroll to bottom to enable accept button), scroll indicator, version display, accept button with loading state, automatic check on login, blocks access until accepted. Modal appears automatically for all authenticated users who haven't accepted current EULA version. Integrated into ProtectedRoute component in App.js."
+
   - task: "Landing Page User Categories"
     implemented: true
     working: false
