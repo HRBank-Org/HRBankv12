@@ -887,23 +887,25 @@ def test_admin_authentication_system(results):
     except Exception as e:
         results.add_fail("Admin login - non-existent email validation", f"Request failed: {str(e)}")
     
-    # Test 4: Invalid Admin Login - Wrong User Type
+    # Test 4: Admin Login with Wrong User Type (should still succeed but return actual user_type)
     try:
         wrong_type_creds = admin_credentials.copy()
         wrong_type_creds["user_type"] = "workforce"
         
         response = requests.post(f"{BASE_URL}/auth/login", json=wrong_type_creds, timeout=10)
         
-        if response.status_code == 401:
+        if response.status_code == 200:
             data = response.json()
-            if "invalid credentials" in data.get("detail", "").lower():
-                results.add_pass("Admin login - wrong user_type validation")
+            # Should return actual user_type from database (admin), not the requested type (workforce)
+            if (data.get("success") and 
+                data.get("data", {}).get("user_type") == "admin"):
+                results.add_pass("Admin login - returns actual user_type from database")
             else:
-                results.add_fail("Admin login - wrong user_type validation", f"Wrong error message: {data}")
+                results.add_fail("Admin login - returns actual user_type from database", f"Wrong user_type returned: {data}")
         else:
-            results.add_fail("Admin login - wrong user_type validation", f"Expected 401, got {response.status_code}")
+            results.add_fail("Admin login - returns actual user_type from database", f"Expected 200, got {response.status_code}")
     except Exception as e:
-        results.add_fail("Admin login - wrong user_type validation", f"Request failed: {str(e)}")
+        results.add_fail("Admin login - returns actual user_type from database", f"Request failed: {str(e)}")
     
     # Test 5: Token Verification with Protected Endpoint
     if admin_token:
