@@ -32,33 +32,67 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.email || !formData.password) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Mock login validation
-    setTimeout(() => {
-      if (formData.email && formData.password) {
+    try {
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          user_type: activeTab
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
         toast({
           title: 'Login Successful',
-          description: `Signed in as ${activeTab}`,
+          description: `Welcome back!`,
         });
-        // Store mock user data
+        
+        // Store user data
         localStorage.setItem('hrbank_user', JSON.stringify({
-          email: formData.email,
-          userType: activeTab,
+          ...data.user,
+          userType: data.user.user_type,
           isAuthenticated: true
         }));
+        
         navigate('/dashboard');
       } else {
         toast({
-          title: 'Error',
-          description: 'Please fill in all fields',
+          title: 'Login Failed',
+          description: data.detail || 'Invalid credentials',
           variant: 'destructive'
         });
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to connect to server. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
