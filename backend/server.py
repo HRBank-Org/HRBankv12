@@ -1,6 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
@@ -11,19 +12,24 @@ import uuid
 from datetime import datetime, timezone
 
 # Import routes
-from routes import auth, partner_logos, metrics
-
+from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, blockchain_credentials, translation
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'hrbank_db')]
 
 # Create the main app without a prefix
-app = FastAPI()
+app = FastAPI(title="HR Bank API", version="1.0.0")
+
+# Add session middleware for OAuth (must be added before routes)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get('JWT_SECRET', 'your-secret-key')
+)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -72,10 +78,25 @@ async def get_status_checks():
 # Include the router in the main app
 app.include_router(api_router)
 
-# Include additional routers
-app.include_router(auth.router)
-app.include_router(partner_logos.router)
-app.include_router(metrics.router)
+# Include auth routes
+app.include_router(auth.router, prefix="/api", tags=["auth"])
+app.include_router(users.router, prefix="/api", tags=["users"])
+app.include_router(credentials.router, prefix="/api", tags=["credentials"])
+app.include_router(admin.router, prefix="/api", tags=["admin"])
+app.include_router(workforce.router, prefix="/api", tags=["workforce"])
+app.include_router(employer.router, prefix="/api", tags=["employer"])
+app.include_router(occupations.router, prefix="/api", tags=["occupations"])
+app.include_router(jobs.router, prefix="/api", tags=["jobs"])
+app.include_router(messaging.router, prefix="/api", tags=["messaging"])
+app.include_router(ratings.router, prefix="/api", tags=["ratings"])
+app.include_router(attendance.router, prefix="/api", tags=["attendance"])
+app.include_router(institutions.router, prefix="/api", tags=["institutions"])
+app.include_router(invites.router, prefix="/api", tags=["invites"])
+app.include_router(tasks.router, prefix="/api", tags=["tasks"])
+app.include_router(notifications.router, prefix="/api", tags=["notifications"])
+app.include_router(payments.router, prefix="/api", tags=["payments"])
+app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockchain_credentials"])
+app.include_router(translation.router, prefix="/api", tags=["translation"])
 
 app.add_middleware(
     CORSMiddleware,
