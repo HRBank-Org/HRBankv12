@@ -107,27 +107,33 @@ user_problem_statement: "Implement comprehensive Google Calendar-style availabil
 backend:
   - task: "Calendar API - Workforce Availability Endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/calendar.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Created comprehensive calendar API endpoints for workforce availability management. Includes GET /api/workforce/availability/calendar (fetch all availability events), POST /api/workforce/availability/calendar (create single or recurring availability events with conflict checking), DELETE /api/workforce/availability/calendar/{event_id} (delete availability event). Supports time-specific events, recurring patterns (daily, weekly, biweekly), and conflict detection with accepted shifts."
+        -working: true
+        -agent: "testing"
+        -comment: "All workforce availability calendar endpoints working perfectly. Successfully tested: GET /api/workforce/availability/calendar (returns empty list initially, then populated events), POST /api/workforce/availability/calendar (creates single events with time-specific start/end, creates recurring events with daily/weekly/biweekly patterns), DELETE /api/workforce/availability/calendar/{event_id} (removes events successfully), proper authentication enforcement (403 without auth), role-based access control (workforce users only), and input validation (400 for missing start/end times). All functionality working as expected."
 
   - task: "Calendar API - Employer Shift Management Endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/calendar.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Created comprehensive calendar API endpoints for employer shift scheduling. Includes GET /api/employer/shifts/calendar (fetch all shifts), POST /api/employer/shifts/calendar (create single or recurring shifts), PUT /api/employer/shifts/calendar/{shift_id} (update shift), DELETE /api/employer/shifts/calendar/{shift_id} (delete shift with booking validation). Supports workplace filtering, recurring patterns, time-specific shifts, and positions management."
+        -working: true
+        -agent: "testing"
+        -comment: "All employer shift calendar endpoints working perfectly. Successfully tested: GET /api/employer/shifts/calendar (returns formatted shift events), POST /api/employer/shifts/calendar (creates single shifts and recurring shifts with daily patterns), PUT /api/employer/shifts/calendar/{shift_id} (updates shift title, positions_needed, description), DELETE /api/employer/shifts/calendar/{shift_id} (removes shifts successfully), workplace validation (404 for invalid workplace_id), proper authentication enforcement (403 without auth), and role-based access control (employer users only). All CRUD operations and recurring functionality working correctly."
 
   - task: "Login API (/api/auth/login)"
     implemented: true
