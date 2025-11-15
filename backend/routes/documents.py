@@ -260,3 +260,247 @@ async def get_expiring_documents(
             "count": len(expiring_soon)
         }
     }
+
+
+# ==================== ADMIN ROUTES ====================
+
+@router.get("/admin/pending-documents", response_model=Dict)
+async def get_pending_documents_for_review(
+    user_type_filter: str = None,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get all pending documents for admin review"""
+    query = {"verification_status": "pending"}
+    if user_type_filter:
+        query["user_type"] = user_type_filter
+    
+    documents = await db.documents.find(query, {"_id": 0}).to_list(1000)
+    
+    # Enrich with user information
+    for doc in documents:
+        user = await db.users.find_one(
+            {"user_id": doc["user_id"]},
+            {"_id": 0, "full_name": 1, "email": 1, "user_type": 1}
+        )
+        if user:
+            doc["user_info"] = user
+    
+    return {
+        "success": True,
+        "data": {
+            "pending_documents": documents,
+            "total_count": len(documents)
+        }
+    }
+
+@router.post("/admin/documents/{document_id}/approve", response_model=Dict)
+async def approve_document(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Approve a document"""
+    document = await db.documents.find_one({"document_id": document_id})
+    
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        )
+    
+    # Update document status
+    await db.documents.update_one(
+        {"document_id": document_id},
+        {"$set": {
+            "verification_status": "verified",
+            "verified_by": current_user["user_id"],
+            "verified_date": datetime.utcnow().isoformat()
+        }}
+    )
+    
+    # Send notification to user
+    import uuid
+    notification = {
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": document["user_id"],
+        "type": "document_approved",
+        "title": "Document Approved",
+        "message": f"Your {document['document_name']} has been verified and approved.",
+        "data": {
+            "document_id": document_id,
+            "document_type": document["document_type"]
+        },
+        "read": False,
+        "created_date": datetime.utcnow().isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    # Update account status
+    await update_account_status(db, document["user_id"], document["user_type"])
+    
+    return {
+        "success": True,
+        "message": "Document approved successfully"
+    }
+
+@router.post("/admin/documents/{document_id}/reject", response_model=Dict)
+async def reject_document(
+    document_id: str,
+    rejection_data: dict,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Reject a document"""
+    document = await db.documents.find_one({"document_id": document_id})
+    
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        )
+    
+    rejection_reason = rejection_data.get("rejection_reason", "Document did not meet requirements")
+    
+    # Update document status
+    await db.documents.update_one(
+        {"document_id": document_id},
+        {"$set": {
+            "verification_status": "rejected",
+            "verified_by": current_user["user_id"],
+            "verified_date": datetime.utcnow().isoformat(),
+            "rejection_reason": rejection_reason
+        }}
+    )
+    
+    # Send notification to user
+    import uuid
+    notification = {
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": document["user_id"],
+        "type": "document_rejected",
+        "title": "Document Rejected",
+        "message": f"Your {document['document_name']} was rejected. Reason: {rejection_reason}",
+        "data": {
+            "document_id": document_id,
+            "document_type": document["document_type"],
+            "rejection_reason": rejection_reason
+        },
+        "read": False,
+        "created_date": datetime.utcnow().isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    # Update account status
+    await update_account_status(db, document["user_id"], document["user_type"])
+    
+    return {
+        "success": True,
+        "message": "Document rejected"
+    }
+
+@router.post("/admin/send-expiry-notifications", response_model=Dict)
+async def trigger_expiry_notifications(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Send notifications for documents expiring in 7 days"""
+    try:
+        count = await send_expiry_notifications(db)
+        return {
+            "success": True,
+            "message": f"Sent {count} expiry notifications"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed: {str(e)}"
+        )
+
+# ==================== HELPER FUNCTIONS ====================
+
+async def update_account_status(db, user_id: str, user_type: str):
+    """Update user account status based on document compliance"""
+    document_types = get_document_types(user_type)
+    required_types = [k for k, v in document_types.items() if v.get('required')]
+    
+    # Get verified documents
+    documents = await db.documents.find({
+        "user_id": user_id,
+        "verification_status": "verified"
+    }).to_list(100)
+    
+    # Check for expired documents
+    verified_types = []
+    for doc in documents:
+        if doc.get("expiry_date"):
+            is_expired, _ = calculate_expiry_status(doc["expiry_date"])
+            if not is_expired:
+                verified_types.append(doc["document_type"])
+        else:
+            verified_types.append(doc["document_type"])
+    
+    # Check if all required documents are verified
+    all_required_verified = all(req_type in verified_types for req_type in required_types)
+    
+    # Update user account status
+    account_status = "active" if all_required_verified else "incomplete_documents"
+    
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {"account_status": account_status}}
+    )
+
+async def send_expiry_notifications(db):
+    """Send notifications for documents expiring in 7 days"""
+    import uuid
+    
+    documents = await db.documents.find({
+        "expiry_date": {"$ne": None},
+        "verification_status": "verified"
+    }).to_list(10000)
+    
+    notifications_sent = 0
+    
+    for doc in documents:
+        if not doc.get("expiry_date"):
+            continue
+            
+        try:
+            expiry_date_obj = datetime.fromisoformat(doc["expiry_date"].replace('Z', '+00:00'))
+            days_until = (expiry_date_obj - datetime.utcnow()).days
+            
+            # Send notification if expiring in exactly 7 days
+            if days_until == 7:
+                # Check if notification already sent today
+                today_start = datetime.utcnow().replace(hour=0, minute=0, second=0)
+                existing_notif = await db.notifications.find_one({
+                    "user_id": doc["user_id"],
+                    "type": "document_expiring",
+                    "data.document_id": doc["document_id"],
+                    "created_date": {"$gte": today_start.isoformat()}
+                })
+                
+                if not existing_notif:
+                    notification = {
+                        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                        "user_id": doc["user_id"],
+                        "type": "document_expiring",
+                        "title": "Document Expiring Soon",
+                        "message": f"⚠️ Your {doc['document_name']} expires in 7 days on {expiry_date_obj.strftime('%B %d, %Y')}. Please upload a new document.",
+                        "data": {
+                            "document_id": doc["document_id"],
+                            "document_type": doc["document_type"],
+                            "expiry_date": doc["expiry_date"]
+                        },
+                        "read": False,
+                        "created_date": datetime.utcnow().isoformat()
+                    }
+                    await db.notifications.insert_one(notification)
+                    notifications_sent += 1
+        except Exception as e:
+            print(f"Error processing document expiry: {e}")
+            continue
+    
+    return notifications_sent
+
