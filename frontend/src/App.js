@@ -87,7 +87,18 @@ const ProtectedRoute = ({ children, allowedUserTypes }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return (
+    <>
+      {children}
+      <EULAModal 
+        isOpen={showEULA && !eulaAccepted} 
+        onAccept={() => {
+          setEulaAccepted(true);
+          setShowEULA(false);
+        }} 
+      />
+    </>
+  );
 };
 
 // Main App Routes
