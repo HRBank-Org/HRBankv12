@@ -83,9 +83,9 @@ const Signup = () => {
       <div className="bg-white rounded-2xl shadow-lg p-8">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="bg-[#2C4A6B] rounded-2xl p-4 w-20 h-20 flex items-center justify-center">
+          <div className={`${getLogoBackgroundColor(activeTab)} rounded-2xl p-4 w-20 h-20 flex items-center justify-center transition-all duration-300`}>
             <img 
-              src="https://customer-assets.emergentagent.com/job_hrsite-validator/artifacts/7kpg5ub1_HRB%20App%20Icon%20Workforce.jpg" 
+              src={getLogoByUserType(activeTab)}
               alt="HR Bank Logo" 
               className="w-full h-full object-contain rounded-xl"
             />
