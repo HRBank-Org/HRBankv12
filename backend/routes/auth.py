@@ -159,8 +159,8 @@ async def login(credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
             detail="Invalid credentials"
         )
     
-    # Check if email is verified
-    if not user.get("email_verified", False):
+    # Check if email is verified (admins bypass this check)
+    if user.get("user_type") != "admin" and not user.get("email_verified", False):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Please verify your email first"
