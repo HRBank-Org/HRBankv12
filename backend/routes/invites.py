@@ -250,3 +250,176 @@ async def get_my_invites(
             "total_accepted": len([i for i in invites if i.get("status") == "accepted"])
         }
     }
+
+
+@router.get("/{invite_token}/details", response_model=Dict)
+async def get_invite_details(
+    invite_token: str,
+    db = Depends(get_db)
+):
+    """
+    Get invitation details (public endpoint for signup flow)
+    Returns job/shift details if applicable
+    """
+    invite = await db.invite_tokens.find_one(
+        {"invite_token": invite_token},
+        {"_id": 0}
+    )
+    
+    if not invite:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invitation not found"
+        )
+    
+    # Check if expired
+    if datetime.fromisoformat(invite["expires_at"].replace('Z', '+00:00')) < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Invitation has expired"
+        )
+    
+    # Check if already accepted
+    if invite.get("status") == "accepted":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invitation has already been accepted"
+        )
+    
+    response_data = {
+        "invite_id": invite.get("invite_id"),
+        "email": invite.get("email"),
+        "invited_by": invite.get("invited_by_user_type"),
+        "full_name": invite.get("full_name"),
+        "suggested_occupation": invite.get("suggested_occupation"),
+        "workplace_id": invite.get("workplace_id"),
+        "job_id": invite.get("job_id"),
+        "shift_id": invite.get("shift_id")
+    }
+    
+    # Fetch job details if job_id exists
+    if invite.get("job_id"):
+        job = await db.jobs.find_one(
+            {"job_id": invite["job_id"]},
+            {"_id": 0, "job_title": 1, "job_description": 1, "workplace_name": 1, 
+             "hourly_rate_min": 1, "hourly_rate_max": 1}
+        )
+        if job:
+            response_data["job_details"] = job
+    
+    # Fetch shift details if shift_id exists
+    if invite.get("shift_id"):
+        shift = await db.shifts.find_one(
+            {"shift_id": invite["shift_id"]},
+            {"_id": 0, "shift_name": 1, "shift_date": 1, "start_time": 1, 
+             "end_time": 1, "workplace_name": 1, "hourly_rate": 1}
+        )
+        if shift:
+            response_data["shift_details"] = shift
+    
+    # Fetch inviter details
+    if invite.get("invited_by_user_type") == "employer":
+        employer = await db.employer_profiles.find_one(
+            {"employer_id": invite["invited_by_user_id"]},
+            {"_id": 0, "company_name": 1, "company_logo": 1}
+        )
+        if employer:
+            response_data["company_name"] = employer.get("company_name")
+            response_data["company_logo"] = employer.get("company_logo")
+    elif invite.get("invited_by_user_type") == "institution":
+        institution = await db.institution_profiles.find_one(
+            {"institution_id": invite["invited_by_user_id"]},
+            {"_id": 0, "institution_name": 1, "institution_logo": 1}
+        )
+        if institution:
+            response_data["institution_name"] = institution.get("institution_name")
+            response_data["institution_logo"] = institution.get("institution_logo")
+    
+    return {
+        "success": True,
+        "data": response_data
+    }
+
+@router.post("/{invite_token}/accept", response_model=Dict)
+async def accept_invitation(
+    invite_token: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Accept invitation after user signs up
+    Auto-applies to job or shift if applicable
+    """
+    invite = await db.invite_tokens.find_one({"invite_token": invite_token})
+    
+    if not invite:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invitation not found"
+        )
+    
+    # Verify email matches
+    user = await db.users.find_one({"user_id": current_user["user_id"]})
+    if user.get("email") != invite.get("email"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This invitation is for a different email address"
+        )
+    
+    # Check if already accepted
+    if invite.get("status") == "accepted":
+        return {
+            "success": True,
+            "message": "Invitation already accepted"
+        }
+    
+    # Mark invitation as accepted
+    await db.invite_tokens.update_one(
+        {"invite_token": invite_token},
+        {"$set": {
+            "status": "accepted",
+            "accepted_date": datetime.utcnow().isoformat(),
+            "created_user_id": current_user["user_id"]
+        }}
+    )
+    
+    response_message = "Invitation accepted"
+    
+    # Auto-apply to shift if shift_id exists
+    if invite.get("shift_id"):
+        shift = await db.shifts.find_one({"shift_id": invite["shift_id"]})
+        if shift and shift.get("status") == "open":
+            # Create booking/application
+            booking = {
+                "booking_id": f"book_{uuid.uuid4().hex[:12]}",
+                "shift_id": invite["shift_id"],
+                "employer_id": shift.get("employer_id"),
+                "workforce_id": current_user["user_id"],
+                "workplace_id": shift.get("workplace_id"),
+                "workplace_name": shift.get("workplace_name"),
+                "shift_date": shift.get("shift_date"),
+                "start_time": shift.get("start_time"),
+                "end_time": shift.get("end_time"),
+                "hourly_rate": shift.get("hourly_rate"),
+                "status": "pending",
+                "invited": True,
+                "created_date": datetime.utcnow().isoformat()
+            }
+            
+            await db.bookings.insert_one(booking)
+            response_message = "Invitation accepted and applied to shift"
+    
+    # Store job_id reference if job_id exists (for easier application later)
+    if invite.get("job_id"):
+        response_message = "Invitation accepted. You can now view and apply to the job."
+    
+    return {
+        "success": True,
+        "data": {
+            "job_id": invite.get("job_id"),
+            "shift_id": invite.get("shift_id"),
+            "workplace_id": invite.get("workplace_id")
+        },
+        "message": response_message
+    }
+
