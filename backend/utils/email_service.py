@@ -2,6 +2,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from config.settings import settings
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
