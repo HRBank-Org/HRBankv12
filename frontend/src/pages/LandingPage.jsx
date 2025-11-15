@@ -344,15 +344,12 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="bg-[#2C4A6B] rounded-lg p-1.5 w-8 h-8 flex items-center justify-center">
-                  <img 
-                    src="https://customer-assets.emergentagent.com/job_hrsite-validator/artifacts/7kpg5ub1_HRB%20App%20Icon%20Workforce.jpg" 
-                    alt="HR Bank Logo" 
-                    className="w-full h-full object-contain rounded"
-                  />
-                </div>
-                <span className="text-white font-bold">HR Bank</span>
+              <div className="flex items-center mb-4">
+                <img 
+                  src={LOGOS.master}
+                  alt="HR Bank Logo" 
+                  className="h-8 w-auto object-contain"
+                />
               </div>
               <p className="text-sm">Your trusted workforce marketplace</p>
             </div>
