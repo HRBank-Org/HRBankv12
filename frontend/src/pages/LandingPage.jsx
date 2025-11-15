@@ -310,8 +310,8 @@ const LandingPage = () => {
                   className="flex-shrink-0 w-40 h-20 bg-white rounded-lg shadow-md flex items-center justify-center p-4 hover:shadow-lg transition-shadow"
                 >
                   <img
-                    src={logo.url}
-                    alt={logo.name}
+                    src={logo.logo_url}
+                    alt={logo.institution_name}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
