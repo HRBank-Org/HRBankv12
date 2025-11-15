@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models import PartnerLogo, PartnerLogoCreate, PartnerLogoResponse
 from database import get_database
 import logging
