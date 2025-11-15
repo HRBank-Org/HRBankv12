@@ -274,7 +274,11 @@ async def get_invite_details(
         )
     
     # Check if expired
-    if datetime.fromisoformat(invite["expires_at"].replace('Z', '+00:00')) < datetime.utcnow():
+    expires_at = invite["expires_at"]
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
+    
+    if expires_at < datetime.utcnow():
         raise HTTPException(
             status_code=status.HTTP_410_GONE,
             detail="Invitation has expired"
