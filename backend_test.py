@@ -892,11 +892,41 @@ def test_invitation_system(results):
         workforce_response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
         employer_response = requests.post(f"{BASE_URL}/auth/signup", json=employer_user, timeout=10)
         
-        if workforce_response.status_code != 201 or employer_response.status_code != 201:
-            results.add_fail("User creation for invitation tests", "Failed to create test users")
+        if workforce_response.status_code != 200 or employer_response.status_code != 200:
+            results.add_fail("User creation for invitation tests", f"Failed to create test users: workforce={workforce_response.status_code}, employer={employer_response.status_code}")
             return
         
-        # Login to get tokens
+        workforce_user_id = workforce_response.json().get("data", {}).get("user_id")
+        employer_user_id = employer_response.json().get("data", {}).get("user_id")
+        
+        # Manually verify users in database to bypass email verification
+        import os
+        from motor.motor_asyncio import AsyncIOMotorClient
+        import asyncio
+        from dotenv import load_dotenv
+        
+        load_dotenv('/app/backend/.env')
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        
+        async def verify_users():
+            client = AsyncIOMotorClient(mongo_url)
+            db = client['hrbank_db']
+            
+            # Verify both users
+            await db.users.update_one(
+                {"user_id": workforce_user_id},
+                {"$set": {"email_verified": True, "profile_status": "active"}}
+            )
+            await db.users.update_one(
+                {"user_id": employer_user_id},
+                {"$set": {"email_verified": True, "profile_status": "active"}}
+            )
+            
+            client.close()
+        
+        asyncio.run(verify_users())
+        
+        # Now login to get tokens
         workforce_login = requests.post(f"{BASE_URL}/auth/login", json={
             "email": workforce_user["email"],
             "password": workforce_user["password"],
@@ -910,12 +940,11 @@ def test_invitation_system(results):
         }, timeout=10)
         
         if workforce_login.status_code != 200 or employer_login.status_code != 200:
-            results.add_fail("User login for invitation tests", "Failed to login test users")
+            results.add_fail("User login for invitation tests", f"Failed to login test users: workforce={workforce_login.status_code}, employer={employer_login.status_code}")
             return
         
         workforce_token = workforce_login.json().get("access_token")
         employer_token = employer_login.json().get("access_token")
-        employer_user_id = employer_login.json().get("user", {}).get("user_id")
         
         if not workforce_token or not employer_token:
             results.add_fail("Token extraction for invitation tests", "Failed to get auth tokens")
