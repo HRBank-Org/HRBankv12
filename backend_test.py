@@ -1413,9 +1413,257 @@ def test_invitation_acceptance(results, workforce_token):
     except Exception as e:
         results.add_fail("Invitation acceptance", f"Test failed: {str(e)}")
 
+def test_eula_system(results):
+    """Test the EULA (End User License Agreement) system"""
+    print("\n🧪 Testing EULA System...")
+    
+    # Create test users for all three user types
+    user_types = ["workforce", "employer", "institution"]
+    test_users = {}
+    tokens = {}
+    
+    for user_type in user_types:
+        try:
+            user_data = generate_test_user(user_type)
+            
+            # Create user
+            signup_response = requests.post(f"{BASE_URL}/auth/signup", json=user_data, timeout=10)
+            if signup_response.status_code not in [200, 201]:
+                results.add_fail(f"EULA test setup - {user_type} user creation", f"Signup failed: {signup_response.status_code}")
+                continue
+            
+            user_id = signup_response.json().get("data", {}).get("user_id")
+            if not user_id:
+                results.add_fail(f"EULA test setup - {user_type} user creation", "No user_id in response")
+                continue
+            
+            # Manually verify user in database
+            import os
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            from dotenv import load_dotenv
+            
+            load_dotenv('/app/backend/.env')
+            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+            
+            async def verify_user():
+                client = AsyncIOMotorClient(mongo_url)
+                db = client['hrbank_db']
+                await db.users.update_one(
+                    {"user_id": user_id},
+                    {"$set": {"email_verified": True, "profile_status": "active"}}
+                )
+                client.close()
+            
+            asyncio.run(verify_user())
+            
+            # Login to get token
+            login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                "email": user_data["email"],
+                "password": user_data["password"],
+                "user_type": user_data["user_type"]
+            }, timeout=10)
+            
+            if login_response.status_code != 200:
+                results.add_fail(f"EULA test setup - {user_type} login", f"Login failed: {login_response.status_code}")
+                continue
+            
+            token = login_response.json().get("data", {}).get("access_token")
+            if not token:
+                results.add_fail(f"EULA test setup - {user_type} token", "No access token in response")
+                continue
+            
+            test_users[user_type] = user_data
+            tokens[user_type] = token
+            results.add_pass(f"EULA test setup - {user_type} user created and authenticated")
+            
+        except Exception as e:
+            results.add_fail(f"EULA test setup - {user_type}", f"Setup failed: {str(e)}")
+    
+    if len(tokens) < 3:
+        results.add_fail("EULA system testing", "Failed to create all required test users")
+        return
+    
+    # Test EULA endpoints for each user type
+    for user_type in user_types:
+        if user_type not in tokens:
+            continue
+        
+        token = tokens[user_type]
+        
+        # Test 1: Check EULA status (should be not accepted initially)
+        test_eula_check_not_accepted(results, token, user_type)
+        
+        # Test 2: Accept EULA
+        test_eula_accept(results, token, user_type)
+        
+        # Test 3: Check EULA status again (should be accepted now)
+        test_eula_check_accepted(results, token, user_type)
+        
+        # Test 4: Try to accept again (should be idempotent)
+        test_eula_accept_duplicate(results, token, user_type)
+        
+        # Test 5: Check EULA history
+        test_eula_history(results, token, user_type)
+    
+    # Test authentication requirements
+    test_eula_authentication_required(results)
+
+def test_eula_check_not_accepted(results, token, user_type):
+    """Test EULA check endpoint for user who hasn't accepted"""
+    try:
+        response = requests.get(
+            f"{BASE_URL}/eula/check",
+            headers=get_auth_headers(token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("accepted") == False and
+                "eula_content" in data.get("data", {}) and
+                data.get("data", {}).get("version") == "1.0"):
+                
+                # Verify user-type specific EULA content
+                eula_type = data.get("data", {}).get("eula_type")
+                expected_type = "worker" if user_type == "workforce" else user_type
+                
+                if eula_type == expected_type:
+                    results.add_pass(f"EULA check not accepted - {user_type}")
+                else:
+                    results.add_fail(f"EULA check not accepted - {user_type}", f"Wrong EULA type: expected {expected_type}, got {eula_type}")
+            else:
+                results.add_fail(f"EULA check not accepted - {user_type}", f"Invalid response structure: {data}")
+        else:
+            results.add_fail(f"EULA check not accepted - {user_type}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail(f"EULA check not accepted - {user_type}", f"Request failed: {str(e)}")
+
+def test_eula_accept(results, token, user_type):
+    """Test EULA acceptance endpoint"""
+    try:
+        response = requests.post(
+            f"{BASE_URL}/eula/accept",
+            headers=get_auth_headers(token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "acceptance_id" in data.get("data", {}) and
+                "accepted_date" in data.get("data", {})):
+                results.add_pass(f"EULA accept - {user_type}")
+            else:
+                results.add_fail(f"EULA accept - {user_type}", f"Invalid response structure: {data}")
+        else:
+            results.add_fail(f"EULA accept - {user_type}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail(f"EULA accept - {user_type}", f"Request failed: {str(e)}")
+
+def test_eula_check_accepted(results, token, user_type):
+    """Test EULA check endpoint for user who has accepted"""
+    try:
+        response = requests.get(
+            f"{BASE_URL}/eula/check",
+            headers=get_auth_headers(token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("accepted") == True and
+                "acceptance_date" in data.get("data", {}) and
+                data.get("data", {}).get("version") == "1.0"):
+                results.add_pass(f"EULA check accepted - {user_type}")
+            else:
+                results.add_fail(f"EULA check accepted - {user_type}", f"Invalid response structure: {data}")
+        else:
+            results.add_fail(f"EULA check accepted - {user_type}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail(f"EULA check accepted - {user_type}", f"Request failed: {str(e)}")
+
+def test_eula_accept_duplicate(results, token, user_type):
+    """Test accepting EULA when already accepted (should be idempotent)"""
+    try:
+        response = requests.post(
+            f"{BASE_URL}/eula/accept",
+            headers=get_auth_headers(token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "already accepted" in data.get("message", "").lower():
+                results.add_pass(f"EULA accept duplicate - {user_type}")
+            else:
+                results.add_fail(f"EULA accept duplicate - {user_type}", f"Unexpected response: {data}")
+        else:
+            results.add_fail(f"EULA accept duplicate - {user_type}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail(f"EULA accept duplicate - {user_type}", f"Request failed: {str(e)}")
+
+def test_eula_history(results, token, user_type):
+    """Test EULA history endpoint"""
+    try:
+        response = requests.get(
+            f"{BASE_URL}/eula/history",
+            headers=get_auth_headers(token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "acceptances" in data.get("data", {}) and
+                data.get("data", {}).get("total_count", 0) > 0):
+                
+                # Verify acceptance record structure
+                acceptances = data.get("data", {}).get("acceptances", [])
+                if acceptances and len(acceptances) > 0:
+                    acceptance = acceptances[0]
+                    if ("acceptance_id" in acceptance and 
+                        "eula_version" in acceptance and
+                        "accepted_date" in acceptance):
+                        results.add_pass(f"EULA history - {user_type}")
+                    else:
+                        results.add_fail(f"EULA history - {user_type}", f"Invalid acceptance record structure: {acceptance}")
+                else:
+                    results.add_fail(f"EULA history - {user_type}", "No acceptance records found")
+            else:
+                results.add_fail(f"EULA history - {user_type}", f"Invalid response structure: {data}")
+        else:
+            results.add_fail(f"EULA history - {user_type}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail(f"EULA history - {user_type}", f"Request failed: {str(e)}")
+
+def test_eula_authentication_required(results):
+    """Test that EULA endpoints require authentication"""
+    endpoints = [
+        ("GET", "/eula/check"),
+        ("POST", "/eula/accept"),
+        ("GET", "/eula/history")
+    ]
+    
+    for method, endpoint in endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"EULA auth required - {method} {endpoint}")
+            else:
+                results.add_fail(f"EULA auth required - {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"EULA auth required - {method} {endpoint}", f"Request failed: {str(e)}")
+
 def main():
-    """Run all backend API tests including invitation system"""
-    print("🚀 Starting HR Bank Backend API Tests (Including Invitation System)")
+    """Run all backend API tests including EULA system"""
+    print("🚀 Starting HR Bank Backend API Tests (Including EULA System)")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -1424,8 +1672,8 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Test invitation system
-    test_invitation_system(results)
+    # Test EULA system
+    test_eula_system(results)
     
     # Print final results
     success = results.summary()
