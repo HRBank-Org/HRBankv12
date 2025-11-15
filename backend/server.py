@@ -102,6 +102,7 @@ app.include_router(calendar.router, tags=["calendar"])
 app.include_router(workforce_management.router, tags=["workforce_management"])
 app.include_router(eula.router, tags=["eula"])
 app.include_router(documents.router, tags=["documents"])
+app.include_router(admin_management.router, tags=["admin_management"])
 
 app.add_middleware(
     CORSMiddleware,
