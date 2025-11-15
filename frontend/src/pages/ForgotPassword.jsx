@@ -41,9 +41,9 @@ const ForgotPassword = () => {
       <div className="bg-white rounded-2xl shadow-lg p-8">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="bg-[#2C4A6B] rounded-2xl p-4 w-20 h-20 flex items-center justify-center">
+          <div className="bg-gradient-to-r from-orange-500 to-blue-600 rounded-2xl p-4 w-20 h-20 flex items-center justify-center">
             <img 
-              src="https://customer-assets.emergentagent.com/job_hrsite-validator/artifacts/7kpg5ub1_HRB%20App%20Icon%20Workforce.jpg" 
+              src={LOGOS.master}
               alt="HR Bank Logo" 
               className="w-full h-full object-contain rounded-xl"
             />
