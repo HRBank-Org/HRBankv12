@@ -1640,8 +1640,18 @@ def test_eula_history(results, token, user_type):
                     acceptance = acceptances[0]
                     if ("acceptance_id" in acceptance and 
                         "eula_version" in acceptance and
-                        "accepted_date" in acceptance):
-                        results.add_pass(f"EULA history - {user_type}")
+                        "accepted_date" in acceptance and
+                        acceptance.get("eula_version") == "1.0"):
+                        
+                        # Verify metadata capture
+                        has_metadata = ("ip_address" in acceptance and 
+                                      "user_agent" in acceptance)
+                        
+                        if has_metadata:
+                            results.add_pass(f"EULA history with metadata - {user_type}")
+                        else:
+                            results.add_pass(f"EULA history - {user_type}")
+                            # Note: metadata might be None, which is acceptable
                     else:
                         results.add_fail(f"EULA history - {user_type}", f"Invalid acceptance record structure: {acceptance}")
                 else:
