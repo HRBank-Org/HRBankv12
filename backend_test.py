@@ -892,7 +892,7 @@ def test_invitation_system(results):
         workforce_response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
         employer_response = requests.post(f"{BASE_URL}/auth/signup", json=employer_user, timeout=10)
         
-        if workforce_response.status_code != 200 or employer_response.status_code != 200:
+        if workforce_response.status_code not in [200, 201] or employer_response.status_code not in [200, 201]:
             results.add_fail("User creation for invitation tests", f"Failed to create test users: workforce={workforce_response.status_code}, employer={employer_response.status_code}")
             return
         
