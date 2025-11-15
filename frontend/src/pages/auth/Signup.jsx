@@ -26,9 +26,26 @@ const SignupForm = ({ selectedUserType, setSelectedUserType }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(true);
   const { signup } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+
+  // Check if Google OAuth is available
+  React.useEffect(() => {
+    const checkGoogleOAuth = async () => {
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+        const response = await fetch(`${backendUrl}/api/auth/google/status`);
+        const data = await response.json();
+        setGoogleAvailable(data.data?.available || false);
+      } catch (error) {
+        console.error('Failed to check Google OAuth status:', error);
+        setGoogleAvailable(false);
+      }
+    };
+    checkGoogleOAuth();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
