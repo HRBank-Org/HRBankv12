@@ -33,6 +33,7 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
+      // Try real backend login first
       const response = await login({ email, password });
       const { user_type, profile_status, needs_onboarding } = response.data;
       
