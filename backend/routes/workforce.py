@@ -138,10 +138,67 @@ async def update_availability(
     current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
-    """Update availability (Step 3 of profile wizard)"""
+    """
+    Update availability (Step 3 of profile wizard)
+    Checks for conflicts with existing shift commitments
+    """
     
     availability_hours = availability_data.get("availability_hours", {})
     blackout_dates = availability_data.get("blackout_dates", [])
+    
+    # Check for conflicts with accepted/confirmed shifts
+    conflicts = []
+    accepted_bookings = await db.bookings.find({
+        "workforce_id": current_user["user_id"],
+        "status": {"$in": ["accepted", "confirmed", "in_progress"]}
+    }).to_list(1000)
+    
+    if accepted_bookings:
+        from datetime import datetime as dt
+        for booking in accepted_bookings:
+            shift_date = booking.get("shift_date")
+            shift_start = booking.get("start_time")
+            shift_end = booking.get("end_time")
+            
+            if shift_date and shift_start and shift_end:
+                # Parse shift date to get day of week
+                try:
+                    shift_datetime = dt.fromisoformat(shift_date.replace('Z', '+00:00'))
+                    day_name = shift_datetime.strftime('%A').lower()
+                    
+                    # Check if the shift time conflicts with new availability
+                    shift_hours = []
+                    start_hour = int(shift_start.split(':')[0])
+                    end_hour = int(shift_end.split(':')[0])
+                    
+                    for hour in range(start_hour, end_hour):
+                        time_slot = f"{hour:02d}:00-{(hour+1):02d}:00"
+                        shift_hours.append(time_slot)
+                    
+                    # Check if any of the shift hours are NOT in the new availability
+                    day_availability = availability_hours.get(day_name, [])
+                    for shift_hour in shift_hours:
+                        if shift_hour not in day_availability:
+                            conflicts.append({
+                                "booking_id": booking.get("booking_id"),
+                                "shift_date": shift_date,
+                                "shift_time": f"{shift_start} - {shift_end}",
+                                "workplace": booking.get("workplace_name", "Unknown")
+                            })
+                            break
+                except Exception as e:
+                    print(f"Error checking conflict: {e}")
+                    continue
+    
+    # If there are conflicts, return error with details
+    if conflicts:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "message": "Cannot update availability - conflicts with accepted shifts",
+                "conflicts": conflicts
+            }
+        )
     
     await db.workforce_profiles.update_one(
         {"workforce_id": current_user["user_id"]},
