@@ -270,13 +270,22 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Landing Page Hero Section"
+    - "Landing Page User Categories"
+    - "Landing Page Partner Logos Carousel"
+    - "Sign Up Flow from Landing Page"
+    - "Sign In Flow from Landing Page"
+    - "Dashboard Protection"
+    - "Navigation Flow"
   stuck_tasks: []
   test_all: false
-  test_priority: "sequential"
+  test_priority: "high_first"
 
 agent_communication:
     -agent: "testing"
     -message: "Starting comprehensive testing of HR Bank application. Will test all pages and user flows as requested in the review."
     -agent: "testing"
     -message: "COMPREHENSIVE TESTING COMPLETED SUCCESSFULLY. All major functionality tested and working. Login, Signup, Forgot Password, Dashboard pages and End-to-End flows all functional. Minor issues with toast notifications on login page but core functionality intact. Application ready for production use."
+    -agent: "testing"
+    -message: "Starting new comprehensive testing of HR Bank landing page and authentication flow. Will test hero section, user categories, partner logos carousel, sign up/sign in flows from landing page, dashboard protection, and navigation flow as requested in the review."
