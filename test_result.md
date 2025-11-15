@@ -238,6 +238,30 @@ frontend:
         -agent: "main"
         -comment: "Created reusable InviteModal component for sending invitations to external workers. Modal supports comma-separated email input, displays success/failure feedback, and shows invitation counts. Integrated invite button into ShiftDetail page with user-specific branding. Workers can be invited directly from shift management interface."
 
+  - task: "Workforce Management System - Backend"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/workforce_management.py, /app/backend/models/employment.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented comprehensive workforce management system with employment relationship tracking. Backend endpoints: GET /api/employer/workforce-management/active (get active workers with performance metrics), GET /api/employer/workforce-management/inactive (get past/terminated workers), POST /api/employer/workforce-management/{workforce_id}/terminate (end employment with reason, cancel future shifts, send notifications), POST /api/employer/workforce-management/{workforce_id}/rehire (rehire past workers), GET /api/employer/workforce-management/my-employment-history (worker view of employment history). Features: Employment relationship auto-creation on first booking, termination workflow with multiple reasons (laid off, contract ended, terminated, resigned), cancellation of future shifts, rehire eligibility tracking, performance metrics (shifts completed, hours worked, ratings), employment history for workers."
+
+  - task: "Workforce Management System - Frontend"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/employer/WorkforceManagement.jsx, /app/frontend/src/pages/workforce/EmploymentHistory.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created workforce management UI for employers and employment history for workers. Employer page (/employer/workforce-management) features: Active/Inactive worker tabs, worker cards with performance metrics (shifts, hours, ratings), terminate employment modal with reason selection and options (cancel shifts, rehire eligibility, notify worker), rehire modal for past workers with employment type and position title. Worker page (/workforce/employment-history) features: Stats dashboard (total/active/past employers), employment history cards with company info, dates, performance metrics, termination reasons, rehire eligibility status. Both pages use user-specific branding."
+
   - task: "Landing Page User Categories"
     implemented: true
     working: false
