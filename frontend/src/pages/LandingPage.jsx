@@ -83,27 +83,51 @@ const LandingPage = () => {
     },
   ];
 
-  const features = [
+  const platformFeatures = [
     {
       icon: Shield,
-      title: 'Verified & Vetted',
-      description: 'All workers are thoroughly verified and background checked for compliance',
+      title: 'Blockchain Credentials',
+      description: 'Tamper-proof digital certificates secured on blockchain, portable and verifiable forever',
     },
     {
       icon: Clock,
-      title: 'Fast Hiring',
-      description: 'Connect with qualified workers in days, not weeks',
+      title: 'Real-Time Attendance',
+      description: 'QR + GPS geofenced clock-in/out prevents fraud across multiple locations',
     },
     {
       icon: Award,
-      title: 'Certified Professionals',
-      description: 'Access workers with industry-recognized certifications and training',
+      title: 'Smart Job Matching',
+      description: 'Tinder-style swipe interface matches skills, location, and availability instantly',
     },
     {
       icon: TrendingUp,
-      title: 'Career Growth',
-      description: 'Continuous training and development opportunities for workforce',
+      title: 'Dual Rating System',
+      description: 'Fair 5-star ratings build trust and reputation for both workers and employers',
     },
+  ];
+
+  const workforceFeatures = [
+    { title: 'Smart Job Matching', description: 'Tinder-style swipe interface matches jobs to your skills, location & availability—no resume needed' },
+    { title: 'Verified Digital Credentials', description: 'Blockchain-secured certifications you own forever. Instantly verifiable via QR code' },
+    { title: 'Fair Ratings & Transparency', description: 'Dual 5-star system builds reputation. Rate employers, earn trust, unlock opportunities' },
+    { title: 'Effortless Attendance', description: 'QR + GPS clock-in/out. Automated timesheets, accurate pay, zero disputes' },
+    { title: 'Language Support', description: 'Real-time AI translation in 40+ languages—UI, messaging, jobs. No language barriers' },
+  ];
+
+  const employerFeatures = [
+    { title: 'Instant Verified Hiring', description: 'Access pre-vetted workers with blockchain credentials. No resume screening delays' },
+    { title: 'Complete Workforce Management', description: 'Drag-and-drop scheduling, multi-roster, QR attendance, automated timesheets—all in one' },
+    { title: 'Fraud-Proof Attendance', description: 'Geofenced QR clock-in/out prevents buddy punching. Know exactly who\'s working where' },
+    { title: 'Unbeatable Pricing', description: 'Flat $1/hour per party. 80-90% cheaper than staffing agencies. No hidden costs' },
+    { title: 'Performance Insights', description: 'Dual ratings, analytics dashboards, favorite workers. Build your dream team fast' },
+  ];
+
+  const institutionFeatures = [
+    { title: 'Digital Credential Issuance', description: 'Issue tamper-proof blockchain certificates (Polygon + IPFS). Students carry them for life' },
+    { title: 'Real-Time Demand Analytics', description: 'See which skills employers need most. Align curriculum with market demand' },
+    { title: 'Instant Verification', description: 'Employers verify via QR code—no calls, no delays. Reduce admin burden by 90%' },
+    { title: 'Graduate Employment Tracking', description: 'Monitor placements, track rates, demonstrate ROI to stakeholders' },
+    { title: 'Partnership Revenue', description: 'Become the trusted credential source. Strengthen relationships, create revenue' },
   ];
 
   return (
