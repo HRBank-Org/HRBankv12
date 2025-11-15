@@ -23,12 +23,12 @@ export const getLogoByUserType = (userType) => {
 export const getLogoBackgroundColor = (userType) => {
   switch(userType) {
     case 'workforce':
-      return 'bg-blue-600';
+      return 'bg-[#30496d]';
     case 'employer':
-      return 'bg-orange-600';
+      return 'bg-[#ff5f00]';
     case 'institution':
       return 'bg-gray-900';
     default:
-      return 'bg-gradient-to-r from-orange-500 to-blue-600';
+      return 'bg-gradient-to-r from-[#ff5f00] to-[#30496d]';
   }
 };
