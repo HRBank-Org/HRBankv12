@@ -41,6 +41,22 @@ const ShiftDetail = () => {
     }
   };
 
+  const handleInviteSubmit = async (emailList) => {
+    try {
+      const response = await api.post(`/api/employer/shifts/${shiftId}/invite`, {
+        emails: emailList
+      });
+      
+      return {
+        success: true,
+        message: response.data.message,
+        data: response.data.data
+      };
+    } catch (error) {
+      throw error;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
