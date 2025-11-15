@@ -354,11 +354,11 @@ frontend:
 
   - task: "Landing Page User Categories"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/pages/LandingPage.jsx"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: "NA"
         -agent: "testing"
@@ -366,6 +366,9 @@ frontend:
         -working: false
         -agent: "testing"
         -comment: "Critical Issue: Employer Sign In button navigation is incorrect - it navigates to /login?type=workforce instead of /login?type=employer. All other functionality works: three category cards display correctly (Workforce, Employers, Institutions), all metrics display properly, Sign Up buttons work with correct user type parameters (?type=workforce, ?type=employer, ?type=institution). Only the Employer Sign In button has incorrect routing."
+        -working: true
+        -agent: "main"
+        -comment: "Fixed user type routing issue. The LandingPage was correctly passing ?type=employer in the URL, but the Login and Signup pages were not reading this parameter to set the initial user type. Added useSearchParams logic to both Login.jsx and Signup.jsx to read the 'type' query parameter and set the selectedUserType state on component mount. Now when users click Sign In or Sign Up buttons from landing page, the correct user type tab is pre-selected."
 
   - task: "Landing Page Partner Logos Carousel"
     implemented: true
