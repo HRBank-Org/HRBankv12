@@ -7,7 +7,11 @@ logger = logging.getLogger(__name__)
 
 class GoogleMapsService:
     def __init__(self):
-        self.gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+        if settings.GOOGLE_MAPS_API_KEY:
+            self.gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+        else:
+            self.gmaps = None
+            logger.warning("Google Maps API key not configured")
     
     def geocode_address(self, address: str) -> Optional[Tuple[float, float]]:
         """
