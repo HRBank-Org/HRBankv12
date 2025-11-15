@@ -22,18 +22,20 @@ async def create_workplace(
 ):
     """Create a new workplace"""
     
-    # Geocode address
+    # Geocode address (optional - won't fail if geocoding unavailable)
     address = workplace_data.get("address")
     if address:
-        coordinates = google_maps_service.geocode_address(address)
-        if coordinates:
-            workplace_data["lat"] = coordinates[0]
-            workplace_data["long"] = coordinates[1]
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Unable to geocode address"
-            )
+        try:
+            coordinates = google_maps_service.geocode_address(address)
+            if coordinates:
+                workplace_data["lat"] = coordinates[0]
+                workplace_data["long"] = coordinates[1]
+        except Exception as e:
+            # Geocoding failed, but continue without coordinates
+            print(f"Geocoding failed: {e}")
+            # Set default coordinates or leave as None
+            workplace_data["lat"] = None
+            workplace_data["long"] = None
     
     # Create workplace
     workplace = Workplace(
