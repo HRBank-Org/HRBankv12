@@ -189,24 +189,24 @@ const LandingPage = () => {
       </section>
 
       {/* Stats Bar */}
-      <section className="bg-gradient-to-r from-[#ff5f00] to-[#30496d] py-8">
+      <section className="bg-[#30496d] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl md:text-4xl font-bold text-white mb-1">10,000+</div>
-              <div className="text-orange-100 text-sm">Verified Workers</div>
+              <div className="text-blue-100 text-sm">Verified Workers</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold text-white mb-1">500+</div>
-              <div className="text-orange-100 text-sm">Active Employers</div>
+              <div className="text-blue-100 text-sm">Active Employers</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold text-white mb-1">50+</div>
-              <div className="text-orange-100 text-sm">Partner Institutions</div>
+              <div className="text-blue-100 text-sm">Partner Institutions</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold text-white mb-1">95%</div>
-              <div className="text-orange-100 text-sm">Compliance Rate</div>
+              <div className="text-blue-100 text-sm">Compliance Rate</div>
             </div>
           </div>
         </div>
