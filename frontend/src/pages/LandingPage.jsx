@@ -49,8 +49,9 @@ const LandingPage = () => {
         { label: 'Compliance Rate', value: '95%' },
         { label: 'Active Jobs', value: '2,500+' },
       ],
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-blue-600 to-blue-700',
       bgColor: 'bg-blue-50',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700',
     },
     {
       id: 'employer',
@@ -62,8 +63,9 @@ const LandingPage = () => {
         { label: 'Jobs Posted', value: '3,000+' },
         { label: 'Avg. Time to Hire', value: '3 days' },
       ],
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-orange-600 to-orange-700',
       bgColor: 'bg-orange-50',
+      buttonColor: 'bg-orange-600 hover:bg-orange-700',
     },
     {
       id: 'institution',
@@ -75,8 +77,9 @@ const LandingPage = () => {
         { label: 'Certifications', value: '200+' },
         { label: 'Trained Workers', value: '8,000+' },
       ],
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-50',
+      color: 'from-gray-800 to-gray-900',
+      bgColor: 'bg-gray-50',
+      buttonColor: 'bg-gray-900 hover:bg-gray-800',
     },
   ];
 
