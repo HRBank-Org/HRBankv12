@@ -37,7 +37,8 @@ const WorkplaceSetup = () => {
         navigate('/employer/dashboard');
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Failed to create workplace');
+      console.error('Workplace creation error:', err);
+      setError(err.response?.data?.detail || err.response?.data?.message || 'Failed to create workplace');
     } finally {
       setLoading(false);
     }
