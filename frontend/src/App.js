@@ -54,10 +54,19 @@ import VerificationQueue from './pages/institution/VerificationQueue';
 import BulkInvite from './pages/institution/BulkInvite';
 
 import { Toaster } from './components/ui/toaster';
+import EULAModal from './components/common/EULAModal';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedUserTypes }) => {
   const { user, loading } = useAuth();
+  const [showEULA, setShowEULA] = React.useState(false);
+  const [eulaAccepted, setEulaAccepted] = React.useState(false);
+
+  React.useEffect(() => {
+    if (user && !eulaAccepted) {
+      setShowEULA(true);
+    }
+  }, [user, eulaAccepted]);
 
   if (loading) {
     return (
