@@ -27,6 +27,7 @@ import Availability from './pages/workforce/Availability';
 import AvailabilityCalendar from './pages/workforce/AvailabilityCalendar';
 import ClockInOut from './pages/workforce/ClockInOut';
 import ShiftCalendar from './pages/employer/ShiftCalendar';
+import EmploymentHistory from './pages/workforce/EmploymentHistory';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
