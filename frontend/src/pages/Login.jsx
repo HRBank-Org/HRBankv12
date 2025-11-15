@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import UserTypeTabs from '../components/UserTypeTabs';
 import { Button } from '../components/ui/button';
@@ -9,7 +9,15 @@ import { useToast } from '../hooks/use-toast';
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('workforce');
+  const [searchParams] = useSearchParams();
+  const userTypeFromUrl = searchParams.get('type') || 'workforce';
+  const [activeTab, setActiveTab] = useState(userTypeFromUrl);
+
+  useEffect(() => {
+    if (userTypeFromUrl) {
+      setActiveTab(userTypeFromUrl);
+    }
+  }, [userTypeFromUrl]);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
