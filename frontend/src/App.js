@@ -24,7 +24,9 @@ import CreateOccupation from './pages/workforce/CreateOccupation';
 import OccupationDetail from './pages/workforce/OccupationDetail';
 import AddCertification from './pages/workforce/AddCertification';
 import Availability from './pages/workforce/Availability';
+import AvailabilityCalendar from './pages/workforce/AvailabilityCalendar';
 import ClockInOut from './pages/workforce/ClockInOut';
+import ShiftCalendar from './pages/employer/ShiftCalendar';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
