@@ -943,8 +943,8 @@ def test_invitation_system(results):
             results.add_fail("User login for invitation tests", f"Failed to login test users: workforce={workforce_login.status_code}, employer={employer_login.status_code}")
             return
         
-        workforce_token = workforce_login.json().get("access_token")
-        employer_token = employer_login.json().get("access_token")
+        workforce_token = workforce_login.json().get("data", {}).get("access_token")
+        employer_token = employer_login.json().get("data", {}).get("access_token")
         
         if not workforce_token or not employer_token:
             results.add_fail("Token extraction for invitation tests", "Failed to get auth tokens")
