@@ -106,7 +106,7 @@ const WorkforceDashboard = () => {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate('/workforce/messages')}
-              className="relative hover:opacity-80"
+              className="relative hover:opacity-80 cursor-pointer"
               title="Messages"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
