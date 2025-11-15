@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
+import InviteModal from '../../components/employer/InviteModal';
 
 const ShiftDetail = () => {
   const { shiftId } = useParams();
@@ -9,6 +10,7 @@ const ShiftDetail = () => {
   const [workplace, setWorkplace] = useState(null);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 
