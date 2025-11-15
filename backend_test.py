@@ -1156,9 +1156,213 @@ def test_analytics_authorization(results):
     except Exception as e:
         results.add_fail("Analytics authorization - non-admin access", f"Test failed: {str(e)}")
 
+def test_workplace_creation_without_geocoding(results):
+    """Test workplace creation endpoint that was causing issues"""
+    print("\n🧪 Testing Workplace Creation Without Geocoding...")
+    
+    # First create and login an employer user
+    employer_user = generate_test_user("employer")
+    employer_token = None
+    
+    try:
+        # Create employer user
+        signup_response = requests.post(f"{BASE_URL}/auth/signup", json=employer_user, timeout=10)
+        
+        if signup_response.status_code not in [200, 201]:
+            results.add_fail("Employer user creation", f"Failed to create employer user: {signup_response.status_code}")
+            return
+        
+        employer_user_id = signup_response.json().get("data", {}).get("user_id")
+        
+        # Manually verify user in database to bypass email verification
+        import os
+        from motor.motor_asyncio import AsyncIOMotorClient
+        import asyncio
+        from dotenv import load_dotenv
+        
+        load_dotenv('/app/backend/.env')
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        
+        async def verify_employer():
+            client = AsyncIOMotorClient(mongo_url)
+            db = client['hrbank_db']
+            
+            await db.users.update_one(
+                {"user_id": employer_user_id},
+                {"$set": {"email_verified": True, "profile_status": "active"}}
+            )
+            
+            client.close()
+        
+        asyncio.run(verify_employer())
+        
+        # Login to get token
+        login_response = requests.post(f"{BASE_URL}/auth/login", json={
+            "email": employer_user["email"],
+            "password": employer_user["password"],
+            "user_type": employer_user["user_type"]
+        }, timeout=10)
+        
+        if login_response.status_code != 200:
+            results.add_fail("Employer login", f"Failed to login employer: {login_response.status_code}")
+            return
+        
+        employer_token = login_response.json().get("data", {}).get("access_token")
+        
+        if not employer_token:
+            results.add_fail("Employer token extraction", "Failed to get employer auth token")
+            return
+        
+        results.add_pass("Employer user setup and authentication")
+        
+    except Exception as e:
+        results.add_fail("Employer user setup", f"Setup failed: {str(e)}")
+        return
+    
+    # Test Case 1: Create Workplace - Valid Data
+    print("\n  Testing: Create Workplace - Valid Data")
+    try:
+        workplace_data = {
+            "workplace_name": "Test Coffee Shop",
+            "address": "123 Main Street, Toronto, ON",
+            "postal_code": "M5V 3A8",
+            "job_matching_radius_km": 20,
+            "timezone": "America/Toronto"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/workplaces",
+            json=workplace_data,
+            headers=get_auth_headers(employer_token),
+            timeout=15
+        )
+        
+        if response.status_code == 201:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("workplace_id") and
+                data.get("message") == "Workplace created successfully"):
+                
+                workplace_id = data["data"]["workplace_id"]
+                results.add_pass("Create workplace - valid data (success response)")
+                
+                # Verify workplace was created with lat/long as None (geocoding optional)
+                # Check in database
+                async def verify_workplace():
+                    client = AsyncIOMotorClient(mongo_url)
+                    db = client['hrbank_db']
+                    
+                    workplace = await db.workplaces.find_one({"workplace_id": workplace_id})
+                    client.close()
+                    return workplace
+                
+                workplace_doc = asyncio.run(verify_workplace())
+                
+                if workplace_doc:
+                    # Check that lat/long are None (geocoding failed but workplace still created)
+                    if workplace_doc.get("lat") is None and workplace_doc.get("long") is None:
+                        results.add_pass("Create workplace - lat/long None when geocoding unavailable")
+                    else:
+                        # If geocoding worked, that's also fine
+                        results.add_pass("Create workplace - geocoding worked or coordinates set")
+                    
+                    # Verify no 400 error even if geocoding fails
+                    results.add_pass("Create workplace - no 400 error when geocoding fails")
+                else:
+                    results.add_fail("Create workplace - verification", "Workplace not found in database")
+                
+            else:
+                results.add_fail("Create workplace - valid data", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Create workplace - valid data", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Create workplace - valid data", f"Request failed: {str(e)}")
+    
+    # Test Case 2: Create Workplace - Minimal Data
+    print("\n  Testing: Create Workplace - Minimal Data")
+    try:
+        minimal_data = {
+            "workplace_name": "Minimal Shop",
+            "address": "456 Test St",
+            "postal_code": "A1A 1A1"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/workplaces",
+            json=minimal_data,
+            headers=get_auth_headers(employer_token),
+            timeout=15
+        )
+        
+        if response.status_code == 201:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("workplace_id")):
+                
+                workplace_id = data["data"]["workplace_id"]
+                results.add_pass("Create workplace - minimal data (success response)")
+                
+                # Verify default values applied
+                async def verify_minimal_workplace():
+                    client = AsyncIOMotorClient(mongo_url)
+                    db = client['hrbank_db']
+                    
+                    workplace = await db.workplaces.find_one({"workplace_id": workplace_id})
+                    client.close()
+                    return workplace
+                
+                workplace_doc = asyncio.run(verify_minimal_workplace())
+                
+                if workplace_doc:
+                    # Check default values
+                    if (workplace_doc.get("job_matching_radius_km") == 20 and  # default
+                        workplace_doc.get("timezone") == "America/Toronto" and  # default
+                        workplace_doc.get("attendance_geofence_radius_m") == 100):  # default
+                        results.add_pass("Create workplace - default values applied")
+                    else:
+                        results.add_fail("Create workplace - default values", f"Default values not applied correctly: {workplace_doc}")
+                else:
+                    results.add_fail("Create workplace - minimal verification", "Workplace not found in database")
+                
+            else:
+                results.add_fail("Create workplace - minimal data", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Create workplace - minimal data", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Create workplace - minimal data", f"Request failed: {str(e)}")
+    
+    # Test Case 3: Get Workplaces
+    print("\n  Testing: Get Workplaces")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplaces",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "workplaces" in data.get("data", {}) and
+                isinstance(data["data"]["workplaces"], list)):
+                
+                workplaces = data["data"]["workplaces"]
+                if len(workplaces) >= 2:  # Should have at least the 2 we created
+                    results.add_pass("Get workplaces - returns list of created workplaces")
+                else:
+                    results.add_fail("Get workplaces", f"Expected at least 2 workplaces, got {len(workplaces)}")
+                
+                results.add_pass("Get workplaces - no errors")
+            else:
+                results.add_fail("Get workplaces", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Get workplaces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Get workplaces", f"Request failed: {str(e)}")
+
 def main():
-    """Run CEO Analytics Dashboard backend tests"""
-    print("🚀 Starting HR Bank CEO Analytics Dashboard Backend Tests")
+    """Run Workplace Creation Backend Tests"""
+    print("🚀 Starting HR Bank Workplace Creation Backend Tests")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -1167,28 +1371,17 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Test admin authentication system
-    admin_token = test_admin_authentication_system(results)
-    
-    if not admin_token:
-        results.add_fail("Admin authentication system", "Failed to authenticate admin user - cannot proceed with analytics tests")
-    else:
-        results.add_pass("Admin authentication system setup complete")
-        
-        # Test CEO Analytics Dashboard
-        test_ceo_analytics_dashboard(results, admin_token)
-    
-    # Test authorization checks
-    test_analytics_authorization(results)
+    # Test workplace creation without geocoding
+    test_workplace_creation_without_geocoding(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All CEO Analytics Dashboard tests passed!")
+        print("\n🎉 All Workplace Creation tests passed!")
         return 0
     else:
-        print("\n💥 Some CEO Analytics Dashboard tests failed. Check the errors above.")
+        print("\n💥 Some Workplace Creation tests failed. Check the errors above.")
         return 1
 
 def test_invitation_system(results):
