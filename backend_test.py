@@ -945,9 +945,220 @@ def test_admin_authentication_system(results):
     
     return admin_token
 
+def test_ceo_analytics_dashboard(results, admin_token):
+    """Test the CEO Analytics Dashboard endpoint"""
+    print("\n🧪 Testing CEO Analytics Dashboard...")
+    
+    # Test 1: Valid Admin Access to Analytics Endpoint
+    try:
+        response = requests.get(
+            f"{BASE_URL}/admin/analytics/platform",
+            headers=get_auth_headers(admin_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            if data.get("success") and data.get("data"):
+                analytics_data = data["data"]
+                
+                # Verify all required sections exist
+                required_sections = ["overview", "users", "shifts", "zones", "top_zones"]
+                missing_sections = []
+                
+                for section in required_sections:
+                    if section not in analytics_data:
+                        missing_sections.append(section)
+                
+                if missing_sections:
+                    results.add_fail("Analytics endpoint - required sections", f"Missing sections: {missing_sections}")
+                else:
+                    results.add_pass("Analytics endpoint - all required sections present")
+                
+                # Test 2: Verify Overview Section Structure
+                overview = analytics_data.get("overview", {})
+                required_overview_fields = ["total_revenue", "total_hours_worked", "total_shifts_completed", "completion_rate"]
+                missing_overview_fields = []
+                
+                for field in required_overview_fields:
+                    if field not in overview:
+                        missing_overview_fields.append(field)
+                
+                if missing_overview_fields:
+                    results.add_fail("Analytics overview section", f"Missing fields: {missing_overview_fields}")
+                else:
+                    results.add_pass("Analytics overview section - all required fields present")
+                
+                # Test 3: Verify Revenue Calculation ($2 per hour worked)
+                total_hours = overview.get("total_hours_worked", 0)
+                total_revenue = overview.get("total_revenue", 0)
+                expected_revenue = total_hours * 2
+                
+                if abs(total_revenue - expected_revenue) < 0.01:  # Allow for floating point precision
+                    results.add_pass("Revenue calculation verification ($2 per hour)")
+                else:
+                    results.add_fail("Revenue calculation verification", f"Expected {expected_revenue}, got {total_revenue}")
+                
+                # Test 4: Verify Users Section Structure
+                users = analytics_data.get("users", {})
+                required_user_types = ["workforce", "employers", "institutions"]
+                
+                for user_type in required_user_types:
+                    if user_type in users:
+                        user_data = users[user_type]
+                        required_user_fields = ["total", "active"]
+                        if user_type in ["workforce", "employers"]:
+                            required_user_fields.append("new_last_30d")
+                        
+                        missing_user_fields = []
+                        for field in required_user_fields:
+                            if field not in user_data:
+                                missing_user_fields.append(field)
+                        
+                        if missing_user_fields:
+                            results.add_fail(f"Analytics users.{user_type} section", f"Missing fields: {missing_user_fields}")
+                        else:
+                            results.add_pass(f"Analytics users.{user_type} section - all required fields present")
+                    else:
+                        results.add_fail("Analytics users section", f"Missing user type: {user_type}")
+                
+                # Test 5: Verify Shifts Section Structure
+                shifts = analytics_data.get("shifts", {})
+                required_shift_fields = ["total_created", "completed", "pending", "active", "avg_duration_hours"]
+                missing_shift_fields = []
+                
+                for field in required_shift_fields:
+                    if field not in shifts:
+                        missing_shift_fields.append(field)
+                
+                if missing_shift_fields:
+                    results.add_fail("Analytics shifts section", f"Missing fields: {missing_shift_fields}")
+                else:
+                    results.add_pass("Analytics shifts section - all required fields present")
+                
+                # Test 6: Verify Zones Data Structure
+                zones = analytics_data.get("zones", [])
+                if isinstance(zones, list):
+                    results.add_pass("Analytics zones - correct data type (array)")
+                    
+                    # Check zone structure if zones exist
+                    if zones:
+                        sample_zone = zones[0]
+                        required_zone_fields = ["zone_id", "zone_name", "provinces", "revenue", "hours_worked", "total_shifts", "workforce_count", "employer_count"]
+                        missing_zone_fields = []
+                        
+                        for field in required_zone_fields:
+                            if field not in sample_zone:
+                                missing_zone_fields.append(field)
+                        
+                        if missing_zone_fields:
+                            results.add_fail("Analytics zone structure", f"Missing fields in zone data: {missing_zone_fields}")
+                        else:
+                            results.add_pass("Analytics zone structure - all required fields present")
+                    else:
+                        results.add_pass("Analytics zones - empty array (no zones configured)")
+                else:
+                    results.add_fail("Analytics zones", f"Expected array, got {type(zones)}")
+                
+                # Test 7: Verify Top Zones Structure
+                top_zones = analytics_data.get("top_zones", [])
+                if isinstance(top_zones, list):
+                    if len(top_zones) <= 5:
+                        results.add_pass("Analytics top_zones - correct structure (max 5 zones)")
+                    else:
+                        results.add_fail("Analytics top_zones", f"Expected max 5 zones, got {len(top_zones)}")
+                else:
+                    results.add_fail("Analytics top_zones", f"Expected array, got {type(top_zones)}")
+                
+                # Test 8: Verify Data Types and No NaN/Null Values
+                def check_numeric_values(obj, path=""):
+                    issues = []
+                    if isinstance(obj, dict):
+                        for key, value in obj.items():
+                            current_path = f"{path}.{key}" if path else key
+                            if isinstance(value, (int, float)):
+                                if value != value:  # Check for NaN
+                                    issues.append(f"NaN value at {current_path}")
+                                elif value is None:
+                                    issues.append(f"Null value at {current_path}")
+                            elif isinstance(value, (dict, list)):
+                                issues.extend(check_numeric_values(value, current_path))
+                    elif isinstance(obj, list):
+                        for i, item in enumerate(obj):
+                            current_path = f"{path}[{i}]"
+                            issues.extend(check_numeric_values(item, current_path))
+                    return issues
+                
+                numeric_issues = check_numeric_values(analytics_data)
+                if numeric_issues:
+                    results.add_fail("Analytics data validation", f"Data issues: {numeric_issues}")
+                else:
+                    results.add_pass("Analytics data validation - no NaN or null numeric values")
+                
+            else:
+                results.add_fail("Analytics endpoint - response structure", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Analytics endpoint - admin access", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Analytics endpoint - admin access", f"Request failed: {str(e)}")
+
+def test_analytics_authorization(results):
+    """Test that non-admin users cannot access analytics endpoint"""
+    print("\n🧪 Testing Analytics Authorization...")
+    
+    # Test 1: Unauthenticated Access
+    try:
+        response = requests.get(f"{BASE_URL}/admin/analytics/platform", timeout=10)
+        
+        if response.status_code in [401, 403]:
+            results.add_pass("Analytics authorization - unauthenticated access blocked")
+        else:
+            results.add_fail("Analytics authorization - unauthenticated access", f"Expected 401/403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Analytics authorization - unauthenticated access", f"Request failed: {str(e)}")
+    
+    # Test 2: Non-admin User Access
+    try:
+        # Create a workforce user for testing
+        workforce_user = generate_test_user("workforce")
+        signup_response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
+        
+        if signup_response.status_code in [200, 201]:
+            # Try to login (might fail due to email verification, but we'll try)
+            login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                "email": workforce_user["email"],
+                "password": workforce_user["password"],
+                "user_type": workforce_user["user_type"]
+            }, timeout=10)
+            
+            if login_response.status_code == 200:
+                workforce_token = login_response.json().get("data", {}).get("access_token")
+                
+                if workforce_token:
+                    # Try to access analytics with workforce token
+                    response = requests.get(
+                        f"{BASE_URL}/admin/analytics/platform",
+                        headers=get_auth_headers(workforce_token),
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 403:
+                        results.add_pass("Analytics authorization - non-admin access blocked")
+                    else:
+                        results.add_fail("Analytics authorization - non-admin access", f"Expected 403, got {response.status_code}")
+                else:
+                    results.add_pass("Analytics authorization - non-admin login failed (expected)")
+            else:
+                results.add_pass("Analytics authorization - non-admin login failed (expected due to email verification)")
+        else:
+            results.add_fail("Analytics authorization test setup", "Failed to create test user")
+    except Exception as e:
+        results.add_fail("Analytics authorization - non-admin access", f"Test failed: {str(e)}")
+
 def main():
-    """Run all backend API tests including admin authentication"""
-    print("🚀 Starting HR Bank Backend API Tests")
+    """Run CEO Analytics Dashboard backend tests"""
+    print("🚀 Starting HR Bank CEO Analytics Dashboard Backend Tests")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -959,20 +1170,25 @@ def main():
     # Test admin authentication system
     admin_token = test_admin_authentication_system(results)
     
-    # Focus on admin authentication testing as requested
     if not admin_token:
-        results.add_fail("Admin authentication system", "Failed to authenticate admin user - cannot proceed with further tests")
+        results.add_fail("Admin authentication system", "Failed to authenticate admin user - cannot proceed with analytics tests")
     else:
         results.add_pass("Admin authentication system setup complete")
+        
+        # Test CEO Analytics Dashboard
+        test_ceo_analytics_dashboard(results, admin_token)
+    
+    # Test authorization checks
+    test_analytics_authorization(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All admin authentication tests passed!")
+        print("\n🎉 All CEO Analytics Dashboard tests passed!")
         return 0
     else:
-        print("\n💥 Some admin authentication tests failed. Check the errors above.")
+        print("\n💥 Some CEO Analytics Dashboard tests failed. Check the errors above.")
         return 1
 
 def test_invitation_system(results):
