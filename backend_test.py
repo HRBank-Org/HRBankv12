@@ -1790,29 +1790,7 @@ def test_eula_authentication_required(results):
         except Exception as e:
             results.add_fail(f"EULA auth required - {method} {endpoint}", f"Request failed: {str(e)}")
 
-def main():
-    """Run all backend API tests including EULA system"""
-    print("🚀 Starting HR Bank Backend API Tests (Including EULA System)")
-    print(f"Backend URL: {BASE_URL}")
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    
-    results = TestResults()
-    
-    # Test backend connectivity first
-    test_backend_connectivity(results)
-    
-    # Test EULA system
-    test_eula_system(results)
-    
-    # Print final results
-    success = results.summary()
-    
-    if success:
-        print("\n🎉 All backend API tests passed!")
-        return 0
-    else:
-        print("\n💥 Some tests failed. Check the errors above.")
-        return 1
+# Main function is defined earlier in the file for admin authentication testing
 
 if __name__ == "__main__":
     exit(main())
