@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-HR Bank Authentication Backend API Tests
-Tests all authentication endpoints thoroughly
+HR Bank Calendar Backend API Tests
+Tests all calendar endpoints thoroughly including authentication
 """
 
 import requests
 import json
 import uuid
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
 
