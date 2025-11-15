@@ -125,13 +125,13 @@ const LandingPage = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate('/login')}
-                className="text-gray-700 hover:text-[#4267B2]"
+                className="text-gray-700 hover:text-[#30496d]"
               >
                 Sign In
               </Button>
               <Button
                 onClick={() => navigate('/signup')}
-                className="bg-[#4267B2] hover:bg-[#365899] text-white"
+                className="bg-[#ff5f00] hover:bg-[#e55500] text-white"
               >
                 Get Started
               </Button>
