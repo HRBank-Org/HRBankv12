@@ -1,0 +1,387 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+
+// Auth pages
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
+import GoogleCallback from './pages/auth/GoogleCallback';
+import AdminLogin from './pages/auth/AdminLogin';
+import PendingApproval from './pages/auth/PendingApproval';
+
+// Dashboard pages
+import WorkforceDashboard from './pages/workforce/Dashboard';
+import WorkforceProfile from './pages/workforce/Profile';
+import WorkforceOnboarding from './pages/workforce/Onboarding';
+import OccupationProfiles from './pages/workforce/OccupationProfiles';
+import CreateOccupation from './pages/workforce/CreateOccupation';
+import OccupationDetail from './pages/workforce/OccupationDetail';
+import AddCertification from './pages/workforce/AddCertification';
+import Availability from './pages/workforce/Availability';
+import ClockInOut from './pages/workforce/ClockInOut';
+import Messages from './pages/common/Messages';
+import PWAInstallPrompt from './components/common/PWAInstallPrompt';
+import VerifyCredential from './pages/public/VerifyCredential';
+import EmployerDashboard from './pages/employer/Dashboard';
+import EmployerProfile from './pages/employer/Profile';
+import EmployerOnboarding from './pages/employer/Onboarding';
+import InstitutionDashboard from './pages/institution/Dashboard';
+import VerificationQueue from './pages/institution/VerificationQueue';
+import BulkInvite from './pages/institution/BulkInvite';
+import IssueCredential from './pages/institution/IssueCredential';
+import ManageCredentials from './pages/institution/ManageCredentials';
+import AdminDashboard from './pages/admin/Dashboard';
+import ProfileWizard from './pages/workforce/ProfileWizard';
+import WorkplaceSetup from './pages/employer/WorkplaceSetup';
+import PostJob from './pages/employer/PostJob';
+import Workplaces from './pages/employer/Workplaces';
+import WorkplaceDetail from './pages/employer/WorkplaceDetail';
+import CreateShift from './pages/employer/CreateShift';
+import ShiftDetail from './pages/employer/ShiftDetail';
+import ShiftAttendance from './pages/employer/ShiftAttendance';
+import Timesheets from './pages/employer/Timesheets';
+import ManageTasks from './pages/employer/ManageTasks';
+import EditWorkplace from './pages/employer/EditWorkplace';
+
+import './App.css';
+
+// Protected Route Component
+const ProtectedRoute = ({ children, allowedUserTypes }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedUserTypes && !allowedUserTypes.includes(user.user_type)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+// Main App Component (without AuthProvider wrapping)
+function AppRoutes() {
+  const { user } = useAuth();
+
+  return (
+    <ThemeProvider userType={user?.user_type || 'workforce'}>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/auth/google/callback" element={<GoogleCallback />} />
+        <Route path="/verify/:credentialId" element={<VerifyCredential />} />
+        
+        {/* Admin Login - Separate */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        
+        {/* Pending Approval */}
+        <Route path="/pending-approval" element={<PendingApproval />} />
+        
+        {/* Onboarding Routes */}
+        <Route 
+          path="/employer/onboarding" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <EmployerOnboarding />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/onboarding" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <WorkforceOnboarding />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Workforce Routes */}
+        <Route 
+          path="/workforce/dashboard" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <WorkforceDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/profile/setup" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <ProfileWizard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/profile" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <WorkforceProfile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/occupations" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <OccupationProfiles />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/occupations/create" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <CreateOccupation />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/occupations/:occupationId" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <OccupationDetail />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/occupations/:occupationId/add-certification" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <AddCertification />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/availability" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <Availability />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/clock/:bookingId" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <ClockInOut />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/workforce/messages" 
+          element={
+            <ProtectedRoute allowedUserTypes={['workforce']}>
+              <Messages />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Employer Routes */}
+        <Route 
+          path="/employer/dashboard" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <EmployerDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/profile" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <EmployerProfile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/workplace/setup" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <WorkplaceSetup />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/post-job" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <PostJob />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/workplaces" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <Workplaces />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/workplaces/:workplaceId" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <WorkplaceDetail />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/workplaces/:workplaceId/edit" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <EditWorkplace />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/workplaces/:workplaceId/create-shift" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <CreateShift />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/shifts/:shiftId" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <ShiftDetail />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/shifts/:shiftId/attendance" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <ShiftAttendance />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/messages" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <Messages />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/timesheets" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <Timesheets />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/employer/roles/:roleId/tasks" 
+          element={
+            <ProtectedRoute allowedUserTypes={['employer']}>
+              <ManageTasks />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Institution Routes */}
+        <Route 
+          path="/institution/dashboard" 
+          element={
+            <ProtectedRoute allowedUserTypes={['institution']}>
+              <InstitutionDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/institution/verification-queue" 
+          element={
+            <ProtectedRoute allowedUserTypes={['institution']}>
+              <VerificationQueue />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/institution/invite-students" 
+          element={
+            <ProtectedRoute allowedUserTypes={['institution']}>
+              <BulkInvite />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/institution/issue-credential" 
+          element={
+            <ProtectedRoute allowedUserTypes={['institution']}>
+              <IssueCredential />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/institution/manage-credentials" 
+          element={
+            <ProtectedRoute allowedUserTypes={['institution']}>
+              <ManageCredentials />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Admin Routes */}
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <ProtectedRoute allowedUserTypes={['admin']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Default Route */}
+        <Route 
+          path="/" 
+          element={
+            user ? (
+              user.user_type === 'workforce' ? <Navigate to="/workforce/dashboard" /> :
+              user.user_type === 'employer' ? <Navigate to="/employer/dashboard" /> :
+              user.user_type === 'institution' ? <Navigate to="/institution/dashboard" /> :
+              user.user_type === 'admin' ? <Navigate to="/admin/dashboard" /> :
+              <Navigate to="/login" />
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+        
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ThemeProvider>
+  );
+}
+
+// App wrapper with AuthProvider
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <PWAInstallPrompt />
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
+  );
+}
+
+export default App;
