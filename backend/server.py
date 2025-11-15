@@ -97,6 +97,7 @@ app.include_router(notifications.router, prefix="/api", tags=["notifications"])
 app.include_router(payments.router, prefix="/api", tags=["payments"])
 app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockchain_credentials"])
 app.include_router(translation.router, prefix="/api", tags=["translation"])
+app.include_router(partner_logos.router, tags=["partner-logos"])
 
 app.add_middleware(
     CORSMiddleware,
