@@ -149,6 +149,15 @@ const ShiftDetail = () => {
           </div>
         </div>
       </main>
+
+      {/* Invite Modal */}
+      <InviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSubmit={handleInviteSubmit}
+        type="shift"
+        itemName={shift?.shift_date ? `${new Date(shift.shift_date).toLocaleDateString()} ${shift.start_time} - ${shift.end_time}` : ''}
+      />
     </div>
   );
 };
