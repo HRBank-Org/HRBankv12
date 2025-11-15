@@ -305,3 +305,203 @@ async def get_admin_profile(
         "success": True,
         "data": admin
     }
+
+# ==================== ANALYTICS ====================
+
+@router.get("/analytics/platform", response_model=Dict)
+async def get_platform_analytics(
+    start_date: str = None,
+    end_date: str = None,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get comprehensive platform analytics for CEO dashboard
+    Revenue Model: $1/hour from workforce + $1/hour from employer = $2/hour total
+    """
+    if current_user.get("user_type") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    
+    # Parse date filters
+    date_filter = {}
+    if start_date:
+        date_filter["$gte"] = start_date
+    if end_date:
+        date_filter["$lte"] = end_date
+    
+    # ===== USER COUNTS =====
+    total_workforce = await db.users.count_documents({"user_type": "workforce"})
+    total_employers = await db.users.count_documents({"user_type": "employer"})
+    total_institutions = await db.users.count_documents({"user_type": "institution"})
+    
+    active_workforce = await db.users.count_documents({
+        "user_type": "workforce",
+        "account_status": "active"
+    })
+    active_employers = await db.users.count_documents({
+        "user_type": "employer",
+        "account_status": "active"
+    })
+    active_institutions = await db.users.count_documents({
+        "user_type": "institution",
+        "account_status": "active"
+    })
+    
+    # ===== SHIFT & HOURS DATA =====
+    # Get all completed shifts
+    shift_query = {"status": "completed"}
+    if date_filter:
+        shift_query["end_time"] = date_filter
+    
+    completed_shifts = await db.shifts.find(shift_query).to_list(None)
+    
+    # Calculate total hours from completed shifts
+    total_hours_worked = 0
+    for shift in completed_shifts:
+        # Calculate hours if start_time and end_time exist
+        if shift.get("start_time") and shift.get("end_time"):
+            try:
+                start = datetime.fromisoformat(shift["start_time"].replace('Z', '+00:00'))
+                end = datetime.fromisoformat(shift["end_time"].replace('Z', '+00:00'))
+                duration_hours = (end - start).total_seconds() / 3600
+                total_hours_worked += duration_hours
+            except:
+                # Fallback to shift duration if available
+                total_hours_worked += shift.get("duration_hours", 0)
+        else:
+            total_hours_worked += shift.get("duration_hours", 0)
+    
+    # Revenue calculation: $2 per hour ($1 from workforce + $1 from employer)
+    total_revenue = total_hours_worked * 2
+    
+    # ===== SHIFT COUNTS =====
+    total_shifts_created = await db.shifts.count_documents({})
+    total_shifts_completed = len(completed_shifts)
+    pending_shifts = await db.shifts.count_documents({"status": "pending"})
+    active_shifts = await db.shifts.count_documents({"status": "active"})
+    
+    # ===== ZONE-BASED ANALYTICS =====
+    zones = await db.zones.find({"active": True}, {"_id": 0}).to_list(100)
+    zone_analytics = []
+    
+    for zone in zones:
+        zone_id = zone.get("zone_id")
+        zone_name = zone.get("name")
+        zone_provinces = zone.get("provinces", [])
+        
+        # Get users in this zone (based on admin assignments or workplace locations)
+        # For now, we'll use workplace locations for employers
+        zone_workplaces = await db.workplaces.find({
+            "province": {"$in": zone_provinces}
+        }).to_list(None)
+        
+        zone_employer_ids = list(set([wp.get("employer_id") for wp in zone_workplaces]))
+        zone_employers_count = len(zone_employer_ids)
+        
+        # Get shifts for this zone
+        zone_workplace_ids = [wp.get("workplace_id") for wp in zone_workplaces]
+        zone_shifts = await db.shifts.find({
+            "workplace_id": {"$in": zone_workplace_ids},
+            "status": "completed"
+        }).to_list(None)
+        
+        # Calculate zone hours and revenue
+        zone_hours = 0
+        for shift in zone_shifts:
+            if shift.get("start_time") and shift.get("end_time"):
+                try:
+                    start = datetime.fromisoformat(shift["start_time"].replace('Z', '+00:00'))
+                    end = datetime.fromisoformat(shift["end_time"].replace('Z', '+00:00'))
+                    duration_hours = (end - start).total_seconds() / 3600
+                    zone_hours += duration_hours
+                except:
+                    zone_hours += shift.get("duration_hours", 0)
+            else:
+                zone_hours += shift.get("duration_hours", 0)
+        
+        zone_revenue = zone_hours * 2
+        
+        # Get bookings to find workforce in this zone
+        zone_bookings = await db.bookings.find({
+            "shift_id": {"$in": [s.get("shift_id") for s in zone_shifts]}
+        }).to_list(None)
+        
+        zone_workforce_ids = list(set([b.get("workforce_id") for b in zone_bookings]))
+        zone_workforce_count = len(zone_workforce_ids)
+        
+        zone_analytics.append({
+            "zone_id": zone_id,
+            "zone_name": zone_name,
+            "provinces": zone_provinces,
+            "revenue": round(zone_revenue, 2),
+            "hours_worked": round(zone_hours, 2),
+            "total_shifts": len(zone_shifts),
+            "workforce_count": zone_workforce_count,
+            "employer_count": zone_employers_count
+        })
+    
+    # Sort zones by revenue
+    zone_analytics.sort(key=lambda x: x["revenue"], reverse=True)
+    
+    # ===== GROWTH METRICS (Last 30 days) =====
+    from datetime import timedelta
+    thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
+    
+    new_workforce_30d = await db.users.count_documents({
+        "user_type": "workforce",
+        "created_date": {"$gte": thirty_days_ago}
+    })
+    new_employers_30d = await db.users.count_documents({
+        "user_type": "employer",
+        "created_date": {"$gte": thirty_days_ago}
+    })
+    
+    # ===== ENGAGEMENT METRICS =====
+    total_bookings = await db.bookings.count_documents({})
+    completed_bookings = await db.bookings.count_documents({"status": "completed"})
+    
+    completion_rate = (completed_bookings / total_bookings * 100) if total_bookings > 0 else 0
+    
+    # Average shift duration
+    avg_shift_duration = total_hours_worked / total_shifts_completed if total_shifts_completed > 0 else 0
+    
+    return {
+        "success": True,
+        "data": {
+            "overview": {
+                "total_revenue": round(total_revenue, 2),
+                "total_hours_worked": round(total_hours_worked, 2),
+                "total_shifts_completed": total_shifts_completed,
+                "total_shifts_created": total_shifts_created,
+                "completion_rate": round(completion_rate, 2)
+            },
+            "users": {
+                "workforce": {
+                    "total": total_workforce,
+                    "active": active_workforce,
+                    "new_last_30d": new_workforce_30d
+                },
+                "employers": {
+                    "total": total_employers,
+                    "active": active_employers,
+                    "new_last_30d": new_employers_30d
+                },
+                "institutions": {
+                    "total": total_institutions,
+                    "active": active_institutions
+                }
+            },
+            "shifts": {
+                "total_created": total_shifts_created,
+                "completed": total_shifts_completed,
+                "pending": pending_shifts,
+                "active": active_shifts,
+                "avg_duration_hours": round(avg_shift_duration, 2)
+            },
+            "zones": zone_analytics,
+            "top_zones": zone_analytics[:5]  # Top 5 zones by revenue
+        }
+    }
