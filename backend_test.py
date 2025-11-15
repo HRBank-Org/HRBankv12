@@ -342,9 +342,13 @@ def create_test_workplace(results, employer_token):
     """Create a test workplace for shift testing"""
     print("\n🧪 Creating Test Workplace...")
     
-    # Try without address first (to avoid geocoding issues)
+    # Provide all required fields including mock coordinates
     workplace_data = {
         "workplace_name": f"Test Workplace {str(uuid.uuid4())[:8]}",
+        "address": "123 Test Street, Toronto, ON",
+        "postal_code": "M5V 3A8",
+        "lat": 43.6532,  # Toronto coordinates
+        "long": -79.3832,
         "description": "Test workplace for calendar API testing"
     }
     
