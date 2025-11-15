@@ -53,6 +53,7 @@ def generate_test_user(user_type="workforce"):
     return {
         "email": f"test_{user_type}_{unique_id}@hrbank.com",
         "full_name": f"Test {user_type.title()} User {unique_id}",
+        "phone": f"+1555{unique_id[:7]}",
         "password": "TestPassword123!",
         "user_type": user_type
     }
