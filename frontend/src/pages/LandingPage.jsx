@@ -288,7 +288,7 @@ const LandingPage = () => {
               return (
                 <div key={index} className="text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
-                    <IconComponent className="w-8 h-8 text-[#4267B2]" />
+                    <IconComponent className="w-8 h-8 text-[#30496d]" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
