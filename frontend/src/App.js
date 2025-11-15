@@ -28,6 +28,8 @@ import AvailabilityCalendar from './pages/workforce/AvailabilityCalendar';
 import ClockInOut from './pages/workforce/ClockInOut';
 import ShiftCalendar from './pages/employer/ShiftCalendar';
 import EmploymentHistory from './pages/workforce/EmploymentHistory';
+import Messages from './pages/common/Messages';
+import Notifications from './pages/common/Notifications';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
