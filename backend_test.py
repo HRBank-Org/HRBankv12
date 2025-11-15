@@ -908,9 +908,9 @@ def test_admin_authentication_system(results):
     # Test 5: Token Verification with Protected Endpoint
     if admin_token:
         try:
-            # Test accessing a protected admin endpoint
+            # Test accessing the EULA check endpoint which requires authentication
             response = requests.get(
-                f"{BASE_URL}/admin/list",
+                f"{BASE_URL}/eula/check",
                 headers=get_auth_headers(admin_token),
                 timeout=10
             )
@@ -921,17 +921,8 @@ def test_admin_authentication_system(results):
                     results.add_pass("Admin token verification - protected endpoint access")
                 else:
                     results.add_fail("Admin token verification - protected endpoint access", f"Invalid response: {data}")
-            elif response.status_code == 404:
-                # Endpoint might not exist, try another one
-                response = requests.get(
-                    f"{BASE_URL}/users/profile",
-                    headers=get_auth_headers(admin_token),
-                    timeout=10
-                )
-                if response.status_code in [200, 403]:  # 200 = success, 403 = authorized but forbidden (still validates token)
-                    results.add_pass("Admin token verification - token contains correct user data")
-                else:
-                    results.add_fail("Admin token verification - token validation", f"Token validation failed: {response.status_code}")
+            elif response.status_code == 401 or response.status_code == 403:
+                results.add_fail("Admin token verification - protected endpoint access", f"Token not accepted: {response.status_code}")
             else:
                 results.add_fail("Admin token verification - protected endpoint access", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
