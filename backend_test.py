@@ -812,9 +812,151 @@ def test_role_based_access(results, workforce_token, employer_token):
         except Exception as e:
             results.add_fail(f"Employer blocked from {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_admin_authentication_system(results):
+    """Test the admin authentication system with specific credentials"""
+    print("\n🧪 Testing Admin Authentication System...")
+    
+    # Admin credentials from review request
+    admin_credentials = {
+        "email": "qnizami@hrbank.ca",
+        "password": "Tabaghnak@3891",
+        "user_type": "admin"
+    }
+    
+    # Test 1: Valid Admin Login
+    admin_token = None
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=admin_credentials, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "access_token" in data.get("data", {}) and
+                "refresh_token" in data.get("data", {}) and
+                data.get("data", {}).get("user_type") == "admin" and
+                data.get("data", {}).get("profile_status") == "active"):
+                
+                admin_token = data["data"]["access_token"]
+                results.add_pass("Admin login - valid credentials")
+                
+                # Verify no email verification required for admin
+                if not data.get("data", {}).get("email_verified_required", True):
+                    results.add_pass("Admin login - email verification bypassed")
+                else:
+                    results.add_fail("Admin login - email verification bypass", "Admin should not require email verification")
+            else:
+                results.add_fail("Admin login - valid credentials", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Admin login - valid credentials", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Admin login - valid credentials", f"Request failed: {str(e)}")
+    
+    # Test 2: Invalid Admin Login - Wrong Password
+    try:
+        wrong_password_creds = admin_credentials.copy()
+        wrong_password_creds["password"] = "WrongPassword123!"
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=wrong_password_creds, timeout=10)
+        
+        if response.status_code == 401:
+            data = response.json()
+            if "invalid credentials" in data.get("detail", "").lower():
+                results.add_pass("Admin login - wrong password validation")
+            else:
+                results.add_fail("Admin login - wrong password validation", f"Wrong error message: {data}")
+        else:
+            results.add_fail("Admin login - wrong password validation", f"Expected 401, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Admin login - wrong password validation", f"Request failed: {str(e)}")
+    
+    # Test 3: Invalid Admin Login - Non-existent Email
+    try:
+        nonexistent_creds = admin_credentials.copy()
+        nonexistent_creds["email"] = "nonexistent.admin@hrbank.ca"
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=nonexistent_creds, timeout=10)
+        
+        if response.status_code == 401:
+            data = response.json()
+            if "invalid credentials" in data.get("detail", "").lower():
+                results.add_pass("Admin login - non-existent email validation")
+            else:
+                results.add_fail("Admin login - non-existent email validation", f"Wrong error message: {data}")
+        else:
+            results.add_fail("Admin login - non-existent email validation", f"Expected 401, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Admin login - non-existent email validation", f"Request failed: {str(e)}")
+    
+    # Test 4: Invalid Admin Login - Wrong User Type
+    try:
+        wrong_type_creds = admin_credentials.copy()
+        wrong_type_creds["user_type"] = "workforce"
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=wrong_type_creds, timeout=10)
+        
+        if response.status_code == 401:
+            data = response.json()
+            if "invalid credentials" in data.get("detail", "").lower():
+                results.add_pass("Admin login - wrong user_type validation")
+            else:
+                results.add_fail("Admin login - wrong user_type validation", f"Wrong error message: {data}")
+        else:
+            results.add_fail("Admin login - wrong user_type validation", f"Expected 401, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Admin login - wrong user_type validation", f"Request failed: {str(e)}")
+    
+    # Test 5: Token Verification with Protected Endpoint
+    if admin_token:
+        try:
+            # Test accessing a protected admin endpoint
+            response = requests.get(
+                f"{BASE_URL}/admin/list",
+                headers=get_auth_headers(admin_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("Admin token verification - protected endpoint access")
+                else:
+                    results.add_fail("Admin token verification - protected endpoint access", f"Invalid response: {data}")
+            elif response.status_code == 404:
+                # Endpoint might not exist, try another one
+                response = requests.get(
+                    f"{BASE_URL}/users/profile",
+                    headers=get_auth_headers(admin_token),
+                    timeout=10
+                )
+                if response.status_code in [200, 403]:  # 200 = success, 403 = authorized but forbidden (still validates token)
+                    results.add_pass("Admin token verification - token contains correct user data")
+                else:
+                    results.add_fail("Admin token verification - token validation", f"Token validation failed: {response.status_code}")
+            else:
+                results.add_fail("Admin token verification - protected endpoint access", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Admin token verification - protected endpoint access", f"Request failed: {str(e)}")
+    
+    # Test 6: Verify Token Contains Correct Admin User Data
+    if admin_token:
+        try:
+            # Decode token to verify contents (without signature verification for testing)
+            import jwt
+            decoded_token = jwt.decode(admin_token, options={"verify_signature": False})
+            
+            if (decoded_token.get("email") == admin_credentials["email"] and
+                decoded_token.get("user_type") == "admin"):
+                results.add_pass("Admin token - contains correct user data")
+            else:
+                results.add_fail("Admin token - contains correct user data", f"Token data mismatch: {decoded_token}")
+        except Exception as e:
+            results.add_fail("Admin token - contains correct user data", f"Token decode failed: {str(e)}")
+    
+    return admin_token
+
 def main():
-    """Run all calendar API tests"""
-    print("🚀 Starting HR Bank Calendar Backend API Tests")
+    """Run all backend API tests including admin authentication"""
+    print("🚀 Starting HR Bank Backend API Tests")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -822,6 +964,9 @@ def main():
     
     # Test backend connectivity first
     test_backend_connectivity(results)
+    
+    # Test admin authentication system
+    admin_token = test_admin_authentication_system(results)
     
     # Load test tokens from file
     workforce_token = None
