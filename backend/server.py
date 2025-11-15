@@ -99,6 +99,7 @@ app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockcha
 app.include_router(translation.router, prefix="/api", tags=["translation"])
 app.include_router(partner_logos.router, tags=["partner-logos"])
 app.include_router(calendar.router, tags=["calendar"])
+app.include_router(workforce_management.router, tags=["workforce_management"])
 
 app.add_middleware(
     CORSMiddleware,
