@@ -978,10 +978,10 @@ def main():
     success = results.summary()
     
     if success:
-        print("\n🎉 All calendar API tests passed!")
+        print("\n🎉 All admin authentication tests passed!")
         return 0
     else:
-        print("\n💥 Some tests failed. Check the errors above.")
+        print("\n💥 Some admin authentication tests failed. Check the errors above.")
         return 1
 
 def test_invitation_system(results):
