@@ -221,12 +221,15 @@ const LandingPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {userCategories.map((category) => {
-              const IconComponent = category.icon;
               return (
                 <Card key={category.id} className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
                   <CardContent className="p-8">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.color} flex items-center justify-center mb-6`}>
-                      <IconComponent className="w-8 h-8 text-white" />
+                    <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${category.color} flex items-center justify-center mb-6 p-3`}>
+                      <img 
+                        src={getLogoByUserType(category.id)}
+                        alt={`${category.title} Logo`}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">{category.title}</h3>
