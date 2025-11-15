@@ -88,7 +88,9 @@ const ProtectedRoute = ({ children, allowedUserTypes }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // Redirect to appropriate login page based on route
+    const isAdminRoute = window.location.pathname.startsWith('/admin');
+    return <Navigate to={isAdminRoute ? "/admin/login" : "/login"} replace />;
   }
 
   if (allowedUserTypes && !allowedUserTypes.includes(user.user_type)) {
