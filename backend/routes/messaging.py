@@ -29,10 +29,12 @@ async def get_my_threads(
         query = {"workforce_id": user_id}
     elif user_type == "employer":
         query = {"employer_id": user_id}
+    elif user_type == "institution":
+        query = {"institution_id": user_id}
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only workforce and employers can access messages"
+            detail="Invalid user type for messaging"
         )
     
     threads = await db.chat_threads.find(
