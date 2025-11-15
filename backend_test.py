@@ -303,9 +303,450 @@ def test_backend_connectivity(results):
     except Exception as e:
         results.add_fail("Backend connectivity", f"Connection failed: {str(e)}")
 
+def get_auth_headers(token):
+    """Get authorization headers for API requests"""
+    return {"Authorization": f"Bearer {token}"}
+
+def create_test_workplace(results, employer_token):
+    """Create a test workplace for shift testing"""
+    print("\n🧪 Creating Test Workplace...")
+    
+    workplace_data = {
+        "workplace_name": f"Test Workplace {str(uuid.uuid4())[:8]}",
+        "address": "123 Test Street, Test City",
+        "description": "Test workplace for calendar API testing"
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/workplaces",
+            json=workplace_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            workplace_id = data.get("workplace_id")
+            if workplace_id:
+                results.add_pass("Test workplace creation")
+                return workplace_id
+            else:
+                results.add_fail("Test workplace creation", "No workplace_id in response")
+        else:
+            results.add_fail("Test workplace creation", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Test workplace creation", f"Request failed: {str(e)}")
+    
+    return None
+
+def test_workforce_availability_calendar(results, workforce_token):
+    """Test workforce availability calendar endpoints"""
+    print("\n🧪 Testing Workforce Availability Calendar APIs...")
+    
+    # Test GET availability calendar (empty initially)
+    try:
+        response = requests.get(
+            f"{BASE_URL}/workforce/availability/calendar",
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and isinstance(data.get("data"), list):
+                results.add_pass("GET workforce availability calendar")
+            else:
+                results.add_fail("GET workforce availability calendar", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET workforce availability calendar", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET workforce availability calendar", f"Request failed: {str(e)}")
+    
+    # Test POST create availability event
+    now = datetime.utcnow()
+    start_time = (now + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
+    end_time = start_time + timedelta(hours=8)
+    
+    availability_data = {
+        "title": "Available for Work",
+        "start": start_time.isoformat() + "Z",
+        "end": end_time.isoformat() + "Z",
+        "type": "availability"
+    }
+    
+    created_event_id = None
+    try:
+        response = requests.post(
+            f"{BASE_URL}/workforce/availability/calendar",
+            json=availability_data,
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("data"):
+                created_event_id = data["data"][0].get("id")
+                results.add_pass("POST create availability event")
+            else:
+                results.add_fail("POST create availability event", f"Invalid response: {data}")
+        else:
+            results.add_fail("POST create availability event", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST create availability event", f"Request failed: {str(e)}")
+    
+    # Test POST create recurring availability event
+    recurring_data = {
+        "title": "Weekly Availability",
+        "start": (start_time + timedelta(days=7)).isoformat() + "Z",
+        "end": (end_time + timedelta(days=7)).isoformat() + "Z",
+        "type": "availability",
+        "recurring": True,
+        "recurringPattern": "weekly",
+        "recurringEndDate": (start_time + timedelta(days=28)).isoformat() + "Z"
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/workforce/availability/calendar",
+            json=recurring_data,
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and len(data.get("data", [])) > 1:
+                results.add_pass("POST create recurring availability events")
+            else:
+                results.add_fail("POST create recurring availability events", f"Expected multiple events: {data}")
+        else:
+            results.add_fail("POST create recurring availability events", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST create recurring availability events", f"Request failed: {str(e)}")
+    
+    # Test DELETE availability event
+    if created_event_id:
+        try:
+            response = requests.delete(
+                f"{BASE_URL}/workforce/availability/calendar/{created_event_id}",
+                headers=get_auth_headers(workforce_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("DELETE availability event")
+                else:
+                    results.add_fail("DELETE availability event", f"Invalid response: {data}")
+            else:
+                results.add_fail("DELETE availability event", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("DELETE availability event", f"Request failed: {str(e)}")
+    
+    # Test invalid data handling
+    try:
+        invalid_data = {"title": "Invalid Event"}  # Missing start/end
+        response = requests.post(
+            f"{BASE_URL}/workforce/availability/calendar",
+            json=invalid_data,
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 400:
+            results.add_pass("Invalid availability data validation")
+        else:
+            results.add_fail("Invalid availability data validation", f"Expected 400, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Invalid availability data validation", f"Request failed: {str(e)}")
+
+def test_employer_shift_calendar(results, employer_token, workplace_id):
+    """Test employer shift calendar endpoints"""
+    print("\n🧪 Testing Employer Shift Calendar APIs...")
+    
+    # Test GET shifts calendar (empty initially)
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/shifts/calendar",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and isinstance(data.get("data"), list):
+                results.add_pass("GET employer shifts calendar")
+            else:
+                results.add_fail("GET employer shifts calendar", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET employer shifts calendar", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET employer shifts calendar", f"Request failed: {str(e)}")
+    
+    # Test POST create shift
+    now = datetime.utcnow()
+    start_time = (now + timedelta(days=2)).replace(hour=10, minute=0, second=0, microsecond=0)
+    end_time = start_time + timedelta(hours=6)
+    
+    shift_data = {
+        "title": "Morning Shift",
+        "workplace_id": workplace_id,
+        "start": start_time.isoformat() + "Z",
+        "end": end_time.isoformat() + "Z",
+        "positions_needed": 2,
+        "description": "Test morning shift"
+    }
+    
+    created_shift_id = None
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/calendar",
+            json=shift_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("data"):
+                created_shift_id = data["data"][0].get("id")
+                results.add_pass("POST create shift")
+            else:
+                results.add_fail("POST create shift", f"Invalid response: {data}")
+        else:
+            results.add_fail("POST create shift", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST create shift", f"Request failed: {str(e)}")
+    
+    # Test POST create recurring shift
+    recurring_shift_data = {
+        "title": "Daily Recurring Shift",
+        "workplace_id": workplace_id,
+        "start": (start_time + timedelta(days=7)).isoformat() + "Z",
+        "end": (end_time + timedelta(days=7)).isoformat() + "Z",
+        "positions_needed": 1,
+        "description": "Daily recurring test shift",
+        "recurring": True,
+        "recurringPattern": "daily",
+        "recurringEndDate": (start_time + timedelta(days=14)).isoformat() + "Z"
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/calendar",
+            json=recurring_shift_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and len(data.get("data", [])) > 1:
+                results.add_pass("POST create recurring shifts")
+            else:
+                results.add_fail("POST create recurring shifts", f"Expected multiple shifts: {data}")
+        else:
+            results.add_fail("POST create recurring shifts", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST create recurring shifts", f"Request failed: {str(e)}")
+    
+    # Test PUT update shift
+    if created_shift_id:
+        update_data = {
+            "title": "Updated Morning Shift",
+            "positions_needed": 3,
+            "description": "Updated test shift description"
+        }
+        
+        try:
+            response = requests.put(
+                f"{BASE_URL}/employer/shifts/calendar/{created_shift_id}",
+                json=update_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and data.get("data"):
+                    updated_shift = data["data"]
+                    if (updated_shift.get("title") == "Updated Morning Shift" and 
+                        updated_shift.get("positions_needed") == 3):
+                        results.add_pass("PUT update shift")
+                    else:
+                        results.add_fail("PUT update shift", f"Update not reflected: {updated_shift}")
+                else:
+                    results.add_fail("PUT update shift", f"Invalid response: {data}")
+            else:
+                results.add_fail("PUT update shift", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("PUT update shift", f"Request failed: {str(e)}")
+    
+    # Test DELETE shift
+    if created_shift_id:
+        try:
+            response = requests.delete(
+                f"{BASE_URL}/employer/shifts/calendar/{created_shift_id}",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("DELETE shift")
+                else:
+                    results.add_fail("DELETE shift", f"Invalid response: {data}")
+            else:
+                results.add_fail("DELETE shift", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("DELETE shift", f"Request failed: {str(e)}")
+    
+    # Test invalid workplace validation
+    try:
+        invalid_shift_data = {
+            "title": "Invalid Shift",
+            "workplace_id": "invalid-workplace-id",
+            "start": start_time.isoformat() + "Z",
+            "end": end_time.isoformat() + "Z",
+            "positions_needed": 1
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/shifts/calendar",
+            json=invalid_shift_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 404:
+            results.add_pass("Invalid workplace validation")
+        else:
+            results.add_fail("Invalid workplace validation", f"Expected 404, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Invalid workplace validation", f"Request failed: {str(e)}")
+
+def test_authentication_enforcement(results):
+    """Test that calendar endpoints require proper authentication"""
+    print("\n🧪 Testing Authentication Enforcement...")
+    
+    # Test workforce endpoints without auth
+    workforce_endpoints = [
+        ("GET", "/workforce/availability/calendar"),
+        ("POST", "/workforce/availability/calendar"),
+        ("DELETE", "/workforce/availability/calendar/test-id")
+    ]
+    
+    for method, endpoint in workforce_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            elif method == "DELETE":
+                response = requests.delete(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code == 401:
+                results.add_pass(f"Auth required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Auth required for {method} {endpoint}", f"Expected 401, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Auth required for {method} {endpoint}", f"Request failed: {str(e)}")
+    
+    # Test employer endpoints without auth
+    employer_endpoints = [
+        ("GET", "/employer/shifts/calendar"),
+        ("POST", "/employer/shifts/calendar"),
+        ("PUT", "/employer/shifts/calendar/test-id"),
+        ("DELETE", "/employer/shifts/calendar/test-id")
+    ]
+    
+    for method, endpoint in employer_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            elif method == "PUT":
+                response = requests.put(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            elif method == "DELETE":
+                response = requests.delete(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code == 401:
+                results.add_pass(f"Auth required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Auth required for {method} {endpoint}", f"Expected 401, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Auth required for {method} {endpoint}", f"Request failed: {str(e)}")
+
+def test_role_based_access(results, workforce_token, employer_token):
+    """Test that users can only access their role-specific endpoints"""
+    print("\n🧪 Testing Role-Based Access Control...")
+    
+    # Test workforce user trying to access employer endpoints
+    employer_endpoints = [
+        ("GET", "/employer/shifts/calendar"),
+        ("POST", "/employer/shifts/calendar"),
+    ]
+    
+    for method, endpoint in employer_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(
+                    f"{BASE_URL}{endpoint}",
+                    headers=get_auth_headers(workforce_token),
+                    timeout=10
+                )
+            elif method == "POST":
+                response = requests.post(
+                    f"{BASE_URL}{endpoint}",
+                    json={},
+                    headers=get_auth_headers(workforce_token),
+                    timeout=10
+                )
+            
+            if response.status_code == 403:
+                results.add_pass(f"Workforce blocked from {method} {endpoint}")
+            else:
+                results.add_fail(f"Workforce blocked from {method} {endpoint}", f"Expected 403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Workforce blocked from {method} {endpoint}", f"Request failed: {str(e)}")
+    
+    # Test employer user trying to access workforce endpoints
+    workforce_endpoints = [
+        ("GET", "/workforce/availability/calendar"),
+        ("POST", "/workforce/availability/calendar"),
+    ]
+    
+    for method, endpoint in workforce_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(
+                    f"{BASE_URL}{endpoint}",
+                    headers=get_auth_headers(employer_token),
+                    timeout=10
+                )
+            elif method == "POST":
+                response = requests.post(
+                    f"{BASE_URL}{endpoint}",
+                    json={},
+                    headers=get_auth_headers(employer_token),
+                    timeout=10
+                )
+            
+            if response.status_code == 403:
+                results.add_pass(f"Employer blocked from {method} {endpoint}")
+            else:
+                results.add_fail(f"Employer blocked from {method} {endpoint}", f"Expected 403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Employer blocked from {method} {endpoint}", f"Request failed: {str(e)}")
+
 def main():
-    """Run all authentication tests"""
-    print("🚀 Starting HR Bank Authentication Backend Tests")
+    """Run all calendar API tests"""
+    print("🚀 Starting HR Bank Calendar Backend API Tests")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -314,24 +755,70 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Test signup API
-    created_users = test_signup_api(results)
+    # Create test users for calendar testing
+    workforce_user = generate_test_user("workforce")
+    employer_user = generate_test_user("employer")
     
-    # Test login API (only if we have created users)
-    if created_users:
-        test_login_api(results, created_users)
+    # Sign up users
+    workforce_token = None
+    employer_token = None
     
-    # Test database integration
-    test_database_integration(results)
+    try:
+        # Sign up workforce user
+        response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
+        if response.status_code == 200:
+            # Login to get token
+            login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                "email": workforce_user["email"],
+                "password": workforce_user["password"],
+                "user_type": workforce_user["user_type"]
+            }, timeout=10)
+            if login_response.status_code == 200:
+                workforce_token = login_response.json().get("access_token")
+        
+        # Sign up employer user
+        response = requests.post(f"{BASE_URL}/auth/signup", json=employer_user, timeout=10)
+        if response.status_code == 200:
+            # Login to get token
+            login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                "email": employer_user["email"],
+                "password": employer_user["password"],
+                "user_type": employer_user["user_type"]
+            }, timeout=10)
+            if login_response.status_code == 200:
+                employer_token = login_response.json().get("access_token")
     
-    # Test password hashing
-    test_password_hashing(results)
+    except Exception as e:
+        results.add_fail("User setup for calendar tests", f"Failed to create test users: {str(e)}")
+    
+    if not workforce_token or not employer_token:
+        results.add_fail("User authentication setup", "Failed to get authentication tokens")
+        results.summary()
+        return 1
+    
+    # Test authentication enforcement
+    test_authentication_enforcement(results)
+    
+    # Test role-based access control
+    test_role_based_access(results, workforce_token, employer_token)
+    
+    # Create test workplace for employer
+    workplace_id = create_test_workplace(results, employer_token)
+    
+    # Test workforce availability calendar
+    test_workforce_availability_calendar(results, workforce_token)
+    
+    # Test employer shift calendar (only if workplace was created)
+    if workplace_id:
+        test_employer_shift_calendar(results, employer_token, workplace_id)
+    else:
+        results.add_fail("Employer shift calendar tests", "Could not create test workplace")
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All authentication tests passed!")
+        print("\n🎉 All calendar API tests passed!")
         return 0
     else:
         print("\n💥 Some tests failed. Check the errors above.")
