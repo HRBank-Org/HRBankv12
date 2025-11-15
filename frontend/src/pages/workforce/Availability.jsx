@@ -86,9 +86,26 @@ const Availability = () => {
         availability_hours: availability,
         blackout_dates: blackoutDates
       });
+      alert('Availability updated successfully!');
       navigate('/workforce/dashboard');
     } catch (error) {
-      alert('Failed to save availability');
+      console.error('Failed to save availability:', error);
+      
+      // Check if it's a conflict error
+      if (error.response?.status === 409) {
+        const conflicts = error.response.data?.detail?.conflicts || [];
+        if (conflicts.length > 0) {
+          const conflictMessages = conflicts.map(c => 
+            `• ${c.workplace} on ${new Date(c.shift_date).toLocaleDateString()} at ${c.shift_time}`
+          ).join('\n');
+          
+          alert(`❌ Cannot Update Availability\n\nYou have accepted shifts that conflict with your new availability:\n\n${conflictMessages}\n\nPlease cancel these shifts first or adjust your availability to include these times.`);
+        } else {
+          alert('Cannot update availability - conflicts with accepted shifts');
+        }
+      } else {
+        alert('Failed to save availability. Please try again.');
+      }
     } finally {
       setSaving(false);
     }
