@@ -50,10 +50,16 @@ class TestResults:
 def generate_test_user(user_type="workforce"):
     """Generate unique test user data"""
     unique_id = str(uuid.uuid4())[:8]
+    # Generate phone in correct format: +1-XXX-XXX-XXXX
+    phone_digits = ''.join([c for c in unique_id if c.isdigit()])[:7]
+    while len(phone_digits) < 7:
+        phone_digits += '0'
+    phone = f"+1-555-{phone_digits[:3]}-{phone_digits[3:7]}"
+    
     return {
         "email": f"test_{user_type}_{unique_id}@hrbank.com",
         "full_name": f"Test {user_type.title()} User {unique_id}",
-        "phone": f"+1555{unique_id[:7]}",
+        "phone": phone,
         "password": "TestPassword123!",
         "user_type": user_type
     }
