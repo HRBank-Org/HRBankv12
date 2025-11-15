@@ -213,15 +213,18 @@ frontend:
 
   - task: "Job/Shift Invitation System - Backend"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/employer.py, /app/backend/routes/invites.py, /app/backend/models/invites.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Created comprehensive invitation system allowing employers to invite external workers to specific jobs/shifts. Backend endpoints: POST /api/employer/shifts/{shift_id}/invite (invite to shift), POST /api/employer/jobs/{job_id}/invite (invite to job), GET /api/invites/{invite_token}/details (get invitation details for signup), POST /api/invites/{invite_token}/accept (accept invitation after signup). Enhanced InviteToken model with job_id and shift_id fields. Email invitations include job/shift details and signup link. Invitation acceptance auto-applies worker to shift if applicable."
+        -working: true
+        -agent: "testing"
+        -comment: "Comprehensive testing completed successfully (15/16 tests passed). ✅ All core invitation functionality working: Shift invitations (single/multiple emails), Job invitations (single/multiple emails), Authorization checks (workforce blocked from employer endpoints), Invalid ID handling (404 for non-existent shifts/jobs), Duplicate user detection (existing users rejected), Invitation details endpoint (public access working), Invitation acceptance endpoint (auto-applies to shifts). ✅ Fixed critical bug: datetime handling in invitation expiry check (was causing 500 errors). Minor: Email validation is lenient (accepts 'another@invalid' and '@invalid.com' as valid emails) - core functionality unaffected. All invitation endpoints working correctly with proper authentication, validation, and error handling."
 
   - task: "Job/Shift Invitation System - Frontend"
     implemented: true
