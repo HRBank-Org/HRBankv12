@@ -14,6 +14,7 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(true);
   const [selectedUserType, setSelectedUserType] = useState('workforce');
   const { login } = useAuth();
   const navigate = useNavigate();
