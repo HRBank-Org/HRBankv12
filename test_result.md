@@ -327,6 +327,9 @@ frontend:
         -working: "NA"
         -agent: "main"
         -comment: "Created one-time bootstrap script to create the first Super Admin account. Script features: Interactive prompts for full name, email, password (min 8 chars), optional phone, Checks for existing super admin, Validates email uniqueness, Creates user account with 'admin' user_type, Creates admin profile with is_super_admin=True and full permissions, Displays success message with login URL and capabilities. Script is executable with proper error handling and user feedback."
+        -working: true
+        -agent: "main"
+        -comment: "Super admin account created successfully for user qnizami@hrbank.ca. Fixed admin authentication issues: (1) Updated AdminLogin.jsx to use AuthContext login function instead of manual localStorage management, (2) Protected admin routes in App.js with ProtectedRoute component, (3) Fixed backend auth.py to allow admin users to bypass email verification requirement, (4) Updated profile status checks to treat admin users as always active. Admin login and authentication flow now working correctly."
 
   - task: "Landing Page User Categories"
     implemented: true
