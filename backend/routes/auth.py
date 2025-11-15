@@ -115,13 +115,15 @@ async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_d
     for admin in admin_users:
         admin_notif = Notification(
             user_id=admin["user_id"],
-            notification_type="account",
-            notification_subtype="new_signup",
+            type="new_signup",
             title=f"New {user_data.user_type.title()} Signup",
             message=f"{user_data.full_name} ({user_data.email}) signed up as {user_data.user_type}. Phone: {user_data.phone}. Please review and approve.",
-            action_url=f"/admin/users/{user_id}",
-            action_button_text="Review Account",
-            priority="high"
+            data={
+                "action_url": f"/admin/users/{user_id}",
+                "action_button_text": "Review Account",
+                "priority": "high",
+                "user_type": user_data.user_type
+            }
         )
         await db.notifications.insert_one(admin_notif.model_dump())
     
