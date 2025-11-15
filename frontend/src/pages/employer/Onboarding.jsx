@@ -96,7 +96,8 @@ const EmployerOnboarding = () => {
         setData({...data, workplace_id: response.data.data.workplace_id});
         setCurrentStep(3);
       } catch (err) {
-        setError(err.response?.data?.error?.detail || 'Failed to create workplace');
+        console.error('Workplace creation error:', err);
+        setError(err.response?.data?.detail || err.response?.data?.message || 'Failed to create workplace');
       } finally {
         setLoading(false);
       }
