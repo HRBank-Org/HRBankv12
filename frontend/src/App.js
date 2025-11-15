@@ -93,42 +93,39 @@ function AppRoutes() {
         <Route path="/pending-approval" element={<PendingApproval />} />
         
         {/* Workforce Routes */}
-        <Route 
-          path="/workforce/dashboard" 
-          element={
-            <ProtectedRoute allowedUserTypes={['workforce']}>
-              <WorkforceDashboard />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/workforce/onboarding" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceOnboarding /></ProtectedRoute>} />
+        <Route path="/workforce/profile-wizard" element={<ProtectedRoute allowedUserTypes={['workforce']}><ProfileWizard /></ProtectedRoute>} />
+        <Route path="/workforce/dashboard" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceDashboard /></ProtectedRoute>} />
+        <Route path="/workforce/profile" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceProfile /></ProtectedRoute>} />
+        <Route path="/workforce/occupations" element={<ProtectedRoute allowedUserTypes={['workforce']}><OccupationProfiles /></ProtectedRoute>} />
+        <Route path="/workforce/occupations/create" element={<ProtectedRoute allowedUserTypes={['workforce']}><CreateOccupation /></ProtectedRoute>} />
+        <Route path="/workforce/occupations/:occupationId" element={<ProtectedRoute allowedUserTypes={['workforce']}><OccupationDetail /></ProtectedRoute>} />
+        <Route path="/workforce/certifications/add" element={<ProtectedRoute allowedUserTypes={['workforce']}><AddCertification /></ProtectedRoute>} />
+        <Route path="/workforce/availability" element={<ProtectedRoute allowedUserTypes={['workforce']}><Availability /></ProtectedRoute>} />
+        <Route path="/workforce/clock" element={<ProtectedRoute allowedUserTypes={['workforce']}><ClockInOut /></ProtectedRoute>} />
         
         {/* Employer Routes */}
-        <Route 
-          path="/employer/dashboard" 
-          element={
-            <ProtectedRoute allowedUserTypes={['employer']}>
-              <EmployerDashboard />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
+        <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDashboard /></ProtectedRoute>} />
+        <Route path="/employer/profile" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerProfile /></ProtectedRoute>} />
+        <Route path="/employer/workplace-setup" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceSetup /></ProtectedRoute>} />
+        <Route path="/employer/workplaces" element={<ProtectedRoute allowedUserTypes={['employer']}><Workplaces /></ProtectedRoute>} />
+        <Route path="/employer/workplaces/:workplaceId" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetail /></ProtectedRoute>} />
+        <Route path="/employer/workplaces/:workplaceId/edit" element={<ProtectedRoute allowedUserTypes={['employer']}><EditWorkplace /></ProtectedRoute>} />
+        <Route path="/employer/jobs/post" element={<ProtectedRoute allowedUserTypes={['employer']}><PostJob /></ProtectedRoute>} />
+        <Route path="/employer/shifts/create" element={<ProtectedRoute allowedUserTypes={['employer']}><CreateShift /></ProtectedRoute>} />
+        <Route path="/employer/shifts/:shiftId" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftDetail /></ProtectedRoute>} />
+        <Route path="/employer/shifts/:shiftId/attendance" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftAttendance /></ProtectedRoute>} />
+        <Route path="/employer/timesheets" element={<ProtectedRoute allowedUserTypes={['employer']}><Timesheets /></ProtectedRoute>} />
+        <Route path="/employer/tasks" element={<ProtectedRoute allowedUserTypes={['employer']}><ManageTasks /></ProtectedRoute>} />
         
         {/* Institution Routes */}
-        <Route 
-          path="/institution/dashboard" 
-          element={
-            <ProtectedRoute allowedUserTypes={['institution']}>
-              <InstitutionDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/institution/settings" 
-          element={
-            <ProtectedRoute allowedUserTypes={['institution']}>
-              <InstitutionSettings />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/institution/dashboard" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDashboard /></ProtectedRoute>} />
+        <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionSettings /></ProtectedRoute>} />
+        <Route path="/institution/credentials/issue" element={<ProtectedRoute allowedUserTypes={['institution']}><IssueCredential /></ProtectedRoute>} />
+        <Route path="/institution/credentials/manage" element={<ProtectedRoute allowedUserTypes={['institution']}><ManageCredentials /></ProtectedRoute>} />
+        <Route path="/institution/verification-queue" element={<ProtectedRoute allowedUserTypes={['institution']}><VerificationQueue /></ProtectedRoute>} />
+        <Route path="/institution/bulk-invite" element={<ProtectedRoute allowedUserTypes={['institution']}><BulkInvite /></ProtectedRoute>} />
         
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
