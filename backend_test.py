@@ -342,9 +342,9 @@ def create_test_workplace(results, employer_token):
     """Create a test workplace for shift testing"""
     print("\n🧪 Creating Test Workplace...")
     
+    # Try without address first (to avoid geocoding issues)
     workplace_data = {
         "workplace_name": f"Test Workplace {str(uuid.uuid4())[:8]}",
-        "address": "123 Test Street, Test City",
         "description": "Test workplace for calendar API testing"
     }
     
@@ -356,9 +356,9 @@ def create_test_workplace(results, employer_token):
             timeout=10
         )
         
-        if response.status_code == 200:
+        if response.status_code == 201:
             data = response.json()
-            workplace_id = data.get("workplace_id")
+            workplace_id = data.get("data", {}).get("workplace_id")
             if workplace_id:
                 results.add_pass("Test workplace creation")
                 return workplace_id
