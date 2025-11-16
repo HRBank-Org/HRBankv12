@@ -7,8 +7,20 @@ const OccupationDetail = () => {
   const { occupationId } = useParams();
   const [occupation, setOccupation] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [editingSkills, setEditingSkills] = useState(false);
+  const [tempSkills, setTempSkills] = useState('');
+  const [savingSkills, setSavingSkills] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      pending: { text: 'Pending', bg: 'bg-yellow-100', text_color: 'text-yellow-800', icon: '⏳' },
+      verified: { text: 'Verified', bg: 'bg-green-100', text_color: 'text-green-800', icon: '✓' },
+      rejected: { text: 'Rejected', bg: 'bg-red-100', text_color: 'text-red-800', icon: '✗' }
+    };
+    return badges[status] || badges.pending;
+  };
 
   useEffect(() => {
     loadOccupation();
