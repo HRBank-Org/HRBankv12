@@ -205,8 +205,6 @@ function AppRoutes() {
         <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageAdmins /></ProtectedRoute>} />
         <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageZones /></ProtectedRoute>} />
         <Route path="/admin/manage-occupations" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageOccupations /></ProtectedRoute>} />
-        <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><Settings /></ProtectedRoute>} />
-        <Route path="/institution/documents" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDocuments /></ProtectedRoute>} />
         
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
