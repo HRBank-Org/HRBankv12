@@ -195,7 +195,7 @@ function AppRoutes() {
         <Route path="/institution/verification-requests" element={<ProtectedRoute allowedUserTypes={['institution']}><VerificationRequests /></ProtectedRoute>} />
         <Route path="/institution/messages" element={<ProtectedRoute allowedUserTypes={['institution']}><Messages /></ProtectedRoute>} />
         <Route path="/institution/notifications" element={<ProtectedRoute allowedUserTypes={['institution']}><Notifications /></ProtectedRoute>} />
-        <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><Settings /></ProtectedRoute>} />
+        <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionSettings /></ProtectedRoute>} />
         <Route path="/institution/documents" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDocuments /></ProtectedRoute>} />
         
         {/* Admin Routes */}
