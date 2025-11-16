@@ -16,17 +16,32 @@ async def get_my_profile(
     current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
-    """Get institution profile"""
+    """Get institution profile (creates empty if doesn't exist)"""
     profile = await db.institution_profiles.find_one(
         {"user_id": current_user["user_id"]},
         {"_id": 0}
     )
     
     if not profile:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
-        )
+        # Get user info to populate defaults
+        user = await db.users.find_one({"user_id": current_user["user_id"]})
+        
+        # Return default empty profile with email from user
+        profile = {
+            "user_id": current_user["user_id"],
+            "contact_name": "",
+            "title": "",
+            "institution_name": "",
+            "institution_logo_url": "",
+            "phone": "",
+            "address": "",
+            "city": "",
+            "province": "",
+            "postal_code": "",
+            "institution_type": "",
+            "phone_verified": False,
+            "email_verified": False
+        }
     
     return {
         "success": True,
