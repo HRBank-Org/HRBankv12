@@ -2137,8 +2137,8 @@ def test_user_profile_api(results):
                     else:
                         results.add_pass("Institution User Profile - response structure complete")
                     
-                    # Check institution-specific profile fields
-                    institution_required_fields = ["contact_person", "institution_name", "address"]
+                    # Check institution-specific profile fields (using actual schema field names)
+                    institution_required_fields = ["contact_name", "institution_name", "address"]
                     missing_institution_fields = [f for f in institution_required_fields if f not in profile]
                     
                     if missing_institution_fields:
