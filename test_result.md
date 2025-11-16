@@ -181,6 +181,18 @@ backend:
         -comment: "Database integration working perfectly. Users are correctly stored in MongoDB, user_type field is properly saved, password hashing works correctly with bcrypt, data persists correctly between signup and login operations. All database operations functioning as expected."
 
 frontend:
+  - task: "Redesigned Occupation Profiles Page - Resume Cards with Inline Skills Editing"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/workforce/OccupationProfiles.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Complete redesign of occupation profiles page with professional resume-style cards. Features: Professional gradient banner header with occupation title/category, Stats grid showing Years of Experience/Hours Worked/Rating prominently, Work Experience section displaying employment history with company names and status badges, Skills section with inline editing capability (click Edit, modify skills as comma-separated, save), Certifications section with color-coded status badges (Pending=Yellow, Verified=Green, Rejected=Red), Removed all references to preferred/hourly rate, Better visual hierarchy with proper spacing and rounded cards, Scroll areas for long lists (employment history, certifications). Skills editing updates via PATCH /api/occupations/{id} endpoint."
+  
   - task: "Workforce Availability Calendar Page"
     implemented: true
     working: true
