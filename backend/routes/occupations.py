@@ -18,11 +18,63 @@ async def get_my_occupations(
     current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
-    """Get all occupation profiles for current worker (max 3)"""
+    """Get all occupation profiles for current worker (max 3) with detailed credential and employment info"""
     occupations = await db.occupation_profiles.find(
         {"workforce_id": current_user["user_id"]},
         {"_id": 0}
     ).to_list(3)
+    
+    # Enrich each occupation with credential details and employment history
+    for occ in occupations:
+        # Get detailed credential information with verification status
+        credential_ids = occ.get("certifications", [])
+        detailed_credentials = []
+        
+        for cred_id in credential_ids:
+            cred = await db.workforce_credentials.find_one(
+                {"credential_id": cred_id},
+                {"_id": 0}
+            )
+            if cred:
+                detailed_credentials.append({
+                    "credential_id": cred.get("credential_id"),
+                    "credential_name": cred.get("credential_name"),
+                    "credential_type": cred.get("credential_type"),
+                    "institution_name": cred.get("institution_name"),
+                    "status": cred.get("status", "pending"),
+                    "issue_date": cred.get("issue_date"),
+                    "expiry_date": cred.get("expiry_date")
+                })
+        
+        occ["credential_details"] = detailed_credentials
+        
+        # Get employment history for this worker
+        employment_history = await db.employment_relationships.find(
+            {"workforce_id": current_user["user_id"]},
+            {"_id": 0}
+        ).to_list(None)
+        
+        # Format employment history
+        formatted_history = []
+        for emp in employment_history:
+            # Get employer company name
+            employer = await db.employer_profiles.find_one(
+                {"employer_id": emp.get("employer_id")},
+                {"company_name": 1, "_id": 0}
+            )
+            
+            formatted_history.append({
+                "company_name": employer.get("company_name", "Unknown Company") if employer else "Unknown Company",
+                "position_title": emp.get("position_title"),
+                "employment_type": emp.get("employment_type"),
+                "status": emp.get("status"),
+                "start_date": emp.get("employment_start_date").isoformat() if emp.get("employment_start_date") else None,
+                "end_date": emp.get("employment_end_date").isoformat() if emp.get("employment_end_date") else None,
+                "total_shifts": emp.get("total_shifts_completed", 0),
+                "total_hours": emp.get("total_hours_worked", 0.0)
+            })
+        
+        occ["employment_history"] = formatted_history
     
     return {
         "success": True,
