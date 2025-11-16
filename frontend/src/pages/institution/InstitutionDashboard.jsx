@@ -73,15 +73,34 @@ const InstitutionDashboard = () => {
     </div>
   );
 
+  // Get personalized greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const getContactName = () => {
+    if (!user?.profile) return 'there';
+    return user.profile.contact_name || user.profile.full_name || 
+           `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() || 'there';
+  };
+
+  const getInstitutionName = () => {
+    return user?.profile?.institution_name || 'Your Institution';
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader title="Institution Dashboard" />
+      <UserHeader />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Banner */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 mb-8 text-white">
-          <h1 className="text-3xl font-bold mb-2">Welcome to Your Institution Portal</h1>
-          <p className="text-blue-100">Manage classes, issue credentials, and track your institution's performance</p>
+          <h1 className="text-3xl font-bold mb-2">{getGreeting()}, {getContactName()}! 👋</h1>
+          <p className="text-blue-100">Welcome to {getInstitutionName()} Portal</p>
+          <p className="text-blue-100 text-sm mt-1">Manage classes, issue credentials, and track your institution's performance</p>
         </div>
 
         {/* Analytics Grid */}
