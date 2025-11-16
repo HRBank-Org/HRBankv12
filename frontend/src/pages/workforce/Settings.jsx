@@ -290,16 +290,40 @@ const WorkforceSettings = () => {
               />
             </div>
 
-            {/* Phone */}
+            {/* Phone with verification */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Phone {verificationStatus.phone_verified && <span className="text-gray-400">(locked)</span>}
+                </label>
+                {verificationStatus.phone_verified ? (
+                  <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Verified & Locked
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleSendOTP('phone', profile.phone)}
+                    disabled={sendingOtp || !profile.phone}
+                    className="text-xs font-medium hover:underline disabled:opacity-50"
+                    style={{ color: theme.primaryColor }}
+                  >
+                    {sendingOtp ? 'Sending...' : 'Verify Phone'}
+                  </button>
+                )}
+              </div>
               <input
                 type="tel"
                 value={profile.phone}
                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                disabled={verificationStatus.phone_verified}
+                placeholder="+1234567890"
+                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 ${verificationStatus.phone_verified ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 style={{ focusRing: theme.primaryColor }}
               />
+              <p className="text-xs text-gray-500 mt-1">Include country code (e.g., +1 for Canada/US)</p>
             </div>
 
             {/* Address */}
