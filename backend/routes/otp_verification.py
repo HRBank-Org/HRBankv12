@@ -40,7 +40,7 @@ def generate_otp():
 @router.post("/send-otp", response_model=Dict)
 async def send_otp(
     request: SendOTPRequest,
-    current_user: dict = Depends(require_auth),
+    current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
     """Send OTP to phone or email"""
