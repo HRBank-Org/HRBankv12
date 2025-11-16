@@ -196,6 +196,18 @@ backend:
         -comment: "Database integration working perfectly. Users are correctly stored in MongoDB, user_type field is properly saved, password hashing works correctly with bcrypt, data persists correctly between signup and login operations. All database operations functioning as expected."
 
 frontend:
+  - task: "UserHeader Component - Personalized Headers for All User Types"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/common/UserHeader.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created reusable UserHeader component that displays personalized info based on user type. Features: WORKFORCE - Shows profile photo (or initials if no photo) + full name + 'Worker' label, EMPLOYER - Shows contact person name + company name + short address (street-city), INSTITUTION - Shows contact person name + institution name + short address (street-city), ADMIN - Shows admin name + 'Administrator' label. Component accepts props: onBackClick, showBack, title (optional custom title), actions (optional action buttons). Enhanced AuthContext to fetch complete profile data via /api/users/me on login. Updated 3 pages as examples: OccupationProfiles.jsx, OccupationDetail.jsx, WorkforceManagement.jsx."
+
   - task: "Redesigned Occupation Profiles List Page - Resume Cards with Inline Skills Editing"
     implemented: true
     working: true
