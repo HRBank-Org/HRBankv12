@@ -2219,8 +2219,8 @@ def test_user_profile_api(results):
     except Exception as e:
         results.add_fail("User Profile API - invalid token", f"Request failed: {str(e)}")
 def main():
-    """Run Enhanced Occupation Profiles API Tests"""
-    print("🚀 Starting HR Bank Enhanced Occupation Profiles API Tests")
+    """Run User Profile API Tests"""
+    print("🚀 Starting HR Bank User Profile API Tests")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -2229,17 +2229,17 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Test enhanced occupation profiles API
-    test_enhanced_occupation_profiles_api(results)
+    # Test User Profile API (main focus of this testing session)
+    test_user_profile_api(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All Enhanced Occupation Profiles API tests passed!")
+        print("\n🎉 All User Profile API tests passed!")
         return 0
     else:
-        print("\n💥 Some Enhanced Occupation Profiles API tests failed. Check the errors above.")
+        print("\n💥 Some User Profile API tests failed. Check the errors above.")
         return 1
 
 def test_invitation_system(results):
