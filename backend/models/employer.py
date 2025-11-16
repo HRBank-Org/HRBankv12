@@ -9,12 +9,14 @@ class EmployerProfile(BaseModel):
     
     employer_id: str  # Same as user_id
     company_name: str
+    company_logo_url: Optional[str] = None  # Company logo for header display
     address: str
     city: Optional[str] = None  # For Canada-wide expansion
     province: Optional[str] = None  # ON, BC, AB, QC, etc.
     postal_code: str
     industry: str
     contact_person: Optional[str] = None
+    contact_name: Optional[str] = None  # Alias for contact_person
     verified_status: str = 'pending'  # active, pending, suspended
     rating_avg: float = 0.0
     rating_count: int = 0
