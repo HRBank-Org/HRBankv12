@@ -1,100 +1,75 @@
 <analysis>
-The trajectory outlines the iterative development of the HR Bank application, driven by a series of user requests that progressively added complexity and feature depth. The AI engineer's work began by resolving initial frontend build failures related to a new calendar feature. Following this fix, the engineer systematically built out several major features.
+The trajectory chronicles the iterative development and refinement of the HR Bank application, moving from bug fixes to significant feature implementation based on user feedback. The process began by overhauling the workforce's Occupation Profile pages, redesigning them into attractive resume-style cards and fixing data display issues.
 
-The development process for each feature consistently followed a pattern:
-1.  **Clarify & Plan**: Understand the user's request.
-2.  **Backend First**: Create or update Pydantic models () and then implement the corresponding FastAPI routes (). This involved creating new files for each major feature (e.g., , , , ) and registering them in .
-3.  **Frontend Implementation**: Create new React components and pages (), often creating common/reusable components where applicable.
-4.  **Routing**: Update  to integrate the new pages into the application's navigation and protect them with role-based access.
-5.  **Testing & Verification**: After ensuring both services restart without errors, the engineer would update  and use testing agents or take screenshots to confirm functionality.
+A major focus was on personalization and user management. This involved creating a dynamic  component that displays role-specific information (name, photo, occupation titles, ratings) for Workforce, Employers, and Institutions. This led to the creation of a comprehensive Settings page where users can manage their profile. Key features added to the Settings page include OTP verification for phone/email (using Twilio), a password change mechanism, and a user-friendly photo upload system with cropping capabilities.
 
-This structured approach was applied to build a calendar system, a workforce invitation system, an offboarding and employment history feature, a multi-document EULA acceptance flow, universal chat/notifications, and a document management system with an admin approval workflow. The most recent task involved creating a comprehensive, role-based admin management system with geographic zone assignments, which was nearly complete. The user's primary language is **English**.
+The most recent work has centered on building a robust document management system. This involved extending existing backend models, creating dedicated frontend pages for document submission, and ensuring consistent navigation by adding links to the main header. The development has been highly interactive, with the AI engineer responding to user-reported bugs (like Method Not Allowed on save, geocoding failures, and frontend crashes) and UX feedback (e.g., redirecting after save, consistent navigation). The work is currently focused on implementing role-specific document requirements and an automated expiry reminder system. The user's primary language is **English**. The next agent should respond in English.
 </analysis>
-
 <product_requirements>
-The project is to build HR Bank, a multi-tenant workforce management platform for four user types: **Workforce**, **Employers**, **Institutions**, and **Admins**.
+The HR Bank is a workforce management platform for four user roles: **Workforce**, **Employers**, **Institutions**, and **Admins**. Its core function is to connect workers with employers for shift-based work.
 
-The platform's core requirements, developed iteratively, include:
-1.  **Multi-User System**: Separate, branded experiences for Workforce (blue), Employers (orange), and Institutions (black), with full authentication and role-specific dashboards.
-2.  **Scheduling**: A Google Calendar-style system for workers to set availability and for employers to schedule shifts.
-3.  **Recruitment & Onboarding**: An invitation system for employers to invite new workers to jobs/shifts, guiding them through account creation.
-4.  **Workforce Lifecycle Management**: A system to track the employment relationship between workers and employers, including employment history and managing offboarding/termination.
-5.  **Compliance**: A mandatory, user-type-specific EULA acceptance flow. A document management system where users upload documents (e.g., ID, business registration) that require admin approval, with validity tracking and expiry notifications.
-6.  **Admin Hierarchy**: A comprehensive admin portal () with a Super Admin role capable of creating other admins and assigning them to specific geographic zones for localized management.
-7.  **Communication**: Integrated chat and notification features accessible to all user types.
+**Key Features Implemented:**
+1.  **Role-Based Access**: Secure, distinct experiences for each user role.
+2.  **Personalized Experience**: Dashboards and headers are customized with user-specific data like name, company name, photo/logo, and occupation titles.
+3.  **Occupation Profiles**: Workers can create detailed profiles, styled as resume cards, showcasing experience, skills, and verified credentials.
+4.  **Settings & Security**: A dedicated settings page for each user type allows editing personal information (name, address), changing passwords, and verifying contact details via OTP (phone and email). Users can also upload profile photos with a cropping tool.
+5.  **Document Management**: A centralized system for users to upload and manage required documents.
+
+**Current Requirements being implemented:**
+The document system must be enhanced to:
+1.  Enforce role-specific document requirements (e.g., Work Permit for Workforce, Business License for Employers).
+2.  Capture issue and expiry dates for all validation-required documents.
+3.  Automatically send email reminders for expiring documents and deactivate accounts if they are not updated.
 </product_requirements>
-
 <key_technical_concepts>
-- **Stack**: React (frontend), FastAPI (backend), MongoDB (database).
-- **Authentication**: JWT-based with role-based access control () and a central  in React.
-- **Backend**: Asynchronous API using FastAPI and Pydantic for data modeling. Routes are modularized by feature.
-- **Frontend**: Component-based architecture with . Key libraries include .
-- **Deployment**: Containerized services managed by  within a Kubernetes environment.
+- **Full Stack**: React (frontend), FastAPI (backend), MongoDB (database).
+- **Authentication**: JWT-based with role-specific access control (). A central  manages user state in React.
+- **Backend**: Asynchronous API using Pydantic for validation. Features are organized into modular routes (auth, users, documents, OTP).
+- **Integrations**: Twilio for SMS/Email OTP verification.
+- **Frontend**: Component-based architecture with . Key libraries include  for API calls and  for photo uploads.
+- **File Handling**: A dedicated backend route () and static file serving for user-uploaded images.
 </key_technical_concepts>
-
 <code_architecture>
-The application uses a monorepo structure with distinct  and  directories. The backend follows a modular design where routes and models are separated by feature. The frontend uses a page- and component-based structure, with common elements shared across different user types.
+The application follows a monorepo structure with distinct  and  directories.
 
 
 
 -   ****
-    -   **Importance**: Contains all API endpoints for the new admin management system, including creating admins, managing zones, and assigning admins to zones.
-    -   **Changes**: Newly created to support the admin functionality.
+    -   **Importance**: A critical, reusable component that provides a consistent, personalized header for all user types. It displays the user's name, photo/logo, occupation titles, ratings, and navigation links to Settings and Documents.
+    -   **Changes**: Created from scratch and heavily modified to fetch and display increasingly complex user data. Icons for 'Settings' and 'Documents' were added for consistent navigation across the app.
 
 -   ****
-    -   **Importance**: Defines the Pydantic models for Admin users, Super Admins, and Geographic Zones, establishing the data structure for the admin hierarchy.
-    -   **Changes**: Newly created. It was also updated to include a  model to resolve an import conflict.
+    -   **Importance**: The main interface for users to manage their profile, security, and contact information.
+    -   **Changes**: Created and significantly enhanced to include editable name fields, OTP verification UI for phone/email, a password change form, and a photo upload/cropping tool, replacing a simple URL input. Logic was added to redirect the user after a successful save.
 
 -   ****
-    -   **Importance**: This new directory holds all frontend pages for the admin portal, including the login page, dashboard, and management interfaces for admins and zones.
-    -   **Changes**: All files within this directory (, , , ) were newly created.
+    -   **Importance**: Defines the data structure for all documents uploaded to the platform and specifies the requirements for each user type.
+    -   **Changes**: This file was heavily updated to differentiate document requirements for , , and . Fields for , , etc., were added. It was most recently modified to add more specific document types like Business Registration and ID Document based on the latest user request.
 
--   **============================================================
-HR Bank - Super Admin Account Creation
-============================================================
-
-Enter Super Admin details:
-Full Name: **
-    -   **Importance**: A critical one-off script created to bootstrap the admin system by allowing the creation of the first Super Admin account.
-    -   **Changes**: Newly created in the last step of the trajectory.
+-   ** & **
+    -   **Importance**: These files provide the backend logic for key security and usability features.  handles sending and verifying codes via Twilio.  provides a secure way to upload user photos.
+    -   **Changes**: Both files were created to fulfill user requests for OTP and photo uploads. The OTP route was debugged to handle test environments and correct authentication dependencies.
 
 -   ****
-    -   **Importance**: The main router for the React application.
-    -   **Changes**: It was repeatedly modified to add new routes for every feature, including the most recent additions for the admin portal at .
+    -   **Importance**: The main entry point for frontend routing. It defines which components are rendered for specific URL paths.
+    -   **Changes**: Modified multiple times to add routes for the newly created  and  pages for both  and  user types, ensuring they are accessible.
 </code_architecture>
-
 <pending_tasks>
-- **Push to GitHub**: A user request to push changes to a GitHub repository failed due to an authentication error and was not resolved.
-- **Google Calendar Sync**: A proposed feature to sync the application's calendar with users' personal Google Calendars has been discussed but not implemented.
+- **Document Expiry & Reminder System**: Implement the complete workflow for document expiry. This includes:
+  - A scheduled task (e.g., a cron job) to check for documents expiring within 7 days.
+  - An email service integration to send daily countdown reminders to users.
+  - Logic to automatically deactivate accounts if expired documents are not updated.
+- **Implement Settings/Documents for Institutions and Admins**: While the foundation is laid, the frontend pages for Institutions and Admins still need to be fully built out.
 </pending_tasks>
-
 <current_work>
-The AI engineer was finalizing the implementation of a comprehensive **Admin Management System**. This feature was requested after the user asked how to manage administrative accounts for the platform.
+The AI engineer was actively implementing a comprehensive document management system based on detailed user specifications. The user clarified that document requirements must differ by role:
+-   **Workforce/Admins**: Must submit ID and Work Permit.
+-   **Employers/Institutions**: Must submit Business Registration documents (e.g., Incorporation) and the primary user's ID.
 
-The work involved:
-1.  **Backend Development**:
-    -   Created Pydantic models for , , and  in .
-    -   Built API routes in  to handle creating/deleting admins, creating/managing geographic zones, and assigning admins to those zones.
-    -   A  boolean field was added to the Admin model to distinguish super users who can manage other admins.
+Furthermore, the user mandated that all validation-subject documents must have an issue date and an expiry date. This triggered the requirement for a new feature: an automated system to send email reminders for 7 days leading up to a document's expiration, which will deactivate the user's account if no action is taken.
 
-2.  **Frontend Development**:
-    -   Created a dedicated admin login page at , accessible via the  route.
-    -   Built an  and pages for  and  to be used by super admins.
-    -   Added all necessary routes to  to make the admin portal accessible.
-
-**Current State**: The backend and frontend code for the feature is complete and services are running without errors. The user just asked how to log in. Since no admin accounts exist yet, the immediate final step of this feature is to enable the creation of the first Super Admin. To solve this, the AI engineer just created a script: ============================================================
-HR Bank - Super Admin Account Creation
-============================================================
-
-Enter Super Admin details:
-Full Name: . The task is paused right before providing the user with instructions on how to run this script.
+The last action taken was to begin implementing these specific requirements by modifying the backend document model. The file **** was edited to update the  dictionary, differentiating the document lists and their properties (, ) for each user type (, , ). The next logical step is to build out the backend logic for the reminder system and then update the frontend UI to capture the required issue/expiry dates.
 </current_work>
-
 <optional_next_step>
-Make the ============================================================
-HR Bank - Super Admin Account Creation
-============================================================
-
-Enter Super Admin details:
-Full Name:  script executable and provide the user with instructions and the necessary command to run it, allowing them to create the first super admin account.
+Continue implementing the document management system by creating the backend scheduler and email service for expiry reminders.
 </optional_next_step>
