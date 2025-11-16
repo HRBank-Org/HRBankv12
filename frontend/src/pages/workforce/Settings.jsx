@@ -258,11 +258,30 @@ const WorkforceSettings = () => {
               <p className="text-xs text-gray-500 mt-1">Enter a direct link to your profile photo</p>
             </div>
 
-            {/* Email - Always locked */}
+            {/* Email - Always locked but can be verified */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email <span className="text-gray-400">(locked)</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Email <span className="text-gray-400">(locked)</span>
+                </label>
+                {verificationStatus.email_verified ? (
+                  <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Verified
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleSendOTP('email', profile.email)}
+                    disabled={sendingOtp || !profile.email}
+                    className="text-xs font-medium hover:underline disabled:opacity-50"
+                    style={{ color: theme.primaryColor }}
+                  >
+                    {sendingOtp ? 'Sending...' : 'Verify Email'}
+                  </button>
+                )}
+              </div>
               <input
                 type="email"
                 value={profile.email}
