@@ -267,9 +267,14 @@ const InstitutionDashboard = () => {
           </div>
 
           {/* Recent Credentials */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-sm p-6 border-2 border-purple-100">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Recent Credentials Issued</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center text-white text-xl">
+                  🎓
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Recent Credentials Issued</h3>
+              </div>
               <button 
                 onClick={() => navigate('/institution/credentials')}
                 className="text-sm font-medium hover:underline"
