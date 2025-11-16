@@ -45,10 +45,10 @@ const ManageAdmins = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-blue-600 text-white px-4 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold">Manage Admins</h1>
-          <button onClick={() => navigate('/admin/dashboard')} className="px-4 py-2 bg-blue-700 rounded-lg">Back</button>
+      <UserHeader 
+        title="Manage Admins"
+        onBackClick={() => navigate('/admin/dashboard')}
+        showBack={true}
         </div>
       </header>
 
