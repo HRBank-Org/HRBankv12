@@ -177,7 +177,8 @@ function AppRoutes() {
         <Route path="/employer/workforce-management" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkforceManagement /></ProtectedRoute>} />
         <Route path="/employer/messages" element={<ProtectedRoute allowedUserTypes={['employer']}><Messages /></ProtectedRoute>} />
         <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><Notifications /></ProtectedRoute>} />
-        <Route path="/employer/settings" element={<ProtectedRoute allowedUserTypes={['employer']}><Settings /></ProtectedRoute>} />
+        <Route path="/employer/settings" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerSettings /></ProtectedRoute>} />
+        <Route path="/employer/documents" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkforceDocuments /></ProtectedRoute>} />
         
         {/* Institution Routes */}
         <Route path="/institution/dashboard" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDashboard /></ProtectedRoute>} />
