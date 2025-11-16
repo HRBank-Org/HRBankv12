@@ -58,8 +58,11 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('refresh_token', refresh_token);
       setTokens({ accessToken: access_token, refreshToken: refresh_token });
       
-      // Set user
+      // Set basic user info - will be enriched by fetchCurrentUser
       setUser({ user_id, email, user_type });
+      
+      // Fetch complete profile data
+      await fetchCurrentUser();
       
       return response.data;
     } catch (error) {
