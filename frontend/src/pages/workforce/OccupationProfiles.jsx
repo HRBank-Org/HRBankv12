@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
+import UserHeader from '../../components/common/UserHeader';
 
 const OccupationProfiles = () => {
   const [occupations, setOccupations] = useState([]);
