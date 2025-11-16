@@ -106,15 +106,16 @@ async def get_my_documents(
 async def upload_document(
     document_type: str,
     document_name: str,
-    file_data: str,  # base64 encoded
-    file_type: str,
+    file_data: str = None,  # base64 encoded (optional for number-only docs)
+    file_type: str = None,
+    document_number: str = None,  # For number-only documents
     issue_date: str = None,
     expiry_date: str = None,
     notes: str = None,
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
-    """Upload a document (base64 encoded)"""
+    """Upload a document (file or number)"""
     
     # Validate document type
     document_types = get_document_types(current_user["user_type"])
@@ -124,44 +125,76 @@ async def upload_document(
             detail="Invalid document type"
         )
     
-    # Validate file type
-    allowed_types = ['pdf', 'jpg', 'jpeg', 'png']
-    if file_type.lower() not in allowed_types:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File type must be one of: {', '.join(allowed_types)}"
-        )
+    doc_config = document_types[document_type]
+    file_url = None
+    file_size = None
     
-    # Decode and store file (simplified - in production, use cloud storage)
-    try:
-        file_bytes = base64.b64decode(file_data)
-        file_size = len(file_bytes)
-        
-        # Check file size (10MB limit)
-        if file_size > 10 * 1024 * 1024:
+    # Handle number-only documents
+    if doc_config.get('is_number_only'):
+        if not document_number:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="File size must be less than 10MB"
+                detail="Document number is required for this document type"
             )
         
-        # Create uploads directory if it doesn't exist
-        upload_dir = "/app/backend/uploads/documents"
-        os.makedirs(upload_dir, exist_ok=True)
+        # Validate number format
+        import re
+        pattern = doc_config.get('number_pattern')
+        if pattern:
+            # Normalize spaces for validation
+            normalized_number = ' '.join(document_number.split())
+            if not re.match(pattern, normalized_number):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid format. Expected: {doc_config.get('number_format')}. Example: {doc_config.get('number_example')}"
+                )
+    
+    # Handle file-based documents
+    elif doc_config.get('requires_file', True):
+        if not file_data or not file_type:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="File is required for this document type"
+            )
         
-        # Save file
-        file_name = f"{current_user['user_id']}_{document_type}_{datetime.utcnow().timestamp()}.{file_type}"
-        file_path = os.path.join(upload_dir, file_name)
+        # Validate file type
+        allowed_types = ['pdf', 'jpg', 'jpeg', 'png']
+        if file_type.lower() not in allowed_types:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File type must be one of: {', '.join(allowed_types)}"
+            )
         
-        with open(file_path, 'wb') as f:
-            f.write(file_bytes)
-        
-        file_url = f"/uploads/documents/{file_name}"
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save file: {str(e)}"
-        )
+        # Decode and store file
+        try:
+            file_bytes = base64.b64decode(file_data)
+            file_size = len(file_bytes)
+            
+            # Check file size (10MB limit)
+            if file_size > 10 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="File size must be less than 10MB"
+                )
+            
+            # Create uploads directory if it doesn't exist
+            upload_dir = "/app/backend/uploads/documents"
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Save file
+            file_name = f"{current_user['user_id']}_{document_type}_{datetime.utcnow().timestamp()}.{file_type}"
+            file_path = os.path.join(upload_dir, file_name)
+            
+            with open(file_path, 'wb') as f:
+                f.write(file_bytes)
+            
+            file_url = f"/uploads/documents/{file_name}"
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save file: {str(e)}"
+            )
     
     # Calculate expiry status
     is_expired, days_until = calculate_expiry_status(expiry_date) if expiry_date else (False, None)
@@ -175,6 +208,7 @@ async def upload_document(
         file_url=file_url,
         file_type=file_type,
         file_size=file_size,
+        document_number=document_number,
         issue_date=issue_date,
         expiry_date=expiry_date,
         is_expired=is_expired,
@@ -191,7 +225,7 @@ async def upload_document(
             "document_id": document.document_id,
             "verification_status": document.verification_status
         },
-        "message": "Document uploaded successfully"
+        "message": "Document submitted successfully"
     }
 
 @router.delete("/{document_id}", response_model=Dict)
