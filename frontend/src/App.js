@@ -142,7 +142,8 @@ function AppRoutes() {
         <Route path="/workforce/dashboard" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceDashboard /></ProtectedRoute>} />
         <Route path="/workforce/profile" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceProfile /></ProtectedRoute>} />
         <Route path="/workforce/occupations" element={<ProtectedRoute allowedUserTypes={['workforce']}><OccupationProfiles /></ProtectedRoute>} />
-        <Route path="/workforce/occupations/create" element={<ProtectedRoute allowedUserTypes={['workforce']}><CreateOccupation /></ProtectedRoute>} />
+        <Route path="/workforce/occupations/create" element={<ProtectedRoute allowedUserTypes={['workforce']}><CreateOccupationSimplified /></ProtectedRoute>} />
+        <Route path="/workforce/occupations/create-old" element={<ProtectedRoute allowedUserTypes={['workforce']}><CreateOccupation /></ProtectedRoute>} />
         <Route path="/workforce/occupations/:occupationId" element={<ProtectedRoute allowedUserTypes={['workforce']}><OccupationDetail /></ProtectedRoute>} />
         <Route path="/workforce/certifications/add" element={<ProtectedRoute allowedUserTypes={['workforce']}><AddCertification /></ProtectedRoute>} />
         <Route path="/workforce/availability" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceCalendar /></ProtectedRoute>} />
