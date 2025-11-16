@@ -37,6 +37,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageAdmins from './pages/admin/ManageAdmins';
 import ManageZones from './pages/admin/ManageZones';
 import Analytics from './pages/admin/Analytics';
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+import TermsOfService from './pages/legal/TermsOfService';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
