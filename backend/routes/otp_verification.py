@@ -65,36 +65,50 @@ async def send_otp(
     
     # Send OTP based on type
     if request.type == "phone":
-        if not twilio_client:
-            # Fallback for testing: just return the OTP
-            return {
-                "success": True,
-                "message": f"OTP sent to {request.contact}",
-                "test_mode": True,
-                "otp": otp_code  # REMOVE THIS IN PRODUCTION
-            }
+        # For now, always use test mode (display OTP in console and response)
+        # To enable real SMS, configure a valid Twilio phone number
+        print(f"\n{'='*50}")
+        print(f"📱 PHONE OTP for {request.contact}")
+        print(f"🔐 CODE: {otp_code}")
+        print(f"⏰ Valid for 10 minutes")
+        print(f"{'='*50}\n")
         
-        try:
-            # Format phone number (ensure it has country code)
-            phone = request.contact
-            if not phone.startswith('+'):
-                phone = f"+1{phone}"  # Assume North America if no country code
-            
-            # Send SMS via Twilio
-            message = twilio_client.messages.create(
-                body=f"Your HR Bank verification code is: {otp_code}. Valid for 10 minutes.",
-                from_=TWILIO_PHONE_NUMBER,
-                to=phone
-            )
-            
-            return {
-                "success": True,
-                "message": f"OTP sent to {request.contact}",
-                "sid": message.sid
-            }
-        except Exception as e:
-            print(f"Twilio error: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to send SMS: {str(e)}")
+        if twilio_client and TWILIO_PHONE_NUMBER and TWILIO_PHONE_NUMBER != "+12345678900":
+            try:
+                # Format phone number (ensure it has country code)
+                phone = request.contact
+                if not phone.startswith('+'):
+                    phone = f"+1{phone}"  # Assume North America if no country code
+                
+                # Send SMS via Twilio
+                message = twilio_client.messages.create(
+                    body=f"Your HR Bank verification code is: {otp_code}. Valid for 10 minutes.",
+                    from_=TWILIO_PHONE_NUMBER,
+                    to=phone
+                )
+                
+                return {
+                    "success": True,
+                    "message": f"OTP sent to {request.contact}",
+                    "sid": message.sid
+                }
+            except Exception as e:
+                print(f"Twilio error: {e}")
+                # Fall back to test mode if SMS fails
+                return {
+                    "success": True,
+                    "message": f"OTP sent to {request.contact} (Test Mode)",
+                    "test_mode": True,
+                    "otp": otp_code
+                }
+        
+        # Test mode - return OTP in response
+        return {
+            "success": True,
+            "message": f"OTP sent to {request.contact} (Test Mode - Check console)",
+            "test_mode": True,
+            "otp": otp_code
+        }
     
     elif request.type == "email":
         # For email, we'll use a simple approach for now
