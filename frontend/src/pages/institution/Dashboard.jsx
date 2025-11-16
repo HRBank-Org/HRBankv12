@@ -20,7 +20,12 @@ const InstitutionDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 pt-6">
         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-6 border border-purple-100">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
-            Welcome back, {user?.profile?.contact_name || user?.profile?.contact_person || 'there'}! 👋
+            Welcome back, {
+              user?.profile?.first_name || 
+              user?.profile?.contact_name || 
+              user?.profile?.contact_person || 
+              'there'
+            }! 👋
           </h2>
           <p className="text-gray-600">
             {user?.profile?.institution_name && `${user.profile.institution_name} • `}
