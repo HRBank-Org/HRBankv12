@@ -20,17 +20,29 @@ async def get_my_profile(
     current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
-    """Get current workforce user's profile"""
+    """Get current workforce user's profile (creates empty if doesn't exist)"""
     profile = await db.workforce_profiles.find_one(
         {"workforce_id": current_user["user_id"]},
         {"_id": 0}
     )
     
     if not profile:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
-        )
+        # Return default empty profile
+        profile = {
+            "workforce_id": current_user["user_id"],
+            "user_id": current_user["user_id"],
+            "first_name": "",
+            "last_name": "",
+            "full_name": "",
+            "photo_url": "",
+            "phone": "",
+            "address": "",
+            "city": "",
+            "province": "",
+            "postal_code": "",
+            "phone_verified": False,
+            "email_verified": False
+        }
     
     return {
         "success": True,
