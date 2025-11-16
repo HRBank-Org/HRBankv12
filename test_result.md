@@ -105,6 +105,18 @@
 user_problem_statement: "Fix Occupation Profiles display page: 1) Remove 'preferred rate' field if visible, 2) Show years of experience and employment history (companies worked for), 3) Display certification verification status (Pending/Verified/Rejected), 4) Redesign as attractive resume cards, 5) Add inline editing for skills section."
 
 backend:
+  - task: "Enhanced Occupation Profiles API - Credential Details & Employment History"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/occupations.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Enhanced GET /api/occupations/me endpoint to include detailed credential information with verification status (pending/verified/rejected) and employment history for each occupation profile. Backend now populates credential_details array with full credential data (name, type, institution, status, dates) and employment_history array with company names, position titles, employment dates, hours/shifts worked. This provides all data needed for the resume-style occupation profile cards."
+  
   - task: "Calendar API - Workforce Availability Endpoints"
     implemented: true
     working: true
