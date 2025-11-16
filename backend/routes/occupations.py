@@ -196,35 +196,13 @@ async def update_occupation_profile(
 
 @router.get("/categories", response_model=Dict)
 async def get_occupation_categories(db = Depends(get_db)):
-    """Get list of occupation categories and occupations from master list"""
+    """Get list of occupation categories and occupations"""
+    from utils.occupation_categories import OCCUPATION_CATEGORIES
     
-    # Get all active occupations
-    occupations = await db.occupations_master.find(
-        {"status": "active"},
-        {"_id": 0}
-    ).to_list(100)
-    
-    # Group by industry
-    industries = {}
-    for occ in occupations:
-        industry = occ["industry"]
-        if industry not in industries:
-            industries[industry] = []
-        industries[industry].append({
-            "occupation_id": occ["occupation_id"],
-            "occupation_name": occ["occupation_name"],
-            "required_certifications": occ.get("required_certifications", []),
-            "recommended_certifications": occ.get("recommended_certifications", []),
-            "hard_skills": occ.get("hard_skills", []),
-            "soft_skills": occ.get("soft_skills", []),
-            "typical_rate_min": occ.get("typical_rate_min", 15),
-            "typical_rate_max": occ.get("typical_rate_max", 25)
-        })
-    
+    # Return structured categories with occupations
     return {
         "success": True,
         "data": {
-            "industries": industries,
-            "total_occupations": len(occupations)
+            "categories": OCCUPATION_CATEGORIES
         }
     }
