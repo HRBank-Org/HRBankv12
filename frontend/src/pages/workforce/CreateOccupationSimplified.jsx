@@ -6,8 +6,7 @@ import api from '../../utils/api';
 const STEPS = [
   { number: 1, title: 'Occupation', description: 'Choose your role' },
   { number: 2, title: 'Skills', description: 'Your capabilities' },
-  { number: 3, title: 'Certifications', description: 'Your credentials' },
-  { number: 4, title: 'Rate', description: 'Your preferred pay' }
+  { number: 3, title: 'Experience', description: 'Previous jobs & credentials' }
 ];
 
 const CreateOccupationSimplified = () => {
