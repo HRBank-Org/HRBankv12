@@ -1,0 +1,279 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import UserHeader from '../../components/common/UserHeader';
+import api from '../../utils/api';
+
+const WorkforceSettings = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+  const [profile, setProfile] = useState({
+    first_name: '',
+    last_name: '',
+    profile_photo_url: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    province: '',
+    postal_code: ''
+  });
+
+  const isAccountActive = user?.profile_status === 'active';
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      const response = await api.get('/api/workforce/me/profile');
+      const data = response.data.data;
+      setProfile({
+        first_name: data.first_name || '',
+        last_name: data.last_name || '',
+        profile_photo_url: data.profile_photo_url || '',
+        email: user?.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        city: data.city || '',
+        province: data.province || '',
+        postal_code: data.postal_code || ''
+      });
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      setMessage({ type: 'error', text: 'Failed to load profile settings' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      await api.patch('/api/workforce/me/profile', {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        profile_photo_url: profile.profile_photo_url,
+        phone: profile.phone,
+        address: profile.address,
+        city: profile.city,
+        province: profile.province,
+        postal_code: profile.postal_code
+      });
+      
+      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      
+      // Refresh user data in AuthContext
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to save profile' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
+      <UserHeader 
+        onBackClick={() => navigate('/workforce/dashboard')}
+        showBack={true}
+        title="Settings"
+      />
+
+      <main className="max-w-3xl mx-auto px-4 py-8">
+        {/* Account Status Banner */}
+        {!isAccountActive && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-yellow-800">Profile Not Activated</p>
+                <p className="text-xs text-yellow-700 mt-1">
+                  You can edit your information now, but these fields will be locked once your account is activated by an admin.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {message.text && (
+          <div className={`rounded-lg p-4 mb-6 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+            {message.text}
+          </div>
+        )}
+
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Personal Information</h2>
+
+          <div className="space-y-6">
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  First Name {isAccountActive && <span className="text-gray-400">(locked)</span>}
+                </label>
+                <input
+                  type="text"
+                  value={profile.first_name}
+                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  disabled={isAccountActive}
+                  className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 ${isAccountActive ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Last Name {isAccountActive && <span className="text-gray-400">(locked)</span>}
+                </label>
+                <input
+                  type="text"
+                  value={profile.last_name}
+                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  disabled={isAccountActive}
+                  className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 ${isAccountActive ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+            </div>
+
+            {/* Profile Photo URL */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Profile Photo URL {isAccountActive && <span className="text-gray-400">(locked)</span>}
+              </label>
+              <input
+                type="text"
+                value={profile.profile_photo_url}
+                onChange={(e) => setProfile({ ...profile, profile_photo_url: e.target.value })}
+                disabled={isAccountActive}
+                placeholder="https://example.com/photo.jpg"
+                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 ${isAccountActive ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                style={{ focusRing: theme.primaryColor }}
+              />
+              <p className="text-xs text-gray-500 mt-1">Enter a direct link to your profile photo</p>
+            </div>
+
+            {/* Email - Always locked */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email <span className="text-gray-400">(locked)</span>
+              </label>
+              <input
+                type="email"
+                value={profile.email}
+                disabled
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+              <input
+                type="tel"
+                value={profile.phone}
+                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                style={{ focusRing: theme.primaryColor }}
+              />
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+              <input
+                type="text"
+                value={profile.address}
+                onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                style={{ focusRing: theme.primaryColor }}
+              />
+            </div>
+
+            {/* City, Province, Postal Code */}
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <input
+                  type="text"
+                  value={profile.city}
+                  onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Province</label>
+                <input
+                  type="text"
+                  value={profile.province}
+                  onChange={(e) => setProfile({ ...profile, province: e.target.value })}
+                  placeholder="ON"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                <input
+                  type="text"
+                  value={profile.postal_code}
+                  onChange={(e) => setProfile({ ...profile, postal_code: e.target.value })}
+                  placeholder="M5V 3A8"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-4 border-t border-gray-200">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all disabled:opacity-50"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm text-blue-800">
+              <p className="font-medium">Privacy Note</p>
+              <p className="mt-1">Your personal information (email, phone, address) is NEVER shared with employers. They only see your occupation profiles.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default WorkforceSettings;
