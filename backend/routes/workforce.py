@@ -49,17 +49,18 @@ async def update_personal_info(
     """
     address = data.get("address")
     
-    # Geocode address to get lat/long
+    # Geocode address to get lat/long (optional - falls back to default if unavailable)
     if address:
         coordinates = google_maps_service.geocode_address(address)
         if coordinates:
             data["lat"] = coordinates[0]
             data["long"] = coordinates[1]
         else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Unable to geocode address. Please check the address."
-            )
+            # Use default coordinates (Toronto downtown) if geocoding fails
+            # This allows profile updates even without Google Maps API
+            data["lat"] = 43.6532
+            data["long"] = -79.3832
+            print(f"Warning: Geocoding failed for address '{address}'. Using default coordinates.")
     
     # Update profile
     data["updated_date"] = datetime.utcnow().isoformat()
