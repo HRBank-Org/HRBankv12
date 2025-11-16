@@ -21,9 +21,8 @@ def get_db():
 # ==================== CLASS TEMPLATES ====================
 
 @router.get("/class-templates", response_model=Dict)
-@require_role(["institution"])
 async def get_class_templates(
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role(["institution"])),
     db = Depends(get_db)
 ):
     """Get all class templates for institution"""
