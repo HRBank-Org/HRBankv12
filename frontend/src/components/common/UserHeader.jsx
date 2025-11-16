@@ -58,7 +58,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
       
       return (
         <div className="text-white">
-          <p className="font-semibold text-sm leading-tight">{profile.contact_person || 'Employer'}</p>
+          <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Employer'}</p>
           <p className="text-xs opacity-90 font-medium">{profile.company_name}</p>
           {shortAddress && (
             <p className="text-xs opacity-75">{shortAddress}</p>
@@ -73,7 +73,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
       
       return (
         <div className="text-white">
-          <p className="font-semibold text-sm leading-tight">{profile.contact_person || 'Institution'}</p>
+          <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Institution'}</p>
           <p className="text-xs opacity-90 font-medium">{profile.institution_name}</p>
           {shortAddress && (
             <p className="text-xs opacity-75">{shortAddress}</p>
