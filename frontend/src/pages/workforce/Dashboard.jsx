@@ -153,13 +153,7 @@ const WorkforceDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                Welcome back, {
-                  workforceProfile?.first_name || 
-                  user?.profile?.first_name || 
-                  workforceProfile?.full_name || 
-                  user?.profile?.full_name || 
-                  'there'
-                }! 👋
+                {getGreeting()}, {getUserName()}! 👋
               </h2>
               <p className="text-gray-600">Here's what's happening with your work today</p>
             </div>
