@@ -696,6 +696,70 @@ const WorkforceSettings = () => {
           </div>
         </div>
       )}
+
+      {/* Photo Crop Modal */}
+      {showPhotoUpload && selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Crop Your Photo</h3>
+              <button
+                onClick={() => {
+                  setShowPhotoUpload(false);
+                  setSelectedImage(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="max-h-96 overflow-auto mb-4">
+              <ReactCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={1}
+                circularCrop
+              >
+                <img
+                  ref={imgRef}
+                  src={selectedImage}
+                  alt="Crop preview"
+                  style={{ maxWidth: '100%' }}
+                />
+              </ReactCrop>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleUploadPhoto}
+                disabled={!completedCrop || uploadingPhoto}
+                className="flex-1 px-4 py-3 rounded-lg text-white font-medium disabled:opacity-50"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowPhotoUpload(false);
+                  setSelectedImage(null);
+                }}
+                disabled={uploadingPhoto}
+                className="px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 text-center mt-3">
+              Drag to adjust the crop area. Your photo will be cropped to a circle.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
