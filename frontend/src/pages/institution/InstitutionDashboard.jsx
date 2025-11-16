@@ -11,10 +11,27 @@ const InstitutionDashboard = () => {
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    loadAnalytics();
+    loadDashboardData();
   }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const [analyticsRes, profileRes] = await Promise.all([
+        api.get('/api/institution/analytics/dashboard'),
+        api.get('/api/institutions/me/profile')
+      ]);
+      
+      setAnalytics(analyticsRes.data.data);
+      setProfile(profileRes.data.data);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadAnalytics = async () => {
     try {
