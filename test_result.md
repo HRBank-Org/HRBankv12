@@ -611,8 +611,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Redesigned Occupation Profiles List Page - Resume Cards with Inline Skills Editing"
-    - "Redesigned Occupation Detail Page - Remove Rate, Add Employment History & Cert Status"
+    - "User Profile API - Complete User Data for Headers"
+    - "UserHeader Component - Personalized Headers for All User Types"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
