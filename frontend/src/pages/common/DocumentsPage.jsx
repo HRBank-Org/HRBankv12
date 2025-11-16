@@ -452,7 +452,10 @@ const DocumentsPage = () => {
                         className="w-full px-4 py-2 border-2 rounded-lg font-medium hover:bg-gray-50 transition-all"
                         style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
                       >
-                        {existingDoc.is_expired ? 'Upload New Document (Expired)' : 'Re-upload Document'}
+                        {existingDoc.is_expired 
+                          ? (docInfo.is_number_only ? 'Update Number (Expired)' : 'Upload New Document (Expired)')
+                          : (docInfo.is_number_only ? 'Update Number' : 'Re-upload Document')
+                        }
                       </button>
                     )}
                   </div>
