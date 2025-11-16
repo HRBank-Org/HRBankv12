@@ -13,6 +13,7 @@ const WorkforceDashboard = () => {
   const [activeTab, setActiveTab] = useState('financial'); // financial, schedule, career, jobs, attendance
   const [acceptedShifts, setAcceptedShifts] = useState([]);
   const [availabilityData, setAvailabilityData] = useState({});
+  const [workforceProfile, setWorkforceProfile] = useState(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [stats, setStats] = useState({
