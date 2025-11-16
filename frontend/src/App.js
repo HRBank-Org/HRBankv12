@@ -40,6 +40,8 @@ import Analytics from './pages/admin/Analytics';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
+import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimplified';
+import ManageOccupations from './pages/admin/ManageOccupations';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
