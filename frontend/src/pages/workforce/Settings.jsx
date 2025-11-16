@@ -44,6 +44,15 @@ const WorkforceSettings = () => {
     confirm_password: ''
   });
   const [changingPassword, setChangingPassword] = useState(false);
+  
+  // Photo upload states
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [crop, setCrop] = useState({ unit: '%', width: 100, aspect: 1 });
+  const [completedCrop, setCompletedCrop] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const imgRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const isAccountActive = user?.profile_status === 'active';
 
