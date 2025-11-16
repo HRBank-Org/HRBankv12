@@ -599,11 +599,14 @@ const DocumentsPage = () => {
               </button>
               <button
                 onClick={handleUpload}
-                disabled={uploading || !uploadData.file}
+                disabled={uploading || (!uploadData.file && !uploadData.document_number)}
                 className="flex-1 px-4 py-2 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all disabled:opacity-50"
                 style={{ backgroundColor: theme.primaryColor }}
               >
-                {uploading ? 'Uploading...' : 'Upload Document'}
+                {uploading 
+                  ? (documentTypes[uploadModal.type]?.is_number_only ? 'Submitting...' : 'Uploading...') 
+                  : (documentTypes[uploadModal.type]?.is_number_only ? 'Submit Number' : 'Upload Document')
+                }
               </button>
             </div>
           </div>
