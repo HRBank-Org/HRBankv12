@@ -213,9 +213,14 @@ const InstitutionDashboard = () => {
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Classes */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-sm p-6 border-2 border-indigo-100">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Recent Classes</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xl">
+                  📚
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Recent Classes</h3>
+              </div>
               <button 
                 onClick={() => navigate('/institution/classes')}
                 className="text-sm font-medium hover:underline"
