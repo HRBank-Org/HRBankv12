@@ -51,6 +51,7 @@ async def get_required_document_types(
         }
     }
 
+@router.get("/me", response_model=Dict)
 @router.get("/my-documents", response_model=Dict)
 async def get_my_documents(
     current_user: dict = Depends(get_current_user),
