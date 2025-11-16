@@ -8,7 +8,12 @@ class WorkforceProfile(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     workforce_id: str  # Same as user_id
-    full_name: str
+    
+    # Name fields - collected during signup/onboarding
+    first_name: str
+    last_name: str
+    full_name: Optional[str] = None  # Auto-generated from first_name + last_name for compatibility
+    
     phone: str  # PRIVATE - Never shown to employers
     address: str  # PRIVATE - Never shown to employers
     city: Optional[str] = None  # For Canada-wide expansion
