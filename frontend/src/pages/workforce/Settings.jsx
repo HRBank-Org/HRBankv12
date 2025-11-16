@@ -434,6 +434,80 @@ const WorkforceSettings = () => {
           </div>
         </div>
 
+        {/* Password Change Section */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Security</h2>
+          </div>
+          
+          {!showPasswordChange ? (
+            <button
+              onClick={() => setShowPasswordChange(true)}
+              className="px-4 py-2 rounded-lg border-2 font-medium hover:bg-gray-50 transition-all"
+              style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
+            >
+              Change Password
+            </button>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                <input
+                  type="password"
+                  value={passwordData.current_password}
+                  onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                <input
+                  type="password"
+                  value={passwordData.new_password}
+                  onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                  placeholder="Minimum 8 characters"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={passwordData.confirm_password}
+                  onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                  style={{ focusRing: theme.primaryColor }}
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleChangePassword}
+                  disabled={changingPassword || !passwordData.current_password || !passwordData.new_password || !passwordData.confirm_password}
+                  className="px-6 py-2 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all disabled:opacity-50"
+                  style={{ backgroundColor: theme.primaryColor }}
+                >
+                  {changingPassword ? 'Changing...' : 'Change Password'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPasswordChange(false);
+                    setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
+                  }}
+                  disabled={changingPassword}
+                  className="px-6 py-2 border-2 border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Info Box */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
           <div className="flex items-start gap-3">
