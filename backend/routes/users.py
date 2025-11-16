@@ -31,7 +31,7 @@ async def get_current_user_profile(
     elif user_type == "institution":
         profile = await db.institution_profiles.find_one({"institution_id": user_id}, {"_id": 0})
     elif user_type == "admin":
-        profile = await db.admin_profiles.find_one({"user_id": user_id}, {"_id": 0})
+        profile = await db.admin_profiles.find_one({"admin_id": user_id}, {"_id": 0})
     
     return {
         "success": True,
