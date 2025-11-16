@@ -569,7 +569,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Occupation Profiles API - Credential Details & Employment History"
     - "Redesigned Occupation Profiles Page - Resume Cards with Inline Skills Editing"
   stuck_tasks: []
   test_all: false
