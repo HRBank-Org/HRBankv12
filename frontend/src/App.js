@@ -72,7 +72,6 @@ import ManageTasks from './pages/employer/ManageTasks';
 import WorkforceManagement from './pages/employer/WorkforceManagement';
 
 // Institution pages
-import InstitutionDashboard from './pages/institution/Dashboard';
 import InstitutionSettings from './pages/InstitutionSettings';
 import IssueCredential from './pages/institution/IssueCredential';
 import ManageCredentials from './pages/institution/ManageCredentials';
