@@ -221,9 +221,11 @@ const CreateOccupationSimplified = () => {
       // If credentials added, send verification requests
       if (credentials.length > 0) {
         alert(`Profile created! ${credentials.length} credential(s) submitted for verification. Institutions will be notified.`);
+      } else {
+        alert('Profile created successfully!');
       }
       
-      navigate('/workforce/occupation-profiles');
+      navigate('/workforce/dashboard');
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to create occupation profile');
     } finally {
