@@ -461,6 +461,167 @@ const CreateOccupationSimplified = () => {
           )}
         </div>
       </div>
+
+      {/* Add Credential Modal */}
+      {showCredentialModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6 my-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Add Credential for Verification</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              The issuing institution will be invited to verify this credential
+            </p>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Credential Type</label>
+                  <select
+                    value={credentialForm.credential_type}
+                    onChange={(e) => setCredentialForm({...credentialForm, credential_type: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option>Certificate</option>
+                    <option>Diploma</option>
+                    <option>Degree</option>
+                    <option>License</option>
+                    <option>Certification</option>
+                    <option>Training Completion</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Field of Study (Optional)</label>
+                  <input
+                    type="text"
+                    value={credentialForm.field_of_study}
+                    onChange={(e) => setCredentialForm({...credentialForm, field_of_study: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., Nursing, Healthcare"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Credential Name *</label>
+                <input
+                  type="text"
+                  value={credentialForm.credential_name}
+                  onChange={(e) => setCredentialForm({...credentialForm, credential_name: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Personal Support Worker Certificate"
+                />
+              </div>
+
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="font-medium text-gray-900 mb-3">Issuing Institution</h4>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institution Name *</label>
+                    <input
+                      type="text"
+                      value={credentialForm.institution_name}
+                      onChange={(e) => setCredentialForm({...credentialForm, institution_name: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., George Brown College"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institution Email *</label>
+                    <input
+                      type="email"
+                      value={credentialForm.institution_email}
+                      onChange={(e) => setCredentialForm({...credentialForm, institution_email: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., registrar@georgebrown.ca"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Institution will receive verification request at this email
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date *</label>
+                  <input
+                    type="date"
+                    value={credentialForm.issue_date}
+                    onChange={(e) => setCredentialForm({...credentialForm, issue_date: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date (if applicable)</label>
+                  <input
+                    type="date"
+                    value={credentialForm.expiry_date}
+                    onChange={(e) => setCredentialForm({...credentialForm, expiry_date: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <strong>How verification works:</strong><br/>
+                  1. You submit this credential<br/>
+                  2. Institution receives email invitation to verify<br/>
+                  3. Institution creates account and confirms/rejects<br/>
+                  4. Verified credentials appear with ✓ badge on your profile
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowCredentialModal(false);
+                  setCredentialForm({
+                    credential_type: 'Certificate',
+                    credential_name: '',
+                    field_of_study: '',
+                    institution_name: '',
+                    institution_email: '',
+                    issue_date: '',
+                    expiry_date: '',
+                    document_file: null
+                  });
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!credentialForm.credential_name || !credentialForm.institution_name || !credentialForm.institution_email || !credentialForm.issue_date) {
+                    alert('Please fill all required fields');
+                    return;
+                  }
+                  setCredentials([...credentials, credentialForm]);
+                  setShowCredentialModal(false);
+                  setCredentialForm({
+                    credential_type: 'Certificate',
+                    credential_name: '',
+                    field_of_study: '',
+                    institution_name: '',
+                    institution_email: '',
+                    issue_date: '',
+                    expiry_date: '',
+                    document_file: null
+                  });
+                }}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Add Credential
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
