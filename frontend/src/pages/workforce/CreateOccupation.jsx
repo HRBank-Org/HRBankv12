@@ -256,7 +256,8 @@ const CreateOccupation = () => {
                       <p className="text-xs text-gray-600 mt-1">{cat.example}</p>
                     </button>
                   ))}
-                </div>
+                  </div>
+                )}
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
