@@ -190,7 +190,8 @@ const CreateOccupation = () => {
                   required
                   value={formData.occupation_title}
                   onChange={(e) => setFormData({...formData, occupation_title: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  style={{ borderColor: theme.primaryColor }}
                   placeholder="e.g., Security Guard, Personal Support Worker, Server"
                 />
                 <p className="text-xs text-gray-500 mt-1">This will be your job title for this profile</p>
