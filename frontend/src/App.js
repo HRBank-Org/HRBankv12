@@ -205,7 +205,7 @@ function AppRoutes() {
         <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageAdmins /></ProtectedRoute>} />
         <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageZones /></ProtectedRoute>} />
         <Route path="/admin/manage-occupations" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageOccupations /></ProtectedRoute>} />
-        <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionSettings /></ProtectedRoute>} />
+        <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><Settings /></ProtectedRoute>} />
         <Route path="/institution/credentials/issue" element={<ProtectedRoute allowedUserTypes={['institution']}><IssueCredential /></ProtectedRoute>} />
         <Route path="/institution/credentials/manage" element={<ProtectedRoute allowedUserTypes={['institution']}><ManageCredentials /></ProtectedRoute>} />
         <Route path="/institution/verification-queue" element={<ProtectedRoute allowedUserTypes={['institution']}><VerificationQueue /></ProtectedRoute>} />
