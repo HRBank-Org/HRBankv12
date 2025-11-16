@@ -97,10 +97,17 @@ const InstitutionDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 mb-8 text-white">
-          <h1 className="text-3xl font-bold mb-2">{getGreeting()}, {getContactName()}! 👋</h1>
-          <p className="text-blue-100">Welcome to {getInstitutionName()} Portal</p>
-          <p className="text-blue-100 text-sm mt-1">Manage classes, issue credentials, and track your institution's performance</p>
+        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl shadow-lg p-8 mb-8 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 opacity-10">
+            <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+            </svg>
+          </div>
+          <div className="relative z-10">
+            <h1 className="text-3xl font-bold mb-2">{getGreeting()}, {getContactName()}! 🎓</h1>
+            <p className="text-purple-100 text-lg">{getInstitutionName()}</p>
+            <p className="text-purple-200 text-sm mt-1">Empowering students through verified credentials</p>
+          </div>
         </div>
 
         {/* Analytics Grid */}
