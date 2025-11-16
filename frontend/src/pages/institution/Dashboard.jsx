@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import UserHeader from '../../components/common/UserHeader';
 
 const InstitutionDashboard = () => {
   const { user, logout } = useAuth();
@@ -10,25 +11,26 @@ const InstitutionDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header */}
-      <header className="text-white px-4 py-4 shadow-md" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <h1 className="text-xl font-bold">Verification Dashboard</h1>
-          </div>
-          <button onClick={logout} className="text-sm hover:underline">
-            Logout
-          </button>
+      {/* UserHeader */}
+      <UserHeader 
+        showBack={false}
+      />
+
+      {/* Welcome Banner */}
+      <div className="max-w-7xl mx-auto px-4 pt-6">
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-6 border border-purple-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            Welcome back, {user?.profile?.contact_name || user?.profile?.contact_person || 'there'}! 👋
+          </h2>
+          <p className="text-gray-600">
+            {user?.profile?.institution_name && `${user.profile.institution_name} • `}
+            Credential Verification Portal
+          </p>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Credential Verification Portal</h2>
-          <p className="text-gray-600 mt-1">Review and verify worker credentials</p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 pb-8">
 
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
