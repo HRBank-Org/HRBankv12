@@ -401,9 +401,15 @@ const DocumentsPage = () => {
                     <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
-                          <p className="text-gray-600">Uploaded</p>
+                          <p className="text-gray-600">Submitted</p>
                           <p className="font-medium text-gray-900">{new Date(existingDoc.uploaded_date).toLocaleDateString()}</p>
                         </div>
+                        {existingDoc.document_number && (
+                          <div className="col-span-2">
+                            <p className="text-gray-600">Document Number</p>
+                            <p className="font-medium text-gray-900 font-mono text-lg">{existingDoc.document_number}</p>
+                          </div>
+                        )}
                         {existingDoc.issue_date && (
                           <div>
                             <p className="text-gray-600">Issue Date</p>
