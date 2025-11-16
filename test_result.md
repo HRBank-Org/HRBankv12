@@ -683,6 +683,18 @@ agent_communication:
         -agent: "main"
         -comment: "Implemented comprehensive document expiry and email reminder system. Created email_service.py with SendGrid integration for sending HTML emails with three functions: send_email (base function), send_document_expiry_reminder (sends countdown reminders with urgency levels based on days until expiry), send_account_restricted_email (notifies users when account is restricted due to expired documents). Created document_scheduler.py with APScheduler for daily automated checks at 9 AM UTC. Scheduler features: check_and_send_expiry_reminders (checks all documents, sends reminders for docs expiring within 7 days, marks expired docs), check_and_restrict_account (evaluates if user has expired required documents and restricts account with restricted status instead of deactivating). Added POST /api/documents/admin/run-expiry-check endpoint for manual testing. Integrated scheduler into server.py startup/shutdown events. Updated .env with SendGrid API key. Account restriction logic: users can still login but cannot access most features until documents are updated. Emails include professional HTML templates with urgency color coding (red=expired, orange=3 days or less, yellow=4-7 days), document details table, action buttons, and clear warnings about account restriction."
 
+  - task: "Institution Dashboard - Profile Data Fetching & Display"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/institutions.py, /app/frontend/src/pages/institution/InstitutionDashboard.jsx, /app/frontend/src/contexts/AuthContext.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Fixed critical bug where Institution Dashboard greeting was not displaying contact person's name and UserHeader was not showing institution information correctly. ROOT CAUSE: 1) Backend API was querying institution_profiles using 'user_id' field but the database collection uses 'institution_id' field, causing profile fetch to fail and return empty default profile. 2) Frontend InstitutionDashboard was fetching profile data but not using it - greeting functions were trying to access user.profile from AuthContext instead of the locally fetched profile state. BACKEND FIX: Updated GET /api/institutions/me/profile to query using both institution_id and user_id fields for backwards compatibility using $or query. Updated PUT /api/institutions/me/profile to store both fields and handle existing profiles correctly. FRONTEND FIX: Updated InstitutionDashboard.jsx to use locally fetched profile state in getContactName() and getInstitutionName() functions. Added updateUserProfile method to AuthContext to allow components to update the user's profile data. Dashboard now calls updateUserProfile after fetching profile so UserHeader can access complete institution data. Backend API tested with test institution user (test_inst_fix@hrbank.ca) and confirmed profile data is returned correctly with contact_name, institution_name, address, and city fields."
+
 
 frontend:
   - task: "Document Management Pages with Expiry Warnings - All User Types"
