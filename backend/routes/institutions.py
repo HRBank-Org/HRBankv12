@@ -39,9 +39,10 @@ async def update_my_profile(
     current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
-    """Update institution profile"""
-    # Remove fields that shouldn't be updated
+    """Update institution profile (creates if doesn't exist)"""
+    # Prepare update data
     update_data = {
+        "user_id": current_user["user_id"],
         "contact_name": profile_data.get("contact_name"),
         "title": profile_data.get("title"),
         "institution_name": profile_data.get("institution_name"),
@@ -55,23 +56,28 @@ async def update_my_profile(
         "updated_at": datetime.utcnow().isoformat()
     }
     
-    # Remove None values
-    update_data = {k: v for k, v in update_data.items() if v is not None}
+    # Remove None values except user_id
+    update_data = {k: v for k, v in update_data.items() if v is not None or k == "user_id"}
     
-    result = await db.institution_profiles.update_one(
-        {"user_id": current_user["user_id"]},
-        {"$set": update_data}
-    )
+    # Check if profile exists
+    existing_profile = await db.institution_profiles.find_one({"user_id": current_user["user_id"]})
     
-    if result.modified_count == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found or no changes made"
+    if existing_profile:
+        # Update existing profile
+        result = await db.institution_profiles.update_one(
+            {"user_id": current_user["user_id"]},
+            {"$set": update_data}
         )
+        message = "Profile updated successfully"
+    else:
+        # Create new profile
+        update_data["created_at"] = datetime.utcnow().isoformat()
+        await db.institution_profiles.insert_one(update_data)
+        message = "Profile created successfully"
     
     return {
         "success": True,
-        "message": "Profile updated successfully"
+        "message": message
     }
 
 @router.get("/me/verification-queue", response_model=Dict)
