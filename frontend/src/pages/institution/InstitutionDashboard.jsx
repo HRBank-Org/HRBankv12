@@ -160,21 +160,24 @@ const InstitutionDashboard = () => {
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1 h-8 bg-gradient-to-b from-indigo-600 to-purple-600 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <QuickActionCard
               icon="➕"
               title="Create New Class"
               description="Start a new class and enroll students"
               onClick={() => navigate('/institution/classes/create')}
-              color="#3b82f6"
+              color="#6366f1"
             />
             <QuickActionCard
               icon="📝"
               title="Manage Templates"
               description="Create and manage class templates"
               onClick={() => navigate('/institution/templates')}
-              color="#8b5cf6"
+              color="#a855f7"
             />
             <QuickActionCard
               icon="🎓"
@@ -195,7 +198,7 @@ const InstitutionDashboard = () => {
               title="Verify Credentials"
               description="Review pending verification requests"
               onClick={() => navigate('/institution/verification-requests')}
-              color="#ef4444"
+              color="#ec4899"
             />
             <QuickActionCard
               icon="📄"
