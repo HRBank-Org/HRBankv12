@@ -63,6 +63,21 @@ const CreateOccupation = () => {
       setAvailableSkills(skillsRes.data.data.skills || []);
     } catch (error) {
       console.error('Failed to load data:', error);
+      // Set fallback categories even on error
+      setCategories([
+        { name: 'Healthcare', example: 'Nurse, PSW, Caregiver' },
+        { name: 'Security', example: 'Security Guard, Loss Prevention' },
+        { name: 'Hospitality', example: 'Server, Bartender, Cook' },
+        { name: 'Retail', example: 'Sales Associate, Cashier' },
+        { name: 'Construction', example: 'Laborer, Carpenter, Electrician' },
+        { name: 'Education', example: 'Tutor, Teaching Assistant' },
+        { name: 'Transportation', example: 'Driver, Delivery, Courier' },
+        { name: 'Administrative', example: 'Receptionist, Data Entry' }
+      ]);
+      setAvailableSkills([
+        'Customer Service', 'Communication', 'Time Management', 'Problem Solving',
+        'Teamwork', 'Attention to Detail', 'Organization', 'Computer Skills'
+      ]);
     }
   };
 
