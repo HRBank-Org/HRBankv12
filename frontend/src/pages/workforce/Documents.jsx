@@ -1,19 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
-import api from '../../utils/api';
+import React from 'react';
+import DocumentsPage from '../common/DocumentsPage';
 
 const WorkforceDocuments = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const theme = useTheme();
-  const [loading, setLoading] = useState(true);
-  const [documents, setDocuments] = useState([]);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const [uploadingType, setUploadingType] = useState(null);
-  const fileInputRef = useRef(null);
+  return <DocumentsPage />;
 
   const documentTypes = {
     government_id: {
