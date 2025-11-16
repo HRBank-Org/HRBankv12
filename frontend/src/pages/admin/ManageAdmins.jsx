@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 
 const ManageAdmins = () => {
