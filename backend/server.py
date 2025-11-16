@@ -106,6 +106,7 @@ app.include_router(admin_management.router, tags=["admin_management"])
 app.include_router(google_calendar.router, tags=["google_calendar"])
 app.include_router(shift_scheduling.router, tags=["shift_scheduling"])
 app.include_router(admin_occupations.router, tags=["admin_occupations"])
+app.include_router(otp_verification.router, prefix="/api/otp", tags=["otp_verification"])
 
 app.add_middleware(
     CORSMiddleware,
