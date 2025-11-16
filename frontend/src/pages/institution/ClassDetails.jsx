@@ -133,7 +133,6 @@ const ClassDetails = () => {
       <UserHeader 
         onBackClick={() => navigate('/institution/classes')}
         showBack={true}
-        title="Class Details"
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
