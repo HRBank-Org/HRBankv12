@@ -22,6 +22,12 @@ class WorkforceProfile(BaseModel):
     lat: float
     long: float
     
+    # Verification status
+    phone_verified: bool = False
+    phone_verified_at: Optional[datetime] = None
+    email_verified: bool = False
+    email_verified_at: Optional[datetime] = None
+    
     # EDUCATION INFORMATION
     education: Dict = Field(
         default_factory=lambda: {
