@@ -103,16 +103,20 @@ const InstitutionDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl shadow-lg p-8 mb-8 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 opacity-10">
-            <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
-            </svg>
-          </div>
-          <div className="relative z-10">
-            <h1 className="text-3xl font-bold mb-2">{getGreeting()}, {getContactName()}! 🎓</h1>
-            <p className="text-purple-100 text-lg">{getInstitutionName()}</p>
-            <p className="text-purple-200 text-sm mt-1">Empowering students through verified credentials</p>
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                {getGreeting()}, {getContactName()}! 🎓
+              </h2>
+              <p className="text-purple-600 font-medium">{getInstitutionName()}</p>
+              <p className="text-gray-600 text-sm">Empowering students through verified credentials</p>
+            </div>
+            <div className="hidden md:block">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-4xl shadow-lg">
+                🎓
+              </div>
+            </div>
           </div>
         </div>
 
