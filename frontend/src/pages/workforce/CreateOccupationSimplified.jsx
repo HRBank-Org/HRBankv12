@@ -365,38 +365,80 @@ const CreateOccupationSimplified = () => {
             </div>
           )}
 
-          {/* Step 3: Certifications */}
+          {/* Step 3: Experience & Credentials */}
           {currentStep === 3 && (
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Certifications</h2>
-              <p className="text-gray-600 mb-6">Select certifications you have (optional but recommended)</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Experience & Credentials</h2>
+              <p className="text-gray-600 mb-6">Add your work experience and verified credentials</p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {relevantCertifications.map((cert) => (
+              {/* Years of Experience */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Years of Experience in this field
+                </label>
+                <select
+                  value={formData.years_of_experience}
+                  onChange={(e) => setFormData({...formData, years_of_experience: parseInt(e.target.value)})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="0">Less than 1 year</option>
+                  <option value="1">1 year</option>
+                  <option value="2">2 years</option>
+                  <option value="3">3 years</option>
+                  <option value="4">4 years</option>
+                  <option value="5">5+ years</option>
+                  <option value="10">10+ years</option>
+                </select>
+              </div>
+
+              {/* Credentials Section */}
+              <div className="border-t border-gray-200 pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Credentials & Certifications</h3>
+                    <p className="text-sm text-gray-600">Add degrees, certificates, licenses (verified by issuing institution)</p>
+                  </div>
                   <button
-                    key={cert}
                     type="button"
-                    onClick={() => toggleCertification(cert)}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      formData.certifications.includes(cert)
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                    onClick={() => setShowCredentialModal(true)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                        formData.certifications.includes(cert) ? 'border-green-500 bg-green-500' : 'border-gray-300'
-                      }`}>
-                        {formData.certifications.includes(cert) && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                      <span className="font-medium text-gray-900">{cert}</span>
-                    </div>
+                    + Add Credential
                   </button>
-                ))}
+                </div>
+
+                {credentials.length === 0 ? (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <svg className="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p className="text-gray-600">No credentials added yet</p>
+                    <p className="text-sm text-gray-500 mt-1">Add your certifications, degrees, or licenses to verify your qualifications</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {credentials.map((cred, index) => (
+                      <div key={index} className="p-4 bg-white border border-gray-200 rounded-lg">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">{cred.credential_name}</h4>
+                            <p className="text-sm text-gray-600">{cred.credential_type} • {cred.institution_name}</p>
+                            <p className="text-xs text-gray-500 mt-1">Issued: {cred.issue_date}</p>
+                            <span className="inline-block mt-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
+                              ⏳ Pending Verification
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setCredentials(credentials.filter((_, i) => i !== index))}
+                            className="text-red-600 hover:text-red-800 text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 mt-8">
@@ -407,51 +449,8 @@ const CreateOccupationSimplified = () => {
                   Back
                 </button>
                 <button
-                  onClick={() => setCurrentStep(4)}
-                  className="flex-1 px-6 py-3 text-white rounded-lg hover:opacity-90"
-                  style={{ backgroundColor: theme.primaryColor }}
-                >
-                  Next: Set Rate
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Hourly Rate */}
-          {currentStep === 4 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Preferred Hourly Rate</h2>
-              <p className="text-gray-600 mb-6">Set your minimum acceptable hourly rate</p>
-
-              <div className="max-w-md">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Hourly Rate (CAD) <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    min="15"
-                    step="0.50"
-                    value={formData.hourly_rate_preference}
-                    onChange={(e) => setFormData({...formData, hourly_rate_preference: e.target.value})}
-                    className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    placeholder="e.g., 18.00"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-2">Minimum wage in Ontario is $15.50/hour</p>
-              </div>
-
-              <div className="flex gap-3 mt-8">
-                <button
-                  onClick={() => setCurrentStep(3)}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Back
-                </button>
-                <button
                   onClick={handleSubmit}
-                  disabled={loading || !formData.hourly_rate_preference}
+                  disabled={loading}
                   className="flex-1 px-6 py-3 text-white rounded-lg hover:opacity-90 disabled:opacity-50"
                   style={{ backgroundColor: theme.primaryColor }}
                 >
