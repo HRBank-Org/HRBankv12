@@ -110,13 +110,13 @@ const InstitutionDashboard = () => {
   };
 
   const getContactName = () => {
-    if (!user?.profile) return 'there';
-    return user.profile.contact_name || user.profile.full_name || 
-           `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() || 'there';
+    if (!profile) return 'there';
+    return profile.contact_name || profile.contact_person || profile.full_name || 
+           `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'there';
   };
 
   const getInstitutionName = () => {
-    return user?.profile?.institution_name || 'Your Institution';
+    return profile?.institution_name || 'Your Institution';
   };
 
   return (
