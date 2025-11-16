@@ -484,28 +484,51 @@ const DocumentsPage = () => {
             </div>
 
             <div className="p-6 space-y-4">
-              {/* File Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Document File *
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={handleFileChange}
-                  className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold hover:file:bg-gray-100"
-                  style={{ 
-                    'file:backgroundColor': theme.primaryColor, 
-                    'file:color': 'white' 
-                  }}
-                />
-                {uploadData.fileName && (
-                  <p className="mt-2 text-sm text-gray-600">Selected: {uploadData.fileName}</p>
-                )}
-                {uploadData.filePreview && (
-                  <img src={uploadData.filePreview} alt="Preview" className="mt-3 max-h-40 rounded-lg" />
-                )}
-              </div>
+              {/* Number-Only Documents */}
+              {documentTypes[uploadModal.type]?.is_number_only ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {documentTypes[uploadModal.type]?.name} *
+                  </label>
+                  <input
+                    type="text"
+                    value={uploadData.document_number}
+                    onChange={(e) => setUploadData(prev => ({ ...prev, document_number: e.target.value }))}
+                    placeholder={documentTypes[uploadModal.type]?.number_example}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                    style={{ focusRing: theme.primaryColor }}
+                  />
+                  <p className="mt-2 text-xs text-gray-500">
+                    Format: {documentTypes[uploadModal.type]?.number_format}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Example: {documentTypes[uploadModal.type]?.number_example}
+                  </p>
+                </div>
+              ) : (
+                /* File Upload for document-based types */
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Document File *
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold hover:file:bg-gray-100"
+                    style={{ 
+                      'file:backgroundColor': theme.primaryColor, 
+                      'file:color': 'white' 
+                    }}
+                  />
+                  {uploadData.fileName && (
+                    <p className="mt-2 text-sm text-gray-600">Selected: {uploadData.fileName}</p>
+                  )}
+                  {uploadData.filePreview && (
+                    <img src={uploadData.filePreview} alt="Preview" className="mt-3 max-h-40 rounded-lg" />
+                  )}
+                </div>
+              )}
 
               {/* Issue Date */}
               {documentTypes[uploadModal.type]?.requires_issue_date && (
