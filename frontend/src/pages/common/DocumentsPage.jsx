@@ -462,7 +462,7 @@ const DocumentsPage = () => {
                     className="w-full px-4 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all"
                     style={{ backgroundColor: theme.primaryColor }}
                   >
-                    Upload Document
+                    {docInfo.is_number_only ? 'Enter Document Number' : 'Upload Document'}
                   </button>
                 )}
               </div>
