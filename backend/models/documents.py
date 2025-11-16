@@ -72,35 +72,40 @@ ADMIN_DOCUMENT_TYPES = {
 }
 
 EMPLOYER_DOCUMENT_TYPES = {
-    'business_registration': {
-        'name': 'Business Registration',
-        'description': 'Business registration certificate',
-        'required': True,
-        'has_expiry': False
-    },
     'business_license': {
         'name': 'Business License',
-        'description': 'Municipal business license',
+        'description': 'Provincial/Municipal business license',
         'required': True,
-        'has_expiry': True
+        'has_expiry': True,
+        'has_number': True,
+        'activates_account': True
     },
-    'wsib_certificate': {
-        'name': 'WSIB Certificate',
-        'description': 'WSIB Certificate of Clearance',
+    'business_number': {
+        'name': 'Business Number (BN)',
+        'description': '9-digit CRA Business Number',
         'required': True,
-        'has_expiry': True
+        'has_expiry': False,
+        'has_number': True,
+        'number_format': '9 digits',
+        'activates_account': True
     },
-    'liability_insurance': {
-        'name': 'Liability Insurance',
-        'description': 'General liability insurance',
+    'payroll_number': {
+        'name': 'Payroll Account Number',
+        'description': 'CRA Payroll Account (BN + RP identifier)',
         'required': True,
-        'has_expiry': True
+        'has_expiry': False,
+        'has_number': True,
+        'number_format': 'XXXXXXXXX RP 0001',
+        'activates_account': True
     },
-    'payroll_registration': {
-        'name': 'CRA Payroll Account',
-        'description': 'CRA payroll registration',
+    'gst_hst_number': {
+        'name': 'GST/HST Number',
+        'description': 'GST/HST Registration Number (BN + RT identifier)',
         'required': True,
-        'has_expiry': False
+        'has_expiry': False,
+        'has_number': True,
+        'number_format': 'XXXXXXXXX RT 0001',
+        'activates_account': True
     }
 }
 
