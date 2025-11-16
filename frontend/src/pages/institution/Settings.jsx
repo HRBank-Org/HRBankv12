@@ -113,7 +113,7 @@ const InstitutionSettings = () => {
         }
       }
 
-      await api.put('/api/institution/me/profile', profile);
+      await api.put('/api/institutions/me/profile', profile);
       setMessage({ type: 'success', text: 'Settings saved successfully!' });
       
       // Redirect to dashboard after save
