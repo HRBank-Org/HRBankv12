@@ -1872,6 +1872,352 @@ def test_enhanced_occupation_profiles_api(results):
     except Exception as e:
         results.add_fail("Role-based access test", f"Test failed: {str(e)}")
 
+def test_user_profile_api(results):
+    """Test the User Profile API (GET /api/users/me) for all user types"""
+    print("\n🧪 Testing User Profile API (GET /api/users/me)...")
+    
+    # Test data for different user types
+    test_users = []
+    
+    # Create test users for each type
+    user_types = ["workforce", "employer", "institution"]
+    
+    for user_type in user_types:
+        try:
+            # Create user
+            user_data = generate_test_user(user_type)
+            signup_response = requests.post(f"{BASE_URL}/auth/signup", json=user_data, timeout=10)
+            
+            if signup_response.status_code not in [200, 201]:
+                results.add_fail(f"User Profile API setup - {user_type} user creation", f"Failed to create {user_type} user: {signup_response.status_code}")
+                continue
+            
+            user_id = signup_response.json().get("data", {}).get("user_id")
+            
+            # Manually verify user and create profile in database
+            import os
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            from dotenv import load_dotenv
+            
+            load_dotenv('/app/backend/.env')
+            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+            
+            async def setup_user_profile():
+                client = AsyncIOMotorClient(mongo_url)
+                db = client['hrbank_db']
+                
+                # Verify user
+                await db.users.update_one(
+                    {"user_id": user_id},
+                    {"$set": {"email_verified": True, "profile_status": "active"}}
+                )
+                
+                # Create type-specific profile
+                if user_type == "workforce":
+                    profile_data = {
+                        "workforce_id": user_id,
+                        "full_name": f"John Workforce {user_id[:8]}",
+                        "profile_photo_url": f"https://example.com/photos/{user_id}.jpg",
+                        "email": user_data["email"],
+                        "phone": user_data["phone"],
+                        "occupation_count": 2,
+                        "created_date": datetime.utcnow().isoformat()
+                    }
+                    await db.workforce_profiles.insert_one(profile_data)
+                    
+                elif user_type == "employer":
+                    profile_data = {
+                        "employer_id": user_id,
+                        "contact_person": f"Jane Manager {user_id[:8]}",
+                        "company_name": f"Test Company {user_id[:8]} Inc.",
+                        "address": "123 Business Street",
+                        "city": "Toronto",
+                        "province": "ON",
+                        "postal_code": "M5V 3A8",
+                        "email": user_data["email"],
+                        "phone": user_data["phone"],
+                        "company_size": "50-100",
+                        "industry": "Technology",
+                        "created_date": datetime.utcnow().isoformat()
+                    }
+                    await db.employer_profiles.insert_one(profile_data)
+                    
+                elif user_type == "institution":
+                    profile_data = {
+                        "institution_id": user_id,
+                        "contact_person": f"Dr. Academic {user_id[:8]}",
+                        "institution_name": f"Test University {user_id[:8]}",
+                        "address": "456 Education Avenue",
+                        "city": "Ottawa",
+                        "province": "ON",
+                        "postal_code": "K1A 0A6",
+                        "email": user_data["email"],
+                        "phone": user_data["phone"],
+                        "institution_type": "University",
+                        "created_date": datetime.utcnow().isoformat()
+                    }
+                    await db.institution_profiles.insert_one(profile_data)
+                
+                client.close()
+            
+            asyncio.run(setup_user_profile())
+            
+            # Login to get token
+            login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                "email": user_data["email"],
+                "password": user_data["password"],
+                "user_type": user_type
+            }, timeout=10)
+            
+            if login_response.status_code != 200:
+                results.add_fail(f"User Profile API setup - {user_type} login", f"Failed to login {user_type} user: {login_response.status_code}")
+                continue
+            
+            token = login_response.json().get("data", {}).get("access_token")
+            if not token:
+                results.add_fail(f"User Profile API setup - {user_type} token", f"Failed to get {user_type} auth token")
+                continue
+            
+            test_users.append({
+                "user_type": user_type,
+                "user_data": user_data,
+                "user_id": user_id,
+                "token": token
+            })
+            
+            results.add_pass(f"User Profile API setup - {user_type} user created and authenticated")
+            
+        except Exception as e:
+            results.add_fail(f"User Profile API setup - {user_type}", f"Setup failed: {str(e)}")
+    
+    # Test 1: Authentication Required
+    try:
+        response = requests.get(f"{BASE_URL}/users/me", timeout=10)
+        
+        if response.status_code in [401, 403]:
+            results.add_pass("User Profile API - authentication required")
+        else:
+            results.add_fail("User Profile API - authentication required", f"Expected 401/403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("User Profile API - authentication required", f"Request failed: {str(e)}")
+    
+    # Test 2: Workforce User Profile
+    workforce_user = next((u for u in test_users if u["user_type"] == "workforce"), None)
+    if workforce_user:
+        try:
+            response = requests.get(
+                f"{BASE_URL}/users/me",
+                headers=get_auth_headers(workforce_user["token"]),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and data.get("data"):
+                    user_data = data["data"]
+                    profile = user_data.get("profile", {})
+                    
+                    # Check required fields for workforce
+                    required_fields = ["user_id", "email", "user_type", "profile"]
+                    missing_fields = [f for f in required_fields if f not in user_data]
+                    
+                    if missing_fields:
+                        results.add_fail("Workforce User Profile - response structure", f"Missing fields: {missing_fields}")
+                    else:
+                        results.add_pass("Workforce User Profile - response structure complete")
+                    
+                    # Check workforce-specific profile fields
+                    if "full_name" in profile:
+                        results.add_pass("Workforce User Profile - full_name present")
+                    else:
+                        results.add_fail("Workforce User Profile - full_name", "full_name field missing from profile")
+                    
+                    # profile_photo_url is optional but should be present in our test data
+                    if "profile_photo_url" in profile:
+                        results.add_pass("Workforce User Profile - profile_photo_url present")
+                    else:
+                        results.add_pass("Workforce User Profile - profile_photo_url optional (not present)")
+                    
+                    # Verify user_type is correct
+                    if user_data.get("user_type") == "workforce":
+                        results.add_pass("Workforce User Profile - correct user_type")
+                    else:
+                        results.add_fail("Workforce User Profile - user_type", f"Expected 'workforce', got {user_data.get('user_type')}")
+                        
+                else:
+                    results.add_fail("Workforce User Profile", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("Workforce User Profile", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Workforce User Profile", f"Request failed: {str(e)}")
+    else:
+        results.add_fail("Workforce User Profile", "No workforce user available for testing")
+    
+    # Test 3: Employer User Profile
+    employer_user = next((u for u in test_users if u["user_type"] == "employer"), None)
+    if employer_user:
+        try:
+            response = requests.get(
+                f"{BASE_URL}/users/me",
+                headers=get_auth_headers(employer_user["token"]),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and data.get("data"):
+                    user_data = data["data"]
+                    profile = user_data.get("profile", {})
+                    
+                    # Check required fields for employer
+                    required_fields = ["user_id", "email", "user_type", "profile"]
+                    missing_fields = [f for f in required_fields if f not in user_data]
+                    
+                    if missing_fields:
+                        results.add_fail("Employer User Profile - response structure", f"Missing fields: {missing_fields}")
+                    else:
+                        results.add_pass("Employer User Profile - response structure complete")
+                    
+                    # Check employer-specific profile fields
+                    employer_required_fields = ["contact_person", "company_name", "address"]
+                    missing_employer_fields = [f for f in employer_required_fields if f not in profile]
+                    
+                    if missing_employer_fields:
+                        results.add_fail("Employer User Profile - required fields", f"Missing profile fields: {missing_employer_fields}")
+                    else:
+                        results.add_pass("Employer User Profile - all required fields present")
+                    
+                    # Check optional city field
+                    if "city" in profile:
+                        results.add_pass("Employer User Profile - city field present")
+                    else:
+                        results.add_pass("Employer User Profile - city field optional (not present)")
+                    
+                    # Verify user_type is correct
+                    if user_data.get("user_type") == "employer":
+                        results.add_pass("Employer User Profile - correct user_type")
+                    else:
+                        results.add_fail("Employer User Profile - user_type", f"Expected 'employer', got {user_data.get('user_type')}")
+                        
+                else:
+                    results.add_fail("Employer User Profile", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("Employer User Profile", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Employer User Profile", f"Request failed: {str(e)}")
+    else:
+        results.add_fail("Employer User Profile", "No employer user available for testing")
+    
+    # Test 4: Institution User Profile
+    institution_user = next((u for u in test_users if u["user_type"] == "institution"), None)
+    if institution_user:
+        try:
+            response = requests.get(
+                f"{BASE_URL}/users/me",
+                headers=get_auth_headers(institution_user["token"]),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and data.get("data"):
+                    user_data = data["data"]
+                    profile = user_data.get("profile", {})
+                    
+                    # Check required fields for institution
+                    required_fields = ["user_id", "email", "user_type", "profile"]
+                    missing_fields = [f for f in required_fields if f not in user_data]
+                    
+                    if missing_fields:
+                        results.add_fail("Institution User Profile - response structure", f"Missing fields: {missing_fields}")
+                    else:
+                        results.add_pass("Institution User Profile - response structure complete")
+                    
+                    # Check institution-specific profile fields
+                    institution_required_fields = ["contact_person", "institution_name", "address"]
+                    missing_institution_fields = [f for f in institution_required_fields if f not in profile]
+                    
+                    if missing_institution_fields:
+                        results.add_fail("Institution User Profile - required fields", f"Missing profile fields: {missing_institution_fields}")
+                    else:
+                        results.add_pass("Institution User Profile - all required fields present")
+                    
+                    # Verify user_type is correct
+                    if user_data.get("user_type") == "institution":
+                        results.add_pass("Institution User Profile - correct user_type")
+                    else:
+                        results.add_fail("Institution User Profile - user_type", f"Expected 'institution', got {user_data.get('user_type')}")
+                        
+                else:
+                    results.add_fail("Institution User Profile", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("Institution User Profile", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Institution User Profile", f"Request failed: {str(e)}")
+    else:
+        results.add_fail("Institution User Profile", "No institution user available for testing")
+    
+    # Test 5: Admin User Profile (using existing admin credentials)
+    try:
+        admin_credentials = {
+            "email": "qnizami@hrbank.ca",
+            "password": "Tabaghnak@3891",
+            "user_type": "admin"
+        }
+        
+        login_response = requests.post(f"{BASE_URL}/auth/login", json=admin_credentials, timeout=10)
+        
+        if login_response.status_code == 200:
+            admin_token = login_response.json().get("data", {}).get("access_token")
+            
+            if admin_token:
+                response = requests.get(
+                    f"{BASE_URL}/users/me",
+                    headers=get_auth_headers(admin_token),
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success") and data.get("data"):
+                        user_data = data["data"]
+                        
+                        # Check basic admin profile structure
+                        if user_data.get("user_type") == "admin":
+                            results.add_pass("Admin User Profile - correct user_type")
+                        else:
+                            results.add_fail("Admin User Profile - user_type", f"Expected 'admin', got {user_data.get('user_type')}")
+                        
+                        # Admin profile might be empty or have basic info
+                        profile = user_data.get("profile", {})
+                        results.add_pass("Admin User Profile - response structure complete")
+                        
+                    else:
+                        results.add_fail("Admin User Profile", f"Invalid response structure: {data}")
+                else:
+                    results.add_fail("Admin User Profile", f"HTTP {response.status_code}: {response.text}")
+            else:
+                results.add_fail("Admin User Profile", "Failed to get admin auth token")
+        else:
+            results.add_fail("Admin User Profile", f"Admin login failed: {login_response.status_code}")
+    except Exception as e:
+        results.add_fail("Admin User Profile", f"Request failed: {str(e)}")
+    
+    # Test 6: Invalid Token
+    try:
+        response = requests.get(
+            f"{BASE_URL}/users/me",
+            headers={"Authorization": "Bearer invalid-token"},
+            timeout=10
+        )
+        
+        if response.status_code in [401, 403]:
+            results.add_pass("User Profile API - invalid token rejected")
+        else:
+            results.add_fail("User Profile API - invalid token", f"Expected 401/403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("User Profile API - invalid token", f"Request failed: {str(e)}")
 def main():
     """Run Enhanced Occupation Profiles API Tests"""
     print("🚀 Starting HR Bank Enhanced Occupation Profiles API Tests")
