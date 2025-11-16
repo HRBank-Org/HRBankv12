@@ -123,7 +123,6 @@ const ClassTemplates = () => {
       <UserHeader 
         onBackClick={() => navigate('/institution/dashboard')}
         showBack={true}
-        title="Class Templates"
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
