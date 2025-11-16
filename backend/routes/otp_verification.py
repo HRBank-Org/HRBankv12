@@ -111,16 +111,18 @@ async def send_otp(
         }
     
     elif request.type == "email":
-        # For email, we'll use a simple approach for now
-        # In production, integrate with SendGrid or similar
-        # For now, just log it
-        print(f"EMAIL OTP for {request.contact}: {otp_code}")
+        # Email OTP - displayed in console for testing
+        print(f"\n{'='*50}")
+        print(f"📧 EMAIL OTP for {request.contact}")
+        print(f"🔐 CODE: {otp_code}")
+        print(f"⏰ Valid for 10 minutes")
+        print(f"{'='*50}\n")
         
         return {
             "success": True,
-            "message": f"OTP sent to {request.contact}",
+            "message": f"OTP sent to {request.contact} (Test Mode - Check console)",
             "test_mode": True,
-            "otp": otp_code  # REMOVE THIS IN PRODUCTION
+            "otp": otp_code
         }
     
     else:
