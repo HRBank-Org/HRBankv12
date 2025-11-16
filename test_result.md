@@ -184,7 +184,7 @@ backend:
         -comment: "Database integration working perfectly. Users are correctly stored in MongoDB, user_type field is properly saved, password hashing works correctly with bcrypt, data persists correctly between signup and login operations. All database operations functioning as expected."
 
 frontend:
-  - task: "Redesigned Occupation Profiles Page - Resume Cards with Inline Skills Editing"
+  - task: "Redesigned Occupation Profiles List Page - Resume Cards with Inline Skills Editing"
     implemented: true
     working: "NA"
     file: "/app/frontend/src/pages/workforce/OccupationProfiles.jsx"
@@ -194,7 +194,19 @@ frontend:
     status_history:
         -working: "NA"
         -agent: "main"
-        -comment: "Complete redesign of occupation profiles page with professional resume-style cards. Features: Professional gradient banner header with occupation title/category, Stats grid showing Years of Experience/Hours Worked/Rating prominently, Work Experience section displaying employment history with company names and status badges, Skills section with inline editing capability (click Edit, modify skills as comma-separated, save), Certifications section with color-coded status badges (Pending=Yellow, Verified=Green, Rejected=Red), Removed all references to preferred/hourly rate, Better visual hierarchy with proper spacing and rounded cards, Scroll areas for long lists (employment history, certifications). Skills editing updates via PATCH /api/occupations/{id} endpoint."
+        -comment: "Complete redesign of occupation profiles LIST page with professional resume-style cards. Features: Professional gradient banner header with occupation title/category, Stats grid showing Years of Experience/Hours Worked/Rating prominently, Work Experience section displaying employment history with company names and status badges, Skills section with inline editing capability (click Edit, modify skills as comma-separated, save), Certifications section with color-coded status badges (Pending=Yellow, Verified=Green, Rejected=Red), Removed all references to preferred/hourly rate, Better visual hierarchy with proper spacing and rounded cards, Scroll areas for long lists (employment history, certifications). Skills editing updates via PATCH /api/occupations/{id} endpoint."
+  
+  - task: "Redesigned Occupation Detail Page - Remove Rate, Add Employment History & Cert Status"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/workforce/OccupationDetail.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Complete redesign of individual occupation DETAIL page (the page user was viewing in screenshot). REMOVED 'Preferred Rate' section completely. ADDED: 4-column stats grid with Years of Experience as first metric, Employment History section with company cards showing position/dates/hours/shifts, Inline skills editing with Edit button, Certifications with color-coded status badges (Pending/Verified/Rejected with icons), Better visual design with rounded cards and proper spacing. This fixes the issue shown in user's screenshot where 'Preferred Rate' was still visible."
   
   - task: "Workforce Availability Calendar Page"
     implemented: true
