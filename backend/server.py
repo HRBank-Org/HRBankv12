@@ -132,6 +132,32 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Document expiry scheduler
+from services.document_scheduler import start_scheduler, stop_scheduler
+
+@app.on_event("startup")
+async def startup_tasks():
+    """Initialize background tasks on startup"""
+    logger.info("Starting HR Bank API...")
+    
+    # Start document expiry reminder scheduler
+    try:
+        start_scheduler(db)
+        logger.info("Document expiry scheduler initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to start document expiry scheduler: {str(e)}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    """Cleanup on shutdown"""
+    logger.info("Shutting down HR Bank API...")
+    
+    # Stop scheduler
+    try:
+        stop_scheduler()
+        logger.info("Document expiry scheduler stopped")
+    except Exception as e:
+        logger.error(f"Error stopping scheduler: {str(e)}")
+    
+    # Close database connection
     client.close()
