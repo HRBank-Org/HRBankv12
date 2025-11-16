@@ -91,7 +91,6 @@ const VerificationRequests = () => {
       <UserHeader 
         onBackClick={() => navigate('/institution/dashboard')}
         showBack={true}
-        title="Verification Requests"
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
