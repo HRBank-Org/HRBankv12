@@ -149,6 +149,9 @@ const WorkforceSettings = () => {
       setOtpModal({ show: false, type: '', contact: '' });
       setOtpCode('');
       
+      // Navigate back to dashboard after verification
+      setTimeout(() => navigate('/workforce/dashboard'), 1500);
+      
     } catch (error) {
       setMessage({ 
         type: 'error', 
