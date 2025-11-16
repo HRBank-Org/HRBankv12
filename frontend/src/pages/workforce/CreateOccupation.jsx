@@ -209,13 +209,43 @@ const CreateOccupation = () => {
                         backgroundColor: formData.occupation_category === cat.name ? `${theme.primaryColor}10` : 'white'
                       }}
                     >
+                      <div className="text-2xl mb-2">{cat.icon}</div>
                       <h4 className="font-semibold text-gray-900">{cat.name}</h4>
-                      <p className="text-xs text-gray-600 mt-1">{cat.example}</p>
+                      <p className="text-xs text-gray-600 mt-1">{cat.description}</p>
                     </button>
                   ))}
                   </div>
                 )}
               </div>
+
+              {/* Occupation Title Dropdown - shows after category selected */}
+              {formData.occupation_category && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Occupation Title <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    required
+                    value={formData.occupation_title}
+                    onChange={(e) => setFormData({...formData, occupation_title: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                    style={{ borderColor: theme.primaryColor }}
+                  >
+                    <option value="">-- Select your occupation --</option>
+                    {categories
+                      .find(cat => cat.name === formData.occupation_category)
+                      ?.occupations.map((occupation) => (
+                        <option key={occupation} value={occupation}>
+                          {occupation}
+                        </option>
+                      ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    This will be your job title for this profile. Choose the one that best matches your role.
+                  </p>
+                </div>
+              )}
+
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
