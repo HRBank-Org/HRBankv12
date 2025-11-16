@@ -107,6 +107,7 @@ app.include_router(google_calendar.router, tags=["google_calendar"])
 app.include_router(shift_scheduling.router, tags=["shift_scheduling"])
 app.include_router(admin_occupations.router, tags=["admin_occupations"])
 app.include_router(otp_verification.router, prefix="/api/otp", tags=["otp_verification"])
+app.include_router(file_upload.router, prefix="/api", tags=["file_upload"])
 
 app.add_middleware(
     CORSMiddleware,
