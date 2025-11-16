@@ -39,9 +39,18 @@ const WorkforceDocuments = () => {
   const loadDocuments = async () => {
     try {
       const response = await api.get('/api/documents/me');
-      setDocuments(response.data.data || []);
+      // Handle both array and object responses
+      const docsData = response.data.data;
+      if (Array.isArray(docsData)) {
+        setDocuments(docsData);
+      } else if (docsData && docsData.documents) {
+        setDocuments(docsData.documents);
+      } else {
+        setDocuments([]);
+      }
     } catch (error) {
       console.error('Failed to load documents:', error);
+      setDocuments([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
