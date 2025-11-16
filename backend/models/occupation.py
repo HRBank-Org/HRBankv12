@@ -16,6 +16,7 @@ class OccupationProfile(BaseModel):
     skills: List[str] = []
     
     # Experience tracking (specific to this occupation)
+    years_of_experience: int = 0  # Self-reported years of experience
     total_hours_worked: float = 0.0
     total_shifts_completed: int = 0
     
