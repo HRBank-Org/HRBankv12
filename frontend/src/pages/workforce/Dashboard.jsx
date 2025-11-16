@@ -36,6 +36,22 @@ const WorkforceDashboard = () => {
     loadDashboard();
   }, []);
 
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const getUserName = () => {
+    return workforceProfile?.first_name || 
+           user?.profile?.first_name || 
+           workforceProfile?.full_name?.split(' ')[0] || 
+           user?.profile?.full_name?.split(' ')[0] || 
+           'there';
+  };
+
   const loadDashboard = async () => {
     try {
       const [profileRes, occupationsRes, offersRes, shiftsRes, messagesRes, notificationsRes] = await Promise.all([
