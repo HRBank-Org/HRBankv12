@@ -71,12 +71,7 @@ import Timesheets from './pages/employer/Timesheets';
 import ManageTasks from './pages/employer/ManageTasks';
 import WorkforceManagement from './pages/employer/WorkforceManagement';
 
-// Institution pages
-import InstitutionSettings from './pages/InstitutionSettings';
-import IssueCredential from './pages/institution/IssueCredential';
-import ManageCredentials from './pages/institution/ManageCredentials';
-import VerificationQueue from './pages/institution/VerificationQueue';
-import BulkInvite from './pages/institution/BulkInvite';
+// Institution pages (old imports removed, using new system)
 
 import { Toaster } from './components/ui/toaster';
 import EULAModal from './components/common/EULAModal';
