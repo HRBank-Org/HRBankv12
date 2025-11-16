@@ -338,8 +338,8 @@ const WorkforceSettings = () => {
       
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
       
-      // Refresh user data in AuthContext
-      setTimeout(() => window.location.reload(), 1500);
+      // Navigate back to dashboard after brief delay to show success message
+      setTimeout(() => navigate('/workforce/dashboard'), 1500);
     } catch (error) {
       console.error('Failed to save profile:', error);
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to save profile' });
