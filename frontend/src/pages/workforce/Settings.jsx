@@ -254,8 +254,8 @@ const WorkforceSettings = () => {
       setShowPhotoUpload(false);
       setSelectedImage(null);
       
-      // Refresh to update header photo
-      setTimeout(() => window.location.reload(), 1500);
+      // Navigate back to dashboard to see updated photo
+      setTimeout(() => navigate('/workforce/dashboard'), 1500);
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to upload photo' });
     } finally {
