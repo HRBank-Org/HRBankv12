@@ -9,11 +9,13 @@ class InstitutionProfile(BaseModel):
     
     institution_id: str  # Same as user_id
     institution_name: str
+    institution_logo_url: Optional[str] = None  # Institution logo for header display
     institution_type: str  # college, government, certification_body, employer
     address: str
     postal_code: str
     catchment_area_postal_codes: List[str] = []  # For demand analytics filtering
     contact_person: Optional[str] = None
+    contact_name: Optional[str] = None  # Alias for contact_person
     phone: str
     verified_status: str = 'pending'  # approved, pending, rejected
     credentials_issued: List[str] = []  # credential_type_ids they can verify
