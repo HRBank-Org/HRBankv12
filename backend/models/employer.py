@@ -8,15 +8,27 @@ class EmployerProfile(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     employer_id: str  # Same as user_id
+    
+    # Contact person details - collected during signup/onboarding
+    first_name: str
+    last_name: str
+    title: Optional[str] = None  # Job title (e.g., "HR Manager", "Owner")
+    
+    # Company details
     company_name: str
     company_logo_url: Optional[str] = None  # Company logo for header display
+    
     address: str
     city: Optional[str] = None  # For Canada-wide expansion
     province: Optional[str] = None  # ON, BC, AB, QC, etc.
     postal_code: str
     industry: str
-    contact_person: Optional[str] = None
-    contact_name: Optional[str] = None  # Alias for contact_person
+    
+    # Legacy fields for backward compatibility
+    contact_person: Optional[str] = None  # Deprecated - use first_name + last_name
+    contact_name: Optional[str] = None  # Deprecated - use first_name + last_name
+    full_name: Optional[str] = None  # Auto-generated from first_name + last_name
+    
     verified_status: str = 'pending'  # active, pending, suspended
     rating_avg: float = 0.0
     rating_count: int = 0
