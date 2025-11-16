@@ -88,12 +88,20 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUserProfile = (profileData) => {
+    setUser(prevUser => ({
+      ...prevUser,
+      profile: profileData
+    }));
+  };
+
   const value = {
     user,
     loading,
     signup,
     login,
     logout,
+    updateUserProfile,
     isAuthenticated: !!user
   };
 
