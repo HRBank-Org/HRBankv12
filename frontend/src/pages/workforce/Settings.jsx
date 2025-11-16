@@ -549,31 +549,47 @@ const WorkforceSettings = () => {
                   type="text"
                   value={profile.city}
                   onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                  placeholder="Toronto"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
                   style={{ focusRing: theme.primaryColor }}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Province</label>
-                <input
-                  type="text"
+                <select
                   value={profile.province}
                   onChange={(e) => setProfile({ ...profile, province: e.target.value })}
-                  placeholder="ON"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
                   style={{ focusRing: theme.primaryColor }}
-                />
+                >
+                  <option value="">Select...</option>
+                  <option value="AB">Alberta (AB)</option>
+                  <option value="BC">British Columbia (BC)</option>
+                  <option value="MB">Manitoba (MB)</option>
+                  <option value="NB">New Brunswick (NB)</option>
+                  <option value="NL">Newfoundland (NL)</option>
+                  <option value="NS">Nova Scotia (NS)</option>
+                  <option value="NT">Northwest Territories (NT)</option>
+                  <option value="NU">Nunavut (NU)</option>
+                  <option value="ON">Ontario (ON)</option>
+                  <option value="PE">Prince Edward Island (PE)</option>
+                  <option value="QC">Quebec (QC)</option>
+                  <option value="SK">Saskatchewan (SK)</option>
+                  <option value="YT">Yukon (YT)</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   value={profile.postal_code}
-                  onChange={(e) => setProfile({ ...profile, postal_code: e.target.value })}
-                  placeholder="M5V 3A8"
+                  onChange={(e) => setProfile({ ...profile, postal_code: e.target.value.toUpperCase() })}
+                  placeholder="A1A 1A1"
+                  maxLength={7}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
                   style={{ focusRing: theme.primaryColor }}
                 />
+                <p className="text-xs text-gray-500 mt-1">Format: A1A 1A1</p>
               </div>
             </div>
 
