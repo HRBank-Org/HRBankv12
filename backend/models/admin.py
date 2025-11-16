@@ -10,10 +10,16 @@ class Admin(BaseModel):
     admin_id: str = Field(default_factory=lambda: f"admin_{uuid.uuid4().hex[:12]}")
     user_id: str
     
-    full_name: str
+    # Admin details - collected during admin creation
+    first_name: str
+    last_name: str
+    title: Optional[str] = None  # Job title (e.g., "Regional Manager", "CEO")
     email: str
     phone: Optional[str] = None
     profile_photo_url: Optional[str] = None  # Admin profile photo for header display
+    
+    # Legacy field for backward compatibility
+    full_name: Optional[str] = None  # Auto-generated from first_name + last_name
     
     role: str = 'admin'
     is_super_admin: bool = False
