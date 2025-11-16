@@ -107,15 +107,18 @@ user_problem_statement: "Fix Occupation Profiles display page: 1) Remove 'prefer
 backend:
   - task: "Enhanced Occupation Profiles API - Credential Details & Employment History"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/occupations.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Enhanced GET /api/occupations/me endpoint to include detailed credential information with verification status (pending/verified/rejected) and employment history for each occupation profile. Backend now populates credential_details array with full credential data (name, type, institution, status, dates) and employment_history array with company names, position titles, employment dates, hours/shifts worked. This provides all data needed for the resume-style occupation profile cards."
+        -working: true
+        -agent: "testing"
+        -comment: "COMPREHENSIVE ENHANCED OCCUPATION PROFILES API TESTING COMPLETED SUCCESSFULLY (21/21 tests passed). ✅ Basic Endpoint Test: GET /api/occupations/me with workforce authentication working perfectly, returns proper response structure with occupations array, count, and can_add_more fields. ✅ Credential Details Population: credential_details array populated correctly with all required fields (credential_id, credential_name, credential_type, institution_name, status, issue_date, expiry_date), status field shows valid values (pending/verified/rejected), multiple credentials with different statuses working correctly. ✅ Employment History Population: employment_history array populated with all required fields (company_name, position_title, employment_type, status, start_date, end_date, total_shifts, total_hours), company names fetched correctly from employer profiles, numeric fields (shifts/hours) have correct data types, multiple employment records supported. ✅ Skills Data: skills array present and contains worker's skills as strings, test data skills properly populated. ✅ Data Structure Integrity: years_of_experience field present and valid, no rate-related fields present in response (hourly_rate_preference, preferred_rate, etc. properly hidden), all essential occupation fields present (occupation_id, occupation_title, occupation_category, active). ✅ Authentication & Authorization: endpoint properly requires workforce authentication (401/403 for unauthenticated), role-based access control working (employer users blocked from workforce endpoint). All database queries execute without errors, endpoint handles cases with no credentials/employment history gracefully with empty arrays. Enhanced occupation profiles API is fully functional and production-ready."
   
   - task: "Calendar API - Workforce Availability Endpoints"
     implemented: true
