@@ -74,13 +74,24 @@ async def update_personal_info(
             data["long"] = -79.3832
             print(f"Warning: Geocoding failed for address '{address}'. Using default coordinates.")
     
-    # Update profile
+    # Update or create profile
+    data["workforce_id"] = current_user["user_id"]
+    data["user_id"] = current_user["user_id"]
     data["updated_date"] = datetime.utcnow().isoformat()
     
-    result = await db.workforce_profiles.update_one(
-        {"workforce_id": current_user["user_id"]},
-        {"$set": data}
-    )
+    # Check if profile exists
+    existing_profile = await db.workforce_profiles.find_one({"workforce_id": current_user["user_id"]})
+    
+    if existing_profile:
+        # Update existing
+        result = await db.workforce_profiles.update_one(
+            {"workforce_id": current_user["user_id"]},
+            {"$set": data}
+        )
+    else:
+        # Create new
+        data["created_date"] = datetime.utcnow().isoformat()
+        await db.workforce_profiles.insert_one(data)
     
     # Recalculate profile completeness
     profile = await db.workforce_profiles.find_one({"workforce_id": current_user["user_id"]})
