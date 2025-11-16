@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
+import UserHeader from '../../components/common/UserHeader';
 
 const WorkforceManagement = () => {
   const [activeTab, setActiveTab] = useState('active');
