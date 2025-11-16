@@ -235,19 +235,23 @@ const InstitutionDashboard = () => {
                   <div 
                     key={cls.class_id} 
                     onClick={() => navigate(`/institution/classes/${cls.class_id}`)}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-4 rounded-lg hover:bg-indigo-50 cursor-pointer transition-all border border-transparent hover:border-indigo-200"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{cls.title}</p>
-                      <p className="text-xs text-gray-500">{cls.credential_type} • {cls.total_enrolled} students</p>
+                      <p className="font-semibold text-gray-900">{cls.title}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        <span className="inline-flex items-center">
+                          📖 {cls.credential_type} • 👥 {cls.total_enrolled} students
+                        </span>
+                      </p>
                     </div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
+                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
                       cls.status === 'active' ? 'bg-green-100 text-green-700' :
                       cls.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
                       cls.status === 'completed' ? 'bg-blue-100 text-blue-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
-                      {cls.status}
+                      {cls.status.toUpperCase()}
                     </span>
                   </div>
                 ))}
