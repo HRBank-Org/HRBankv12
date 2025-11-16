@@ -2082,8 +2082,8 @@ def test_user_profile_api(results):
                     else:
                         results.add_pass("Employer User Profile - response structure complete")
                     
-                    # Check employer-specific profile fields
-                    employer_required_fields = ["contact_person", "company_name", "address"]
+                    # Check employer-specific profile fields (using actual schema field names)
+                    employer_required_fields = ["contact_name", "company_name", "address"]
                     missing_employer_fields = [f for f in employer_required_fields if f not in profile]
                     
                     if missing_employer_fields:
