@@ -325,7 +325,7 @@ const WorkforceSettings = () => {
         profile.phone = phoneValidation.data.formatted;
       }
       
-      await api.patch('/api/workforce/me/profile', {
+      await api.patch('/api/workforce/me/profile/personal-info', {
         first_name: profile.first_name,
         last_name: profile.last_name,
         profile_photo_url: profile.profile_photo_url,
