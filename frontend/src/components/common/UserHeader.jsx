@@ -24,6 +24,8 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
 
     if (userType === 'workforce') {
       // Workforce: Show name and photo
+      const fullName = profile.full_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+      
       return (
         <div className="flex items-center gap-3">
           {/* Profile Photo */}
@@ -31,7 +33,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
             {profile.profile_photo_url ? (
               <img
                 src={profile.profile_photo_url}
-                alt={profile.full_name}
+                alt={fullName}
                 className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
               />
             ) : (
@@ -39,14 +41,14 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
                 className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm border-2 border-white shadow-sm"
                 style={{ backgroundColor: theme.primaryColor }}
               >
-                {getInitials(profile.full_name)}
+                {getInitials(fullName)}
               </div>
             )}
           </div>
           {/* Name */}
           <div className="text-white">
-            <p className="font-semibold text-sm leading-tight">{profile.full_name}</p>
-            <p className="text-xs opacity-90">Worker</p>
+            <p className="font-semibold text-sm leading-tight">{fullName}</p>
+            <p className="text-xs opacity-90">Workforce</p>
           </div>
         </div>
       );
