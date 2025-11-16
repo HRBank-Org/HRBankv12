@@ -123,13 +123,15 @@ const InstitutionDashboard = () => {
             label="Total Credentials Issued"
             value={analytics?.total_credentials_issued || 0}
             color="#10b981"
+            bgColor="#dcfce7"
             onClick={() => navigate('/institution/credentials')}
           />
           <StatCard
             icon="📚"
             label="Active Classes"
             value={analytics?.active_classes || 0}
-            color="#3b82f6"
+            color="#6366f1"
+            bgColor="#e0e7ff"
             onClick={() => navigate('/institution/classes')}
           />
           <StatCard
@@ -137,18 +139,21 @@ const InstitutionDashboard = () => {
             label="Upcoming Expirations"
             value={analytics?.upcoming_expirations || 0}
             color="#f59e0b"
+            bgColor="#fef3c7"
           />
           <StatCard
             icon="👥"
             label="Total Students Enrolled"
             value={analytics?.total_students_enrolled || 0}
-            color="#8b5cf6"
+            color="#a855f7"
+            bgColor="#f3e8ff"
           />
           <StatCard
             icon="✅"
             label="Pending Verifications"
             value={analytics?.pending_verification_requests || 0}
-            color="#ef4444"
+            color="#ec4899"
+            bgColor="#fce7f3"
             onClick={() => navigate('/institution/verification-requests')}
           />
         </div>
