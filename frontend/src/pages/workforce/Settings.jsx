@@ -196,6 +196,87 @@ const WorkforceSettings = () => {
     }
   };
 
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => setSelectedImage(reader.result));
+      reader.readAsDataURL(e.target.files[0]);
+      setShowPhotoUpload(true);
+    }
+  };
+
+  const getCroppedImg = (image, crop) => {
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    canvas.width = crop.width;
+    canvas.height = crop.height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width,
+      crop.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, 'image/jpeg', 0.95);
+    });
+  };
+
+  const handleUploadPhoto = async () => {
+    if (!completedCrop || !imgRef.current) return;
+
+    setUploadingPhoto(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const croppedBlob = await getCroppedImg(imgRef.current, completedCrop);
+      const formData = new FormData();
+      formData.append('file', croppedBlob, 'profile-photo.jpg');
+
+      const response = await api.post('/api/upload-profile-photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setProfile({ ...profile, profile_photo_url: response.data.photo_url });
+      setMessage({ type: 'success', text: 'Photo uploaded successfully!' });
+      setShowPhotoUpload(false);
+      setSelectedImage(null);
+      
+      // Refresh to update header photo
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to upload photo' });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    if (!window.confirm('Are you sure you want to delete your profile photo?')) return;
+
+    try {
+      await api.delete('/api/delete-profile-photo');
+      setProfile({ ...profile, profile_photo_url: '' });
+      setMessage({ type: 'success', text: 'Photo deleted successfully!' });
+      
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to delete photo' });
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setMessage({ type: '', text: '' });
