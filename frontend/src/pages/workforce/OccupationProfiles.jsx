@@ -8,6 +8,9 @@ const OccupationProfiles = () => {
   const [occupations, setOccupations] = useState([]);
   const [canAddMore, setCanAddMore] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [editingSkills, setEditingSkills] = useState(null); // occupation_id currently being edited
+  const [tempSkills, setTempSkills] = useState(''); // temporary skills input
+  const [savingSkills, setSavingSkills] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
