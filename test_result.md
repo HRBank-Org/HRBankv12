@@ -683,3 +683,17 @@ agent_communication:
         -agent: "main"
         -comment: "Implemented comprehensive document expiry and email reminder system. Created email_service.py with SendGrid integration for sending HTML emails with three functions: send_email (base function), send_document_expiry_reminder (sends countdown reminders with urgency levels based on days until expiry), send_account_restricted_email (notifies users when account is restricted due to expired documents). Created document_scheduler.py with APScheduler for daily automated checks at 9 AM UTC. Scheduler features: check_and_send_expiry_reminders (checks all documents, sends reminders for docs expiring within 7 days, marks expired docs), check_and_restrict_account (evaluates if user has expired required documents and restricts account with restricted status instead of deactivating). Added POST /api/documents/admin/run-expiry-check endpoint for manual testing. Integrated scheduler into server.py startup/shutdown events. Updated .env with SendGrid API key. Account restriction logic: users can still login but cannot access most features until documents are updated. Emails include professional HTML templates with urgency color coding (red=expired, orange=3 days or less, yellow=4-7 days), document details table, action buttons, and clear warnings about account restriction."
 
+
+frontend:
+  - task: "Document Management Pages with Expiry Warnings - All User Types"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/common/DocumentsPage.jsx, /app/frontend/src/pages/workforce/Documents.jsx, /app/frontend/src/pages/employer/Documents.jsx, /app/frontend/src/pages/institution/Documents.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created comprehensive document management UI with expiry warnings and date pickers. Features: DocumentsPage reusable component for all user types, Document upload modal with file selection (PDF/JPG/PNG, max 10MB), Date pickers for issue_date and expiry_date (conditionally shown based on document type requirements), Base64 file encoding for backend compatibility, Visual expiry warnings (red=expired, orange=1-7 days, yellow=8-30 days) with countdown display, Account restriction banner (red alert when account_status is 'restricted'), Document compliance progress bar showing percentage of required documents uploaded, Status badges (Pending/Verified/Rejected/Expired) with icons, Document details grid showing upload date, issue date, expiry date, View document link to open uploaded file in new tab, Re-upload functionality for rejected/expired documents, Professional UI with responsive design and theme integration. Updated App.js routes to include /workforce/documents, /employer/documents, /institution/documents. UserHeader component already has Documents icon for navigation (was previously implemented)."
+
