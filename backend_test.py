@@ -2253,8 +2253,8 @@ def test_user_profile_api(results):
     except Exception as e:
         results.add_fail("User Profile API - invalid token", f"Request failed: {str(e)}")
 def main():
-    """Run User Profile API Tests"""
-    print("🚀 Starting HR Bank User Profile API Tests")
+    """Run Document Expiry System Tests"""
+    print("🚀 Starting HR Bank Document Expiry System Tests")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -2263,17 +2263,23 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Test User Profile API (main focus of this testing session)
-    test_user_profile_api(results)
+    # Test User Profile API and get admin token
+    admin_token = test_user_profile_api(results)
+    
+    # Test Document Expiry & Email Reminder System (main focus)
+    if admin_token:
+        test_document_expiry_system(results, admin_token)
+    else:
+        results.add_fail("Document Expiry System Tests", "Could not obtain admin token")
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All User Profile API tests passed!")
+        print("\n🎉 All Document Expiry System tests passed!")
         return 0
     else:
-        print("\n💥 Some User Profile API tests failed. Check the errors above.")
+        print("\n💥 Some Document Expiry System tests failed. Check the errors above.")
         return 1
 
 def test_invitation_system(results):
