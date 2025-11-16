@@ -39,14 +39,28 @@ const CreateOccupation = () => {
       const industries = categoriesRes.data.data.industries || {};
       
       // Convert to flat array for category selection
-      const categoryArray = Object.keys(industries).map(industry => ({
+      let categoryArray = Object.keys(industries).map(industry => ({
         name: industry,
         occupations: industries[industry],
         example: industries[industry].map(o => o.occupation_name).slice(0, 2).join(', ')
       }));
       
+      // Fallback to default categories if none exist
+      if (categoryArray.length === 0) {
+        categoryArray = [
+          { name: 'Healthcare', example: 'Nurse, PSW, Caregiver' },
+          { name: 'Security', example: 'Security Guard, Loss Prevention' },
+          { name: 'Hospitality', example: 'Server, Bartender, Cook' },
+          { name: 'Retail', example: 'Sales Associate, Cashier' },
+          { name: 'Construction', example: 'Laborer, Carpenter, Electrician' },
+          { name: 'Education', example: 'Tutor, Teaching Assistant' },
+          { name: 'Transportation', example: 'Driver, Delivery, Courier' },
+          { name: 'Administrative', example: 'Receptionist, Data Entry' }
+        ];
+      }
+      
       setCategories(categoryArray);
-      setAvailableSkills(skillsRes.data.data.skills);
+      setAvailableSkills(skillsRes.data.data.skills || []);
     } catch (error) {
       console.error('Failed to load data:', error);
     }
