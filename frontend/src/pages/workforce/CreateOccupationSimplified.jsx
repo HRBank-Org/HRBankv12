@@ -206,16 +206,23 @@ const CreateOccupationSimplified = () => {
       return;
     }
 
-    if (!formData.hourly_rate_preference) {
-      setError('Please enter your preferred hourly rate');
-      return;
-    }
-
     setLoading(true);
     setError('');
 
     try {
-      await api.post('/api/workforce/occupation-profiles', formData);
+      // Create occupation profile
+      const profileData = {
+        ...formData,
+        credentials: credentials
+      };
+      
+      await api.post('/api/workforce/occupation-profiles', profileData);
+      
+      // If credentials added, send verification requests
+      if (credentials.length > 0) {
+        alert(`Profile created! ${credentials.length} credential(s) submitted for verification. Institutions will be notified.`);
+      }
+      
       navigate('/workforce/occupation-profiles');
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to create occupation profile');
