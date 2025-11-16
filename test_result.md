@@ -581,7 +581,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Redesigned Occupation Profiles Page - Resume Cards with Inline Skills Editing"
+    - "Redesigned Occupation Profiles List Page - Resume Cards with Inline Skills Editing"
+    - "Redesigned Occupation Detail Page - Remove Rate, Add Employment History & Cert Status"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
