@@ -292,15 +292,15 @@ const InstitutionDashboard = () => {
                 {analytics.recent_credentials.slice(0, 5).map((cred) => (
                   <div 
                     key={cred.credential_id}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 p-4 rounded-lg hover:bg-purple-50 transition-all border border-transparent hover:border-purple-200"
                   >
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-xl shadow-sm">
                       ✓
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm">{cred.credential_name}</p>
-                      <p className="text-xs text-gray-500">
-                        {cred.credential_type} • {new Date(cred.issued_date).toLocaleDateString()}
+                      <p className="font-semibold text-gray-900 text-sm">{cred.credential_name}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        🎓 {cred.credential_type} • 📅 {new Date(cred.issued_date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
