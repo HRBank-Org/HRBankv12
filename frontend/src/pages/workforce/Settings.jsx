@@ -148,6 +148,43 @@ const WorkforceSettings = () => {
     }
   };
 
+  const handleChangePassword = async () => {
+    setChangingPassword(true);
+    setMessage({ type: '', text: '' });
+    
+    // Validate passwords
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      setMessage({ type: 'error', text: 'New passwords do not match' });
+      setChangingPassword(false);
+      return;
+    }
+    
+    if (passwordData.new_password.length < 8) {
+      setMessage({ type: 'error', text: 'Password must be at least 8 characters long' });
+      setChangingPassword(false);
+      return;
+    }
+    
+    try {
+      await api.post('/api/auth/change-password', {
+        user_id: user.user_id,
+        current_password: passwordData.current_password,
+        new_password: passwordData.new_password
+      });
+      
+      setMessage({ type: 'success', text: 'Password changed successfully!' });
+      setShowPasswordChange(false);
+      setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.detail || 'Failed to change password' 
+      });
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setMessage({ type: '', text: '' });
