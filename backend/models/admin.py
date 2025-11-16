@@ -13,6 +13,7 @@ class Admin(BaseModel):
     full_name: str
     email: str
     phone: Optional[str] = None
+    profile_photo_url: Optional[str] = None  # Admin profile photo for header display
     
     role: str = 'admin'
     is_super_admin: bool = False
