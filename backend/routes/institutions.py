@@ -62,6 +62,7 @@ async def update_my_profile(
     # Prepare update data
     update_data = {
         "user_id": current_user["user_id"],
+        "institution_id": current_user["user_id"],  # Store both for compatibility
         "contact_name": profile_data.get("contact_name"),
         "title": profile_data.get("title"),
         "institution_name": profile_data.get("institution_name"),
@@ -75,16 +76,22 @@ async def update_my_profile(
         "updated_at": datetime.utcnow().isoformat()
     }
     
-    # Remove None values except user_id
-    update_data = {k: v for k, v in update_data.items() if v is not None or k == "user_id"}
+    # Remove None values except user_id and institution_id
+    update_data = {k: v for k, v in update_data.items() if v is not None or k in ["user_id", "institution_id"]}
     
-    # Check if profile exists
-    existing_profile = await db.institution_profiles.find_one({"user_id": current_user["user_id"]})
+    # Check if profile exists (try both fields)
+    existing_profile = await db.institution_profiles.find_one({
+        "$or": [
+            {"institution_id": current_user["user_id"]},
+            {"user_id": current_user["user_id"]}
+        ]
+    })
     
     if existing_profile:
-        # Update existing profile
+        # Update existing profile using the field that exists
+        query = {"institution_id": current_user["user_id"]} if "institution_id" in existing_profile else {"user_id": current_user["user_id"]}
         result = await db.institution_profiles.update_one(
-            {"user_id": current_user["user_id"]},
+            query,
             {"$set": update_data}
         )
         message = "Profile updated successfully"
