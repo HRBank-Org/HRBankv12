@@ -1929,16 +1929,18 @@ def test_user_profile_api(results):
                 elif user_type == "employer":
                     profile_data = {
                         "employer_id": user_id,
-                        "contact_person": f"Jane Manager {user_id[:8]}",
+                        "contact_name": f"Jane Manager {user_id[:8]}",  # Using contact_name as per schema
                         "company_name": f"Test Company {user_id[:8]} Inc.",
                         "address": "123 Business Street",
                         "city": "Toronto",
                         "province": "ON",
                         "postal_code": "M5V 3A8",
                         "email": user_data["email"],
-                        "phone": user_data["phone"],
+                        "contact_phone": user_data["phone"],
                         "company_size": "50-100",
                         "industry": "Technology",
+                        "onboarding_completed": True,
+                        "profile_completion": 100,
                         "created_date": datetime.utcnow().isoformat()
                     }
                     await db.employer_profiles.insert_one(profile_data)
@@ -1946,15 +1948,16 @@ def test_user_profile_api(results):
                 elif user_type == "institution":
                     profile_data = {
                         "institution_id": user_id,
-                        "contact_person": f"Dr. Academic {user_id[:8]}",
+                        "contact_name": f"Dr. Academic {user_id[:8]}",  # Using contact_name as per schema
                         "institution_name": f"Test University {user_id[:8]}",
-                        "address": "456 Education Avenue",
+                        "address": "456 Education Avenue",  # Adding address field
                         "city": "Ottawa",
                         "province": "ON",
                         "postal_code": "K1A 0A6",
                         "email": user_data["email"],
-                        "phone": user_data["phone"],
+                        "contact_phone": user_data["phone"],
                         "institution_type": "University",
+                        "onboarding_completed": True,
                         "created_date": datetime.utcnow().isoformat()
                     }
                     await db.institution_profiles.insert_one(profile_data)
