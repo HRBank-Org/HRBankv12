@@ -62,7 +62,7 @@ const InstitutionSettings = () => {
 
   const loadProfile = async () => {
     try {
-      const response = await api.get('/api/institution/me/profile');
+      const response = await api.get('/api/institutions/me/profile');
       const data = response.data.data;
       setProfile({
         contact_name: data.contact_name || '',
