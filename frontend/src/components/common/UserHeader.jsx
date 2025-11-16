@@ -51,33 +51,55 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
         </div>
       );
     } else if (userType === 'employer') {
-      // Employer: Show contact person name and company name + address
+      // Employer: Show company logo (optional), contact person name, company name + address
       const street = profile.address?.split(',')[0] || profile.address || '';
       const city = profile.city || '';
       const shortAddress = `${street}${city ? ' - ' + city : ''}`;
       
       return (
-        <div className="text-white">
-          <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Employer'}</p>
-          <p className="text-xs opacity-90 font-medium">{profile.company_name}</p>
-          {shortAddress && (
-            <p className="text-xs opacity-75">{shortAddress}</p>
+        <div className="flex items-center gap-3">
+          {/* Company Logo */}
+          {profile.company_logo_url && (
+            <img
+              src={profile.company_logo_url}
+              alt={profile.company_name}
+              className="w-10 h-10 rounded-lg object-cover border-2 border-white shadow-sm bg-white"
+            />
           )}
+          {/* Company Info */}
+          <div className="text-white">
+            <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Employer'}</p>
+            <p className="text-xs opacity-90 font-medium">{profile.company_name}</p>
+            {shortAddress && (
+              <p className="text-xs opacity-75">{shortAddress}</p>
+            )}
+          </div>
         </div>
       );
     } else if (userType === 'institution') {
-      // Institution: Show contact person and institution name + address
+      // Institution: Show institution logo (optional), contact person, institution name + address
       const street = profile.address?.split(',')[0] || profile.address || '';
       const city = profile.city || '';
       const shortAddress = `${street}${city ? ' - ' + city : ''}`;
       
       return (
-        <div className="text-white">
-          <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Institution'}</p>
-          <p className="text-xs opacity-90 font-medium">{profile.institution_name}</p>
-          {shortAddress && (
-            <p className="text-xs opacity-75">{shortAddress}</p>
+        <div className="flex items-center gap-3">
+          {/* Institution Logo */}
+          {profile.institution_logo_url && (
+            <img
+              src={profile.institution_logo_url}
+              alt={profile.institution_name}
+              className="w-10 h-10 rounded-lg object-cover border-2 border-white shadow-sm bg-white"
+            />
           )}
+          {/* Institution Info */}
+          <div className="text-white">
+            <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Institution'}</p>
+            <p className="text-xs opacity-90 font-medium">{profile.institution_name}</p>
+            {shortAddress && (
+              <p className="text-xs opacity-75">{shortAddress}</p>
+            )}
+          </div>
         </div>
       );
     } else if (userType === 'admin') {
