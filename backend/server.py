@@ -110,6 +110,12 @@ app.include_router(admin_occupations.router, tags=["admin_occupations"])
 app.include_router(otp_verification.router, prefix="/api/otp", tags=["otp_verification"])
 app.include_router(file_upload.router, prefix="/api", tags=["file_upload"])
 
+# Mount static files for uploaded photos
+from pathlib import Path
+UPLOAD_DIR = Path("/app/backend/uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
