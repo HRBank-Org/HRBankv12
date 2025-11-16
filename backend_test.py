@@ -2955,8 +2955,8 @@ def test_document_expiry_system(results, admin_token):
 
 
 def main():
-    """Run Document Expiry System Tests"""
-    print("🚀 Starting HR Bank Document Expiry System Tests")
+    """Run Institution Dashboard Profile API Tests"""
+    print("🚀 Starting HR Bank Institution Dashboard Profile API Tests")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
@@ -2965,23 +2965,17 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
-    # Test User Profile API and get admin token
-    admin_token = test_user_profile_api(results)
-    
-    # Test Document Expiry & Email Reminder System (main focus)
-    if admin_token:
-        test_document_expiry_system(results, admin_token)
-    else:
-        results.add_fail("Document Expiry System Tests", "Could not obtain admin token")
+    # Test Institution Profile API comprehensively (main focus)
+    test_institution_profile_api_comprehensive(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All Document Expiry System tests passed!")
+        print("\n🎉 All Institution Profile API tests passed!")
         return 0
     else:
-        print("\n💥 Some Document Expiry System tests failed. Check the errors above.")
+        print("\n💥 Some Institution Profile API tests failed. Check the errors above.")
         return 1
 
 def test_invitation_system(results):
