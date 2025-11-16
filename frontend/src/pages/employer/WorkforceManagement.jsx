@@ -50,20 +50,12 @@ const WorkforceManagement = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header */}
-      <header className="text-white px-4 py-4 shadow-md" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/employer/dashboard')} className="hover:opacity-80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <h1 className="text-xl font-bold">Workforce Management</h1>
-          </div>
-        </div>
-      </header>
+      {/* Header with User Info */}
+      <UserHeader 
+        onBackClick={() => navigate('/employer/dashboard')}
+        showBack={true}
+        title="Workforce Management"
+      />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs */}
