@@ -18,10 +18,9 @@ def get_db():
 
 
 @router.post("/request-verification", response_model=Dict)
-@require_role(["workforce"])
 async def request_credential_verification(
     verification_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
     """
@@ -144,9 +143,8 @@ async def request_credential_verification(
 
 
 @router.get("/verification-requests", response_model=Dict)
-@require_role(["workforce"])
 async def get_my_verification_requests(
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
     """Get all verification requests made by workforce"""
@@ -164,9 +162,8 @@ async def get_my_verification_requests(
 
 
 @router.get("/my-credentials", response_model=Dict)
-@require_role(["workforce"])
 async def get_my_verified_credentials(
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
     """Get all verified credentials for workforce"""
