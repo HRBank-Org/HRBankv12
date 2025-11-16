@@ -35,17 +35,23 @@ const InstitutionDashboard = () => {
     );
   }
 
-  const StatCard = ({ icon, label, value, color, onClick }) => (
+  const StatCard = ({ icon, label, value, color, bgColor, onClick }) => (
     <div 
       onClick={onClick}
-      className={`bg-white rounded-xl shadow-sm p-6 border border-gray-100 ${onClick ? 'cursor-pointer hover:shadow-md transition-all' : ''}`}
+      className={`bg-white rounded-xl shadow-sm p-6 border-2 ${onClick ? 'cursor-pointer hover:shadow-lg hover:scale-105 transition-all' : ''}`}
+      style={{ borderColor: color || theme.primaryColor }}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm text-gray-600 mb-1">{label}</p>
+          <p className="text-sm text-gray-600 mb-1 font-medium">{label}</p>
           <p className="text-3xl font-bold" style={{ color: color || theme.primaryColor }}>{value}</p>
         </div>
-        <div className="text-4xl">{icon}</div>
+        <div 
+          className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
+          style={{ backgroundColor: bgColor }}
+        >
+          {icon}
+        </div>
       </div>
     </div>
   );
