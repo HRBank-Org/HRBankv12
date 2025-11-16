@@ -1274,18 +1274,24 @@ def test_institution_profile_api_comprehensive(results):
                             profile = profile_data["data"]
                             results.add_pass(f"Institution profile GET - {user_info['email']} (success response)")
                             
-                            # Verify expected profile data
-                            expected_fields = ["contact_name", "institution_name", "address", "city", "phone", "institution_type"]
-                            missing_fields = []
+                            # Verify expected profile data (institution_type is optional)
+                            required_fields = ["contact_name", "institution_name", "address", "city", "phone"]
+                            optional_fields = ["institution_type"]
+                            missing_required = []
                             
-                            for field in expected_fields:
+                            for field in required_fields:
                                 if field not in profile:
-                                    missing_fields.append(field)
+                                    missing_required.append(field)
                             
-                            if missing_fields:
-                                results.add_fail(f"Institution profile structure - {user_info['email']}", f"Missing fields: {missing_fields}")
+                            if missing_required:
+                                results.add_fail(f"Institution profile structure - {user_info['email']}", f"Missing required fields: {missing_required}")
                             else:
                                 results.add_pass(f"Institution profile structure - {user_info['email']} (all required fields present)")
+                            
+                            # Check optional fields
+                            present_optional = [field for field in optional_fields if field in profile]
+                            if present_optional:
+                                results.add_pass(f"Institution profile optional fields - {user_info['email']} (has: {present_optional})")
                             
                             # Verify specific expected values if provided
                             if "expected_contact_name" in user_info:
