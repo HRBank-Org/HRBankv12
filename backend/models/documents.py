@@ -39,27 +39,35 @@ class Document(BaseModel):
 WORKFORCE_DOCUMENT_TYPES = {
     'government_id': {
         'name': 'Government ID',
-        'description': 'Valid government-issued photo ID',
+        'description': 'Valid government-issued photo ID (Driver License, Passport, PR Card, etc.)',
         'required': True,
-        'has_expiry': True
-    },
-    'sin_card': {
-        'name': 'Social Insurance Number',
-        'description': 'SIN card or letter',
-        'required': True,
-        'has_expiry': False
+        'has_expiry': True,
+        'activates_account': True
     },
     'work_permit': {
         'name': 'Work Permit',
-        'description': 'Canadian work permit',
+        'description': 'Canadian work permit (if applicable)',
         'required': False,
-        'has_expiry': True
+        'has_expiry': True,
+        'activates_account': True
+    }
+}
+
+# Admins have same document requirements as workforce (HR Bank is employer)
+ADMIN_DOCUMENT_TYPES = {
+    'government_id': {
+        'name': 'Government ID',
+        'description': 'Valid government-issued photo ID',
+        'required': True,
+        'has_expiry': True,
+        'activates_account': True
     },
-    'certifications': {
-        'name': 'Professional Certifications',
-        'description': 'Industry certifications',
+    'work_permit': {
+        'name': 'Work Permit',
+        'description': 'Canadian work permit (if applicable)',
         'required': False,
-        'has_expiry': True
+        'has_expiry': True,
+        'activates_account': True
     }
 }
 
