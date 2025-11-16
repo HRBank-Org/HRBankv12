@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
           Authorization: `Bearer ${tokens.accessToken}`
         }
       });
+      // Store complete user data including profile
       setUser(response.data.data);
     } catch (error) {
       // Token invalid or expired
