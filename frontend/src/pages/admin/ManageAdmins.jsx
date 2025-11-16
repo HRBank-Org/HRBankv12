@@ -49,8 +49,7 @@ const ManageAdmins = () => {
         title="Manage Admins"
         onBackClick={() => navigate('/admin/dashboard')}
         showBack={true}
-        </div>
-      </header>
+      />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-6">
