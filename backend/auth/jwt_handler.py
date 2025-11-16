@@ -32,7 +32,7 @@ def decode_token(token: str) -> Optional[Dict]:
         return payload
     except jwt.ExpiredSignatureError:
         return None
-    except jwt.JWTError:
+    except jwt.PyJWTError:
         return None
 
 def verify_token(token: str) -> bool:
