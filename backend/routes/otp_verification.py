@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import random
 import os
 from typing import Dict
-from auth.dependencies import get_db, require_auth
+from auth.dependencies import get_db, get_current_user
 
 router = APIRouter()
 
