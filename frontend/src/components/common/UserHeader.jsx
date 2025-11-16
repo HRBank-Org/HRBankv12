@@ -103,11 +103,28 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
         </div>
       );
     } else if (userType === 'admin') {
-      // Admin: Show admin name
+      // Admin: Show admin photo (optional) and name
       return (
-        <div className="text-white">
-          <p className="font-semibold text-sm leading-tight">{profile.full_name || 'Admin'}</p>
-          <p className="text-xs opacity-90">Administrator</p>
+        <div className="flex items-center gap-3">
+          {/* Admin Photo */}
+          {profile.profile_photo_url ? (
+            <img
+              src={profile.profile_photo_url}
+              alt={profile.full_name}
+              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+            />
+          ) : profile.full_name && (
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm border-2 border-white shadow-sm bg-black"
+            >
+              {getInitials(profile.full_name)}
+            </div>
+          )}
+          {/* Admin Info */}
+          <div className="text-white">
+            <p className="font-semibold text-sm leading-tight">{profile.full_name || 'Admin'}</p>
+            <p className="text-xs opacity-90">Administrator{profile.is_super_admin ? ' • Super Admin' : ''}</p>
+          </div>
         </div>
       );
     }
