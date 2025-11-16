@@ -33,8 +33,10 @@ async def check_and_send_expiry_reminders(db):
             
             try:
                 # Calculate days until expiry
+                from datetime import timezone
                 expiry_date_obj = datetime.fromisoformat(doc["expiry_date"].replace('Z', '+00:00'))
-                days_until = (expiry_date_obj - datetime.utcnow()).days
+                now_utc = datetime.now(timezone.utc)
+                days_until = (expiry_date_obj - now_utc).days
                 
                 # Send reminder if expiring within 7 days (including today)
                 if 0 <= days_until <= 7:
