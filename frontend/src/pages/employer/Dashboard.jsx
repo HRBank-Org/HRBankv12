@@ -141,7 +141,7 @@ const EmployerDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <button
             onClick={() => navigate('/employer/workforce-management')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
@@ -149,14 +149,6 @@ const EmployerDashboard = () => {
             <div className="text-3xl mb-2">👥</div>
             <p className="font-semibold text-gray-900 text-sm">Workforce</p>
             <p className="text-xs text-gray-500">Manage workers</p>
-          </button>
-          <button
-            onClick={() => navigate('/employer/documents')}
-            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
-          >
-            <div className="text-3xl mb-2">📄</div>
-            <p className="font-semibold text-gray-900 text-sm">Documents</p>
-            <p className="text-xs text-gray-500">Business license & BN</p>
           </button>
           <button
             onClick={() => navigate('/employer/shift-calendar')}
@@ -167,12 +159,12 @@ const EmployerDashboard = () => {
             <p className="text-xs text-gray-500">Schedule & manage</p>
           </button>
           <button
-            onClick={() => navigate('/employer/settings')}
+            onClick={() => navigate('/employer/jobs/post')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
-            <div className="text-3xl mb-2">⚙️</div>
-            <p className="font-semibold text-gray-900 text-sm">Settings</p>
-            <p className="text-xs text-gray-500">Profile settings</p>
+            <div className="text-3xl mb-2">📝</div>
+            <p className="font-semibold text-gray-900 text-sm">Post Job</p>
+            <p className="text-xs text-gray-500">Create job posting</p>
           </button>
         </div>
       </div>
