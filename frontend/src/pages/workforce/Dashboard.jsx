@@ -165,6 +165,42 @@ const WorkforceDashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <button
+            onClick={() => navigate('/workforce/occupations')}
+            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="text-3xl mb-2">💼</div>
+            <p className="font-semibold text-gray-900 text-sm">My Profiles</p>
+            <p className="text-xs text-gray-500">Manage occupation profiles</p>
+          </button>
+          <button
+            onClick={() => navigate('/workforce/documents')}
+            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="text-3xl mb-2">📄</div>
+            <p className="font-semibold text-gray-900 text-sm">Documents</p>
+            <p className="text-xs text-gray-500">ID & work permits</p>
+          </button>
+          <button
+            onClick={() => navigate('/workforce/calendar')}
+            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="text-3xl mb-2">📅</div>
+            <p className="font-semibold text-gray-900 text-sm">Calendar</p>
+            <p className="text-xs text-gray-500">View schedule</p>
+          </button>
+          <button
+            onClick={() => navigate('/workforce/settings')}
+            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="text-3xl mb-2">⚙️</div>
+            <p className="font-semibold text-gray-900 text-sm">Settings</p>
+            <p className="text-xs text-gray-500">Profile settings</p>
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
