@@ -2458,6 +2458,8 @@ def test_document_expiry_system(results, admin_token):
     
     # Test 4: Test email service functions (code execution, not actual sending)
     try:
+        import sys
+        sys.path.append('/app/backend')
         from services.email_service import send_document_expiry_reminder, send_account_restricted_email
         
         # Test expiry reminder function (will likely fail to send but should not crash)
