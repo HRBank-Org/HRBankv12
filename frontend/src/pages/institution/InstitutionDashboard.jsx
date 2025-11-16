@@ -6,7 +6,7 @@ import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 
 const InstitutionDashboard = () => {
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
@@ -26,6 +26,11 @@ const InstitutionDashboard = () => {
       
       setAnalytics(analyticsRes.data.data);
       setProfile(profileRes.data.data);
+      
+      // Update AuthContext with complete profile data so UserHeader can access it
+      if (profileRes.data.data) {
+        updateUserProfile(profileRes.data.data);
+      }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
