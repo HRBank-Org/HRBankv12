@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "1) Implement comprehensive Google Calendar-style availability and shift management system. 2) Add invitation system for employers to invite workforce members not on platform to specific jobs/shifts. 3) Implement workforce management system for employment termination, offboarding, and rehiring. 4) Implement EULA (End User License Agreement) acceptance system for all user types."
+user_problem_statement: "Fix Occupation Profiles display page: 1) Remove 'preferred rate' field if visible, 2) Show years of experience and employment history (companies worked for), 3) Display certification verification status (Pending/Verified/Rejected), 4) Redesign as attractive resume cards, 5) Add inline editing for skills section."
 
 backend:
   - task: "Calendar API - Workforce Availability Endpoints"
