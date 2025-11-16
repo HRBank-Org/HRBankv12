@@ -230,8 +230,14 @@ const CreateOccupation = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Category <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {categories.map((cat) => (
+                {categories.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-600">Loading categories...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {categories.map((cat) => (
                     <button
                       key={cat.name}
                       type="button"
