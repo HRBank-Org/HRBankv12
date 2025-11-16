@@ -282,6 +282,49 @@ const WorkforceSettings = () => {
     setMessage({ type: '', text: '' });
     
     try {
+      // Validate address before saving
+      if (profile.address && profile.city && profile.province && profile.postal_code) {
+        const validationResponse = await api.post('/api/validation/validate-address', {
+          address: profile.address,
+          city: profile.city,
+          province: profile.province,
+          postal_code: profile.postal_code
+        });
+        
+        if (!validationResponse.data.valid) {
+          setMessage({ 
+            type: 'error', 
+            text: `Address validation failed: ${validationResponse.data.errors.join(', ')}` 
+          });
+          setSaving(false);
+          return;
+        }
+        
+        // Use formatted values
+        const formatted = validationResponse.data.formatted;
+        profile.city = formatted.city;
+        profile.province = formatted.province;
+        profile.postal_code = formatted.postal_code;
+      }
+      
+      // Validate phone if provided
+      if (profile.phone && !verificationStatus.phone_verified) {
+        const phoneValidation = await api.post('/api/validation/validate-phone', {
+          phone: profile.phone
+        });
+        
+        if (!phoneValidation.data.valid) {
+          setMessage({ 
+            type: 'error', 
+            text: `Phone validation failed: ${phoneValidation.data.error}` 
+          });
+          setSaving(false);
+          return;
+        }
+        
+        profile.phone = phoneValidation.data.formatted;
+      }
+      
       await api.patch('/api/workforce/me/profile', {
         first_name: profile.first_name,
         last_name: profile.last_name,
