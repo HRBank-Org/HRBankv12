@@ -176,24 +176,72 @@ async def get_my_shifts(
         "data": {"shifts": shifts}
     }
 
+@router.get("/me/profile", response_model=Dict)
+async def get_my_profile(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get employer profile (creates empty if doesn't exist)"""
+    profile = await db.employer_profiles.find_one(
+        {"employer_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not profile:
+        # Return default empty profile
+        profile = {
+            "employer_id": current_user["user_id"],
+            "user_id": current_user["user_id"],
+            "first_name": "",
+            "last_name": "",
+            "contact_name": "",
+            "company_name": "",
+            "company_logo_url": "",
+            "phone": "",
+            "address": "",
+            "city": "",
+            "province": "",
+            "postal_code": "",
+            "phone_verified": False,
+            "email_verified": False
+        }
+    
+    return {
+        "success": True,
+        "data": profile
+    }
+
 @router.patch("/me/profile", response_model=Dict)
 async def update_employer_profile(
     profile_data: dict,
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Update employer profile"""
+    """Update employer profile (creates if doesn't exist)"""
     
+    profile_data["employer_id"] = current_user["user_id"]
+    profile_data["user_id"] = current_user["user_id"]
     profile_data["updated_date"] = datetime.utcnow().isoformat()
     
-    await db.employer_profiles.update_one(
-        {"employer_id": current_user["user_id"]},
-        {"$set": profile_data}
-    )
+    # Check if profile exists
+    existing_profile = await db.employer_profiles.find_one({"employer_id": current_user["user_id"]})
+    
+    if existing_profile:
+        # Update existing profile
+        await db.employer_profiles.update_one(
+            {"employer_id": current_user["user_id"]},
+            {"$set": profile_data}
+        )
+        message = "Profile updated successfully"
+    else:
+        # Create new profile
+        profile_data["created_date"] = datetime.utcnow().isoformat()
+        await db.employer_profiles.insert_one(profile_data)
+        message = "Profile created successfully"
     
     return {
         "success": True,
-        "message": "Profile updated successfully"
+        "message": message
     }
 
 @router.delete("/workplaces/{workplace_id}", response_model=Dict)
