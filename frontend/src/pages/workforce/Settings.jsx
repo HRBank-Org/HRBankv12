@@ -23,6 +23,16 @@ const WorkforceSettings = () => {
     province: '',
     postal_code: ''
   });
+  
+  // OTP verification states
+  const [verificationStatus, setVerificationStatus] = useState({
+    phone_verified: false,
+    email_verified: false
+  });
+  const [otpModal, setOtpModal] = useState({ show: false, type: '', contact: '' });
+  const [otpCode, setOtpCode] = useState('');
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const isAccountActive = user?.profile_status === 'active';
 
