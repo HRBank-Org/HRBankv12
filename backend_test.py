@@ -1927,40 +1927,42 @@ def test_user_profile_api(results):
                     await db.workforce_profiles.insert_one(profile_data)
                     
                 elif user_type == "employer":
-                    profile_data = {
-                        "employer_id": user_id,
+                    # Update existing profile instead of creating duplicate
+                    profile_update = {
                         "contact_name": f"Jane Manager {user_id[:8]}",  # Using contact_name as per schema
                         "company_name": f"Test Company {user_id[:8]} Inc.",
                         "address": "123 Business Street",
                         "city": "Toronto",
                         "province": "ON",
                         "postal_code": "M5V 3A8",
-                        "email": user_data["email"],
                         "contact_phone": user_data["phone"],
                         "company_size": "50-100",
                         "industry": "Technology",
                         "onboarding_completed": True,
-                        "profile_completion": 100,
-                        "created_date": datetime.utcnow().isoformat()
+                        "profile_completion": 100
                     }
-                    await db.employer_profiles.insert_one(profile_data)
+                    await db.employer_profiles.update_one(
+                        {"employer_id": user_id},
+                        {"$set": profile_update}
+                    )
                     
                 elif user_type == "institution":
-                    profile_data = {
-                        "institution_id": user_id,
+                    # Update existing profile instead of creating duplicate
+                    profile_update = {
                         "contact_name": f"Dr. Academic {user_id[:8]}",  # Using contact_name as per schema
                         "institution_name": f"Test University {user_id[:8]}",
                         "address": "456 Education Avenue",  # Adding address field
                         "city": "Ottawa",
                         "province": "ON",
                         "postal_code": "K1A 0A6",
-                        "email": user_data["email"],
                         "contact_phone": user_data["phone"],
                         "institution_type": "University",
-                        "onboarding_completed": True,
-                        "created_date": datetime.utcnow().isoformat()
+                        "onboarding_completed": True
                     }
-                    await db.institution_profiles.insert_one(profile_data)
+                    await db.institution_profiles.update_one(
+                        {"institution_id": user_id},
+                        {"$set": profile_update}
+                    )
                 
                 client.close()
             
