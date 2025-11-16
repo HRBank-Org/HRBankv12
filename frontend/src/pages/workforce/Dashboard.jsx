@@ -52,11 +52,10 @@ const WorkforceDashboard = () => {
       const jobOffers = offersRes.data.data.job_offers || [];
       const myShifts = shiftsRes.data.data.shifts || [];
 
+      setWorkforceProfile(profile);
       setAcceptedShifts(myShifts);
       setUnreadMessages(messagesRes.data.data.total_unread || 0);
       setUnreadNotifications(notificationsRes.data.data.unread_count || 0);
-
-      setAcceptedShifts(myShifts);
 
       // Calculate availability summary
       const availHours = profile.availability_hours || {};
