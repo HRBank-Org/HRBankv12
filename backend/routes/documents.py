@@ -418,6 +418,33 @@ async def trigger_expiry_notifications(
             detail=f"Failed: {str(e)}"
         )
 
+@router.post("/admin/run-expiry-check", response_model=Dict)
+async def manual_expiry_check(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Manually trigger full document expiry check (admin only)"""
+    # Verify admin permissions
+    if current_user.get("user_type") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    
+    try:
+        from services.document_scheduler import run_manual_check
+        result = await run_manual_check(db)
+        return {
+            "success": True,
+            "data": result,
+            "message": "Manual expiry check completed"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed: {str(e)}"
+        )
+
 # ==================== HELPER FUNCTIONS ====================
 
 async def update_account_status(db, user_id: str, user_type: str):
