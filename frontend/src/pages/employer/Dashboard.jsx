@@ -142,14 +142,7 @@ const EmployerDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 pt-6">
         <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-6 mb-6 border border-orange-100">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
-            Welcome back, {
-              employerProfile?.first_name || 
-              user?.profile?.first_name || 
-              employerProfile?.contact_name || 
-              employerProfile?.contact_person || 
-              user?.profile?.contact_name || 
-              'there'
-            }! 👋
+            {getGreeting()}, {getUserName()}! 👋
           </h2>
           <p className="text-gray-600">
             {employerProfile?.company_name && `Managing ${employerProfile.company_name} • `}
