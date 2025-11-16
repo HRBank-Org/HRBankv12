@@ -78,28 +78,17 @@ const EmployerDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header */}
-      <header className="text-white px-4 py-4 shadow-md" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      {/* UserHeader with Actions */}
+      <UserHeader 
+        showBack={false}
+        actions={
           <div className="flex items-center gap-3">
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-xl font-bold">Employer Dashboard</h1>
-                {employerProfile?.rating_avg > 0 && (
-                  <div className="flex items-center gap-1 px-3 py-1 bg-white/20 rounded-full">
-                    <span className="text-yellow-300 text-lg">★</span>
-                    <span className="text-sm font-semibold">{employerProfile.rating_avg}</span>
-                  </div>
-                )}
+            {employerProfile?.rating_avg > 0 && (
+              <div className="flex items-center gap-1 px-3 py-2 bg-white/20 rounded-lg">
+                <span className="text-yellow-300 text-lg">★</span>
+                <span className="text-sm font-semibold">{employerProfile.rating_avg.toFixed(1)}</span>
               </div>
-              <p className="text-sm opacity-90">
-                {employerProfile?.contact_person || employerProfile?.full_name || user?.email?.split('@')[0]}
-                {employerProfile?.company_name && ` • ${employerProfile.company_name}`}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
+            )}
             <button 
               onClick={() => navigate('/employer/messages')}
               className="relative hover:opacity-80"
@@ -108,9 +97,11 @@ const EmployerDashboard = () => {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
-                {unreadMessages}
-              </span>
+              {unreadMessages > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                  {unreadMessages}
+                </span>
+              )}
             </button>
             <button 
               onClick={() => navigate('/employer/notifications')}
@@ -120,19 +111,31 @@ const EmployerDashboard = () => {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
-                {unreadNotifications}
-              </span>
-            </button>
-            <button onClick={logout} className="text-sm hover:underline">
-              Logout
+              {unreadNotifications > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                  {unreadNotifications}
+                </span>
+              )}
             </button>
           </div>
+        }
+      />
+
+      {/* Welcome Banner */}
+      <div className="max-w-7xl mx-auto px-4 pt-6">
+        <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-6 mb-6 border border-orange-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            Welcome back, {employerProfile?.contact_name || employerProfile?.contact_person || 'Employer'}! 👋
+          </h2>
+          <p className="text-gray-600">
+            {employerProfile?.company_name && `Managing ${employerProfile.company_name} • `}
+            {stats.total_shifts} total shifts created
+          </p>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 pb-8">
         {/* Quick Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-sm p-6">
