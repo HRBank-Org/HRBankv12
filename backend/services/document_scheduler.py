@@ -147,8 +147,10 @@ async def check_and_restrict_account(db, user_id: str, user_type: str):
             # Check if expired
             if doc.get("expiry_date"):
                 try:
+                    from datetime import timezone
                     expiry_date_obj = datetime.fromisoformat(doc["expiry_date"].replace('Z', '+00:00'))
-                    is_expired = (expiry_date_obj - datetime.utcnow()).days < 0
+                    now_utc = datetime.now(timezone.utc)
+                    is_expired = (expiry_date_obj - now_utc).days < 0
                     
                     if is_expired:
                         expired_documents.append(doc.get("document_name", doc.get("document_type")))
