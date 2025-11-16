@@ -110,28 +110,44 @@ EMPLOYER_DOCUMENT_TYPES = {
 }
 
 INSTITUTION_DOCUMENT_TYPES = {
-    'institution_license': {
-        'name': 'Institution License',
-        'description': 'Educational institution license',
+    'business_license': {
+        'name': 'Business License',
+        'description': 'Provincial/Municipal business license',
         'required': True,
-        'has_expiry': True
+        'has_expiry': True,
+        'has_number': True,
+        'activates_account': True
+    },
+    'business_number': {
+        'name': 'Business Number (BN)',
+        'description': '9-digit CRA Business Number',
+        'required': True,
+        'has_expiry': False,
+        'has_number': True,
+        'activates_account': True
     },
     'accreditation': {
         'name': 'Accreditation Certificate',
-        'description': 'Educational accreditation',
-        'required': True,
-        'has_expiry': True
+        'description': 'Educational/Professional accreditation',
+        'required': False,
+        'has_expiry': True,
+        'has_number': True,
+        'activates_account': False
     },
-    'business_registration': {
-        'name': 'Business Registration',
-        'description': 'Registration documents',
-        'required': True,
-        'has_expiry': False
+    'payroll_number': {
+        'name': 'Payroll Account Number',
+        'description': 'CRA Payroll Account (if applicable)',
+        'required': False,
+        'has_expiry': False,
+        'has_number': True,
+        'activates_account': False
     },
-    'liability_insurance': {
-        'name': 'Liability Insurance',
-        'description': 'Liability insurance certificate',
-        'required': True,
-        'has_expiry': True
+    'gst_hst_number': {
+        'name': 'GST/HST Number',
+        'description': 'GST/HST Registration Number',
+        'required': False,
+        'has_expiry': False,
+        'has_number': True,
+        'activates_account': False
     }
 }
