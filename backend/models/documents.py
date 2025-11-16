@@ -47,13 +47,17 @@ WORKFORCE_DOCUMENT_TYPES = {
         'description': 'Valid government-issued photo ID (Driver License, Passport, PR Card, etc.)',
         'required': True,
         'has_expiry': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
         'activates_account': True
     },
     'work_permit': {
         'name': 'Work Permit',
-        'description': 'Canadian work permit (if applicable)',
-        'required': False,
+        'description': 'Canadian work permit (required for non-citizens/PR)',
+        'required': True,
         'has_expiry': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
         'activates_account': True
     }
 }
@@ -65,13 +69,17 @@ ADMIN_DOCUMENT_TYPES = {
         'description': 'Valid government-issued photo ID',
         'required': True,
         'has_expiry': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
         'activates_account': True
     },
     'work_permit': {
         'name': 'Work Permit',
-        'description': 'Canadian work permit (if applicable)',
-        'required': False,
+        'description': 'Canadian work permit (required for non-citizens/PR)',
+        'required': True,
         'has_expiry': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
         'activates_account': True
     }
 }
