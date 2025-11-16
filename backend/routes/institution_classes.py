@@ -44,7 +44,7 @@ async def get_class_templates(
 
 async def create_class_template(
     template_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Create a new class template"""
@@ -70,7 +70,7 @@ async def create_class_template(
 async def update_class_template(
     template_id: str,
     template_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Update a class template"""
@@ -108,7 +108,7 @@ async def update_class_template(
 
 async def delete_class_template(
     template_id: str,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Soft delete a class template"""
@@ -138,7 +138,7 @@ async def delete_class_template(
 
 async def get_classes(
     status_filter: str = None,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Get all classes for institution"""
@@ -161,7 +161,7 @@ async def get_classes(
 
 async def get_class_details(
     class_id: str,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Get class details"""
@@ -203,7 +203,7 @@ async def get_class_details(
 
 async def create_class(
     class_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Create a new class"""
@@ -234,7 +234,7 @@ async def create_class(
 async def update_class(
     class_id: str,
     class_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Update a class"""
@@ -275,7 +275,7 @@ async def update_class(
 
 async def delete_class(
     class_id: str,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Delete a class (only if no credentials issued)"""
@@ -311,7 +311,7 @@ async def delete_class(
 
 async def invite_students(
     invitation_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Invite students to join HR Bank and enroll in class"""
@@ -395,7 +395,7 @@ async def invite_students(
 
 async def issue_credentials(
     issuance_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Issue credentials to students in a class"""
@@ -479,7 +479,7 @@ async def issue_credentials(
 
 async def get_issued_credentials(
     class_id: str = None,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Get all credentials issued by institution"""
@@ -519,7 +519,7 @@ async def get_issued_credentials(
 @router.get("/verification-requests", response_model=Dict)
 
 async def get_verification_requests(
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Get all verification requests for institution"""
@@ -550,7 +550,7 @@ async def get_verification_requests(
 async def verify_credential_request(
     request_id: str,
     verification_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Verify a credential request"""
@@ -603,7 +603,7 @@ async def verify_credential_request(
 async def reject_credential_request(
     request_id: str,
     rejection_data: dict,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Reject a credential request"""
@@ -642,7 +642,7 @@ async def reject_credential_request(
 @router.get("/analytics/dashboard", response_model=Dict)
 
 async def get_dashboard_analytics(
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """Get analytics for institution dashboard"""
