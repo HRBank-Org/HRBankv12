@@ -193,6 +193,11 @@ function AppRoutes() {
         
         {/* Institution Routes */}
         <Route path="/institution/dashboard" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDashboard /></ProtectedRoute>} />
+        <Route path="/institution/templates" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassTemplates /></ProtectedRoute>} />
+        <Route path="/institution/classes" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassesManagement /></ProtectedRoute>} />
+        <Route path="/institution/classes/create" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassesManagement /></ProtectedRoute>} />
+        <Route path="/institution/classes/:classId" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassDetails /></ProtectedRoute>} />
+        <Route path="/institution/verification-requests" element={<ProtectedRoute allowedUserTypes={['institution']}><VerificationRequests /></ProtectedRoute>} />
         <Route path="/institution/messages" element={<ProtectedRoute allowedUserTypes={['institution']}><Messages /></ProtectedRoute>} />
         <Route path="/institution/notifications" element={<ProtectedRoute allowedUserTypes={['institution']}><Notifications /></ProtectedRoute>} />
         <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><Settings /></ProtectedRoute>} />
