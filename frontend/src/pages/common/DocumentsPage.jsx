@@ -105,13 +105,41 @@ const DocumentsPage = () => {
     }));
   };
 
-  const handleUpload = async () => {
-    if (!uploadData.file) {
-      setMessage({ type: 'error', text: 'Please select a file' });
-      return;
-    }
+  const validateDocumentNumber = (number, pattern, example) => {
+    if (!number || !pattern) return true;
+    
+    // Normalize spaces
+    const normalized = number.trim().replace(/\s+/g, ' ');
+    const regex = new RegExp(pattern);
+    
+    return regex.test(normalized);
+  };
 
+  const handleUpload = async () => {
     const docType = documentTypes[uploadModal.type];
+    
+    // Validate number-only documents
+    if (docType?.is_number_only) {
+      if (!uploadData.document_number) {
+        setMessage({ type: 'error', text: 'Please enter the document number' });
+        return;
+      }
+      
+      // Validate format
+      if (!validateDocumentNumber(uploadData.document_number, docType.number_pattern, docType.number_example)) {
+        setMessage({ 
+          type: 'error', 
+          text: `Invalid format. Expected: ${docType.number_format}. Example: ${docType.number_example}` 
+        });
+        return;
+      }
+    } else {
+      // Validate file-based documents
+      if (!uploadData.file) {
+        setMessage({ type: 'error', text: 'Please select a file' });
+        return;
+      }
+    }
     
     // Validate required dates
     if (docType?.requires_issue_date && !uploadData.issue_date) {
@@ -128,43 +156,60 @@ const DocumentsPage = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.readAsDataURL(uploadData.file);
-      
-      reader.onload = async () => {
-        try {
-          const base64Data = reader.result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
-          const fileExtension = uploadData.fileName.split('.').pop().toLowerCase();
+      // Handle number-only documents
+      if (docType?.is_number_only) {
+        const payload = {
+          document_type: uploadModal.type,
+          document_name: docType?.name || uploadModal.type,
+          document_number: uploadData.document_number.trim().replace(/\s+/g, ' '),
+          issue_date: uploadData.issue_date || null,
+          expiry_date: uploadData.expiry_date || null,
+          notes: uploadData.notes || null
+        };
 
-          const payload = {
-            document_type: uploadModal.type,
-            document_name: docType?.name || uploadModal.type,
-            file_data: base64Data,
-            file_type: fileExtension,
-            issue_date: uploadData.issue_date || null,
-            expiry_date: uploadData.expiry_date || null,
-            notes: uploadData.notes || null
-          };
-
-          await api.post('/api/documents/upload', payload);
-
-          setMessage({ type: 'success', text: 'Document uploaded successfully! It will be reviewed by an admin.' });
-          closeUploadModal();
-          await loadDocuments();
-        } catch (error) {
-          setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to upload document' });
-        } finally {
-          setUploading(false);
-        }
-      };
-
-      reader.onerror = () => {
-        setMessage({ type: 'error', text: 'Failed to read file' });
+        await api.post('/api/documents/upload', payload);
+        setMessage({ type: 'success', text: 'Document number submitted successfully! It will be verified by an admin.' });
+        closeUploadModal();
+        await loadDocuments();
         setUploading(false);
-      };
+      } else {
+        // Handle file-based documents
+        const reader = new FileReader();
+        reader.readAsDataURL(uploadData.file);
+        
+        reader.onload = async () => {
+          try {
+            const base64Data = reader.result.split(',')[1];
+            const fileExtension = uploadData.fileName.split('.').pop().toLowerCase();
+
+            const payload = {
+              document_type: uploadModal.type,
+              document_name: docType?.name || uploadModal.type,
+              file_data: base64Data,
+              file_type: fileExtension,
+              issue_date: uploadData.issue_date || null,
+              expiry_date: uploadData.expiry_date || null,
+              notes: uploadData.notes || null
+            };
+
+            await api.post('/api/documents/upload', payload);
+            setMessage({ type: 'success', text: 'Document uploaded successfully! It will be reviewed by an admin.' });
+            closeUploadModal();
+            await loadDocuments();
+          } catch (error) {
+            setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to upload document' });
+          } finally {
+            setUploading(false);
+          }
+        };
+
+        reader.onerror = () => {
+          setMessage({ type: 'error', text: 'Failed to read file' });
+          setUploading(false);
+        };
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to process file' });
+      setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to submit document' });
       setUploading(false);
     }
   };
