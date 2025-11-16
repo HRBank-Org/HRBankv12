@@ -187,7 +187,7 @@ async def verify_otp(
 
 @router.get("/verification-status", response_model=Dict)
 async def get_verification_status(
-    current_user: dict = Depends(require_auth),
+    current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
     """Get verification status for phone and email"""
