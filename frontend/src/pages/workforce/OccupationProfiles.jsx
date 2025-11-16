@@ -31,6 +31,50 @@ const OccupationProfiles = () => {
     }
   };
 
+  const startEditingSkills = (occupation) => {
+    setEditingSkills(occupation.occupation_id);
+    setTempSkills(occupation.skills?.join(', ') || '');
+  };
+
+  const cancelEditingSkills = () => {
+    setEditingSkills(null);
+    setTempSkills('');
+  };
+
+  const saveSkills = async (occupationId) => {
+    setSavingSkills(true);
+    try {
+      // Parse comma-separated skills and trim whitespace
+      const skillsArray = tempSkills
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      await api.patch(`/api/occupations/${occupationId}`, {
+        skills: skillsArray
+      });
+
+      // Reload occupations to get updated data
+      await loadOccupations();
+      setEditingSkills(null);
+      setTempSkills('');
+    } catch (error) {
+      console.error('Failed to update skills:', error);
+      alert('Failed to update skills. Please try again.');
+    } finally {
+      setSavingSkills(false);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      pending: { text: 'Pending', bg: 'bg-yellow-100', text_color: 'text-yellow-800', icon: '⏳' },
+      verified: { text: 'Verified', bg: 'bg-green-100', text_color: 'text-green-800', icon: '✓' },
+      rejected: { text: 'Rejected', bg: 'bg-red-100', text_color: 'text-red-800', icon: '✗' }
+    };
+    return badges[status] || badges.pending;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
