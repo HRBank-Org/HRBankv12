@@ -38,6 +38,39 @@ const OccupationDetail = () => {
     }
   };
 
+  const startEditingSkills = () => {
+    setEditingSkills(true);
+    setTempSkills(occupation.skills?.join(', ') || '');
+  };
+
+  const cancelEditingSkills = () => {
+    setEditingSkills(false);
+    setTempSkills('');
+  };
+
+  const saveSkills = async () => {
+    setSavingSkills(true);
+    try {
+      const skillsArray = tempSkills
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      await api.patch(`/api/occupations/${occupationId}`, {
+        skills: skillsArray
+      });
+
+      await loadOccupation();
+      setEditingSkills(false);
+      setTempSkills('');
+    } catch (error) {
+      console.error('Failed to update skills:', error);
+      alert('Failed to update skills. Please try again.');
+    } finally {
+      setSavingSkills(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
