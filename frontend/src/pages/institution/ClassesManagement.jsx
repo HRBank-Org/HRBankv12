@@ -155,7 +155,6 @@ const ClassesManagement = () => {
       <UserHeader 
         onBackClick={() => navigate('/institution/dashboard')}
         showBack={true}
-        title="Classes Management"
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
