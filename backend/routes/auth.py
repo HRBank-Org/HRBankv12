@@ -277,6 +277,70 @@ async def logout():
         "message": "Logged out successfully"
     }
 
+@router.post("/change-password")
+async def change_password(
+    request: Dict,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Change user password
+    Requires current password for security
+    """
+    from auth.dependencies import get_current_user
+    from fastapi import Depends
+    
+    # Get current user from token
+    current_password = request.get("current_password")
+    new_password = request.get("new_password")
+    user_id = request.get("user_id")
+    
+    if not current_password or not new_password or not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password, new password, and user_id are required"
+        )
+    
+    # Validate new password strength
+    if len(new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be at least 8 characters long"
+        )
+    
+    # Get user from database
+    user = await db.users.find_one({"user_id": user_id})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Verify current password
+    if not verify_password(current_password, user["password_hash"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Current password is incorrect"
+        )
+    
+    # Hash new password
+    new_password_hash = hash_password(new_password)
+    
+    # Update password in database
+    await db.users.update_one(
+        {"user_id": user_id},
+        {
+            "$set": {
+                "password_hash": new_password_hash,
+                "password_updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {
+        "success": True,
+        "message": "Password changed successfully"
+    }
+
 @router.get("/google/status")
 async def google_oauth_status():
     """Check if Google OAuth is configured"""
