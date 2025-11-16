@@ -1,0 +1,135 @@
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi.responses import JSONResponse
+from auth.dependencies import get_db, get_current_user
+import os
+import uuid
+from pathlib import Path
+from typing import Dict
+import shutil
+
+router = APIRouter()
+
+# Create uploads directory if it doesn't exist
+UPLOAD_DIR = Path("/app/backend/uploads/profile_photos")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Allowed image extensions
+ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+def get_file_extension(filename: str) -> str:
+    """Get file extension from filename"""
+    return Path(filename).suffix.lower()
+
+def is_allowed_file(filename: str) -> bool:
+    """Check if file extension is allowed"""
+    return get_file_extension(filename) in ALLOWED_EXTENSIONS
+
+@router.post("/upload-profile-photo", response_model=Dict)
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Upload and save profile photo
+    Returns the URL to access the photo
+    """
+    
+    # Validate file type
+    if not is_allowed_file(file.filename):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+    
+    # Check file size
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large. Maximum size: 5MB"
+        )
+    
+    # Reset file pointer
+    await file.seek(0)
+    
+    # Generate unique filename
+    file_ext = get_file_extension(file.filename)
+    unique_filename = f"{current_user['user_id']}_{uuid.uuid4().hex[:8]}{file_ext}"
+    file_path = UPLOAD_DIR / unique_filename
+    
+    try:
+        # Save file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Generate URL (this will be served by the backend)
+        photo_url = f"/api/uploads/profile_photos/{unique_filename}"
+        
+        # Update user profile with photo URL
+        user_type = current_user["user_type"]
+        collection_name = f"{user_type}_profiles"
+        
+        await db[collection_name].update_one(
+            {f"{user_type}_id": current_user["user_id"]},
+            {"$set": {"profile_photo_url": photo_url}}
+        )
+        
+        return {
+            "success": True,
+            "message": "Photo uploaded successfully",
+            "photo_url": photo_url
+        }
+    
+    except Exception as e:
+        # Clean up file if something went wrong
+        if file_path.exists():
+            file_path.unlink()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to upload photo: {str(e)}"
+        )
+
+@router.delete("/delete-profile-photo", response_model=Dict)
+async def delete_profile_photo(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Delete current profile photo
+    """
+    user_type = current_user["user_type"]
+    collection_name = f"{user_type}_profiles"
+    
+    # Get current profile
+    profile = await db[collection_name].find_one(
+        {f"{user_type}_id": current_user["user_id"]}
+    )
+    
+    if not profile or not profile.get("profile_photo_url"):
+        raise HTTPException(
+            status_code=404,
+            detail="No profile photo to delete"
+        )
+    
+    # Extract filename from URL
+    photo_url = profile["profile_photo_url"]
+    if photo_url.startswith("/api/uploads/profile_photos/"):
+        filename = photo_url.split("/")[-1]
+        file_path = UPLOAD_DIR / filename
+        
+        # Delete file if it exists
+        if file_path.exists():
+            file_path.unlink()
+    
+    # Remove photo URL from database
+    await db[collection_name].update_one(
+        {f"{user_type}_id": current_user["user_id"]},
+        {"$set": {"profile_photo_url": None}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Photo deleted successfully"
+    }
