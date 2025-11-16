@@ -53,7 +53,8 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
         </div>
       );
     } else if (userType === 'employer') {
-      // Employer: Show company logo (optional), contact person name, company name + address
+      // Employer: Show company logo (optional), contact person name with title, company name + address
+      const fullName = profile.full_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.contact_name || profile.contact_person || 'Employer';
       const street = profile.address?.split(',')[0] || profile.address || '';
       const city = profile.city || '';
       const shortAddress = `${street}${city ? ' - ' + city : ''}`;
@@ -70,7 +71,10 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
           )}
           {/* Company Info */}
           <div className="text-white">
-            <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Employer'}</p>
+            <p className="font-semibold text-sm leading-tight">
+              {fullName}
+              {profile.title && ` • ${profile.title}`}
+            </p>
             <p className="text-xs opacity-90 font-medium">{profile.company_name}</p>
             {shortAddress && (
               <p className="text-xs opacity-75">{shortAddress}</p>
