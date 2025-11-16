@@ -116,7 +116,7 @@ async def send_otp(
 @router.post("/verify-otp", response_model=Dict)
 async def verify_otp(
     request: VerifyOTPRequest,
-    current_user: dict = Depends(require_auth),
+    current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
     """Verify OTP code"""
