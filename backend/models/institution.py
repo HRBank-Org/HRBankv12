@@ -8,15 +8,27 @@ class InstitutionProfile(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     institution_id: str  # Same as user_id
+    
+    # Contact person details - collected during signup/onboarding
+    first_name: str
+    last_name: str
+    title: Optional[str] = None  # Job title (e.g., "Registrar", "Verification Officer")
+    
+    # Institution details
     institution_name: str
     institution_logo_url: Optional[str] = None  # Institution logo for header display
     institution_type: str  # college, government, certification_body, employer
+    
     address: str
     postal_code: str
     catchment_area_postal_codes: List[str] = []  # For demand analytics filtering
-    contact_person: Optional[str] = None
-    contact_name: Optional[str] = None  # Alias for contact_person
     phone: str
+    
+    # Legacy fields for backward compatibility
+    contact_person: Optional[str] = None  # Deprecated - use first_name + last_name
+    contact_name: Optional[str] = None  # Deprecated - use first_name + last_name
+    full_name: Optional[str] = None  # Auto-generated from first_name + last_name
+    
     verified_status: str = 'pending'  # approved, pending, rejected
     credentials_issued: List[str] = []  # credential_type_ids they can verify
     api_key: Optional[str] = None
