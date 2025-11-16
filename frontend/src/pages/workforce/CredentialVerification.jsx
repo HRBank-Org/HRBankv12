@@ -152,7 +152,6 @@ const CredentialVerification = () => {
       <UserHeader 
         onBackClick={() => navigate('/workforce/dashboard')}
         showBack={true}
-        title="Credential Verification"
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
