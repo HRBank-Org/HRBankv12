@@ -35,49 +35,22 @@ const CreateOccupation = () => {
         api.get('/api/workforce/skills/common')
       ]);
       
-      // New format: industries object with occupations array
-      const industries = categoriesRes.data.data.industries || {};
+      // New structured format with categories object
+      const categoriesData = categoriesRes.data.data.categories || {};
       
-      // Convert to flat array for category selection
-      let categoryArray = Object.keys(industries).map(industry => ({
-        name: industry,
-        occupations: industries[industry],
-        example: industries[industry].map(o => o.occupation_name).slice(0, 2).join(', ')
+      // Convert to array for rendering
+      const categoryArray = Object.keys(categoriesData).map(categoryName => ({
+        name: categoryName,
+        icon: categoriesData[categoryName].icon,
+        description: categoriesData[categoryName].description,
+        occupations: categoriesData[categoryName].occupations || []
       }));
-      
-      // Fallback to default categories if none exist
-      if (categoryArray.length === 0) {
-        categoryArray = [
-          { name: 'Healthcare', example: 'Nurse, PSW, Caregiver' },
-          { name: 'Security', example: 'Security Guard, Loss Prevention' },
-          { name: 'Hospitality', example: 'Server, Bartender, Cook' },
-          { name: 'Retail', example: 'Sales Associate, Cashier' },
-          { name: 'Construction', example: 'Laborer, Carpenter, Electrician' },
-          { name: 'Education', example: 'Tutor, Teaching Assistant' },
-          { name: 'Transportation', example: 'Driver, Delivery, Courier' },
-          { name: 'Administrative', example: 'Receptionist, Data Entry' }
-        ];
-      }
       
       setCategories(categoryArray);
       setAvailableSkills(skillsRes.data.data.skills || []);
     } catch (error) {
       console.error('Failed to load data:', error);
-      // Set fallback categories even on error
-      setCategories([
-        { name: 'Healthcare', example: 'Nurse, PSW, Caregiver' },
-        { name: 'Security', example: 'Security Guard, Loss Prevention' },
-        { name: 'Hospitality', example: 'Server, Bartender, Cook' },
-        { name: 'Retail', example: 'Sales Associate, Cashier' },
-        { name: 'Construction', example: 'Laborer, Carpenter, Electrician' },
-        { name: 'Education', example: 'Tutor, Teaching Assistant' },
-        { name: 'Transportation', example: 'Driver, Delivery, Courier' },
-        { name: 'Administrative', example: 'Receptionist, Data Entry' }
-      ]);
-      setAvailableSkills([
-        'Customer Service', 'Communication', 'Time Management', 'Problem Solving',
-        'Teamwork', 'Attention to Detail', 'Organization', 'Computer Skills'
-      ]);
+      alert('Failed to load categories. Please refresh the page.');
     }
   };
 
