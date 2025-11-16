@@ -632,8 +632,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "User Profile API - Complete User Data for Headers"
-    - "UserHeader Component - Personalized Headers for All User Types"
+    - "Institution Dashboard - Profile Data Fetching & Display"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
