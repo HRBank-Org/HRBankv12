@@ -20,8 +20,20 @@ const CreateOccupationSimplified = () => {
     occupation_title: '',
     occupation_category: '',
     skills: [],
-    certifications: [],
-    hourly_rate_preference: ''
+    years_of_experience: 0
+  });
+  
+  const [credentials, setCredentials] = useState([]);
+  const [showCredentialModal, setShowCredentialModal] = useState(false);
+  const [credentialForm, setCredentialForm] = useState({
+    credential_type: 'Certificate',
+    credential_name: '',
+    field_of_study: '',
+    institution_name: '',
+    institution_email: '',
+    issue_date: '',
+    expiry_date: '',
+    document_file: null
   });
   
   const [loading, setLoading] = useState(false);
