@@ -150,44 +150,34 @@ EMPLOYER_DOCUMENT_TYPES = {
 }
 
 INSTITUTION_DOCUMENT_TYPES = {
-    'business_license': {
-        'name': 'Business License',
-        'description': 'Provincial/Municipal business license',
-        'required': True,
-        'has_expiry': True,
-        'has_number': True,
-        'activates_account': True
-    },
-    'business_number': {
-        'name': 'Business Number (BN)',
-        'description': '9-digit CRA Business Number',
+    'business_registration': {
+        'name': 'Business Registration',
+        'description': 'Certificate of Incorporation or Educational Institution Registration',
         'required': True,
         'has_expiry': False,
-        'has_number': True,
+        'requires_file': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': False,
+        'activates_account': True
+    },
+    'registrar_id': {
+        'name': 'Registrar/Contact Person ID',
+        'description': 'Valid government-issued photo ID of the registrar or primary contact person',
+        'required': True,
+        'has_expiry': True,
+        'requires_file': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
         'activates_account': True
     },
     'accreditation': {
         'name': 'Accreditation Certificate',
-        'description': 'Educational/Professional accreditation',
+        'description': 'Educational/Professional accreditation (optional)',
         'required': False,
         'has_expiry': True,
-        'has_number': True,
-        'activates_account': False
-    },
-    'payroll_number': {
-        'name': 'Payroll Account Number',
-        'description': 'CRA Payroll Account (if applicable)',
-        'required': False,
-        'has_expiry': False,
-        'has_number': True,
-        'activates_account': False
-    },
-    'gst_hst_number': {
-        'name': 'GST/HST Number',
-        'description': 'GST/HST Registration Number',
-        'required': False,
-        'has_expiry': False,
-        'has_number': True,
+        'requires_file': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
         'activates_account': False
     }
 }
