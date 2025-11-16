@@ -1,75 +1,75 @@
 <analysis>
-The trajectory chronicles the iterative development and refinement of the HR Bank application, moving from bug fixes to significant feature implementation based on user feedback. The process began by overhauling the workforce's Occupation Profile pages, redesigning them into attractive resume-style cards and fixing data display issues.
+The trajectory details the iterative development of the HR Bank application, moving from an initial MVP to a feature-rich platform. The process began with implementing a robust document management system, including role-specific requirements, expiry date tracking, and an automated email reminder system using SendGrid and APScheduler. A major focus was on user feedback, which drove significant refinements. For instance, a request for number-only documents (like BN, GST/HST) led to a backend model update and a conditional frontend UI that switches between file and text inputs.
 
-A major focus was on personalization and user management. This involved creating a dynamic  component that displays role-specific information (name, photo, occupation titles, ratings) for Workforce, Employers, and Institutions. This led to the creation of a comprehensive Settings page where users can manage their profile. Key features added to the Settings page include OTP verification for phone/email (using Twilio), a password change mechanism, and a user-friendly photo upload system with cropping capabilities.
+The most substantial effort was building a comprehensive credentialing module for the Institution user type from the ground up. This involved creating new backend models and API routes for managing classes, templates, and verification requests. Correspondingly, a suite of new frontend pages was developed for institutions to manage their dashboard, classes, and verification queue, and for the Workforce to request credential verification.
 
-The most recent work has centered on building a robust document management system. This involved extending existing backend models, creating dedicated frontend pages for document submission, and ensuring consistent navigation by adding links to the main header. The development has been highly interactive, with the AI engineer responding to user-reported bugs (like Method Not Allowed on save, geocoding failures, and frontend crashes) and UX feedback (e.g., redirecting after save, consistent navigation). The work is currently focused on implementing role-specific document requirements and an automated expiry reminder system. The user's primary language is **English**. The next agent should respond in English.
+The final phase of the trajectory involved extensive bug fixing and UX polishing based on direct user reports. This included resolving a white screen crash caused by leftover routes in , creating a dedicated settings page for institutions, implementing time-aware greetings on all dashboards, and ensuring profile data saves correctly for new users by implementing  logic in the backend for all user types. The last task was to fix a bug where the institution dashboard was not displaying the contact person's name in the greeting. The user's primary language is **English**. The next agent should respond in English.
 </analysis>
+
 <product_requirements>
-The HR Bank is a workforce management platform for four user roles: **Workforce**, **Employers**, **Institutions**, and **Admins**. Its core function is to connect workers with employers for shift-based work.
+The HR Bank is a multi-role workforce management platform connecting **Workforce**, **Employers**, **Institutions**, and **Admins**.
 
-**Key Features Implemented:**
-1.  **Role-Based Access**: Secure, distinct experiences for each user role.
-2.  **Personalized Experience**: Dashboards and headers are customized with user-specific data like name, company name, photo/logo, and occupation titles.
-3.  **Occupation Profiles**: Workers can create detailed profiles, styled as resume cards, showcasing experience, skills, and verified credentials.
-4.  **Settings & Security**: A dedicated settings page for each user type allows editing personal information (name, address), changing passwords, and verifying contact details via OTP (phone and email). Users can also upload profile photos with a cropping tool.
-5.  **Document Management**: A centralized system for users to upload and manage required documents.
+**Core Functionality:**
+*   **Role-Based Dashboards & Settings:** Each user role has a personalized dashboard and settings page to manage their specific profile information (name, logo/photo, contact details, password).
+*   **Document Management System:** A centralized system for users to upload and manage documents.
+    *   Requirements are role-specific (e.g., Work Permit for Workforce, Business Registration for Employers).
+    *   Some documents are file uploads (ID, permits), while others are text-based numbers (BN, GST/HST).
+    *   Documents with expiry dates trigger automated email reminders via SendGrid 7 days before expiry.
+    *   User accounts are restricted (can log in but cannot perform key actions) if required documents expire.
 
-**Current Requirements being implemented:**
-The document system must be enhanced to:
-1.  Enforce role-specific document requirements (e.g., Work Permit for Workforce, Business License for Employers).
-2.  Capture issue and expiry dates for all validation-required documents.
-3.  Automatically send email reminders for expiring documents and deactivate accounts if they are not updated.
+**Institution-Specific Features:**
+*   **Credential Management:** Institutions can create and manage Classes and Class Templates.
+*   **Digital Credential Issuance:** Institutions can issue mock blockchain-based credentials to students (Workforce users).
+*   **Verification Workflow:** Institutions can review and approve/reject verification requests submitted by Workforce users for credentials they have uploaded.
+*   **Analytics Dashboard:** A dedicated dashboard provides metrics on issued certifications and ongoing classes.
 </product_requirements>
+
 <key_technical_concepts>
-- **Full Stack**: React (frontend), FastAPI (backend), MongoDB (database).
-- **Authentication**: JWT-based with role-specific access control (). A central  manages user state in React.
-- **Backend**: Asynchronous API using Pydantic for validation. Features are organized into modular routes (auth, users, documents, OTP).
-- **Integrations**: Twilio for SMS/Email OTP verification.
-- **Frontend**: Component-based architecture with . Key libraries include  for API calls and  for photo uploads.
-- **File Handling**: A dedicated backend route () and static file serving for user-uploaded images.
+- **Full Stack:** React (frontend), FastAPI (backend), MongoDB (database).
+- **Authentication:** JWT with role-based access control ( dependency).  manages user state in React.
+- **Backend:** Asynchronous API using Pydantic models. Key services include email (SendGrid) and scheduled tasks (APScheduler). Database logic uses  for creating/updating profiles.
+- **Frontend:** Component-based architecture with . Features a reusable  and a common  component with conditional rendering for different document types.
 </key_technical_concepts>
+
 <code_architecture>
-The application follows a monorepo structure with distinct  and  directories.
+The application uses a monorepo structure with separate  and  directories.
 
 
 
 -   ****
-    -   **Importance**: A critical, reusable component that provides a consistent, personalized header for all user types. It displays the user's name, photo/logo, occupation titles, ratings, and navigation links to Settings and Documents.
-    -   **Changes**: Created from scratch and heavily modified to fetch and display increasingly complex user data. Icons for 'Settings' and 'Documents' were added for consistent navigation across the app.
+    -   **Importance**: The main FastAPI application entry point. It configures the app, includes all API routers, and initializes background services.
+    -   **Changes**: Modified to initialize the  for document expiry checks on application startup and to include new routers for institution classes and credential verification.
+
+-   **, , **
+    -   **Importance**: These files define the API endpoints for managing user-specific profiles.
+    -   **Changes**: Significantly updated to add profile creation and update logic. The  endpoints were modified to use  with , ensuring that a profile is created if it doesn't exist, preventing Profile not found errors for new users.  endpoints were also made more robust to handle cases where a profile document hasn't been created yet.
 
 -   ****
-    -   **Importance**: The main interface for users to manage their profile, security, and contact information.
-    -   **Changes**: Created and significantly enhanced to include editable name fields, OTP verification UI for phone/email, a password change form, and a photo upload/cropping tool, replacing a simple URL input. Logic was added to redirect the user after a successful save.
+    -   **Importance**: A highly reusable component that powers the document management UI for all user types.
+    -   **Changes**: Created from scratch. It was later heavily modified to conditionally render either a file input or a text input based on a document's  property, allowing for the submission of numbers like GST/HST directly.
 
 -   ****
-    -   **Importance**: Defines the data structure for all documents uploaded to the platform and specifies the requirements for each user type.
-    -   **Changes**: This file was heavily updated to differentiate document requirements for , , and . Fields for , , etc., were added. It was most recently modified to add more specific document types like Business Registration and ID Document based on the latest user request.
-
--   ** & **
-    -   **Importance**: These files provide the backend logic for key security and usability features.  handles sending and verifying codes via Twilio.  provides a secure way to upload user photos.
-    -   **Changes**: Both files were created to fulfill user requests for OTP and photo uploads. The OTP route was debugged to handle test environments and correct authentication dependencies.
+    -   **Importance**: The central hub for the Institution user. It displays key analytics and provides navigation.
+    -   **Changes**: Created from scratch. It was later modified to add a time-based greeting, implement a consistent design theme, and ensure the  component displays personalized user information instead of a generic title.
 
 -   ****
-    -   **Importance**: The main entry point for frontend routing. It defines which components are rendered for specific URL paths.
-    -   **Changes**: Modified multiple times to add routes for the newly created  and  pages for both  and  user types, ensuring they are accessible.
+    -   **Importance**: Defines all frontend URL routes for the application.
+    -   **Changes**: This file was edited multiple times to add routes for the entire suite of new Institution and Workforce credentialing pages. It was also a source of critical bugs, where leftover routes to deleted components caused the entire application to crash with a blank white screen. These old routes were found and removed to fix the crashes. A dedicated  route was also added.
 </code_architecture>
+
 <pending_tasks>
-- **Document Expiry & Reminder System**: Implement the complete workflow for document expiry. This includes:
-  - A scheduled task (e.g., a cron job) to check for documents expiring within 7 days.
-  - An email service integration to send daily countdown reminders to users.
-  - Logic to automatically deactivate accounts if expired documents are not updated.
-- **Implement Settings/Documents for Institutions and Admins**: While the foundation is laid, the frontend pages for Institutions and Admins still need to be fully built out.
+- **Implement Email OTP Verification:** The user requested that the email address field in the Settings pages should be editable until verified via OTP, after which it should be locked. This feature is not yet implemented for Workforce and Employer accounts.
+- **Implement Mock Blockchain Credentials:** The credentialing system was built with a mock blockchain in mind. The actual logic for generating and verifying these credentials on a mock chain is not yet implemented.
 </pending_tasks>
+
 <current_work>
-The AI engineer was actively implementing a comprehensive document management system based on detailed user specifications. The user clarified that document requirements must differ by role:
--   **Workforce/Admins**: Must submit ID and Work Permit.
--   **Employers/Institutions**: Must submit Business Registration documents (e.g., Incorporation) and the primary user's ID.
+The most recent task was to fix a bug reported by the user: the greeting on the Institution dashboard did not display the contact person's name, and the header was not displaying the institution's information correctly (like the Employer header does).
 
-Furthermore, the user mandated that all validation-subject documents must have an issue date and an expiry date. This triggered the requirement for a new feature: an automated system to send email reminders for 7 days leading up to a document's expiration, which will deactivate the user's account if no action is taken.
+The root cause was identified: the institution's specific profile data (which contains the  field) was not being fetched from the backend when the  component loaded. The  function and the  component were trying to access , but  was empty or undefined because the API call to  was never made from the dashboard page.
 
-The last action taken was to begin implementing these specific requirements by modifying the backend document model. The file **** was edited to update the  dictionary, differentiating the document lists and their properties (, ) for each user type (, , ). The next logical step is to build out the backend logic for the reminder system and then update the frontend UI to capture the required issue/expiry dates.
+The AI engineer acknowledged this and was about to modify  to fetch this profile data using a  hook and , store it in the component's state, and then pass the correct data to the greeting message and the  component.
 </current_work>
+
 <optional_next_step>
-Continue implementing the document management system by creating the backend scheduler and email service for expiry reminders.
+Update  to fetch the institution's profile data on load and use it to display the personalized greeting and header information correctly.
 </optional_next_step>
