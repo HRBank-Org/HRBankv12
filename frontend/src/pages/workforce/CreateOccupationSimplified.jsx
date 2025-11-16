@@ -216,7 +216,7 @@ const CreateOccupationSimplified = () => {
         credentials: credentials
       };
       
-      await api.post('/api/workforce/occupation-profiles', profileData);
+      await api.post('/api/occupations', profileData);
       
       // If credentials added, send verification requests
       if (credentials.length > 0) {
