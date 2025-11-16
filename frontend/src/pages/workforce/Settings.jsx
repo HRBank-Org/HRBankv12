@@ -271,7 +271,8 @@ const WorkforceSettings = () => {
       setProfile({ ...profile, profile_photo_url: '' });
       setMessage({ type: 'success', text: 'Photo deleted successfully!' });
       
-      setTimeout(() => window.location.reload(), 1500);
+      // Navigate back to dashboard
+      setTimeout(() => navigate('/workforce/dashboard'), 1500);
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to delete photo' });
     }
