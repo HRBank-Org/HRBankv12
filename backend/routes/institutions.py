@@ -11,6 +11,69 @@ def get_db():
     from server import db
     return db
 
+@router.get("/me/profile", response_model=Dict)
+async def get_my_profile(
+    current_user: dict = Depends(require_role("institution")),
+    db = Depends(get_db)
+):
+    """Get institution profile"""
+    profile = await db.institution_profiles.find_one(
+        {"user_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found"
+        )
+    
+    return {
+        "success": True,
+        "data": profile
+    }
+
+@router.put("/me/profile", response_model=Dict)
+async def update_my_profile(
+    profile_data: dict,
+    current_user: dict = Depends(require_role("institution")),
+    db = Depends(get_db)
+):
+    """Update institution profile"""
+    # Remove fields that shouldn't be updated
+    update_data = {
+        "contact_name": profile_data.get("contact_name"),
+        "title": profile_data.get("title"),
+        "institution_name": profile_data.get("institution_name"),
+        "institution_logo_url": profile_data.get("institution_logo_url"),
+        "phone": profile_data.get("phone"),
+        "address": profile_data.get("address"),
+        "city": profile_data.get("city"),
+        "province": profile_data.get("province"),
+        "postal_code": profile_data.get("postal_code"),
+        "institution_type": profile_data.get("institution_type"),
+        "updated_at": datetime.utcnow().isoformat()
+    }
+    
+    # Remove None values
+    update_data = {k: v for k, v in update_data.items() if v is not None}
+    
+    result = await db.institution_profiles.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found or no changes made"
+        )
+    
+    return {
+        "success": True,
+        "message": "Profile updated successfully"
+    }
+
 @router.get("/me/verification-queue", response_model=Dict)
 async def get_verification_queue(
     status_filter: str = Query("pending", alias="status"),
