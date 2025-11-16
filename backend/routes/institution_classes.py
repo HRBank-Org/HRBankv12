@@ -41,7 +41,7 @@ async def get_class_templates(
 
 
 @router.post("/class-templates", response_model=Dict)
-@require_role(["institution"])
+
 async def create_class_template(
     template_data: dict,
     current_user: dict = Depends(get_current_user),
@@ -66,7 +66,7 @@ async def create_class_template(
 
 
 @router.put("/class-templates/{template_id}", response_model=Dict)
-@require_role(["institution"])
+
 async def update_class_template(
     template_id: str,
     template_data: dict,
@@ -105,7 +105,7 @@ async def update_class_template(
 
 
 @router.delete("/class-templates/{template_id}", response_model=Dict)
-@require_role(["institution"])
+
 async def delete_class_template(
     template_id: str,
     current_user: dict = Depends(get_current_user),
@@ -135,7 +135,7 @@ async def delete_class_template(
 # ==================== CLASSES ====================
 
 @router.get("/classes", response_model=Dict)
-@require_role(["institution"])
+
 async def get_classes(
     status_filter: str = None,
     current_user: dict = Depends(get_current_user),
@@ -158,7 +158,7 @@ async def get_classes(
 
 
 @router.get("/classes/{class_id}", response_model=Dict)
-@require_role(["institution"])
+
 async def get_class_details(
     class_id: str,
     current_user: dict = Depends(get_current_user),
@@ -200,7 +200,7 @@ async def get_class_details(
 
 
 @router.post("/classes", response_model=Dict)
-@require_role(["institution"])
+
 async def create_class(
     class_data: dict,
     current_user: dict = Depends(get_current_user),
@@ -230,7 +230,7 @@ async def create_class(
 
 
 @router.put("/classes/{class_id}", response_model=Dict)
-@require_role(["institution"])
+
 async def update_class(
     class_id: str,
     class_data: dict,
@@ -272,7 +272,7 @@ async def update_class(
 
 
 @router.delete("/classes/{class_id}", response_model=Dict)
-@require_role(["institution"])
+
 async def delete_class(
     class_id: str,
     current_user: dict = Depends(get_current_user),
@@ -308,7 +308,7 @@ async def delete_class(
 # ==================== STUDENT INVITATIONS ====================
 
 @router.post("/students/invite", response_model=Dict)
-@require_role(["institution"])
+
 async def invite_students(
     invitation_data: dict,
     current_user: dict = Depends(get_current_user),
@@ -392,7 +392,7 @@ async def invite_students(
 # ==================== CREDENTIAL ISSUANCE ====================
 
 @router.post("/credentials/issue", response_model=Dict)
-@require_role(["institution"])
+
 async def issue_credentials(
     issuance_data: dict,
     current_user: dict = Depends(get_current_user),
@@ -476,7 +476,7 @@ async def issue_credentials(
 
 
 @router.get("/credentials/issued", response_model=Dict)
-@require_role(["institution"])
+
 async def get_issued_credentials(
     class_id: str = None,
     current_user: dict = Depends(get_current_user),
@@ -517,7 +517,7 @@ async def get_issued_credentials(
 # ==================== VERIFICATION REQUESTS ====================
 
 @router.get("/verification-requests", response_model=Dict)
-@require_role(["institution"])
+
 async def get_verification_requests(
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
@@ -546,7 +546,7 @@ async def get_verification_requests(
 
 
 @router.post("/verification-requests/{request_id}/verify", response_model=Dict)
-@require_role(["institution"])
+
 async def verify_credential_request(
     request_id: str,
     verification_data: dict,
@@ -599,7 +599,7 @@ async def verify_credential_request(
 
 
 @router.post("/verification-requests/{request_id}/reject", response_model=Dict)
-@require_role(["institution"])
+
 async def reject_credential_request(
     request_id: str,
     rejection_data: dict,
@@ -640,7 +640,7 @@ async def reject_credential_request(
 # ==================== DASHBOARD ANALYTICS ====================
 
 @router.get("/analytics/dashboard", response_model=Dict)
-@require_role(["institution"])
+
 async def get_dashboard_analytics(
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
