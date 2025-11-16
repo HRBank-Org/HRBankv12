@@ -105,6 +105,18 @@
 user_problem_statement: "Enhance user headers across all pages: 1) Workers: Display name and profile photo, 2) Employers: Show user name and company name with short address (street-city), no photo, 3) Institutions: Show user name and institution name with short address (street-city), no photo."
 
 backend:
+  - task: "User Profile API - Complete User Data for Headers"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/users.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Verified that GET /api/users/me endpoint returns complete profile data for all user types. Returns: user_id, email, user_type, profile_status, and type-specific profile object. Workforce profile includes: full_name, profile_photo_url. Employer profile includes: contact_person, company_name, address, city. Institution profile includes: contact_person, institution_name, address. This data is used by the new UserHeader component to display personalized headers."
+
   - task: "Enhanced Occupation Profiles API - Credential Details & Employment History"
     implemented: true
     working: true
