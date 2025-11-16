@@ -61,8 +61,19 @@ export const AuthProvider = ({ children }) => {
       // Set basic user info - will be enriched by fetchCurrentUser
       setUser({ user_id, email, user_type });
       
-      // Fetch complete profile data
-      await fetchCurrentUser();
+      // Fetch complete profile data with the new token
+      try {
+        const profileResponse = await axios.get(`${API_URL}/api/users/me`, {
+          headers: {
+            Authorization: `Bearer ${access_token}`
+          }
+        });
+        // Store complete user data including profile
+        setUser(profileResponse.data.data);
+      } catch (profileError) {
+        console.warn('Failed to fetch user profile:', profileError);
+        // Don't logout on profile fetch failure during login
+      }
       
       return response.data;
     } catch (error) {
