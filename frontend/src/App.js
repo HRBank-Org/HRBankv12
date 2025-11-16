@@ -31,6 +31,8 @@ import EmploymentHistory from './pages/workforce/EmploymentHistory';
 import WorkforceSettings from './pages/workforce/Settings';
 import WorkforceDocuments from './pages/workforce/Documents';
 import EmployerSettings from './pages/employer/Settings';
+import EmployerDocuments from './pages/employer/Documents';
+import InstitutionDocuments from './pages/institution/Documents';
 import Messages from './pages/common/Messages';
 import Notifications from './pages/common/Notifications';
 import Settings from './pages/common/Settings';
