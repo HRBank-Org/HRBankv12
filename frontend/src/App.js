@@ -129,6 +129,10 @@ function AppRoutes() {
         <Route path="/auth/google/callback" element={<GoogleCallback />} />
         <Route path="/pending-approval" element={<PendingApproval />} />
         
+        {/* Legal Pages */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        
         {/* Workforce Routes */}
         <Route path="/workforce/onboarding" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceOnboarding /></ProtectedRoute>} />
         <Route path="/workforce/profile-wizard" element={<ProtectedRoute allowedUserTypes={['workforce']}><ProfileWizard /></ProtectedRoute>} />
