@@ -26,6 +26,19 @@ async def get_current_user_profile(
     profile = None
     if user_type == "workforce":
         profile = await db.workforce_profiles.find_one({"workforce_id": user_id}, {"_id": 0})
+        
+        # Add occupation titles and behavior rating for workforce
+        if profile:
+            # Get occupation profiles
+            occupations = await db.occupation_profiles.find(
+                {"workforce_id": user_id},
+                {"occupation_title": 1, "_id": 0}
+            ).to_list(3)
+            
+            profile["occupation_titles"] = [occ.get("occupation_title") for occ in occupations if occ.get("occupation_title")]
+            profile["behavior_rating"] = profile.get("general_rating_avg", 0.0)
+            profile["behavior_rating_count"] = profile.get("general_rating_count", 0)
+            
     elif user_type == "employer":
         profile = await db.employer_profiles.find_one({"employer_id": user_id}, {"_id": 0})
     elif user_type == "institution":
