@@ -349,51 +349,73 @@ const WorkforceSettings = () => {
           <h2 className="text-xl font-bold text-gray-900 mb-6">Personal Information</h2>
 
           <div className="space-y-6">
-            {/* Name Fields */}
+            {/* Name Fields - Always Editable */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  First Name {isAccountActive && <span className="text-gray-400">(locked)</span>}
+                  First Name
                 </label>
                 <input
                   type="text"
                   value={profile.first_name}
                   onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                  disabled={isAccountActive}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 ${isAccountActive ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
                   style={{ focusRing: theme.primaryColor }}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Last Name {isAccountActive && <span className="text-gray-400">(locked)</span>}
+                  Last Name
                 </label>
                 <input
                   type="text"
                   value={profile.last_name}
                   onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                  disabled={isAccountActive}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 ${isAccountActive ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
                   style={{ focusRing: theme.primaryColor }}
                 />
               </div>
             </div>
 
-            {/* Profile Photo URL */}
+            {/* Profile Photo Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Profile Photo URL {isAccountActive && <span className="text-gray-400">(locked)</span>}
+                Profile Photo
               </label>
-              <input
-                type="text"
-                value={profile.profile_photo_url}
-                onChange={(e) => setProfile({ ...profile, profile_photo_url: e.target.value })}
-                disabled={isAccountActive}
-                placeholder="https://example.com/photo.jpg"
-                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 ${isAccountActive ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                style={{ focusRing: theme.primaryColor }}
-              />
-              <p className="text-xs text-gray-500 mt-1">Enter a direct link to your profile photo</p>
+              <div className="flex items-center gap-4">
+                {profile.profile_photo_url && (
+                  <img 
+                    src={profile.profile_photo_url.startsWith('http') ? profile.profile_photo_url : `${process.env.REACT_APP_BACKEND_URL}${profile.profile_photo_url}`}
+                    alt="Profile" 
+                    className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                  />
+                )}
+                <div className="flex-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2 border-2 rounded-lg font-medium hover:bg-gray-50 transition-all"
+                    style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
+                  >
+                    {profile.profile_photo_url ? 'Change Photo' : 'Upload Photo'}
+                  </button>
+                  {profile.profile_photo_url && (
+                    <button
+                      onClick={handleDeletePhoto}
+                      className="ml-2 px-4 py-2 border-2 border-red-500 text-red-500 rounded-lg font-medium hover:bg-red-50 transition-all"
+                    >
+                      Delete
+                    </button>
+                  )}
+                  <p className="text-xs text-gray-500 mt-2">Upload a square photo for best results. Max 5MB.</p>
+                </div>
+              </div>
             </div>
 
             {/* Email - Always locked but can be verified */}
