@@ -85,12 +85,33 @@ ADMIN_DOCUMENT_TYPES = {
 }
 
 EMPLOYER_DOCUMENT_TYPES = {
+    'business_registration': {
+        'name': 'Business Registration',
+        'description': 'Certificate of Incorporation or Sole Proprietorship registration',
+        'required': True,
+        'has_expiry': False,
+        'has_number': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': False,
+        'activates_account': True
+    },
+    'government_id': {
+        'name': 'Government ID (Contact Person)',
+        'description': 'Valid government-issued photo ID of the contact person',
+        'required': True,
+        'has_expiry': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
+        'activates_account': True
+    },
     'business_license': {
         'name': 'Business License',
         'description': 'Provincial/Municipal business license',
         'required': True,
         'has_expiry': True,
         'has_number': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
         'activates_account': True
     },
     'business_number': {
@@ -100,6 +121,8 @@ EMPLOYER_DOCUMENT_TYPES = {
         'has_expiry': False,
         'has_number': True,
         'number_format': '9 digits',
+        'requires_issue_date': False,
+        'requires_expiry_date': False,
         'activates_account': True
     },
     'payroll_number': {
@@ -109,6 +132,8 @@ EMPLOYER_DOCUMENT_TYPES = {
         'has_expiry': False,
         'has_number': True,
         'number_format': 'XXXXXXXXX RP 0001',
+        'requires_issue_date': False,
+        'requires_expiry_date': False,
         'activates_account': True
     },
     'gst_hst_number': {
@@ -118,6 +143,8 @@ EMPLOYER_DOCUMENT_TYPES = {
         'has_expiry': False,
         'has_number': True,
         'number_format': 'XXXXXXXXX RT 0001',
+        'requires_issue_date': False,
+        'requires_expiry_date': False,
         'activates_account': True
     }
 }
