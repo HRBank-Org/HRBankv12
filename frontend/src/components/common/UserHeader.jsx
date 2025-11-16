@@ -83,7 +83,8 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
         </div>
       );
     } else if (userType === 'institution') {
-      // Institution: Show institution logo (optional), contact person, institution name + address
+      // Institution: Show institution logo (optional), contact person with title, institution name + address
+      const fullName = profile.full_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.contact_name || profile.contact_person || 'Institution';
       const street = profile.address?.split(',')[0] || profile.address || '';
       const city = profile.city || '';
       const shortAddress = `${street}${city ? ' - ' + city : ''}`;
@@ -100,7 +101,10 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
           )}
           {/* Institution Info */}
           <div className="text-white">
-            <p className="font-semibold text-sm leading-tight">{profile.contact_name || profile.contact_person || 'Institution'}</p>
+            <p className="font-semibold text-sm leading-tight">
+              {fullName}
+              {profile.title && ` • ${profile.title}`}
+            </p>
             <p className="text-xs opacity-90 font-medium">{profile.institution_name}</p>
             {shortAddress && (
               <p className="text-xs opacity-75">{shortAddress}</p>
@@ -109,27 +113,36 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
         </div>
       );
     } else if (userType === 'admin') {
-      // Admin: Show admin photo (optional) and name
+      // Admin: Show admin photo (optional), name with title, and region
+      const fullName = profile.full_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Admin';
+      const region = profile.assigned_provinces?.[0] || profile.assigned_zones?.[0];
+      
       return (
         <div className="flex items-center gap-3">
           {/* Admin Photo */}
           {profile.profile_photo_url ? (
             <img
               src={profile.profile_photo_url}
-              alt={profile.full_name}
+              alt={fullName}
               className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
             />
-          ) : profile.full_name && (
+          ) : (
             <div 
               className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm border-2 border-white shadow-sm bg-black"
             >
-              {getInitials(profile.full_name)}
+              {getInitials(fullName)}
             </div>
           )}
           {/* Admin Info */}
           <div className="text-white">
-            <p className="font-semibold text-sm leading-tight">{profile.full_name || 'Admin'}</p>
-            <p className="text-xs opacity-90">Administrator{profile.is_super_admin ? ' • Super Admin' : ''}</p>
+            <p className="font-semibold text-sm leading-tight">
+              {fullName}
+              {profile.title && ` • ${profile.title}`}
+            </p>
+            <p className="text-xs opacity-90">
+              {profile.is_super_admin ? 'Super Admin' : 'Administrator'}
+              {region && ` • ${region}`}
+            </p>
           </div>
         </div>
       );
