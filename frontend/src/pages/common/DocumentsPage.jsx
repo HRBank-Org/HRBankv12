@@ -59,6 +59,7 @@ const DocumentsPage = () => {
       file: null,
       fileName: '',
       filePreview: null,
+      document_number: '',
       issue_date: '',
       expiry_date: '',
       notes: ''
@@ -72,6 +73,7 @@ const DocumentsPage = () => {
       file: null,
       fileName: '',
       filePreview: null,
+      document_number: '',
       issue_date: '',
       expiry_date: '',
       notes: ''
