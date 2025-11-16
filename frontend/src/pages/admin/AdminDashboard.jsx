@@ -45,28 +45,20 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-blue-600 text-white px-4 py-4 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold">HR Bank Admin Dashboard</h1>
+      {/* UserHeader Component */}
+      <UserHeader 
+        title={
+          <div className="flex items-center gap-3">
+            <span>HR Bank Admin Dashboard</span>
             {adminProfile?.is_super_admin && (
               <span className="px-3 py-1 bg-yellow-500 text-yellow-900 text-xs font-bold rounded-full">
                 SUPER ADMIN
               </span>
             )}
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">{user?.full_name}</span>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg text-sm"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+        }
+        showBack={false}
+      />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Admin Info */}
