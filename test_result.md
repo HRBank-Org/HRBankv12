@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Fix Occupation Profiles display page: 1) Remove 'preferred rate' field if visible, 2) Show years of experience and employment history (companies worked for), 3) Display certification verification status (Pending/Verified/Rejected), 4) Redesign as attractive resume cards, 5) Add inline editing for skills section."
+user_problem_statement: "Enhance user headers across all pages: 1) Workers: Display name and profile photo, 2) Employers: Show user name and company name with short address (street-city), no photo, 3) Institutions: Show user name and institution name with short address (street-city), no photo."
 
 backend:
   - task: "Enhanced Occupation Profiles API - Credential Details & Employment History"
