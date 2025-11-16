@@ -42,8 +42,12 @@ const WorkforceSettings = () => {
 
   const loadProfile = async () => {
     try {
-      const response = await api.get('/api/workforce/me/profile');
-      const data = response.data.data;
+      const [profileRes, verificationRes] = await Promise.all([
+        api.get('/api/workforce/me/profile'),
+        api.get('/api/otp/verification-status')
+      ]);
+      
+      const data = profileRes.data.data;
       setProfile({
         first_name: data.first_name || '',
         last_name: data.last_name || '',
@@ -55,11 +59,83 @@ const WorkforceSettings = () => {
         province: data.province || '',
         postal_code: data.postal_code || ''
       });
+      
+      setVerificationStatus(verificationRes.data);
     } catch (error) {
       console.error('Failed to load profile:', error);
       setMessage({ type: 'error', text: 'Failed to load profile settings' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSendOTP = async (type, contact) => {
+    setSendingOtp(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      const response = await api.post('/api/otp/send-otp', {
+        contact,
+        type
+      });
+      
+      // Show OTP in test mode
+      if (response.data.test_mode && response.data.otp) {
+        setMessage({ 
+          type: 'success', 
+          text: `TEST MODE: Your OTP is ${response.data.otp}` 
+        });
+      } else {
+        setMessage({ 
+          type: 'success', 
+          text: `OTP sent to ${contact}` 
+        });
+      }
+      
+      setOtpModal({ show: true, type, contact });
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.detail || 'Failed to send OTP' 
+      });
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    setVerifyingOtp(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      await api.post('/api/otp/verify-otp', {
+        contact: otpModal.contact,
+        type: otpModal.type,
+        code: otpCode
+      });
+      
+      setMessage({ 
+        type: 'success', 
+        text: `${otpModal.type === 'phone' ? 'Phone' : 'Email'} verified successfully!` 
+      });
+      
+      // Update verification status
+      setVerificationStatus(prev => ({
+        ...prev,
+        [`${otpModal.type}_verified`]: true
+      }));
+      
+      // Close modal and reset
+      setOtpModal({ show: false, type: '', contact: '' });
+      setOtpCode('');
+      
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.detail || 'Invalid OTP code' 
+      });
+    } finally {
+      setVerifyingOtp(false);
     }
   };
 
