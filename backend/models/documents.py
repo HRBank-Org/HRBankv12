@@ -9,14 +9,18 @@ class Document(BaseModel):
     
     document_id: str = Field(default_factory=lambda: f"doc_{uuid.uuid4().hex[:12]}")
     user_id: str
-    user_type: str  # workforce, employer, institution
+    user_type: str  # workforce, employer, institution, admin
     
     # Document details
     document_type: str
     document_name: str
-    file_url: str
-    file_type: str
-    file_size: int
+    file_url: Optional[str] = None  # Optional for number-only documents
+    file_type: Optional[str] = None
+    file_size: Optional[int] = None
+    
+    # Document/License numbers (for BN, Payroll, GST/HST, License numbers)
+    document_number: Optional[str] = None
+    issuing_authority: Optional[str] = None
     
     # Validity tracking
     issue_date: Optional[str] = None
@@ -25,10 +29,11 @@ class Document(BaseModel):
     days_until_expiry: Optional[int] = None
     
     # Verification
-    verification_status: str = 'pending'
+    verification_status: str = 'pending'  # pending, approved, rejected
     verified_by: Optional[str] = None
     verified_date: Optional[str] = None
     rejection_reason: Optional[str] = None
+    activates_account: bool = False  # If true, account activates when approved
     
     # Metadata
     uploaded_date: datetime = Field(default_factory=datetime.utcnow)
