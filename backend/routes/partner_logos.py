@@ -7,18 +7,42 @@ import logging
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/partner-logos", tags=["partner-logos"])
 
-@router.get("/", response_model=List[PartnerLogoResponse])
+@router.get("/")
 async def get_partner_logos():
     """
-    Get all active partner logos for the carousel
+    Get all active institution partner logos from institution_profiles for the carousel
     """
     try:
         db = await get_database()
-        logos = await db.partner_logos.find({"is_active": True}).sort("uploaded_at", -1).to_list(100)
-        return [PartnerLogoResponse(**logo) for logo in logos]
+        
+        # Fetch institutions that have logos uploaded
+        institutions = await db.institution_profiles.find(
+            {
+                "institution_logo_url": {"$exists": True, "$ne": ""},
+                "onboarding_completed": True
+            },
+            {
+                "_id": 0,
+                "institution_id": 1,
+                "institution_name": 1,
+                "institution_logo_url": 1
+            }
+        ).limit(20).to_list(20)
+        
+        # Format response for carousel
+        partner_logos = []
+        for inst in institutions:
+            partner_logos.append({
+                "id": inst.get("institution_id", ""),
+                "institution_name": inst.get("institution_name", "Partner Institution"),
+                "logo_url": inst.get("institution_logo_url", "")
+            })
+        
+        return partner_logos
     except Exception as e:
         logger.error(f"Error fetching partner logos: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch partner logos")
+        # Return empty list on error instead of raising exception (for graceful degradation)
+        return []
 
 @router.post("/", response_model=PartnerLogoResponse)
 async def create_partner_logo(logo_data: PartnerLogoCreate, institution_id: str):
