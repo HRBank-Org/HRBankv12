@@ -23,8 +23,13 @@ const ClockInOut = () => {
       const shiftData = shiftsRes.data.data.shifts.find(s => s.booking_id === bookingId);
       setBooking(shiftData);
       
-      // Check if already has attendance record
-      // TODO: Add endpoint to check attendance status
+      // Check attendance status
+      try {
+        const attendanceRes = await api.get(`/api/attendance/booking/${bookingId}/status`);
+        setAttendance(attendanceRes.data.data.attendance);
+      } catch (error) {
+        console.log('No attendance record yet');
+      }
     } catch (error) {
       console.error('Failed to load booking:', error);
     } finally {
