@@ -261,7 +261,7 @@ const InstitutionDashboard = () => {
                   <div 
                     key={cls.class_id} 
                     onClick={() => navigate(`/institution/classes/${cls.class_id}`)}
-                    className="flex items-center justify-between p-4 rounded-lg hover:bg-indigo-50 cursor-pointer transition-all border border-transparent hover:border-indigo-200"
+                    className="flex items-center justify-between p-4 rounded-lg hover:bg-slate-50 cursor-pointer transition-all border border-transparent hover:border-slate-200"
                   >
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900">{cls.title}</p>
