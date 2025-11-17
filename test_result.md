@@ -711,6 +711,18 @@ agent_communication:
         -agent: "main"
         -comment: "Processed user-provided PWA icons for deployment. Created icons directory at /app/frontend/public/icons/. Downloaded and resized three image files from user's assets: 1) HRB App Icon Employer.jpg → icon-employer-192x192.png (28KB), icon-employer-512x512.png (134KB), 2) HRB App Icon Workforce.jpg → icon-workforce-192x192.png (28KB), icon-workforce-512x512.png (127KB), 3) HR Bank Logo.png → favicon-32x32.png (1.9KB), favicon-64x64.png (5.1KB), favicon.ico (751 bytes). Updated manifest-employer.json to reference /icons/icon-employer-192x192.png and icon-employer-512x512.png. Updated manifest-workforce.json to reference /icons/icon-workforce-192x192.png and icon-workforce-512x512.png. Updated index.html with favicon links (favicon.ico, favicon-32x32.png, favicon-64x64.png) and changed page title to 'HR Bank - Workforce Management Platform'. All icons created using Pillow with proper resizing (LANCZOS resampling) and optimization. PWA icons ready for subdomain deployment strategy (employer.hrbank.ca and workforce.hrbank.ca)."
 
+  - task: "Ontario Minimum Wage Update - Payroll Calculations"
+    implemented: true
+    working: true
+    file: "/app/backend/services/payroll_calculations.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Updated Ontario minimum wage from $16.55/hour to $17.60/hour as per user correction. This affects the validate_minimum_wage() function which ensures all payroll calculations meet Ontario's legal minimum wage requirements. The ONTARIO_MINIMUM_WAGE constant is used throughout payroll calculations to validate hourly rates and gross pay amounts. Backend restarted successfully after update. Ready for comprehensive testing to verify minimum wage validation is working correctly with new rate."
+
 
 frontend:
   - task: "Document Management Pages with Expiry Warnings - All User Types"
