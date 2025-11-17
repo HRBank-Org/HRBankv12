@@ -42,7 +42,7 @@ FEDERAL_BPA = 15705.00
 ONTARIO_BPA = 11865.00
 
 # Ontario Minimum Wage 2024
-ONTARIO_MINIMUM_WAGE = 16.55  # per hour as of Oct 2024
+ONTARIO_MINIMUM_WAGE = 17.60  # per hour as of Oct 2024
 
 
 def calculate_cpp_deduction(gross_pay_ytd: float, current_gross: float) -> Dict[str, float]:
