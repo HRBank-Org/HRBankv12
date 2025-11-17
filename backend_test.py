@@ -2960,28 +2960,91 @@ def test_document_expiry_system(results, admin_token):
         results.add_fail("Admin endpoint authorization test", f"Request failed: {str(e)}")
 
 
+def test_hr_bank_health_check(results):
+    """Quick health check test for HR Bank backend after PWA icon implementation"""
+    print("\n🧪 HR Bank Backend Health Check...")
+    
+    # Test 1: Backend service health check
+    try:
+        response = requests.get(f"{BASE_URL}/", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if "message" in data:
+                results.add_pass("Backend service health check")
+            else:
+                results.add_fail("Backend service health check", f"Unexpected response: {data}")
+        else:
+            results.add_fail("Backend service health check", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Backend service health check", f"Connection failed: {str(e)}")
+    
+    # Test 2: Admin authentication with provided credentials
+    admin_credentials = {
+        "email": "qnizami@hrbank.ca",
+        "password": "Tabaghnak@3891",
+        "user_type": "admin"
+    }
+    
+    admin_token = None
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=admin_credentials, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "access_token" in data.get("data", {}) and
+                data.get("data", {}).get("user_type") == "admin"):
+                
+                admin_token = data["data"]["access_token"]
+                results.add_pass("Admin authentication (qnizami@hrbank.ca)")
+            else:
+                results.add_fail("Admin authentication", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Admin authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Admin authentication", f"Request failed: {str(e)}")
+    
+    # Test 3: Protected endpoint with admin token
+    if admin_token:
+        try:
+            response = requests.get(
+                f"{BASE_URL}/admin/analytics/platform",
+                headers={"Authorization": f"Bearer {admin_token}"},
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and data.get("data"):
+                    results.add_pass("Protected endpoint access (GET /api/admin/analytics/platform)")
+                else:
+                    results.add_fail("Protected endpoint access", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("Protected endpoint access", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Protected endpoint access", f"Request failed: {str(e)}")
+    else:
+        results.add_fail("Protected endpoint access", "No admin token available")
+
 def main():
-    """Run Institution Dashboard Profile API Tests"""
-    print("🚀 Starting HR Bank Institution Dashboard Profile API Tests")
+    """Run health check tests"""
+    print("🚀 Starting HR Bank Backend Health Check...")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
     results = TestResults()
     
-    # Test backend connectivity first
-    test_backend_connectivity(results)
-    
-    # Test Institution Profile API comprehensively (main focus)
-    test_institution_profile_api_comprehensive(results)
+    # Run focused health check tests
+    test_hr_bank_health_check(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All Institution Profile API tests passed!")
+        print("\n🎉 All health check tests passed!")
         return 0
     else:
-        print("\n💥 Some Institution Profile API tests failed. Check the errors above.")
+        print(f"\n💥 {results.failed} health check test(s) failed!")
         return 1
 
 def test_invitation_system(results):
