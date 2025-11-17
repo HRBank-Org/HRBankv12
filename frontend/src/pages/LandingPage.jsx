@@ -207,7 +207,7 @@ const LandingPage = () => {
             <div className="flex flex-wrap gap-3 justify-end">
               <Button
                 size="default"
-                onClick={() => navigate('/signup')}
+                onClick={() => document.getElementById('categories').scrollIntoView({ behavior: 'smooth' })}
                 className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-10 px-6"
               >
                 Get Started
