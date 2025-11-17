@@ -187,7 +187,7 @@ const InstitutionDashboard = () => {
         {/* Quick Actions */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-1 h-8 bg-gradient-to-b from-indigo-600 to-purple-600 rounded-full"></div>
+            <div className="w-1 h-8 bg-gradient-to-b from-slate-700 to-slate-800 rounded-full"></div>
             <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -196,42 +196,42 @@ const InstitutionDashboard = () => {
               title="Create New Class"
               description="Start a new class and enroll students"
               onClick={() => navigate('/institution/classes/create')}
-              color="#6366f1"
+              color="#1e40af"
             />
             <QuickActionCard
               icon="📝"
               title="Manage Templates"
               description="Create and manage class templates"
               onClick={() => navigate('/institution/templates')}
-              color="#a855f7"
+              color="#334155"
             />
             <QuickActionCard
               icon="🎓"
               title="Issue Credentials"
               description="Issue credentials to students"
               onClick={() => navigate('/institution/credentials/issue')}
-              color="#10b981"
+              color="#1e3a8a"
             />
             <QuickActionCard
               icon="📧"
               title="Invite Students"
               description="Send invitations to new students"
               onClick={() => navigate('/institution/students/invite')}
-              color="#f59e0b"
+              color="#475569"
             />
             <QuickActionCard
               icon="✅"
               title="Verify Credentials"
               description="Review pending verification requests"
               onClick={() => navigate('/institution/verification-requests')}
-              color="#ec4899"
+              color="#1e293b"
             />
             <QuickActionCard
               icon="📄"
               title="View All Credentials"
               description="See all issued credentials"
               onClick={() => navigate('/institution/credentials')}
-              color="#06b6d4"
+              color="#0f172a"
             />
           </div>
         </div>
