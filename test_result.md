@@ -632,7 +632,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "COMPREHENSIVE PRE-DEPLOYMENT BACKEND TESTING COMPLETED"
+    - "COMPREHENSIVE PRE-DEPLOYMENT FRONTEND TESTING IN PROGRESS"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
