@@ -27,7 +27,14 @@ const LandingPage = () => {
         const response = await fetch(`${API}/partner-logos/`);
         const data = await response.json();
         if (data && data.length > 0) {
-          setPartnerLogos(data);
+          // Process logo URLs - prepend backend URL if they're relative paths
+          const processedLogos = data.map(logo => ({
+            ...logo,
+            logo_url: logo.logo_url.startsWith('http') 
+              ? logo.logo_url 
+              : `${BACKEND_URL}${logo.logo_url}`
+          }));
+          setPartnerLogos(processedLogos);
         }
       } catch (error) {
         console.error('Error fetching partner logos:', error);
