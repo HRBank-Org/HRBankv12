@@ -697,6 +697,18 @@ agent_communication:
         -agent: "testing"
         -comment: "COMPREHENSIVE INSTITUTION DASHBOARD PROFILE API TESTING COMPLETED SUCCESSFULLY (23/23 tests passed). ✅ Authentication & Authorization: GET/PUT endpoints properly require authentication (401/403 without auth), role-based access control working (workforce users blocked from institution endpoints). ✅ Profile Retrieval Tests: Successfully tested with test_inst_fix@hrbank.ca user, API returns complete profile data including contact_name='Updated John Smith', institution_name='Updated Test University', address='456 Updated Street', city='Updated City', phone, and institution_type fields, $or query compatibility verified (works with both institution_id and user_id fields). ✅ Profile Update Tests: PUT endpoint successfully updates existing profiles, creates new profiles for users without one, stores both institution_id and user_id fields for full compatibility, partial updates work correctly (only specified fields changed), all database operations complete successfully. ✅ Backwards Compatibility: API can fetch profiles using either institution_id OR user_id field via $or query, profile updates store both fields ensuring compatibility with existing and new data structures, verified existing profiles with institution_id field work correctly. ✅ New User Profile Creation: New institution users get appropriate profile structure (either empty default or created during signup), profile creation via PUT works correctly with all required fields, both user_id and institution_id fields stored properly. ✅ Data Integrity: All required fields present (contact_name, institution_name, address, city, phone), optional fields handled correctly (institution_type), profile updates preserve existing data when doing partial updates. Institution Dashboard Profile API fix is fully functional and production-ready."
 
+  - task: "PWA Icons & Favicon - Processing and Implementation"
+    implemented: true
+    working: true
+    file: "/app/frontend/public/icons/, /app/frontend/public/manifest-employer.json, /app/frontend/public/manifest-workforce.json, /app/frontend/public/index.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Processed user-provided PWA icons for deployment. Created icons directory at /app/frontend/public/icons/. Downloaded and resized three image files from user's assets: 1) HRB App Icon Employer.jpg → icon-employer-192x192.png (28KB), icon-employer-512x512.png (134KB), 2) HRB App Icon Workforce.jpg → icon-workforce-192x192.png (28KB), icon-workforce-512x512.png (127KB), 3) HR Bank Logo.png → favicon-32x32.png (1.9KB), favicon-64x64.png (5.1KB), favicon.ico (751 bytes). Updated manifest-employer.json to reference /icons/icon-employer-192x192.png and icon-employer-512x512.png. Updated manifest-workforce.json to reference /icons/icon-workforce-192x192.png and icon-workforce-512x512.png. Updated index.html with favicon links (favicon.ico, favicon-32x32.png, favicon-64x64.png) and changed page title to 'HR Bank - Workforce Management Platform'. All icons created using Pillow with proper resizing (LANCZOS resampling) and optimization. PWA icons ready for subdomain deployment strategy (employer.hrbank.ca and workforce.hrbank.ca)."
+
 
 frontend:
   - task: "Document Management Pages with Expiry Warnings - All User Types"
