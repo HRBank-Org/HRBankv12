@@ -289,7 +289,14 @@ const LandingPage = () => {
                     {/* Action Buttons */}
                     <div className="space-y-2">
                       <Button
-                        onClick={() => navigate(`/signup?type=${category.id}`)}
+                        onClick={() => {
+                          const urls = {
+                            'workforce': WORKFORCE_URL,
+                            'employer': EMPLOYER_URL,
+                            'institution': INSTITUTION_URL
+                          };
+                          window.location.href = urls[category.id];
+                        }}
                         className={`w-full ${category.buttonColor} text-white h-11`}
                       >
                         Sign Up
