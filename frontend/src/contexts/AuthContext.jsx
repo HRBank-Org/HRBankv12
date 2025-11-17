@@ -13,20 +13,11 @@ export const AuthProvider = ({ children }) => {
     refreshToken: localStorage.getItem('refresh_token')
   });
 
-  useEffect(() => {
-    // Check if user is logged in on mount or when token changes
-    if (tokens.accessToken) {
-      fetchCurrentUser();
-    } else {
-      setLoading(false);
-    }
-  }, [tokens.accessToken]);
-
-  const fetchCurrentUser = async () => {
+  const fetchCurrentUser = async (token) => {
     try {
       const response = await axios.get(`${API_URL}/api/users/me`, {
         headers: {
-          Authorization: `Bearer ${tokens.accessToken}`
+          Authorization: `Bearer ${token}`
         }
       });
       // Store complete user data including profile
@@ -38,6 +29,15 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Check if user is logged in on mount or when token changes
+    if (tokens.accessToken) {
+      fetchCurrentUser(tokens.accessToken);
+    } else {
+      setLoading(false);
+    }
+  }, [tokens.accessToken]);
 
   const signup = async (userData) => {
     try {
