@@ -10,6 +10,13 @@ const API = `${BACKEND_URL}/api`;
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  
+  // Subdomain URLs for branded portals
+  const EMPLOYER_URL = process.env.REACT_APP_EMPLOYER_URL || 'https://employer.hrbank.ca';
+  const WORKFORCE_URL = process.env.REACT_APP_WORKFORCE_URL || 'https://workforce.hrbank.ca';
+  const INSTITUTION_URL = process.env.REACT_APP_INSTITUTION_URL || 'https://institution.hrbank.ca';
+  const ADMIN_URL = process.env.REACT_APP_ADMIN_URL || 'https://admin.hrbank.ca';
+  
   const [partnerLogos, setPartnerLogos] = useState([
     // Default mock logos shown until real logos are loaded
     { id: 1, institution_name: 'Partner 1', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+1' },
