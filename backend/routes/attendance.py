@@ -329,4 +329,194 @@ async def clock_out(
         }
     )
     
-    return timesheet.timesheet_id
+    return {
+        "success": True,
+        "data": {"timesheet_id": timesheet.timesheet_id},
+        "message": "Clocked out successfully"
+    }
+
+
+@router.get("/booking/{booking_id}/status", response_model=Dict)
+async def get_attendance_status(
+    booking_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get attendance status for a booking"""
+    
+    # Verify booking belongs to user
+    booking = await db.bookings.find_one({"booking_id": booking_id, "workforce_id": current_user["user_id"]})
+    if not booking:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
+    
+    # Get attendance record
+    attendance = await db.attendance.find_one({"booking_id": booking_id}, {"_id": 0})
+    
+    return {
+        "success": True,
+        "data": {
+            "has_attendance": attendance is not None,
+            "attendance": attendance,
+            "status": attendance.get("status") if attendance else "not_started"
+        }
+    }
+
+
+@router.get("/shift/{shift_id}/workers", response_model=Dict)
+async def get_shift_attendance(
+    shift_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get all workers and their attendance for a shift (employer only)"""
+    
+    # Verify shift belongs to employer
+    shift = await db.shifts.find_one({"shift_id": shift_id})
+    if not shift:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")
+    
+    workplace = await db.workplaces.find_one({"workplace_id": shift["workplace_id"]})
+    if workplace["employer_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    
+    # Get all bookings for this shift
+    bookings = await db.bookings.find({"shift_id": shift_id}).to_list(100)
+    
+    # Get attendance for each booking
+    workers_attendance = []
+    for booking in bookings:
+        # Get worker info
+        worker = await db.users.find_one({"user_id": booking["workforce_id"]})
+        
+        # Get attendance
+        attendance = await db.attendance.find_one({"booking_id": booking["booking_id"]})
+        
+        workers_attendance.append({
+            "booking_id": booking["booking_id"],
+            "worker_id": booking["workforce_id"],
+            "worker_name": worker.get("full_name") if worker else "Unknown",
+            "worker_email": worker.get("email") if worker else "",
+            "booking_status": booking.get("status"),
+            "attendance_status": attendance.get("status") if attendance else "not_started",
+            "clock_in_time": attendance.get("clock_in_time") if attendance else None,
+            "clock_out_time": attendance.get("clock_out_time") if attendance else None,
+            "duration_hours": attendance.get("duration_hours") if attendance else None
+        })
+    
+    return {
+        "success": True,
+        "data": {
+            "shift_id": shift_id,
+            "workers": workers_attendance,
+            "total_workers": len(workers_attendance),
+            "clocked_in": len([w for w in workers_attendance if w["attendance_status"] == "clocked_in"]),
+            "clocked_out": len([w for w in workers_attendance if w["attendance_status"] == "clocked_out"])
+        }
+    }
+
+
+@router.get("/my-timesheets", response_model=Dict)
+async def get_my_timesheets(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get worker's timesheets"""
+    
+    timesheets = await db.timesheets.find(
+        {"workforce_id": current_user["user_id"]},
+        {"_id": 0}
+    ).sort("week_ending_date", -1).to_list(100)
+    
+    # Enrich with shift info
+    for ts in timesheets:
+        shift = await db.shifts.find_one({"shift_id": ts["shift_id"]})
+        if shift:
+            ts["shift_date"] = shift.get("shift_date")
+            workplace = await db.workplaces.find_one({"workplace_id": shift.get("workplace_id")})
+            if workplace:
+                ts["workplace_name"] = workplace.get("workplace_name")
+                employer = await db.users.find_one({"user_id": workplace.get("employer_id")})
+                if employer:
+                    ts["employer_name"] = employer.get("full_name")
+    
+    return {
+        "success": True,
+        "data": {
+            "timesheets": timesheets,
+            "total_timesheets": len(timesheets),
+            "total_hours": sum(ts.get("total_hours", 0) for ts in timesheets),
+            "total_earnings": sum(ts.get("net_pay", 0) for ts in timesheets)
+        }
+    }
+
+
+@router.get("/employer/timesheets", response_model=Dict)
+async def get_employer_timesheets(
+    status: str = None,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get employer's timesheets"""
+    
+    query = {"employer_id": current_user["user_id"]}
+    if status:
+        query["status"] = status
+    
+    timesheets = await db.timesheets.find(query, {"_id": 0}).sort("week_ending_date", -1).to_list(100)
+    
+    # Enrich with worker info
+    for ts in timesheets:
+        worker = await db.users.find_one({"user_id": ts["workforce_id"]})
+        if worker:
+            ts["worker_name"] = worker.get("full_name")
+            ts["worker_email"] = worker.get("email")
+        
+        shift = await db.shifts.find_one({"shift_id": ts["shift_id"]})
+        if shift:
+            ts["shift_date"] = shift.get("shift_date")
+    
+    return {
+        "success": True,
+        "data": {
+            "timesheets": timesheets,
+            "total_timesheets": len(timesheets),
+            "total_hours": sum(ts.get("total_hours", 0) for ts in timesheets),
+            "total_cost": sum(ts.get("gross_pay", 0) for ts in timesheets),
+            "pending_approval": len([ts for ts in timesheets if ts.get("status") == "submitted"])
+        }
+    }
+
+
+@router.post("/timesheets/{timesheet_id}/approve", response_model=Dict)
+async def approve_timesheet(
+    timesheet_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Approve timesheet (employer only)"""
+    
+    timesheet = await db.timesheets.find_one({"timesheet_id": timesheet_id})
+    if not timesheet:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Timesheet not found")
+    
+    # Verify employer owns this timesheet
+    if timesheet["employer_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    
+    # Update timesheet
+    await db.timesheets.update_one(
+        {"timesheet_id": timesheet_id},
+        {
+            "$set": {
+                "status": "approved",
+                "approved_by": current_user["user_id"],
+                "approved_date": datetime.utcnow(),
+                "updated_date": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {
+        "success": True,
+        "message": "Timesheet approved successfully"
+    }
