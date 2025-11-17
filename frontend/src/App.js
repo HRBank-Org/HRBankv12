@@ -26,6 +26,7 @@ import AddCertification from './pages/workforce/AddCertification';
 import Availability from './pages/workforce/Availability';
 import AvailabilityCalendar from './pages/workforce/AvailabilityCalendar';
 import ClockInOut from './pages/workforce/ClockInOut';
+import MyTimesheets from './pages/workforce/MyTimesheets';
 import ShiftCalendar from './pages/employer/ShiftCalendar';
 import EmploymentHistory from './pages/workforce/EmploymentHistory';
 import WorkforceSettings from './pages/workforce/Settings';
