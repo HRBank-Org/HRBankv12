@@ -91,6 +91,69 @@ async def upload_profile_photo(
             detail=f"Failed to upload photo: {str(e)}"
         )
 
+@router.post("/files/upload", response_model=Dict)
+async def upload_file(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Generic file upload endpoint for logos, documents, etc.
+    Returns the URL to access the file
+    """
+    
+    # Validate file type
+    if not is_allowed_file(file.filename):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+    
+    # Check file size
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large. Maximum size: 5MB"
+        )
+    
+    # Reset file pointer
+    await file.seek(0)
+    
+    # Generate unique filename
+    file_ext = get_file_extension(file.filename)
+    unique_filename = f"{current_user['user_id']}_{uuid.uuid4().hex[:8]}{file_ext}"
+    
+    # Create logos directory if needed
+    logos_dir = Path("/app/backend/uploads/logos")
+    logos_dir.mkdir(parents=True, exist_ok=True)
+    
+    file_path = logos_dir / unique_filename
+    
+    try:
+        # Save file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Generate URL (this will be served by the backend)
+        file_url = f"/api/uploads/logos/{unique_filename}"
+        
+        return {
+            "success": True,
+            "message": "File uploaded successfully",
+            "data": {
+                "file_url": file_url
+            }
+        }
+    
+    except Exception as e:
+        # Clean up file if something went wrong
+        if file_path.exists():
+            file_path.unlink()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to upload file: {str(e)}"
+        )
+
 @router.delete("/delete-profile-photo", response_model=Dict)
 async def delete_profile_photo(
     current_user: dict = Depends(get_current_user),
