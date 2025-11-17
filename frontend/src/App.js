@@ -153,6 +153,7 @@ function AppRoutes() {
         <Route path="/workforce/onboarding" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceOnboarding /></ProtectedRoute>} />
         <Route path="/workforce/profile-wizard" element={<ProtectedRoute allowedUserTypes={['workforce']}><ProfileWizard /></ProtectedRoute>} />
         <Route path="/workforce/dashboard" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceDashboard /></ProtectedRoute>} />
+        <Route path="/workforce/compliance" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkerComplianceOnboarding /></ProtectedRoute>} />
         <Route path="/workforce/profile" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceProfile /></ProtectedRoute>} />
         <Route path="/workforce/occupations" element={<ProtectedRoute allowedUserTypes={['workforce']}><OccupationProfiles /></ProtectedRoute>} />
         <Route path="/workforce/occupations/create" element={<ProtectedRoute allowedUserTypes={['workforce']}><CreateOccupationSimplified /></ProtectedRoute>} />
