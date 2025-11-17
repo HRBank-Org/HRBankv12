@@ -14,13 +14,13 @@ export const AuthProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    // Check if user is logged in on mount
+    // Check if user is logged in on mount or when token changes
     if (tokens.accessToken) {
       fetchCurrentUser();
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [tokens.accessToken]);
 
   const fetchCurrentUser = async () => {
     try {
