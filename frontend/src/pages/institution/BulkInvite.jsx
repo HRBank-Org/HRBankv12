@@ -76,35 +76,46 @@ const BulkInvite = () => {
   };
 
   const downloadTemplate = () => {
-    // Create CSV content
-    const csvContent = [
-      'full_name,email,phone,program,graduation_year',
-      'John Doe,john@example.com,+1-519-555-0001,Personal Support Worker,2024',
-      'Jane Smith,jane@example.com,+1-519-555-0002,Culinary Arts,2024',
-      'Mike Johnson,mike@example.com,+1-519-555-0003,Security Guard,2023'
-    ].join('\n');
-    
-    // Create blob
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    
-    // Create download link
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'hr_bank_student_invite_template.csv';
-    link.style.display = 'none';
-    
-    // Trigger download
-    document.body.appendChild(link);
-    link.click();
-    
-    // Cleanup
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 100);
-    
-    console.log('CSV template download triggered');
+    try {
+      // Create CSV content
+      const csvContent = [
+        'full_name,email,phone,program,graduation_year',
+        'John Doe,john@example.com,+1-519-555-0001,Personal Support Worker,2024',
+        'Jane Smith,jane@example.com,+1-519-555-0002,Culinary Arts,2024',
+        'Mike Johnson,mike@example.com,+1-519-555-0003,Security Guard,2023'
+      ].join('\n');
+      
+      // Create blob with BOM for Excel compatibility
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'hr_bank_student_invite_template.csv';
+      link.style.display = 'none';
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      console.log('CSV template download triggered successfully');
+      setMessage({ type: 'success', text: 'Template downloaded successfully!' });
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setMessage({ type: '', text: '' });
+      }, 3000);
+    } catch (error) {
+      console.error('Download error:', error);
+      setMessage({ type: 'error', text: 'Failed to download template. Please try again.' });
+    }
   };
 
   return (
