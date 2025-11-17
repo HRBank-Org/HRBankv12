@@ -21,8 +21,9 @@ async def create_super_admin():
     
     # Connect to MongoDB
     mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+    db_name = os.environ.get('DB_NAME', 'hrbank_db')
     client = AsyncIOMotorClient(mongo_url)
-    db = client['hr_bank']
+    db = client[db_name]
     
     print("=" * 60)
     print("HR Bank - Super Admin Account Creation")
