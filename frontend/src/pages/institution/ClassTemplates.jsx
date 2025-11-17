@@ -87,19 +87,26 @@ const ClassTemplates = () => {
 
       if (editingTemplate) {
         await api.put(`/api/institution/class-templates/${editingTemplate.template_id}`, payload);
-        setMessage({ type: 'success', text: 'Template updated successfully!' });
       } else {
         await api.post('/api/institution/class-templates', payload);
-        setMessage({ type: 'success', text: 'Template created successfully!' });
       }
 
+      // Close modal first
+      closeModal();
+      
       // Reload templates list
       await loadTemplates();
       
-      // Close modal after a brief delay to show success message
+      // Show success message after modal is closed
+      setMessage({ 
+        type: 'success', 
+        text: editingTemplate ? 'Template updated successfully!' : 'Template created successfully!' 
+      });
+      
+      // Clear message after 5 seconds
       setTimeout(() => {
-        closeModal();
-      }, 1000);
+        setMessage({ type: '', text: '' });
+      }, 5000);
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to save template' });
     }
