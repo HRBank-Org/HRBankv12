@@ -8,6 +8,7 @@ const BulkInvite = () => {
   const [uploadMode, setUploadMode] = useState('manual'); // manual or csv
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState(null);
+  const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
   const theme = useTheme();
 
