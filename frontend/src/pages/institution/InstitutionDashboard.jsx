@@ -239,10 +239,10 @@ const InstitutionDashboard = () => {
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Classes */}
-          <div className="bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-sm p-6 border-2 border-indigo-100">
+          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl shadow-sm p-6 border-2 border-slate-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xl">
+                <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center text-white text-xl">
                   📚
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Recent Classes</h3>
