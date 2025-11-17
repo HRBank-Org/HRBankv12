@@ -1,75 +1,78 @@
 <analysis>
-The trajectory details the iterative development of the HR Bank application, moving from an initial MVP to a feature-rich platform. The process began with implementing a robust document management system, including role-specific requirements, expiry date tracking, and an automated email reminder system using SendGrid and APScheduler. A major focus was on user feedback, which drove significant refinements. For instance, a request for number-only documents (like BN, GST/HST) led to a backend model update and a conditional frontend UI that switches between file and text inputs.
+The trajectory documents the evolution of the HR Bank application, a multi-role platform, from an MVP to a feature-rich system. The initial work focused on bug fixes and UX improvements based on user feedback. This included resolving a white screen crash by cleaning up routes in  and fixing the Institution dashboard's greeting by correctly fetching profile data. The AI engineer then implemented several user-requested features: redesigning the landing page hero section, making the partner logo carousel dynamic, and fixing numerous broken navigation links on the Institution dashboard by adding missing routes. A significant portion of the work involved a major UI overhaul of the Institution dashboard to replace a rainbow color scheme with a professional dark theme.
 
-The most substantial effort was building a comprehensive credentialing module for the Institution user type from the ground up. This involved creating new backend models and API routes for managing classes, templates, and verification requests. Correspondingly, a suite of new frontend pages was developed for institutions to manage their dashboard, classes, and verification queue, and for the Workforce to request credential verification.
-
-The final phase of the trajectory involved extensive bug fixing and UX polishing based on direct user reports. This included resolving a white screen crash caused by leftover routes in , creating a dedicated settings page for institutions, implementing time-aware greetings on all dashboards, and ensuring profile data saves correctly for new users by implementing  logic in the backend for all user types. The last task was to fix a bug where the institution dashboard was not displaying the contact person's name in the greeting. The user's primary language is **English**. The next agent should respond in English.
+The most substantial development effort was the implementation of a comprehensive legal compliance module for Canadian employment law. This involved creating new backend models, routes, and services to enforce worker classification (T4), verify WSIB coverage, and calculate ESA entitlements (vacation, holiday pay, overtime). Corresponding frontend onboarding flows were created for employers and workers. Subsequent work included building a payroll calculation and export system, fixing and enhancing the attendance/timesheet functionality, and preparing the application for deployment via PWAs and subdomains. The final interaction involved the user providing icons for the Employer and Workforce PWAs, which the AI has just received. The user's primary language is **English**. The next agent should respond in English.
 </analysis>
 
 <product_requirements>
-The HR Bank is a multi-role workforce management platform connecting **Workforce**, **Employers**, **Institutions**, and **Admins**.
+The HR Bank is a multi-role workforce management platform designed to connect a **Workforce** (casual employees), **Employers**, **Institutions**, and **Admins** within the Canadian legal framework.
 
 **Core Functionality:**
-*   **Role-Based Dashboards & Settings:** Each user role has a personalized dashboard and settings page to manage their specific profile information (name, logo/photo, contact details, password).
-*   **Document Management System:** A centralized system for users to upload and manage documents.
-    *   Requirements are role-specific (e.g., Work Permit for Workforce, Business Registration for Employers).
-    *   Some documents are file uploads (ID, permits), while others are text-based numbers (BN, GST/HST).
-    *   Documents with expiry dates trigger automated email reminders via SendGrid 7 days before expiry.
-    *   User accounts are restricted (can log in but cannot perform key actions) if required documents expire.
-
-**Institution-Specific Features:**
-*   **Credential Management:** Institutions can create and manage Classes and Class Templates.
-*   **Digital Credential Issuance:** Institutions can issue mock blockchain-based credentials to students (Workforce users).
-*   **Verification Workflow:** Institutions can review and approve/reject verification requests submitted by Workforce users for credentials they have uploaded.
-*   **Analytics Dashboard:** A dedicated dashboard provides metrics on issued certifications and ongoing classes.
+*   **Role-Based Access:** Each user role has a personalized dashboard and login portal, with functionality tailored to their needs.
+*   **Document Management:** A centralized system for users to upload and manage role-specific documents (e.g., Work Permits, Business Licenses). The system tracks expiry dates and sends automated email reminders.
+*   **Legal & Payroll Compliance (Canada):**
+    *   Enforces correct employee classification (T4) during employer onboarding.
+    *   Requires and verifies WSIB coverage before employers can post shifts.
+    *   Tracks and calculates Employment Standards Act (ESA) entitlements, including vacation pay (4%), public holiday pay, and overtime (>44 hrs/week).
+    *   Provides payroll export functionality for systems like ADP and Ceridian.
+*   **Attendance System:** Geolocation-based clock-in/out for workers, with real-time attendance tracking for employers and timesheet generation.
+*   **Credentialing System:** Institutions can create class templates, issue mock blockchain credentials to students (Workforce), and manage a queue for credential verification requests.
+*   **PWA & Subdomains:** The application is set up to be deployed with dedicated Progressive Web Apps (PWAs) for Employer and Workforce roles, accessible via unique subdomains (e.g., ).
 </product_requirements>
 
 <key_technical_concepts>
-- **Full Stack:** React (frontend), FastAPI (backend), MongoDB (database).
-- **Authentication:** JWT with role-based access control ( dependency).  manages user state in React.
-- **Backend:** Asynchronous API using Pydantic models. Key services include email (SendGrid) and scheduled tasks (APScheduler). Database logic uses  for creating/updating profiles.
-- **Frontend:** Component-based architecture with . Features a reusable  and a common  component with conditional rendering for different document types.
+- **Full Stack:** React frontend, FastAPI (Python) backend, MongoDB database.
+- **Authentication:** JWT with role-based access control, managed via React's .
+- **Backend Services:** Asynchronous API using Pydantic models. Integrates SendGrid for emails, Twilio for SMS notifications, and APScheduler for scheduled tasks (document expiry).
+- **Frontend Architecture:** Component-based design using . Key patterns include a reusable  and conditional rendering.
+- **Deployment Strategy:** Configured for Progressive Web App (PWA) deployment with subdomain-based routing for different user roles.
 </key_technical_concepts>
 
 <code_architecture>
-The application uses a monorepo structure with separate  and  directories.
+The application follows a standard monorepo structure with distinct  and  directories.
 
 
 
 -   ****
-    -   **Importance**: The main FastAPI application entry point. It configures the app, includes all API routers, and initializes background services.
-    -   **Changes**: Modified to initialize the  for document expiry checks on application startup and to include new routers for institution classes and credential verification.
+    -   **Importance**: The main FastAPI application entry point. It initializes the application and includes all API routers from the  directory.
+    -   **Changes**: Modified to include new routers for legal compliance () and payroll (), expanding the application's core feature set.
 
--   **, , **
-    -   **Importance**: These files define the API endpoints for managing user-specific profiles.
-    -   **Changes**: Significantly updated to add profile creation and update logic. The  endpoints were modified to use  with , ensuring that a profile is created if it doesn't exist, preventing Profile not found errors for new users.  endpoints were also made more robust to handle cases where a profile document hasn't been created yet.
-
--   ****
-    -   **Importance**: A highly reusable component that powers the document management UI for all user types.
-    -   **Changes**: Created from scratch. It was later heavily modified to conditionally render either a file input or a text input based on a document's  property, allowing for the submission of numbers like GST/HST directly.
+-   ** & **
+    -   **Importance**: These new files form the backbone of the Canadian legal compliance features. They define the API endpoints and database models for worker classification, WSIB verification, and ESA rules.
+    -   **Changes**: Created from scratch to implement the legal compliance requirements requested by the user.
 
 -   ****
-    -   **Importance**: The central hub for the Institution user. It displays key analytics and provides navigation.
-    -   **Changes**: Created from scratch. It was later modified to add a time-based greeting, implement a consistent design theme, and ensure the  component displays personalized user information instead of a generic title.
+    -   **Importance**: The public-facing entry point of the application.
+    -   **Changes**: The hero section layout was changed to move text to the right. The Trusted By logo carousel was updated to dynamically fetch logos from institution profiles via the  endpoint. Crucially, the login/signup buttons were modified to navigate to absolute subdomain URLs (e.g., ) instead of relative paths, in preparation for the new deployment strategy.
 
 -   ****
-    -   **Importance**: Defines all frontend URL routes for the application.
-    -   **Changes**: This file was edited multiple times to add routes for the entire suite of new Institution and Workforce credentialing pages. It was also a source of critical bugs, where leftover routes to deleted components caused the entire application to crash with a blank white screen. These old routes were found and removed to fix the crashes. A dedicated  route was also added.
+    -   **Importance**: Defines all frontend routes and protects them based on user roles.
+    -   **Changes**: This file was heavily modified to add routes for numerous new pages, including the compliance onboarding flows (, ), the admin WSIB verification page (), and to fix broken navigation links on the institution dashboard by adding missing credential and student management routes.
+
+-   ** files**
+    -   **Importance**: These new manifest files define the properties for the Employer and Workforce Progressive Web Apps (PWAs), such as the app name, start URL, and icons.
+    -   **Changes**: Created from scratch to enable PWA functionality, allowing users to install the app on their devices.
+
+-   ****
+    -   **Importance**: The main dashboard for the Institution user type.
+    -   **Changes**: Underwent significant UI/UX changes. A data fetching issue causing a generic greeting was fixed by adding a  hook to load the institution's profile. The entire color scheme was redesigned from a multi-color rainbow theme to a professional dark blue/gray palette based on direct user feedback.
 </code_architecture>
 
 <pending_tasks>
-- **Implement Email OTP Verification:** The user requested that the email address field in the Settings pages should be editable until verified via OTP, after which it should be locked. This feature is not yet implemented for Workforce and Employer accounts.
-- **Implement Mock Blockchain Credentials:** The credentialing system was built with a mock blockchain in mind. The actual logic for generating and verifying these credentials on a mock chain is not yet implemented.
+- **Process and Implement PWA Icons:** The user has provided two image files for the Employer and Workforce PWA icons. These images need to be resized to the required dimensions (e.g., 192x192, 512x512), placed in the  directory, and the paths updated in the respective  files.
+- **Finalize DNS and Deploy:** The user needs to configure their DNS records (A record for the root domain, CNAMEs for subdomains) as per the AI's guidance to point  and its subdomains to the application.
+- **Implement Email OTP Verification:** A previously requested feature to lock the email field in settings pages after OTP verification is still pending.
 </pending_tasks>
 
 <current_work>
-The most recent task was to fix a bug reported by the user: the greeting on the Institution dashboard did not display the contact person's name, and the header was not displaying the institution's information correctly (like the Employer header does).
+The most recent task was to prepare the application for deployment with a subdomain and PWA strategy. The user wanted to host the main landing page at  and create branded PWAs for the Employer and Workforce roles, accessible via subdomains like  and .
 
-The root cause was identified: the institution's specific profile data (which contains the  field) was not being fetched from the backend when the  component loaded. The  function and the  component were trying to access , but  was empty or undefined because the API call to  was never made from the dashboard page.
-
-The AI engineer acknowledged this and was about to modify  to fetch this profile data using a  hook and , store it in the component's state, and then pass the correct data to the greeting message and the  component.
+The AI engineer has completed the following preparations:
+1.  **Backend & Frontend Code:** Created PWA manifest files (, ), a service worker, and updated the  to use the correct subdomain URLs for login/signup buttons.
+2.  **DNS Guidance:** Advised the user on the correct DNS setup, explaining the difference between A and CNAME records and providing the server's IP address () for the A record configuration.
+3.  **PWA Icons:** The AI specified the required icon sizes for the PWAs. In the very last interaction, the user provided two image files to be used as the branded icons. The AI has analyzed these images and is now ready to process them.
 </current_work>
 
 <optional_next_step>
-Update  to fetch the institution's profile data on load and use it to display the personalized greeting and header information correctly.
+Process the user-provided images, resize them to the required PWA icon sizes (192x192, 512x512), save them to the  directory, and update the  and  files to reference these new icons.
 </optional_next_step>
