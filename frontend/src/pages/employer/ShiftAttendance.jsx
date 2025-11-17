@@ -31,10 +31,10 @@ const ShiftAttendance = () => {
       const qrRes = await api.post(`/api/attendance/shifts/${shiftId}/qr-code`);
       setQrCode(qrRes.data.data);
 
-      // Get bookings for this shift
-      // TODO: Add endpoint to get bookings by shift
-      setBookings([]);
-      setAttendance([]);
+      // Get workers and attendance for this shift
+      const attendanceRes = await api.get(`/api/attendance/shift/${shiftId}/workers`);
+      setBookings(attendanceRes.data.data.workers);
+      setAttendance(attendanceRes.data.data.workers);
     } catch (error) {
       console.error('Failed to load shift data:', error);
     } finally {
