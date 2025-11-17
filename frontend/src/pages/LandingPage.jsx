@@ -179,9 +179,9 @@ const LandingPage = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
         </div>
 
-        {/* Hero Content - Positioned Lower Left */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end pb-16">
-          <div className="max-w-xl">
+        {/* Hero Content - Positioned Lower Right */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end justify-end pb-16">
+          <div className="max-w-xl text-right">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
               Your Workforce,
               <br />
@@ -190,7 +190,7 @@ const LandingPage = () => {
             <p className="text-base md:text-lg text-gray-200 mb-6">
               Connecting verified workers, employers, and institutions for a better workforce marketplace
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 justify-end">
               <Button
                 size="default"
                 onClick={() => navigate('/signup')}
