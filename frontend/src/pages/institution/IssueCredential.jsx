@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
+import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 
 const IssueCredential = () => {
   const [step, setStep] = useState(1); // 1: Student, 2: Template, 3: Details, 4: Preview, 5: Blockchain
   const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     student_name: '',
     student_email: '',
