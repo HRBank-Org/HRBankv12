@@ -48,22 +48,12 @@ const IssueCredential = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/institution/dashboard')} className="hover:opacity-80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <div>
-              <h1 className="text-xl font-bold">Issue Blockchain Credential</h1>
-              <p className="text-sm opacity-90">Step {step} of 5</p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <UserHeader 
+        title="Issue Blockchain Credential"
+        subtitle={`Step ${step} of 5`}
+        onBackClick={() => navigate('/institution/dashboard')}
+        showBack={true}
+      />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Progress Steps */}
