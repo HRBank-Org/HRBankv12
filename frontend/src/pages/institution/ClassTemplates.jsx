@@ -91,8 +91,13 @@ const ClassTemplates = () => {
         setMessage({ type: 'success', text: 'Template created successfully!' });
       }
 
+      // Reload templates list
       await loadTemplates();
-      closeModal();
+      
+      // Close modal after a brief delay to show success message
+      setTimeout(() => {
+        closeModal();
+      }, 1000);
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to save template' });
     }
