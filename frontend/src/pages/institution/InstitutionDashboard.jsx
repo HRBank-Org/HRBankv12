@@ -318,9 +318,9 @@ const InstitutionDashboard = () => {
                 {analytics.recent_credentials.slice(0, 5).map((cred) => (
                   <div 
                     key={cred.credential_id}
-                    className="flex items-center gap-3 p-4 rounded-lg hover:bg-purple-50 transition-all border border-transparent hover:border-purple-200"
+                    className="flex items-center gap-3 p-4 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-xl shadow-sm">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-bold text-xl shadow-sm">
                       ✓
                     </div>
                     <div className="flex-1">
