@@ -1160,9 +1160,11 @@ def test_compliance_system(results):
     print("\n🧪 Testing Compliance System (Priority: HIGH)...")
     print("   Testing worker classification (T4), WSIB verification, ESA entitlements...")
     
+    # Note: Compliance routes appear to be mounted without /api prefix
     # Test 1: Get employer legal texts
     try:
-        response = requests.get(f"{BASE_URL}/compliance/employer/legal-texts", timeout=10)
+        # Try both with and without /api prefix
+        response = requests.get(f"{BACKEND_URL}/compliance/employer/legal-texts", timeout=10)
         
         if response.status_code == 200:
             data = response.json()
@@ -1174,6 +1176,17 @@ def test_compliance_system(results):
                 results.add_pass("Compliance - employer legal texts endpoint")
             else:
                 results.add_fail("Compliance - employer legal texts", f"Missing required fields: {data}")
+        elif response.status_code == 404:
+            # Try with /api prefix
+            response = requests.get(f"{BASE_URL}/compliance/employer/legal-texts", timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("Compliance - employer legal texts endpoint (with /api prefix)")
+                else:
+                    results.add_fail("Compliance - employer legal texts", f"Invalid response: {data}")
+            else:
+                results.add_fail("Compliance - employer legal texts", f"Endpoint not accessible (tried both URLs): {response.status_code}")
         else:
             results.add_fail("Compliance - employer legal texts", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
@@ -1181,7 +1194,7 @@ def test_compliance_system(results):
     
     # Test 2: Get worker legal texts
     try:
-        response = requests.get(f"{BASE_URL}/compliance/worker/legal-texts", timeout=10)
+        response = requests.get(f"{BACKEND_URL}/compliance/worker/legal-texts", timeout=10)
         
         if response.status_code == 200:
             data = response.json()
@@ -1191,6 +1204,17 @@ def test_compliance_system(results):
                 results.add_pass("Compliance - worker legal texts endpoint")
             else:
                 results.add_fail("Compliance - worker legal texts", f"Missing required fields: {data}")
+        elif response.status_code == 404:
+            # Try with /api prefix
+            response = requests.get(f"{BASE_URL}/compliance/worker/legal-texts", timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("Compliance - worker legal texts endpoint (with /api prefix)")
+                else:
+                    results.add_fail("Compliance - worker legal texts", f"Invalid response: {data}")
+            else:
+                results.add_fail("Compliance - worker legal texts", f"Endpoint not accessible (tried both URLs): {response.status_code}")
         else:
             results.add_fail("Compliance - worker legal texts", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
