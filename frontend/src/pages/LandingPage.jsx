@@ -176,7 +176,7 @@ const LandingPage = () => {
             allow="autoplay; encrypted-media"
             allowFullScreen
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-l from-black/60 via-black/20 to-transparent"></div>
         </div>
 
         {/* Hero Content - Positioned Lower Right */}
