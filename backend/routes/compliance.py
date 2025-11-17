@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import Dict
 from datetime import datetime, timedelta
-from ..auth.dependencies import get_current_user, require_role, get_db
-from ..models.compliance import (
+from auth.dependencies import get_current_user, require_role, get_db
+from models.compliance import (
     EmployerCompliance, 
     WorkerCompliance, 
     WSIBDocument,
