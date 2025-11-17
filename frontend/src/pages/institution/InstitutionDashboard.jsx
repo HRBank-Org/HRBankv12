@@ -125,17 +125,17 @@ const InstitutionDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 mb-6 border border-purple-100">
+        <div className="bg-gradient-to-r from-slate-50 to-gray-100 rounded-xl p-6 mb-6 border border-slate-200">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-1">
                 {getGreeting()}, {getContactName()}! 🎓
               </h2>
-              <p className="text-purple-600 font-medium">{getInstitutionName()}</p>
+              <p className="text-slate-700 font-medium">{getInstitutionName()}</p>
               <p className="text-gray-600 text-sm">Empowering students through verified credentials</p>
             </div>
             <div className="hidden md:block">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-4xl shadow-lg">
+              <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center text-4xl shadow-lg">
                 🎓
               </div>
             </div>
