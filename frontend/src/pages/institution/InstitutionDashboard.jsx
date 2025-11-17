@@ -148,38 +148,38 @@ const InstitutionDashboard = () => {
             icon="🎓"
             label="Total Credentials Issued"
             value={analytics?.total_credentials_issued || 0}
-            color="#10b981"
-            bgColor="#dcfce7"
+            color="#1e3a8a"
+            bgColor="#dbeafe"
             onClick={() => navigate('/institution/credentials')}
           />
           <StatCard
             icon="📚"
             label="Active Classes"
             value={analytics?.active_classes || 0}
-            color="#6366f1"
-            bgColor="#e0e7ff"
+            color="#1e40af"
+            bgColor="#dbeafe"
             onClick={() => navigate('/institution/classes')}
           />
           <StatCard
             icon="⏰"
             label="Upcoming Expirations"
             value={analytics?.upcoming_expirations || 0}
-            color="#f59e0b"
-            bgColor="#fef3c7"
+            color="#475569"
+            bgColor="#e2e8f0"
           />
           <StatCard
             icon="👥"
             label="Total Students Enrolled"
             value={analytics?.total_students_enrolled || 0}
-            color="#a855f7"
-            bgColor="#f3e8ff"
+            color="#334155"
+            bgColor="#e2e8f0"
           />
           <StatCard
             icon="✅"
             label="Pending Verifications"
             value={analytics?.pending_verification_requests || 0}
-            color="#ec4899"
-            bgColor="#fce7f3"
+            color="#1e293b"
+            bgColor="#e2e8f0"
             onClick={() => navigate('/institution/verification-requests')}
           />
         </div>
