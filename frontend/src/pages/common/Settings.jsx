@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { extractErrorMessage } from '../../utils/errorHandler';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import GoogleCalendarSettings from '../../components/common/GoogleCalendarSettings';
