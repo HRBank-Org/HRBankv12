@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "HR Bank Workforce",
+    "slug": "hr-bank-workforce",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#30496d"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hrbank.workforce",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "HR Bank needs your location to verify clock in/out at job sites.",
+        "NSCameraUsageDescription": "HR Bank needs camera access to upload documents and photos.",
+        "NSPhotoLibraryUsageDescription": "HR Bank needs photo library access to upload documents."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#30496d"
+      },
+      "package": "com.hrbank.workforce",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#30496d"
+        }
+      ]
+    ]
+  }
+}
