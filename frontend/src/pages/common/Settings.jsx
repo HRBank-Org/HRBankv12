@@ -370,18 +370,7 @@ const UploadModal = ({ documentType, documentTypeName, hasExpiry, onClose, onSuc
         setUploading(false);
       };
     } catch (err) {
-      const errorDetail = err.response?.data?.detail;
-      let errorMessage = 'Failed to upload document';
-      
-      if (typeof errorDetail === 'string') {
-        errorMessage = errorDetail;
-      } else if (Array.isArray(errorDetail)) {
-        errorMessage = errorDetail.map(e => e.msg || e.message || String(e)).join(', ');
-      } else if (errorDetail && typeof errorDetail === 'object') {
-        errorMessage = errorDetail.msg || errorDetail.message || JSON.stringify(errorDetail);
-      }
-      
-      setError(errorMessage);
+      setError(extractErrorMessage(err, 'Failed to upload document'));
       setUploading(false);
     }
   };
