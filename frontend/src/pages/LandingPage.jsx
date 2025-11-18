@@ -183,8 +183,8 @@ const LandingPage = () => {
         {/* Video Background */}
         <div className="absolute inset-0 z-0">
           <iframe
-            className="w-full h-full object-cover scale-150"
-            src="https://www.youtube.com/embed/H8vQs5nbJzo?autoplay=1&mute=1&loop=1&playlist=H8vQs5nbJzo&controls=0&showinfo=0&modestbranding=1"
+            className="w-full h-full object-cover scale-125"
+            src="https://www.youtube.com/embed/H8vQs5nbJzo?autoplay=1&mute=1&loop=1&playlist=H8vQs5nbJzo&controls=0&showinfo=0&modestbranding=1&vq=hd1080"
             title="HR Bank Video"
             frameBorder="0"
             allow="autoplay; encrypted-media"
