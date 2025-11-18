@@ -61,11 +61,11 @@ const SubdomainPortal = () => {
 
   return (
     <div className={`min-h-screen flex items-center justify-center ${config.bgColor}`}>
-      <div className=\"max-w-md w-full mx-4\">
-        <div className=\"bg-white rounded-2xl shadow-2xl p-8 text-center\">
+      <div className="max-w-md w-full mx-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
           {/* Icon */}
           <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${config.color} mx-auto mb-6 flex items-center justify-center`}>
-            <Icon className=\"w-10 h-10 text-white\" />
+            <Icon className="w-10 h-10 text-white" />
           </div>
 
           {/* Title */}
