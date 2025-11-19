@@ -605,7 +605,7 @@ const EmployerDashboard = () => {
           </button>
 
           <button 
-            onClick={() => navigate('/employer/workers')}
+            onClick={() => navigate('/employer/workforce-management')}
             className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow text-left"
           >
             <div className="flex items-center gap-4">
