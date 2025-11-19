@@ -736,6 +736,23 @@ const EmployerDashboard = () => {
           </div>
         )}
       </main>
+
+      {/* AI Onboarding Overlay - Shows on first login */}
+      {showOnboarding && !onboardingComplete && (
+        <AIOnboardingOverlay
+          onComplete={() => {
+            setShowOnboarding(false);
+            setOnboardingComplete(true);
+            loadDashboardData(); // Reload to get updated profile
+          }}
+          onSkip={() => {
+            setShowOnboarding(false);
+          }}
+        />
+      )}
+
+      {/* AI Help Button - Always available after onboarding */}
+      {onboardingComplete && <AIHelpButton />}
     </div>
   );
 };
