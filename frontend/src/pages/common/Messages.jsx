@@ -12,6 +12,10 @@ const MessagesWithAI = () => {
   const [messageText, setMessageText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
+  const [parsedResume, setParsedResume] = useState(null);
+  const [showResumeConfirm, setShowResumeConfirm] = useState(false);
+  const [applyingResume, setApplyingResume] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
