@@ -330,9 +330,10 @@ Respond in JSON format:
             "next_state": response_data.get("next_state", state_config.get("next_state", current_state)),
             "actions": response_data.get("actions", []),
             "quick_actions": state_config.get("quick_actions", []),
-            "show_ui": None,
+            "show_ui": response_data.get("show_ui"),
             "progress": state_config.get("progress"),
-            "extracted_data": response_data.get("extracted_data", {})
+            "extracted_data": response_data.get("extracted_data", {}),
+            "occupation_suggestions": response_data.get("occupation_suggestions", [])
         }
         
         return result
