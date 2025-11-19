@@ -37,12 +37,15 @@ const ShiftCalendar = () => {
     try {
       // Load workplaces
       const workplacesRes = await api.get('/api/employer/workplaces');
-      setWorkplaces(workplacesRes.data.data || []);
+      const workplacesData = workplacesRes.data.data || workplacesRes.data || [];
+      // Ensure workplacesData is an array
+      setWorkplaces(Array.isArray(workplacesData) ? workplacesData : []);
 
       // Load shifts
       await loadShifts();
     } catch (error) {
       console.error('Failed to load data:', error);
+      setWorkplaces([]); // Ensure workplaces is always an array
     } finally {
       setLoading(false);
     }
