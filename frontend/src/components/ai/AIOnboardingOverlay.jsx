@@ -10,6 +10,8 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
   const [currentState, setCurrentState] = useState('welcome');
   const [quickActions, setQuickActions] = useState([]);
   const [progress, setProgress] = useState(null);
+  const [occupationSuggestions, setOccupationSuggestions] = useState([]);
+  const [actionResults, setActionResults] = useState([]);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
