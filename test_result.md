@@ -199,6 +199,18 @@ backend:
         -comment: "Database integration working perfectly. Users are correctly stored in MongoDB, user_type field is properly saved, password hashing works correctly with bcrypt, data persists correctly between signup and login operations. All database operations functioning as expected."
 
 frontend:
+  - task: "Personalized Messaging Agents - Suzie & Emma"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/common/Messages.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented personalized messaging agents for both Workforce and Employer users. WORKFORCE users see 'Suzie' (friendly, approachable agent with photo: https://images.unsplash.com/photo-1655249493799-9cee4fe983bb) and EMPLOYER users see 'Emma' (professional agent in business attire with photo: https://images.unsplash.com/photo-1652471949169-9c587e8898cd). Features implemented: (1) Time-based greetings that change based on hour (Good morning before 12 PM, Good afternoon 12-6 PM, Good evening after 6 PM), (2) Professional circular avatar with shadow (96px), (3) Green online status indicator, (4) 'HR Bank Assistant' badge with shield icon, (5) Personalized greeting message specific to user type, (6) Helper text to guide users. Created getGreeting() function for dynamic time detection and getAgentInfo() function that returns agent data based on user.user_type. Replaced generic robot SVG icon and text with rich, personalized agent display. Ready for frontend testing to verify both workforce and employer views."
+
   - task: "UserHeader Component - Personalized Headers for All User Types"
     implemented: true
     working: true
