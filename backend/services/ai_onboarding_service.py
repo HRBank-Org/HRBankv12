@@ -164,7 +164,7 @@ Upload your documents now to get started, or you can do it later from your profi
             {"label": "🎯 Custom Times", "action": "custom_calendar"}
         ],
         "next_state": "availability_input",
-        "progress": {"current": 3, "total": 4, "label": "Setting up availability"}
+        "progress": {"current": 5, "total": 6, "label": "Setting up availability"}
     },
     "availability_input": {
         "system_context": "User is providing availability information. Parse it and create availability blocks.",
