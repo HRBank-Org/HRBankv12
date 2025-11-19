@@ -170,15 +170,40 @@ const WorkforceCalendar = () => {
     }
   };
 
-  const handleDayToggle = (day) => {
+  const handleDayToggle = (dayKey) => {
     setFormData(prev => ({
       ...prev,
       days: {
         ...prev.days,
-        [day]: !prev.days[day]
+        [dayKey]: {
+          ...prev.days[dayKey],
+          enabled: !prev.days[dayKey].enabled
+        }
       }
     }));
     setFormErrors(prev => ({ ...prev, days: undefined }));
+  };
+
+  const handleDayTimeChange = (dayKey, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      days: {
+        ...prev.days,
+        [dayKey]: {
+          ...prev.days[dayKey],
+          [field]: value
+        }
+      }
+    }));
+    // Clear error for this specific day
+    if (formErrors.dayErrors && formErrors.dayErrors[dayKey]) {
+      const newDayErrors = { ...formErrors.dayErrors };
+      delete newDayErrors[dayKey];
+      setFormErrors(prev => ({ 
+        ...prev, 
+        dayErrors: Object.keys(newDayErrors).length > 0 ? newDayErrors : undefined 
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
