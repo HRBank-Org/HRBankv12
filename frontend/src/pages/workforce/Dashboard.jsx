@@ -5,6 +5,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import UserHeader from '../../components/common/UserHeader';
+import AIOnboardingOverlay from '../../components/ai/AIOnboardingOverlay';
+import AIHelpButton from '../../components/ai/AIHelpButton';
 
 const WorkforceDashboard = () => {
   const { user, logout } = useAuth();
