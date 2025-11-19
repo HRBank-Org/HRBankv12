@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../contexts/ThemeContext';
-import api from '../../utils/api';
+import api from '../../services/api';
+import { Building2, Mail, Phone, MapPin, Edit2, Save, X } from 'lucide-react';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 
 const EmployerProfile = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     company_name: '',
     industry: '',
     address: '',
+    city: '',
     postal_code: '',
-    contact_person: ''
+    contact_person: '',
+    phone: ''
   });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const navigate = useNavigate();
-  const theme = useTheme();
 
   useEffect(() => {
     loadProfile();
@@ -25,14 +28,17 @@ const EmployerProfile = () => {
   const loadProfile = async () => {
     try {
       const response = await api.get('/api/users/me');
-      const empProfile = response.data.data.profile;
-      setProfile(empProfile);
+      const userData = response.data.data;
+      setUser(userData);
+      setProfile(userData.profile || {});
       setFormData({
-        company_name: empProfile.company_name || '',
-        industry: empProfile.industry || '',
-        address: empProfile.address || '',
-        postal_code: empProfile.postal_code || '',
-        contact_person: empProfile.contact_person || ''
+        company_name: userData.profile?.company_name || '',
+        industry: userData.profile?.industry || '',
+        address: userData.profile?.address || '',
+        city: userData.profile?.city || '',
+        postal_code: userData.profile?.postal_code || '',
+        contact_person: userData.profile?.contact_person || userData.full_name || '',
+        phone: userData.phone || ''
       });
     } catch (error) {
       console.error('Failed to load profile:', error);
@@ -42,99 +48,78 @@ const EmployerProfile = () => {
   };
 
   const handleSave = async () => {
-    setSaving(true);
     try {
       await api.patch('/api/employer/me/profile', formData);
       setEditing(false);
       loadProfile();
     } catch (error) {
       alert('Failed to update profile');
-    } finally {
-      setSaving(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/employer/dashboard')} className="hover:opacity-80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <h1 className="text-xl font-bold">Company Profile</h1>
-          </div>
-          <button 
-            onClick={() => setEditing(!editing)}
-            className="text-sm hover:underline"
-          >
-            {editing ? 'Cancel' : 'Edit Profile'}
-          </button>
+    <div className="p-6 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Company Profile</h1>
+          <p className="text-gray-600 mt-1">Manage your company information</p>
         </div>
-      </header>
+        {!editing ? (
+          <Button onClick={() => setEditing(true)} variant="outline">
+            <Edit2 className="w-4 h-4 mr-2" />
+            Edit Profile
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button onClick={() => setEditing(false)} variant="outline">
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Save className="w-4 h-4 mr-2" />
+              Save Changes
+            </Button>
+          </div>
+        )}
+      </div>
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          {editing ? (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Company Profile</h2>
-              
+      {/* Profile Content */}
+      <Card className="p-8">
+        {editing ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Name <span className="text-red-500">*</span>
+                  Company Name
                 </label>
                 <input
                   type="text"
                   value={formData.company_name}
                   onChange={(e) => setFormData({...formData, company_name: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                  placeholder="ABC Company Inc."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Your Company Inc."
                 />
-                <p className="text-xs text-gray-500 mt-1">This will appear on all workplace cards</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Industry
                 </label>
-                <select
-                  value={formData.industry}
-                  onChange={(e) => setFormData({...formData, industry: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                >
-                  <option value="">Select industry</option>
-                  <option value="Healthcare">Healthcare</option>
-                  <option value="Hospitality">Hospitality</option>
-                  <option value="Agriculture">Agriculture</option>
-                  <option value="Food Processing">Food Processing</option>
-                  <option value="Warehousing">Warehousing</option>
-                  <option value="Construction">Construction</option>
-                  <option value="Retail">Retail</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Head Office Address
-                </label>
                 <input
                   type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                  placeholder="123 Main St, Windsor, ON"
+                  value={formData.industry}
+                  onChange={(e) => setFormData({...formData, industry: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Hospitality, Retail"
                 />
               </div>
 
@@ -146,67 +131,126 @@ const EmployerProfile = () => {
                   type="text"
                   value={formData.contact_person}
                   onChange={(e) => setFormData({...formData, contact_person: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="John Doe"
                 />
               </div>
 
-              <div className="flex gap-4 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => setEditing(false)}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 py-3 rounded-lg text-white font-semibold hover:opacity-90 disabled:opacity-50"
-                  style={{ backgroundColor: theme.primaryColor }}
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">{profile?.company_name || 'Company Name Not Set'}</h2>
-                <button
-                  onClick={() => setEditing(true)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
-                >
-                  Edit
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="(123) 456-7890"
+                />
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-600">Industry</p>
-                  <p className="text-base font-medium text-gray-900">{profile?.industry || 'Not set'}</p>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="123 Main Street"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData({...formData, city: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Toronto"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Postal Code
+                </label>
+                <input
+                  type="text"
+                  value={formData.postal_code}
+                  onChange={(e) => setFormData({...formData, postal_code: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="M5H 2N2"
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Company Name */}
+            <div className="pb-6 border-b">
+              <div className="flex items-center gap-3 mb-2">
+                <Building2 className="w-6 h-6 text-blue-600" />
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {profile?.company_name || 'Company Name Not Set'}
+                </h2>
+              </div>
+              {profile?.industry && (
+                <p className="text-gray-600 ml-9">{profile.industry}</p>
+              )}
+            </div>
+
+            {/* Contact Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-1">Contact Person</div>
+                <div className="text-gray-900">{profile?.contact_person || user?.full_name || 'Not set'}</div>
+              </div>
+
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-1">Email</div>
+                <div className="flex items-center gap-2 text-gray-900">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  {user?.email || 'Not set'}
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Head Office Address</p>
-                  <p className="text-base font-medium text-gray-900">{profile?.address || 'Not set'}</p>
+              </div>
+
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-1">Phone</div>
+                <div className="flex items-center gap-2 text-gray-900">
+                  <Phone className="w-4 h-4 text-gray-400" />
+                  {formData.phone || user?.phone || 'Not set'}
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Contact Person</p>
-                  <p className="text-base font-medium text-gray-900">{profile?.contact_person || 'Not set'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Rating</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-yellow-500">★★★★★</span>
-                    <span className="text-base font-medium text-gray-900">
-                      {profile?.rating_avg || 'New'} ({profile?.rating_count || 0} reviews)
-                    </span>
-                  </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-1">Location</div>
+                <div className="flex items-center gap-2 text-gray-900">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  {profile?.city || 'Not set'}
                 </div>
               </div>
             </div>
-          )}
-        </div>
-      </main>
+
+            {/* Address */}
+            {(profile?.address || profile?.postal_code) && (
+              <div className="pt-6 border-t">
+                <div className="text-sm font-medium text-gray-500 mb-2">Full Address</div>
+                <div className="text-gray-900">
+                  {profile?.address && <div>{profile.address}</div>}
+                  {profile?.city && profile?.postal_code && (
+                    <div>{profile.city}, {profile.postal_code}</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
     </div>
   );
 };

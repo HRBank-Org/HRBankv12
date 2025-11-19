@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import api from '../../utils/api';
+import api from '../../services/api';
+import { User, Mail, Phone, MapPin, Calendar, Edit2 } from 'lucide-react';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 
 const WorkforceProfile = () => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const { logout } = useAuth();
   const navigate = useNavigate();
-  const theme = useTheme();
+  const [profile, setProfile] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadProfile();
@@ -17,8 +17,17 @@ const WorkforceProfile = () => {
 
   const loadProfile = async () => {
     try {
-      const response = await api.get('/api/workforce/me/profile');
-      setProfile(response.data.data);
+      const response = await api.get('/api/users/me');
+      const userData = response.data.data;
+      setUser(userData);
+      
+      // Try to get workforce profile
+      try {
+        const profileRes = await api.get('/api/workforce/me/profile');
+        setProfile(profileRes.data.data);
+      } catch (err) {
+        setProfile({});
+      }
     } catch (error) {
       console.error('Failed to load profile:', error);
     } finally {
@@ -26,148 +35,173 @@ const WorkforceProfile = () => {
     }
   };
 
+  const getInitials = (name) => {
+    if (!name) return 'W';
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return parts[0][0] + parts[1][0];
+    }
+    return name[0];
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: theme.primaryColor }}></div>
-          <p className="text-gray-600">Loading profile...</p>
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
+    <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <header className="text-white px-4 py-4 shadow-md" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/workforce/dashboard')} className="hover:opacity-80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <h1 className="text-xl font-bold">My Profile</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/workforce/profile/setup')}
-              className="text-sm hover:underline"
-            >
-              Edit Profile
-            </button>
-            <button onClick={logout} className="text-sm hover:underline">
-              Logout
-            </button>
-          </div>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+          <p className="text-gray-600 mt-1">View and manage your information</p>
         </div>
-      </header>
+        <Button
+          onClick={() => navigate('/workforce/settings')}
+          variant="outline"
+        >
+          <Edit2 className="w-4 h-4 mr-2" />
+          Edit Profile
+        </Button>
+      </div>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      {/* Profile Card */}
+      <Card className="p-8">
         {/* Profile Header */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mb-6">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold" style={{ backgroundColor: theme.primaryColor }}>
-                {profile?.full_name?.charAt(0) || 'W'}
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">{profile?.full_name}</h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-yellow-500">★★★★★</span>
-                  <span className="text-sm text-gray-600">
-                    {profile?.rating_avg || 'New'} ({profile?.rating_count || 0} reviews)
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-600">Profile Completeness</div>
-              <div className="text-3xl font-bold" style={{ color: theme.primaryColor }}>
-                {profile?.profile_completeness || 20}%
-              </div>
-            </div>
+        <div className="flex items-center gap-6 pb-6 border-b mb-6">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+            {getInitials(user?.full_name)}
           </div>
-
-          {/* Profile Completeness Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div 
-              className="h-3 rounded-full transition-all" 
-              style={{ 
-                backgroundColor: theme.primaryColor,
-                width: `${profile?.profile_completeness || 20}%` 
-              }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Personal Information */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Phone</p>
-              <p className="text-base font-medium text-gray-900">{profile?.phone || 'Not set'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Postal Code</p>
-              <p className="text-base font-medium text-gray-900">{profile?.postal_code || 'Not set'}</p>
-            </div>
-            <div className="col-span-2">
-              <p className="text-sm text-gray-600">Address</p>
-              <p className="text-base font-medium text-gray-900">{profile?.address || 'Not set'}</p>
-            </div>
-            {profile?.hourly_rate_preference && (
-              <div>
-                <p className="text-sm text-gray-600">Preferred Hourly Rate</p>
-                <p className="text-base font-medium text-gray-900">${profile.hourly_rate_preference}/hour</p>
-              </div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              {user?.full_name || 'Workforce Member'}
+            </h2>
+            {profile?.trade && (
+              <p className="text-gray-600 mb-2">{profile.trade}</p>
             )}
-          </div>
-        </div>
-
-        {/* Skills & Certifications */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills & Certifications</h3>
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-2">Skills ({profile?.skills?.length || 0})</p>
-            <div className="flex flex-wrap gap-2">
-              {profile?.skills?.length > 0 ? (
-                profile.skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 rounded-full text-sm font-medium text-white"
-                    style={{ backgroundColor: theme.primaryColor }}
-                  >
-                    {skill}
-                  </span>
-                ))
-              ) : (
-                <span className="text-sm text-gray-500">No skills added yet</span>
+            <div className="flex items-center gap-4">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                Active Member
+              </span>
+              {profile?.verified && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  ✓ Verified
+                </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-sm text-gray-600">Completed Jobs</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{profile?.completed_jobs_count || 0}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-sm text-gray-600">Total Hours</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">0</p>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-sm text-gray-600">Total Earned</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">$0</p>
+        {/* Contact Information */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div className="text-sm font-medium text-gray-500 mb-1">Email</div>
+              <div className="flex items-center gap-2 text-gray-900">
+                <Mail className="w-4 h-4 text-gray-400" />
+                {user?.email || 'Not set'}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-sm font-medium text-gray-500 mb-1">Phone</div>
+              <div className="flex items-center gap-2 text-gray-900">
+                <Phone className="w-4 h-4 text-gray-400" />
+                {user?.phone || profile?.phone || 'Not set'}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-sm font-medium text-gray-500 mb-1">Location</div>
+              <div className="flex items-center gap-2 text-gray-900">
+                <MapPin className="w-4 h-4 text-gray-400" />
+                {profile?.city ? `${profile.city}, ${profile.province || 'Ontario'}` : 'Not set'}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-sm font-medium text-gray-500 mb-1">Member Since</div>
+              <div className="flex items-center gap-2 text-gray-900">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                {user?.created_date ? new Date(user.created_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'N/A'}
+              </div>
+            </div>
           </div>
         </div>
-      </main>
+
+        {/* Professional Info */}
+        {(profile?.experience_years || profile?.skills) && (
+          <div className="pt-6 mt-6 border-t space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Professional Information</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {profile?.experience_years && (
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-1">Experience</div>
+                  <div className="text-gray-900">{profile.experience_years} years</div>
+                </div>
+              )}
+
+              {profile?.hourly_rate && (
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-1">Hourly Rate</div>
+                  <div className="text-gray-900">${profile.hourly_rate}/hr</div>
+                </div>
+              )}
+            </div>
+
+            {profile?.skills && profile.skills.length > 0 && (
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Skills</div>
+                <div className="flex flex-wrap gap-2">
+                  {profile.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="pt-6 mt-6 border-t">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Button
+              onClick={() => navigate('/workforce/my-shifts')}
+              variant="outline"
+              className="w-full"
+            >
+              View My Shifts
+            </Button>
+            <Button
+              onClick={() => navigate('/workforce/documents')}
+              variant="outline"
+              className="w-full"
+            >
+              Manage Documents
+            </Button>
+            <Button
+              onClick={() => navigate('/workforce/settings')}
+              variant="outline"
+              className="w-full"
+            >
+              Account Settings
+            </Button>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };
