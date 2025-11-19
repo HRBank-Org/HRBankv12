@@ -127,7 +127,7 @@ const ProtectedRoute = ({ children, allowedUserTypes }) => {
     checkEULAStatus();
   }, [user]);
 
-  if (loading) {
+  if (loading || checkingEULA) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
