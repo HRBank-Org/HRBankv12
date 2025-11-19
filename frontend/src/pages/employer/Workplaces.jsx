@@ -65,7 +65,7 @@ const Workplaces = () => {
             <h1 className="text-xl font-bold">My Workplaces</h1>
           </div>
           <button
-            onClick={() => navigate('/employer/workplace/setup')}
+            onClick={() => navigate('/employer/workplace-setup')}
             className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
           >
             + Add Workplace
