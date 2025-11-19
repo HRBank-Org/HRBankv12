@@ -96,6 +96,9 @@ const EmployerDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
+      {/* Dashboard Blocking Agent */}
+      <DashboardBlockingAgent />
+      
       {/* UserHeader with Actions */}
       <UserHeader 
         showBack={false}
