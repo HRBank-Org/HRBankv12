@@ -52,6 +52,20 @@ const EmployerDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
+      // Check onboarding status
+      const onboardingCheck = await api.get('/api/ai/chat/conversation').catch(() => null);
+      if (onboardingCheck && onboardingCheck.data.data) {
+        const convo = onboardingCheck.data.data;
+        setOnboardingComplete(convo.onboarding_complete);
+        if (!convo.onboarding_complete) {
+          setShowOnboarding(true);
+        }
+      } else {
+        // No conversation exists, show onboarding
+        setOnboardingComplete(false);
+        setShowOnboarding(true);
+      }
+
       const [workplacesRes, shiftsRes, profileRes, messagesRes, notificationsRes] = await Promise.all([
         api.get('/api/employer/workplaces'),
         api.get('/api/employer/shifts'),
