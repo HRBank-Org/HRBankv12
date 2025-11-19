@@ -15,6 +15,31 @@ const Messages = () => {
   const { user } = useAuth();
   const theme = useTheme();
 
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  // Get agent info based on user type
+  const getAgentInfo = () => {
+    if (user?.user_type === 'workforce') {
+      return {
+        name: 'Suzie',
+        photo: 'https://images.unsplash.com/photo-1655249493799-9cee4fe983bb',
+        greeting: `${getGreeting()}! I'm Suzie, your HR Bank assistant. I'm here to help you with any questions or concerns.`
+      };
+    } else {
+      return {
+        name: 'Emma',
+        photo: 'https://images.unsplash.com/photo-1652471949169-9c587e8898cd',
+        greeting: `${getGreeting()}! I'm Emma, your HR Bank assistant. I'm here to help you manage your workforce and answer any questions.`
+      };
+    }
+  };
+
   useEffect(() => {
     loadThreads();
   }, []);
