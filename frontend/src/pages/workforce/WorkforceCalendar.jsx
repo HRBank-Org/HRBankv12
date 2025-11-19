@@ -107,27 +107,37 @@ const WorkforceCalendar = () => {
     const errors = {};
     
     // Check if at least one day is selected
-    const selectedDays = Object.values(formData.days).filter(Boolean);
+    const selectedDays = Object.entries(formData.days).filter(([_, day]) => day.enabled);
     if (selectedDays.length === 0) {
       errors.days = 'Please select at least one day';
     }
     
-    // Check if end time is after start time
-    if (formData.startTime >= formData.endTime) {
-      errors.time = 'End time must be after start time';
-    }
+    // Check each enabled day for valid times and 12-hour limit
+    const dayErrors = {};
+    Object.entries(formData.days).forEach(([dayKey, day]) => {
+      if (day.enabled) {
+        // Check if end time is after start time
+        if (day.startTime >= day.endTime) {
+          dayErrors[dayKey] = 'End time must be after start time';
+        }
+        
+        // Check 12-hour daily limit
+        const startHour = parseInt(day.startTime.split(':')[0]);
+        const startMin = parseInt(day.startTime.split(':')[1]);
+        const endHour = parseInt(day.endTime.split(':')[0]);
+        const endMin = parseInt(day.endTime.split(':')[1]);
+        
+        const totalMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+        const totalHours = totalMinutes / 60;
+        
+        if (totalHours > 12) {
+          dayErrors[dayKey] = 'Cannot schedule more than 12 hours per day';
+        }
+      }
+    });
     
-    // Check 12-hour daily limit
-    const startHour = parseInt(formData.startTime.split(':')[0]);
-    const startMin = parseInt(formData.startTime.split(':')[1]);
-    const endHour = parseInt(formData.endTime.split(':')[0]);
-    const endMin = parseInt(formData.endTime.split(':')[1]);
-    
-    const totalMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
-    const totalHours = totalMinutes / 60;
-    
-    if (totalHours > 12) {
-      errors.time = 'Cannot schedule more than 12 hours per day';
+    if (Object.keys(dayErrors).length > 0) {
+      errors.dayErrors = dayErrors;
     }
     
     // Check until date
