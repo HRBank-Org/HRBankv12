@@ -254,6 +254,26 @@ async def assign_workforce_to_shift(
     if not workforce:
         raise HTTPException(status_code=404, detail="Workforce member not found")
     
+    # Get the shift to check availability
+    shift = next((s for s in roster["shifts"] if s["shift_id"] == shift_id), None)
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found in roster")
+    
+    # Check if workforce is available for this shift
+    is_available = await check_workforce_availability(
+        workforce_id=request.workforce_id,
+        shift_date=shift["shift_date"],
+        start_time=shift["start_time"],
+        end_time=shift["end_time"],
+        db=db
+    )
+    
+    if not is_available:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Workforce member is not available during this shift time ({shift['start_time']}-{shift['end_time']} on {shift['shift_date']}). They need to set their availability first."
+        )
+    
     # Get workforce profile for photo
     workforce_profile = await db.workforce_profiles.find_one({"user_id": request.workforce_id})
     photo_url = workforce_profile.get("profile_picture") if workforce_profile else None
