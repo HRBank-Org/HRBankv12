@@ -33,6 +33,8 @@ const WorkforceDashboard = () => {
     job_offers: []
   });
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(true); // Default true for now
 
   useEffect(() => {
     loadDashboard();
