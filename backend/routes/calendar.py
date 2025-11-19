@@ -589,3 +589,333 @@ def generate_recurring_shifts(
         current_date += increment
     
     return shifts
+
+
+# New endpoints for shift conflict checking and day-off requests
+
+@router.get("/workforce/availability/conflicts", response_model=Dict)
+async def check_availability_conflicts(
+    start_date: str,
+    end_date: str,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """
+    Check if workforce member has confirmed shifts in the given date range
+    Returns list of confirmed shifts that would conflict
+    """
+    try:
+        start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+        end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+    except:
+        raise HTTPException(status_code=400, detail="Invalid date format")
+    
+    # Get all rosters with shifts assigned to this user
+    rosters = await db.rosters.find({
+        "shifts.workforce_id": current_user["user_id"],
+        "shifts.status": {"$in": ["assigned", "confirmed"]}
+    }).to_list(None)
+    
+    conflicts = []
+    for roster in rosters:
+        for shift in roster.get("shifts", []):
+            if shift.get("workforce_id") == current_user["user_id"]:
+                if shift.get("status") in ["assigned", "confirmed"]:
+                    # Check if shift overlaps with requested availability period
+                    shift_date = datetime.fromisoformat(shift["shift_date"])
+                    if start_dt.date() <= shift_date.date() <= end_dt.date():
+                        role = next(
+                            (r for r in roster.get("roles", []) if r["role_id"] == shift["role_id"]),
+                            None
+                        )
+                        conflicts.append({
+                            "shift_id": shift["shift_id"],
+                            "shift_date": shift["shift_date"],
+                            "start_time": shift["start_time"],
+                            "end_time": shift["end_time"],
+                            "status": shift["status"],
+                            "role_name": role["role_name"] if role else "Unknown",
+                            "workplace_name": roster["workplace_name"],
+                            "employer_id": roster["employer_id"]
+                        })
+    
+    return {
+        "success": True,
+        "data": {
+            "has_conflicts": len(conflicts) > 0,
+            "conflicts": conflicts
+        }
+    }
+
+
+@router.post("/workforce/request-day-off", response_model=Dict)
+async def request_day_off(
+    request_data: dict,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """
+    Request a day off for a confirmed shift
+    Must be at least 48 hours before the shift
+    Notifies employer and suggests replacement workforce
+    """
+    shift_id = request_data.get("shift_id")
+    reason = request_data.get("reason", "Personal")
+    
+    if not shift_id:
+        raise HTTPException(status_code=400, detail="shift_id required")
+    
+    # Find the roster containing this shift
+    roster = await db.rosters.find_one({
+        "shifts.shift_id": shift_id,
+        "shifts.workforce_id": current_user["user_id"]
+    })
+    
+    if not roster:
+        raise HTTPException(status_code=404, detail="Shift not found or not assigned to you")
+    
+    # Get the specific shift
+    shift = next((s for s in roster.get("shifts", []) if s["shift_id"] == shift_id), None)
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Check if shift is confirmed
+    if shift.get("status") not in ["assigned", "confirmed"]:
+        raise HTTPException(status_code=400, detail="Can only request day off for confirmed shifts")
+    
+    # Check 48-hour rule
+    shift_datetime = datetime.fromisoformat(shift["shift_date"])
+    shift_start_time = shift["start_time"]
+    shift_start_dt = datetime.combine(shift_datetime.date(), datetime.strptime(shift_start_time, "%H:%M").time())
+    
+    hours_until_shift = (shift_start_dt - datetime.now()).total_seconds() / 3600
+    if hours_until_shift < 48:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Must request day off at least 48 hours in advance. Shift is in {hours_until_shift:.1f} hours"
+        )
+    
+    # Get role details
+    role = next((r for r in roster.get("roles", []) if r["role_id"] == shift["role_id"]), None)
+    
+    # Find replacement workforce members
+    # 1. Same role/occupation
+    # 2. Available during shift time
+    # 3. Within reasonable distance of workplace
+    
+    replacements = []
+    # Get workforce profiles with matching occupation
+    if role:
+        matching_profiles = await db.occupation_profiles.find({
+            "occupation_title": role["role_name"],
+            "active": True
+        }).to_list(10)
+        
+        for profile in matching_profiles:
+            workforce_id = profile.get("workforce_id")
+            if workforce_id == current_user["user_id"]:
+                continue  # Skip the user requesting day off
+            
+            # Check if they're available (simple check - could be enhanced)
+            # Check if they don't have a conflicting shift
+            conflict_roster = await db.rosters.find_one({
+                "shifts.workforce_id": workforce_id,
+                "shifts.shift_date": shift["shift_date"],
+                "shifts.status": {"$in": ["assigned", "confirmed"]}
+            })
+            
+            if not conflict_roster:
+                # Get workforce user details
+                workforce_user = await db.workforce_profiles.find_one({"workforce_id": workforce_id})
+                if workforce_user:
+                    replacements.append({
+                        "workforce_id": workforce_id,
+                        "full_name": workforce_user.get("full_name", "Unknown"),
+                        "occupation_title": profile.get("occupation_title"),
+                        "years_of_experience": profile.get("years_of_experience", 0),
+                        "skill_rating_avg": profile.get("skill_rating_avg", 0)
+                    })
+    
+    # Create day-off request
+    day_off_request = {
+        "request_id": str(uuid.uuid4()),
+        "workforce_id": current_user["user_id"],
+        "shift_id": shift_id,
+        "roster_id": roster["roster_id"],
+        "employer_id": roster["employer_id"],
+        "shift_date": shift["shift_date"],
+        "start_time": shift["start_time"],
+        "end_time": shift["end_time"],
+        "reason": reason,
+        "status": "pending",  # pending, approved, rejected
+        "suggested_replacements": replacements[:5],  # Top 5 suggestions
+        "created_date": datetime.utcnow().isoformat(),
+        "shift_details": {
+            "role_name": role["role_name"] if role else "Unknown",
+            "workplace_name": roster["workplace_name"],
+            "hourly_rate": role.get("hourly_rate") if role else 17.60
+        }
+    }
+    
+    await db.day_off_requests.insert_one(day_off_request)
+    
+    # Create notification for employer
+    notification = {
+        "notification_id": str(uuid.uuid4()),
+        "user_id": roster["employer_id"],
+        "user_type": "employer",
+        "type": "day_off_request",
+        "title": "Day Off Request",
+        "message": f"Workforce member has requested day off for shift on {shift['shift_date']} at {shift['start_time']}. {len(replacements)} replacement suggestions available.",
+        "data": {
+            "request_id": day_off_request["request_id"],
+            "shift_id": shift_id,
+            "workforce_id": current_user["user_id"],
+            "shift_date": shift["shift_date"]
+        },
+        "read": False,
+        "created_date": datetime.utcnow().isoformat()
+    }
+    
+    await db.notifications.insert_one(notification)
+    
+    return {
+        "success": True,
+        "data": {
+            "request_id": day_off_request["request_id"],
+            "status": "pending",
+            "suggested_replacements_count": len(replacements),
+            "message": f"Day off request submitted. {len(replacements)} replacement workers suggested to employer."
+        }
+    }
+
+
+@router.get("/workforce/day-off-requests", response_model=Dict)
+async def get_my_day_off_requests(
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """Get all day-off requests for current workforce member"""
+    requests = await db.day_off_requests.find({
+        "workforce_id": current_user["user_id"]
+    }).sort("created_date", -1).to_list(100)
+    
+    return {
+        "success": True,
+        "data": requests
+    }
+
+
+@router.get("/employer/day-off-requests", response_model=Dict)
+async def get_employer_day_off_requests(
+    status: str = None,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get all day-off requests for employer's shifts"""
+    query = {"employer_id": current_user["user_id"]}
+    if status:
+        query["status"] = status
+    
+    requests = await db.day_off_requests.find(query).sort("created_date", -1).to_list(100)
+    
+    # Enrich with workforce details
+    for request in requests:
+        workforce = await db.workforce_profiles.find_one({"workforce_id": request["workforce_id"]})
+        if workforce:
+            request["workforce_name"] = workforce.get("full_name", "Unknown")
+    
+    return {
+        "success": True,
+        "data": requests
+    }
+
+
+@router.post("/employer/day-off-requests/{request_id}/respond", response_model=Dict)
+async def respond_to_day_off_request(
+    request_id: str,
+    response_data: dict,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Employer responds to day-off request
+    Can approve (with optional replacement) or reject
+    """
+    action = response_data.get("action")  # approve or reject
+    replacement_workforce_id = response_data.get("replacement_workforce_id")
+    
+    if action not in ["approve", "reject"]:
+        raise HTTPException(status_code=400, detail="Action must be 'approve' or 'reject'")
+    
+    request = await db.day_off_requests.find_one({
+        "request_id": request_id,
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not request:
+        raise HTTPException(status_code=404, detail="Day-off request not found")
+    
+    if request["status"] != "pending":
+        raise HTTPException(status_code=400, detail="Request already processed")
+    
+    # Update request status
+    update_data = {
+        "status": "approved" if action == "approve" else "rejected",
+        "response_date": datetime.utcnow().isoformat(),
+        "replacement_workforce_id": replacement_workforce_id if action == "approve" else None
+    }
+    
+    await db.day_off_requests.update_one(
+        {"request_id": request_id},
+        {"$set": update_data}
+    )
+    
+    # If approved, update the shift assignment
+    if action == "approve":
+        roster = await db.rosters.find_one({"roster_id": request["roster_id"]})
+        if roster:
+            # Update shift to remove original workforce or assign replacement
+            shifts = roster.get("shifts", [])
+            for shift in shifts:
+                if shift["shift_id"] == request["shift_id"]:
+                    if replacement_workforce_id:
+                        shift["workforce_id"] = replacement_workforce_id
+                        shift["status"] = "assigned"
+                    else:
+                        shift["workforce_id"] = None
+                        shift["status"] = "open"
+            
+            await db.rosters.update_one(
+                {"roster_id": request["roster_id"]},
+                {"$set": {"shifts": shifts}}
+            )
+    
+    # Notify workforce member
+    notification = {
+        "notification_id": str(uuid.uuid4()),
+        "user_id": request["workforce_id"],
+        "user_type": "workforce",
+        "type": "day_off_response",
+        "title": f"Day Off Request {action.capitalize()}d",
+        "message": f"Your day off request for {request['shift_date']} has been {action}d.",
+        "data": {
+            "request_id": request_id,
+            "shift_id": request["shift_id"],
+            "action": action
+        },
+        "read": False,
+        "created_date": datetime.utcnow().isoformat()
+    }
+    
+    await db.notifications.insert_one(notification)
+    
+    return {
+        "success": True,
+        "data": {
+            "request_id": request_id,
+            "status": update_data["status"],
+            "message": f"Day off request {action}d successfully"
+        }
+    }
+
