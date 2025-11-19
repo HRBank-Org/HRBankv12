@@ -70,13 +70,49 @@ WORKFORCE_ONBOARDING_STATES = {
     },
     "availability_input": {
         "system_context": "User is providing availability information. Parse it and create availability blocks.",
+        "next_state": "final_approval",
+        "progress": {"current": 4, "total": 5, "label": "Almost there!"}
+    },
+    "final_approval": {
+        "system_context": """Show summary of everything collected and ask for approval.
+        Format response like:
+        "Perfect! Let me show you what we've set up:
+        
+        📋 Profile Summary:
+        • Occupation: Security Guard (85% match)
+        • Certifications: Security License, First Aid/CPR
+        • Experience: 18 months
+        • Availability: Mon-Fri, 9am-5pm
+        
+        💰 Earning Potential:
+        • $22/hour
+        • $3,520/month (160 hours)
+        • $42,240/year
+        
+        Does everything look good? I'll save this to your profile."
+        
+        Wait for user confirmation (Yes/Looks good/Confirm/etc)
+        """,
+        "quick_actions": [
+            {"label": "✅ Yes, save my profile", "action": "approve_and_save"},
+            {"label": "✏️ Let me edit something", "action": "edit_profile"}
+        ],
+        "next_state": "save_and_complete",
+        "progress": {"current": 5, "total": 5, "label": "Review & confirm"}
+    },
+    "save_and_complete": {
+        "system_context": """User approved. Execute actions to save all data:
+        1. Create worker_qualification with action: {"type": "create_worker_qualification", "data": {extracted_data}}
+        2. Create availability_blocks with action: {"type": "create_availability_blocks", "data": {availability}}
+        3. Respond with success message and welcome them to dashboard
+        """,
         "next_state": "onboarding_complete",
-        "progress": {"current": 4, "total": 4, "label": "Finishing up"}
+        "progress": {"current": 5, "total": 5, "label": "Saving..."}
     },
     "onboarding_complete": {
-        "ai_prompt": "🎉 All set! Your profile is complete and you're ready to receive shift offers. Welcome to HR Bank!",
+        "ai_prompt": "🎉 Perfect! Your profile is now live and you're ready to receive shift offers!\n\n✨ Welcome to HR Bank! You can now browse available shifts, manage your schedule, and start earning. The dashboard is all yours!\n\nIf you ever need help, just click the chat button in the corner. Good luck! 🚀",
         "next_state": "help_mode",
-        "progress": {"current": 4, "total": 4, "label": "Complete!"}
+        "progress": {"current": 5, "total": 5, "label": "Complete!"}
     }
 }
 
