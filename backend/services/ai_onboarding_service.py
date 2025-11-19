@@ -9,14 +9,35 @@ load_dotenv()
 # Onboarding conversation flows for different user types
 WORKFORCE_ONBOARDING_STATES = {
     "welcome": {
-        "ai_prompt": "Welcome to HR Bank! I'm here to help you get started. What kind of work are you looking for? (For example: security guard, bartender, driver, healthcare worker, etc.)",
+        "ai_prompt": "Welcome to HR Bank! 👋 I'm here to help you get started. What kind of work are you looking for? (For example: security guard, bartender, driver, healthcare worker, construction, etc.)",
         "next_state": "occupation_discovery",
-        "progress": {"current": 1, "total": 4, "label": "Getting to know you"}
+        "progress": {"current": 1, "total": 5, "label": "Getting to know you"}
     },
     "occupation_discovery": {
-        "system_context": "User mentioned their occupation. Search occupation templates and ask if they have a resume.",
+        "system_context": """User mentioned their occupation. 
+        1. Search occupation templates using action: {"type": "search_occupations", "data": {"query": "user's occupation"}}
+        2. Present 3-5 matching occupations with earnings potential
+        3. Format response like:
+           "I found these matching roles:
+           
+           🛡️ Security Guard
+           💰 Earn: $22/hr | $3,520/month | $42,240/year
+           Requirements: Security License, First Aid
+           
+           🍽️ Bartender
+           💰 Earn: $18/hr | $2,880/month | $34,560/year
+           Requirements: Smart Serve, Mixology skills
+           
+           Which one interests you most?"
+        4. Wait for user to select
+        """,
+        "next_state": "occupation_selected",
+        "progress": {"current": 2, "total": 5, "label": "Choosing your path"}
+    },
+    "occupation_selected": {
+        "system_context": "User selected an occupation. Ask if they have a resume or want to enter details manually.",
         "next_state": "resume_upload_or_manual",
-        "progress": {"current": 2, "total": 4, "label": "Building your profile"}
+        "progress": {"current": 3, "total": 5, "label": "Building your profile"}
     },
     "resume_upload_or_manual": {
         "ai_prompt": "Great! Do you have a resume or CV you'd like to upload? I can extract your information automatically. Or we can enter it manually.",
