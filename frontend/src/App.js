@@ -80,6 +80,8 @@ import ShiftAttendance from './pages/employer/ShiftAttendance';
 import Timesheets from './pages/employer/Timesheets';
 import ManageTasks from './pages/employer/ManageTasks';
 import WorkforceManagement from './pages/employer/WorkforceManagement';
+import RosterManagement from './pages/employer/RosterManagement';
+import RosterDetail from './pages/employer/RosterDetail';
 
 // Institution pages (old imports removed, using new system)
 
