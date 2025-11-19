@@ -109,6 +109,45 @@ async def get_job_offers(
             if has_conflict:
                 continue
             
+            # CHECK IF WORKER IS AVAILABLE DURING THIS SHIFT
+            is_available = False
+            shift_date_str = shift["shift_date"]
+            shift_start_time = shift["start_time"]
+            shift_end_time = shift["end_time"]
+            
+            # Parse shift date
+            try:
+                shift_date_obj = datetime.fromisoformat(shift_date_str.replace('Z', '+00:00'))
+            except:
+                # Try parsing as date only
+                shift_date_obj = datetime.strptime(shift_date_str, "%Y-%m-%d")
+            
+            # Check if any availability block covers this shift
+            for avail in availability_blocks:
+                try:
+                    avail_start = datetime.fromisoformat(avail["start"].replace('Z', '+00:00'))
+                    avail_end = datetime.fromisoformat(avail["end"].replace('Z', '+00:00'))
+                    
+                    # Check if dates match (same day)
+                    if avail_start.date() == shift_date_obj.date():
+                        # Extract just time components for comparison
+                        avail_start_time = avail_start.strftime("%H:%M")
+                        avail_end_time = avail_end.strftime("%H:%M")
+                        
+                        # Check if availability window covers the shift time
+                        # Shift must start at or after availability start
+                        # AND shift must end at or before availability end
+                        if avail_start_time <= shift_start_time and shift_end_time <= avail_end_time:
+                            is_available = True
+                            break
+                except Exception as e:
+                    print(f"Error checking availability: {e}")
+                    continue
+            
+            # Skip this shift if worker is not available
+            if not is_available:
+                continue
+            
             # Get workplace
             workplace = await db.workplaces.find_one(
                 {"workplace_id": shift["workplace_id"]},
