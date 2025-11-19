@@ -83,7 +83,7 @@ const Workplaces = () => {
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No Workplaces Yet</h3>
             <p className="text-gray-600 mb-6">Create your first workplace to start managing shifts and hiring workers</p>
             <button
-              onClick={() => navigate('/employer/workplace/setup')}
+              onClick={() => navigate('/employer/workplace-setup')}
               className="px-6 py-3 rounded-lg text-white font-semibold"
               style={{ backgroundColor: theme.primaryColor }}
             >
