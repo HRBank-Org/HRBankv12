@@ -481,71 +481,74 @@ const WorkforceCalendar = () => {
             </h2>
             
             <form onSubmit={handleSubmit}>
-              {/* Days Selection */}
+              {/* Days Selection with Individual Time Pickers */}
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Select Days *
+                  Select Days and Set Times *
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {dayNames.map(({ key, label }) => (
-                    <label
+                    <div 
                       key={key}
-                      className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                      className={`border rounded-lg p-4 transition-all ${
+                        formData.days[key].enabled 
+                          ? 'border-blue-300 bg-blue-50' 
+                          : 'border-gray-200 bg-gray-50'
+                      }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={formData.days[key]}
-                        onChange={() => handleDayToggle(key)}
-                        className="w-5 h-5 rounded border-gray-300 mr-3"
-                        style={{ accentColor: theme.primaryColor }}
-                      />
-                      <span className="font-medium text-gray-900">{label}</span>
-                    </label>
+                      {/* Day Checkbox */}
+                      <label className="flex items-center mb-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.days[key].enabled}
+                          onChange={() => handleDayToggle(key)}
+                          className="w-5 h-5 rounded border-gray-300 mr-3"
+                          style={{ accentColor: theme.primaryColor }}
+                        />
+                        <span className="font-semibold text-gray-900">{label}</span>
+                      </label>
+                      
+                      {/* Time Pickers (only show when day is enabled) */}
+                      {formData.days[key].enabled && (
+                        <div className="grid grid-cols-2 gap-3 ml-8">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                              From
+                            </label>
+                            <input
+                              type="time"
+                              value={formData.days[key].startTime}
+                              onChange={(e) => handleDayTimeChange(key, 'startTime', e.target.value)}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                              To
+                            </label>
+                            <input
+                              type="time"
+                              value={formData.days[key].endTime}
+                              onChange={(e) => handleDayTimeChange(key, 'endTime', e.target.value)}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Error for this specific day */}
+                      {formErrors.dayErrors && formErrors.dayErrors[key] && (
+                        <p className="text-red-500 text-xs mt-2 ml-8">{formErrors.dayErrors[key]}</p>
+                      )}
+                    </div>
                   ))}
                 </div>
                 {formErrors.days && (
                   <p className="text-red-500 text-sm mt-2">{formErrors.days}</p>
                 )}
               </div>
-
-              {/* Time Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Start Time * <span className="text-gray-500 font-normal">(24-hour format)</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.startTime}
-                    onChange={(e) => {
-                      setFormData({ ...formData, startTime: e.target.value });
-                      setFormErrors(prev => ({ ...prev, time: undefined }));
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-0"
-                    style={{ focusRing: theme.primaryColor }}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    End Time * <span className="text-gray-500 font-normal">(Max 12 hours)</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.endTime}
-                    onChange={(e) => {
-                      setFormData({ ...formData, endTime: e.target.value });
-                      setFormErrors(prev => ({ ...prev, time: undefined }));
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-0"
-                    style={{ focusRing: theme.primaryColor }}
-                    required
-                  />
-                </div>
-              </div>
-              {formErrors.time && (
-                <p className="text-red-500 text-sm -mt-4 mb-6">{formErrors.time}</p>
-              )}
 
               {/* Until Date */}
               <div className="mb-6">
