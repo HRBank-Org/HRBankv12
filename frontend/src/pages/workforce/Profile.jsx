@@ -177,7 +177,14 @@ const WorkforceProfile = () => {
         {/* Quick Actions */}
         <div className="pt-6 mt-6 border-t">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button
+              onClick={() => navigate('/workforce/availability')}
+              variant="outline"
+              className="w-full"
+            >
+              Set Availability
+            </Button>
             <Button
               onClick={() => navigate('/workforce/my-shifts')}
               variant="outline"
