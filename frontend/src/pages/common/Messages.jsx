@@ -472,6 +472,121 @@ const MessagesWithAI = () => {
           </div>
         </div>
       </main>
+
+      {/* Resume Confirmation Modal */}
+      {showResumeConfirm && parsedResume && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Review Parsed Resume</h2>
+              <p className="text-sm text-gray-600 mt-1">Please review the information extracted from your resume</p>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              {/* Personal Info */}
+              {parsedResume.parsed_data?.personal_info && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Personal Information</h3>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                    <p><span className="font-medium">Name:</span> {parsedResume.parsed_data.personal_info.full_name || 'N/A'}</p>
+                    <p><span className="font-medium">Email:</span> {parsedResume.parsed_data.personal_info.email || 'N/A'}</p>
+                    <p><span className="font-medium">Phone:</span> {parsedResume.parsed_data.personal_info.phone || 'N/A'}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Work Experience */}
+              {parsedResume.parsed_data?.work_experience?.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Work Experience ({parsedResume.parsed_data.work_experience.length})</h3>
+                  <div className="space-y-3">
+                    {parsedResume.parsed_data.work_experience.map((exp, idx) => (
+                      <div key={idx} className="bg-blue-50 rounded-lg p-4">
+                        <p className="font-semibold text-blue-900">{exp.position_title}</p>
+                        <p className="text-sm text-blue-700">{exp.company_name}</p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {exp.start_date} - {exp.end_date || 'Present'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Skills */}
+              {parsedResume.parsed_data?.skills?.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Skills ({parsedResume.parsed_data.skills.length})</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {parsedResume.parsed_data.skills.map((skill, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Education */}
+              {parsedResume.parsed_data?.education?.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Education</h3>
+                  <div className="space-y-3">
+                    {parsedResume.parsed_data.education.map((edu, idx) => (
+                      <div key={idx} className="bg-purple-50 rounded-lg p-4">
+                        <p className="font-semibold text-purple-900">{edu.degree} {edu.field && `in ${edu.field}`}</p>
+                        <p className="text-sm text-purple-700">{edu.institution}</p>
+                        {edu.graduation_year && (
+                          <p className="text-sm text-gray-600 mt-1">Graduated: {edu.graduation_year}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Certifications */}
+              {parsedResume.parsed_data?.certifications?.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Certifications</h3>
+                  <div className="space-y-2">
+                    {parsedResume.parsed_data.certifications.map((cert, idx) => (
+                      <div key={idx} className="bg-yellow-50 rounded-lg p-3">
+                        <p className="font-medium text-yellow-900">{cert.name}</p>
+                        <p className="text-sm text-yellow-700">{cert.issuer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  setShowResumeConfirm(false);
+                  setParsedResume(null);
+                }}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+                disabled={applyingResume}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={applyResumeData}
+                disabled={applyingResume}
+                className="px-6 py-2 text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                {applyingResume ? 'Applying...' : 'Apply to My Profile'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
