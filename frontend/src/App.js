@@ -94,12 +94,38 @@ const ProtectedRoute = ({ children, allowedUserTypes }) => {
   const { user, loading } = useAuth();
   const [showEULA, setShowEULA] = React.useState(false);
   const [eulaAccepted, setEulaAccepted] = React.useState(false);
+  const [checkingEULA, setCheckingEULA] = React.useState(true);
 
   React.useEffect(() => {
-    if (user && !eulaAccepted) {
-      setShowEULA(true);
-    }
-  }, [user, eulaAccepted]);
+    const checkEULAStatus = async () => {
+      if (!user) {
+        setCheckingEULA(false);
+        return;
+      }
+
+      try {
+        const api = (await import('./utils/api')).default;
+        const response = await api.get('/api/eula/check');
+        
+        if (response.data.data.accepted) {
+          setEulaAccepted(true);
+          setShowEULA(false);
+        } else {
+          setEulaAccepted(false);
+          setShowEULA(true);
+        }
+      } catch (error) {
+        console.error('Failed to check EULA status:', error);
+        // If check fails, don't block user
+        setEulaAccepted(true);
+        setShowEULA(false);
+      } finally {
+        setCheckingEULA(false);
+      }
+    };
+
+    checkEULAStatus();
+  }, [user]);
 
   if (loading) {
     return (
