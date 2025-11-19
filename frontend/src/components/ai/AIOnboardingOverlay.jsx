@@ -241,8 +241,118 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Occupation Suggestions with Earnings */}
-        {occupationSuggestions.length > 0 && !loading && (
+        {/* Profile Suggestions from Resume Analysis */}
+        {profileSuggestions.length > 0 && !loading && (
+          <div className="px-6 py-4 border-t bg-gradient-to-br from-green-50 to-blue-50">
+            <p className="text-sm font-semibold text-gray-700 mb-1">✨ Profiles Found in Your Resume:</p>
+            <p className="text-xs text-gray-600 mb-3">Select the profiles you want to create (you can choose multiple)</p>
+            <div className="space-y-3 mb-4">
+              {profileSuggestions.map((profile, index) => {
+                const isSelected = selectedProfiles.includes(index);
+                return (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      setSelectedProfiles(prev => 
+                        prev.includes(index) 
+                          ? prev.filter(i => i !== index)
+                          : [...prev, index]
+                      );
+                    }}
+                    className={`bg-white border-2 rounded-xl p-4 cursor-pointer transition-all ${
+                      isSelected 
+                        ? 'border-green-500 bg-green-50 shadow-md' 
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="flex items-start">
+                      {/* Checkbox */}
+                      <div className="flex-shrink-0 mr-3 mt-1">
+                        <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                          isSelected ? 'bg-green-500 border-green-500' : 'border-gray-300'
+                        }`}>
+                          {isSelected && (
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Profile Content */}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-bold text-gray-900 text-base">{profile.template.name}</h4>
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">
+                            {profile.match_score}% match
+                          </span>
+                        </div>
+                        
+                        {/* Matched Requirements */}
+                        <div className="space-y-1 mb-3">
+                          {profile.matched_requirements.certifications.length > 0 && (
+                            <div className="text-xs">
+                              <span className="font-semibold text-gray-700">Certifications: </span>
+                              <span className="text-gray-600">
+                                {profile.matched_requirements.certifications.map(c => c.name).join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          {profile.matched_requirements.skills.length > 0 && (
+                            <div className="text-xs">
+                              <span className="font-semibold text-gray-700">Skills: </span>
+                              <span className="text-gray-600">
+                                {profile.matched_requirements.skills.map(s => s.name).join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          {profile.matched_requirements.experience_months > 0 && (
+                            <div className="text-xs">
+                              <span className="font-semibold text-gray-700">Experience: </span>
+                              <span className="text-gray-600">
+                                {Math.floor(profile.matched_requirements.experience_months / 12)} years{' '}
+                                {profile.matched_requirements.experience_months % 12} months
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Earnings */}
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2 text-sm">
+                            <span className="font-semibold text-green-600">💰 ${profile.earnings.hourly}/hr</span>
+                            <span className="text-gray-400">|</span>
+                            <span className="text-gray-600">${profile.earnings.monthly.toLocaleString()}/mo</span>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ${profile.earnings.annual.toLocaleString()}/year potential
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Approve Button */}
+            {selectedProfiles.length > 0 && (
+              <button
+                onClick={() => {
+                  const selected = profileSuggestions.filter((_, i) => selectedProfiles.includes(i));
+                  const profileNames = selected.map(p => p.template.name).join(', ');
+                  sendMessage(`Yes, create profiles for: ${profileNames}`);
+                }}
+                className="w-full py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-all shadow-md"
+              >
+                ✅ Create {selectedProfiles.length} Profile{selectedProfiles.length > 1 ? 's' : ''}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Occupation Suggestions with Earnings (for manual entry) */}
+        {occupationSuggestions.length > 0 && !loading && profileSuggestions.length === 0 && (
           <div className="px-6 py-4 border-t bg-gradient-to-br from-blue-50 to-purple-50">
             <p className="text-sm font-semibold text-gray-700 mb-3">💼 Available Roles:</p>
             <div className="space-y-3">
