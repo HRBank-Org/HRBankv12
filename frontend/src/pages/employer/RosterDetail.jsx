@@ -118,17 +118,17 @@ const RosterDetail = () => {
 
   if (loading) {
     return (
-      <div className=\"flex items-center justify-center h-64\">
-        <div className=\"animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600\"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   if (!roster) {
     return (
-      <div className=\"p-6 text-center\">
-        <p className=\"text-gray-600\">Roster not found</p>
-        <Button onClick={() => navigate('/employer/rosters')} className=\"mt-4\">
+      <div className="p-6 text-center">
+        <p className="text-gray-600">Roster not found</p>
+        <Button onClick={() => navigate('/employer/rosters')} className="mt-4">
           Back to Rosters
         </Button>
       </div>
