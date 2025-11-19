@@ -223,14 +223,14 @@ Upload your documents now to get started, or you can do it later from your profi
 
 EMPLOYER_ONBOARDING_STATES = {
     "welcome": {
-        "ai_prompt": "Welcome to HR Bank! I'm here to help you set up your company profile. What's your company name?",
+        "ai_prompt": "Welcome to HR Bank! 👋 I'm here to help you set up your company and start hiring.\n\nLet's begin with your company name.",
         "next_state": "company_name_input",
-        "progress": {"current": 1, "total": 5, "label": "Company setup"}
+        "progress": {"current": 1, "total": 8, "label": "Getting started"}
     },
     "company_name_input": {
         "system_context": "User provided company name. Ask about industry.",
         "next_state": "industry_selection",
-        "progress": {"current": 2, "total": 5, "label": "Company details"}
+        "progress": {"current": 2, "total": 8, "label": "Company details"}
     },
     "industry_selection": {
         "ai_prompt": "What industry does your company operate in?",
@@ -243,36 +243,167 @@ EMPLOYER_ONBOARDING_STATES = {
             {"label": "🏢 Other", "action": "select_industry", "data": {"industry": "Other"}}
         ],
         "next_state": "location_setup",
-        "progress": {"current": 2, "total": 5, "label": "Company details"}
+        "progress": {"current": 2, "total": 8, "label": "Company details"}
     },
     "location_setup": {
-        "ai_prompt": "Do you have one location or multiple?",
+        "ai_prompt": "Great! Now let's set up your workplace location(s). Do you have one location or multiple?",
         "quick_actions": [
             {"label": "📍 One Location", "action": "one_location"},
             {"label": "📍 Multiple Locations", "action": "multiple_locations"}
         ],
         "next_state": "location_input",
-        "progress": {"current": 3, "total": 5, "label": "Location setup"}
+        "progress": {"current": 3, "total": 8, "label": "Location setup"}
     },
     "location_input": {
-        "system_context": "User is providing location information. Create workplace records.",
+        "system_context": "User is providing location information. Create workplace records with full address.",
+        "next_state": "document_collection",
+        "progress": {"current": 3, "total": 8, "label": "Location setup"}
+    },
+    "document_collection": {
+        "ai_prompt": """Perfect! Now let's get your company documents ready. To **activate your account** and start posting shifts, I need a few key documents:
+
+📋 **Required Documents:**
+• Business License or Registration
+• WSIB Insurance Certificate (Workers' Compensation)
+• Liability Insurance
+• Company Banking Information (for payroll)
+
+📜 **Optional but Recommended:**
+• Articles of Incorporation
+• Tax ID / Business Number
+• Facility Permits (if applicable)
+
+⚠️ **Why These Matter:**
+• **Legal compliance:** Ensures you meet Canadian employment laws
+• **Worker protection:** WSIB coverage required in Ontario
+• **Payment processing:** Direct deposit payroll setup
+• **Trust & credibility:** Workers verify you're a legitimate employer
+
+Upload now or continue and add later from your dashboard.""",
+        "quick_actions": [
+            {"label": "📤 Upload Documents Now", "action": "upload_documents"},
+            {"label": "⏭️ I'll do it later", "action": "skip_documents"}
+        ],
+        "next_state": "document_upload",
+        "progress": {"current": 4, "total": 8, "label": "Account activation"}
+    },
+    "document_upload": {
+        "system_context": """Track employer document uploads:
+        - Business license
+        - WSIB insurance
+        - Liability insurance
+        - Banking info
+        
+        After each upload, confirm and show remaining docs.
+        When done, move to role_creation.""",
         "next_state": "role_creation",
-        "progress": {"current": 4, "total": 5, "label": "Role setup"}
+        "progress": {"current": 4, "total": 8, "label": "Document upload"}
     },
     "role_creation": {
-        "ai_prompt": "Great! Now let's create your first role. What kind of workers do you need? (e.g., security guards, bartenders, drivers)",
-        "next_state": "role_input",
-        "progress": {"current": 4, "total": 5, "label": "Role setup"}
+        "ai_prompt": "Excellent! Now let's create the roles you're hiring for. What type of workers do you need? (e.g., security guards, servers, drivers, construction workers)",
+        "next_state": "role_setup",
+        "progress": {"current": 5, "total": 8, "label": "Creating roles"}
     },
-    "role_input": {
-        "system_context": "User mentioned worker type. Search occupation templates and ask about hourly rate.",
+    "role_setup": {
+        "system_context": """User mentioned worker types. 
+        1. Search occupation templates using action: {"type": "search_occupations", "data": {"query": "user input"}}
+        2. Show 2-3 matching roles with typical hourly rates
+        3. Ask user to confirm hourly rate for their company
+        4. Create employer_role records
+        5. Ask: "Would you like to add more roles?" 
+        If yes, loop back. If no, move to workforce_invitation.""",
+        "next_state": "workforce_invitation",
+        "progress": {"current": 6, "total": 8, "label": "Role setup"}
+    },
+    "workforce_invitation": {
+        "ai_prompt": """Great! Your roles are set up. 🎉
+
+Do you have existing workers you'd like to invite to the platform? I can help you:
+
+👥 **Invite Your Current Workforce:**
+• Send email invitations with your company details
+• They'll create accounts and link to your company
+• You can immediately assign them to shifts
+• They'll have access to their schedules and payments
+
+📧 **How it works:**
+Just provide their email addresses (comma-separated) and I'll send personalized invitations.
+
+Or you can skip this and invite workers later from your dashboard.""",
+        "quick_actions": [
+            {"label": "📧 Invite Workers Now", "action": "start_invitations"},
+            {"label": "⏭️ I'll invite later", "action": "skip_invitations"}
+        ],
+        "next_state": "collect_invitations",
+        "progress": {"current": 7, "total": 8, "label": "Inviting your team"}
+    },
+    "collect_invitations": {
+        "system_context": """User is providing email addresses to invite.
+        
+        Parse emails (comma-separated or line-by-line).
+        Validate email format.
+        
+        For each email:
+        1. Create invitation record with action: {"type": "create_workforce_invitations", "data": {"emails": [...], "employer_name": "...", "roles": [...]}}
+        2. Send invitation email
+        3. Respond: "✅ Sent X invitations. They'll receive an email with a link to join your company."
+        
+        After sending, move to final_approval.""",
+        "next_state": "final_approval",
+        "progress": {"current": 7, "total": 8, "label": "Sending invitations"}
+    },
+    "final_approval": {
+        "system_context": """Show complete summary of what's been set up:
+        
+        "Perfect! Here's your company profile:
+        
+        🏢 Company: [Name]
+        📍 Locations: [List]
+        📋 Documents: [X/4 uploaded]
+        💼 Roles: [List with hourly rates]
+        👥 Invitations: [X sent]
+        
+        Everything looks good? I'll activate your account now!"
+        
+        Wait for approval, then move to save_and_complete.""",
+        "quick_actions": [
+            {"label": "✅ Yes, activate my account", "action": "approve_and_save"},
+            {"label": "✏️ Let me edit something", "action": "edit_profile"}
+        ],
+        "next_state": "save_and_complete",
+        "progress": {"current": 8, "total": 8, "label": "Review & confirm"}
+    },
+    "save_and_complete": {
+        "system_context": """Execute all actions:
+        1. Update employer profile
+        2. Create workplace records
+        3. Create employer_role records
+        4. Send workforce invitations
+        5. Check document uploads
+        6. Set account status (active if docs complete, pending_documents if not)
+        
+        Respond with welcome message.""",
         "next_state": "onboarding_complete",
-        "progress": {"current": 5, "total": 5, "label": "Finishing up"}
+        "progress": {"current": 8, "total": 8, "label": "Activating..."}
     },
     "onboarding_complete": {
-        "ai_prompt": "🎉 All set! Your company profile is ready. You can now post shifts and find workers. Welcome to HR Bank!",
+        "ai_prompt": """🎉 Congratulations! Your company is now on HR Bank!
+
+✨ **You're Ready To:**
+• Post shifts and job openings
+• Match with qualified workers
+• Manage schedules and timesheets
+• Process payroll seamlessly
+
+💡 **Next Steps:**
+• Post your first shift from the dashboard
+• Review invited workers as they join
+• Set up recurring shifts for regular schedules
+• Complete any remaining document uploads
+
+Welcome aboard! Your dashboard is ready. If you need help, just click the chat button. Let's build your team! 🚀""",
         "next_state": "help_mode",
-        "progress": {"current": 5, "total": 5, "label": "Complete!"}
+        "progress": {"current": 8, "total": 8, "label": "Complete!"}
     }
 }
 
