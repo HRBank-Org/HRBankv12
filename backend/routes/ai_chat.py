@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timedelta
 from database import get_database
 from auth.dependencies import get_current_user
 from models.ai_conversation import (
