@@ -67,8 +67,60 @@ WORKFORCE_ONBOARDING_STATES = {
     },
     "profile_selection": {
         "system_context": "User is selecting which profiles to create. Store their selections.",
+        "next_state": "document_collection",
+        "progress": {"current": 3, "total": 6, "label": "Setting up profiles"}
+    },
+    "document_collection": {
+        "ai_prompt": """Perfect! Your profiles are ready. 🎉
+
+Now, to **activate your account** and start receiving job offers, I need to collect a few important documents. These ensure you get paid properly and employers can verify your qualifications.
+
+📋 **Required Documents:**
+• Government-issued ID (Driver's License, Passport, or Health Card)
+• Social Insurance Number (SIN) document
+• Banking information (for direct deposit payments)
+• Void cheque or bank statement
+
+📜 **For Your Qualifications:**
+• Certification documents (Security License, First Aid, etc.)
+• Proof of experience (reference letters, employment records)
+
+⚠️ **Important:** Your account stays **"Pending"** until these are uploaded. Once complete, you'll be marked **"Active"** and can:
+✅ Receive shift offers
+✅ Get matched to jobs
+✅ Receive payments via direct deposit
+
+Upload your documents now to get started, or you can do it later from your profile.""",
+        "quick_actions": [
+            {"label": "📤 Upload Documents Now", "action": "upload_documents"},
+            {"label": "⏭️ I'll do it later", "action": "skip_documents"}
+        ],
+        "next_state": "document_upload",
+        "progress": {"current": 4, "total": 6, "label": "Account activation"}
+    },
+    "document_upload": {
+        "system_context": """User is uploading documents. Track what's been uploaded.
+        
+        Required documents checklist:
+        1. Government ID (passport, driver's license, health card)
+        2. SIN document
+        3. Banking info (void cheque or bank statement)
+        4. Certification documents for their qualifications
+        
+        After each upload, confirm and show what's left:
+        "Great! ✅ Government ID received. 
+        
+        Still needed:
+        • SIN document
+        • Banking info
+        • Certification documents
+        
+        Upload next document or continue to availability setup."
+        
+        If user says "done" or "that's all", move to availability_setup.
+        """,
         "next_state": "availability_setup",
-        "progress": {"current": 3, "total": 5, "label": "Setting up profiles"}
+        "progress": {"current": 4, "total": 6, "label": "Document upload"}
     },
     "manual_entry": {
         "system_context": "User chose manual entry. Ask what kind of work they're looking for, then guide through building one profile.",
