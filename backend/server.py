@@ -118,6 +118,7 @@ app.include_router(rosters.router, prefix="/api", tags=["rosters"])
 app.include_router(workforce_roster.router, prefix="/api", tags=["workforce_roster"])
 app.include_router(occupation_templates.router, prefix="/api", tags=["occupation_templates"])
 app.include_router(worker_qualifications.router, prefix="/api", tags=["worker_qualifications"])
+app.include_router(ai_chat.router, prefix="/api", tags=["ai_chat"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
