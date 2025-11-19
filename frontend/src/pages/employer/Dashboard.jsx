@@ -5,6 +5,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import UserHeader from '../../components/common/UserHeader';
+import AIOnboardingOverlay from '../../components/ai/AIOnboardingOverlay';
+import AIHelpButton from '../../components/ai/AIHelpButton';
 
 const EmployerDashboard = () => {
   const { user, logout } = useAuth();
