@@ -91,12 +91,18 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
       setCurrentState(data.current_state);
       setQuickActions(data.quick_actions || []);
       setProgress(data.progress);
+      setOccupationSuggestions(data.occupation_suggestions || []);
+      
+      // Store action results
+      if (data.action_results && data.action_results.length > 0) {
+        setActionResults(data.action_results);
+      }
       
       // Check if onboarding is complete
       if (data.onboarding_complete) {
         setTimeout(() => {
           onComplete();
-        }, 2000);
+        }, 3000); // 3 seconds to read final message
       }
     } catch (error) {
       console.error('Failed to send message:', error);
