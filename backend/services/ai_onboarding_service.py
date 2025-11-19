@@ -196,21 +196,28 @@ Upload your documents now to get started, or you can do it later from your profi
             {"label": "✏️ Let me edit something", "action": "edit_profile"}
         ],
         "next_state": "save_and_complete",
-        "progress": {"current": 5, "total": 5, "label": "Review & confirm"}
+        "progress": {"current": 6, "total": 6, "label": "Review & confirm"}
     },
     "save_and_complete": {
         "system_context": """User approved. Execute actions to save all data:
         1. Create worker_qualification with action: {"type": "create_worker_qualification", "data": {extracted_data}}
         2. Create availability_blocks with action: {"type": "create_availability_blocks", "data": {availability}}
-        3. Respond with success message and welcome them to dashboard
+        3. Check if documents were uploaded. If yes, set account status to "active". If no, set to "pending_documents"
+        4. Respond with success message and welcome them to dashboard
+        
+        If documents uploaded:
+        "🎉 Perfect! Your profile is now ACTIVE and you're ready to receive shift offers!"
+        
+        If documents NOT uploaded:
+        "⚠️ Profile created but account is PENDING. Upload your documents to activate and start receiving job offers."
         """,
         "next_state": "onboarding_complete",
-        "progress": {"current": 5, "total": 5, "label": "Saving..."}
+        "progress": {"current": 6, "total": 6, "label": "Saving..."}
     },
     "onboarding_complete": {
-        "ai_prompt": "🎉 Perfect! Your profile is now live and you're ready to receive shift offers!\n\n✨ Welcome to HR Bank! You can now browse available shifts, manage your schedule, and start earning. The dashboard is all yours!\n\nIf you ever need help, just click the chat button in the corner. Good luck! 🚀",
+        "ai_prompt": "🎉 Perfect! Your profile is now live!\n\n✨ Welcome to HR Bank! You can now browse available shifts, manage your schedule, and start earning. The dashboard is all yours!\n\n💡 **Next Steps:**\n• Complete your document uploads if you haven't (Documents section)\n• Browse available shifts in your area\n• Set up direct deposit for fast payments\n\nIf you ever need help, just click the chat button in the corner. Good luck! 🚀",
         "next_state": "help_mode",
-        "progress": {"current": 5, "total": 5, "label": "Complete!"}
+        "progress": {"current": 6, "total": 6, "label": "Complete!"}
     }
 }
 
