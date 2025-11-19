@@ -5,6 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import UserHeader from '../../components/common/UserHeader';
+import DashboardBlockingAgent from '../../components/common/DashboardBlockingAgent';
 
 const EmployerDashboard = () => {
   const { user, logout } = useAuth();
