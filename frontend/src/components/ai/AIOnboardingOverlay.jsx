@@ -418,6 +418,59 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
           </div>
         )}
 
+        {/* Document Upload Checklist */}
+        {(currentState === 'document_collection' || currentState === 'document_upload') && !loading && (
+          <div className="px-6 py-4 border-t bg-gradient-to-br from-yellow-50 to-orange-50">
+            <div className="mb-3">
+              <h4 className="font-semibold text-gray-900 text-sm mb-1">📋 Required for Account Activation</h4>
+              <p className="text-xs text-gray-600">Upload these documents to start receiving job offers and get paid</p>
+            </div>
+            
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center space-x-2 text-sm">
+                <div className="w-5 h-5 rounded border-2 border-orange-400 bg-white flex items-center justify-center">
+                  <span className="text-xs">📄</span>
+                </div>
+                <span className="text-gray-700">Government-issued ID</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm">
+                <div className="w-5 h-5 rounded border-2 border-orange-400 bg-white flex items-center justify-center">
+                  <span className="text-xs">🆔</span>
+                </div>
+                <span className="text-gray-700">Social Insurance Number (SIN)</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm">
+                <div className="w-5 h-5 rounded border-2 border-orange-400 bg-white flex items-center justify-center">
+                  <span className="text-xs">🏦</span>
+                </div>
+                <span className="text-gray-700">Banking info (void cheque/statement)</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm">
+                <div className="w-5 h-5 rounded border-2 border-gray-300 bg-white flex items-center justify-center">
+                  <span className="text-xs">📜</span>
+                </div>
+                <span className="text-gray-500">Certifications (optional now)</span>
+              </div>
+            </div>
+
+            <div className="bg-white border-2 border-orange-300 rounded-lg p-3 mb-3">
+              <p className="text-xs font-semibold text-orange-800 mb-1">⚠️ Why These Documents Matter:</p>
+              <ul className="text-xs text-orange-700 space-y-1 list-disc list-inside">
+                <li><strong>Get matched to jobs:</strong> Employers verify your identity</li>
+                <li><strong>Receive payments:</strong> Direct deposit needs banking info</li>
+                <li><strong>Tax compliance:</strong> SIN required for T4 slips</li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => document.getElementById('resume-upload').click()}
+              className="w-full py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-all"
+            >
+              📤 Upload Document
+            </button>
+          </div>
+        )}
+
         {/* Quick Actions */}
         {quickActions.length > 0 && !loading && (
           <div className="px-6 py-3 border-t bg-gray-50">
