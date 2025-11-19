@@ -234,7 +234,102 @@ async def execute_action(action: Dict, current_user: dict, db, conversation: Dic
     action_data = action.get("data", {})
     
     try:
-        if action_type == "search_occupations":
+        if action_type == "analyze_resume_for_profiles":
+            # Analyze resume text and suggest matching occupation profiles
+            resume_text = action_data.get("resume_text", "")
+            
+            # Simple keyword matching for now (can be enhanced with AI later)
+            # Extract keywords from resume
+            resume_lower = resume_text.lower()
+            
+            # Get all active templates
+            all_templates = await db.occupation_templates.find(
+                {"active": True},
+                {"_id": 0}
+            ).to_list(100)
+            
+            # Score each template based on keyword matches
+            scored_templates = []
+            for template in all_templates:
+                score = 0
+                matched_requirements = {
+                    "certifications": [],
+                    "skills": [],
+                    "experience_months": 0,
+                    "physical_requirements": [],
+                    "other_requirements": []
+                }
+                
+                # Check certifications
+                for cert in template["minimum_requirements"].get("certifications", []):
+                    cert_name_lower = cert["name"].lower()
+                    if cert_name_lower in resume_lower:
+                        score += 20
+                        matched_requirements["certifications"].append({
+                            "name": cert["name"],
+                            "has": True,
+                            "document_url": None,
+                            "issue_date": None,
+                            "expiry_date": None
+                        })
+                
+                # Check skills
+                for skill in template["minimum_requirements"].get("skills", []):
+                    skill_name_lower = skill["name"].lower()
+                    if skill_name_lower in resume_lower:
+                        score += 15
+                        matched_requirements["skills"].append({
+                            "name": skill["name"],
+                            "has": True,
+                            "proficiency_level": "intermediate"  # Default to intermediate
+                        })
+                
+                # Estimate experience (look for year patterns)
+                import re
+                year_patterns = re.findall(r'(\d+)\s*(year|yr|month|mo)', resume_lower)
+                if year_patterns:
+                    # Sum up months
+                    total_months = 0
+                    for num, unit in year_patterns:
+                        if 'year' in unit or 'yr' in unit:
+                            total_months += int(num) * 12
+                        else:
+                            total_months += int(num)
+                    matched_requirements["experience_months"] = min(total_months, 120)  # Cap at 10 years
+                    
+                    # Score based on minimum requirement
+                    min_months = template["minimum_requirements"]["experience"]["minimum_months"]
+                    if total_months >= min_months:
+                        score += 20
+                
+                # Only include templates with some match
+                if score > 0:
+                    # Get earnings
+                    avg_rate = await db.employer_roles.aggregate([
+                        {"$match": {"occupation_template_id": template["template_id"], "active": True}},
+                        {"$group": {"_id": None, "avg_rate": {"$avg": "$hourly_rate"}}}
+                    ]).to_list(1)
+                    
+                    hourly_rate = avg_rate[0]["avg_rate"] if avg_rate else 20.0
+                    
+                    scored_templates.append({
+                        "template": template,
+                        "match_score": min(score, 100),
+                        "matched_requirements": matched_requirements,
+                        "earnings": {
+                            "hourly": round(hourly_rate, 2),
+                            "monthly": round(hourly_rate * 160, 2),
+                            "annual": round(hourly_rate * 2080, 2)
+                        }
+                    })
+            
+            # Sort by score and take top 3
+            scored_templates.sort(key=lambda x: x["match_score"], reverse=True)
+            top_3 = scored_templates[:3]
+            
+            return {"type": action_type, "status": "success", "data": top_3}
+        
+        elif action_type == "search_occupations":
             # Search occupation templates and return with earnings
             query = action_data.get("query", "")
             templates = await db.occupation_templates.find(
