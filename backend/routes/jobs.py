@@ -70,6 +70,11 @@ async def get_job_offers(
                     "end": shift["end_time"]
                 })
     
+    # Get worker's availability blocks
+    availability_blocks = await db.availability_events.find(
+        {"workforce_id": current_user["user_id"], "type": "available"}
+    ).to_list(1000)
+    
     # If occupation_id specified, filter to that occupation
     if occupation_id:
         occupations = [occ for occ in occupations if occ["occupation_id"] == occupation_id]
