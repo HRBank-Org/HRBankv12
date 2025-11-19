@@ -17,6 +17,49 @@ def generate_roster_title(week_start: date, workplace_name: str) -> str:
     week_start_str = week_start.strftime("%b %d")
     return f"Week of {week_start_str} @ {workplace_name}"
 
+# Helper function to check if workforce is available for a shift
+async def check_workforce_availability(workforce_id: str, shift_date: str, start_time: str, end_time: str, db) -> bool:
+    """
+    Check if workforce member has set availability for the given shift time
+    Returns True if available, False otherwise
+    """
+    try:
+        # Parse shift date
+        try:
+            shift_date_obj = datetime.fromisoformat(shift_date.replace('Z', '+00:00'))
+        except:
+            shift_date_obj = datetime.strptime(shift_date, "%Y-%m-%d")
+        
+        # Get all availability blocks for this workforce member
+        availability_blocks = await db.availability_events.find(
+            {"workforce_id": workforce_id, "type": "available"}
+        ).to_list(1000)
+        
+        # Check if any availability block covers this shift
+        for avail in availability_blocks:
+            try:
+                avail_start = datetime.fromisoformat(avail["start"].replace('Z', '+00:00'))
+                avail_end = datetime.fromisoformat(avail["end"].replace('Z', '+00:00'))
+                
+                # Check if dates match (same day)
+                if avail_start.date() == shift_date_obj.date():
+                    # Extract time components
+                    avail_start_time = avail_start.strftime("%H:%M")
+                    avail_end_time = avail_end.strftime("%H:%M")
+                    
+                    # Check if availability window covers the shift time
+                    if avail_start_time <= start_time and end_time <= avail_end_time:
+                        return True
+            except Exception as e:
+                print(f"Error checking availability block: {e}")
+                continue
+        
+        return False
+    except Exception as e:
+        print(f"Error in check_workforce_availability: {e}")
+        return False
+
+
 @router.post("/rosters")
 async def create_roster(
     request: CreateRosterRequest,
