@@ -134,8 +134,8 @@ Upload your documents now to get started, or you can do it later from your profi
     },
     "manual_data_collection": {
         "system_context": "Collect certifications, skills, experience manually",
-        "next_state": "availability_setup",
-        "progress": {"current": 3, "total": 5, "label": "Almost there"}
+        "next_state": "document_collection",
+        "progress": {"current": 3, "total": 6, "label": "Almost there"}
     },
     "resume_upload_or_manual": {
         "ai_prompt": "Great! Do you have a resume or CV you'd like to upload? I can extract your information automatically. Or we can enter it manually.",
