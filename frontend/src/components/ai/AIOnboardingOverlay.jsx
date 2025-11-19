@@ -143,25 +143,27 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
     setLoading(true);
     
     try {
-      // For PDF/text files, extract text (simplified approach)
-      if (file.type === 'application/pdf' || file.type === 'text/plain') {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Upload file to get URL
-        const uploadResponse = await api.post('/api/worker/qualifications/upload-document', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        
-        // For now, just notify AI that resume was uploaded
-        // In future, can extract text from PDF
-        sendMessage(`I've uploaded my resume: ${file.name}. Please analyze it and suggest profiles.`);
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Upload file to get URL
+      const uploadResponse = await api.post('/api/worker/qualifications/upload-document', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      const documentUrl = uploadResponse.data.data.document_url;
+      
+      // Check current state to determine if this is resume or document upload
+      if (currentState === 'document_upload' || currentState === 'document_collection') {
+        // This is a document upload (ID, SIN, banking, etc.)
+        sendMessage(`I've uploaded ${file.name}. This is my document.`);
       } else {
+        // This is resume upload
         sendMessage(`I've uploaded my resume: ${file.name}. Please analyze it and suggest profiles.`);
       }
     } catch (error) {
       console.error('File upload failed:', error);
-      sendMessage(`I've uploaded my resume: ${file.name}. Please analyze it and suggest profiles.`);
+      sendMessage(`I've uploaded ${file.name}`);
     }
   };
 
