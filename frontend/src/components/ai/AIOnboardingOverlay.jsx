@@ -232,6 +232,52 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Occupation Suggestions with Earnings */}
+        {occupationSuggestions.length > 0 && !loading && (
+          <div className="px-6 py-4 border-t bg-gradient-to-br from-blue-50 to-purple-50">
+            <p className="text-sm font-semibold text-gray-700 mb-3">💼 Available Roles:</p>
+            <div className="space-y-3">
+              {occupationSuggestions.map((occ, index) => (
+                <div
+                  key={index}
+                  onClick={() => sendMessage(`I want to work as a ${occ.name}`)}
+                  className="bg-white border-2 border-blue-200 rounded-xl p-4 cursor-pointer hover:border-blue-500 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-900 text-base mb-1">{occ.name}</h4>
+                      <p className="text-xs text-gray-600 mb-2">{occ.category}</p>
+                      {occ.earnings && (
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2 text-sm">
+                            <span className="font-semibold text-green-600">💰 ${occ.earnings.hourly}/hr</span>
+                            <span className="text-gray-400">|</span>
+                            <span className="text-gray-600">${occ.earnings.monthly.toLocaleString()}/mo</span>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ${occ.earnings.annual.toLocaleString()}/year potential
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0 ml-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-xl">
+                          {occ.category === 'Security' ? '🛡️' : 
+                           occ.category === 'Hospitality' ? '🍽️' :
+                           occ.category === 'Transportation' ? '🚗' :
+                           occ.category === 'Healthcare' ? '🏥' :
+                           occ.category === 'Construction' ? '🏗️' : '💼'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Quick Actions */}
         {quickActions.length > 0 && !loading && (
           <div className="px-6 py-3 border-t bg-gray-50">
