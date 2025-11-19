@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Enhance user headers across all pages: 1) Workers: Display name and profile photo, 2) Employers: Show user name and company name with short address (street-city), no photo, 3) Institutions: Show user name and institution name with short address (street-city), no photo."
+user_problem_statement: "Personalize the in-app messaging agent: Replace generic robot icon with personalized agents - 'Suzie' for Workforce users and 'Emma' for Employer users. Each agent should have a professional photo, unique name, and time-based greeting (Good morning/afternoon/evening)."
 
 backend:
   - task: "User Profile API - Complete User Data for Headers"
