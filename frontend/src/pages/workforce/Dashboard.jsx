@@ -167,7 +167,7 @@ const WorkforceDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <button
             onClick={() => navigate('/workforce/occupations')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
@@ -175,6 +175,14 @@ const WorkforceDashboard = () => {
             <div className="text-3xl mb-2">💼</div>
             <p className="font-semibold text-gray-900 text-sm">My Profiles</p>
             <p className="text-xs text-gray-500">Manage occupation profiles</p>
+          </button>
+          <button
+            onClick={() => navigate('/workforce/availability')}
+            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="text-3xl mb-2">🕒</div>
+            <p className="font-semibold text-gray-900 text-sm">Availability</p>
+            <p className="text-xs text-gray-500">Set your schedule</p>
           </button>
           <button
             onClick={() => navigate('/workforce/my-shifts')}
