@@ -181,20 +181,20 @@ const WorkforceDashboard = () => {
             <p className="text-xs text-gray-500">Manage occupation profiles</p>
           </button>
           <button
-            onClick={() => navigate('/workforce/calendar')}
+            onClick={() => navigate('/workforce/my-shifts')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
             <div className="text-3xl mb-2">📅</div>
-            <p className="font-semibold text-gray-900 text-sm">Calendar</p>
+            <p className="font-semibold text-gray-900 text-sm">My Shifts</p>
             <p className="text-xs text-gray-500">View schedule</p>
           </button>
           <button
-            onClick={() => navigate('/workforce/jobs')}
+            onClick={() => navigate('/workforce/availability')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
-            <div className="text-3xl mb-2">💰</div>
-            <p className="font-semibold text-gray-900 text-sm">Find Work</p>
-            <p className="text-xs text-gray-500">Browse job offers</p>
+            <div className="text-3xl mb-2">📆</div>
+            <p className="font-semibold text-gray-900 text-sm">Availability</p>
+            <p className="text-xs text-gray-500">Set your schedule</p>
           </button>
         </div>
       </div>
