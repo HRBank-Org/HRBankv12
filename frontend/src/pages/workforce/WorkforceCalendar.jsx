@@ -1,356 +1,497 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../contexts/ThemeContext';
-import Calendar from '../../components/common/Calendar';
-import api from '../../utils/api';
+import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import api from '../../utils/api';
+import UserHeader from '../../components/common/UserHeader';
+import { useTheme } from '../../contexts/ThemeContext';
+
+const localizer = momentLocalizer(moment);
 
 const WorkforceCalendar = () => {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState(null);
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [eventForm, setEventForm] = useState({
-    title: '',
-    type: 'available', // available or blackout
-    start: null,
-    end: null,
-    recurring: false,
-    recurringPattern: 'weekly',
-    recurringEndDate: null
-  });
-
   const navigate = useNavigate();
   const theme = useTheme();
+  
+  // State
+  const [view, setView] = useState('form'); // 'form' or 'calendar'
+  const [calendarView, setCalendarView] = useState('week'); // 'day', 'week', 'month', 'agenda'
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    days: {
+      monday: false,
+      tuesday: false,
+      wednesday: false,
+      thursday: false,
+      friday: false,
+      saturday: false,
+      sunday: false
+    },
+    startTime: '09:00',
+    endTime: '17:00',
+    untilDate: ''
+  });
 
   useEffect(() => {
     loadAvailability();
   }, []);
 
   const loadAvailability = async () => {
+    setLoading(true);
     try {
       const response = await api.get('/api/workforce/availability/calendar');
       const availabilityEvents = response.data.data || [];
       
-      // Convert dates from backend to Date objects
-      const formattedEvents = availabilityEvents.map(event => ({
-        ...event,
+      // Convert to calendar events
+      const calendarEvents = availabilityEvents.map(event => ({
+        id: event.id,
+        title: event.type === 'available' ? 'Available' : 'Unavailable',
         start: new Date(event.start),
         end: new Date(event.end),
-        title: event.type === 'available' ? '✅ Available' : '❌ Blackout',
-        color: event.type === 'available' ? '#10b981' : '#ef4444' // green for available, red for blackout
+        type: event.type,
+        allDay: false
       }));
       
-      setEvents(formattedEvents);
+      setEvents(calendarEvents);
     } catch (error) {
       console.error('Failed to load availability:', error);
-      setEvents([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectSlot = useCallback((slotInfo) => {
-    setSelectedSlot(slotInfo);
-    setEventForm({
-      title: '',
-      type: 'available',
-      start: slotInfo.start,
-      end: slotInfo.end,
-      recurring: false,
-      recurringPattern: 'weekly',
-      recurringEndDate: null
-    });
-    setEditingEvent(null);
-    setShowEventModal(true);
-  }, []);
-
-  const handleSelectEvent = useCallback((event) => {
-    setEditingEvent(event);
-    setEventForm({
-      title: event.title || '',
-      type: event.type || 'available',
-      start: event.start,
-      end: event.end,
-      recurring: false,
-      recurringPattern: 'weekly',
-      recurringEndDate: null
-    });
-    setShowEventModal(true);
-  }, []);
-
-  const handleDeleteEvent = async () => {
-    if (!editingEvent) return;
-
-    if (!window.confirm('Are you sure you want to delete this availability block?')) {
-      return;
-    }
-
-    try {
-      await api.delete(`/api/workforce/availability/calendar/${editingEvent.id}`);
-      setEvents(events.filter(e => e.id !== editingEvent.id));
-      setShowEventModal(false);
-      resetEventForm();
-    } catch (error) {
-      console.error('Failed to delete availability:', error);
-      alert('Failed to delete availability block. Please try again.');
-    }
+  const handleDayToggle = (day) => {
+    setFormData(prev => ({
+      ...prev,
+      days: {
+        ...prev.days,
+        [day]: !prev.days[day]
+      }
+    }));
   };
 
-  const handleSaveEvent = async () => {
-    if (!eventForm.start || !eventForm.end) {
-      alert('Please select start and end times');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate
+    const selectedDays = Object.keys(formData.days).filter(day => formData.days[day]);
+    if (selectedDays.length === 0) {
+      alert('Please select at least one day');
+      return;
+    }
+    
+    if (!formData.untilDate) {
+      alert('Please select an end date');
+      return;
+    }
+    
+    if (formData.startTime >= formData.endTime) {
+      alert('End time must be after start time');
       return;
     }
 
-    setSaving(true);
+    setLoading(true);
     try {
-      const eventData = {
-        type: eventForm.type,
-        title: eventForm.type === 'available' ? '✅ Available' : '❌ Blackout',
-        start: eventForm.start.toISOString(),
-        end: eventForm.end.toISOString(),
-        recurring: eventForm.recurring,
-        recurringPattern: eventForm.recurring ? eventForm.recurringPattern : null,
-        recurringEndDate: eventForm.recurring && eventForm.recurringEndDate 
-          ? eventForm.recurringEndDate.toISOString() 
-          : null
-      };
-
+      // If editing, delete old availability first
       if (editingEvent) {
-        // Update existing availability
-        const response = await api.put(`/api/workforce/availability/calendar/${editingEvent.id}`, eventData);
-        const updatedEvent = response.data.data || response.data;
-        
-        setEvents(events.map(e => 
-          e.id === editingEvent.id 
-            ? { 
-                ...updatedEvent, 
-                start: new Date(updatedEvent.start), 
-                end: new Date(updatedEvent.end),
-                color: updatedEvent.type === 'available' ? '#10b981' : '#ef4444'
-              }
-            : e
-        ));
-      } else {
-        // Create new availability block(s)
-        const response = await api.post('/api/workforce/availability/calendar', eventData);
-        
-        const newEvents = response.data.data || [response.data];
-        const formattedNewEvents = newEvents.map(event => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
-          title: event.type === 'available' ? '✅ Available' : '❌ Blackout',
-          color: event.type === 'available' ? '#10b981' : '#ef4444'
-        }));
-        
-        setEvents([...events, ...formattedNewEvents]);
+        await api.delete(`/api/workforce/availability/calendar/${editingEvent.id}`);
       }
 
-      setShowEventModal(false);
-      resetEventForm();
+      // Create availability blocks for each selected day
+      const requests = [];
+      const startDate = new Date();
+      const endDate = new Date(formData.untilDate);
+      
+      // Generate all dates until end date
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        
+        if (formData.days[dayName]) {
+          // Create availability event for this day
+          const eventStart = new Date(currentDate);
+          const [startHour, startMin] = formData.startTime.split(':');
+          eventStart.setHours(parseInt(startHour), parseInt(startMin), 0);
+          
+          const eventEnd = new Date(currentDate);
+          const [endHour, endMin] = formData.endTime.split(':');
+          eventEnd.setHours(parseInt(endHour), parseInt(endMin), 0);
+          
+          requests.push(
+            api.post('/api/workforce/availability/calendar', {
+              start: eventStart.toISOString(),
+              end: eventEnd.toISOString(),
+              type: 'available',
+              title: 'Available'
+            })
+          );
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      await Promise.all(requests);
+      
+      // Reload availability
+      await loadAvailability();
+      
+      // Switch to calendar view
+      setView('calendar');
+      setEditingEvent(null);
+      
+      // Reset form
+      setFormData({
+        days: {
+          monday: false,
+          tuesday: false,
+          wednesday: false,
+          thursday: false,
+          friday: false,
+          saturday: false,
+          sunday: false
+        },
+        startTime: '09:00',
+        endTime: '17:00',
+        untilDate: ''
+      });
+      
+      alert('Availability saved successfully!');
     } catch (error) {
       console.error('Failed to save availability:', error);
       alert('Failed to save availability. Please try again.');
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const resetEventForm = () => {
-    setEventForm({
-      title: '',
-      type: 'available',
-      start: null,
-      end: null,
-      recurring: false,
-      recurringPattern: 'weekly',
-      recurringEndDate: null
-    });
-    setSelectedSlot(null);
-    setEditingEvent(null);
+  const handleEventClick = (event) => {
+    if (window.confirm('Do you want to edit this availability block?')) {
+      // Load event data into form
+      const dayName = event.start.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+      const startTime = moment(event.start).format('HH:mm');
+      const endTime = moment(event.end).format('HH:mm');
+      
+      setEditingEvent(event);
+      setFormData({
+        days: {
+          monday: dayName === 'monday',
+          tuesday: dayName === 'tuesday',
+          wednesday: dayName === 'wednesday',
+          thursday: dayName === 'thursday',
+          friday: dayName === 'friday',
+          saturday: dayName === 'saturday',
+          sunday: dayName === 'sunday'
+        },
+        startTime: startTime,
+        endTime: endTime,
+        untilDate: moment(event.end).format('YYYY-MM-DD')
+      });
+      setView('form');
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: theme.primaryColor }}></div>
-          <p className="text-gray-600">Loading your availability...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleDeleteAll = async () => {
+    if (!window.confirm('Are you sure you want to delete ALL availability? This cannot be undone.')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Delete all events
+      const deleteRequests = events.map(event => 
+        api.delete(`/api/workforce/availability/calendar/${event.id}`)
+      );
+      await Promise.all(deleteRequests);
+      
+      setEvents([]);
+      alert('All availability deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete availability:', error);
+      alert('Failed to delete some availability blocks');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const eventStyleGetter = (event) => {
+    const style = {
+      backgroundColor: event.type === 'available' ? '#10b981' : '#ef4444',
+      borderRadius: '5px',
+      opacity: 0.8,
+      color: 'white',
+      border: '0px',
+      display: 'block'
+    };
+    return { style };
+  };
+
+  const dayNames = [
+    { key: 'monday', label: 'Monday' },
+    { key: 'tuesday', label: 'Tuesday' },
+    { key: 'wednesday', label: 'Wednesday' },
+    { key: 'thursday', label: 'Thursday' },
+    { key: 'friday', label: 'Friday' },
+    { key: 'saturday', label: 'Saturday' },
+    { key: 'sunday', label: 'Sunday' }
+  ];
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header */}
-      <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/workforce/dashboard')}
-              className="text-white hover:opacity-80"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <div>
-              <h1 className="text-lg font-bold">My Availability Calendar</h1>
-              <p className="text-sm opacity-90">Set when you're available to work</p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <UserHeader 
+        showBack={true}
+        onBackClick={() => navigate('/workforce/dashboard')}
+        title="My Availability"
+      />
 
-      {/* Instructions */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <h3 className="text-blue-900 font-semibold mb-2">📅 How to Use Your Calendar</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• <strong>Click any time slot</strong> to mark yourself as available or set a blackout period</li>
-            <li>• <strong>Green blocks (✅)</strong> = Times you're available for shifts</li>
-            <li>• <strong>Red blocks (❌)</strong> = Blackout times (college, personal commitments)</li>
-            <li>• <strong>Click an existing block</strong> to edit or delete it</li>
-            <li>• <strong>Set recurring patterns</strong> (e.g., every Monday 9am-5pm)</li>
-            <li>• Only shifts matching your available times will be shown to you</li>
-          </ul>
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* View Toggle Buttons */}
+        <div className="flex gap-3 mb-6">
+          <button
+            onClick={() => setView('form')}
+            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+              view === 'form'
+                ? 'text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+            style={view === 'form' ? { backgroundColor: theme.primaryColor } : {}}
+          >
+            {editingEvent ? '✏️ Edit Availability' : '➕ Set Availability'}
+          </button>
+          <button
+            onClick={() => setView('calendar')}
+            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+              view === 'calendar'
+                ? 'text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+            style={view === 'calendar' ? { backgroundColor: theme.primaryColor } : {}}
+          >
+            📅 View Calendar
+          </button>
         </div>
 
-        {/* Calendar */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <Calendar
-            events={events}
-            onSelectSlot={handleSelectSlot}
-            onSelectEvent={handleSelectEvent}
-            defaultView="week"
-          />
-        </div>
-      </div>
+        {/* FORM VIEW */}
+        {view === 'form' && (
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              {editingEvent ? 'Edit Your Availability' : 'Set Your Availability'}
+            </h2>
+            
+            <form onSubmit={handleSubmit}>
+              {/* Days Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Select Days
+                </label>
+                <div className="space-y-2">
+                  {dayNames.map(({ key, label }) => (
+                    <label
+                      key={key}
+                      className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.days[key]}
+                        onChange={() => handleDayToggle(key)}
+                        className="w-5 h-5 rounded border-gray-300 mr-3"
+                        style={{ accentColor: theme.primaryColor }}
+                      />
+                      <span className="font-medium text-gray-900">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
-      {/* Event Modal */}
-      {showEventModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              {editingEvent ? 'Edit Availability' : 'Set Availability'}
-            </h3>
+              {/* Time Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Start Time
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.startTime}
+                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-0"
+                    style={{ focusRing: theme.primaryColor }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    End Time
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.endTime}
+                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-0"
+                    style={{ focusRing: theme.primaryColor }}
+                    required
+                  />
+                </div>
+              </div>
 
-            {/* Availability Type */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type
-              </label>
-              <div className="grid grid-cols-2 gap-3">
+              {/* Until Date */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Available Until
+                </label>
+                <input
+                  type="date"
+                  value={formData.untilDate}
+                  onChange={(e) => setFormData({ ...formData, untilDate: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-0"
+                  style={{ focusRing: theme.primaryColor }}
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Your availability will repeat on selected days until this date
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
                 <button
-                  type="button"
-                  onClick={() => setEventForm({...eventForm, type: 'available'})}
-                  className={`p-3 rounded-lg border-2 text-center font-medium transition-all ${
-                    eventForm.type === 'available'
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                  style={{ backgroundColor: theme.primaryColor }}
                 >
-                  ✅ Available
+                  {loading ? 'Saving...' : editingEvent ? 'Update Availability' : 'Save Availability'}
                 </button>
+                {editingEvent && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingEvent(null);
+                      setFormData({
+                        days: {
+                          monday: false,
+                          tuesday: false,
+                          wednesday: false,
+                          thursday: false,
+                          friday: false,
+                          saturday: false,
+                          sunday: false
+                        },
+                        startTime: '09:00',
+                        endTime: '17:00',
+                        untilDate: ''
+                      });
+                    }}
+                    className="px-6 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* CALENDAR VIEW */}
+        {view === 'calendar' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Your Availability Calendar</h2>
+              {events.length > 0 && (
                 <button
-                  type="button"
-                  onClick={() => setEventForm({...eventForm, type: 'blackout'})}
-                  className={`p-3 rounded-lg border-2 text-center font-medium transition-all ${
-                    eventForm.type === 'blackout'
-                      ? 'border-red-500 bg-red-50 text-red-700'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
+                  onClick={handleDeleteAll}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
                 >
-                  ❌ Blackout
+                  🗑️ Delete All
+                </button>
+              )}
+            </div>
+
+            {/* Calendar View Toggle */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setCalendarView('day')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  calendarView === 'day' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Day
+              </button>
+              <button
+                onClick={() => setCalendarView('week')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  calendarView === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Week
+              </button>
+              <button
+                onClick={() => setCalendarView('month')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  calendarView === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Month
+              </button>
+              <button
+                onClick={() => setCalendarView('agenda')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  calendarView === 'agenda' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Agenda
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center h-96">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-16 border-2 border-dashed border-gray-300 rounded-lg">
+                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-lg text-gray-600 mb-4">No availability set yet</p>
+                <button
+                  onClick={() => setView('form')}
+                  className="px-6 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity"
+                  style={{ backgroundColor: theme.primaryColor }}
+                >
+                  Set Your Availability
                 </button>
               </div>
-            </div>
-
-            {/* Time Display */}
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
-                <strong>Start:</strong> {eventForm.start ? moment(eventForm.start).format('ddd, MMM D, YYYY h:mm A') : 'Not set'}
-              </p>
-              <p className="text-sm text-gray-600 mt-1">
-                <strong>End:</strong> {eventForm.end ? moment(eventForm.end).format('ddd, MMM D, YYYY h:mm A') : 'Not set'}
-              </p>
-            </div>
-
-            {/* Recurring Option */}
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={eventForm.recurring}
-                  onChange={(e) => setEventForm({...eventForm, recurring: e.target.checked})}
-                  className="mr-2"
+            ) : (
+              <div style={{ height: '600px' }}>
+                <BigCalendar
+                  localizer={localizer}
+                  events={events}
+                  startAccessor="start"
+                  endAccessor="end"
+                  view={calendarView}
+                  onView={setCalendarView}
+                  onSelectEvent={handleEventClick}
+                  eventPropGetter={eventStyleGetter}
+                  style={{ height: '100%' }}
+                  min={new Date(2024, 0, 1, 6, 0, 0)}
+                  max={new Date(2024, 0, 1, 23, 0, 0)}
+                  step={30}
+                  timeslots={2}
                 />
-                <span className="text-sm text-gray-700">Repeat this {eventForm.type === 'available' ? 'availability' : 'blackout'}</span>
-              </label>
-              
-              {eventForm.recurring && (
-                <div className="mt-3 space-y-3">
-                  <select
-                    value={eventForm.recurringPattern}
-                    onChange={(e) => setEventForm({...eventForm, recurringPattern: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="daily">Every Day</option>
-                    <option value="weekly">Every Week</option>
-                    <option value="weekdays">Weekdays (Mon-Fri)</option>
-                  </select>
-                  
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Repeat Until:</label>
-                    <input
-                      type="date"
-                      onChange={(e) => setEventForm({...eventForm, recurringEndDate: e.target.value ? new Date(e.target.value) : null})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowEventModal(false);
-                  resetEventForm();
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              
-              {editingEvent && (
-                <button
-                  onClick={handleDeleteEvent}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              )}
-              
-              <button
-                onClick={handleSaveEvent}
-                disabled={saving}
-                className="flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90"
-                style={{ backgroundColor: theme.primaryColor }}
-              >
-                {saving ? 'Saving...' : editingEvent ? 'Update' : 'Save'}
-              </button>
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>💡 Tip:</strong> Click on any availability block in the calendar to edit it. You can change the days, times, or end date.
+              </p>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
