@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
   // Base URL from environment variable (falls back to preview if not set)
-  BASE_URL: process.env.EXPO_PUBLIC_BACKEND_URL || 'https://compliant-payroll-1.preview.emergentagent.com/api',
+  BASE_URL: process.env.EXPO_PUBLIC_BACKEND_URL || 'https://hrbank-workforce.preview.emergentagent.com/api',
   
   TIMEOUT: 15000, // 15 seconds
 };
