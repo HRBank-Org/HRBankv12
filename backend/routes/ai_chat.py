@@ -165,9 +165,15 @@ async def send_chat_message(
     
     # Execute any actions
     action_results = []
+    occupation_suggestions = []
+    
     for action in ai_response.get("actions", []):
         result = await execute_action(action, current_user, db, conversation)
         action_results.append(result)
+        
+        # If action was search_occupations, add to suggestions
+        if action.get("type") == "search_occupations" and result.get("status") == "success":
+            occupation_suggestions = result.get("data", [])
     
     return {
         "success": True,
@@ -179,7 +185,8 @@ async def send_chat_message(
             "show_ui": ai_response.get("show_ui"),
             "progress": ai_response.get("progress"),
             "onboarding_complete": conversation["onboarding_complete"],
-            "action_results": action_results
+            "action_results": action_results,
+            "occupation_suggestions": occupation_suggestions
         }
     }
 
