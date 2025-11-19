@@ -1,13 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
-  // Preview Environment
-  PREVIEW_URL: 'https://compliant-payroll-1.preview.emergentagent.com/api',
-  
-  // Production Environment
-  PRODUCTION_URL: 'https://hrbank.ca/api',
-  
-  // Current Environment (change to PRODUCTION_URL when deployed)
-  BASE_URL: 'https://compliant-payroll-1.preview.emergentagent.com/api',
+  // Base URL from environment variable (falls back to preview if not set)
+  BASE_URL: process.env.EXPO_PUBLIC_BACKEND_URL || 'https://compliant-payroll-1.preview.emergentagent.com/api',
   
   TIMEOUT: 15000, // 15 seconds
 };
