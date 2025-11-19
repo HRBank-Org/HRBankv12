@@ -113,6 +113,74 @@ const MessagesWithAI = () => {
     }
   };
 
+  const handleResumeUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.pdf') && !file.name.toLowerCase().endsWith('.docx')) {
+      alert('Please upload a PDF or DOCX file');
+      return;
+    }
+
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    setUploadingResume(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post('/api/resume/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setParsedResume(response.data.data);
+      setShowResumeConfirm(true);
+
+      // Send confirmation message to AI
+      await api.post('/api/agent/chat', {
+        message: `I uploaded my resume: ${file.name}`
+      });
+      await loadAgentMessages();
+    } catch (error) {
+      console.error('Failed to upload resume:', error);
+      alert(error.response?.data?.detail || 'Failed to upload resume. Please try again.');
+    } finally {
+      setUploadingResume(false);
+      event.target.value = ''; // Reset file input
+    }
+  };
+
+  const applyResumeData = async () => {
+    if (!parsedResume?.parse_id) return;
+
+    setApplyingResume(true);
+    try {
+      const response = await api.post(`/api/resume/apply/${parsedResume.parse_id}`);
+      
+      alert('Resume data applied successfully! Your profile and occupation profiles have been updated.');
+      setShowResumeConfirm(false);
+      setParsedResume(null);
+
+      // Send success message to AI
+      await api.post('/api/agent/chat', {
+        message: 'I confirmed the resume data. Please show me what was updated.'
+      });
+      await loadAgentMessages();
+    } catch (error) {
+      console.error('Failed to apply resume:', error);
+      alert('Failed to apply resume data. Please try again.');
+    } finally {
+      setApplyingResume(false);
+    }
+  };
+
   const getDashboardRoute = () => {
     const routes = {
       workforce: '/workforce/dashboard',
