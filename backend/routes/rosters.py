@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from datetime import datetime, timedelta, date
 from database import get_database
-from routes.auth import get_current_user
+from auth.dependencies import get_current_user
 from models.roster import (
     Roster, Role, Shift,
     CreateRosterRequest, CreateRoleRequest, CreateShiftRequest,
