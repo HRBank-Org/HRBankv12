@@ -9,35 +9,81 @@ load_dotenv()
 # Onboarding conversation flows for different user types
 WORKFORCE_ONBOARDING_STATES = {
     "welcome": {
-        "ai_prompt": "Welcome to HR Bank! 👋 I'm here to help you get started. What kind of work are you looking for? (For example: security guard, bartender, driver, healthcare worker, construction, etc.)",
+        "ai_prompt": "Welcome to HR Bank! 👋 I'm here to help you get started quickly.\n\nDo you have a resume or CV? I can analyze it and suggest the best occupational profiles for you, complete with your experience and certifications.\n\nOr we can build your profile step by step if you prefer.",
+        "quick_actions": [
+            {"label": "📄 Upload Resume", "action": "upload_resume"},
+            {"label": "✍️ Build Profile Manually", "action": "manual_entry"}
+        ],
+        "next_state": "resume_or_manual_choice",
+        "progress": {"current": 1, "total": 5, "label": "Getting started"}
+    },
+    "resume_or_manual_choice": {
+        "system_context": "Wait for user to upload resume or choose manual entry",
+        "next_state": "resume_parsing",
+        "progress": {"current": 1, "total": 5, "label": "Getting started"}
+    },
+    "resume_parsing": {
+        "system_context": """User uploaded resume. Parse and extract:
+        1. Name, contact info
+        2. All work experience (job titles, companies, durations, responsibilities)
+        3. All certifications (with dates if available)
+        4. All skills (with proficiency levels)
+        5. Education
+        
+        Then use action: {"type": "analyze_resume_for_profiles", "data": {"resume_text": "..."}}
+        This will return 1-3 matching occupation templates with extracted data mapped to requirements.
+        
+        Present suggestions like:
+        "Great! I analyzed your resume and found you're qualified for 3 roles:
+        
+        🛡️ Security Guard (92% match)
+        From your resume:
+        • Security License ✓
+        • First Aid/CPR ✓
+        • 18 months experience at ABC Security
+        • Conflict resolution skills
+        💰 Potential: $22/hr | $3,520/month | $42,240/year
+        
+        🚗 Driver (85% match)
+        From your resume:
+        • Class G License ✓
+        • 12 months delivery experience
+        • Route planning skills
+        💰 Potential: $20/hr | $3,200/month | $38,400/year
+        
+        🏗️ Construction Worker (78% match)
+        From your resume:
+        • WHMIS ✓
+        • 6 months experience
+        • Basic hand tools
+        💰 Potential: $24/hr | $3,840/month | $46,080/year
+        
+        Which profiles would you like me to create? You can select all 3 or just the ones you want."
+        
+        Show quick actions for each profile
+        """,
+        "next_state": "profile_selection",
+        "progress": {"current": 2, "total": 5, "label": "Analyzing your experience"}
+    },
+    "profile_selection": {
+        "system_context": "User is selecting which profiles to create. Store their selections.",
+        "next_state": "availability_setup",
+        "progress": {"current": 3, "total": 5, "label": "Setting up profiles"}
+    },
+    "manual_entry": {
+        "system_context": "User chose manual entry. Ask what kind of work they're looking for, then guide through building one profile.",
         "next_state": "occupation_discovery",
-        "progress": {"current": 1, "total": 5, "label": "Getting to know you"}
+        "progress": {"current": 2, "total": 5, "label": "Building your profile"}
     },
     "occupation_discovery": {
-        "system_context": """User mentioned their occupation. 
-        1. Search occupation templates using action: {"type": "search_occupations", "data": {"query": "user's occupation"}}
-        2. Present 3-5 matching occupations with earnings potential
-        3. Format response like:
-           "I found these matching roles:
-           
-           🛡️ Security Guard
-           💰 Earn: $22/hr | $3,520/month | $42,240/year
-           Requirements: Security License, First Aid
-           
-           🍽️ Bartender
-           💰 Earn: $18/hr | $2,880/month | $34,560/year
-           Requirements: Smart Serve, Mixology skills
-           
-           Which one interests you most?"
-        4. Wait for user to select
-        """,
-        "next_state": "occupation_selected",
-        "progress": {"current": 2, "total": 5, "label": "Choosing your path"}
+        "system_context": "Search occupations and let user pick one to build manually",
+        "next_state": "manual_data_collection",
+        "progress": {"current": 2, "total": 5, "label": "Building your profile"}
     },
-    "occupation_selected": {
-        "system_context": "User selected an occupation. Ask if they have a resume or want to enter details manually.",
-        "next_state": "resume_upload_or_manual",
-        "progress": {"current": 3, "total": 5, "label": "Building your profile"}
+    "manual_data_collection": {
+        "system_context": "Collect certifications, skills, experience manually",
+        "next_state": "availability_setup",
+        "progress": {"current": 3, "total": 5, "label": "Almost there"}
     },
     "resume_upload_or_manual": {
         "ai_prompt": "Great! Do you have a resume or CV you'd like to upload? I can extract your information automatically. Or we can enter it manually.",
