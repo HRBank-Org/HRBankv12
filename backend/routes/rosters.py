@@ -324,8 +324,43 @@ async def bulk_assign_workforce(
     photo_url = workforce_profile.get("profile_picture") if workforce_profile else None
     
     updated_count = 0
+    skipped_count = 0
+    skipped_details = []
     
     for shift_id in request.shift_ids:
+        # Find the roster and shift
+        roster = await db.rosters.find_one(
+            {"shifts.shift_id": shift_id, "employer_id": current_user["user_id"]}
+        )
+        
+        if not roster:
+            skipped_count += 1
+            skipped_details.append({"shift_id": shift_id, "reason": "Shift not found"})
+            continue
+        
+        shift = next((s for s in roster["shifts"] if s["shift_id"] == shift_id), None)
+        if not shift:
+            skipped_count += 1
+            skipped_details.append({"shift_id": shift_id, "reason": "Shift not found in roster"})
+            continue
+        
+        # Check availability
+        is_available = await check_workforce_availability(
+            workforce_id=request.workforce_id,
+            shift_date=shift["shift_date"],
+            start_time=shift["start_time"],
+            end_time=shift["end_time"],
+            db=db
+        )
+        
+        if not is_available:
+            skipped_count += 1
+            skipped_details.append({
+                "shift_id": shift_id, 
+                "reason": f"Not available {shift['shift_date']} {shift['start_time']}-{shift['end_time']}"
+            })
+            continue
+        
         result = await db.rosters.update_one(
             {"shifts.shift_id": shift_id, "employer_id": current_user["user_id"]},
             {
@@ -340,7 +375,14 @@ async def bulk_assign_workforce(
         if result.modified_count > 0:
             updated_count += 1
     
-    return {"success": True, "data": {"shifts_assigned": updated_count}}
+    return {
+        "success": True, 
+        "data": {
+            "shifts_assigned": updated_count,
+            "shifts_skipped": skipped_count,
+            "skipped_details": skipped_details if skipped_count > 0 else None
+        }
+    }
 
 @router.delete("/rosters/{roster_id}/shifts/{shift_id}/unassign")
 async def unassign_workforce(
