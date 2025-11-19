@@ -10,12 +10,17 @@ import os
 from dotenv import load_dotenv
 
 from auth.dependencies import get_current_user
-from database import get_db
 
 # Load environment variables
 load_dotenv()
 
 router = APIRouter(prefix="/api/agent", tags=["AI Agent"])
+
+
+def get_db():
+    """Dependency to get database instance"""
+    from server import db
+    return db
 
 
 class ChatMessageRequest(BaseModel):
