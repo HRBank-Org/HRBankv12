@@ -248,15 +248,16 @@ const WorkforceCalendar = () => {
       
       while (currentDate <= endDate) {
         const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const dayData = formData.days[dayName];
         
-        // Skip if this day has a confirmed shift
-        if (!conflictDates.has(currentDate.toDateString()) && formData.days[dayName]) {
+        // Skip if this day has a confirmed shift or is not enabled
+        if (!conflictDates.has(currentDate.toDateString()) && dayData && dayData.enabled) {
           const eventStart = new Date(currentDate);
-          const [startHour, startMin] = formData.startTime.split(':');
+          const [startHour, startMin] = dayData.startTime.split(':');
           eventStart.setHours(parseInt(startHour), parseInt(startMin), 0);
           
           const eventEnd = new Date(currentDate);
-          const [endHour, endMin] = formData.endTime.split(':');
+          const [endHour, endMin] = dayData.endTime.split(':');
           eventEnd.setHours(parseInt(endHour), parseInt(endMin), 0);
           
           requests.push(
