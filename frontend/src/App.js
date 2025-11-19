@@ -62,6 +62,7 @@ import Analytics from './pages/admin/Analytics';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
+import MyShifts from './pages/workforce/MyShifts';
 import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimplified';
 import ManageOccupations from './pages/admin/ManageOccupations';
 
