@@ -6,9 +6,14 @@ from typing import Dict, List
 from datetime import datetime, date
 
 from auth.dependencies import get_current_user
-from database import get_db
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard Check"])
+
+
+def get_db():
+    """Dependency to get database instance"""
+    from server import db
+    return db
 
 
 @router.get("/check-status", response_model=Dict)
