@@ -592,16 +592,14 @@ const WorkforceCalendar = () => {
                       setEditingEvent(null);
                       setFormData({
                         days: {
-                          monday: false,
-                          tuesday: false,
-                          wednesday: false,
-                          thursday: false,
-                          friday: false,
-                          saturday: false,
-                          sunday: false
+                          monday: { enabled: false, startTime: '09:00', endTime: '17:00' },
+                          tuesday: { enabled: false, startTime: '09:00', endTime: '17:00' },
+                          wednesday: { enabled: false, startTime: '09:00', endTime: '17:00' },
+                          thursday: { enabled: false, startTime: '09:00', endTime: '17:00' },
+                          friday: { enabled: false, startTime: '09:00', endTime: '17:00' },
+                          saturday: { enabled: false, startTime: '09:00', endTime: '17:00' },
+                          sunday: { enabled: false, startTime: '09:00', endTime: '17:00' }
                         },
-                        startTime: '09:00',
-                        endTime: '17:00',
                         untilDate: ''
                       });
                       setFormErrors({});
