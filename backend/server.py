@@ -123,6 +123,8 @@ app.include_router(worker_qualifications.router, prefix="/api", tags=["worker_qu
 from pathlib import Path
 UPLOAD_DIR = Path("/app/backend/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+DOCUMENTS_DIR = Path("/app/backend/uploads/documents")
+DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 app.add_middleware(
