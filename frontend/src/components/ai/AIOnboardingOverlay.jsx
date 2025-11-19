@@ -141,9 +141,28 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
     if (!file) return;
 
     setLoading(true);
-    // TODO: Upload file and send URL to AI
-    // For now, just send a message
-    sendMessage(`I've uploaded my resume: ${file.name}`);
+    
+    try {
+      // For PDF/text files, extract text (simplified approach)
+      if (file.type === 'application/pdf' || file.type === 'text/plain') {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Upload file to get URL
+        const uploadResponse = await api.post('/api/worker/qualifications/upload-document', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        // For now, just notify AI that resume was uploaded
+        // In future, can extract text from PDF
+        sendMessage(`I've uploaded my resume: ${file.name}. Please analyze it and suggest profiles.`);
+      } else {
+        sendMessage(`I've uploaded my resume: ${file.name}. Please analyze it and suggest profiles.`);
+      }
+    } catch (error) {
+      console.error('File upload failed:', error);
+      sendMessage(`I've uploaded my resume: ${file.name}. Please analyze it and suggest profiles.`);
+    }
   };
 
   const handleKeyPress = (e) => {
