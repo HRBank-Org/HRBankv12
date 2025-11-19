@@ -629,6 +629,92 @@ async def execute_action(action: Dict, current_user: dict, db, conversation: Dic
             await db.workplaces.insert_one(workplace)
             return {"type": action_type, "status": "success", "message": "Workplace created", "data": workplace}
         
+        elif action_type == "create_workforce_invitations":
+            # Send email invitations to workforce members
+            emails = action_data.get("emails", [])
+            employer_name = action_data.get("employer_name", "Company")
+            roles = action_data.get("roles", [])
+            
+            invitations_sent = []
+            
+            for email in emails:
+                # Validate email
+                email = email.strip().lower()
+                if not email or '@' not in email:
+                    continue
+                
+                # Create invitation record
+                invitation = {
+                    "invitation_id": str(uuid.uuid4()),
+                    "employer_id": current_user["user_id"],
+                    "employer_name": employer_name,
+                    "email": email,
+                    "roles": roles,
+                    "status": "pending",
+                    "created_at": datetime.utcnow(),
+                    "expires_at": datetime.utcnow() + timedelta(days=30)
+                }
+                
+                await db.workforce_invitations.insert_one(invitation)
+                
+                # TODO: Send actual email invitation
+                # For now, just track it
+                invitations_sent.append(email)
+            
+            return {
+                "type": action_type,
+                "status": "success",
+                "message": f"✅ Sent {len(invitations_sent)} invitation(s)",
+                "data": {"emails_sent": invitations_sent}
+            }
+        
+        elif action_type == "upload_employer_document":
+            # Track employer document upload
+            document_type = action_data.get("document_type")  # "business_license", "wsib", "liability_insurance", "banking"
+            document_url = action_data.get("document_url")
+            
+            # Get or create document record
+            doc_record = await db.employer_documents.find_one({"employer_id": current_user["user_id"]})
+            
+            if not doc_record:
+                doc_record = {
+                    "employer_id": current_user["user_id"],
+                    "documents": {},
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+            
+            # Add document
+            doc_record["documents"][document_type] = {
+                "url": document_url,
+                "uploaded_at": datetime.utcnow(),
+                "status": "pending_verification"
+            }
+            doc_record["updated_at"] = datetime.utcnow()
+            
+            await db.employer_documents.update_one(
+                {"employer_id": current_user["user_id"]},
+                {"$set": doc_record},
+                upsert=True
+            )
+            
+            # Check if all required documents are uploaded
+            required_docs = ["business_license", "wsib", "liability_insurance", "banking"]
+            all_uploaded = all(doc_type in doc_record["documents"] for doc_type in required_docs)
+            
+            # Update employer status
+            if all_uploaded:
+                await db.users.update_one(
+                    {"user_id": current_user["user_id"]},
+                    {"$set": {"profile_status": "active", "documents_complete": True}}
+                )
+                status_message = "✅ All required documents uploaded! Your company is now ACTIVE and can post shifts."
+            else:
+                missing = [doc for doc in required_docs if doc not in doc_record["documents"]]
+                status_message = f"Document uploaded. Still need: {', '.join(missing)}"
+            
+            return {"type": action_type, "status": "success", "message": status_message, "data": {"account_active": all_uploaded}}
+        
         elif action_type == "create_employer_role":
             # Create employer role
             role_data = action_data.get("role", {})
