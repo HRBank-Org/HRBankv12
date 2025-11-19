@@ -537,6 +537,82 @@ async def execute_action(action: Dict, current_user: dict, db, conversation: Dic
                 "data": {"match_score": match_score, "occupation_name": template["name"]}
             }
         
+        elif action_type == "upload_document":
+            # Track document upload
+            document_type = action_data.get("document_type")  # "government_id", "sin", "banking", "certification"
+            document_url = action_data.get("document_url")
+            
+            # Get or create document record
+            doc_record = await db.workforce_documents.find_one({"workforce_id": current_user["user_id"]})
+            
+            if not doc_record:
+                doc_record = {
+                    "workforce_id": current_user["user_id"],
+                    "documents": {},
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+            
+            # Add document
+            doc_record["documents"][document_type] = {
+                "url": document_url,
+                "uploaded_at": datetime.utcnow(),
+                "status": "pending_verification"
+            }
+            doc_record["updated_at"] = datetime.utcnow()
+            
+            await db.workforce_documents.update_one(
+                {"workforce_id": current_user["user_id"]},
+                {"$set": doc_record},
+                upsert=True
+            )
+            
+            # Check if all required documents are uploaded
+            required_docs = ["government_id", "sin", "banking"]
+            all_uploaded = all(doc_type in doc_record["documents"] for doc_type in required_docs)
+            
+            # Update user status
+            if all_uploaded:
+                await db.users.update_one(
+                    {"user_id": current_user["user_id"]},
+                    {"$set": {"profile_status": "active", "documents_complete": True}}
+                )
+                status_message = "✅ All required documents uploaded! Your account is now ACTIVE and you can receive job offers."
+            else:
+                missing = [doc for doc in required_docs if doc not in doc_record["documents"]]
+                status_message = f"Document uploaded. Still need: {', '.join(missing)}"
+            
+            return {"type": action_type, "status": "success", "message": status_message, "data": {"account_active": all_uploaded}}
+        
+        elif action_type == "check_document_status":
+            # Check if user has uploaded all required documents
+            doc_record = await db.workforce_documents.find_one({"workforce_id": current_user["user_id"]})
+            
+            required_docs = ["government_id", "sin", "banking"]
+            has_documents = doc_record and all(doc_type in doc_record.get("documents", {}) for doc_type in required_docs)
+            
+            if has_documents:
+                # Update user to active
+                await db.users.update_one(
+                    {"user_id": current_user["user_id"]},
+                    {"$set": {"profile_status": "active", "documents_complete": True}}
+                )
+            else:
+                # Set to pending
+                await db.users.update_one(
+                    {"user_id": current_user["user_id"]},
+                    {"$set": {"profile_status": "pending_documents", "documents_complete": False}}
+                )
+            
+            return {
+                "type": action_type,
+                "status": "success",
+                "data": {
+                    "has_all_documents": has_documents,
+                    "account_status": "active" if has_documents else "pending_documents"
+                }
+            }
+        
         elif action_type == "create_workplace":
             # Create workplace for employer
             workplace_data = action_data.get("workplace", {})
