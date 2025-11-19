@@ -11,6 +11,8 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
   const [quickActions, setQuickActions] = useState([]);
   const [progress, setProgress] = useState(null);
   const [occupationSuggestions, setOccupationSuggestions] = useState([]);
+  const [profileSuggestions, setProfileSuggestions] = useState([]);
+  const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [actionResults, setActionResults] = useState([]);
   const messagesEndRef = useRef(null);
 
