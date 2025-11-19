@@ -185,7 +185,7 @@ const WorkforceDashboard = () => {
             <p className="text-xs text-gray-500">View schedule</p>
           </button>
           <button
-            onClick={() => navigate('/workforce/jobs')}
+            onClick={() => setActiveTab('jobs')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
             <div className="text-3xl mb-2">💰</div>
