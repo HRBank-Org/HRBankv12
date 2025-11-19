@@ -169,7 +169,7 @@ Upload your documents now to get started, or you can do it later from your profi
     "availability_input": {
         "system_context": "User is providing availability information. Parse it and create availability blocks.",
         "next_state": "final_approval",
-        "progress": {"current": 4, "total": 5, "label": "Almost there!"}
+        "progress": {"current": 5, "total": 6, "label": "Almost there!"}
     },
     "final_approval": {
         "system_context": """Show summary of everything collected and ask for approval.
