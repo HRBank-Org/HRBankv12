@@ -5,6 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import UserHeader from '../../components/common/UserHeader';
+import DashboardBlockingAgent from '../../components/common/DashboardBlockingAgent';
 
 const WorkforceDashboard = () => {
   const { user, logout } = useAuth();
