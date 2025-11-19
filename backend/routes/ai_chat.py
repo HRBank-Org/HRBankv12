@@ -379,6 +379,60 @@ async def execute_action(action: Dict, current_user: dict, db, conversation: Dic
             
             return {"type": action_type, "status": "success", "message": f"{created_count} availability blocks created"}
         
+        elif action_type == "create_multiple_qualifications":
+            # Create multiple worker qualifications at once (from resume analysis)
+            profiles_to_create = action_data.get("profiles", [])
+            created_profiles = []
+            
+            from utils.match_score_calculator import calculate_match_score
+            
+            for profile_data in profiles_to_create:
+                template_id = profile_data.get("occupation_template_id")
+                template = await db.occupation_templates.find_one({"template_id": template_id}, {"_id": 0})
+                
+                if not template:
+                    continue
+                
+                # Build qualification
+                qual_data = {
+                    "certifications": profile_data.get("certifications", []),
+                    "skills": profile_data.get("skills", []),
+                    "experience": profile_data.get("experience", {"total_months": 0, "employers": []}),
+                    "physical_requirements": profile_data.get("physical_requirements", []),
+                    "other_requirements": profile_data.get("other_requirements", [])
+                }
+                
+                match_score = calculate_match_score(template, qual_data)
+                
+                qualification = {
+                    "qualification_id": str(uuid.uuid4()),
+                    "worker_id": current_user["user_id"],
+                    "occupation_template_id": template_id,
+                    "occupation_name": template["name"],
+                    "certifications": qual_data["certifications"],
+                    "skills": qual_data["skills"],
+                    "experience": qual_data["experience"],
+                    "physical_requirements": qual_data["physical_requirements"],
+                    "other_requirements": qual_data["other_requirements"],
+                    "match_score": match_score,
+                    "last_calculated": datetime.utcnow(),
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+                
+                await db.worker_qualifications.insert_one(qualification)
+                created_profiles.append({
+                    "occupation_name": template["name"],
+                    "match_score": match_score
+                })
+            
+            return {
+                "type": action_type,
+                "status": "success",
+                "message": f"Created {len(created_profiles)} occupational profiles",
+                "data": created_profiles
+            }
+        
         elif action_type == "create_worker_qualification":
             # Create worker qualification from extracted data
             from models.occupation_templates import (
