@@ -111,6 +111,9 @@ const WorkforceDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
+      {/* Dashboard Blocking Agent */}
+      <DashboardBlockingAgent />
+      
       {/* UserHeader with Welcome Message and Actions */}
       <UserHeader 
         showBack={false}
