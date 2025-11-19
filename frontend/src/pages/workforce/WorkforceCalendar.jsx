@@ -324,18 +324,17 @@ const WorkforceCalendar = () => {
         const endTime = moment(event.end).format('HH:mm');
         
         setEditingEvent(event);
+        const newDays = {};
+        Object.keys(formData.days).forEach(key => {
+          newDays[key] = {
+            enabled: key === dayName,
+            startTime: key === dayName ? startTime : '09:00',
+            endTime: key === dayName ? endTime : '17:00'
+          };
+        });
+        
         setFormData({
-          days: {
-            monday: dayName === 'monday',
-            tuesday: dayName === 'tuesday',
-            wednesday: dayName === 'wednesday',
-            thursday: dayName === 'thursday',
-            friday: dayName === 'friday',
-            saturday: dayName === 'saturday',
-            sunday: dayName === 'sunday'
-          },
-          startTime: startTime,
-          endTime: endTime,
+          days: newDays,
           untilDate: moment(event.end).format('YYYY-MM-DD')
         });
         setView('form');
