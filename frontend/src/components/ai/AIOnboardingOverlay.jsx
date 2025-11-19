@@ -95,9 +95,16 @@ const AIOnboardingOverlay = ({ onComplete, onSkip }) => {
       setProgress(data.progress);
       setOccupationSuggestions(data.occupation_suggestions || []);
       
-      // Store action results
+      // Check for profile suggestions from resume analysis
       if (data.action_results && data.action_results.length > 0) {
         setActionResults(data.action_results);
+        
+        // Look for analyze_resume_for_profiles result
+        const resumeAnalysis = data.action_results.find(r => r.type === 'analyze_resume_for_profiles');
+        if (resumeAnalysis && resumeAnalysis.status === 'success') {
+          setProfileSuggestions(resumeAnalysis.data || []);
+          setSelectedProfiles([]); // Reset selection
+        }
       }
       
       // Check if onboarding is complete
