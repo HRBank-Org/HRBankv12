@@ -74,37 +74,6 @@ const AdminDashboard = () => {
           <p className="text-gray-600 mt-1">Welcome to your HR Bank Admin Dashboard</p>
         </div>
 
-        {/* Admin Info */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">Your Profile</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Email</p>
-              <p className="font-medium">{adminProfile?.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Role</p>
-              <p className="font-medium capitalize">{adminProfile?.role}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Assigned Zones</p>
-              <p className="font-medium">
-                {adminProfile?.zone_details?.length > 0
-                  ? adminProfile.zone_details.map(z => z.zone_name).join(', ')
-                  : 'All Zones'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Provinces</p>
-              <p className="font-medium">
-                {adminProfile?.assigned_provinces?.length > 0
-                  ? adminProfile.assigned_provinces.join(', ')
-                  : 'All Provinces'}
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <button
