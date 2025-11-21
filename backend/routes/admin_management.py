@@ -505,6 +505,149 @@ async def get_platform_analytics(
     # Average shift duration
     avg_shift_duration = total_hours_worked / total_shifts_completed if total_shifts_completed > 0 else 0
     
+    # ===== TOP WORKFORCE BY REVENUE =====
+    # Calculate revenue per workforce member based on completed shifts
+    workforce_revenue_map = {}
+    for shift in completed_shifts:
+        # Calculate shift hours
+        shift_hours = 0
+        if shift.get("start_time") and shift.get("end_time"):
+            try:
+                start = datetime.fromisoformat(shift["start_time"].replace('Z', '+00:00'))
+                end = datetime.fromisoformat(shift["end_time"].replace('Z', '+00:00'))
+                shift_hours = (end - start).total_seconds() / 3600
+            except:
+                shift_hours = shift.get("duration_hours", 0)
+        else:
+            shift_hours = shift.get("duration_hours", 0)
+        
+        shift_revenue = shift_hours * 2  # $2 per hour
+        
+        # Get bookings for this shift
+        shift_bookings = await db.bookings.find({
+            "shift_id": shift.get("shift_id"),
+            "status": "completed"
+        }).to_list(None)
+        
+        for booking in shift_bookings:
+            workforce_id = booking.get("workforce_id")
+            if workforce_id:
+                if workforce_id not in workforce_revenue_map:
+                    workforce_revenue_map[workforce_id] = {
+                        "revenue": 0,
+                        "hours": 0,
+                        "shifts": 0
+                    }
+                workforce_revenue_map[workforce_id]["revenue"] += shift_revenue
+                workforce_revenue_map[workforce_id]["hours"] += shift_hours
+                workforce_revenue_map[workforce_id]["shifts"] += 1
+    
+    # Get top 10 workforce by revenue
+    top_workforce_data = []
+    sorted_workforce = sorted(workforce_revenue_map.items(), key=lambda x: x[1]["revenue"], reverse=True)[:10]
+    
+    for workforce_id, stats in sorted_workforce:
+        workforce_user = await db.users.find_one({"user_id": workforce_id})
+        workforce_profile = await db.workforce_profiles.find_one({"user_id": workforce_id})
+        
+        if workforce_user and workforce_profile:
+            top_workforce_data.append({
+                "user_id": workforce_id,
+                "name": f"{workforce_profile.get('first_name', '')} {workforce_profile.get('last_name', '')}".strip(),
+                "email": workforce_user.get("email"),
+                "revenue_generated": round(stats["revenue"], 2),
+                "total_hours": round(stats["hours"], 2),
+                "shifts_completed": stats["shifts"]
+            })
+    
+    # ===== TOP EMPLOYERS BY REVENUE =====
+    employer_revenue_map = {}
+    for shift in completed_shifts:
+        employer_id = shift.get("employer_id")
+        
+        # Calculate shift hours
+        shift_hours = 0
+        if shift.get("start_time") and shift.get("end_time"):
+            try:
+                start = datetime.fromisoformat(shift["start_time"].replace('Z', '+00:00'))
+                end = datetime.fromisoformat(shift["end_time"].replace('Z', '+00:00'))
+                shift_hours = (end - start).total_seconds() / 3600
+            except:
+                shift_hours = shift.get("duration_hours", 0)
+        else:
+            shift_hours = shift.get("duration_hours", 0)
+        
+        shift_revenue = shift_hours * 2
+        
+        if employer_id:
+            if employer_id not in employer_revenue_map:
+                employer_revenue_map[employer_id] = {
+                    "revenue": 0,
+                    "hours": 0,
+                    "shifts": 0
+                }
+            employer_revenue_map[employer_id]["revenue"] += shift_revenue
+            employer_revenue_map[employer_id]["hours"] += shift_hours
+            employer_revenue_map[employer_id]["shifts"] += 1
+    
+    # Get top 10 employers by revenue
+    top_employers_data = []
+    sorted_employers = sorted(employer_revenue_map.items(), key=lambda x: x[1]["revenue"], reverse=True)[:10]
+    
+    for employer_id, stats in sorted_employers:
+        employer_user = await db.users.find_one({"user_id": employer_id})
+        employer_profile = await db.employer_profiles.find_one({"user_id": employer_id})
+        
+        if employer_user and employer_profile:
+            top_employers_data.append({
+                "user_id": employer_id,
+                "company_name": employer_profile.get("company_name", "Unknown"),
+                "email": employer_user.get("email"),
+                "revenue_generated": round(stats["revenue"], 2),
+                "total_hours": round(stats["hours"], 2),
+                "shifts_created": stats["shifts"]
+            })
+    
+    # ===== DEMAND PER SKILL/CERTIFICATION =====
+    # Get all active job postings
+    active_jobs = await db.job_postings.find({"status": "active"}).to_list(None)
+    
+    skills_demand = {}
+    certifications_demand = {}
+    
+    for job in active_jobs:
+        # Count required skills
+        required_skills = job.get("required_skills", [])
+        for skill in required_skills:
+            skill_lower = skill.lower().strip()
+            if skill_lower:
+                if skill_lower not in skills_demand:
+                    skills_demand[skill_lower] = {
+                        "skill": skill,
+                        "job_count": 0,
+                        "total_positions": 0
+                    }
+                skills_demand[skill_lower]["job_count"] += 1
+                skills_demand[skill_lower]["total_positions"] += job.get("positions_available", 1)
+        
+        # Count required certifications
+        required_certs = job.get("required_certifications", [])
+        for cert in required_certs:
+            cert_lower = cert.lower().strip()
+            if cert_lower:
+                if cert_lower not in certifications_demand:
+                    certifications_demand[cert_lower] = {
+                        "certification": cert,
+                        "job_count": 0,
+                        "total_positions": 0
+                    }
+                certifications_demand[cert_lower]["job_count"] += 1
+                certifications_demand[cert_lower]["total_positions"] += job.get("positions_available", 1)
+    
+    # Sort by demand (job count)
+    top_skills = sorted(skills_demand.values(), key=lambda x: x["job_count"], reverse=True)[:20]
+    top_certifications = sorted(certifications_demand.values(), key=lambda x: x["job_count"], reverse=True)[:20]
+    
     return {
         "success": True,
         "data": {
@@ -539,6 +682,10 @@ async def get_platform_analytics(
                 "avg_duration_hours": round(avg_shift_duration, 2)
             },
             "zones": zone_analytics,
-            "top_zones": zone_analytics[:5]  # Top 5 zones by revenue
+            "top_zones": zone_analytics[:5],  # Top 5 zones by revenue
+            "top_workforce": top_workforce_data,
+            "top_employers": top_employers_data,
+            "skills_demand": top_skills,
+            "certifications_demand": top_certifications
         }
     }
