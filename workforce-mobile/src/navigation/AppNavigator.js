@@ -4,6 +4,7 @@ import { useAuth } from '../../mobile-shared/contexts/AuthContext';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
 import EULAScreen from '../screens/auth/EULAScreen';
+import VideoCallScreen from '../screens/video/VideoCallScreen';
 import api from '../../mobile-shared/services/api';
 import { View, ActivityIndicator } from 'react-native';
 import colors from '../../mobile-shared/constants/colors';
