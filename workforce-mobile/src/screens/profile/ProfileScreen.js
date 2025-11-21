@@ -467,6 +467,56 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.workforce.textLight,
   },
+  missingCertsWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 4,
+  },
+  missingCertsText: {
+    fontSize: 12,
+    color: colors.warning,
+    fontWeight: '500',
+  },
+  allCertsMetBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 4,
+  },
+  allCertsMetText: {
+    fontSize: 12,
+    color: colors.success,
+    fontWeight: '500',
+  },
+  requiredCertsContainer: {
+    backgroundColor: colors.workforce.background,
+    padding: 12,
+    marginTop: 8,
+    borderRadius: 8,
+    marginHorizontal: 12,
+    marginBottom: 12,
+  },
+  requiredCertsTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.workforce.text,
+    marginBottom: 8,
+  },
+  certRequirementItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+    gap: 6,
+  },
+  certRequirementText: {
+    fontSize: 13,
+    color: colors.workforce.text,
+    flex: 1,
+  },
+  certRequirementTextVerified: {
+    color: colors.success,
+  },
   skillsCard: {
     marginHorizontal: 16,
     marginBottom: 16,
