@@ -88,53 +88,100 @@ const JobsScreen = ({ navigation }) => {
     console.log('Decline offer:', offerId);
   };
 
-  const renderJobCard = ({ item }) => (
-    <Card onPress={() => console.log('Job detail:', item.job_id)}>
-      <View style={styles.jobHeader}>
-        <View style={styles.jobHeaderLeft}>
-          <Text style={styles.companyName}>{item.company_name}</Text>
-          <Text style={styles.positionTitle}>{item.position_title}</Text>
-        </View>
-        <View style={styles.matchScore}>
-          <Text style={styles.matchScoreText}>{item.match_score}%</Text>
-          <Text style={styles.matchScoreLabel}>Match</Text>
-        </View>
-      </View>
+  const renderJobCard = ({ item }) => {
+    const requiredCerts = item.required_certifications || [];
+    const matchedCerts = requiredCerts.filter(cert => userCertifications.includes(cert));
+    const missingCerts = requiredCerts.filter(cert => !userCertifications.includes(cert));
 
-      <View style={styles.jobDetails}>
-        <View style={styles.detailRow}>
-          <Ionicons name="location-outline" size={16} color={colors.workforce.textLight} />
-          <Text style={styles.detailText}>{item.distance} km away</Text>
+    return (
+      <Card onPress={() => console.log('Job detail:', item.job_id)}>
+        <View style={styles.jobHeader}>
+          <View style={styles.jobHeaderLeft}>
+            <Text style={styles.companyName}>{item.company_name}</Text>
+            <Text style={styles.positionTitle}>{item.position_title}</Text>
+          </View>
+          <View style={styles.matchScore}>
+            <Text style={styles.matchScoreText}>{item.match_score}%</Text>
+            <Text style={styles.matchScoreLabel}>Match</Text>
+          </View>
         </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="cash-outline" size={16} color={colors.workforce.textLight} />
-          <Text style={styles.detailText}>${item.pay_per_hour}/hr</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="time-outline" size={16} color={colors.workforce.textLight} />
-          <Text style={styles.detailText}>{item.shift_duration} hours</Text>
-        </View>
-      </View>
 
-      {item.required_skills && item.required_skills.length > 0 && (
-        <View style={styles.skillsContainer}>
-          {item.required_skills.slice(0, 3).map((skill, index) => (
-            <Badge key={index} label={skill} size="small" variant="info" />
-          ))}
-          {item.required_skills.length > 3 && (
-            <Badge label={`+${item.required_skills.length - 3}`} size="small" />
-          )}
+        <View style={styles.jobDetails}>
+          <View style={styles.detailRow}>
+            <Ionicons name="location-outline" size={16} color={colors.workforce.textLight} />
+            <Text style={styles.detailText}>{item.distance} km away</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Ionicons name="cash-outline" size={16} color={colors.workforce.textLight} />
+            <Text style={styles.detailText}>${item.pay_per_hour}/hr</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Ionicons name="time-outline" size={16} color={colors.workforce.textLight} />
+            <Text style={styles.detailText}>{item.shift_duration} hours</Text>
+          </View>
         </View>
-      )}
 
-      <TouchableOpacity
-        style={styles.applyButton}
-        onPress={() => handleApplyToJob(item.job_id)}
-      >
-        <Text style={styles.applyButtonText}>Apply Now</Text>
-      </TouchableOpacity>
-    </Card>
-  );
+        {/* Required Certifications Section */}
+        {requiredCerts.length > 0 && (
+          <View style={styles.certificationsSection}>
+            <View style={styles.certificationsSectionHeader}>
+              <Ionicons name="medal-outline" size={16} color={colors.workforce.text} />
+              <Text style={styles.certificationsSectionTitle}>Required Certifications</Text>
+            </View>
+            <View style={styles.certificationsContainer}>
+              {requiredCerts.map((cert, index) => {
+                const hasIt = userCertifications.includes(cert);
+                return (
+                  <View key={index} style={styles.certBadgeContainer}>
+                    <Badge
+                      label={cert}
+                      size="small"
+                      variant={hasIt ? "success" : "warning"}
+                    />
+                    {hasIt && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={14}
+                        color={colors.success}
+                        style={styles.certCheckIcon}
+                      />
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+            {missingCerts.length > 0 && (
+              <Text style={styles.missingCertsNote}>
+                ⚠️ You're missing {missingCerts.length} required certification{missingCerts.length > 1 ? 's' : ''}
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Required Skills Section */}
+        {item.required_skills && item.required_skills.length > 0 && (
+          <View style={styles.skillsSection}>
+            <Text style={styles.skillsSectionTitle}>Required Skills</Text>
+            <View style={styles.skillsContainer}>
+              {item.required_skills.slice(0, 3).map((skill, index) => (
+                <Badge key={index} label={skill} size="small" variant="info" />
+              ))}
+              {item.required_skills.length > 3 && (
+                <Badge label={`+${item.required_skills.length - 3}`} size="small" />
+              )}
+            </View>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={styles.applyButton}
+          onPress={() => handleApplyToJob(item.job_id)}
+        >
+          <Text style={styles.applyButtonText}>Apply Now</Text>
+        </TouchableOpacity>
+      </Card>
+    );
+  };
 
   const renderOfferCard = ({ item }) => (
     <Card>
