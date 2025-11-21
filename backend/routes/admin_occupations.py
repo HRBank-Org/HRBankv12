@@ -246,10 +246,17 @@ async def remove_occupation_from_category(
             detail="Category not found"
         )
     
-    # Remove occupation
-    if occupation in categories[category]["occupations"]:
-        categories[category]["occupations"].remove(occupation)
-    else:
+    # Remove occupation (handle both string and dict formats)
+    occupations_list = categories[category]["occupations"]
+    found = False
+    for i, occ in enumerate(occupations_list):
+        occ_title = occ if isinstance(occ, str) else occ.get("title", "")
+        if occ_title == occupation:
+            del occupations_list[i]
+            found = True
+            break
+    
+    if not found:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Occupation not found in this category"
