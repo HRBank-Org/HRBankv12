@@ -6241,34 +6241,88 @@ def test_admin_occupation_management(results):
     
     return admin_token
 
+def create_workforce_test_user():
+    """Create a workforce test user for mobile testing"""
+    try:
+        user_data = generate_test_user("workforce")
+        
+        # First signup the user
+        signup_response = requests.post(f"{BASE_URL}/auth/signup", json=user_data, timeout=10)
+        if signup_response.status_code != 200:
+            return None, None
+        
+        # Login to get token
+        login_data = {
+            "email": user_data["email"],
+            "password": user_data["password"],
+            "user_type": "workforce"
+        }
+        
+        login_response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        if login_response.status_code != 200:
+            return None, None
+        
+        login_result = login_response.json()
+        if login_result.get("success") and "data" in login_result:
+            token = login_result["data"].get("access_token")
+            return user_data, token
+        
+        return None, None
+        
+    except Exception as e:
+        print(f"Error creating workforce test user: {e}")
+        return None, None
+
 def main():
-    """Run admin occupation management tests as requested in review"""
-    print("🚀 Starting HR Bank Admin Occupation Management Tests...")
+    """Run comprehensive backend tests focused on mobile app occupation-certification integration"""
+    print("🚀 MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION TESTING")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
+    print("="*80)
     
     results = TestResults()
     
-    # ADMIN OCCUPATION MANAGEMENT SYSTEM (HIGH PRIORITY - from review request)
-    print("\n" + "="*80)
-    print("🎯 ADMIN OCCUPATION MANAGEMENT TESTING (REVIEW REQUEST)")
-    print("="*80)
+    # Test basic connectivity first
+    test_backend_connectivity(results)
     
-    # Test admin occupation management
-    admin_token = test_admin_occupation_management(results)
+    # Test authentication system
+    created_users = test_signup_api(results)
+    test_login_api(results, created_users)
+    test_database_integration(results)
+    test_password_hashing(results)
+    
+    # Test admin authentication system with specific credentials
+    admin_token = test_admin_authentication_system(results)
+    
+    # Create workforce user for mobile testing
+    workforce_user, workforce_token = create_workforce_test_user()
+    
+    # MAIN FOCUS: Mobile App Occupation-Certification Integration Testing
+    if workforce_token:
+        print(f"\n📱 MOBILE APP TESTING WITH WORKFORCE USER: {workforce_user['email']}")
+        test_mobile_occupation_certification_integration(results, workforce_token)
+    else:
+        results.add_fail("Mobile testing setup", "Failed to create workforce test user")
+    
+    # Test job matching system with admin credentials
+    if admin_token:
+        test_job_matching_system(results, admin_token)
+        test_occupation_certification_linking_endpoint(results, admin_token)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All admin occupation management tests passed!")
+        print("\n🎉 All mobile app occupation-certification integration tests passed!")
         print("\n✅ PASS CRITERIA MET:")
-        print("   - Admin super admin status identified")
-        print("   - Occupation add/delete functionality tested")
-        print("   - Current occupation format analyzed")
+        print("   - All endpoints accessible with workforce authentication")
+        print("   - Response structures match mobile app expectations")
+        print("   - Required certifications data is correctly formatted")
+        print("   - Credential_details includes status field (verified/pending/rejected)")
+        print("   - Job postings include required_certifications array")
         return 0
     else:
-        print(f"\n💥 {results.failed} admin occupation management test(s) failed!")
+        print(f"\n💥 {results.failed} mobile app integration test(s) failed!")
         return 1
 
 def test_invitation_system(results):
