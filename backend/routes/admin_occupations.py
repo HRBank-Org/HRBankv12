@@ -220,9 +220,9 @@ async def remove_occupation_from_category(
 ):
     """Remove an occupation from a category (Super Admin only)"""
     
-    # Check if super admin
-    admin_profile = await db.admin_profiles.find_one({"admin_id": current_user["user_id"]})
-    if not admin_profile or not admin_profile.get("is_super_admin"):
+    # Check if super admin (check admins collection, not admin_profiles)
+    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+    if not admin or not admin.get("is_super_admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only Super Admins can remove occupations"
