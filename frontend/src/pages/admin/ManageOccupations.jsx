@@ -15,7 +15,10 @@ const ManageOccupations = () => {
     description: ''
   });
   
-  const [occupationForm, setOccupationForm] = useState('');
+  const [occupationForm, setOccupationForm] = useState({
+    title: '',
+    certifications: ''
+  });
   
   const navigate = useNavigate();
 
