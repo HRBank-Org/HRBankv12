@@ -5459,38 +5459,39 @@ def test_credential_verification_workflow(results):
     print("   Both institution_classes.py and institutions.py systems tested")
 
 def main():
-    """Run health check tests"""
-    print("🚀 Starting HR Bank Backend Health Check...")
+    """Run credential type seeding tests as requested in review"""
+    print("🚀 Starting HR Bank Credential Type Seeding Tests...")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
     results = TestResults()
     
-    # CREDENTIAL VERIFICATION WORKFLOW (HIGH PRIORITY - from review request)
-    test_credential_verification_workflow(results)
-    
-    # Run focused health check tests
-    test_hr_bank_health_check(results)
-    
-    # Test mobile attendance endpoints (NEW - as per review request)
+    # CREDENTIAL TYPE SEEDING SYSTEM (HIGH PRIORITY - from review request)
     print("\n" + "="*80)
-    print("🎯 MOBILE ATTENDANCE ENDPOINTS TESTING (REVIEW REQUEST)")
+    print("🎯 CREDENTIAL TYPE SEEDING SYSTEM TESTING (REVIEW REQUEST)")
     print("="*80)
     
-    workforce_token = create_workforce_user_for_testing()
-    if workforce_token:
-        test_mobile_attendance_endpoints(results, workforce_token)
+    # First get admin authentication
+    admin_token = test_admin_authentication_system(results)
+    
+    if admin_token:
+        # Test the credential type seeding endpoints
+        test_credential_type_seeding_system(results, admin_token)
     else:
-        results.add_fail("Mobile Attendance Testing", "Could not create/login workforce user for testing")
+        results.add_fail("Credential Type Seeding", "Could not authenticate admin user for testing")
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All health check tests passed!")
+        print("\n🎉 All credential type seeding tests passed!")
+        print("\n✅ PASS CRITERIA MET:")
+        print("   - Seed successful with 18 types inserted")
+        print("   - GET /credentials/types returns all 18 types")
+        print("   - Dropdown will now be populated for workforce users")
         return 0
     else:
-        print(f"\n💥 {results.failed} health check test(s) failed!")
+        print(f"\n💥 {results.failed} credential type seeding test(s) failed!")
         return 1
 
 def test_invitation_system(results):
