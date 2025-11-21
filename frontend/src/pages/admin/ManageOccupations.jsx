@@ -97,26 +97,44 @@ const ManageOccupations = () => {
       return;
     }
 
-    // Parse certifications (comma-separated)
-    const certifications = occupationForm.certifications
-      .split(',')
-      .map(cert => cert.trim())
-      .filter(cert => cert.length > 0);
-
     try {
       await api.post('/api/admin/occupations/add', {
         category: selectedCategory,
         occupation: occupationForm.title,
-        required_certifications: certifications
+        required_certifications: occupationForm.certifications
       });
       alert('Occupation added successfully!');
       loadCategories();
       setShowOccupationModal(false);
-      setOccupationForm({ title: '', certifications: '' });
+      setOccupationForm({ title: '', certifications: [] });
+      setCertSearchQuery('');
     } catch (error) {
       alert('Failed to add occupation');
     }
   };
+
+  const addCertificationToOccupation = (cert) => {
+    if (!occupationForm.certifications.includes(cert)) {
+      setOccupationForm({
+        ...occupationForm,
+        certifications: [...occupationForm.certifications, cert]
+      });
+    }
+    setCertSearchQuery('');
+    setShowCertDropdown(false);
+  };
+
+  const removeCertificationFromOccupation = (cert) => {
+    setOccupationForm({
+      ...occupationForm,
+      certifications: occupationForm.certifications.filter(c => c !== cert)
+    });
+  };
+
+  const filteredCertifications = allCertifications.filter(cert =>
+    cert.toLowerCase().includes(certSearchQuery.toLowerCase()) &&
+    !occupationForm.certifications.includes(cert)
+  );
 
   const handleDeleteOccupation = async (categoryName, occupation) => {
     if (!window.confirm(`Delete "${occupation}"?`)) {
