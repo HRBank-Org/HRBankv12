@@ -303,14 +303,14 @@ const EmmaChat = () => {
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar - Branded */}
       {onboardingProgress < 100 && (
-        <div className="px-4 py-2 bg-gray-50 border-b">
-          <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-            <span>Profile Completion</span>
-            <span className="font-semibold">{Math.round(onboardingProgress)}%</span>
+        <div className="px-4 py-2 border-b" style={{ backgroundColor: `${theme.primaryColor}15` }}>
+          <div className="flex items-center justify-between text-xs mb-1" style={{ color: theme.primaryColor }}>
+            <span className="font-medium">Profile Completion</span>
+            <span className="font-bold">{Math.round(onboardingProgress)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-white rounded-full h-2 overflow-hidden">
             <div
               className="h-2 rounded-full transition-all duration-300"
               style={{
