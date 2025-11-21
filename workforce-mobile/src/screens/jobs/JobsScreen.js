@@ -158,6 +158,16 @@ const JobsScreen = ({ navigation }) => {
     </Card>
   );
 
+  const handleJoinInterview = (interview) => {
+    navigation.navigate('VideoCall', {
+      interviewId: interview.interview_id,
+      jobId: interview.job_id,
+      workforceId: interview.workforce_id,
+      companyName: interview.company_name,
+      positionTitle: interview.position_title,
+    });
+  };
+
   const renderInterviewCard = ({ item }) => (
     <Card>
       <View style={styles.interviewHeader}>
@@ -175,7 +185,10 @@ const JobsScreen = ({ navigation }) => {
         <Text style={styles.interviewNotes}>{item.notes}</Text>
       )}
 
-      <TouchableOpacity style={styles.joinButton}>
+      <TouchableOpacity
+        style={styles.joinButton}
+        onPress={() => handleJoinInterview(item)}
+      >
         <Ionicons name="videocam-outline" size={20} color={colors.white} />
         <Text style={styles.joinButtonText}>Join Video Call</Text>
       </TouchableOpacity>
