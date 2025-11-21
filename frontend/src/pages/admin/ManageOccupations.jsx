@@ -78,20 +78,27 @@ const ManageOccupations = () => {
   };
 
   const handleAddOccupation = async () => {
-    if (!occupationForm || !selectedCategory) {
+    if (!occupationForm.title || !selectedCategory) {
       alert('Please enter occupation title');
       return;
     }
 
+    // Parse certifications (comma-separated)
+    const certifications = occupationForm.certifications
+      .split(',')
+      .map(cert => cert.trim())
+      .filter(cert => cert.length > 0);
+
     try {
       await api.post('/api/admin/occupations/add', {
         category: selectedCategory,
-        occupation: occupationForm
+        occupation: occupationForm.title,
+        required_certifications: certifications
       });
       alert('Occupation added successfully!');
       loadCategories();
       setShowOccupationModal(false);
-      setOccupationForm('');
+      setOccupationForm({ title: '', certifications: '' });
     } catch (error) {
       alert('Failed to add occupation');
     }
