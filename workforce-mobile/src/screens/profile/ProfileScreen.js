@@ -21,6 +21,7 @@ const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [occupations, setOccupations] = useState([]);
+  const [occupationCertifications, setOccupationCertifications] = useState({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -39,7 +40,20 @@ const ProfileScreen = ({ navigation }) => {
         setProfile(profileResult.data);
       }
       if (occupationsResult.success) {
-        setOccupations(occupationsResult.data);
+        const occupationsData = occupationsResult.data;
+        setOccupations(occupationsData);
+        
+        // Fetch required certifications for each occupation
+        const certifications = {};
+        await Promise.all(
+          occupationsData.map(async (occupation) => {
+            const certResult = await usersService.getOccupationRequiredCertifications(occupation.occupation_title);
+            if (certResult.success) {
+              certifications[occupation.occupation_id] = certResult.data.required_certifications || [];
+            }
+          })
+        );
+        setOccupationCertifications(certifications);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
