@@ -1,7 +1,10 @@
 import React from 'react';
+import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
+import JobsScreen from '../screens/jobs/JobsScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
 import colors from '../../mobile-shared/constants/colors';
 
 const Tab = createBottomTabNavigator();
@@ -14,8 +17,6 @@ const PlaceholderScreen = ({ route }) => {
     </View>
   );
 };
-
-import { View, Text } from 'react-native';
 
 const MainNavigator = () => {
   return (
