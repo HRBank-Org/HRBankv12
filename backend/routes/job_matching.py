@@ -28,7 +28,14 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     return round(km, 1)
 
 def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupations: List[dict], distance_km: float) -> dict:
-    """Calculate match score between job and worker"""
+    """Calculate match score between job and worker
+    
+    Priority Order (as per user requirements):
+    1. Distance (35% weight) - Proximity is critical
+    2. Availability (35% weight) - Worker must be available
+    3. Certifications (20% weight) - Required credentials
+    4. Skills (10% weight) - Nice to have but can be trained
+    """
     
     # Get all worker skills and certifications from occupations
     worker_skills = set()
@@ -40,16 +47,38 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
             if cred.get('status') == 'verified':
                 worker_certifications.add(cred.get('credential_name', ''))
     
-    # Skill Matching (40% weight)
-    required_skills = set(job.required_skills)
-    if required_skills:
-        matched_skills = worker_skills.intersection(required_skills)
-        skill_match_score = (len(matched_skills) / len(required_skills)) * 100
+    # Distance Score (35% weight) - HIGHEST PRIORITY
+    # Closer is better: 0-5km = 100%, 5-10km = 90%, 10-15km = 75%, 15-20km = 60%, 20-25km = 40%, >25km = 0%
+    if distance_km <= 5:
+        distance_score = 100
+    elif distance_km <= 10:
+        distance_score = 90
+    elif distance_km <= 15:
+        distance_score = 75
+    elif distance_km <= 20:
+        distance_score = 60
+    elif distance_km <= job.max_distance_km:
+        distance_score = 40
     else:
-        skill_match_score = 100  # If no skills required, perfect match
-        matched_skills = set()
+        distance_score = 0
     
-    # Certification Matching (30% weight)
+    # Availability Score (35% weight) - HIGH PRIORITY
+    # Check if worker is currently employed
+    is_available = worker_profile.get('employment_status') != 'employed'
+    # Check availability hours (if we have this data)
+    availability_hours = worker_profile.get('availability_hours', {})
+    has_availability = len(availability_hours) > 0
+    
+    if is_available and has_availability:
+        availability_score = 100
+    elif is_available:
+        availability_score = 80  # Available but no specific hours set
+    elif has_availability:
+        availability_score = 50  # Has some availability despite being employed
+    else:
+        availability_score = 30  # Limited availability
+    
+    # Certification Matching (20% weight) - MEDIUM PRIORITY
     required_certs = set(job.required_certifications)
     if required_certs:
         matched_certs = worker_certifications.intersection(required_certs)
@@ -58,28 +87,21 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
         cert_match_score = 100  # If no certs required, perfect match
         matched_certs = set()
     
-    # Distance Score (20% weight)
-    # Closer is better: 0-5km = 100%, 5-10km = 80%, 10-20km = 60%, 20-25km = 40%, >25km = 0%
-    if distance_km <= 5:
-        distance_score = 100
-    elif distance_km <= 10:
-        distance_score = 80
-    elif distance_km <= 20:
-        distance_score = 60
-    elif distance_km <= job.max_distance_km:
-        distance_score = 40
+    # Skill Matching (10% weight) - LOWER PRIORITY (can be trained)
+    required_skills = set(job.required_skills)
+    if required_skills:
+        matched_skills = worker_skills.intersection(required_skills)
+        skill_match_score = (len(matched_skills) / len(required_skills)) * 100
     else:
-        distance_score = 0
+        skill_match_score = 100  # If no skills required, perfect match
+        matched_skills = set()
     
-    # Availability Score (10% weight) - simplified, always 100 for now
-    availability_score = 100
-    
-    # Calculate weighted total score
+    # Calculate weighted total score with NEW priorities
     total_score = (
-        skill_match_score * 0.4 +
-        cert_match_score * 0.3 +
-        distance_score * 0.2 +
-        availability_score * 0.1
+        distance_score * 0.35 +
+        availability_score * 0.35 +
+        cert_match_score * 0.20 +
+        skill_match_score * 0.10
     )
     
     return {
