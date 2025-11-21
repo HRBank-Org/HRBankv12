@@ -383,6 +383,138 @@ const Analytics = () => {
             </div>
           </div>
         </div>
+
+        {/* Top Performers */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Top Workforce */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span>🏆</span>
+              <span>Top Workforce by Revenue</span>
+            </h2>
+            {analytics.top_workforce && analytics.top_workforce.length > 0 ? (
+              <div className="space-y-3">
+                {analytics.top_workforce.map((worker, index) => (
+                  <div key={worker.user_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${
+                        index === 0 ? 'bg-yellow-400 text-white' :
+                        index === 1 ? 'bg-gray-400 text-white' :
+                        index === 2 ? 'bg-orange-400 text-white' :
+                        'bg-gray-200 text-gray-600'
+                      }`}>
+                        {index + 1}
+                      </span>
+                      <div>
+                        <p className="font-semibold text-gray-900">{worker.name}</p>
+                        <p className="text-xs text-gray-500">{worker.shifts_completed} shifts • {formatNumber(worker.total_hours)}h</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-600">{formatCurrency(worker.revenue_generated)}</p>
+                      <p className="text-xs text-gray-500">revenue</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No workforce data available</p>
+            )}
+          </div>
+
+          {/* Top Employers */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span>🏢</span>
+              <span>Top Employers by Revenue</span>
+            </h2>
+            {analytics.top_employers && analytics.top_employers.length > 0 ? (
+              <div className="space-y-3">
+                {analytics.top_employers.map((employer, index) => (
+                  <div key={employer.user_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${
+                        index === 0 ? 'bg-yellow-400 text-white' :
+                        index === 1 ? 'bg-gray-400 text-white' :
+                        index === 2 ? 'bg-orange-400 text-white' :
+                        'bg-gray-200 text-gray-600'
+                      }`}>
+                        {index + 1}
+                      </span>
+                      <div>
+                        <p className="font-semibold text-gray-900">{employer.company_name}</p>
+                        <p className="text-xs text-gray-500">{employer.shifts_created} shifts • {formatNumber(employer.total_hours)}h</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-600">{formatCurrency(employer.revenue_generated)}</p>
+                      <p className="text-xs text-gray-500">revenue</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No employer data available</p>
+            )}
+          </div>
+        </div>
+
+        {/* Market Demand Analytics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Top Skills in Demand */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span>💼</span>
+              <span>Top Skills in Demand</span>
+            </h2>
+            {analytics.skills_demand && analytics.skills_demand.length > 0 ? (
+              <div className="space-y-2">
+                {analytics.skills_demand.slice(0, 10).map((skill, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{skill.skill}</p>
+                      <p className="text-xs text-gray-500">{skill.total_positions} positions across {skill.job_count} jobs</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+                        {skill.job_count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No active job postings</p>
+            )}
+          </div>
+
+          {/* Top Certifications in Demand */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span>🎓</span>
+              <span>Top Certifications in Demand</span>
+            </h2>
+            {analytics.certifications_demand && analytics.certifications_demand.length > 0 ? (
+              <div className="space-y-2">
+                {analytics.certifications_demand.slice(0, 10).map((cert, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{cert.certification}</p>
+                      <p className="text-xs text-gray-500">{cert.total_positions} positions across {cert.job_count} jobs</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-semibold rounded-full">
+                        {cert.job_count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No certification requirements found</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
