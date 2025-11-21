@@ -47,7 +47,7 @@ npm run android
 ## Backend Configuration
 
  The app connects to:
-- **Preview:** https://talent-flow-21.preview.emergentagent.com/api
+- **Preview:** https://talent-match-82.preview.emergentagent.com/api
 - **Production:** https://hrbank.ca/api
 
 Update `src/constants/config.js` to switch between environments.
