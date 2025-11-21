@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Briefcase, Building2, GraduationCap, Users, TrendingUp, Shield, Clock, Award, ChevronRight } from 'lucide-react';
 import { LOGOS, getLogoByUserType } from '../utils/logoUtils';
+import EmmaLandingChat from '../components/emma/EmmaLandingChat';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
