@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Complete HR Bank workforce management platform implementation including: 1) Emma AI Assistant for onboarding with resume parsing, 2) Job matching system with priority-based algorithm (Distance 35%, Availability 35%, Certs 20%, Skills 10%), 3) Employer job posting and candidate selection, 4) Workforce job browsing and offer management, 5) Quit job functionality returning workers to available pool, 6) Dashboard reorganization for both workforce and employer, 7) Subdomain routing for admin.hrbank.ca, employer.hrbank.ca, workforce.hrbank.ca, institution.hrbank.ca. Testing needed for all features before implementing video interview system."
+user_problem_statement: "Complete HR Bank workforce management platform implementation including: 1) Emma AI Assistant for onboarding with resume parsing, 2) Job matching system with priority-based algorithm (Distance 35%, Availability 35%, Certs 20%, Skills 10%), 3) Employer job posting and candidate selection, 4) Workforce job browsing and offer management, 5) Quit job functionality returning workers to available pool, 6) Dashboard reorganization for both workforce and employer, 7) Subdomain routing for admin.hrbank.ca, employer.hrbank.ca, workforce.hrbank.ca, institution.hrbank.ca. 8) MOBILE APP FEATURES: Attendance system with QR code scanning, geofencing validation, clock-in/clock-out functionality, and video interview integration with Jitsi Meet."
 
 backend:
   - task: "Emma AI Backend - Conversation Management & Chat API"
