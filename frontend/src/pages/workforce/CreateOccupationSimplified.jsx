@@ -414,12 +414,84 @@ const CreateOccupationSimplified = () => {
                 </select>
               </div>
 
-              {/* Credentials Section */}
+              {/* Standard Certifications Section */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Your Certifications</h3>
+                <p className="text-sm text-gray-600 mb-4">Select certifications you possess from the standardized list</p>
+                
+                {/* Selected Certifications */}
+                {formData.certifications.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {formData.certifications.map((cert, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                      >
+                        <span>🎓 {cert}</span>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, certifications: formData.certifications.filter(c => c !== cert)})}
+                          className="text-green-600 hover:text-green-800 font-bold"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Search and Add Certifications */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={certSearchQuery}
+                    onChange={(e) => {
+                      setCertSearchQuery(e.target.value);
+                      setShowCertDropdown(true);
+                    }}
+                    onFocus={() => setShowCertDropdown(true)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Search for your certifications..."
+                  />
+                  
+                  {/* Dropdown */}
+                  {showCertDropdown && certSearchQuery && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {allCertifications
+                        .filter(cert => 
+                          cert.toLowerCase().includes(certSearchQuery.toLowerCase()) &&
+                          !formData.certifications.includes(cert)
+                        )
+                        .slice(0, 10)
+                        .map((cert, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setFormData({...formData, certifications: [...formData.certifications, cert]});
+                              setCertSearchQuery('');
+                              setShowCertDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm"
+                          >
+                            {cert}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </div>
+                
+                <p className="text-xs text-gray-500 mt-1">
+                  💡 Select from government-approved certifications (Red Seal, Smart Serve, First Aid, etc.)
+                </p>
+              </div>
+
+              {/* Institution-Verified Credentials Section */}
               <div className="border-t border-gray-200 pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Credentials & Certifications</h3>
-                    <p className="text-sm text-gray-600">Add degrees, certificates, licenses (verified by issuing institution)</p>
+                    <h3 className="text-lg font-semibold text-gray-900">Institution-Verified Credentials</h3>
+                    <p className="text-sm text-gray-600">Add degrees, diplomas, licenses (requires institution verification)</p>
                   </div>
                   <button
                     type="button"
