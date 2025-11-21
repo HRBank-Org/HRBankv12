@@ -68,6 +68,7 @@ import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimpli
 import FindJobs from './pages/workforce/FindJobs';
 import VideoInterview from './pages/VideoInterview';
 import ManageOccupations from './pages/admin/ManageOccupations';
+import ManageCertifications from './pages/admin/ManageCertifications';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/Dashboard';
