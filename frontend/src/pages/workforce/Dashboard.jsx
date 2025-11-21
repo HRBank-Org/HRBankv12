@@ -166,31 +166,31 @@ const WorkforceDashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        {/* Quick Actions - Option A */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
           <button
             onClick={() => navigate('/workforce/occupations')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
             <div className="text-3xl mb-2">💼</div>
             <p className="font-semibold text-gray-900 text-sm">My Profiles</p>
-            <p className="text-xs text-gray-500">Manage occupation profiles</p>
+            <p className="text-xs text-gray-500">{stats.occupation_count} profiles</p>
           </button>
           <button
             onClick={() => navigate('/workforce/calendar')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
             <div className="text-3xl mb-2">📅</div>
-            <p className="font-semibold text-gray-900 text-sm">Calendar</p>
-            <p className="text-xs text-gray-500">View schedule</p>
+            <p className="font-semibold text-gray-900 text-sm">My Calendar</p>
+            <p className="text-xs text-gray-500">{stats.upcoming_shifts.length} upcoming</p>
           </button>
           <button
-            onClick={() => navigate('/workforce/jobs')}
+            onClick={() => navigate('/workforce/find-jobs')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
             <div className="text-3xl mb-2">💰</div>
             <p className="font-semibold text-gray-900 text-sm">Find Work</p>
-            <p className="text-xs text-gray-500">Browse job offers</p>
+            <p className="text-xs text-gray-500">{stats.job_offers.length} opportunities</p>
           </button>
         </div>
       </div>
