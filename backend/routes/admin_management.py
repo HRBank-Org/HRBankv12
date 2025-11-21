@@ -383,6 +383,10 @@ async def get_platform_analytics(
     pending_shifts = await db.shifts.count_documents({"status": "pending"})
     active_shifts = await db.shifts.count_documents({"status": "active"})
     
+    # ===== GROWTH METRICS (Last 30 days) =====
+    from datetime import timedelta
+    thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
+    
     # ===== ZONE-BASED ANALYTICS =====
     zones = await db.zones.find({"active": True}, {"_id": 0}).to_list(100)
     zone_analytics = []
