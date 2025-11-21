@@ -435,21 +435,35 @@ const JobPosting = () => {
                     {/* Selected Certifications */}
                     {formData.required_certifications.length > 0 && (
                       <div className="mb-2 flex flex-wrap gap-2">
-                        {formData.required_certifications.map((cert, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                          >
-                            <span>🎓 {cert}</span>
-                            <button
-                              type="button"
-                              onClick={() => removeCertificationFromJob(cert)}
-                              className="text-blue-600 hover:text-blue-800 font-bold"
+                        {formData.required_certifications.map((cert, idx) => {
+                          const isSuggested = occupationSuggestedCerts.includes(cert);
+                          return (
+                            <span
+                              key={idx}
+                              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
+                                isSuggested 
+                                  ? 'bg-green-100 text-green-800 border border-green-300' 
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}
                             >
-                              ✕
-                            </button>
-                          </span>
-                        ))}
+                              <span>
+                                {isSuggested ? '✓ ' : '🎓 '}
+                                {cert}
+                                {isSuggested && <span className="text-xs ml-1">(suggested)</span>}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeCertificationFromJob(cert)}
+                                className={`${
+                                  isSuggested ? 'text-green-600 hover:text-green-800' : 'text-blue-600 hover:text-blue-800'
+                                } font-bold`}
+                                title={isSuggested ? "Remove suggested certification" : "Remove certification"}
+                              >
+                                ✕
+                              </button>
+                            </span>
+                          );
+                        })}
                       </div>
                     )}
 
