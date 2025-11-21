@@ -172,6 +172,8 @@ function AppRoutes() {
         <Route path="/workforce/availability" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceCalendar /></ProtectedRoute>} />
         <Route path="/workforce/availability-old" element={<ProtectedRoute allowedUserTypes={['workforce']}><Availability /></ProtectedRoute>} />
         <Route path="/workforce/availability-calendar" element={<ProtectedRoute allowedUserTypes={['workforce']}><AvailabilityCalendar /></ProtectedRoute>} />
+        <Route path="/workforce/calendar" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyShifts /></ProtectedRoute>} />
+        <Route path="/workforce/find-jobs" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyShifts /></ProtectedRoute>} />
         <Route path="/workforce/clock/:bookingId" element={<ProtectedRoute allowedUserTypes={['workforce']}><ClockInOut /></ProtectedRoute>} />
         <Route path="/workforce/timesheets" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyTimesheets /></ProtectedRoute>} />
         <Route path="/workforce/employment-history" element={<ProtectedRoute allowedUserTypes={['workforce']}><EmploymentHistory /></ProtectedRoute>} />
