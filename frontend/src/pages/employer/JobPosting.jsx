@@ -85,6 +85,37 @@ const JobPosting = () => {
     }
   };
 
+  const fetchOccupationCertifications = async (positionTitle) => {
+    if (!positionTitle || positionTitle.trim().length === 0) {
+      setOccupationSuggestedCerts([]);
+      return;
+    }
+
+    setLoadingSuggestions(true);
+    try {
+      const response = await api.get(`/api/admin/occupations/occupation-certifications/${encodeURIComponent(positionTitle)}`);
+      const suggestedCerts = response.data.data.required_certifications || [];
+      
+      // Auto-add suggested certifications that aren't already in the list
+      if (suggestedCerts.length > 0) {
+        const newCerts = suggestedCerts.filter(cert => !formData.required_certifications.includes(cert));
+        if (newCerts.length > 0) {
+          setFormData({
+            ...formData,
+            required_certifications: [...formData.required_certifications, ...newCerts]
+          });
+        }
+      }
+      
+      setOccupationSuggestedCerts(suggestedCerts);
+    } catch (error) {
+      console.error('Failed to fetch occupation certifications:', error);
+      setOccupationSuggestedCerts([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
   const handlePostJob = async (e) => {
     e.preventDefault();
     setLoading(true);
