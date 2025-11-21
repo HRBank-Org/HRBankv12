@@ -26,7 +26,7 @@ const RosterManagement = () => {
     try {
       // Load workplaces
       const workplacesRes = await api.get('/api/employer/workplaces');
-      const workplacesData = workplacesRes.data.data || workplacesRes.data || [];
+      const workplacesData = workplacesRes.data.data?.workplaces || workplacesRes.data.workplaces || [];
       setWorkplaces(Array.isArray(workplacesData) ? workplacesData : []);
 
       // Load rosters
