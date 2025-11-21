@@ -79,10 +79,60 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
         availability_score = 30  # Limited availability
     
     # Certification Matching (20% weight) - MEDIUM PRIORITY
+    # NEW: Separate occupation-linked certs (PRIMARY) from employer-added certs (SECONDARY)
+    # We'll fetch occupation requirements and weight them higher in the match calculation
+    
     required_certs = set(job.required_certifications)
+    
+    # Get occupation-linked certifications (if position matches an occupation template)
+    occupation_required_certs = set()
+    try:
+        from utils.occupation_categories import OCCUPATION_CATEGORIES
+        position_title = job.position_title
+        
+        # Search for occupation in categories to find its required certs
+        for category_data in OCCUPATION_CATEGORIES.values():
+            for occ in category_data.get("occupations", []):
+                if isinstance(occ, dict):
+                    occ_title = occ.get("title", "")
+                    occ_certs = occ.get("required_certifications", [])
+                else:
+                    occ_title = occ
+                    occ_certs = []
+                
+                # Case-insensitive match
+                if occ_title.lower() == position_title.lower():
+                    occupation_required_certs = set(occ_certs)
+                    break
+            
+            if occupation_required_certs:
+                break
+    except Exception as e:
+        # If occupation lookup fails, continue with all certs treated equally
+        pass
+    
+    # Employer-added certs are those NOT in the occupation template
+    employer_added_certs = required_certs - occupation_required_certs
+    
     if required_certs:
+        # Calculate matches for occupation-linked certs (PRIMARY - 70% of cert score)
+        if occupation_required_certs:
+            matched_occupation_certs = worker_certifications.intersection(occupation_required_certs)
+            occupation_cert_score = (len(matched_occupation_certs) / len(occupation_required_certs)) * 100
+        else:
+            occupation_cert_score = 100  # No occupation requirements
+        
+        # Calculate matches for employer-added certs (SECONDARY - 30% of cert score)
+        if employer_added_certs:
+            matched_employer_certs = worker_certifications.intersection(employer_added_certs)
+            employer_cert_score = (len(matched_employer_certs) / len(employer_added_certs)) * 100
+        else:
+            employer_cert_score = 100  # No additional employer requirements
+        
+        # Weighted certification score: Occupation certs are MORE important
+        cert_match_score = (occupation_cert_score * 0.7) + (employer_cert_score * 0.3)
+        
         matched_certs = worker_certifications.intersection(required_certs)
-        cert_match_score = (len(matched_certs) / len(required_certs)) * 100
     else:
         cert_match_score = 100  # If no certs required, perfect match
         matched_certs = set()
