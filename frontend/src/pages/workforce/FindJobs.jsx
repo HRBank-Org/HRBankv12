@@ -14,10 +14,22 @@ const FindJobs = () => {
   const [jobOffers, setJobOffers] = useState([]);
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [employmentStatus, setEmploymentStatus] = useState(null);
+  const [quitting, setQuitting] = useState(false);
 
   useEffect(() => {
     loadJobs();
+    loadEmploymentStatus();
   }, []);
+
+  const loadEmploymentStatus = async () => {
+    try {
+      const response = await api.get('/api/jobs/employment/status');
+      setEmploymentStatus(response.data.data);
+    } catch (error) {
+      console.error('Failed to load employment status:', error);
+    }
+  };
 
   const loadJobs = async () => {
     setLoading(true);
