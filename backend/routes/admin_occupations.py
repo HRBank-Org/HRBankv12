@@ -492,3 +492,53 @@ async def update_occupation_certifications(
         }
     }
 
+
+@router.get("/occupation-certifications/{occupation_title}")
+async def get_occupation_required_certifications(
+    occupation_title: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    PUBLIC endpoint to get required certifications for a specific occupation title
+    Used by both employers (job posting) and workforce (profile viewing)
+    Returns empty array if occupation has no linked certifications
+    """
+    
+    # Load occupation categories
+    categories = read_categories_file()
+    
+    # Search through all categories for this occupation
+    required_certifications = []
+    found_category = None
+    
+    for category_name, category_data in categories.items():
+        occupations_list = category_data.get("occupations", [])
+        
+        for occ in occupations_list:
+            # Handle both string and object format
+            if isinstance(occ, dict):
+                occ_title = occ.get("title", "")
+                certs = occ.get("required_certifications", [])
+            else:
+                occ_title = occ
+                certs = []
+            
+            # Case-insensitive match
+            if occ_title.lower() == occupation_title.lower():
+                required_certifications = certs
+                found_category = category_name
+                break
+        
+        if found_category:
+            break
+    
+    return {
+        "success": True,
+        "data": {
+            "occupation_title": occupation_title,
+            "category": found_category,
+            "required_certifications": required_certifications,
+            "has_requirements": len(required_certifications) > 0
+        }
+    }
+
