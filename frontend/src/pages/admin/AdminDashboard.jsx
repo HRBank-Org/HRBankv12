@@ -143,37 +143,6 @@ const AdminDashboard = () => {
             <p className="text-sm text-gray-600">View platform statistics</p>
           </button>
         </div>
-
-        {/* Permissions */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold mb-4">Your Permissions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
-              <span className={adminProfile?.can_approve_documents ? 'text-green-600' : 'text-gray-400'}>
-                {adminProfile?.can_approve_documents ? '✓' : '✗'}
-              </span>
-              <span className="text-sm">Approve Documents</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={adminProfile?.can_manage_users ? 'text-green-600' : 'text-gray-400'}>
-                {adminProfile?.can_manage_users ? '✓' : '✗'}
-              </span>
-              <span className="text-sm">Manage Users</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={adminProfile?.can_manage_admins ? 'text-green-600' : 'text-gray-400'}>
-                {adminProfile?.can_manage_admins ? '✓' : '✗'}
-              </span>
-              <span className="text-sm">Manage Admins</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={adminProfile?.can_view_analytics ? 'text-green-600' : 'text-gray-400'}>
-                {adminProfile?.can_view_analytics ? '✓' : '✗'}
-              </span>
-              <span className="text-sm">View Analytics</span>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   );
