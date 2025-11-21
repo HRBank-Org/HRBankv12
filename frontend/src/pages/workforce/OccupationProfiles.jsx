@@ -12,6 +12,7 @@ const OccupationProfiles = () => {
   const [editingSkills, setEditingSkills] = useState(null); // occupation_id currently being edited
   const [tempSkills, setTempSkills] = useState(''); // temporary skills input
   const [savingSkills, setSavingSkills] = useState(false);
+  const [occupationRequirements, setOccupationRequirements] = useState({}); // Map of occupation_id -> required_certs
   const { logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
