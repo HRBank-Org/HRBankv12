@@ -295,27 +295,47 @@ const ManageOccupations = () => {
       {/* Add Occupation Modal */}
       {showOccupationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="bg-white rounded-lg max-w-lg w-full p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4">
               Add Occupation to {selectedCategory}
             </h3>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Occupation Title</label>
-              <input
-                type="text"
-                value={occupationForm}
-                onChange={(e) => setOccupationForm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Software Developer"
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Occupation Title *
+                </label>
+                <input
+                  type="text"
+                  value={occupationForm.title}
+                  onChange={(e) => setOccupationForm({...occupationForm, title: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Software Developer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Required Certifications (optional)
+                </label>
+                <textarea
+                  value={occupationForm.certifications}
+                  onChange={(e) => setOccupationForm({...occupationForm, certifications: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter certifications separated by commas&#10;e.g., Smart Serve, Food Handler's Certificate, First Aid"
+                  rows={3}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  💡 Tip: Separate multiple certifications with commas
+                </p>
+              </div>
             </div>
 
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => {
                   setShowOccupationModal(false);
-                  setOccupationForm('');
+                  setOccupationForm({ title: '', certifications: '' });
                   setSelectedCategory(null);
                 }}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
