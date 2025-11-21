@@ -804,3 +804,60 @@ async def get_employment_status(
         'success': True,
         'data': result
     }
+
+@router.get("/interviews/{interview_id}")
+async def get_interview_details(
+    interview_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get interview details for video call"""
+    db = await get_database()
+    
+    interview = await db.interview_invitations.find_one({
+        'interview_id': interview_id
+    })
+    
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    # Verify user is part of this interview
+    if current_user['user_id'] not in [interview['employer_id'], interview['workforce_id']]:
+        raise HTTPException(status_code=403, detail="Not authorized to access this interview")
+    
+    return {
+        'success': True,
+        'data': {'interview': interview}
+    }
+
+@router.post("/interviews/{interview_id}/complete")
+async def complete_interview(
+    interview_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Mark interview as completed"""
+    db = await get_database()
+    
+    interview = await db.interview_invitations.find_one({
+        'interview_id': interview_id
+    })
+    
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    # Verify user is part of this interview
+    if current_user['user_id'] not in [interview['employer_id'], interview['workforce_id']]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Update status
+    await db.interview_invitations.update_one(
+        {'interview_id': interview_id},
+        {'$set': {
+            'status': 'completed',
+            'completed_date': datetime.now(timezone.utc)
+        }}
+    )
+    
+    return {
+        'success': True,
+        'data': {'message': 'Interview marked as completed'}
+    }
