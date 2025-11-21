@@ -116,12 +116,41 @@ const EmmaChat = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      const errorMessage = {
+        role: 'assistant',
+        content: "The file is too large. Please upload a file smaller than 10MB.",
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // Add user message showing file upload
+    const uploadMessage = {
+      role: 'user',
+      content: `📎 Uploading: ${file.name}`,
+      timestamp: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, uploadMessage]);
+
     setUploadingFile(true);
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await api.post('/api/emma/parse-resume', formData, {
+      // Determine if it's a resume (for workforce) or general document
+      const isResume = file.name.toLowerCase().includes('resume') || 
+                       file.name.toLowerCase().includes('cv') ||
+                       (user.user_type === 'workforce' && (file.type.includes('pdf') || file.type.includes('word')));
+      
+      const endpoint = isResume && user.user_type === 'workforce' 
+        ? '/api/emma/parse-resume' 
+        : '/api/documents/upload'; // Use general document upload endpoint
+
+      const response = await api.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -130,12 +159,13 @@ const EmmaChat = () => {
       if (response.data.success) {
         const systemMessage = {
           role: 'assistant',
-          content: response.data.data.message || "I've received your file and I'm processing it now...",
+          content: response.data.data.message || 
+                   `Great! I've received your file "${file.name}". ${isResume ? "Let me analyze it for you..." : "I've saved it to your documents."}`,
           timestamp: new Date().toISOString()
         };
         setMessages(prev => [...prev, systemMessage]);
         
-        // Show parsed data if available
+        // Show parsed data if available (for resumes)
         if (response.data.data.parsed_data) {
           const parsedDataMessage = {
             role: 'assistant',
@@ -151,7 +181,8 @@ const EmmaChat = () => {
       console.error('File upload error:', error);
       const errorMessage = {
         role: 'assistant',
-        content: error.response?.data?.error || "I had trouble processing that file. Please make sure it's a PDF or Word document.",
+        content: error.response?.data?.error || 
+                 "I had trouble processing that file. Please make sure it's a valid document (PDF, Word, or image file for ID).",
         timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMessage]);
