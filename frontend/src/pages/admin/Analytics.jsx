@@ -336,6 +336,24 @@ const Analytics = () => {
                       <span className="text-gray-600">Shifts:</span>
                       <span className="font-semibold text-gray-900">{formatNumber(zone.total_shifts)}</span>
                     </div>
+                    <div className="border-t border-gray-200 pt-2 mt-2">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Workforce:</span>
+                        <span className="font-semibold text-gray-900">{formatNumber(zone.workforce?.total || 0)}</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mb-2">
+                        <span className="text-green-600">{zone.workforce?.active || 0} active</span>
+                        {zone.workforce?.new_last_30d > 0 && <span> • <span className="text-blue-600">+{zone.workforce?.new_last_30d} new</span></span>}
+                      </div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Employers:</span>
+                        <span className="font-semibold text-gray-900">{formatNumber(zone.employers?.total || 0)}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        <span className="text-green-600">{zone.employers?.active || 0} active</span>
+                        {zone.employers?.new_last_30d > 0 && <span> • <span className="text-blue-600">+{zone.employers?.new_last_30d} new</span></span>}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
