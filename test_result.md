@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Create Emma AI Assistant - A friendly, professional onboarding assistant to help workforce and employer users complete their profiles. Emma should: 1) Provide warm, time-based greetings, 2) Guide users through profile completion and document collection, 3) Parse resumes to auto-fill occupation profiles for workers, 4) Ensure compliance with Ontario employment standards, 5) Be available as a persistent chat widget with minimize functionality, 6) Maintain full conversation history across sessions."
+user_problem_statement: "Fix workforce dashboard routing issues and implement complete job matching system. Issues: 1) Calendar and Find Jobs buttons bounce to landing page. Solution: 1) Fix routing for /workforce/calendar and /workforce/find-jobs, 2) Reorganize dashboard to Option A (Quick Actions: My Profiles | My Calendar | Find Work; Tabs: Financial | My Shifts | Career Growth), 3) Implement job matching engine that matches workforce to employer job postings based on skills (from occupation templates), location (workplace address), and availability, 4) Employers can view matched candidates, send interview invitations (with scheduled video call), and send direct offers (prominent hourly rate, shift duration, distance, key tasks, employment duration), 5) Workforce can view matched jobs, interview invitations, and job offers in Find Work page, 6) Implement WebRTC video interview system."
 
 backend:
   - task: "Emma AI Backend - Conversation Management & Chat API"
