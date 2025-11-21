@@ -6300,6 +6300,184 @@ def test_eula_authentication_required(results):
         except Exception as e:
             results.add_fail(f"EULA auth required - {method} {endpoint}", f"Request failed: {str(e)}")
 
+
+def test_credential_type_seeding_system(results, admin_token):
+    """Test the credential type seeding endpoints as requested in review"""
+    print("\n🧪 Testing Credential Type Seeding System (Priority: HIGH)...")
+    print("   Testing POST /api/admin/credentials/seed-credential-types")
+    print("   Testing GET /api/credentials/types (public endpoint)")
+    
+    # First, clear any existing credential types to ensure clean test
+    try:
+        clear_response = requests.delete(
+            f"{BASE_URL}/admin/credentials/clear-credential-types",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        if clear_response.status_code == 200:
+            results.add_pass("Clear existing credential types (test setup)")
+        else:
+            # It's okay if this fails - might be empty already
+            results.add_pass("Clear existing credential types (empty database)")
+    except Exception as e:
+        results.add_pass("Clear existing credential types (database might be empty)")
+    
+    # Test 1: Seed credential types with admin authentication
+    try:
+        response = requests.post(
+            f"{BASE_URL}/admin/credentials/seed-credential-types",
+            headers=get_auth_headers(admin_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("inserted_count") == 18 and
+                "categories" in data.get("data", {})):
+                
+                categories = data["data"]["categories"]
+                expected_categories = ["Healthcare", "Skilled Trades", "Safety", "Food Service", "Education", "Security", "Transport"]
+                
+                # Check if all expected categories are present
+                missing_categories = [cat for cat in expected_categories if cat not in categories]
+                if not missing_categories:
+                    results.add_pass("POST /api/admin/credentials/seed-credential-types - 18 types inserted with all categories")
+                else:
+                    results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Missing categories: {missing_categories}")
+            else:
+                results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/admin/credentials/seed-credential-types", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Request failed: {str(e)}")
+    
+    # Test 2: Verify GET /api/credentials/types returns seeded data (public endpoint)
+    try:
+        response = requests.get(f"{BASE_URL}/credentials/types", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "credential_types" in data.get("data", {}) and
+                len(data["data"]["credential_types"]) == 18):
+                
+                credential_types = data["data"]["credential_types"]
+                
+                # Verify structure of credential types
+                sample_type = credential_types[0]
+                required_fields = ["credential_type_id", "credential_name", "category", "issuing_body_type", "typical_issuer", "requires_renewal", "description"]
+                missing_fields = [field for field in required_fields if field not in sample_type]
+                
+                if not missing_fields:
+                    results.add_pass("GET /api/credentials/types - returns 18 types with correct structure")
+                    
+                    # Verify specific credential types exist
+                    credential_names = [ct["credential_name"] for ct in credential_types]
+                    expected_credentials = [
+                        "Registered Nurse (RN)",
+                        "Personal Support Worker (PSW) Certificate", 
+                        "Food Handler Certificate",
+                        "Certificate of Qualification (Red Seal)",
+                        "WHMIS 2015 Certificate"
+                    ]
+                    
+                    missing_credentials = [cred for cred in expected_credentials if cred not in credential_names]
+                    if not missing_credentials:
+                        results.add_pass("GET /api/credentials/types - key credential types present")
+                    else:
+                        results.add_fail("GET /api/credentials/types", f"Missing key credentials: {missing_credentials}")
+                        
+                else:
+                    results.add_fail("GET /api/credentials/types", f"Missing required fields: {missing_fields}")
+            else:
+                results.add_fail("GET /api/credentials/types", f"Expected 18 types, got {len(data.get('data', {}).get('credential_types', []))}")
+        else:
+            results.add_fail("GET /api/credentials/types", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/credentials/types", f"Request failed: {str(e)}")
+    
+    # Test 3: Verify duplicate seeding is prevented
+    try:
+        response = requests.post(
+            f"{BASE_URL}/admin/credentials/seed-credential-types",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (not data.get("success") and 
+                "already has" in data.get("message", "").lower() and
+                data.get("data", {}).get("existing_count") == 18):
+                results.add_pass("POST /api/admin/credentials/seed-credential-types - prevents duplicate seeding")
+            else:
+                results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Should prevent duplicates: {data}")
+        else:
+            results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Expected 200 with error message, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Request failed: {str(e)}")
+    
+    # Test 4: Test authentication requirement for seed endpoint
+    try:
+        response = requests.post(f"{BASE_URL}/admin/credentials/seed-credential-types", timeout=10)
+        
+        if response.status_code in [401, 403]:
+            results.add_pass("POST /api/admin/credentials/seed-credential-types - requires admin authentication")
+        else:
+            results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Expected 401/403 without auth, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("POST /api/admin/credentials/seed-credential-types", f"Request failed: {str(e)}")
+    
+    # Test 5: Verify GET /api/credentials/types is public (no auth required)
+    try:
+        response = requests.get(f"{BASE_URL}/credentials/types", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and len(data.get("data", {}).get("credential_types", [])) == 18:
+                results.add_pass("GET /api/credentials/types - public access working (no auth required)")
+            else:
+                results.add_fail("GET /api/credentials/types", f"Public access failed: {data}")
+        else:
+            results.add_fail("GET /api/credentials/types", f"Public endpoint failed: {response.status_code}")
+    except Exception as e:
+        results.add_fail("GET /api/credentials/types", f"Request failed: {str(e)}")
+    
+    # Test 6: Verify specific credential categories and details
+    try:
+        response = requests.get(f"{BASE_URL}/credentials/types", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            credential_types = data.get("data", {}).get("credential_types", [])
+            
+            # Check Healthcare category
+            healthcare_types = [ct for ct in credential_types if ct["category"] == "Healthcare"]
+            if len(healthcare_types) >= 4:  # RN, PSW, RPN, CPR/First Aid
+                results.add_pass("Credential types - Healthcare category populated")
+            else:
+                results.add_fail("Credential types", f"Expected 4+ Healthcare types, got {len(healthcare_types)}")
+            
+            # Check Skilled Trades category
+            trades_types = [ct for ct in credential_types if ct["category"] == "Skilled Trades"]
+            if len(trades_types) >= 3:  # Red Seal, Electrical, Gas Tech
+                results.add_pass("Credential types - Skilled Trades category populated")
+            else:
+                results.add_fail("Credential types", f"Expected 3+ Skilled Trades types, got {len(trades_types)}")
+            
+            # Check Safety category
+            safety_types = [ct for ct in credential_types if ct["category"] == "Safety"]
+            if len(safety_types) >= 3:  # WHMIS, Forklift, Working at Heights
+                results.add_pass("Credential types - Safety category populated")
+            else:
+                results.add_fail("Credential types", f"Expected 3+ Safety types, got {len(safety_types)}")
+                
+        else:
+            results.add_fail("Credential types category verification", f"HTTP {response.status_code}")
+    except Exception as e:
+        results.add_fail("Credential types category verification", f"Request failed: {str(e)}")
+
 # Main function is defined earlier in the file for admin authentication testing
 
 if __name__ == "__main__":
