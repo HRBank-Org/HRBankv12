@@ -508,6 +508,9 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Emma Landing Chat */}
+      <EmmaLandingChat />
     </div>
   );
 };
