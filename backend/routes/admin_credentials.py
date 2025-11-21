@@ -227,3 +227,251 @@ async def auto_assign_by_institution_name(
         },
         "message": f"Successfully auto-assigned {assigned_count} credentials"
     }
+
+
+@router.post("/seed-credential-types", response_model=Dict)
+async def seed_credential_types(
+    current_user: dict = Depends(require_role("admin")),
+    db = Depends(get_db)
+):
+    """
+    Seed the database with standard credential types for Ontario healthcare/trades
+    This is a one-time setup to populate the credential_types collection
+    """
+    
+    standard_types = [
+        # Healthcare Certifications
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Registered Nurse (RN)",
+            "category": "Healthcare",
+            "issuing_body_type": "Provincial College",
+            "typical_issuer": "College of Nurses of Ontario (CNO)",
+            "requires_renewal": True,
+            "typical_validity_years": 1,
+            "description": "Registration as a Registered Nurse in Ontario"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Personal Support Worker (PSW) Certificate",
+            "category": "Healthcare",
+            "issuing_body_type": "Educational Institution",
+            "typical_issuer": "Ontario Colleges",
+            "requires_renewal": False,
+            "typical_validity_years": None,
+            "description": "Personal Support Worker training certificate"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Registered Practical Nurse (RPN)",
+            "category": "Healthcare",
+            "issuing_body_type": "Provincial College",
+            "typical_issuer": "College of Nurses of Ontario (CNO)",
+            "requires_renewal": True,
+            "typical_validity_years": 1,
+            "description": "Registration as a Registered Practical Nurse"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "CPR/First Aid Certification",
+            "category": "Healthcare",
+            "issuing_body_type": "Training Organization",
+            "typical_issuer": "St. John Ambulance, Red Cross",
+            "requires_renewal": True,
+            "typical_validity_years": 2,
+            "description": "Standard First Aid and CPR Level C"
+        },
+        
+        # Trades Certifications
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Certificate of Qualification (Red Seal)",
+            "category": "Skilled Trades",
+            "issuing_body_type": "Provincial Authority",
+            "typical_issuer": "Ontario College of Trades",
+            "requires_renewal": True,
+            "typical_validity_years": 5,
+            "description": "Red Seal certification for skilled trades"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Electrical License",
+            "category": "Skilled Trades",
+            "issuing_body_type": "Provincial Regulator",
+            "typical_issuer": "Electrical Safety Authority (ESA)",
+            "requires_renewal": True,
+            "typical_validity_years": 5,
+            "description": "Licensed electrician certification"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Gas Technician License",
+            "category": "Skilled Trades",
+            "issuing_body_type": "Provincial Regulator",
+            "typical_issuer": "Technical Standards and Safety Authority (TSSA)",
+            "requires_renewal": True,
+            "typical_validity_years": 5,
+            "description": "Gas technician certification (G1, G2, G3)"
+        },
+        
+        # Safety Certifications
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "WHMIS 2015 Certificate",
+            "category": "Safety",
+            "issuing_body_type": "Training Provider",
+            "typical_issuer": "Various approved providers",
+            "requires_renewal": True,
+            "typical_validity_years": 3,
+            "description": "Workplace Hazardous Materials Information System"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Forklift Operator Certificate",
+            "category": "Safety",
+            "issuing_body_type": "Training Provider",
+            "typical_issuer": "WSIB approved trainers",
+            "requires_renewal": True,
+            "typical_validity_years": 3,
+            "description": "Forklift operation certification"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Working at Heights Certificate",
+            "category": "Safety",
+            "issuing_body_type": "Provincial Approved Trainer",
+            "typical_issuer": "MOL approved training providers",
+            "requires_renewal": True,
+            "typical_validity_years": 3,
+            "description": "Working at Heights training (Ontario mandatory)"
+        },
+        
+        # Food Service
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Food Handler Certificate",
+            "category": "Food Service",
+            "issuing_body_type": "Health Authority",
+            "typical_issuer": "Local Public Health Units",
+            "requires_renewal": True,
+            "typical_validity_years": 5,
+            "description": "Safe food handling certification"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Smart Serve Certificate",
+            "category": "Food Service",
+            "issuing_body_type": "Provincial Program",
+            "typical_issuer": "Smart Serve Ontario",
+            "requires_renewal": True,
+            "typical_validity_years": 5,
+            "description": "Responsible alcohol service certification"
+        },
+        
+        # Education
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Ontario College Certificate",
+            "category": "Education",
+            "issuing_body_type": "Educational Institution",
+            "typical_issuer": "Ontario Colleges",
+            "requires_renewal": False,
+            "typical_validity_years": None,
+            "description": "One-year college certificate program"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Ontario College Diploma",
+            "category": "Education",
+            "issuing_body_type": "Educational Institution",
+            "typical_issuer": "Ontario Colleges",
+            "requires_renewal": False,
+            "typical_validity_years": None,
+            "description": "Two-year college diploma program"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "University Degree",
+            "category": "Education",
+            "issuing_body_type": "Educational Institution",
+            "typical_issuer": "Ontario Universities",
+            "requires_renewal": False,
+            "typical_validity_years": None,
+            "description": "Bachelor's, Master's, or Doctoral degree"
+        },
+        
+        # Security
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Security Guard License",
+            "category": "Security",
+            "issuing_body_type": "Provincial Ministry",
+            "typical_issuer": "Ministry of the Solicitor General",
+            "requires_renewal": True,
+            "typical_validity_years": 2,
+            "description": "Ontario security guard license"
+        },
+        
+        # Transport
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Ontario Driver's License (G)",
+            "category": "Transport",
+            "issuing_body_type": "Provincial Government",
+            "typical_issuer": "Ministry of Transportation",
+            "requires_renewal": True,
+            "typical_validity_years": 5,
+            "description": "Full Ontario driver's license"
+        },
+        {
+            "credential_type_id": str(uuid.uuid4()),
+            "credential_name": "Commercial Driver's License (AZ)",
+            "category": "Transport",
+            "issuing_body_type": "Provincial Government",
+            "typical_issuer": "Ministry of Transportation",
+            "requires_renewal": True,
+            "typical_validity_years": 5,
+            "description": "Commercial truck driving license"
+        }
+    ]
+    
+    # Check if already seeded
+    existing_count = await db.credential_types.count_documents({})
+    if existing_count > 0:
+        return {
+            "success": False,
+            "message": f"Database already has {existing_count} credential types. Use DELETE endpoint first if you want to re-seed.",
+            "data": {"existing_count": existing_count}
+        }
+    
+    # Insert all standard types
+    result = await db.credential_types.insert_many(standard_types)
+    
+    return {
+        "success": True,
+        "message": f"Successfully seeded {len(standard_types)} credential types",
+        "data": {
+            "inserted_count": len(result.inserted_ids),
+            "categories": list(set([t["category"] for t in standard_types]))
+        }
+    }
+
+
+@router.delete("/clear-credential-types", response_model=Dict)
+async def clear_credential_types(
+    current_user: dict = Depends(require_role("admin")),
+    db = Depends(get_db)
+):
+    """
+    DANGER: Clear all credential types from database
+    Use this only if you need to re-seed with updated data
+    """
+    
+    result = await db.credential_types.delete_many({})
+    
+    return {
+        "success": True,
+        "message": f"Deleted {result.deleted_count} credential types",
+        "data": {"deleted_count": result.deleted_count}
+    }
+
