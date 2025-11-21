@@ -17,8 +17,12 @@ const ManageOccupations = () => {
   
   const [occupationForm, setOccupationForm] = useState({
     title: '',
-    certifications: ''
+    certifications: []
   });
+  
+  const [allCertifications, setAllCertifications] = useState([]);
+  const [certSearchQuery, setCertSearchQuery] = useState('');
+  const [showCertDropdown, setShowCertDropdown] = useState(false);
   
   const navigate = useNavigate();
 
