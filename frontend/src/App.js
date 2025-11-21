@@ -241,6 +241,7 @@ function AppRoutes() {
         <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageAdmins /></ProtectedRoute>} />
         <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageZones /></ProtectedRoute>} />
         <Route path="/admin/manage-credentials" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminManageCredentials /></ProtectedRoute>} />
+        <Route path="/admin/occupation-certifications" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageOccupationCertifications /></ProtectedRoute>} />
         <Route path="/admin/wsib-verification" element={<ProtectedRoute allowedUserTypes={['admin']}><WSIBVerification /></ProtectedRoute>} />
         <Route path="/admin/manage-occupations" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageOccupations /></ProtectedRoute>} />
         <Route path="/admin/manage-certifications" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageCertifications /></ProtectedRoute>} />
