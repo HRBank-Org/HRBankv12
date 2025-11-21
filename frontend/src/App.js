@@ -59,6 +59,7 @@ import WSIBVerification from './pages/admin/WSIBVerification';
 import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
 import WorkerComplianceOnboarding from './pages/workforce/WorkerComplianceOnboarding';
 import Analytics from './pages/admin/Analytics';
+import AdminSettings from './pages/admin/Settings';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
