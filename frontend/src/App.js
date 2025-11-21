@@ -143,6 +143,7 @@ function AppRoutes() {
 
   return (
     <ThemeProvider userType={user?.user_type || 'workforce'}>
+      <>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={isSubdomainPortal() ? <SubdomainPortal /> : <LandingPage />} />
