@@ -146,15 +146,6 @@ const AdminDashboard = () => {
             <h3 className="font-semibold text-gray-900 mb-1">Analytics</h3>
             <p className="text-sm text-gray-600">View platform statistics</p>
           </button>
-
-          <button
-            onClick={() => navigate('/admin/settings')}
-            className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left"
-          >
-            <div className="text-3xl mb-2">⚙️</div>
-            <h3 className="font-semibold text-gray-900 mb-1">Settings</h3>
-            <p className="text-sm text-gray-600">Manage your profile</p>
-          </button>
         </div>
 
         {/* Permissions */}
