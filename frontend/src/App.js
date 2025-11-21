@@ -65,6 +65,7 @@ import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimplified';
 import FindJobs from './pages/workforce/FindJobs';
+import VideoInterview from './pages/VideoInterview';
 import ManageOccupations from './pages/admin/ManageOccupations';
 
 // Employer pages
