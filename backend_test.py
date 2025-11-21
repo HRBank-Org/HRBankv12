@@ -2884,6 +2884,10 @@ def main():
     # Priority: HIGH - Authentication System
     admin_token = test_admin_authentication_system(results)
     
+    # Priority: CRITICAL - Data Check from Review Request
+    if admin_token:
+        test_critical_data_check(results, admin_token)
+    
     # Priority: HIGH - Emma AI Assistant System
     if admin_token:
         test_emma_ai_system(results, admin_token)
