@@ -26,6 +26,14 @@ const THEMES = {
     accentColor: '#3B82F6',
     bgColor: '#F9FAFB',
     displayName: 'Institution'
+  },
+  admin: {
+    name: 'admin',
+    logo: 'https://customer-assets.emergentagent.com/job_bankclone-debug/artifacts/pz2plcbj_HRB%20App%20Icon%20Workforce.jpg',
+    primaryColor: '#1a1a1a',
+    accentColor: '#FBBF24',
+    bgColor: '#F3F4F6',
+    displayName: 'Admin'
   }
 };
 
