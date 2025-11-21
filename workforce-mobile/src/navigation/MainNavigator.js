@@ -85,6 +85,10 @@ const MainNavigator = () => {
         }}
       />
     </Tab.Navigator>
+    
+    {/* Emma Floating Button - Always visible across all tabs */}
+    <EmmaFloatingButton showNotification={false} />
+  </>
   );
 };
 
