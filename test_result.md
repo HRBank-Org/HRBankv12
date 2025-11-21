@@ -105,6 +105,30 @@
 user_problem_statement: "Create Emma AI Assistant - A friendly, professional onboarding assistant to help workforce and employer users complete their profiles. Emma should: 1) Provide warm, time-based greetings, 2) Guide users through profile completion and document collection, 3) Parse resumes to auto-fill occupation profiles for workers, 4) Ensure compliance with Ontario employment standards, 5) Be available as a persistent chat widget with minimize functionality, 6) Maintain full conversation history across sessions."
 
 backend:
+  - task: "Emma AI Backend - Conversation Management & Chat API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/emma.py, /app/backend/models/emma.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented complete Emma AI backend with OpenAI GPT-5-mini integration using Emergent LLM key. Created routes: GET /api/emma/conversation (retrieve chat history), POST /api/emma/chat (send message and get AI response), POST /api/emma/parse-resume (upload & parse resume with Gemini), POST /api/emma/approve-resume-data (apply parsed data to profile), GET /api/emma/onboarding-status (check completion). Features include: time-based greetings, user-type specific system prompts (workforce vs employer), conversation persistence in MongoDB, onboarding progress tracking, file upload support. EMERGENT_LLM_KEY configured in .env file."
+
+  - task: "Emma AI Backend - Resume Parsing with Gemini"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/emma.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented AI-powered resume parsing using Gemini 2.0 Flash (as per integration playbook, only Gemini supports file attachments). Accepts PDF/Word documents, extracts structured data (occupation title, years of experience, skills, work history, education, certifications), stores parsed data in conversation context for user approval, creates occupation profile when user approves. Uses FileContentWithMimeType from emergentintegrations library."
+
   - task: "User Profile API - Complete User Data for Headers"
     implemented: true
     working: true
