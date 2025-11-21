@@ -9,7 +9,6 @@ OCCUPATION_CATEGORIES = {
         "description": "Restaurants, hotels, catering, events",
         "occupations": [
             "Server / Waiter / Waitress",
-            "Bartender",
             "Line Cook",
             "Prep Cook",
             "Dishwasher",
