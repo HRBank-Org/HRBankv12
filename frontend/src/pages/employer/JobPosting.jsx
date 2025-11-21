@@ -34,6 +34,8 @@ const JobPosting = () => {
   const [allCertifications, setAllCertifications] = useState([]);
   const [certSearchQuery, setCertSearchQuery] = useState('');
   const [showCertDropdown, setShowCertDropdown] = useState(false);
+  const [occupationSuggestedCerts, setOccupationSuggestedCerts] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   useEffect(() => {
     loadWorkplaces();
