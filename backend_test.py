@@ -3122,6 +3122,10 @@ def main():
     if admin_token:
         test_critical_data_check(results, admin_token)
     
+    # Priority: CRITICAL - NEW OCCUPATION-CERTIFICATION LINKING ENDPOINT
+    if admin_token:
+        test_occupation_certification_linking_endpoint(results, admin_token)
+    
     # Priority: HIGH - Emma AI Assistant System
     if admin_token:
         test_emma_ai_system(results, admin_token)
