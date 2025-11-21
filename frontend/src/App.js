@@ -88,6 +88,7 @@ import RosterDetail from './pages/employer/RosterDetail';
 
 import { Toaster } from './components/ui/toaster';
 import EULAModal from './components/common/EULAModal';
+import EmmaChat from './components/emma/EmmaChat';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedUserTypes }) => {
