@@ -64,6 +64,7 @@ import TermsOfService from './pages/legal/TermsOfService';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimplified';
+import FindJobs from './pages/workforce/FindJobs';
 import ManageOccupations from './pages/admin/ManageOccupations';
 
 // Employer pages
