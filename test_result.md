@@ -105,6 +105,30 @@
 user_problem_statement: "Complete HR Bank workforce management platform implementation including: 1) Emma AI Assistant for onboarding with resume parsing, 2) Job matching system with priority-based algorithm (Distance 35%, Availability 35%, Certs 20%, Skills 10%), 3) Employer job posting and candidate selection, 4) Workforce job browsing and offer management, 5) Quit job functionality returning workers to available pool, 6) Dashboard reorganization for both workforce and employer, 7) Subdomain routing for admin.hrbank.ca, employer.hrbank.ca, workforce.hrbank.ca, institution.hrbank.ca. 8) MOBILE APP FEATURES: Attendance system with QR code scanning, geofencing validation, clock-in/clock-out functionality, and video interview integration with Jitsi Meet. 9) NEW TASK: Integrate occupation-to-certification linking system into job posting UI, workforce profile UI, and matching engine. Employer should see auto-suggested certifications (removable), workforce should see required vs optional certs, matching engine should prioritize occupation-linked certs over employer-added certs."
 
 backend:
+  - task: "Occupation-Certification Linking - New API Endpoint"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/admin_occupations.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created new GET endpoint /api/admin/occupations/occupation-certifications/{occupation_title} that returns required certifications for a specific occupation. Used by both employers (job posting) and workforce (profile viewing). Returns empty array if occupation has no linked certifications. Supports case-insensitive matching across all occupation categories."
+
+  - task: "Enhanced Job Matching Algorithm - Occupation-Based Certification Weighting"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/job_matching.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Updated calculate_match_score function to separate occupation-linked certifications (PRIMARY) from employer-added certifications (SECONDARY). Occupation-linked certs get 70% weight, employer-added get 30% weight within the overall 20% certification score. This ensures job matches prioritize occupation template requirements over employer preferences."
+
   - task: "Emma AI Backend - Conversation Management & Chat API"
     implemented: true
     working: true
