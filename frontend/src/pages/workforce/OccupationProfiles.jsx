@@ -24,8 +24,22 @@ const OccupationProfiles = () => {
   const loadOccupations = async () => {
     try {
       const response = await api.get('/api/occupations/me');
-      setOccupations(response.data.data.occupations);
+      const occs = response.data.data.occupations;
+      setOccupations(occs);
       setCanAddMore(response.data.data.can_add_more);
+      
+      // Fetch required certifications for each occupation
+      const requirementsMap = {};
+      for (const occ of occs) {
+        try {
+          const certsResponse = await api.get(`/api/admin/occupations/occupation-certifications/${encodeURIComponent(occ.occupation_title)}`);
+          requirementsMap[occ.occupation_id] = certsResponse.data.data.required_certifications || [];
+        } catch (error) {
+          console.error(`Failed to fetch requirements for ${occ.occupation_title}:`, error);
+          requirementsMap[occ.occupation_id] = [];
+        }
+      }
+      setOccupationRequirements(requirementsMap);
     } catch (error) {
       console.error('Failed to load occupations:', error);
     } finally {
