@@ -135,6 +135,15 @@ const AdminDashboard = () => {
           </button>
 
           <button
+            onClick={() => navigate('/admin/occupation-certifications')}
+            className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left"
+          >
+            <div className="text-3xl mb-2">🔗</div>
+            <h3 className="font-semibold text-gray-900 mb-1">Link Certifications</h3>
+            <p className="text-sm text-gray-600">Connect occupations to required certifications</p>
+          </button>
+
+          <button
             onClick={() => navigate('/admin/analytics')}
             className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left"
           >
