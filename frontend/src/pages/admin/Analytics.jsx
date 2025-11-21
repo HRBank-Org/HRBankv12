@@ -293,11 +293,19 @@ const Analytics = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatNumber(zone.total_shifts)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatNumber(zone.workforce_count)}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-semibold text-gray-900">{formatNumber(zone.workforce?.total || 0)}</div>
+                      <div className="text-xs text-gray-500">
+                        <span className="text-green-600">{formatNumber(zone.workforce?.active || 0)} active</span>
+                        {zone.workforce?.new_last_30d > 0 && <span className="text-blue-600"> • +{zone.workforce?.new_last_30d} new</span>}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatNumber(zone.employer_count)}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-semibold text-gray-900">{formatNumber(zone.employers?.total || 0)}</div>
+                      <div className="text-xs text-gray-500">
+                        <span className="text-green-600">{formatNumber(zone.employers?.active || 0)} active</span>
+                        {zone.employers?.new_last_30d > 0 && <span className="text-blue-600"> • +{zone.employers?.new_last_30d} new</span>}
+                      </div>
                     </td>
                   </tr>
                 ))}
