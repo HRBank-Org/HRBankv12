@@ -407,16 +407,19 @@ frontend:
         -comment: "Added required certifications display to both occupation detail page and occupation profiles list. Detail page shows blue info box with list of required certifications, marking each as verified (green check) or missing (warning icon). List page shows yellow alert badge for profiles missing required certifications with count. Both pages fetch occupation requirements on load and cross-reference with worker's verified credentials."
 
   - task: "Mobile App - Occupation-Certification Integration"
-    implemented: false
+    implemented: true
     working: "NA"
-    file: "/app/workforce-mobile/src/screens/profile/ProfileScreen.js, /app/workforce-mobile/src/screens/jobs/JobsScreen.js"
+    file: "/app/workforce-mobile/src/screens/profile/ProfileScreen.js, /app/workforce-mobile/src/screens/jobs/JobsScreen.js, /app/mobile-shared/services/users.service.js"
     stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Mobile app currently has ProfileScreen (showing occupations) and JobsScreen (showing matched jobs). The backend API changes support mobile, but UI updates deferred. Mobile will automatically benefit from improved matching algorithm. Future enhancement: add visual indicators for required certifications in mobile profile/job screens similar to web implementation."
+        -working: "NA"
+        -agent: "main"
+        -comment: "IMPLEMENTED mobile occupation-certification integration exactly matching web functionality. Added new service method getOccupationRequiredCertifications() in users.service.js to fetch required certifications via backend API. Updated ProfileScreen.js: fetches required certifications for each occupation, displays visual indicators showing which certifications are required vs verified, shows warning badges for occupations missing required certifications with count, displays 'All required certs verified' badge when all requirements met, expandable certifications details with checkmarks/warnings. Updated JobsScreen.js: fetches user's verified certifications from occupations, displays required certifications section for each matched job with color-coded badges (green=has, yellow=missing), shows checkmark icons on certifications user possesses, displays warning message with count of missing certifications, separate sections for certifications vs skills. Visual design matches web platform with appropriate mobile-friendly components and styling."
 
   - task: "Emma AI Chat Widget - Floating Assistant Interface"
     implemented: true
