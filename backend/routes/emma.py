@@ -166,7 +166,7 @@ async def get_conversation(
     db = await get_database()
     
     conversation = await get_or_create_conversation(
-        current_user.user_id,
+        current_user["user_id"],
         current_user.user_type,
         db
     )
@@ -192,7 +192,7 @@ async def chat_with_emma(
     
     # Get or create conversation
     conversation = await get_or_create_conversation(
-        current_user.user_id,
+        current_user["user_id"],
         current_user.user_type,
         db
     )
@@ -207,7 +207,7 @@ async def chat_with_emma(
     
     # Get user's name for personalized responses
     user_profile = await db[f"{current_user.user_type}_profiles"].find_one(
-        {"user_id": current_user.user_id}
+        {"user_id": current_user["user_id"]}
     )
     user_name = ""
     if user_profile:
@@ -269,7 +269,7 @@ async def parse_resume(
     os.makedirs(upload_dir, exist_ok=True)
     
     file_extension = os.path.splitext(file.filename)[1]
-    unique_filename = f"{current_user.user_id}_{uuid.uuid4()}{file_extension}"
+    unique_filename = f"{current_user["user_id"]}_{uuid.uuid4()}{file_extension}"
     file_path = os.path.join(upload_dir, unique_filename)
     
     with open(file_path, "wb") as f:
@@ -289,7 +289,7 @@ async def parse_resume(
         
         emma_parser = LlmChat(
             api_key=EMERGENT_LLM_KEY,
-            session_id=f"resume_parse_{current_user.user_id}",
+            session_id=f"resume_parse_{current_user["user_id"]}",
             system_message="""You are a resume parsing expert. Extract structured data from resumes.
             
 Return ONLY a JSON object with this exact structure:
@@ -343,7 +343,7 @@ Extract all available information. Use null for missing fields."""
         
         # Store parsed data in conversation context
         conversation = await get_or_create_conversation(
-            current_user.user_id,
+            current_user["user_id"],
             current_user.user_type,
             db
         )
@@ -384,7 +384,7 @@ async def approve_resume_data(
     
     # Get conversation with parsed data
     conversation = await get_or_create_conversation(
-        current_user.user_id,
+        current_user["user_id"],
         current_user.user_type,
         db
     )
@@ -399,7 +399,7 @@ async def approve_resume_data(
     
     new_occupation = {
         "occupation_id": str(uuid.uuid4()),
-        "user_id": current_user.user_id,
+        "user_id": current_user["user_id"],
         "occupation_title": parsed_data.get("occupation_title", "Untitled Position"),
         "occupation_category": "General",  # User can update later
         "years_of_experience": parsed_data.get("years_of_experience", 0),
@@ -441,7 +441,7 @@ async def get_onboarding_status(
     db = await get_database()
     
     conversation = await get_or_create_conversation(
-        current_user.user_id,
+        current_user["user_id"],
         current_user.user_type,
         db
     )
