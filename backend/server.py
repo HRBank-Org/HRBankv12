@@ -120,6 +120,7 @@ app.include_router(rosters.router, prefix="/api", tags=["rosters"])
 app.include_router(workforce_roster.router, prefix="/api", tags=["workforce_roster"])
 app.include_router(emma.router, tags=["emma"])
 app.include_router(job_matching.router, tags=["job_matching"])
+app.include_router(shift_management.router, tags=["shift_management"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
