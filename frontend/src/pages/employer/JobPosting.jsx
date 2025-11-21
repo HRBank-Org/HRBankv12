@@ -111,7 +111,7 @@ const JobPosting = () => {
         start_date: '',
         key_tasks: '',
         required_skills: '',
-        required_certifications: '',
+        required_certifications: [],
         max_distance_km: '25',
         positions_available: '1'
       });
