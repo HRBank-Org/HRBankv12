@@ -407,44 +407,7 @@ const EmployerDashboard = () => {
               </div>
             )}
 
-            {/* ATTENDANCE TRACKING TAB */}
-            {activeTab === 'attendance' && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Attendance Overview</h3>
-                
-                {/* Attendance Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="border border-gray-200 rounded-lg p-6 text-center">
-                    <p className="text-sm text-gray-600 mb-2">Today's Shifts</p>
-                    <p className="text-4xl font-bold text-gray-900">0</p>
-                  </div>
-                  <div className="border border-gray-200 rounded-lg p-6 text-center">
-                    <p className="text-sm text-gray-600 mb-2">Clocked In</p>
-                    <p className="text-4xl font-bold text-green-600">0</p>
-                  </div>
-                  <div className="border border-gray-200 rounded-lg p-6 text-center">
-                    <p className="text-sm text-gray-600 mb-2">Completed</p>
-                    <p className="text-4xl font-bold text-blue-600">0</p>
-                  </div>
-                  <div className="border border-gray-200 rounded-lg p-6 text-center">
-                    <p className="text-sm text-gray-600 mb-2">No Show</p>
-                    <p className="text-4xl font-bold text-red-600">0</p>
-                  </div>
-                </div>
-
-                {/* Recent Attendance */}
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">Recent Attendance</h4>
-                  <div className="text-center py-12">
-                    <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="text-gray-600">No attendance records yet</p>
-                    <p className="text-sm text-gray-500 mt-1">Records will appear after workers clock in</p>
-                  </div>
-                </div>
-              </div>
-            )}
+            
           </div>
         </div>
 
