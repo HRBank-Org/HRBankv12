@@ -4454,6 +4454,224 @@ def test_hr_bank_health_check(results):
     else:
         results.add_fail("Protected endpoint access", "No admin token available")
 
+def test_mobile_attendance_endpoints(results, workforce_token):
+    """Test mobile attendance endpoints as specified in review request"""
+    print("\n🧪 Testing Mobile Attendance Endpoints (Priority: HIGH)...")
+    print("   Testing endpoints: /api/attendance/history, /api/attendance/current, /api/attendance/upcoming-shifts")
+    
+    # Test 1: GET /api/attendance/history?limit=20
+    print("\n   Test 1: GET /api/attendance/history?limit=20")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/attendance/history?limit=20",
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and isinstance(data.get("data"), list):
+                # Verify response structure for attendance records
+                attendance_records = data["data"]
+                results.add_pass("GET /api/attendance/history - endpoint accessible and returns proper structure")
+                
+                # Check if records have required fields when data exists
+                if attendance_records:
+                    sample_record = attendance_records[0]
+                    required_fields = [
+                        "attendance_id", "clock_in_time", "clock_out_time", 
+                        "duration_hours", "company_name", "workplace_name", 
+                        "shift_date", "geofence_verified", "qr_code_scanned"
+                    ]
+                    missing_fields = []
+                    for field in required_fields:
+                        if field not in sample_record:
+                            missing_fields.append(field)
+                    
+                    if missing_fields:
+                        results.add_fail("GET /api/attendance/history - response structure", f"Missing fields: {missing_fields}")
+                    else:
+                        results.add_pass("GET /api/attendance/history - response structure contains all required fields")
+                else:
+                    results.add_pass("GET /api/attendance/history - empty response (no attendance records yet)")
+                    
+            else:
+                results.add_fail("GET /api/attendance/history", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/attendance/history", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/attendance/history", f"Request failed: {str(e)}")
+    
+    # Test 2: GET /api/attendance/current
+    print("\n   Test 2: GET /api/attendance/current")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/attendance/current",
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                current_attendance = data.get("data")
+                
+                if current_attendance is None:
+                    results.add_pass("GET /api/attendance/current - not clocked in (returns null as expected)")
+                else:
+                    # User is clocked in, verify response structure
+                    required_fields = [
+                        "attendance_id", "booking_id", "clock_in_time", 
+                        "company_name", "workplace_name", "shift_date", 
+                        "start_time", "end_time", "geofence_verified", "qr_code_scanned"
+                    ]
+                    missing_fields = []
+                    for field in required_fields:
+                        if field not in current_attendance:
+                            missing_fields.append(field)
+                    
+                    if missing_fields:
+                        results.add_fail("GET /api/attendance/current - clocked in response", f"Missing fields: {missing_fields}")
+                    else:
+                        results.add_pass("GET /api/attendance/current - clocked in response contains all required fields")
+            else:
+                results.add_fail("GET /api/attendance/current", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/attendance/current", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/attendance/current", f"Request failed: {str(e)}")
+    
+    # Test 3: GET /api/attendance/upcoming-shifts
+    print("\n   Test 3: GET /api/attendance/upcoming-shifts")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/attendance/upcoming-shifts",
+            headers=get_auth_headers(workforce_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and isinstance(data.get("data"), list):
+                upcoming_shifts = data["data"]
+                results.add_pass("GET /api/attendance/upcoming-shifts - endpoint accessible and returns proper structure")
+                
+                # Check if shifts have required fields when data exists
+                if upcoming_shifts:
+                    sample_shift = upcoming_shifts[0]
+                    required_fields = [
+                        "booking_id", "shift_id", "company_name", "position_title",
+                        "workplace_name", "shift_date", "start_time", "end_time", "hourly_rate"
+                    ]
+                    missing_fields = []
+                    for field in required_fields:
+                        if field not in sample_shift:
+                            missing_fields.append(field)
+                    
+                    if missing_fields:
+                        results.add_fail("GET /api/attendance/upcoming-shifts - response structure", f"Missing fields: {missing_fields}")
+                    else:
+                        results.add_pass("GET /api/attendance/upcoming-shifts - response structure contains all required fields")
+                        
+                        # Verify shifts are sorted by date (today and future only)
+                        from datetime import date
+                        today = date.today()
+                        valid_dates = True
+                        for shift in upcoming_shifts:
+                            shift_date = datetime.fromisoformat(shift["shift_date"]).date()
+                            if shift_date < today:
+                                valid_dates = False
+                                break
+                        
+                        if valid_dates:
+                            results.add_pass("GET /api/attendance/upcoming-shifts - shifts are today and future only")
+                        else:
+                            results.add_fail("GET /api/attendance/upcoming-shifts - date filtering", "Contains past shifts")
+                else:
+                    results.add_pass("GET /api/attendance/upcoming-shifts - empty response (no upcoming shifts)")
+                    
+            else:
+                results.add_fail("GET /api/attendance/upcoming-shifts", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/attendance/upcoming-shifts", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/attendance/upcoming-shifts", f"Request failed: {str(e)}")
+    
+    # Test 4: Authentication enforcement for all attendance endpoints
+    print("\n   Test 4: Authentication enforcement")
+    attendance_endpoints = [
+        ("GET", "/attendance/history"),
+        ("GET", "/attendance/current"),
+        ("GET", "/attendance/upcoming-shifts")
+    ]
+    
+    for method, endpoint in attendance_endpoints:
+        try:
+            response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+
+def create_workforce_user_for_testing():
+    """Create a workforce user specifically for attendance testing"""
+    print("\n🧪 Creating workforce user for attendance testing...")
+    
+    # Try to use existing workforce users first
+    try:
+        # Try to login with a common test user pattern
+        test_emails = [
+            "test_workforce_user@hrbank.com",
+            "workforce.test@hrbank.com", 
+            "test.worker@hrbank.com"
+        ]
+        
+        for email in test_emails:
+            try:
+                login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                    "email": email,
+                    "password": "TestPassword123!",
+                    "user_type": "workforce"
+                }, timeout=10)
+                
+                if login_response.status_code == 200:
+                    data = login_response.json()
+                    if data.get("success") and "access_token" in data.get("data", {}):
+                        print(f"✅ Using existing workforce user: {email}")
+                        return data["data"]["access_token"]
+            except:
+                continue
+        
+        # If no existing user found, create a new one
+        workforce_user = generate_test_user("workforce")
+        
+        # Try signup
+        signup_response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
+        
+        if signup_response.status_code in [200, 201]:
+            # Try login immediately (might work if email verification is bypassed)
+            login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                "email": workforce_user["email"],
+                "password": workforce_user["password"],
+                "user_type": workforce_user["user_type"]
+            }, timeout=10)
+            
+            if login_response.status_code == 200:
+                data = login_response.json()
+                if data.get("success") and "access_token" in data.get("data", {}):
+                    print(f"✅ Created and logged in new workforce user: {workforce_user['email']}")
+                    return data["data"]["access_token"]
+        
+        print("❌ Could not create or login workforce user for testing")
+        return None
+        
+    except Exception as e:
+        print(f"❌ Error creating workforce user: {str(e)}")
+        return None
+
 def main():
     """Run health check tests"""
     print("🚀 Starting HR Bank Backend Health Check...")
@@ -4464,6 +4682,17 @@ def main():
     
     # Run focused health check tests
     test_hr_bank_health_check(results)
+    
+    # Test mobile attendance endpoints (NEW - as per review request)
+    print("\n" + "="*80)
+    print("🎯 MOBILE ATTENDANCE ENDPOINTS TESTING (REVIEW REQUEST)")
+    print("="*80)
+    
+    workforce_token = create_workforce_user_for_testing()
+    if workforce_token:
+        test_mobile_attendance_endpoints(results, workforce_token)
+    else:
+        results.add_fail("Mobile Attendance Testing", "Could not create/login workforce user for testing")
     
     # Print final results
     success = results.summary()
