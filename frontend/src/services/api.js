@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'https://compliant-payroll-1.preview.emergentagent.com';
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'https://talent-flow-21.preview.emergentagent.com';
 
 const api = axios.create({
   baseURL: API_URL,
