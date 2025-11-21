@@ -2127,6 +2127,10 @@ def main():
     # Priority: HIGH - Authentication System
     admin_token = test_admin_authentication_system(results)
     
+    # Priority: HIGH - Job Matching System
+    if admin_token:
+        test_job_matching_system(results, admin_token)
+    
     # Priority: HIGH - Payroll System with Updated Minimum Wage
     test_payroll_system_minimum_wage(results)
     
