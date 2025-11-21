@@ -10,7 +10,7 @@ const WorkforceDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState('financial'); // financial, schedule, career, jobs, attendance
+  const [activeTab, setActiveTab] = useState('financial'); // financial, shifts, career
   const [acceptedShifts, setAcceptedShifts] = useState([]);
   const [availabilityData, setAvailabilityData] = useState({});
   const [workforceProfile, setWorkforceProfile] = useState(null);
