@@ -28,7 +28,17 @@ const ManageOccupations = () => {
 
   useEffect(() => {
     loadCategories();
+    loadCertifications();
   }, []);
+
+  const loadCertifications = async () => {
+    try {
+      const response = await api.get('/api/admin/certifications/flat-list');
+      setAllCertifications(response.data.data.certifications || []);
+    } catch (error) {
+      console.error('Failed to load certifications:', error);
+    }
+  };
 
   const loadCategories = async () => {
     try {
