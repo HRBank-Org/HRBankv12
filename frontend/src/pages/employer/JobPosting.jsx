@@ -152,6 +152,29 @@ const JobPosting = () => {
     }
   };
 
+  const addCertificationToJob = (cert) => {
+    if (!formData.required_certifications.includes(cert)) {
+      setFormData({
+        ...formData,
+        required_certifications: [...formData.required_certifications, cert]
+      });
+    }
+    setCertSearchQuery('');
+    setShowCertDropdown(false);
+  };
+
+  const removeCertificationFromJob = (cert) => {
+    setFormData({
+      ...formData,
+      required_certifications: formData.required_certifications.filter(c => c !== cert)
+    });
+  };
+
+  const filteredCertifications = allCertifications.filter(cert =>
+    cert.toLowerCase().includes(certSearchQuery.toLowerCase()) &&
+    !formData.required_certifications.includes(cert)
+  );
+
   const handleSendOffer = async (workforceId, jobId, suggestedRate) => {
     const payRate = window.prompt(`Hourly rate (suggested: $${suggestedRate}):`, suggestedRate);
     const startDate = window.prompt('Start date (YYYY-MM-DD):');
