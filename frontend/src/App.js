@@ -44,6 +44,7 @@ import ClassDetails from './pages/institution/ClassDetails';
 import VerificationRequests from './pages/institution/VerificationRequests';
 import ManageCredentials from './pages/institution/ManageCredentials';
 import AdminManageCredentials from './pages/admin/ManageCredentials';
+import ManageOccupationCertifications from './pages/admin/ManageOccupationCertifications';
 import IssueCredential from './pages/institution/IssueCredential';
 import BulkInvite from './pages/institution/BulkInvite';
 import CredentialVerification from './pages/workforce/CredentialVerification';
