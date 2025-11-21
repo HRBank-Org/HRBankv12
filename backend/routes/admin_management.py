@@ -432,6 +432,34 @@ async def get_platform_analytics(
         zone_workforce_ids = list(set([b.get("workforce_id") for b in zone_bookings]))
         zone_workforce_count = len(zone_workforce_ids)
         
+        # Get detailed user breakdowns for this zone
+        # Workforce in zone (based on workplaces they've worked at)
+        zone_workforce_active = await db.users.count_documents({
+            "user_id": {"$in": zone_workforce_ids},
+            "user_type": "workforce",
+            "account_status": "active"
+        })
+        zone_workforce_total = len(zone_workforce_ids)
+        
+        # Employers in zone (based on workplaces)
+        zone_employers_active = await db.users.count_documents({
+            "user_id": {"$in": zone_employer_ids},
+            "user_type": "employer",
+            "account_status": "active"
+        })
+        
+        # New users in last 30 days for this zone
+        zone_workforce_new_30d = await db.users.count_documents({
+            "user_id": {"$in": zone_workforce_ids},
+            "user_type": "workforce",
+            "created_date": {"$gte": thirty_days_ago}
+        })
+        zone_employers_new_30d = await db.users.count_documents({
+            "user_id": {"$in": zone_employer_ids},
+            "user_type": "employer",
+            "created_date": {"$gte": thirty_days_ago}
+        })
+        
         zone_analytics.append({
             "zone_id": zone_id,
             "zone_name": zone_name,
@@ -439,8 +467,16 @@ async def get_platform_analytics(
             "revenue": round(zone_revenue, 2),
             "hours_worked": round(zone_hours, 2),
             "total_shifts": len(zone_shifts),
-            "workforce_count": zone_workforce_count,
-            "employer_count": zone_employers_count
+            "workforce": {
+                "total": zone_workforce_total,
+                "active": zone_workforce_active,
+                "new_last_30d": zone_workforce_new_30d
+            },
+            "employers": {
+                "total": zone_employers_count,
+                "active": zone_employers_active,
+                "new_last_30d": zone_employers_new_30d
+            }
         })
     
     # Sort zones by revenue
