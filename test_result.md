@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Enhance user headers across all pages: 1) Workers: Display name and profile photo, 2) Employers: Show user name and company name with short address (street-city), no photo, 3) Institutions: Show user name and institution name with short address (street-city), no photo."
+user_problem_statement: "Create Emma AI Assistant - A friendly, professional onboarding assistant to help workforce and employer users complete their profiles. Emma should: 1) Provide warm, time-based greetings, 2) Guide users through profile completion and document collection, 3) Parse resumes to auto-fill occupation profiles for workers, 4) Ensure compliance with Ontario employment standards, 5) Be available as a persistent chat widget with minimize functionality, 6) Maintain full conversation history across sessions."
 
 backend:
   - task: "User Profile API - Complete User Data for Headers"
