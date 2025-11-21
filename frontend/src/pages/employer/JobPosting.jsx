@@ -498,6 +498,11 @@ const JobPosting = () => {
                       )}
                     </div>
                     
+                    {occupationSuggestedCerts.length > 0 && (
+                      <p className="text-xs text-green-700 mt-1 font-medium">
+                        ✓ {occupationSuggestedCerts.length} certification(s) auto-suggested based on position. You can remove any as needed.
+                      </p>
+                    )}
                     <p className="text-xs text-gray-500 mt-1">
                       💡 Search and select from standardized Canadian certifications
                     </p>
