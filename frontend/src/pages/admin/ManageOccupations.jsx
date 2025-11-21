@@ -189,20 +189,41 @@ const ManageOccupations = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                {cat.occupations.map((occupation) => (
-                  <div
-                    key={occupation}
-                    className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded border border-gray-200"
-                  >
-                    <span className="text-sm text-gray-700">{occupation}</span>
-                    <button
-                      onClick={() => handleDeleteOccupation(cat.name, occupation)}
-                      className="text-red-600 hover:text-red-800 text-xs"
+                {cat.occupations.map((occupation, idx) => {
+                  // Handle both string format (legacy) and object format (new)
+                  const isObject = typeof occupation === 'object';
+                  const title = isObject ? occupation.title : occupation;
+                  const certs = isObject ? occupation.required_certifications || [] : [];
+                  
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-start justify-between px-3 py-2 bg-gray-50 rounded border border-gray-200"
                     >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex-1">
+                        <span className="text-sm font-medium text-gray-900">{title}</span>
+                        {certs.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {certs.map((cert, certIdx) => (
+                              <span
+                                key={certIdx}
+                                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
+                              >
+                                🎓 {cert}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleDeleteOccupation(cat.name, title)}
+                        className="text-red-600 hover:text-red-800 text-xs ml-2 flex-shrink-0"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}
