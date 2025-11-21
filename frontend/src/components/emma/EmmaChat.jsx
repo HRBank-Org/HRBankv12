@@ -230,6 +230,15 @@ const EmmaChat = () => {
   
   if (!user || isPublicPage) return null;
 
+  // Get user type label for branding
+  const getUserTypeLabel = () => {
+    if (user.user_type === 'workforce') return 'Workforce Assistant';
+    if (user.user_type === 'employer') return 'Employer Assistant';
+    if (user.user_type === 'institution') return 'Institution Assistant';
+    if (user.user_type === 'admin') return 'Admin Assistant';
+    return 'HR Bank Assistant';
+  };
+
   // Minimized state - show floating button
   if (!isOpen || isMinimized) {
     return (
