@@ -4778,7 +4778,9 @@ def test_credential_verification_workflow(results):
     credential_id = None
     
     try:
+        # Note: workforce_id should be auto-assigned by the backend from current user
         credential_data = {
+            "workforce_id": "placeholder",  # This will be overridden by the backend
             "credential_type_id": "ct_test_food_safety",
             "credential_type_name": "Food Safety Certificate",
             "issuing_institution_name": "Test Culinary Institute",
