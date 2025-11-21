@@ -520,3 +520,175 @@ async def approve_timesheet(
         "success": True,
         "message": "Timesheet approved successfully"
     }
+
+
+@router.get("/history", response_model=Dict)
+async def get_attendance_history(
+    limit: int = 20,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get attendance history for workforce user"""
+    
+    # Get recent attendance records
+    attendance_records = await db.attendance.find({
+        "workforce_id": current_user["user_id"],
+        "status": "clocked_out"
+    }).sort("clock_out_time", -1).limit(limit).to_list(length=limit)
+    
+    # Enrich with shift and company details
+    enriched_records = []
+    for record in attendance_records:
+        # Get booking to find shift details
+        booking = await db.bookings.find_one({"booking_id": record.get("booking_id")})
+        if not booking:
+            continue
+            
+        # Get shift details
+        shift = await db.shifts.find_one({"shift_id": record.get("shift_id")})
+        if not shift:
+            continue
+            
+        # Get workplace details
+        workplace = await db.workplaces.find_one({"workplace_id": shift.get("workplace_id")})
+        if not workplace:
+            continue
+            
+        # Get employer details
+        employer = await db.employer_profiles.find_one({"employer_id": workplace.get("employer_id")})
+        
+        enriched_records.append({
+            "attendance_id": record.get("attendance_id"),
+            "clock_in_time": record.get("clock_in_time"),
+            "clock_out_time": record.get("clock_out_time"),
+            "duration_hours": record.get("duration_hours"),
+            "company_name": employer.get("company_name") if employer else "Unknown",
+            "workplace_name": workplace.get("workplace_name"),
+            "shift_date": shift.get("shift_date"),
+            "geofence_verified": record.get("geofence_verified", False),
+            "qr_code_scanned": record.get("qr_code_scanned", False)
+        })
+    
+    return {
+        "success": True,
+        "data": enriched_records
+    }
+
+
+@router.get("/current", response_model=Dict)
+async def get_current_attendance(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get current active attendance (if clocked in)"""
+    
+    # Find active attendance
+    attendance = await db.attendance.find_one({
+        "workforce_id": current_user["user_id"],
+        "status": "clocked_in"
+    })
+    
+    if not attendance:
+        return {
+            "success": True,
+            "data": None
+        }
+    
+    # Get booking and shift details
+    booking = await db.bookings.find_one({"booking_id": attendance.get("booking_id")})
+    if not booking:
+        return {"success": True, "data": None}
+    
+    shift = await db.shifts.find_one({"shift_id": attendance.get("shift_id")})
+    if not shift:
+        return {"success": True, "data": None}
+    
+    workplace = await db.workplaces.find_one({"workplace_id": shift.get("workplace_id")})
+    if not workplace:
+        return {"success": True, "data": None}
+    
+    employer = await db.employer_profiles.find_one({"employer_id": workplace.get("employer_id")})
+    
+    return {
+        "success": True,
+        "data": {
+            "attendance_id": attendance.get("attendance_id"),
+            "booking_id": attendance.get("booking_id"),
+            "clock_in_time": attendance.get("clock_in_time"),
+            "company_name": employer.get("company_name") if employer else "Unknown",
+            "workplace_name": workplace.get("workplace_name"),
+            "shift_date": shift.get("shift_date"),
+            "start_time": shift.get("start_time"),
+            "end_time": shift.get("end_time"),
+            "geofence_verified": attendance.get("geofence_verified", False),
+            "qr_code_scanned": attendance.get("qr_code_scanned", False)
+        }
+    }
+
+
+@router.get("/upcoming-shifts", response_model=Dict)
+async def get_upcoming_shifts(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get upcoming shifts that user can clock into"""
+    
+    from datetime import date
+    today = date.today()
+    
+    # Find accepted bookings for today and future
+    bookings = await db.bookings.find({
+        "workforce_id": current_user["user_id"],
+        "status": {"$in": ["accepted", "confirmed"]}
+    }).to_list(length=50)
+    
+    upcoming = []
+    for booking in bookings:
+        # Get role details
+        role = await db.roles.find_one({"role_id": booking.get("role_id")})
+        if not role:
+            continue
+            
+        # Get shift details
+        shift = await db.shifts.find_one({"shift_id": role.get("shift_id")})
+        if not shift:
+            continue
+        
+        # Parse shift date
+        shift_date = shift.get("shift_date")
+        if isinstance(shift_date, str):
+            shift_date = datetime.fromisoformat(shift_date).date()
+        elif hasattr(shift_date, 'date'):
+            shift_date = shift_date.date()
+        
+        # Only include today and future shifts
+        if shift_date < today:
+            continue
+        
+        # Get workplace details
+        workplace = await db.workplaces.find_one({"workplace_id": shift.get("workplace_id")})
+        if not workplace:
+            continue
+        
+        # Get employer details
+        employer = await db.employer_profiles.find_one({"employer_id": workplace.get("employer_id")})
+        
+        upcoming.append({
+            "booking_id": booking.get("booking_id"),
+            "shift_id": shift.get("shift_id"),
+            "company_name": employer.get("company_name") if employer else "Unknown",
+            "position_title": role.get("position_title", "Position"),
+            "workplace_name": workplace.get("workplace_name"),
+            "shift_date": shift_date.isoformat(),
+            "start_time": shift.get("start_time"),
+            "end_time": shift.get("end_time"),
+            "hourly_rate": role.get("hourly_rate")
+        })
+    
+    # Sort by date
+    upcoming.sort(key=lambda x: x["shift_date"])
+    
+    return {
+        "success": True,
+        "data": upcoming
+    }
