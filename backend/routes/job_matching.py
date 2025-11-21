@@ -608,3 +608,199 @@ async def reject_job_offer(
         'success': True,
         'data': {'message': 'Offer rejected'}
     }
+
+@router.post("/employment/quit")
+async def quit_current_job(
+    reason: Optional[str] = None,
+    current_user: dict = Depends(require_role(['workforce']))
+):
+    """Quit current job and return to available workforce pool"""
+    db = await get_database()
+    
+    # Get workforce profile
+    workforce_profile = await db.workforce_profiles.find_one({
+        'user_id': current_user['user_id']
+    })
+    
+    if not workforce_profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Check if currently employed
+    current_employer_id = workforce_profile.get('current_employer_id')
+    if not current_employer_id:
+        return {
+            'success': True,
+            'data': {'message': 'You are already in the available workforce pool'}
+        }
+    
+    # Get current employment details
+    current_workplace_id = workforce_profile.get('current_workplace_id')
+    employment_start_date = workforce_profile.get('employment_start_date')
+    
+    # Create employment history record
+    employment_history_record = {
+        'employer_id': current_employer_id,
+        'workplace_id': current_workplace_id,
+        'position_title': workforce_profile.get('current_position_title', 'Worker'),
+        'start_date': employment_start_date,
+        'end_date': datetime.now(timezone.utc).isoformat(),
+        'quit_reason': reason,
+        'status': 'completed',
+        'total_hours_worked': 0,  # TODO: Calculate from shifts
+        'total_shifts': 0  # TODO: Count from bookings
+    }
+    
+    # Update workforce profile
+    await db.workforce_profiles.update_one(
+        {'user_id': current_user['user_id']},
+        {
+            '$set': {
+                'employment_status': 'available',
+                'current_employer_id': None,
+                'current_workplace_id': None,
+                'current_position_title': None,
+                'employment_start_date': None,
+                'last_employment_end_date': datetime.now(timezone.utc).isoformat()
+            },
+            '$push': {
+                'employment_history': employment_history_record
+            }
+        }
+    )
+    
+    # Cancel any pending shifts/bookings
+    await db.bookings.update_many(
+        {
+            'workforce_id': current_user['user_id'],
+            'employer_id': current_employer_id,
+            'status': {'$in': ['accepted', 'pending']}
+        },
+        {
+            '$set': {
+                'status': 'cancelled',
+                'cancellation_reason': 'Workforce member quit job',
+                'cancelled_by': 'workforce',
+                'cancelled_date': datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    # Create notification for employer
+    employer_profile = await db.employer_profiles.find_one({
+        'user_id': current_employer_id
+    })
+    
+    await db.notifications.insert_one({
+        'notification_id': str(uuid.uuid4()),
+        'user_id': current_employer_id,
+        'type': 'workforce_quit',
+        'title': 'Workforce Member Left',
+        'message': f'{workforce_profile.get("first_name", "A worker")} {workforce_profile.get("last_name", "")} has quit their position',
+        'read': False,
+        'created_date': datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Re-run matching algorithm for this worker with all active jobs
+    active_jobs = await db.job_postings.find({
+        'status': 'active'
+    }).to_list(length=None)
+    
+    matches_created = 0
+    for job in active_jobs:
+        # Check if already matched
+        existing_match = await db.job_matches.find_one({
+            'job_id': job['job_id'],
+            'workforce_id': current_user['user_id']
+        })
+        
+        if not existing_match:
+            # Calculate distance
+            worker_coords = workforce_profile.get('coordinates')
+            job_coords = job.get('workplace_coordinates')
+            
+            if worker_coords and job_coords:
+                distance_km = calculate_distance(
+                    worker_coords['lat'], worker_coords['lng'],
+                    job_coords['lat'], job_coords['lng']
+                )
+                
+                if distance_km <= job.get('max_distance_km', 25):
+                    # Get worker occupations
+                    worker_occupations = await db.occupation_profiles.find({
+                        'user_id': current_user['user_id'],
+                        'active': True
+                    }).to_list(length=None)
+                    
+                    # Update profile with available status for matching
+                    temp_profile = {**workforce_profile, 'employment_status': 'available'}
+                    
+                    # Calculate match
+                    match_data = calculate_match_score(
+                        JobPosting(**job),
+                        temp_profile,
+                        worker_occupations,
+                        distance_km
+                    )
+                    
+                    if match_data['match_score'] >= 50:
+                        job_match = JobMatch(
+                            job_id=job['job_id'],
+                            workforce_id=current_user['user_id'],
+                            distance_km=distance_km,
+                            **match_data
+                        )
+                        
+                        await db.job_matches.insert_one(job_match.model_dump())
+                        matches_created += 1
+    
+    return {
+        'success': True,
+        'data': {
+            'message': 'You have successfully quit your job and are now back in the available workforce pool',
+            'new_matches': matches_created,
+            'status': 'available'
+        }
+    }
+
+@router.get("/employment/status")
+async def get_employment_status(
+    current_user: dict = Depends(require_role(['workforce']))
+):
+    """Get current employment status"""
+    db = await get_database()
+    
+    workforce_profile = await db.workforce_profiles.find_one({
+        'user_id': current_user['user_id']
+    })
+    
+    if not workforce_profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    employment_status = workforce_profile.get('employment_status', 'available')
+    
+    result = {
+        'employment_status': employment_status,
+        'is_available': employment_status != 'employed'
+    }
+    
+    if employment_status == 'employed':
+        # Get current employer details
+        employer = await db.employer_profiles.find_one({
+            'user_id': workforce_profile.get('current_employer_id')
+        })
+        
+        workplace = await db.workplaces.find_one({
+            'workplace_id': workforce_profile.get('current_workplace_id')
+        })
+        
+        result.update({
+            'current_employer': employer.get('company_name') if employer else 'Unknown',
+            'current_workplace': workplace.get('workplace_name') if workplace else 'Unknown',
+            'current_position': workforce_profile.get('current_position_title', 'Worker'),
+            'employment_start_date': workforce_profile.get('employment_start_date')
+        })
+    
+    return {
+        'success': True,
+        'data': result
+    }
