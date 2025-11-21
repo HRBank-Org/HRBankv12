@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import JobsScreen from '../screens/jobs/JobsScreen';
+import CalendarScreen from '../screens/calendar/CalendarScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import EmmaFloatingButton from '../../mobile-shared/components/emma/EmmaFloatingButton';
 import colors from '../../mobile-shared/constants/colors';
