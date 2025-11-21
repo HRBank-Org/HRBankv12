@@ -473,6 +473,53 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.workforce.textLight,
   },
+  certificationsSection: {
+    marginTop: 12,
+    marginBottom: 12,
+    padding: 12,
+    backgroundColor: colors.workforce.background,
+    borderRadius: 8,
+  },
+  certificationsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  certificationsSectionTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.workforce.text,
+  },
+  certificationsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  certBadgeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  certCheckIcon: {
+    marginLeft: -8,
+    marginTop: -8,
+  },
+  missingCertsNote: {
+    fontSize: 11,
+    color: colors.warning,
+    marginTop: 8,
+    fontWeight: '500',
+  },
+  skillsSection: {
+    marginTop: 8,
+  },
+  skillsSectionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.workforce.textLight,
+    marginBottom: 6,
+  },
   skillsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
