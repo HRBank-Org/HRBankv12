@@ -10,7 +10,7 @@ const EmployerDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState('overview'); // overview, schedule, workforce, financial, attendance
+  const [activeTab, setActiveTab] = useState('schedule'); // schedule, workforce, financial
   const [stats, setStats] = useState({
     total_workplaces: 0,
     total_shifts: 0,
