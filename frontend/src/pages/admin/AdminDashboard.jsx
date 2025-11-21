@@ -61,6 +61,19 @@ const AdminDashboard = () => {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Greeting */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {(() => {
+              const hour = new Date().getHours();
+              if (hour < 12) return 'Good morning';
+              if (hour < 18) return 'Good afternoon';
+              return 'Good evening';
+            })()}, {adminProfile?.full_name || 'Admin'}! 👋
+          </h1>
+          <p className="text-gray-600 mt-1">Welcome to your HR Bank Admin Dashboard</p>
+        </div>
+
         {/* Admin Info */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">Your Profile</h2>
