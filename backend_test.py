@@ -5703,7 +5703,7 @@ def test_admin_occupation_management(results):
             "occupation": "Test Nurse"
         }
         
-        response = requests.post(
+        response = requests.delete(
             f"{BASE_URL}/admin/occupations/remove",
             json=delete_occupation_data,
             headers=get_auth_headers(admin_token),
