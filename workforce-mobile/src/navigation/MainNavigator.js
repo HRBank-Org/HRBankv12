@@ -63,7 +63,7 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name="Jobs"
-        component={PlaceholderScreen}
+        component={JobsScreen}
         options={{
           tabBarLabel: 'Jobs',
         }}
@@ -77,7 +77,7 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name="More"
-        component={PlaceholderScreen}
+        component={ProfileScreen}
         options={{
           tabBarLabel: 'More',
         }}
