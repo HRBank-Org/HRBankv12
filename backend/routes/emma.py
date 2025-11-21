@@ -256,7 +256,7 @@ async def chat_with_emma(
 @router.post("/parse-resume")
 async def parse_resume(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """Upload and parse resume with Emma's AI"""
     if current_user["user_type"] != "workforce":
