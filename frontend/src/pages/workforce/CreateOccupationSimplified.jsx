@@ -15,6 +15,9 @@ const CreateOccupationSimplified = () => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [relevantSkills, setRelevantSkills] = useState([]);
   const [relevantCertifications, setRelevantCertifications] = useState([]);
+  const [allCertifications, setAllCertifications] = useState([]);
+  const [certSearchQuery, setCertSearchQuery] = useState('');
+  const [showCertDropdown, setShowCertDropdown] = useState(false);
   
   const [formData, setFormData] = useState({
     occupation_title: '',
