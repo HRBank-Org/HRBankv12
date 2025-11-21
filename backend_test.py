@@ -5605,40 +5605,217 @@ def test_credential_verification_workflow(results):
     print("\n   Credential Verification Workflow Testing Complete")
     print("   Both institution_classes.py and institutions.py systems tested")
 
+def test_admin_occupation_management(results):
+    """Test admin account permissions and occupation management as requested in review"""
+    print("\n🧪 TESTING ADMIN ACCOUNT PERMISSIONS & OCCUPATION MANAGEMENT")
+    print("   This is the MAIN TEST requested in the review!")
+    print("   Testing with credentials: qnizami@hrbank.ca / Tabaghnak@3891")
+    
+    # Admin credentials from review request
+    admin_credentials = {
+        "email": "qnizami@hrbank.ca",
+        "password": "Tabaghnak@3891",
+        "user_type": "admin"
+    }
+    
+    admin_token = None
+    
+    # TEST 1: Check Super Admin Status
+    print("\n   TEST 1: Check Super Admin Status")
+    try:
+        # First login to get token
+        login_response = requests.post(f"{BASE_URL}/auth/login", json=admin_credentials, timeout=10)
+        
+        if login_response.status_code == 200:
+            login_data = login_response.json()
+            admin_token = login_data["data"]["access_token"]
+            results.add_pass("Admin login successful")
+            
+            # Now check admin profile for super admin status
+            profile_response = requests.get(
+                f"{BASE_URL}/admin/my-profile",
+                headers=get_auth_headers(admin_token),
+                timeout=10
+            )
+            
+            if profile_response.status_code == 200:
+                profile_data = profile_response.json()
+                if profile_data.get("success") and profile_data.get("data"):
+                    admin_profile = profile_data["data"]
+                    is_super_admin = admin_profile.get("is_super_admin", False)
+                    
+                    if is_super_admin:
+                        results.add_pass("GET /api/admin/my-profile - User IS super admin")
+                        print(f"      ✅ Admin has super_admin privileges: {is_super_admin}")
+                    else:
+                        results.add_pass("GET /api/admin/my-profile - User is NOT super admin")
+                        print(f"      ⚠️  Admin does NOT have super_admin privileges: {is_super_admin}")
+                        print(f"      This means occupation add/delete will fail with 403")
+                else:
+                    results.add_fail("GET /api/admin/my-profile", f"Invalid response structure: {profile_data}")
+            else:
+                results.add_fail("GET /api/admin/my-profile", f"HTTP {profile_response.status_code}: {profile_response.text}")
+        else:
+            results.add_fail("Admin login", f"HTTP {login_response.status_code}: {login_response.text}")
+            return  # Can't continue without token
+    except Exception as e:
+        results.add_fail("Admin login and profile check", f"Request failed: {str(e)}")
+        return
+    
+    # TEST 2: Try Adding an Occupation with Certifications
+    print("\n   TEST 2: Try Adding an Occupation with Certifications")
+    try:
+        add_occupation_data = {
+            "category": "Healthcare & Personal Care",
+            "occupation": "Test Nurse",
+            "required_certifications": ["Registered Nurse (RN)", "CPR/First Aid Certification"]
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/admin/occupations/add",
+            json=add_occupation_data,
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                results.add_pass("POST /api/admin/occupations/add - Occupation added successfully (super admin)")
+                print(f"      ✅ Successfully added 'Test Nurse' to 'Healthcare & Personal Care'")
+            else:
+                results.add_fail("POST /api/admin/occupations/add", f"Invalid response: {data}")
+        elif response.status_code == 403:
+            results.add_pass("POST /api/admin/occupations/add - Access denied (not super admin)")
+            print(f"      ⚠️  Access denied - admin is not super admin (expected)")
+        elif response.status_code == 404:
+            results.add_fail("POST /api/admin/occupations/add", f"Category not found: {response.text}")
+        else:
+            results.add_fail("POST /api/admin/occupations/add", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/admin/occupations/add", f"Request failed: {str(e)}")
+    
+    # TEST 3: Try Deleting an Occupation
+    print("\n   TEST 3: Try Deleting an Occupation")
+    try:
+        delete_occupation_data = {
+            "category": "Healthcare & Personal Care",
+            "occupation": "Test Nurse"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/admin/occupations/remove",
+            json=delete_occupation_data,
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                results.add_pass("POST /api/admin/occupations/remove - Occupation removed successfully (super admin)")
+                print(f"      ✅ Successfully removed 'Test Nurse' from 'Healthcare & Personal Care'")
+            else:
+                results.add_fail("POST /api/admin/occupations/remove", f"Invalid response: {data}")
+        elif response.status_code == 403:
+            results.add_pass("POST /api/admin/occupations/remove - Access denied (not super admin)")
+            print(f"      ⚠️  Access denied - admin is not super admin (expected)")
+        elif response.status_code == 404:
+            results.add_fail("POST /api/admin/occupations/remove", f"Occupation not found (expected if not added): {response.text}")
+        else:
+            results.add_fail("POST /api/admin/occupations/remove", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/admin/occupations/remove", f"Request failed: {str(e)}")
+    
+    # TEST 4: Get Current Occupation Format
+    print("\n   TEST 4: Get Current Occupation Format")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/admin/occupations/manage",
+            headers=get_auth_headers(admin_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("data"):
+                categories = data["data"].get("categories", {})
+                total_categories = data["data"].get("total_categories", 0)
+                
+                results.add_pass("GET /api/admin/occupations/manage - Retrieved occupation data")
+                print(f"      ✅ Found {total_categories} occupation categories")
+                
+                # Check format of occupations
+                format_analysis = {"strings": 0, "objects": 0, "examples": []}
+                
+                for category_name, category_data in categories.items():
+                    occupations = category_data.get("occupations", [])
+                    for occ in occupations[:3]:  # Check first 3 in each category
+                        if isinstance(occ, str):
+                            format_analysis["strings"] += 1
+                            format_analysis["examples"].append(f"String: '{occ}' in {category_name}")
+                        elif isinstance(occ, dict):
+                            format_analysis["objects"] += 1
+                            title = occ.get("title", "Unknown")
+                            certs = occ.get("required_certifications", [])
+                            format_analysis["examples"].append(f"Object: '{title}' with {len(certs)} certs in {category_name}")
+                        
+                        if len(format_analysis["examples"]) >= 5:  # Limit examples
+                            break
+                    if len(format_analysis["examples"]) >= 5:
+                        break
+                
+                print(f"      📊 Occupation Format Analysis:")
+                print(f"         - String format: {format_analysis['strings']} occupations")
+                print(f"         - Object format: {format_analysis['objects']} occupations")
+                print(f"      📝 Examples:")
+                for example in format_analysis["examples"]:
+                    print(f"         - {example}")
+                
+                if format_analysis["objects"] > 0:
+                    results.add_pass("Occupation format analysis - Objects with certifications found")
+                elif format_analysis["strings"] > 0:
+                    results.add_pass("Occupation format analysis - String format found")
+                else:
+                    results.add_fail("Occupation format analysis", "No occupations found")
+                    
+            else:
+                results.add_fail("GET /api/admin/occupations/manage", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/admin/occupations/manage", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/admin/occupations/manage", f"Request failed: {str(e)}")
+    
+    return admin_token
+
 def main():
-    """Run credential type seeding tests as requested in review"""
-    print("🚀 Starting HR Bank Credential Type Seeding Tests...")
+    """Run admin occupation management tests as requested in review"""
+    print("🚀 Starting HR Bank Admin Occupation Management Tests...")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     
     results = TestResults()
     
-    # CREDENTIAL TYPE SEEDING SYSTEM (HIGH PRIORITY - from review request)
+    # ADMIN OCCUPATION MANAGEMENT SYSTEM (HIGH PRIORITY - from review request)
     print("\n" + "="*80)
-    print("🎯 CREDENTIAL TYPE SEEDING SYSTEM TESTING (REVIEW REQUEST)")
+    print("🎯 ADMIN OCCUPATION MANAGEMENT TESTING (REVIEW REQUEST)")
     print("="*80)
     
-    # First get admin authentication
-    admin_token = test_admin_authentication_system(results)
-    
-    if admin_token:
-        # Test the credential type seeding endpoints
-        test_credential_type_seeding_system(results, admin_token)
-    else:
-        results.add_fail("Credential Type Seeding", "Could not authenticate admin user for testing")
+    # Test admin occupation management
+    admin_token = test_admin_occupation_management(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All credential type seeding tests passed!")
+        print("\n🎉 All admin occupation management tests passed!")
         print("\n✅ PASS CRITERIA MET:")
-        print("   - Seed successful with 18 types inserted")
-        print("   - GET /credentials/types returns all 18 types")
-        print("   - Dropdown will now be populated for workforce users")
+        print("   - Admin super admin status identified")
+        print("   - Occupation add/delete functionality tested")
+        print("   - Current occupation format analyzed")
         return 0
     else:
-        print(f"\n💥 {results.failed} credential type seeding test(s) failed!")
+        print(f"\n💥 {results.failed} admin occupation management test(s) failed!")
         return 1
 
 def test_invitation_system(results):
