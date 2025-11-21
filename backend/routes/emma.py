@@ -185,7 +185,7 @@ async def get_conversation(
 @router.post("/chat")
 async def chat_with_emma(
     request: EmmaChatRequest,
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """Send message to Emma and get response"""
     db = await get_database()
