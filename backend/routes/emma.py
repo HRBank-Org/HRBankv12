@@ -435,7 +435,7 @@ async def approve_resume_data(
 
 @router.get("/onboarding-status")
 async def get_onboarding_status(
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """Get user's onboarding progress"""
     db = await get_database()
