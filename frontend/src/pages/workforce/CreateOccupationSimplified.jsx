@@ -47,7 +47,17 @@ const CreateOccupationSimplified = () => {
 
   useEffect(() => {
     loadCategories();
+    loadAllCertifications();
   }, []);
+
+  const loadAllCertifications = async () => {
+    try {
+      const response = await api.get('/api/admin/certifications/flat-list');
+      setAllCertifications(response.data.data.certifications || []);
+    } catch (error) {
+      console.error('Failed to load certifications:', error);
+    }
+  };
 
   // Load skills when occupation is selected
   useEffect(() => {
