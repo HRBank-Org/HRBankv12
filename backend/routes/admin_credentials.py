@@ -10,6 +10,10 @@ def get_db():
     from server import db
     return db
 
+import uuid
+
+
+
 @router.get("/unassigned", response_model=Dict)
 async def get_unassigned_credentials(
     current_user: dict = Depends(require_role("admin")),
