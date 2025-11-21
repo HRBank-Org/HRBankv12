@@ -327,6 +327,18 @@ backend:
         -agent: "testing"
         -comment: "COMPREHENSIVE CREDENTIAL TYPE SEEDING SYSTEM TESTING COMPLETED SUCCESSFULLY (17/17 tests passed). ✅ POST /api/admin/credentials/seed-credential-types: Successfully seeds database with 18 standard credential types across 7 categories (Healthcare, Skilled Trades, Safety, Food Service, Education, Security, Transport), requires admin authentication (401/403 without auth), prevents duplicate seeding (returns error if already seeded with existing count), returns proper response structure with inserted_count and categories list. ✅ GET /api/credentials/types: Public endpoint (no auth required) returns all 18 seeded credential types with correct structure, each type contains required fields (credential_type_id, credential_name, category, issuing_body_type, typical_issuer, requires_renewal, description), key credential types verified present (RN, PSW Certificate, Food Handler Certificate, Red Seal, WHMIS 2015 Certificate). ✅ Category Verification: Healthcare category populated with 4+ types (RN, PSW, RPN, CPR/First Aid), Skilled Trades category populated with 3+ types (Red Seal, Electrical License, Gas Technician License), Safety category populated with 3+ types (WHMIS, Forklift Operator, Working at Heights). ✅ Authentication & Authorization: Admin authentication required for seeding endpoint, public access working for retrieval endpoint, proper error handling for unauthenticated requests. ✅ Database Integration: Seeding operation inserts exactly 18 credential types, duplicate prevention working correctly, data persists and is retrievable. ALL PASS CRITERIA MET: Seed successful with 18 types inserted, GET /credentials/types returns all 18 types, dropdown will now be populated for workforce users. This fixes the empty dropdown issue reported in the review request."
 
+  - task: "Critical Data Check - Occupation Templates, Certifications, and Credential Types"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/admin_occupations.py, /app/backend/routes/admin_certifications.py, /app/backend/routes/credentials.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "CRITICAL DATA CHECK COMPLETED SUCCESSFULLY - ALL THREE SYSTEMS VERIFIED (4/4 tests passed). ✅ OCCUPATION TEMPLATES: GET /api/admin/occupations/manage returns 16 categories with 253 occupation titles (Healthcare, Construction, Food & Hospitality, etc.) - DATA IS NOT EMPTY. ✅ STANDARD CERTIFICATIONS: GET /api/admin/certifications/list returns 12 categories with 87 certifications (Red Seal Trades, Food Safety, Alcohol Service, etc.) - DATA IS NOT EMPTY. ✅ CREDENTIAL TYPES SYSTEM: GET /api/credentials/types returns exactly 18 credential types as expected across 7 categories (Healthcare: 4 types, Skilled Trades: 3 types, Safety: 3 types, Food Service: 2 types, Education: 3 types, Security: 1 type, Transport: 2 types) - PERFECT MATCH. ✅ DATABASE COLLECTIONS: All three systems accessible via their respective APIs - occupation_templates collection (via /admin/occupations/manage), certifications_library collection (via /admin/certifications/list), credential_types collection (via /credentials/types). PASS CRITERIA MET: Occupation templates NOT empty (253 titles), Standard certifications NOT empty (87 certifications), Credential types has exactly 18 items as seeded. NO DATA WAS ACCIDENTALLY DELETED - all systems are fully populated and working correctly."
+
 frontend:
   - task: "Emma AI Chat Widget - Floating Assistant Interface"
     implemented: true
