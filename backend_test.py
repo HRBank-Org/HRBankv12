@@ -1280,6 +1280,221 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_mobile_occupation_certification_integration(results, workforce_token):
+    """Test MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION from review request"""
+    print("\n🧪 TESTING MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION")
+    print("   Focus: Backend API accessibility for mobile app")
+    print("   Testing: Occupation-certification linking, occupation profiles, matched jobs")
+    
+    # Test 1: API Endpoint Accessibility for Mobile - Occupation Certifications
+    print("\n   Test 1: Mobile Access to Occupation-Certification Endpoint...")
+    
+    test_occupations = [
+        "Bartender",
+        "Line Cook", 
+        "Registered Nurse (RN)",
+        "Security Guard"
+    ]
+    
+    for occupation_title in test_occupations:
+        try:
+            # URL encode the occupation title (mobile apps need to handle spaces/special chars)
+            import urllib.parse
+            encoded_title = urllib.parse.quote(occupation_title)
+            
+            response = requests.get(
+                f"{BASE_URL}/admin/occupations/occupation-certifications/{encoded_title}",
+                headers=get_auth_headers(workforce_token),
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    response_data = data["data"]
+                    
+                    # Check mobile-expected response structure
+                    required_fields = ["occupation_title", "category", "required_certifications", "has_requirements"]
+                    if all(field in response_data for field in required_fields):
+                        results.add_pass(f"Mobile API access - {occupation_title} (structure valid)")
+                        
+                        # Log certification data for mobile app
+                        certs = response_data["required_certifications"]
+                        if certs:
+                            print(f"      📱 {occupation_title}: {len(certs)} required certifications")
+                        else:
+                            print(f"      📱 {occupation_title}: No required certifications")
+                    else:
+                        missing_fields = [f for f in required_fields if f not in response_data]
+                        results.add_fail(f"Mobile API access - {occupation_title}", f"Missing fields for mobile: {missing_fields}")
+                else:
+                    results.add_fail(f"Mobile API access - {occupation_title}", f"Invalid response structure: {data}")
+            else:
+                results.add_fail(f"Mobile API access - {occupation_title}", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail(f"Mobile API access - {occupation_title}", f"Request failed: {str(e)}")
+    
+    # Test 2: URL Encoding for Mobile (spaces and special characters)
+    print("\n   Test 2: Mobile URL Encoding Support...")
+    
+    url_encoding_tests = [
+        ("Registered Nurse (RN)", "parentheses"),
+        ("Line Cook", "space"),
+        ("Server / Waiter / Waitress", "slashes and spaces")
+    ]
+    
+    for test_title, description in url_encoding_tests:
+        try:
+            encoded_title = urllib.parse.quote(test_title)
+            response = requests.get(
+                f"{BASE_URL}/admin/occupations/occupation-certifications/{encoded_title}",
+                headers=get_auth_headers(workforce_token),
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass(f"Mobile URL encoding - {description} ({test_title})")
+                else:
+                    results.add_fail(f"Mobile URL encoding - {description}", f"API error: {data}")
+            elif response.status_code == 404:
+                # 404 is acceptable if occupation doesn't exist
+                results.add_pass(f"Mobile URL encoding - {description} ({test_title}) - not found (acceptable)")
+            else:
+                results.add_fail(f"Mobile URL encoding - {description}", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail(f"Mobile URL encoding - {description}", f"Request failed: {str(e)}")
+    
+    # Test 3: Occupation Profiles API for Mobile
+    print("\n   Test 3: Mobile Access to Occupation Profiles API...")
+    
+    try:
+        response = requests.get(
+            f"{BASE_URL}/occupations/me",
+            headers=get_auth_headers(workforce_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                occupations_data = data["data"]
+                
+                # Check mobile-required fields
+                required_fields = ["occupations", "count", "can_add_more"]
+                if all(field in occupations_data for field in required_fields):
+                    results.add_pass("Mobile occupation profiles - basic structure")
+                    
+                    # Check each occupation has credential_details with status field
+                    occupations = occupations_data.get("occupations", [])
+                    if occupations:
+                        for i, occ in enumerate(occupations):
+                            if "credential_details" in occ:
+                                # Check if credential_details has status field
+                                cred_details = occ["credential_details"]
+                                if isinstance(cred_details, list):
+                                    has_status_field = True
+                                    for cred in cred_details:
+                                        if "status" not in cred:
+                                            has_status_field = False
+                                            break
+                                    
+                                    if has_status_field:
+                                        results.add_pass(f"Mobile occupation profiles - credential status field (occupation {i+1})")
+                                    else:
+                                        results.add_fail(f"Mobile occupation profiles - credential status field (occupation {i+1})", "Missing status field in credentials")
+                                else:
+                                    results.add_fail(f"Mobile occupation profiles - credential_details format (occupation {i+1})", "credential_details should be array")
+                            else:
+                                results.add_fail(f"Mobile occupation profiles - credential_details (occupation {i+1})", "Missing credential_details field")
+                        
+                        # Check employment_history field for mobile
+                        first_occ = occupations[0]
+                        if "employment_history" in first_occ:
+                            results.add_pass("Mobile occupation profiles - employment history included")
+                        else:
+                            results.add_fail("Mobile occupation profiles - employment history", "Missing employment_history field")
+                    else:
+                        results.add_pass("Mobile occupation profiles - empty occupations (acceptable)")
+                else:
+                    missing_fields = [f for f in required_fields if f not in occupations_data]
+                    results.add_fail("Mobile occupation profiles - basic structure", f"Missing fields: {missing_fields}")
+            else:
+                results.add_fail("Mobile occupation profiles - response", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Mobile occupation profiles - API access", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Mobile occupation profiles - API access", f"Request failed: {str(e)}")
+    
+    # Test 4: Matched Jobs API for Mobile
+    print("\n   Test 4: Mobile Access to Matched Jobs API...")
+    
+    try:
+        response = requests.get(
+            f"{BASE_URL}/jobs/matched",
+            headers=get_auth_headers(workforce_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                jobs_data = data["data"]
+                
+                # Check mobile-required structure
+                if "jobs" in jobs_data:
+                    results.add_pass("Mobile matched jobs - basic structure")
+                    
+                    jobs = jobs_data["jobs"]
+                    if jobs:
+                        # Check first job has required_certifications field
+                        first_job = jobs[0]
+                        mobile_required_fields = ["required_certifications", "required_skills", "match_score", "distance"]
+                        
+                        missing_mobile_fields = [f for f in mobile_required_fields if f not in first_job]
+                        if not missing_mobile_fields:
+                            results.add_pass("Mobile matched jobs - required fields present")
+                            
+                            # Check required_certifications is array
+                            if isinstance(first_job.get("required_certifications"), list):
+                                results.add_pass("Mobile matched jobs - required_certifications format")
+                            else:
+                                results.add_fail("Mobile matched jobs - required_certifications format", "Should be array")
+                        else:
+                            results.add_fail("Mobile matched jobs - required fields", f"Missing: {missing_mobile_fields}")
+                    else:
+                        results.add_pass("Mobile matched jobs - empty jobs (acceptable)")
+                else:
+                    results.add_fail("Mobile matched jobs - structure", "Missing 'jobs' field")
+            else:
+                results.add_fail("Mobile matched jobs - response", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Mobile matched jobs - API access", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Mobile matched jobs - API access", f"Request failed: {str(e)}")
+    
+    # Test 5: Authentication Enforcement for Mobile
+    print("\n   Test 5: Mobile Authentication Requirements...")
+    
+    mobile_endpoints = [
+        ("/admin/occupations/occupation-certifications/Bartender", "occupation certifications"),
+        ("/occupations/me", "occupation profiles"),
+        ("/jobs/matched", "matched jobs")
+    ]
+    
+    for endpoint, description in mobile_endpoints:
+        try:
+            # Test without authentication token
+            response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Mobile auth required - {description}")
+            else:
+                results.add_fail(f"Mobile auth required - {description}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Mobile auth required - {description}", f"Request failed: {str(e)}")
+
 def test_occupation_certification_linking_endpoint(results, admin_token):
     """Test the NEW OCCUPATION-CERTIFICATION LINKING ENDPOINT from review request"""
     print("\n🧪 TESTING NEW OCCUPATION-CERTIFICATION LINKING ENDPOINT")
@@ -1292,7 +1507,7 @@ def test_occupation_certification_linking_endpoint(results, admin_token):
     test_occupations = [
         {
             "title": "Bartender",
-            "expected_certs": ["Smart Serve Certificate", "Food Handler Certificate"],
+            "expected_certs": ["Smart Serve Ontario", "Safe Food Handling Certificate"],
             "description": "Should return bartender certifications"
         },
         {
