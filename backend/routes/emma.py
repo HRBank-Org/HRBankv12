@@ -167,7 +167,7 @@ async def get_conversation(
     
     conversation = await get_or_create_conversation(
         current_user['user_id'],
-        current_user["user_type"],
+        current_user['user_type'],
         db
     )
     
@@ -193,7 +193,7 @@ async def chat_with_emma(
     # Get or create conversation
     conversation = await get_or_create_conversation(
         current_user['user_id'],
-        current_user["user_type"],
+        current_user['user_type'],
         db
     )
     
@@ -211,7 +211,7 @@ async def chat_with_emma(
     )
     user_name = ""
     if user_profile:
-        if current_user["user_type"] == "workforce":
+        if current_user['user_type'] == "workforce":
             user_name = user_profile.get("first_name", "")
         else:
             user_name = user_profile.get("contact_name", "")
@@ -248,7 +248,7 @@ async def chat_with_emma(
             "message": emma_response_text,
             "onboarding_progress": progress,
             "should_show_file_upload": should_prompt_file_upload(conversation.context),
-            "suggested_actions": get_suggested_actions(conversation.context, current_user["user_type"])
+            "suggested_actions": get_suggested_actions(conversation.context, current_user['user_type'])
         }
     }
 
@@ -259,7 +259,7 @@ async def parse_resume(
     current_user: dict = Depends(get_current_user)
 ):
     """Upload and parse resume with Emma's AI"""
-    if current_user["user_type"] != "workforce":
+    if current_user['user_type'] != "workforce":
         raise HTTPException(status_code=403, detail="Resume parsing is only for workforce users")
     
     db = await get_database()
@@ -344,7 +344,7 @@ Extract all available information. Use null for missing fields."""
         # Store parsed data in conversation context
         conversation = await get_or_create_conversation(
             current_user['user_id'],
-            current_user["user_type"],
+            current_user['user_type'],
             db
         )
         conversation.context.parsed_resume_data = parsed_data
@@ -377,7 +377,7 @@ async def approve_resume_data(
     current_user: dict = Depends(get_current_user)
 ):
     """User approves parsed resume data to be added to profile"""
-    if current_user["user_type"] != "workforce":
+    if current_user['user_type'] != "workforce":
         raise HTTPException(status_code=403, detail="Resume data is only for workforce users")
     
     db = await get_database()
@@ -385,7 +385,7 @@ async def approve_resume_data(
     # Get conversation with parsed data
     conversation = await get_or_create_conversation(
         current_user['user_id'],
-        current_user["user_type"],
+        current_user['user_type'],
         db
     )
     
@@ -442,7 +442,7 @@ async def get_onboarding_status(
     
     conversation = await get_or_create_conversation(
         current_user['user_id'],
-        current_user["user_type"],
+        current_user['user_type'],
         db
     )
     
