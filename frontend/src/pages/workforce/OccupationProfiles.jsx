@@ -316,6 +316,30 @@ const OccupationProfiles = () => {
                         {occ.credential_details?.filter(c => c.status === 'verified').length || 0} verified
                       </span>
                     </div>
+                    
+                    {/* Show required certifications alert if missing any */}
+                    {(() => {
+                      const requiredCerts = occupationRequirements[occ.occupation_id] || [];
+                      if (requiredCerts.length > 0) {
+                        const verifiedCertNames = (occ.credential_details || [])
+                          .filter(c => c.status === 'verified')
+                          .map(c => c.credential_name.toLowerCase());
+                        const missingRequired = requiredCerts.filter(
+                          rc => !verifiedCertNames.includes(rc.toLowerCase())
+                        );
+                        
+                        if (missingRequired.length > 0) {
+                          return (
+                            <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                              <p className="text-yellow-800 font-medium">
+                                ⚠ {missingRequired.length} required certification{missingRequired.length !== 1 ? 's' : ''} missing
+                              </p>
+                            </div>
+                          );
+                        }
+                      }
+                      return null;
+                    })()}
                     {occ.credential_details && occ.credential_details.length > 0 ? (
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {occ.credential_details.map((cert) => {
