@@ -15,7 +15,7 @@ from models.emma import (
 )
 from models.user import User
 from database import get_database
-from routes.auth import get_current_user
+from auth.dependencies import get_current_user
 
 # Load environment variables
 load_dotenv()
