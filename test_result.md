@@ -942,6 +942,31 @@ frontend:
         -agent: "main"
         -comment: "Created comprehensive document management UI with expiry warnings and date pickers. Features: DocumentsPage reusable component for all user types, Document upload modal with file selection (PDF/JPG/PNG, max 10MB), Date pickers for issue_date and expiry_date (conditionally shown based on document type requirements), Base64 file encoding for backend compatibility, Visual expiry warnings (red=expired, orange=1-7 days, yellow=8-30 days) with countdown display, Account restriction banner (red alert when account_status is 'restricted'), Document compliance progress bar showing percentage of required documents uploaded, Status badges (Pending/Verified/Rejected/Expired) with icons, Document details grid showing upload date, issue date, expiry date, View document link to open uploaded file in new tab, Re-upload functionality for rejected/expired documents, Professional UI with responsive design and theme integration. Updated App.js routes to include /workforce/documents, /employer/documents, /institution/documents. UserHeader component already has Documents icon for navigation (was previously implemented)."
 
+mobile:
+  - task: "Mobile Attendance Screen - QR Scanner & Clock In/Out"
+    implemented: true
+    working: "NA"
+    file: "/app/workforce-mobile/src/screens/attendance/AttendanceScreen.js, /app/mobile-shared/services/attendance.service.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "MOBILE ATTENDANCE SCREEN COMPLETED: Created comprehensive attendance management screen for React Native mobile app. Features: QR CODE SCANNER using expo-camera with CameraView component, full-screen scanner overlay with visual frame, cancellable scanning mode, automatic QR data parsing and validation. GEOFENCING using expo-location, requests foreground location permissions on mount, captures high-accuracy GPS coordinates, validates location within 100m radius on backend. CLOCK IN/OUT FUNCTIONALITY with current status display showing active shift details, pulsing indicator for clocked-in state, duration timer (hours/minutes), location verification badge, prominent clock-out button with confirmation dialog. UPCOMING SHIFTS list showing today and future shifts with company name, position, date/time, workplace location. ATTENDANCE HISTORY navigation button to view past shifts. PERMISSION HANDLING with proper UI for denied camera/location access. MOBILE-SPECIFIC UX with pull-to-refresh, loading states, empty states with helpful messages, error alerts with user-friendly messages. Integrated into MainNavigator as new Attendance tab with time icon. Service layer (attendance.service.js) handles all API calls with proper error handling. Screen uses SafeAreaView with workforce theme colors and responsive design."
+
+  - task: "Mobile Video Interview - Jitsi Meet Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/workforce-mobile/src/screens/video/VideoCallScreen.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "MOBILE VIDEO INTERVIEW SCREEN COMPLETED: Integrated Jitsi Meet for video interviews in React Native app. Installed @jitsi/react-native-sdk (v11.6.3) with required dependencies (react-native-webview, react-native-webrtc). Created VideoCallScreen.js with full-screen video interface using JitsiMeetView component. Features: JITSI CONFIGURATION using free meet.jit.si server (no API key required), unique room names generated from interview details (hrbank-interview-{interviewId}), conference subject shows position title, customized toolbar with essential controls (camera, mic, chat, participants, hand raise, tile view, screen share). FEATURE FLAGS optimized for interviews (disabled: calendar, invite, recording, live streaming, enabled: chat, filmstrip, raise hand, pip, tile view). USER EXPERIENCE with company name and position in header, red end call button with confirmation dialog, call ended screen with success message, auto-navigation back after 2 seconds. EVENT HANDLERS for conference joined/terminated, participant joined/left tracking, proper cleanup on navigation. NAVIGATION integrated as modal screen in AppNavigator stack, accessible from Jobs screen interview cards via 'Join Video Call' button. Updated JobsScreen.js to pass interview details (interviewId, jobId, companyName, positionTitle) to video screen. Professional black theme for video interface. Ready for testing with actual interview invitations."
+
 
 metadata:
   created_by: "main_agent"
