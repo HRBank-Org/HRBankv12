@@ -950,6 +950,336 @@ def test_admin_authentication_system(results):
     return admin_token
 
 
+def test_job_matching_system(results, admin_token):
+    """Test the comprehensive job matching system with admin credentials"""
+    print("\n🧪 Testing Job Matching System (Priority: HIGH)...")
+    print("   Using admin credentials: qnizami@hrbank.ca / Tabaghnak@3891")
+    print("   Note: Admin user may not have full access to workforce-specific endpoints")
+    
+    # Test Suite 1: Employer Job Posting APIs
+    print("\n   Test Suite 1: Employer Job Posting APIs")
+    
+    # Test 1: POST /api/jobs/post - Post Job to Matching Engine
+    try:
+        job_posting_data = {
+            "workplace_id": "test_workplace_id",
+            "position_title": "Line Cook",
+            "pay_per_hour": 20.00,
+            "shift_duration": "8 hours",
+            "employment_duration": "3 months",
+            "key_tasks": "Food preparation, maintaining cleanliness",
+            "required_skills": ["Cooking", "Food Safety"],
+            "required_certifications": ["Food Handler Certificate"],
+            "max_distance_km": 25.0,
+            "positions_available": 1
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/jobs/post",
+            json=job_posting_data,
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("POST /api/jobs/post - Admin access blocked (expected - requires employer role)")
+        elif response.status_code == 404:
+            results.add_pass("POST /api/jobs/post - Workplace not found (expected - test workplace doesn't exist)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "job_id" in data.get("data", {}):
+                results.add_pass("POST /api/jobs/post - Job posting created successfully")
+            else:
+                results.add_fail("POST /api/jobs/post", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/jobs/post", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/jobs/post", f"Request failed: {str(e)}")
+    
+    # Test 2: GET /api/jobs/posted - View Posted Jobs
+    try:
+        response = requests.get(
+            f"{BASE_URL}/jobs/posted",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("GET /api/jobs/posted - Admin access blocked (expected - requires employer role)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "jobs" in data.get("data", {}):
+                results.add_pass("GET /api/jobs/posted - Posted jobs retrieved successfully")
+            else:
+                results.add_fail("GET /api/jobs/posted", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/posted", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/posted", f"Request failed: {str(e)}")
+    
+    # Test 3: GET /api/jobs/{job_id}/candidates - View Candidates
+    try:
+        test_job_id = "test_job_id"
+        response = requests.get(
+            f"{BASE_URL}/jobs/{test_job_id}/candidates",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("GET /api/jobs/{job_id}/candidates - Admin access blocked (expected - requires employer role)")
+        elif response.status_code == 404:
+            results.add_pass("GET /api/jobs/{job_id}/candidates - Job not found (expected - test job doesn't exist)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "candidates" in data.get("data", {}):
+                results.add_pass("GET /api/jobs/{job_id}/candidates - Candidates retrieved successfully")
+            else:
+                results.add_fail("GET /api/jobs/{job_id}/candidates", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/{job_id}/candidates", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/{job_id}/candidates", f"Request failed: {str(e)}")
+    
+    # Test Suite 2: Workforce Job Matching APIs
+    print("\n   Test Suite 2: Workforce Job Matching APIs")
+    
+    # Test 4: GET /api/jobs/matched - Browse Matched Jobs
+    try:
+        response = requests.get(
+            f"{BASE_URL}/jobs/matched",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("GET /api/jobs/matched - Admin access blocked (expected - requires workforce role)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "jobs" in data.get("data", {}):
+                results.add_pass("GET /api/jobs/matched - Matched jobs retrieved successfully")
+            else:
+                results.add_fail("GET /api/jobs/matched", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/matched", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/matched", f"Request failed: {str(e)}")
+    
+    # Test 5: GET /api/jobs/offers - View Job Offers
+    try:
+        response = requests.get(
+            f"{BASE_URL}/jobs/offers",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("GET /api/jobs/offers - Admin access blocked (expected - requires workforce role)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "offers" in data.get("data", {}):
+                results.add_pass("GET /api/jobs/offers - Job offers retrieved successfully")
+            else:
+                results.add_fail("GET /api/jobs/offers", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/offers", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/offers", f"Request failed: {str(e)}")
+    
+    # Test 6: GET /api/jobs/interviews - View Interviews
+    try:
+        response = requests.get(
+            f"{BASE_URL}/jobs/interviews",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("GET /api/jobs/interviews - Admin access blocked (expected - requires workforce role)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "interviews" in data.get("data", {}):
+                results.add_pass("GET /api/jobs/interviews - Interviews retrieved successfully")
+            else:
+                results.add_fail("GET /api/jobs/interviews", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/interviews", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/interviews", f"Request failed: {str(e)}")
+    
+    # Test 7: GET /api/jobs/employment/status - Check Employment Status
+    try:
+        response = requests.get(
+            f"{BASE_URL}/jobs/employment/status",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("GET /api/jobs/employment/status - Admin access blocked (expected - requires workforce role)")
+        elif response.status_code == 404:
+            results.add_pass("GET /api/jobs/employment/status - Profile not found (expected - admin has no workforce profile)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "employment_status" in data.get("data", {}):
+                results.add_pass("GET /api/jobs/employment/status - Employment status retrieved successfully")
+            else:
+                results.add_fail("GET /api/jobs/employment/status", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/employment/status", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/employment/status", f"Request failed: {str(e)}")
+    
+    # Test Suite 3: Application & Offer Management
+    print("\n   Test Suite 3: Application & Offer Management")
+    
+    # Test 8: POST /api/jobs/{job_id}/apply - Apply to Job
+    try:
+        test_job_id = "test_job_id"
+        response = requests.post(
+            f"{BASE_URL}/jobs/{test_job_id}/apply",
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("POST /api/jobs/{job_id}/apply - Admin access blocked (expected - requires workforce role)")
+        elif response.status_code == 404:
+            results.add_pass("POST /api/jobs/{job_id}/apply - Job not found (expected - test job doesn't exist)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "application_id" in data.get("data", {}):
+                results.add_pass("POST /api/jobs/{job_id}/apply - Application submitted successfully")
+            else:
+                results.add_fail("POST /api/jobs/{job_id}/apply", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/jobs/{job_id}/apply", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/jobs/{job_id}/apply", f"Request failed: {str(e)}")
+    
+    # Test 9: POST /api/jobs/offers/send - Send Job Offer (Employer)
+    try:
+        offer_data = {
+            "workforce_id": "test_worker_id",
+            "job_id": "test_job_id",
+            "pay_per_hour": 20.00,
+            "shift_duration": "8 hours",
+            "employment_duration": "3 months",
+            "start_date": "2025-12-01",
+            "key_tasks": "Food preparation tasks",
+            "expires_in_hours": 48
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/jobs/offers/send",
+            json=offer_data,
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("POST /api/jobs/offers/send - Admin access blocked (expected - requires employer role)")
+        elif response.status_code == 404:
+            results.add_pass("POST /api/jobs/offers/send - Job not found (expected - test job doesn't exist)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "offer_id" in data.get("data", {}):
+                results.add_pass("POST /api/jobs/offers/send - Job offer sent successfully")
+            else:
+                results.add_fail("POST /api/jobs/offers/send", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/jobs/offers/send", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/jobs/offers/send", f"Request failed: {str(e)}")
+    
+    # Test 10: POST /api/jobs/employment/quit - Quit Current Job
+    try:
+        quit_data = {"reason": "Testing quit functionality"}
+        response = requests.post(
+            f"{BASE_URL}/jobs/employment/quit",
+            json=quit_data,
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("POST /api/jobs/employment/quit - Admin access blocked (expected - requires workforce role)")
+        elif response.status_code == 404:
+            results.add_pass("POST /api/jobs/employment/quit - Profile not found (expected - admin has no workforce profile)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "status" in data.get("data", {}):
+                results.add_pass("POST /api/jobs/employment/quit - Quit functionality working")
+            else:
+                results.add_fail("POST /api/jobs/employment/quit", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/jobs/employment/quit", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/jobs/employment/quit", f"Request failed: {str(e)}")
+    
+    # Test Suite 4: Interview Management
+    print("\n   Test Suite 4: Interview Management")
+    
+    # Test 11: POST /api/jobs/interviews/send - Send Interview Invitation
+    try:
+        interview_data = {
+            "workforce_id": "test_worker_id",
+            "job_id": "test_job_id",
+            "scheduled_date": "2025-12-15",
+            "scheduled_time": "14:00:00",
+            "duration_minutes": 30,
+            "notes": "Please be on time"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/jobs/interviews/send",
+            json=interview_data,
+            headers=get_auth_headers(admin_token),
+            timeout=10
+        )
+        
+        if response.status_code == 403:
+            results.add_pass("POST /api/jobs/interviews/send - Admin access blocked (expected - requires employer role)")
+        elif response.status_code == 404:
+            results.add_pass("POST /api/jobs/interviews/send - Job not found (expected - test job doesn't exist)")
+        elif response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "interview_id" in data.get("data", {}):
+                results.add_pass("POST /api/jobs/interviews/send - Interview invitation sent successfully")
+            else:
+                results.add_fail("POST /api/jobs/interviews/send", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/jobs/interviews/send", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/jobs/interviews/send", f"Request failed: {str(e)}")
+    
+    # Test Authentication Enforcement
+    print("\n   Testing Authentication Enforcement")
+    
+    # Test unauthenticated access to job matching endpoints
+    job_endpoints = [
+        ("GET", "/jobs/matched"),
+        ("GET", "/jobs/offers"),
+        ("GET", "/jobs/interviews"),
+        ("GET", "/jobs/posted"),
+        ("POST", "/jobs/post"),
+        ("GET", "/jobs/employment/status")
+    ]
+    
+    for method, endpoint in job_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+
 def test_ceo_analytics_dashboard(results, admin_token):
     """Test the CEO Analytics Dashboard endpoint"""
     print("\n🧪 Testing CEO Analytics Dashboard (Priority: HIGH)...")
