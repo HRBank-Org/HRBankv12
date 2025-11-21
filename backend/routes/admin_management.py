@@ -486,10 +486,7 @@ async def get_platform_analytics(
     # Sort zones by revenue
     zone_analytics.sort(key=lambda x: x["revenue"], reverse=True)
     
-    # ===== GROWTH METRICS (Last 30 days) =====
-    from datetime import timedelta
-    thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
-    
+    # ===== PLATFORM-WIDE GROWTH METRICS =====
     new_workforce_30d = await db.users.count_documents({
         "user_type": "workforce",
         "created_date": {"$gte": thirty_days_ago}
