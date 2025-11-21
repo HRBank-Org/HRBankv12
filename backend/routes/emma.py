@@ -374,7 +374,7 @@ Extract all available information. Use null for missing fields."""
 
 @router.post("/approve-resume-data")
 async def approve_resume_data(
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """User approves parsed resume data to be added to profile"""
     if current_user["user_type"] != "workforce":
