@@ -2760,6 +2760,10 @@ def main():
         test_ceo_analytics_dashboard(results, admin_token)
         test_analytics_authorization(results)
     
+    # Priority: HIGH - Admin Credential Management System (NEW)
+    if admin_token:
+        test_admin_credential_management_system(results, admin_token)
+    
     # Priority: MEDIUM - User Profile & Management
     test_user_profile_management(results)
     
