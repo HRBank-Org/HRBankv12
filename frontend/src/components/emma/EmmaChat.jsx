@@ -322,20 +322,23 @@ const EmmaChat = () => {
         </div>
       )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Messages - Branded Background */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ backgroundColor: `${theme.primaryColor}05` }}>
         {conversationLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }} />
           </div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
-            <img src={EMMA_AVATAR} alt="Emma" className="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
-            <p className="font-semibold text-gray-700">
+          <div className="text-center py-8 bg-white rounded-lg shadow-sm p-6">
+            <img src={EMMA_AVATAR} alt="Emma" className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-4" style={{ borderColor: theme.primaryColor }} />
+            <p className="font-bold text-gray-900 text-lg mb-1">
               {getTimeBasedGreeting()}! I'm Emma 👋
             </p>
-            <p className="text-sm mt-2">
-              I'm here to help you get started with HR Bank. How can I assist you today?
+            <p className="text-sm text-gray-600 mb-3">
+              Your {getUserTypeLabel()}
+            </p>
+            <p className="text-sm text-gray-500">
+              I'm here to help you navigate HR Bank and complete your profile. How can I assist you today?
             </p>
           </div>
         ) : (
