@@ -94,7 +94,7 @@ const JobPosting = () => {
         max_distance_km: parseFloat(formData.max_distance_km),
         positions_available: parseInt(formData.positions_available),
         required_skills: formData.required_skills.split(',').map(s => s.trim()).filter(s => s),
-        required_certifications: formData.required_certifications.split(',').map(s => s.trim()).filter(s => s),
+        required_certifications: formData.required_certifications,
         start_date: formData.start_date || null
       };
 
