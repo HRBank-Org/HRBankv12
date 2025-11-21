@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import jobsService from '../../../mobile-shared/services/jobs.service';
+import usersService from '../../../mobile-shared/services/users.service';
 import Card from '../../../mobile-shared/components/common/Card';
 import Badge from '../../../mobile-shared/components/common/Badge';
 import colors from '../../../mobile-shared/constants/colors';
