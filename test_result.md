@@ -976,14 +976,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Emma AI Backend - Conversation Management & Chat API"
-    - "Emma AI Backend - Resume Parsing with Gemini"
-    - "Emma AI Chat Widget - Floating Assistant Interface"
-    - "Job Matching Backend - Models & Matching Algorithm"
-    - "Job Matching Backend - Employer APIs"
-    - "Job Matching Backend - Workforce APIs"
-    - "FindJobs Page - Job Matching Interface"
-    - "JobPosting Page - Employer Job Management"
+    - "Mobile Attendance Backend - QR Code & Geofencing"
+    - "Mobile Attendance Screen - QR Scanner & Clock In/Out"
+    - "Mobile Video Interview - Jitsi Meet Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
