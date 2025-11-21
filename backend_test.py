@@ -4620,50 +4620,59 @@ def create_workforce_user_for_testing():
     """Create a workforce user specifically for attendance testing"""
     print("\n🧪 Creating workforce user for attendance testing...")
     
-    # Try to use existing workforce users first
     try:
-        # Try to login with a common test user pattern
-        test_emails = [
-            "test_workforce_user@hrbank.com",
-            "workforce.test@hrbank.com", 
-            "test.worker@hrbank.com"
-        ]
-        
-        for email in test_emails:
-            try:
-                login_response = requests.post(f"{BASE_URL}/auth/login", json={
-                    "email": email,
-                    "password": "TestPassword123!",
-                    "user_type": "workforce"
-                }, timeout=10)
-                
-                if login_response.status_code == 200:
-                    data = login_response.json()
-                    if data.get("success") and "access_token" in data.get("data", {}):
-                        print(f"✅ Using existing workforce user: {email}")
-                        return data["data"]["access_token"]
-            except:
-                continue
-        
-        # If no existing user found, create a new one
+        # Create a new workforce user
         workforce_user = generate_test_user("workforce")
         
         # Try signup
         signup_response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
         
         if signup_response.status_code in [200, 201]:
-            # Try login immediately (might work if email verification is bypassed)
-            login_response = requests.post(f"{BASE_URL}/auth/login", json={
-                "email": workforce_user["email"],
-                "password": workforce_user["password"],
-                "user_type": workforce_user["user_type"]
-            }, timeout=10)
+            signup_data = signup_response.json()
+            user_id = signup_data.get("data", {}).get("user_id")
             
-            if login_response.status_code == 200:
-                data = login_response.json()
-                if data.get("success") and "access_token" in data.get("data", {}):
-                    print(f"✅ Created and logged in new workforce user: {workforce_user['email']}")
-                    return data["data"]["access_token"]
+            if user_id:
+                # Manually verify user in database to bypass email verification
+                import os
+                from motor.motor_asyncio import AsyncIOMotorClient
+                import asyncio
+                from dotenv import load_dotenv
+                
+                load_dotenv('/app/backend/.env')
+                mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+                
+                async def verify_user():
+                    client = AsyncIOMotorClient(mongo_url)
+                    db = client['hrbank_db']
+                    
+                    # Verify user and set as active
+                    await db.users.update_one(
+                        {"user_id": user_id},
+                        {"$set": {"email_verified": True, "profile_status": "active"}}
+                    )
+                    
+                    client.close()
+                
+                asyncio.run(verify_user())
+                
+                # Now try to login
+                login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                    "email": workforce_user["email"],
+                    "password": workforce_user["password"],
+                    "user_type": workforce_user["user_type"]
+                }, timeout=10)
+                
+                if login_response.status_code == 200:
+                    data = login_response.json()
+                    if data.get("success") and "access_token" in data.get("data", {}):
+                        print(f"✅ Created and verified workforce user: {workforce_user['email']}")
+                        return data["data"]["access_token"]
+                else:
+                    print(f"❌ Login failed after verification: {login_response.status_code} - {login_response.text}")
+            else:
+                print("❌ No user_id in signup response")
+        else:
+            print(f"❌ Signup failed: {signup_response.status_code} - {signup_response.text}")
         
         print("❌ Could not create or login workforce user for testing")
         return None
