@@ -64,7 +64,17 @@ const AppNavigator = () => {
           initialParams={{ onAccept: handleEulaAccept }}
         />
       ) : (
-        <Stack.Screen name="Main" component={MainNavigator} />
+        <>
+          <Stack.Screen name="Main" component={MainNavigator} />
+          <Stack.Screen
+            name="VideoCall"
+            component={VideoCallScreen}
+            options={{
+              presentation: 'fullScreenModal',
+              headerShown: false,
+            }}
+          />
+        </>
       )}
     </Stack.Navigator>
   );
