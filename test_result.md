@@ -1101,9 +1101,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Mobile Attendance Backend - QR Code & Geofencing"
-    - "Mobile Attendance Screen - QR Scanner & Clock In/Out"
-    - "Mobile Video Interview - Jitsi Meet Integration"
+    - "Occupation-Certification Linking - New API Endpoint"
+    - "Enhanced Job Matching Algorithm - Occupation-Based Certification Weighting"
+    - "Job Posting UI - Auto-Suggest Certifications"
+    - "Workforce Profile - Show Required vs Optional Certifications"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
