@@ -325,11 +325,20 @@ const JobPosting = () => {
                       <input
                         type="text"
                         value={formData.position_title}
-                        onChange={(e) => setFormData({...formData, position_title: e.target.value})}
+                        onChange={(e) => {
+                          const newTitle = e.target.value;
+                          setFormData({...formData, position_title: newTitle});
+                        }}
+                        onBlur={() => fetchOccupationCertifications(formData.position_title)}
                         className="w-full px-4 py-2 border rounded-lg"
                         placeholder="e.g., Line Cook, Server"
                         required
                       />
+                      {loadingSuggestions && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          🔍 Fetching certification suggestions...
+                        </p>
+                      )}
                     </div>
 
                     <div>
