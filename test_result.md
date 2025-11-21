@@ -1110,10 +1110,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Occupation-Certification Linking - New API Endpoint"
-    - "Enhanced Job Matching Algorithm - Occupation-Based Certification Weighting"
-    - "Job Posting UI - Auto-Suggest Certifications"
-    - "Workforce Profile - Show Required vs Optional Certifications"
+    - "Mobile App - Occupation-Certification Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
