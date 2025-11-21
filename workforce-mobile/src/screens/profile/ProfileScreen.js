@@ -199,18 +199,75 @@ const ProfileScreen = ({ navigation }) => {
         {occupations.length > 0 && (
           <Card style={styles.occupationsCard}>
             <Text style={styles.sectionTitle}>My Occupations</Text>
-            {occupations.map((occupation) => (
-              <View key={occupation.occupation_id} style={styles.occupationItem}>
-                <View style={styles.occupationIcon}>
-                  <Ionicons name="briefcase" size={20} color={colors.workforce.primary} />
+            {occupations.map((occupation) => {
+              const requiredCerts = occupationCertifications[occupation.occupation_id] || [];
+              const userCerts = occupation.credential_details || [];
+              const verifiedCertNames = userCerts
+                .filter(cert => cert.status === 'verified')
+                .map(cert => cert.credential_name);
+              
+              const missingCerts = requiredCerts.filter(
+                cert => !verifiedCertNames.includes(cert)
+              );
+
+              return (
+                <View key={occupation.occupation_id}>
+                  <View style={styles.occupationItem}>
+                    <View style={styles.occupationIcon}>
+                      <Ionicons name="briefcase" size={20} color={colors.workforce.primary} />
+                    </View>
+                    <View style={styles.occupationContent}>
+                      <Text style={styles.occupationTitle}>{occupation.occupation_title}</Text>
+                      <Text style={styles.occupationCategory}>{occupation.occupation_category}</Text>
+                      
+                      {/* Missing certifications warning */}
+                      {requiredCerts.length > 0 && missingCerts.length > 0 && (
+                        <View style={styles.missingCertsWarning}>
+                          <Ionicons name="warning" size={14} color={colors.warning} />
+                          <Text style={styles.missingCertsText}>
+                            Missing {missingCerts.length} required cert{missingCerts.length > 1 ? 's' : ''}
+                          </Text>
+                        </View>
+                      )}
+                      
+                      {/* All certifications met badge */}
+                      {requiredCerts.length > 0 && missingCerts.length === 0 && (
+                        <View style={styles.allCertsMetBadge}>
+                          <Ionicons name="checkmark-circle" size={14} color={colors.success} />
+                          <Text style={styles.allCertsMetText}>All required certs verified</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={colors.workforce.textMuted} />
+                  </View>
+
+                  {/* Required Certifications Details */}
+                  {requiredCerts.length > 0 && (
+                    <View style={styles.requiredCertsContainer}>
+                      <Text style={styles.requiredCertsTitle}>Required Certifications:</Text>
+                      {requiredCerts.map((cert, index) => {
+                        const hasVerified = verifiedCertNames.includes(cert);
+                        return (
+                          <View key={index} style={styles.certRequirementItem}>
+                            <Ionicons
+                              name={hasVerified ? "checkmark-circle" : "alert-circle"}
+                              size={16}
+                              color={hasVerified ? colors.success : colors.warning}
+                            />
+                            <Text style={[
+                              styles.certRequirementText,
+                              hasVerified && styles.certRequirementTextVerified
+                            ]}>
+                              {cert}
+                            </Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
                 </View>
-                <View style={styles.occupationContent}>
-                  <Text style={styles.occupationTitle}>{occupation.occupation_title}</Text>
-                  <Text style={styles.occupationCategory}>{occupation.occupation_category}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color={colors.workforce.textMuted} />
-              </View>
-            ))}
+              );
+            })}
           </Card>
         )}
 
