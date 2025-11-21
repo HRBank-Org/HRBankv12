@@ -247,7 +247,6 @@ function App() {
       <AuthProvider>
         <AppRoutes />
         <Toaster />
-        <EmmaChat />
       </AuthProvider>
     </Router>
   );
