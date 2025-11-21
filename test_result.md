@@ -400,6 +400,18 @@ frontend:
         -agent: "main"
         -comment: "Added required certifications display to both occupation detail page and occupation profiles list. Detail page shows blue info box with list of required certifications, marking each as verified (green check) or missing (warning icon). List page shows yellow alert badge for profiles missing required certifications with count. Both pages fetch occupation requirements on load and cross-reference with worker's verified credentials."
 
+  - task: "Mobile App - Occupation-Certification Integration"
+    implemented: false
+    working: "NA"
+    file: "/app/workforce-mobile/src/screens/profile/ProfileScreen.js, /app/workforce-mobile/src/screens/jobs/JobsScreen.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Mobile app currently has ProfileScreen (showing occupations) and JobsScreen (showing matched jobs). The backend API changes support mobile, but UI updates deferred. Mobile will automatically benefit from improved matching algorithm. Future enhancement: add visual indicators for required certifications in mobile profile/job screens similar to web implementation."
+
   - task: "Emma AI Chat Widget - Floating Assistant Interface"
     implemented: true
     working: true
