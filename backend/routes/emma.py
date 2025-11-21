@@ -206,7 +206,7 @@ async def chat_with_emma(
     conversation.messages.append(user_message)
     
     # Get user's name for personalized responses
-    user_profile = await db[f"{current_user["user_type"]}_profiles"].find_one(
+    user_profile = await db[f"{current_user['user_type']}_profiles"].find_one(
         {"user_id": current_user["user_id"]}
     )
     user_name = ""
