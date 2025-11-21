@@ -75,6 +75,13 @@ const MainNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="Attendance"
+        component={AttendanceScreen}
+        options={{
+          tabBarLabel: 'Attendance',
+        }}
+      />
+      <Tab.Screen
         name="Calendar"
         component={CalendarScreen}
         options={{
