@@ -100,6 +100,23 @@ const usersService = {
       return handleApiError(error);
     }
   },
+
+  /**
+   * Get required certifications for an occupation
+   * @param {string} occupationTitle - The occupation title to query
+   * @returns {Promise<Object>}
+   */
+  getOccupationRequiredCertifications: async (occupationTitle) => {
+    try {
+      const response = await api.get(`/admin/occupations/occupation-certifications/${encodeURIComponent(occupationTitle)}`);
+      return {
+        success: true,
+        data: response.data.data || { required_certifications: [] },
+      };
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
 };
 
 export default usersService;
