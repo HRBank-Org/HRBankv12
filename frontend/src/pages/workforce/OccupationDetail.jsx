@@ -11,6 +11,7 @@ const OccupationDetail = () => {
   const [editingSkills, setEditingSkills] = useState(false);
   const [tempSkills, setTempSkills] = useState('');
   const [savingSkills, setSavingSkills] = useState(false);
+  const [occupationRequiredCerts, setOccupationRequiredCerts] = useState([]);
   const navigate = useNavigate();
   const theme = useTheme();
 
