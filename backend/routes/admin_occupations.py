@@ -168,9 +168,10 @@ async def add_occupation_to_category(
         )
     
     category = data.get('category')
-    occupation = data.get('occupation')
+    occupation_title = data.get('occupation')
+    required_certifications = data.get('required_certifications', [])
     
-    if not category or not occupation:
+    if not category or not occupation_title:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Category and occupation are required"
@@ -185,22 +186,30 @@ async def add_occupation_to_category(
             detail="Category not found"
         )
     
-    # Check if occupation already exists
-    if occupation in categories[category]["occupations"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Occupation already exists in this category"
-        )
+    # Check if occupation already exists (check both string format and dict format)
+    occupations_list = categories[category]["occupations"]
+    for occ in occupations_list:
+        # Handle both old string format and new dict format
+        occ_title = occ if isinstance(occ, str) else occ.get("title", "")
+        if occ_title == occupation_title:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Occupation already exists in this category"
+            )
     
-    # Add occupation
-    categories[category]["occupations"].append(occupation)
+    # Add occupation as object with certifications
+    occupation_obj = {
+        "title": occupation_title,
+        "required_certifications": required_certifications
+    }
+    categories[category]["occupations"].append(occupation_obj)
     
     # Write back to file
     write_categories_file(categories)
     
     return {
         "success": True,
-        "message": f"Occupation '{occupation}' added to '{category}'"
+        "message": f"Occupation '{occupation_title}' added to '{category}'"
     }
 
 @router.delete("/remove", response_model=Dict)
