@@ -138,74 +138,52 @@ const EmployerDashboard = () => {
         }
       />
 
-      {/* Welcome Banner */}
-      <div className="max-w-7xl mx-auto px-4 pt-6">
-        <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-6 mb-6 border border-orange-100">
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* Welcome Header */}
+        <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
             {getGreeting()}, {getUserName()}! 👋
           </h2>
           <p className="text-gray-600">
-            {employerProfile?.company_name && `Managing ${employerProfile.company_name} • `}
-            {stats.total_shifts} total shifts created
+            {employerProfile?.company_name && `${employerProfile.company_name}`}
           </p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        {/* Quick Actions - Streamlined */}
+        <div className="grid grid-cols-4 gap-4 mb-6">
           <button
-            onClick={() => navigate('/employer/workforce-management')}
+            onClick={() => navigate('/employer/workplaces')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
-            <div className="text-3xl mb-2">👥</div>
-            <p className="font-semibold text-gray-900 text-sm">Workforce</p>
-            <p className="text-xs text-gray-500">Manage workers</p>
+            <div className="text-3xl mb-2">🏢</div>
+            <p className="font-semibold text-gray-900 text-sm">Workplaces</p>
+            <p className="text-xs text-gray-500">{stats.total_workplaces} locations</p>
           </button>
           <button
             onClick={() => navigate('/employer/shift-calendar')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
             <div className="text-3xl mb-2">📅</div>
-            <p className="font-semibold text-gray-900 text-sm">Shifts</p>
-            <p className="text-xs text-gray-500">Schedule & manage</p>
+            <p className="font-semibold text-gray-900 text-sm">Schedule</p>
+            <p className="text-xs text-gray-500">{stats.total_shifts} shifts</p>
           </button>
           <button
-            onClick={() => navigate('/employer/jobs/post')}
+            onClick={() => navigate('/employer/jobs')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
-            <div className="text-3xl mb-2">📝</div>
-            <p className="font-semibold text-gray-900 text-sm">Post Job</p>
-            <p className="text-xs text-gray-500">Create job posting</p>
+            <div className="text-3xl mb-2">💼</div>
+            <p className="font-semibold text-gray-900 text-sm">Find Workers</p>
+            <p className="text-xs text-gray-500">Post & match</p>
           </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 pb-8">
-        {/* Quick Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-sm text-gray-600">Workplaces</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">{stats.total_workplaces}</div>
-            <button
-              onClick={() => navigate('/employer/workplaces')}
-              className="text-xs mt-2 hover:underline"
-              style={{ color: theme.primaryColor }}
-            >
-              View all →
-            </button>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-sm text-gray-600">Total Shifts</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">{stats.total_shifts}</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-sm text-gray-600">Active Workers</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">{stats.active_workers}</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-sm text-gray-600">Payroll (Week)</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">${stats.total_payroll}</div>
-          </div>
+          <button
+            onClick={() => navigate('/employer/workforce-management')}
+            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="text-3xl mb-2">👥</div>
+            <p className="font-semibold text-gray-900 text-sm">My Workers</p>
+            <p className="text-xs text-gray-500">{stats.active_workers} active</p>
+          </button>
         </div>
 
         {/* Tab Navigation */}
