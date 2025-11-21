@@ -4697,6 +4697,29 @@ def test_credential_verification_workflow(results):
     try:
         signup_response = requests.post(f"{BASE_URL}/auth/signup", json=workforce_user, timeout=10)
         if signup_response.status_code in [200, 201]:
+            workforce_user_id = signup_response.json().get("data", {}).get("user_id")
+            
+            # Manually verify user in database to bypass email verification
+            import os
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            from dotenv import load_dotenv
+            
+            load_dotenv('/app/backend/.env')
+            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+            
+            async def verify_workforce_user():
+                client = AsyncIOMotorClient(mongo_url)
+                db = client['hrbank_db']
+                await db.users.update_one(
+                    {"user_id": workforce_user_id},
+                    {"$set": {"email_verified": True, "profile_status": "active"}}
+                )
+                client.close()
+            
+            if workforce_user_id:
+                asyncio.run(verify_workforce_user())
+            
             login_response = requests.post(f"{BASE_URL}/auth/login", json={
                 "email": workforce_user["email"],
                 "password": workforce_user["password"],
@@ -4716,6 +4739,21 @@ def test_credential_verification_workflow(results):
     try:
         signup_response = requests.post(f"{BASE_URL}/auth/signup", json=institution_user, timeout=10)
         if signup_response.status_code in [200, 201]:
+            institution_user_id = signup_response.json().get("data", {}).get("user_id")
+            
+            # Manually verify user in database to bypass email verification
+            async def verify_institution_user():
+                client = AsyncIOMotorClient(mongo_url)
+                db = client['hrbank_db']
+                await db.users.update_one(
+                    {"user_id": institution_user_id},
+                    {"$set": {"email_verified": True, "profile_status": "active"}}
+                )
+                client.close()
+            
+            if institution_user_id:
+                asyncio.run(verify_institution_user())
+            
             login_response = requests.post(f"{BASE_URL}/auth/login", json={
                 "email": institution_user["email"],
                 "password": institution_user["password"],
