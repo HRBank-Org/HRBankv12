@@ -376,6 +376,30 @@ backend:
         -comment: "ADMIN ACCOUNT PERMISSIONS & OCCUPATION MANAGEMENT TESTING COMPLETED SUCCESSFULLY (6/6 tests passed). ✅ ADMIN SUPER ADMIN STATUS VERIFIED: Successfully authenticated with provided credentials (qnizami@hrbank.ca / Tabaghnak@3891), GET /api/admin/my-profile confirms user has is_super_admin=true privileges. ✅ OCCUPATION ADD/DELETE FUNCTIONALITY TESTED: POST /api/admin/occupations/add and DELETE /api/admin/occupations/remove both return 403 Access Denied as expected - admin user has super_admin=true in profile but endpoints check admin_profiles collection instead of admins collection (database schema mismatch). This is expected behavior given current implementation. ✅ CURRENT OCCUPATION FORMAT ANALYZED: GET /api/admin/occupations/manage returns 16 occupation categories with 253 total occupation titles. Format analysis shows occupations stored as strings (e.g., 'Server / Waiter / Waitress', 'Bartender', 'Line Cook') rather than objects with certifications. No object format with required_certifications arrays found in current data. ✅ PASS CRITERIA MET: Admin super admin status identified (is_super_admin=true), occupation add/delete functionality tested (403 due to collection mismatch), current occupation format analyzed (string format confirmed). System working as implemented - admin has super admin privileges but occupation management endpoints use different database collection for permission checks."
 
 frontend:
+  - task: "Job Posting UI - Auto-Suggest Certifications"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/employer/JobPosting.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Enhanced job posting form to auto-fetch and suggest required certifications when employer enters position title. Certifications auto-populate on blur. Visual distinction: suggested certs show green with checkmark and '(suggested)' label, manually-added certs show blue. Employer can remove any certification (not mandatory). Added loading indicator and helpful message showing count of auto-suggested certs."
+
+  - task: "Workforce Profile - Show Required vs Optional Certifications"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/workforce/OccupationDetail.jsx, /app/frontend/src/pages/workforce/OccupationProfiles.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Added required certifications display to both occupation detail page and occupation profiles list. Detail page shows blue info box with list of required certifications, marking each as verified (green check) or missing (warning icon). List page shows yellow alert badge for profiles missing required certifications with count. Both pages fetch occupation requirements on load and cross-reference with worker's verified credentials."
+
   - task: "Emma AI Chat Widget - Floating Assistant Interface"
     implemented: true
     working: true
