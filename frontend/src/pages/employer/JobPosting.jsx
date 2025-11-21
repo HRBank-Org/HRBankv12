@@ -386,16 +386,65 @@ const JobPosting = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Required Certifications (comma-separated)
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Required Certifications
                     </label>
-                    <input
-                      type="text"
-                      value={formData.required_certifications}
-                      onChange={(e) => setFormData({...formData, required_certifications: e.target.value})}
-                      className="w-full px-4 py-2 border rounded-lg"
-                      placeholder="e.g., Food Handler Certificate, Smart Serve"
-                    />
+                    
+                    {/* Selected Certifications */}
+                    {formData.required_certifications.length > 0 && (
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {formData.required_certifications.map((cert, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                          >
+                            <span>🎓 {cert}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeCertificationFromJob(cert)}
+                              className="text-blue-600 hover:text-blue-800 font-bold"
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Search and Add Certifications */}
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={certSearchQuery}
+                        onChange={(e) => {
+                          setCertSearchQuery(e.target.value);
+                          setShowCertDropdown(true);
+                        }}
+                        onFocus={() => setShowCertDropdown(true)}
+                        className="w-full px-4 py-2 border rounded-lg"
+                        placeholder="Search government-approved certifications..."
+                      />
+                      
+                      {/* Dropdown */}
+                      {showCertDropdown && certSearchQuery && filteredCertifications.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          {filteredCertifications.slice(0, 10).map((cert, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => addCertificationToJob(cert)}
+                              className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm"
+                            >
+                              {cert}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <p className="text-xs text-gray-500 mt-1">
+                      💡 Search and select from standardized Canadian certifications
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
