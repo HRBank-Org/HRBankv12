@@ -265,7 +265,7 @@ const EmmaChat = () => {
   // Open chat interface
   return (
     <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-      {/* Header */}
+      {/* Header - Branded */}
       <div
         className="px-4 py-3 text-white flex items-center justify-between"
         style={{ backgroundColor: theme.primaryColor }}
@@ -278,7 +278,7 @@ const EmmaChat = () => {
           />
           <div>
             <h3 className="font-semibold text-sm">Emma</h3>
-            <p className="text-xs opacity-90">Your HR Bank Assistant</p>
+            <p className="text-xs opacity-90">{getUserTypeLabel()}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
