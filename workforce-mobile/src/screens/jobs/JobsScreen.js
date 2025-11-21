@@ -20,6 +20,7 @@ const JobsScreen = ({ navigation }) => {
   const [matchedJobs, setMatchedJobs] = useState([]);
   const [jobOffers, setJobOffers] = useState([]);
   const [interviews, setInterviews] = useState([]);
+  const [userCertifications, setUserCertifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -29,10 +30,11 @@ const JobsScreen = ({ navigation }) => {
 
   const fetchData = async () => {
     try {
-      const [matchedResult, offersResult, interviewsResult] = await Promise.all([
+      const [matchedResult, offersResult, interviewsResult, occupationsResult] = await Promise.all([
         jobsService.getMatchedJobs(),
         jobsService.getJobOffers(),
         jobsService.getInterviews(),
+        usersService.getOccupationProfiles(),
       ]);
 
       if (matchedResult.success) {
@@ -43,6 +45,19 @@ const JobsScreen = ({ navigation }) => {
       }
       if (interviewsResult.success) {
         setInterviews(interviewsResult.data);
+      }
+      if (occupationsResult.success) {
+        // Extract all verified certifications from user's occupations
+        const allCerts = [];
+        occupationsResult.data.forEach(occupation => {
+          const creds = occupation.credential_details || [];
+          creds.forEach(cred => {
+            if (cred.status === 'verified') {
+              allCerts.push(cred.credential_name);
+            }
+          });
+        });
+        setUserCertifications(allCerts);
       }
     } catch (error) {
       console.error('Error fetching job data:', error);
