@@ -1,6 +1,6 @@
 // API Configuration
 // Use environment variable if available, otherwise fallback to preview URL
-export const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://mobile-hrbank.preview.emergentagent.com/api';
+export const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://hrbank-mobile.preview.emergentagent.com/api';
 
 // App Configuration
 export const APP_NAME = 'HR Bank';

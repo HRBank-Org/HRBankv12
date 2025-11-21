@@ -1,0 +1,86 @@
+<analysis>
+The trajectory details the development of a React Native mobile application for an existing HR Bank web platform, alongside significant enhancements and bug fixes to the core web application itself. The initial focus was on building the Workforce mobile app, implementing features like authentication, job searching, an AI chat assistant (Emma), and a calendar. The user then requested the implementation of critical features: attendance tracking with QR code scanning, geofencing, and video interviews (using Jitsi Meet).
+
+A significant portion of the work involved iterative refinement and fixing of the existing web platform based on user feedback. This included:
+1.  **Authentication & Routing:** Diagnosing and fixing an issue where users were being redirected to the login page, revealing a problem with auth state persistence.
+2.  **Certification Workflow:** A deep dive into the certification process led to the discovery of several gaps. The AI engineered a complete workflow, including an admin interface for managing unassigned credentials submitted by the workforce, resolving how credentials from un-registered institutions are handled.
+3.  **Data Seeding:** Addressed an empty dropdown issue by creating a backend endpoint to seed standard certification types for admins.
+4.  **Occupation-Certification Linking:** The most recent work involved a major overhaul of how occupations are managed. The AI migrated the static, file-based list of occupations to a structured format that links them to required certifications, fixed super-admin permission issues, and built a new admin UI for managing these links.
+
+The user's primary language is **English**. The next agent should respond in English.
+</analysis>
+<product_requirements>
+The primary goal is to extend the HR Bank web platform by creating native mobile applications for Workforce and Employer users, aiming for feature parity with the web application.
+
+**Key Features Implemented/Requested:**
+-   **Mobile App (Workforce):**
+    -   Authentication (Login/Signup).
+    -   Job discovery and application.
+    -   Emma AI chat assistant.
+    -   Attendance tracking via QR code scanning and geofencing.
+    -   Video interview functionality using Jitsi Meet.
+    -   Calendar/Availability management.
+-   **Web App (Admin/Institution/Employer):**
+    -   **Certification Management:** A robust system for workforce users to submit certifications for verification. This includes an admin workflow to assign credentials to issuing institutions, especially if the institution hasn't registered on the platform yet. Admins can manage standard certification types.
+    -   **Occupation Management:** An admin system to define occupations and link them to a set of required certifications.
+-   **Core System:** The job matching engine must leverage the occupation-to-certification links to improve match accuracy between job posts and workforce profiles. UI for both employers (posting jobs) and workforce (creating profiles) should reflect these required certifications.
+</product_requirements>
+<key_technical_concepts>
+-   **Monorepo Architecture:**  (FastAPI),  (React),  (React Native), and  directories.
+-   **Mobile Development:** React Native with Expo,  for routing,  &  for QR codes,  for geofencing.
+-   **Video Conferencing:** Jitsi Meet via .
+-   **Backend:** FastAPI with a MongoDB database. Asynchronous database operations using .
+-   **Data Storage:** Occupations and their certification links are managed in a Python file () which is read/written by the backend.
+</key_technical_concepts>
+<code_architecture>
+The project is a monorepo containing the backend, web frontend, and the new mobile applications.
+
+
+-   ****
+    -   **Importance:** Contains the API endpoints for managing occupations and their links to certifications. It reads from and writes to .
+    -   **Summary of changes:** Heavily modified. Permission checks were relaxed from  to . New endpoints were added to auto-migrate old string-based occupations to the new object format and to update certification links.
+
+-   ****
+    -   **Importance:** Houses the core algorithm for matching workforce candidates to job postings.
+    -   **Summary of changes:** The code was analyzed. It already includes a section for  with a 20% weight, but it only considers certifications manually added by the employer, not those linked to the occupation template.
+
+-   ****
+    -   **Importance:** A new admin page created to provide a UI for linking/unlinking standard certifications to occupation templates.
+    -   **Summary of changes:** Created from scratch to allow admins to manage the new structured occupation data.
+
+-   ****
+    -   **Importance:** The primary screen for the mobile attendance feature, incorporating the camera for QR code scanning.
+    -   **Summary of changes:** Created from scratch to handle clock-in/out logic, camera permissions, and barcode scanning.
+
+-   ****
+    -   **Importance:** Manages the workflow for credentials that are submitted by the workforce but cannot be automatically assigned to an institution.
+    -   **Summary of changes:** Created from scratch to provide endpoints for listing unassigned credentials and allowing an admin to assign them to an institution manually. Also, endpoints for seeding  were added here.
+</code_architecture>
+<pending_tasks>
+-   **UI & Matching Engine Enhancement:** Enhance the employer's Post Job and workforce's Create Profile UIs to automatically suggest/show required certifications based on the selected occupation.
+-   **Update Matching Engine:** Modify the job matching algorithm to use the newly established occupation-to-certification links as the primary source for required certifications, rather than relying on manual employer input.
+-   **Mobile App Testing:** The user has not yet verified the complete mobile app build (with QR scanning, geofencing, and video calls) on an actual device.
+</pending_tasks>
+<current_work>
+The most recent work focused on a critical data model and workflow enhancement: linking occupations to required certifications. The user reported being unable to manage occupations or link them to certifications.
+
+The investigation revealed several issues:
+1.  **Data Structure:** Occupations were stored as a simple list of strings in a Python file, with no data structure for linking certifications.
+2.  **Permissions:** The API endpoints for managing occupations required super admin privileges, which the user's admin account lacked.
+3.  **Workflow Gap:** The job matching engine and UI did not utilize any occupation-to-certification relationship.
+
+Following the user's approval (all of the above), a comprehensive solution was implemented:
+1.  **Permissions Fixed:** The permission checks in  were updated to use a more general  flag.
+2.  **Data Migration:** An endpoint was created to auto-migrate the old string-based occupations into a new object-based structure that includes a  list.
+3.  **Admin UI Built:** A new page, , was created for admins to visually manage these links.
+
+The work concluded with the user asking if these changes are reflected in the workforce/employer flows and about the matching engine, which led to the analysis of . The matching engine was found to be functional but not yet integrated with this new, richer data model.
+</current_work>
+<optional_next_step>
+Enhance the Job Posting UI to auto-suggest required certifications and update the matching engine to leverage this for more accurate job matching.
+</optional_next_step>
+<direct_quotes>
+- **User Request:** does this relect in employer and workforce accounts while creating profiles and job posts
+- **User Request:** what about the match engine
+- **AI Analysis/Plan:** The issue is they need to **automatically suggest** required certifications based on the occupation selected. Let me create that enhancement... enhance it to use the occupation-based certifications
+</direct_quotes>

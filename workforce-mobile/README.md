@@ -116,7 +116,7 @@ yarn android
 
 The app connects to the HR Bank backend API:
 
-**Base URL**: https://mobile-hrbank.preview.emergentagent.com/api
+**Base URL**: https://hrbank-mobile.preview.emergentagent.com/api
 
 ### Endpoints Used
 - `POST /auth/login` - User login
@@ -162,7 +162,7 @@ The app uses a consistent color scheme defined in `mobile-shared/constants/color
 Create a `.env` file (optional, defaults provided):
 
 ```env
-API_BASE_URL=https://mobile-hrbank.preview.emergentagent.com/api
+API_BASE_URL=https://hrbank-mobile.preview.emergentagent.com/api
 ```
 
 ## 📦 Key Dependencies
