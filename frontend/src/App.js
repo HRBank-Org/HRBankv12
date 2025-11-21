@@ -71,6 +71,7 @@ import ManageOccupations from './pages/admin/ManageOccupations';
 import EmployerDashboard from './pages/employer/Dashboard';
 import EmployerProfile from './pages/employer/Profile';
 import EmployerOnboarding from './pages/employer/Onboarding';
+import JobPosting from './pages/employer/JobPosting';
 import WorkplaceSetup from './pages/employer/WorkplaceSetup';
 import Workplaces from './pages/employer/Workplaces';
 import WorkplaceDetail from './pages/employer/WorkplaceDetail';
