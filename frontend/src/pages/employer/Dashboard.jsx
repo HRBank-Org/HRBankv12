@@ -186,54 +186,36 @@ const EmployerDashboard = () => {
           </button>
         </div>
 
-        {/* Tab Navigation */}
+        {/* Tab Navigation - Streamlined */}
         <div className="bg-white rounded-lg shadow-sm">
           <div className="border-b border-gray-200">
-            <nav className="flex overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${
-                  activeTab === 'overview' ? 'border-current' : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                style={{ borderColor: activeTab === 'overview' ? theme.primaryColor : undefined, color: activeTab === 'overview' ? theme.primaryColor : undefined }}
-              >
-                📊 Overview
-              </button>
+            <nav className="flex">
               <button
                 onClick={() => setActiveTab('schedule')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${
+                className={`flex-1 px-6 py-4 text-sm font-medium border-b-2 ${
                   activeTab === 'schedule' ? 'border-current' : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
                 style={{ borderColor: activeTab === 'schedule' ? theme.primaryColor : undefined, color: activeTab === 'schedule' ? theme.primaryColor : undefined }}
               >
-                📅 Schedule & Shifts
+                📅 Schedule
               </button>
               <button
                 onClick={() => setActiveTab('workforce')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${
+                className={`flex-1 px-6 py-4 text-sm font-medium border-b-2 ${
                   activeTab === 'workforce' ? 'border-current' : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
                 style={{ borderColor: activeTab === 'workforce' ? theme.primaryColor : undefined, color: activeTab === 'workforce' ? theme.primaryColor : undefined }}
               >
-                👥 Workforce Performance
+                👥 Workforce
               </button>
               <button
                 onClick={() => setActiveTab('financial')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${
+                className={`flex-1 px-6 py-4 text-sm font-medium border-b-2 ${
                   activeTab === 'financial' ? 'border-current' : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
                 style={{ borderColor: activeTab === 'financial' ? theme.primaryColor : undefined, color: activeTab === 'financial' ? theme.primaryColor : undefined }}
               >
                 💰 Financial
-              </button>
-              <button
-                onClick={() => setActiveTab('attendance')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${
-                  activeTab === 'attendance' ? 'border-current' : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                style={{ borderColor: activeTab === 'attendance' ? theme.primaryColor : undefined, color: activeTab === 'attendance' ? theme.primaryColor : undefined }}
-              >
-                🕐 Attendance Tracking
               </button>
             </nav>
           </div>
