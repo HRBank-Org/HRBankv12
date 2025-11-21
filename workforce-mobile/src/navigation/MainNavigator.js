@@ -33,6 +33,8 @@ const MainNavigator = () => {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Jobs') {
             iconName = focused ? 'briefcase' : 'briefcase-outline';
+          } else if (route.name === 'Attendance') {
+            iconName = focused ? 'time' : 'time-outline';
           } else if (route.name === 'Calendar') {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'More') {
