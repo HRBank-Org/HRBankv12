@@ -20,6 +20,7 @@ const CreateOccupationSimplified = () => {
     occupation_title: '',
     occupation_category: '',
     skills: [],
+    certifications: [],
     years_of_experience: 0
   });
   
