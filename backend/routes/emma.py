@@ -13,7 +13,7 @@ from models.emma import (
     EmmaChatResponse,
     OnboardingContext
 )
-from models.user import User
+# from models.user import User  # Not needed since we get dict from auth
 from database import get_database
 from auth.dependencies import get_current_user
 
