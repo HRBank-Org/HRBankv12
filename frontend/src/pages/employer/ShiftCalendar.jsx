@@ -37,7 +37,7 @@ const ShiftCalendar = () => {
     try {
       // Load workplaces
       const workplacesRes = await api.get('/api/employer/workplaces');
-      const workplacesData = workplacesRes.data.data || workplacesRes.data || [];
+      const workplacesData = workplacesRes.data.data?.workplaces || workplacesRes.data.workplaces || [];
       // Ensure workplacesData is an array
       setWorkplaces(Array.isArray(workplacesData) ? workplacesData : []);
 
