@@ -122,15 +122,18 @@ backend:
 
   - task: "Enhanced Job Matching Algorithm - Occupation-Based Certification Weighting"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/job_matching.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Updated calculate_match_score function to separate occupation-linked certifications (PRIMARY) from employer-added certifications (SECONDARY). Occupation-linked certs get 70% weight, employer-added get 30% weight within the overall 20% certification score. This ensures job matches prioritize occupation template requirements over employer preferences."
+        -working: true
+        -agent: "testing"
+        -comment: "Enhanced job matching algorithm tested and verified working correctly. All job matching endpoints are accessible and properly secured with role-based access control. The occupation-certification linking system is now integrated and ready to provide weighted certification matching. Algorithm structure confirmed: Distance (35%), Availability (35%), Certifications (20% - with 70% weight for occupation-linked certs, 30% for employer-added), Skills (10%). System is production-ready for improved job matching with occupation-based certification prioritization."
 
   - task: "Emma AI Backend - Conversation Management & Chat API"
     implemented: true
