@@ -160,7 +160,7 @@ async def get_emma_response(user_message: str, conversation: EmmaConversation, u
 
 @router.get("/conversation")
 async def get_conversation(
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """Get Emma conversation history"""
     db = await get_database()
