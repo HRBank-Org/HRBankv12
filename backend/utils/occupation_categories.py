@@ -25,7 +25,14 @@ OCCUPATION_CATEGORIES = {
             "Room Attendant",
             "Event Staff",
             "Kitchen Manager",
-            "Restaurant Manager"
+            "Restaurant Manager",
+            {
+                "title": "Bartender",
+                "required_certifications": [
+                    "Smart Serve Ontario",
+                    "Safe Food Handling Certificate"
+                ]
+            }
         ]
     },
     "Retail & Grocery": {
