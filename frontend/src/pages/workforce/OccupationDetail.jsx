@@ -33,6 +33,17 @@ const OccupationDetail = () => {
       const response = await api.get('/api/occupations/me');
       const occ = response.data.data.occupations.find(o => o.occupation_id === occupationId);
       setOccupation(occ);
+      
+      // Fetch occupation-linked required certifications
+      if (occ && occ.occupation_title) {
+        try {
+          const certsResponse = await api.get(`/api/admin/occupations/occupation-certifications/${encodeURIComponent(occ.occupation_title)}`);
+          setOccupationRequiredCerts(certsResponse.data.data.required_certifications || []);
+        } catch (certsError) {
+          console.error('Failed to fetch occupation requirements:', certsError);
+          setOccupationRequiredCerts([]);
+        }
+      }
     } catch (error) {
       console.error('Failed to load occupation:', error);
     } finally {
