@@ -780,7 +780,24 @@ frontend:
         -comment: "Created comprehensive document management UI with expiry warnings and date pickers. Features: DocumentsPage reusable component for all user types, Document upload modal with file selection (PDF/JPG/PNG, max 10MB), Date pickers for issue_date and expiry_date (conditionally shown based on document type requirements), Base64 file encoding for backend compatibility, Visual expiry warnings (red=expired, orange=1-7 days, yellow=8-30 days) with countdown display, Account restriction banner (red alert when account_status is 'restricted'), Document compliance progress bar showing percentage of required documents uploaded, Status badges (Pending/Verified/Rejected/Expired) with icons, Document details grid showing upload date, issue date, expiry date, View document link to open uploaded file in new tab, Re-upload functionality for rejected/expired documents, Professional UI with responsive design and theme integration. Updated App.js routes to include /workforce/documents, /employer/documents, /institution/documents. UserHeader component already has Documents icon for navigation (was previously implemented)."
 
 
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Emma AI Backend - Conversation Management & Chat API"
+    - "Emma AI Backend - Resume Parsing with Gemini"
+    - "Emma AI Chat Widget - Floating Assistant Interface"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
 agent_communication:
+    -agent: "main"
+    -message: "EMMA AI ASSISTANT IMPLEMENTATION COMPLETED: Created complete AI-powered onboarding assistant named Emma. BACKEND: Installed emergentintegrations library and configured EMERGENT_LLM_KEY in .env. Created models (EmmaConversation, EmmaMessage, OnboardingContext) with conversation persistence and progress tracking. Implemented 5 API endpoints: GET /api/emma/conversation (retrieve chat history), POST /api/emma/chat (send message with GPT-5-mini), POST /api/emma/parse-resume (Gemini 2.0 Flash file parsing), POST /api/emma/approve-resume-data (create occupation from parsed data), GET /api/emma/onboarding-status (check completion). Emma uses OpenAI GPT-5-mini for conversational AI and Gemini 2.0 Flash for resume parsing (as per integration playbook - only Gemini supports file attachments). System prompts adapt to user type (workforce vs employer) and user's name. FRONTEND: Created beautiful floating chat widget (EmmaChat.jsx) with professional avatar photo (friendly woman in late 30s), time-based greetings (Good morning/afternoon/evening), minimizable interface with localStorage, profile completion progress bar, conversation history with message bubbles, real-time typing indicators, file upload for resumes (workforce only), smooth animations, mobile-responsive design. Integrated globally in App.js inside ThemeProvider. Backend and frontend restarted successfully. INITIAL TESTING: Verified Emma appears on admin dashboard after login with correct greeting ('Good morning! I'm Emma 👋'), displays professional avatar and welcome message, shows minimize/close buttons, and maintains proper UI structure. Ready for comprehensive backend and frontend testing."
     -agent: "main"
     -message: "DOCUMENT SYSTEM REFINEMENT COMPLETED: Updated employer document types per user feedback. Removed Business License (already have Business Registration). Converted BN (Business Number), Payroll Account Number, and GST/HST Number from file uploads to text inputs with validation. Backend changes: Updated EMPLOYER_DOCUMENT_TYPES in documents.py - BN requires 9 digits (pattern: ^\d{9}$, example: 123456789), Payroll requires BN + RP format (pattern: ^\d{9}\s?RP\s?\d{4}$, example: 123456789 RP 0001), GST/HST requires BN + RT format (pattern: ^\d{9}\s?RT\s?\d{4}$, example: 123456789 RT 0001). Updated /api/documents/upload endpoint to accept document_number parameter and validate format using regex patterns. Frontend changes: Updated DocumentsPage.jsx to conditionally render text input for is_number_only documents with format examples and validation. Shows document number in monospace font on submitted documents. Button text adapts ('Enter Document Number' vs 'Upload Document'). All validation errors display proper format examples. Both backend and frontend restarted successfully, app running without errors."
     -agent: "main"
