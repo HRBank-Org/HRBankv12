@@ -916,6 +916,18 @@ agent_communication:
         -agent: "main"
         -comment: "Updated Ontario minimum wage from $16.55/hour to $17.60/hour as per user correction. This affects the validate_minimum_wage() function which ensures all payroll calculations meet Ontario's legal minimum wage requirements. The ONTARIO_MINIMUM_WAGE constant is used throughout payroll calculations to validate hourly rates and gross pay amounts. Backend restarted successfully after update. Ready for comprehensive testing to verify minimum wage validation is working correctly with new rate."
 
+  - task: "Mobile Attendance Backend - QR Code & Geofencing"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/attendance.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "MOBILE ATTENDANCE SYSTEM COMPLETED: Extended existing attendance backend with 3 new mobile-specific endpoints. 1) GET /api/attendance/history (limit param) - Returns recent attendance records with enriched company/workplace details for history view. 2) GET /api/attendance/current - Returns active clock-in status with shift details if currently clocked in, null if not. 3) GET /api/attendance/upcoming-shifts - Returns today and future shifts user can clock into with booking details. All endpoints properly secured with workforce authentication. Existing QR code generation (POST /attendance/shifts/{shift_id}/qr-code) and clock-in/out endpoints already functional. QR code includes security token, shift_id, and qr_code_id. Clock-in validates: QR code authenticity, booking ownership, shift time window (15 min early allowed), geofencing (100m radius), and shift date. Clock-out calculates duration and generates timesheet. System ready for mobile app integration."
+
 
 frontend:
   - task: "Document Management Pages with Expiry Warnings - All User Types"
