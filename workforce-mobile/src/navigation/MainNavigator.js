@@ -73,7 +73,7 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name="Calendar"
-        component={PlaceholderScreen}
+        component={CalendarScreen}
         options={{
           tabBarLabel: 'Calendar',
         }}
