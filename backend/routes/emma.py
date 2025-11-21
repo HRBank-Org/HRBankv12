@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import os
 import uuid
 import json
+import asyncio
 from dotenv import load_dotenv
 
 from models.emma import (
@@ -13,7 +14,6 @@ from models.emma import (
     EmmaChatResponse,
     OnboardingContext
 )
-# from models.user import User  # Not needed since we get dict from auth
 from database import get_database
 from auth.dependencies import get_current_user
 
@@ -68,6 +68,7 @@ Important:
 - Confirm actions before making changes to user profiles
 - Explain WHY documents are needed (compliance, verification, etc.)
 - Use emojis sparingly and professionally
+- Keep responses concise and actionable (2-3 sentences max unless explaining complex topics)
 """
 
     if user_type == "workforce":
@@ -134,7 +135,7 @@ async def get_or_create_conversation(user_id: str, user_type: str, db):
 
 
 async def get_emma_response(user_message: str, conversation: EmmaConversation, user_name: str = "") -> str:
-    """Get Emma's AI-powered response"""
+    """Get Emma's AI-powered response with timeout handling"""
     if not EMMA_ENABLED or not EMERGENT_LLM_KEY:
         return "I'm here to help! However, my AI capabilities are currently unavailable. Please contact support for assistance."
     
@@ -149,10 +150,16 @@ async def get_emma_response(user_message: str, conversation: EmmaConversation, u
         # Create user message
         user_msg = UserMessage(text=user_message)
         
-        # Get response
-        response = await emma_chat.send_message(user_msg)
+        # Get response with timeout (30 seconds)
+        response = await asyncio.wait_for(
+            emma_chat.send_message(user_msg),
+            timeout=30.0
+        )
         return response
     
+    except asyncio.TimeoutError:
+        print("Emma AI timeout: Response took too long")
+        return "I apologize for the delay. Let me help you with that. Could you please rephrase your question or let me know what specific information you need?"
     except Exception as e:
         print(f"Emma AI error: {str(e)}")
         return "I apologize, I'm having trouble processing that right now. Could you please rephrase your question?"
@@ -248,187 +255,121 @@ async def chat_with_emma(
             "message": emma_response_text,
             "onboarding_progress": progress,
             "should_show_file_upload": should_prompt_file_upload(conversation.context),
-            "suggested_actions": get_suggested_actions(conversation.context, current_user['user_type'])
+            "conversation_id": conversation.conversation_id
         }
     }
 
 
 @router.post("/parse-resume")
 async def parse_resume(
-    file: UploadFile = File(...),
+    request: dict,
     current_user: dict = Depends(get_current_user)
 ):
-    """Upload and parse resume with Emma's AI"""
-    if current_user['user_type'] != "workforce":
-        raise HTTPException(status_code=403, detail="Resume parsing is only for workforce users")
+    """Parse resume file using Gemini (workforce only)"""
+    if current_user['user_type'] != 'workforce':
+        raise HTTPException(status_code=403, detail="Only workforce users can upload resumes")
     
-    db = await get_database()
-    
-    # Save uploaded file
-    upload_dir = "/app/uploads/resumes"
-    os.makedirs(upload_dir, exist_ok=True)
-    
-    file_extension = os.path.splitext(file.filename)[1]
-    unique_filename = f"{current_user['user_id']}_{uuid.uuid4()}{file_extension}"
-    file_path = os.path.join(upload_dir, unique_filename)
-    
-    with open(file_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
-    
-    # Parse resume with Emma AI
     if not EMMA_ENABLED or not EMERGENT_LLM_KEY:
-        return {
-            "success": False,
-            "error": "Resume parsing is currently unavailable. Please fill in your profile manually."
-        }
+        raise HTTPException(status_code=503, detail="AI services unavailable")
     
     try:
-        # Use Gemini for file parsing (as per playbook, only Gemini supports file attachments)
-        from emergentintegrations.llm.chat import FileContentWithMimeType
+        from emergentintegrations.llm.chat import LlmChat, FileAttachment
         
-        emma_parser = LlmChat(
+        # Initialize Gemini chat (only Gemini supports file attachments)
+        gemini_chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
-            session_id=f"resume_parse_{current_user['user_id']}",
-            system_message="""You are a resume parsing expert. Extract structured data from resumes.
-            
-Return ONLY a JSON object with this exact structure:
-            {
-                "occupation_title": "Main job title",
-                "years_of_experience": 5,
-                "skills": ["skill1", "skill2", "skill3"],
-                "work_experience": [
-                    {
-                        "company_name": "Company Name",
-                        "position_title": "Job Title",
-                        "start_date": "2020-01",
-                        "end_date": "2023-12",
-                        "description": "Brief description"
-                    }
-                ],
-                "education": [
-                    {
-                        "institution": "School Name",
-                        "degree": "Degree Name",
-                        "field": "Field of Study",
-                        "graduation_year": "2020"
-                    }
-                ],
-                "certifications": ["Certification 1", "Certification 2"]
-            }
-            
-Extract all available information. Use null for missing fields."""
-        ).with_model("gemini", "gemini-2.0-flash")
+            session_id=f"resume_{current_user['user_id']}",
+            system_message="You are a resume parsing assistant. Extract structured information from resumes."
+        ).with_model("gemini", "gemini-2.0-flash-exp")
         
-        # Determine MIME type
-        mime_type = "application/pdf" if file_extension.lower() == ".pdf" else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        
-        resume_file = FileContentWithMimeType(
-            file_path=file_path,
-            mime_type=mime_type
+        # Create file attachment
+        file_attachment = FileAttachment(
+            data=request['file_data'],
+            mime_type=request['file_type']
         )
         
-        response = await emma_parser.send_message(UserMessage(
-            text="Parse this resume and extract all information in the specified JSON format.",
-            file_contents=[resume_file]
-        ))
+        prompt = """Please analyze this resume and extract the following information in JSON format:
+{
+  "occupation_title": "primary job title or position",
+  "years_of_experience": "total years of work experience as a number",
+  "skills": ["skill1", "skill2", ...],
+  "work_experience": [
+    {"company": "company name", "position": "job title", "duration": "years worked"}
+  ],
+  "education": [{"degree": "degree name", "institution": "school name"}],
+  "certifications": ["cert1", "cert2", ...]
+}
+
+Provide only the JSON, no additional text."""
+        
+        # Parse with timeout
+        response = await asyncio.wait_for(
+            gemini_chat.send_message_with_attachment(prompt, [file_attachment]),
+            timeout=45.0
+        )
         
         # Parse JSON response
-        import re
-        json_match = re.search(r'\{.*\}', response, re.DOTALL)
-        if json_match:
-            parsed_data = json.loads(json_match.group())
-        else:
-            parsed_data = json.loads(response)
+        parsed_data = json.loads(response)
         
         # Store parsed data in conversation context
-        conversation = await get_or_create_conversation(
-            current_user['user_id'],
-            current_user['user_type'],
-            db
-        )
-        conversation.context.parsed_resume_data = parsed_data
-        conversation.context.pending_documents.append("resume_approval")
-        
+        db = await get_database()
         await db.emma_conversations.update_one(
-            {"conversation_id": conversation.conversation_id},
-            {"$set": {"context": conversation.context.model_dump()}}
+            {"user_id": current_user['user_id'], "is_active": True},
+            {"$set": {"context.parsed_resume_data": parsed_data}}
         )
         
         return {
             "success": True,
-            "data": {
-                "parsed_data": parsed_data,
-                "message": "I've reviewed your resume! Here's what I found. Please review and let me know if you'd like me to add this to your profile.",
-                "file_path": file_path
-            }
+            "data": parsed_data
         }
     
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Resume parsing timed out. Please try again.")
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=500, detail="Failed to parse resume data")
     except Exception as e:
         print(f"Resume parsing error: {str(e)}")
-        return {
-            "success": False,
-            "error": f"I had trouble reading your resume. Please make sure it's a PDF or Word document. Error: {str(e)}"
-        }
+        raise HTTPException(status_code=500, detail="Failed to parse resume")
 
 
 @router.post("/approve-resume-data")
 async def approve_resume_data(
     current_user: dict = Depends(get_current_user)
 ):
-    """User approves parsed resume data to be added to profile"""
-    if current_user['user_type'] != "workforce":
-        raise HTTPException(status_code=403, detail="Resume data is only for workforce users")
+    """Create occupation profile from parsed resume data (workforce only)"""
+    if current_user['user_type'] != 'workforce':
+        raise HTTPException(status_code=403, detail="Only workforce users can create occupation profiles")
     
     db = await get_database()
     
-    # Get conversation with parsed data
-    conversation = await get_or_create_conversation(
-        current_user['user_id'],
-        current_user['user_type'],
-        db
+    # Get parsed resume data from conversation
+    conversation = await db.emma_conversations.find_one(
+        {"user_id": current_user['user_id'], "is_active": True}
     )
     
-    if not conversation.context.parsed_resume_data:
-        raise HTTPException(status_code=400, detail="No resume data to approve")
+    if not conversation or not conversation.get('context', {}).get('parsed_resume_data'):
+        raise HTTPException(status_code=404, detail="No parsed resume data found")
     
-    parsed_data = conversation.context.parsed_resume_data
+    parsed_data = conversation['context']['parsed_resume_data']
     
-    # Create occupation profile from parsed data
-    from models.occupation import OccupationProfile
-    
-    new_occupation = {
-        "occupation_id": str(uuid.uuid4()),
+    # Create occupation profile
+    occupation_profile = {
+        "profile_id": str(uuid.uuid4()),
         "user_id": current_user['user_id'],
-        "occupation_title": parsed_data.get("occupation_title", "Untitled Position"),
-        "occupation_category": "General",  # User can update later
-        "years_of_experience": parsed_data.get("years_of_experience", 0),
-        "skills": parsed_data.get("skills", []),
-        "work_experience": [],  # Will be populated from employment history
-        "certifications": [],
-        "active": True,
+        "occupation_title": parsed_data.get('occupation_title', ''),
+        "years_of_experience": int(parsed_data.get('years_of_experience', 0)),
+        "skills": parsed_data.get('skills', []),
         "created_date": datetime.now(timezone.utc).isoformat(),
-        "updated_date": datetime.now(timezone.utc).isoformat()
+        "active": True
     }
     
-    await db.occupation_profiles.insert_one(new_occupation)
-    
-    # Mark as approved
-    conversation.context.resume_approved = True
-    conversation.context.completed_steps.append("resume_parsing")
-    if "resume_approval" in conversation.context.pending_documents:
-        conversation.context.pending_documents.remove("resume_approval")
-    
-    await db.emma_conversations.update_one(
-        {"conversation_id": conversation.conversation_id},
-        {"$set": {"context": conversation.context.model_dump()}}
-    )
+    await db.occupation_profiles.insert_one(occupation_profile)
     
     return {
         "success": True,
         "data": {
-            "message": "Great! I've added your work experience to your profile. You can always edit or add more details later.",
-            "occupation_id": new_occupation["occupation_id"]
+            "message": "Your occupation profile has been created successfully!",
+            "profile_id": occupation_profile['profile_id']
         }
     }
 
@@ -437,55 +378,52 @@ async def approve_resume_data(
 async def get_onboarding_status(
     current_user: dict = Depends(get_current_user)
 ):
-    """Get user's onboarding progress"""
+    """Get user's onboarding progress and next steps"""
     db = await get_database()
     
-    conversation = await get_or_create_conversation(
-        current_user['user_id'],
-        current_user['user_type'],
-        db
+    # Get conversation context
+    conversation = await db.emma_conversations.find_one(
+        {"user_id": current_user['user_id'], "is_active": True}
     )
     
-    progress = calculate_onboarding_progress(conversation.context)
+    if not conversation:
+        # Create conversation if doesn't exist
+        conversation = await get_or_create_conversation(
+            current_user['user_id'],
+            current_user['user_type'],
+            db
+        )
+        context = conversation.context
+    else:
+        context = OnboardingContext(**conversation.get('context', {}))
+    
+    progress = calculate_onboarding_progress(context)
     
     return {
         "success": True,
         "data": {
             "progress": progress,
-            "completed_steps": conversation.context.completed_steps,
-            "pending_documents": conversation.context.pending_documents,
-            "current_step": conversation.context.current_step,
-            "is_complete": progress >= 100
+            "profile_completed": context.profile_completed,
+            "documents_uploaded": context.documents_uploaded,
+            "last_interaction": context.last_interaction.isoformat() if context.last_interaction else None
         }
     }
 
 
-def calculate_onboarding_progress(context: OnboardingContext) -> float:
+def calculate_onboarding_progress(context: OnboardingContext) -> int:
     """Calculate onboarding completion percentage"""
-    total_steps = 5  # greeting, profile_info, documents, occupation/workplace, compliance
-    completed = len(context.completed_steps)
-    return min((completed / total_steps) * 100, 100)
+    progress = 0
+    
+    if context.profile_completed:
+        progress += 50
+    if context.documents_uploaded:
+        progress += 30
+    if context.occupation_profiles_created:
+        progress += 20
+    
+    return min(progress, 100)
 
 
 def should_prompt_file_upload(context: OnboardingContext) -> bool:
-    """Determine if Emma should prompt for file uploads"""
-    return len(context.pending_documents) > 0
-
-
-def get_suggested_actions(context: OnboardingContext, user_type: str) -> list:
-    """Get suggested next actions for user"""
-    actions = []
-    
-    if "profile_info" not in context.completed_steps:
-        actions.append("Complete your profile information")
-    
-    if "id_upload" in context.pending_documents:
-        actions.append("Upload your ID for verification")
-    
-    if user_type == "workforce" and "resume_upload" in context.pending_documents:
-        actions.append("Upload your resume")
-    
-    if "compliance" not in context.completed_steps:
-        actions.append("Review compliance requirements")
-    
-    return actions if actions else ["You're all set! Feel free to ask me anything."]
+    """Determine if file upload should be prompted"""
+    return not context.documents_uploaded

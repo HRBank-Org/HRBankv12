@@ -87,6 +87,8 @@ const EmmaChat = () => {
     try {
       const response = await api.post('/api/emma/chat', {
         message: inputMessage
+      }, {
+        timeout: 45000 // 45 second timeout for AI responses
       });
 
       if (response.data.success) {
@@ -97,13 +99,12 @@ const EmmaChat = () => {
         };
         setMessages(prev => [...prev, emmaMessage]);
         setOnboardingProgress(response.data.data.onboarding_progress || 0);
-        setShowFileUpload(response.data.data.should_show_file_upload || false);
       }
     } catch (error) {
-      console.error('Failed to send message to Emma:', error);
+      console.error('Failed to send message:', error);
       const errorMessage = {
         role: 'assistant',
-        content: "I apologize, I'm having trouble connecting right now. Please try again in a moment.",
+        content: "I apologize, I'm having trouble processing that right now. Could you please try again or rephrase your question?",
         timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -113,89 +114,71 @@ const EmmaChat = () => {
   };
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files[0];
     if (!file) return;
 
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      const errorMessage = {
-        role: 'assistant',
-        content: "The file is too large. Please upload a file smaller than 10MB.",
-        timestamp: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please upload a PDF, Word document, or image file');
       return;
     }
 
-    // Add user message showing file upload
-    const uploadMessage = {
-      role: 'user',
-      content: `📎 Uploading: ${file.name}`,
-      timestamp: new Date().toISOString()
-    };
-    setMessages(prev => [...prev, uploadMessage]);
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
 
     setUploadingFile(true);
-    const formData = new FormData();
-    formData.append('file', file);
 
-    try {
-      // Determine if it's a resume (for workforce) or general document
-      const isResume = file.name.toLowerCase().includes('resume') || 
-                       file.name.toLowerCase().includes('cv') ||
-                       (user.user_type === 'workforce' && (file.type.includes('pdf') || file.type.includes('word')));
+    // Convert file to base64
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result;
       
-      const endpoint = isResume && user.user_type === 'workforce' 
-        ? '/api/emma/parse-resume' 
-        : '/api/documents/upload'; // Use general document upload endpoint
+      try {
+        const response = await api.post('/api/emma/parse-resume', {
+          file_data: base64String,
+          file_name: file.name,
+          file_type: file.type
+        }, {
+          timeout: 60000 // 60 second timeout for file parsing
+        });
 
-      const response = await api.post(endpoint, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      if (response.data.success) {
-        const systemMessage = {
-          role: 'assistant',
-          content: response.data.data.message || 
-                   `Great! I've received your file "${file.name}". ${isResume ? "Let me analyze it for you..." : "I've saved it to your documents."}`,
-          timestamp: new Date().toISOString()
-        };
-        setMessages(prev => [...prev, systemMessage]);
-        
-        // Show parsed data if available (for resumes)
-        if (response.data.data.parsed_data) {
-          const parsedDataMessage = {
+        if (response.data.success) {
+          // Format the parsed data into a message
+          const parsedData = response.data.data;
+          const formattedMessage = formatResumeData(parsedData);
+          
+          const emmaMessage = {
             role: 'assistant',
-            content: formatParsedResumeData(response.data.data.parsed_data),
+            content: formattedMessage,
             timestamp: new Date().toISOString()
           };
-          setMessages(prev => [...prev, parsedDataMessage]);
+          setMessages(prev => [...prev, emmaMessage]);
         }
-      } else {
-        throw new Error(response.data.error || 'Upload failed');
+      } catch (error) {
+        console.error('Failed to parse resume:', error);
+        const errorMessage = {
+          role: 'assistant',
+          content: "I had trouble reading that file. Could you try uploading a different format or ensure the file isn't corrupted?",
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setUploadingFile(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
-    } catch (error) {
-      console.error('File upload error:', error);
-      const errorMessage = {
-        role: 'assistant',
-        content: error.response?.data?.error || 
-                 "I had trouble processing that file. Please make sure it's a valid document (PDF, Word, or image file for ID).",
-        timestamp: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setUploadingFile(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
+    };
+
+    reader.readAsDataURL(file);
   };
 
-  const formatParsedResumeData = (data) => {
-    let formatted = "Here's what I found in your resume:\n\n";
+  const formatResumeData = (data) => {
+    let formatted = "📄 Great! I've analyzed your resume. Here's what I found:\n\n";
     
     if (data.occupation_title) {
       formatted += `**Position:** ${data.occupation_title}\n`;
@@ -224,18 +207,18 @@ const EmmaChat = () => {
     localStorage.setItem('emma_minimized', 'false');
   };
 
-  // Don't show on landing page or login pages
+  // Don't show on landing page, login pages, OR for admin users
   const currentPath = window.location.pathname;
   const isPublicPage = currentPath === '/' || currentPath.startsWith('/login') || currentPath.startsWith('/signup');
+  const isAdminUser = user?.user_type === 'admin';
   
-  if (!user || isPublicPage) return null;
+  if (!user || isPublicPage || isAdminUser) return null;
 
   // Get user type label for branding
   const getUserTypeLabel = () => {
     if (user.user_type === 'workforce') return 'Workforce Assistant';
     if (user.user_type === 'employer') return 'Employer Assistant';
     if (user.user_type === 'institution') return 'Institution Assistant';
-    if (user.user_type === 'admin') return 'Admin Assistant';
     return 'HR Bank Assistant';
   };
 
@@ -284,100 +267,81 @@ const EmmaChat = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleMinimize}
-            className="hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
+            className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
             title="Minimize"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
-            title="Close"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
             </svg>
           </button>
         </div>
       </div>
 
-      {/* Progress Bar - Branded */}
+      {/* Progress bar (if onboarding incomplete) */}
       {onboardingProgress < 100 && (
-        <div className="px-4 py-2 border-b" style={{ backgroundColor: `${theme.primaryColor}15` }}>
-          <div className="flex items-center justify-between text-xs mb-1" style={{ color: theme.primaryColor }}>
-            <span className="font-medium">Profile Completion</span>
-            <span className="font-bold">{Math.round(onboardingProgress)}%</span>
+        <div className="px-4 py-2 bg-gray-50 border-b">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-700">Profile Completion</span>
+            <span className="text-xs font-semibold" style={{ color: theme.primaryColor }}>
+              {onboardingProgress}%
+            </span>
           </div>
-          <div className="w-full bg-white rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="h-2 rounded-full transition-all duration-300"
-              style={{
-                width: `${onboardingProgress}%`,
-                backgroundColor: theme.primaryColor
-              }}
-            />
+              style={{ width: `${onboardingProgress}%`, backgroundColor: theme.primaryColor }}
+            ></div>
           </div>
         </div>
       )}
 
-      {/* Messages - Branded Background */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ backgroundColor: `${theme.primaryColor}05` }}>
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
         {conversationLoading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }} />
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="text-center py-8 bg-white rounded-lg shadow-sm p-6">
-            <img src={EMMA_AVATAR} alt="Emma" className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-4" style={{ borderColor: theme.primaryColor }} />
-            <p className="font-bold text-gray-900 text-lg mb-1">
-              {getTimeBasedGreeting()}! I'm Emma 👋
-            </p>
-            <p className="text-sm text-gray-600 mb-3">
-              Your {getUserTypeLabel()}
-            </p>
-            <p className="text-sm text-gray-500">
-              I'm here to help you navigate HR Bank and complete your profile. How can I assist you today?
-            </p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
           </div>
         ) : (
-          messages.map((msg, idx) => (
+          messages.map((message, index) => (
             <div
-              key={idx}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} gap-2`}
+              key={index}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {msg.role === 'assistant' && (
+              {message.role === 'assistant' && (
                 <img
                   src={EMMA_AVATAR}
                   alt="Emma"
-                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                  className="w-8 h-8 rounded-full object-cover mr-2 flex-shrink-0"
                 />
               )}
               <div
-                className={`max-w-[75%] rounded-2xl px-4 py-2 ${
-                  msg.role === 'user'
-                    ? 'text-white shadow-md'
-                    : 'bg-white text-gray-800 shadow-sm border border-gray-100'
+                className={`max-w-[75%] px-4 py-2 rounded-2xl ${
+                  message.role === 'user'
+                    ? 'text-white'
+                    : 'bg-white text-gray-800 shadow-sm'
                 }`}
-                style={msg.role === 'user' ? { backgroundColor: theme.primaryColor } : {}}
+                style={message.role === 'user' ? { backgroundColor: theme.primaryColor } : {}}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                <p className="text-xs mt-1 opacity-75">
-                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <span className="text-xs opacity-70 mt-1 block">
+                  {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
               </div>
             </div>
           ))
         )}
         {loading && (
-          <div className="flex justify-start gap-2">
-            <img src={EMMA_AVATAR} alt="Emma" className="w-8 h-8 rounded-full object-cover" />
-            <div className="bg-gray-100 rounded-2xl px-4 py-2">
+          <div className="flex justify-start">
+            <img
+              src={EMMA_AVATAR}
+              alt="Emma"
+              className="w-8 h-8 rounded-full object-cover mr-2"
+            />
+            <div className="bg-white px-4 py-3 rounded-2xl shadow-sm">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>
@@ -385,61 +349,56 @@ const EmmaChat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <form onSubmit={sendMessage} className="p-4 border-t border-gray-200">
-        {/* Show selected file preview if any */}
-        {uploadingFile && (
-          <div className="mb-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm flex items-center gap-2">
-            <svg className="w-4 h-4 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span className="text-blue-700">Uploading file...</span>
-          </div>
-        )}
-        
-        <div className="flex gap-2">
+      {/* Input Area */}
+      <div className="p-4 bg-white border-t">
+        <form onSubmit={sendMessage} className="flex items-center gap-2">
+          {user.user_type === 'workforce' && (
+            <>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".pdf,.doc,.docx,image/*"
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingFile || loading}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                title="Upload resume"
+              >
+                {uploadingFile ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+                ) : (
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                )}
+              </button>
+            </>
+          )}
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2"
-            style={{ focusRingColor: theme.primaryColor }}
             disabled={loading || uploadingFile}
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:bg-gray-100"
+            style={{ focusRing: theme.primaryColor }}
           />
-          
-          {/* Attachment Button */}
-          <label 
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-50"
-            title="Attach file"
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              onChange={handleFileUpload}
-              className="hidden"
-              disabled={uploadingFile || loading}
-            />
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-            </svg>
-          </label>
-          
-          {/* Send Button */}
           <button
             type="submit"
-            disabled={loading || !inputMessage.trim() || uploadingFile}
-            className="px-4 py-2 text-white rounded-full hover:opacity-90 disabled:opacity-50 transition-opacity"
+            disabled={!inputMessage.trim() || loading || uploadingFile}
+            className="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: theme.primaryColor }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
