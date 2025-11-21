@@ -87,6 +87,27 @@ const FindJobs = () => {
     navigate(`/workforce/interview/${interviewId}`);
   };
 
+  const handleQuitJob = async () => {
+    if (!window.confirm('Are you sure you want to quit your current job? This action cannot be undone.')) {
+      return;
+    }
+
+    const reason = window.prompt('Optional: Please provide a reason for leaving (or leave blank):');
+
+    setQuitting(true);
+    try {
+      await api.post('/api/jobs/employment/quit', { reason: reason || null });
+      alert('You have successfully quit your job and are now back in the available workforce pool. New job matches are being generated!');
+      loadEmploymentStatus();
+      loadJobs();
+    } catch (error) {
+      console.error('Failed to quit job:', error);
+      alert('Failed to process request. Please try again.');
+    } finally {
+      setQuitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
