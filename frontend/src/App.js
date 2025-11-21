@@ -30,6 +30,7 @@ import AvailabilityCalendar from './pages/workforce/AvailabilityCalendar';
 import ClockInOut from './pages/workforce/ClockInOut';
 import MyTimesheets from './pages/workforce/MyTimesheets';
 import ShiftCalendar from './pages/employer/ShiftCalendar';
+import ShiftScheduler from './pages/employer/ShiftScheduler';
 import EmploymentHistory from './pages/workforce/EmploymentHistory';
 import WorkforceSettings from './pages/workforce/Settings';
 import WorkforceDocuments from './pages/workforce/Documents';
