@@ -224,7 +224,11 @@ const EmmaChat = () => {
     localStorage.setItem('emma_minimized', 'false');
   };
 
-  if (!user) return null;
+  // Don't show on landing page or login pages
+  const currentPath = window.location.pathname;
+  const isPublicPage = currentPath === '/' || currentPath.startsWith('/login') || currentPath.startsWith('/signup');
+  
+  if (!user || isPublicPage) return null;
 
   // Minimized state - show floating button
   if (!isOpen || isMinimized) {
