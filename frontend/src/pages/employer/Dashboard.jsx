@@ -48,35 +48,57 @@ const EmployerDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
+      // Get date range for current month
+      const startDate = new Date();
+      startDate.setDate(1);
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1);
+      
       const [workplacesRes, shiftsRes, profileRes, messagesRes, notificationsRes] = await Promise.all([
         api.get('/api/employer/workplaces'),
-        api.get('/api/employer/shifts'),
+        api.get('/api/calendar/shifts', {
+          params: {
+            start_date: startDate.toISOString(),
+            end_date: endDate.toISOString()
+          }
+        }),
         api.get('/api/users/me'),
         api.get('/api/messages/threads').catch(() => ({ data: { data: { threads: [], total_unread: 0 } } })),
         api.get('/api/notifications/my-notifications?unread_only=true').catch(() => ({ data: { data: { unread_count: 0 } } }))
       ]);
 
       const workplaces = workplacesRes.data.data.workplaces;
-      const shifts = shiftsRes.data.data.shifts;
+      const shifts = shiftsRes.data.data || [];
       setEmployerProfile(profileRes.data.data.profile);
       setUnreadMessages(messagesRes.data.data.total_unread || 0);
       setUnreadNotifications(notificationsRes.data.data.unread_count || 0);
 
-      // Calculate stats
+      // Calculate stats based on positions
+      const totalPositions = shifts.reduce((sum, s) => sum + (s.positions_needed || 0), 0);
+      const filledPositions = shifts.reduce((sum, s) => sum + (s.positions_filled || 0), 0);
+      const openPositions = totalPositions - filledPositions;
+
       const shiftsByStatus = [
-        { name: 'Open', value: shifts.filter(s => s.status === 'open').length, color: '#3B82F6' },
-        { name: 'Filled', value: shifts.filter(s => s.status === 'filled').length, color: '#10B981' },
-        { name: 'Completed', value: shifts.filter(s => s.status === 'completed').length, color: '#6B7280' }
+        { name: 'Open', value: openPositions, color: '#EF4444' },
+        { name: 'Filled', value: filledPositions, color: '#10B981' }
       ];
+
+      // Get unique workers
+      const uniqueWorkers = new Set();
+      shifts.forEach(shift => {
+        (shift.assigned_workers || []).forEach(worker => {
+          uniqueWorkers.add(worker.worker_id);
+        });
+      });
 
       setStats({
         total_workplaces: workplaces.length,
         total_shifts: shifts.length,
-        active_workers: 0,
-        total_hours: 0,
+        active_workers: uniqueWorkers.size,
+        total_hours: shifts.reduce((sum, s) => sum + ((s.duration_hours || 0) * (s.positions_needed || 0)), 0),
         total_payroll: 0,
         shifts_by_status: shiftsByStatus,
-        upcoming_shifts: shifts.filter(s => s.status === 'open').slice(0, 5)
+        upcoming_shifts: shifts.slice(0, 5)
       });
     } catch (error) {
       console.error('Failed to load dashboard:', error);
