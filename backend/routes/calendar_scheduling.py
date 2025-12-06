@@ -11,6 +11,26 @@ import uuid
 
 router = APIRouter(prefix="/api/calendar", tags=["Calendar Scheduling"])
 
+# ============== DEBUG ENDPOINT ==============
+
+@router.get("/test-shifts")
+async def test_get_shifts():
+    """Test endpoint to verify shifts exist - NO AUTH"""
+    db = await get_database()
+    
+    count = await db.calendar_shifts.count_documents({})
+    sample = await db.calendar_shifts.find_one({})
+    
+    return {
+        "success": True,
+        "total_shifts": count,
+        "sample_shift": {
+            "position": sample.get("position_title") if sample else None,
+            "workplace": sample.get("workplace_name") if sample else None,
+            "start_time": sample.get("start_time") if sample else None
+        } if sample else None
+    }
+
 # ============== GET SHIFTS ==============
 
 @router.get("/shifts")
