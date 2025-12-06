@@ -395,16 +395,46 @@ const EmployerDashboard = () => {
                   </div>
                 </div>
 
-                {/* Top Performers */}
+                {/* Workforce Summary */}
                 <div className="border border-gray-200 rounded-lg p-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">Top Performers</h4>
-                  <div className="text-center py-12">
-                    <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <p className="text-gray-600">No workers yet</p>
-                    <p className="text-sm text-gray-500 mt-1">Hire workers to see performance metrics</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-semibold text-gray-900">Your Workforce</h4>
+                    <button
+                      onClick={() => navigate('/employer/workforce-management')}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      View All →
+                    </button>
                   </div>
+                  {stats.active_workers > 0 ? (
+                    <div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <p className="text-2xl font-bold text-blue-600">{stats.active_workers}</p>
+                          <p className="text-sm text-gray-600 mt-1">Active Workers</p>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <p className="text-2xl font-bold text-green-600">{stats.total_workplaces}</p>
+                          <p className="text-sm text-gray-600 mt-1">Workplaces</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => navigate('/employer/workforce-management')}
+                        className="w-full mt-4 px-4 py-2 text-sm rounded-lg text-white font-medium"
+                        style={{ backgroundColor: theme.primaryColor }}
+                      >
+                        Manage Workforce
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <p className="text-gray-600">No workers yet</p>
+                      <p className="text-sm text-gray-500 mt-1">Hire workers to see performance metrics</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
