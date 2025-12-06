@@ -38,7 +38,7 @@ async def get_calendar_shifts(
     start_date: str,
     end_date: str,
     workplace_id: Optional[str] = None,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Get all shifts for calendar display"""
     db = await get_database()
