@@ -500,13 +500,25 @@ const CalendarScheduling = () => {
 
           <div className="flex-1 relative">
             {/* Time slot grid */}
-            {hours.map(hour => (
-              <div
-                key={hour}
-                className="h-24 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors"
-                onClick={() => handleTimeSlotClick(currentDate, hour)}
-              />
-            ))}
+            {hours.map(hour => {
+              const slotKey = `${currentDate.format('YYYY-MM-DD')}_${hour}`;
+              const isHighlighted = dragOverSlot === slotKey;
+              
+              return (
+                <div
+                  key={hour}
+                  className={`h-24 border-b border-gray-200 transition-colors ${
+                    isHighlighted 
+                      ? 'bg-blue-200 border-blue-400' 
+                      : 'hover:bg-blue-50 cursor-pointer'
+                  }`}
+                  onClick={() => handleTimeSlotClick(currentDate, hour)}
+                  onDragOver={(e) => handleDragOver(e, currentDate, hour)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, currentDate, hour)}
+                />
+              );
+            })}
 
             {/* Shifts */}
             <div className="absolute inset-0 pointer-events-none p-2">
