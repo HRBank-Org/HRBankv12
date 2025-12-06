@@ -56,8 +56,9 @@ async def get_calendar_shifts(
     
     shifts = await db.calendar_shifts.find(query).sort("start_time", 1).to_list(1000)
     
-    # Calculate filled positions for each shift
+    # Calculate filled positions for each shift and remove MongoDB _id
     for shift in shifts:
+        shift.pop("_id", None)  # Remove MongoDB ObjectId
         shift["positions_filled"] = len([
             w for w in shift.get("assigned_workers", [])
             if w.get("status") == "confirmed"
