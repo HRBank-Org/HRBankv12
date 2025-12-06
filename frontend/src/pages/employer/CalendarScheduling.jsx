@@ -25,6 +25,10 @@ const CalendarScheduling = () => {
   const [showAssignWorker, setShowAssignWorker] = useState(false);
   const [selectedShift, setSelectedShift] = useState(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  
+  // Drag and Drop
+  const [draggingShift, setDraggingShift] = useState(null);
+  const [dragOverSlot, setDragOverSlot] = useState(null);
 
   useEffect(() => {
     loadData();
