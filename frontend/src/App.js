@@ -213,6 +213,7 @@ function AppRoutes() {
         <Route path="/employer/tasks" element={<ProtectedRoute allowedUserTypes={['employer']}><ManageTasks /></ProtectedRoute>} />
         <Route path="/employer/shift-calendar" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftCalendar /></ProtectedRoute>} />
         <Route path="/employer/shift-scheduler" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftScheduler /></ProtectedRoute>} />
+        <Route path="/employer/calendar-scheduling" element={<ProtectedRoute allowedUserTypes={['employer']}><CalendarScheduling /></ProtectedRoute>} />
         <Route path="/employer/workforce-management" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkforceManagement /></ProtectedRoute>} />
         <Route path="/employer/rosters" element={<ProtectedRoute allowedUserTypes={['employer']}><RosterManagement /></ProtectedRoute>} />
         <Route path="/employer/rosters/:rosterId" element={<ProtectedRoute allowedUserTypes={['employer']}><RosterDetail /></ProtectedRoute>} />
