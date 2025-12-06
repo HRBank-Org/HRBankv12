@@ -414,11 +414,19 @@ def calculate_onboarding_progress(context: OnboardingContext) -> int:
     """Calculate onboarding completion percentage"""
     progress = 0
     
-    if context.profile_completed:
-        progress += 50
-    if context.documents_uploaded:
+    # Calculate profile completion
+    if context.profile_completion:
+        completed_fields = sum(1 for v in context.profile_completion.values() if v)
+        total_fields = len(context.profile_completion)
+        if total_fields > 0:
+            progress += int((completed_fields / total_fields) * 50)
+    
+    # Documents uploaded
+    if len(context.pending_documents) == 0 and len(context.completed_steps) > 1:
         progress += 30
-    if context.occupation_profiles_created:
+    
+    # Resume approved (occupation profile)
+    if context.resume_approved:
         progress += 20
     
     return min(progress, 100)
@@ -426,4 +434,4 @@ def calculate_onboarding_progress(context: OnboardingContext) -> int:
 
 def should_prompt_file_upload(context: OnboardingContext) -> bool:
     """Determine if file upload should be prompted"""
-    return not context.documents_uploaded
+    return len(context.pending_documents) > 0
