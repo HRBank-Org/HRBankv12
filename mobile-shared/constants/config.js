@@ -1,6 +1,6 @@
 // API Configuration
-// Use environment variable if available, otherwise fallback to preview URL
-export const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://shiftcal-1.preview.emergentagent.com/api';
+// Use environment variable if available, otherwise fallback to localhost for development
+export const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001/api';
 
 // App Configuration
 export const APP_NAME = 'HR Bank';
