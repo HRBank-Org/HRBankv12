@@ -161,7 +161,7 @@ const EmployerDashboard = () => {
             <p className="text-xs text-gray-500">{stats.total_workplaces} locations</p>
           </button>
           <button
-            onClick={() => navigate('/employer/shift-calendar')}
+            onClick={() => navigate('/employer/calendar-scheduling')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
             <div className="text-3xl mb-2">📅</div>
