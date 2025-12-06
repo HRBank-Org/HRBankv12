@@ -382,6 +382,18 @@ backend:
         -comment: "ADMIN ACCOUNT PERMISSIONS & OCCUPATION MANAGEMENT TESTING COMPLETED SUCCESSFULLY (6/6 tests passed). ✅ ADMIN SUPER ADMIN STATUS VERIFIED: Successfully authenticated with provided credentials (qnizami@hrbank.ca / Tabaghnak@3891), GET /api/admin/my-profile confirms user has is_super_admin=true privileges. ✅ OCCUPATION ADD/DELETE FUNCTIONALITY TESTED: POST /api/admin/occupations/add and DELETE /api/admin/occupations/remove both return 403 Access Denied as expected - admin user has super_admin=true in profile but endpoints check admin_profiles collection instead of admins collection (database schema mismatch). This is expected behavior given current implementation. ✅ CURRENT OCCUPATION FORMAT ANALYZED: GET /api/admin/occupations/manage returns 16 occupation categories with 253 total occupation titles. Format analysis shows occupations stored as strings (e.g., 'Server / Waiter / Waitress', 'Bartender', 'Line Cook') rather than objects with certifications. No object format with required_certifications arrays found in current data. ✅ PASS CRITERIA MET: Admin super admin status identified (is_super_admin=true), occupation add/delete functionality tested (403 due to collection mismatch), current occupation format analyzed (string format confirmed). System working as implemented - admin has super admin privileges but occupation management endpoints use different database collection for permission checks."
 
 frontend:
+  - task: "Drag-and-Drop Shift Rescheduling - Calendar Page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/employer/CalendarScheduling.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented drag-and-drop shift rescheduling feature in CalendarScheduling component. Features include: draggable shift cards with cursor-move class, visual feedback during drag (opacity-50 and scale-95), drop zone highlighting with blue background, drag handlers for start/over/leave/drop/end events, API integration to update shift times via PATCH /api/calendar/shifts/{shift_id}, automatic data reload after successful drop, error handling with user feedback. Works in both Week and Day views with proper time slot calculations."
+
   - task: "Job Posting UI - Auto-Suggest Certifications"
     implemented: true
     working: "NA"
