@@ -116,15 +116,21 @@ async def get_pending_institutions(
         {"_id": 0}
     ).to_list(100)
     
-    # Get user details for each institution
-    for inst in institutions:
-        user = await db.users.find_one(
-            {"user_id": inst["institution_id"]},
-            {"_id": 0, "email": 1, "created_date": 1}
-        )
-        if user:
-            inst["email"] = user["email"]
-            inst["signup_date"] = user["created_date"]
+    # OPTIMIZED: Batch fetch user details
+    if institutions:
+        institution_ids = [inst["institution_id"] for inst in institutions]
+        users = await db.users.find(
+            {"user_id": {"$in": institution_ids}},
+            {"_id": 0, "user_id": 1, "email": 1, "created_date": 1}
+        ).to_list(100)
+        user_map = {user["user_id"]: user for user in users}
+        
+        # Add user details to institutions
+        for inst in institutions:
+            user = user_map.get(inst["institution_id"])
+            if user:
+                inst["email"] = user["email"]
+                inst["signup_date"] = user["created_date"]
     
     return {
         "success": True,
