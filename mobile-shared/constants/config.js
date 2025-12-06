@@ -1,6 +1,6 @@
 // API Configuration
-// Use environment variable if available, otherwise fallback to localhost for development
-export const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001/api';
+// Use Expo environment variable if available, otherwise fallback to localhost for development
+export const API_BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001/api';
 
 // App Configuration
 export const APP_NAME = 'HR Bank';
