@@ -48,11 +48,14 @@ const EmployerDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      // Get date range for current month
+      // Get date range - from start of current month to 3 months ahead
       const startDate = new Date();
       startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
+      
       const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + 1);
+      endDate.setMonth(endDate.getMonth() + 3);
+      endDate.setHours(23, 59, 59, 999);
       
       const [workplacesRes, shiftsRes, profileRes, messagesRes, notificationsRes] = await Promise.all([
         api.get('/api/employer/workplaces'),
