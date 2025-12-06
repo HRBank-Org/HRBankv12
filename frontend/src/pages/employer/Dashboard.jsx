@@ -94,6 +94,13 @@ const EmployerDashboard = () => {
         });
       });
 
+      // Filter and sort upcoming shifts (future only, sorted by date)
+      const now = new Date();
+      const upcomingShifts = shifts
+        .filter(s => new Date(s.start_time) >= now)
+        .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
+        .slice(0, 5);
+
       setStats({
         total_workplaces: workplaces.length,
         total_shifts: shifts.length,
@@ -101,7 +108,7 @@ const EmployerDashboard = () => {
         total_hours: shifts.reduce((sum, s) => sum + ((s.duration_hours || 0) * (s.positions_needed || 0)), 0),
         total_payroll: 0,
         shifts_by_status: shiftsByStatus,
-        upcoming_shifts: shifts.slice(0, 5)
+        upcoming_shifts: upcomingShifts
       });
     } catch (error) {
       console.error('Failed to load dashboard:', error);
