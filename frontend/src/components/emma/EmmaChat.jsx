@@ -266,6 +266,26 @@ const EmmaChat = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={async () => {
+              if (window.confirm('Start a new conversation with Emma? This will reset your chat history.')) {
+                try {
+                  setConversationLoading(true);
+                  await api.post('/api/emma/reset-conversation');
+                  await loadConversation();
+                } catch (error) {
+                  console.error('Failed to reset conversation:', error);
+                  alert('Failed to reset conversation. Please try again.');
+                }
+              }
+            }}
+            className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
+            title="Start New Conversation"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+          <button
             onClick={handleMinimize}
             className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
             title="Minimize"
