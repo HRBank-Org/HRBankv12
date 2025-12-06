@@ -371,13 +371,25 @@ const CalendarScheduling = () => {
             return (
               <div key={dayIndex} className="flex-1 border-r border-gray-200 last:border-r-0 relative">
                 {/* Time slots */}
-                {hours.map(hour => (
-                  <div
-                    key={hour}
-                    className="h-20 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors"
-                    onClick={() => handleTimeSlotClick(day, hour)}
-                  />
-                ))}
+                {hours.map(hour => {
+                  const slotKey = `${day.format('YYYY-MM-DD')}_${hour}`;
+                  const isHighlighted = dragOverSlot === slotKey;
+                  
+                  return (
+                    <div
+                      key={hour}
+                      className={`h-20 border-b border-gray-200 transition-colors ${
+                        isHighlighted 
+                          ? 'bg-blue-200 border-blue-400' 
+                          : 'hover:bg-blue-50 cursor-pointer'
+                      }`}
+                      onClick={() => handleTimeSlotClick(day, hour)}
+                      onDragOver={(e) => handleDragOver(e, day, hour)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, day, hour)}
+                    />
+                  );
+                })}
                 
                 {/* Render shifts */}
                 <div className="absolute inset-0 pointer-events-none p-1">
