@@ -289,34 +289,69 @@ const EmployerDashboard = () => {
                       </button>
                     </div>
                   ) : (
-                    stats.upcoming_shifts.map((shift) => (
-                      <div key={shift.shift_id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {new Date(shift.shift_date).toLocaleDateString('en-US', { 
-                                weekday: 'long', 
-                                month: 'short', 
-                                day: 'numeric' 
-                              })}
-                            </p>
-                            <p className="text-sm text-gray-600">{shift.start_time} - {shift.end_time}</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                              shift.status === 'open' ? 'bg-blue-100 text-blue-800' :
-                              shift.status === 'filled' ? 'bg-green-100 text-green-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {shift.status}
-                            </span>
-                            <button
-                              onClick={() => navigate(`/employer/shifts/${shift.shift_id}`)}
-                              className="px-4 py-2 text-sm rounded-lg text-white font-medium"
-                              style={{ backgroundColor: theme.primaryColor }}
-                            >
-                              Manage
-                            </button>
+                    stats.upcoming_shifts.map((shift) => {
+                      const startDate = new Date(shift.start_time);
+                      const endDate = new Date(shift.end_time);
+                      const isValidDate = !isNaN(startDate.getTime());
+                      
+                      return (
+                        <div key={shift.shift_id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <p className="font-semibold text-gray-900">
+                                  {shift.position_title}
+                                </p>
+                                <span className="text-sm text-gray-500">
+                                  @ {shift.workplace_name}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                {isValidDate ? (
+                                  <>
+                                    {startDate.toLocaleDateString('en-US', { 
+                                      weekday: 'short', 
+                                      month: 'short', 
+                                      day: 'numeric' 
+                                    })}
+                                    {' • '}
+                                    {startDate.toLocaleTimeString('en-US', { 
+                                      hour: 'numeric', 
+                                      minute: '2-digit',
+                                      hour12: true 
+                                    })}
+                                    {' - '}
+                                    {endDate.toLocaleTimeString('en-US', { 
+                                      hour: 'numeric', 
+                                      minute: '2-digit',
+                                      hour12: true 
+                                    })}
+                                  </>
+                                ) : (
+                                  'Date not available'
+                                )}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {shift.positions_filled || 0}/{shift.positions_needed || 0} positions filled
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                                shift.positions_filled === shift.positions_needed ? 'bg-green-100 text-green-800' :
+                                shift.positions_filled > 0 ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {shift.positions_filled === shift.positions_needed ? 'Fully Staffed' :
+                                 shift.positions_filled > 0 ? 'Partial' : 'Open'}
+                              </span>
+                              <button
+                                onClick={() => navigate('/employer/calendar-scheduling')}
+                                className="px-4 py-2 text-sm rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
+                                style={{ backgroundColor: theme.primaryColor }}
+                              >
+                                View
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
