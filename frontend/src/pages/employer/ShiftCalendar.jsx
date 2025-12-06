@@ -1,55 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../contexts/ThemeContext';
-import Calendar from '../../components/common/Calendar';
-import api from '../../utils/api';
-import moment from 'moment';
 
+/**
+ * ShiftCalendar - Redirect to New Calendar Scheduling System
+ * 
+ * This page now redirects to the new CalendarScheduling page.
+ * The new system has all the features plus improved UI and functionality.
+ */
 const ShiftCalendar = () => {
   const navigate = useNavigate();
   
-  // Redirect to new calendar scheduling page
+  // Automatically redirect to new calendar scheduling page
   useEffect(() => {
     navigate('/employer/calendar-scheduling', { replace: true });
   }, [navigate]);
 
-  // Return loading state while redirecting
+  // Show loading state while redirecting
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-screen bg-gray-50">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Redirecting to new calendar...</p>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-lg text-gray-700 font-medium">Loading Calendar...</p>
+        <p className="text-sm text-gray-500 mt-2">Redirecting to new scheduling system</p>
       </div>
     </div>
   );
-  
-  /* OLD CODE - KEEPING FOR REFERENCE BUT NOT USED
-  const [events, setEvents] = useState([]);
-  const [workplaces, setWorkplaces] = useState([]);
-  const [selectedWorkplace, setSelectedWorkplace] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState(null);
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [eventForm, setEventForm] = useState({
-    title: '',
-    workplace_id: '',
-    start: null,
-    end: null,
-    positions_needed: 1,
-    description: '',
-    recurring: false,
-    recurringPattern: 'weekly',
-    recurringEndDate: null
-  });
-
-  const theme = useTheme();
-
-  useEffect(() => {
-    loadData();
-  }, []);
-  */
 
   const loadData = async () => {
     try {
