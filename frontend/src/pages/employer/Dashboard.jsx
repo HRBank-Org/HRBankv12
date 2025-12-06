@@ -361,8 +361,8 @@ const EmployerDashboard = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
