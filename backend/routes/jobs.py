@@ -57,18 +57,30 @@ async def get_job_offers(
         }
     ).to_list(100)
     
-    # Build list of occupied time slots
+    # Build list of occupied time slots - OPTIMIZED: Batch queries
     occupied_slots = []
-    for booking in accepted_bookings:
-        role = await db.roles.find_one({"role_id": booking["role_id"]})
-        if role:
-            shift = await db.shifts.find_one({"shift_id": role["shift_id"]})
-            if shift:
-                occupied_slots.append({
-                    "date": shift["shift_date"],
-                    "start": shift["start_time"],
-                    "end": shift["end_time"]
-                })
+    if accepted_bookings:
+        # Batch fetch all roles
+        role_ids = [booking["role_id"] for booking in accepted_bookings]
+        roles = await db.roles.find({"role_id": {"$in": role_ids}}).to_list(100)
+        role_map = {role["role_id"]: role for role in roles}
+        
+        # Batch fetch all shifts
+        shift_ids = [role["shift_id"] for role in roles if "shift_id" in role]
+        shifts = await db.shifts.find({"shift_id": {"$in": shift_ids}}).to_list(100)
+        shift_map = {shift["shift_id"]: shift for shift in shifts}
+        
+        # Build occupied slots
+        for booking in accepted_bookings:
+            role = role_map.get(booking["role_id"])
+            if role:
+                shift = shift_map.get(role["shift_id"])
+                if shift:
+                    occupied_slots.append({
+                        "date": shift["shift_date"],
+                        "start": shift["start_time"],
+                        "end": shift["end_time"]
+                    })
     
     # If occupation_id specified, filter to that occupation
     if occupation_id:
