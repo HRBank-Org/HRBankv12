@@ -88,26 +88,56 @@ async def get_job_offers(
     
     all_offers = []
     
+    # OPTIMIZED: Fetch all data upfront to avoid N+1 queries
+    # Fetch all open shifts once
+    all_shifts = await db.shifts.find(
+        {"status": "open"},
+        {"_id": 0, "shift_id": 1, "shift_date": 1, "start_time": 1, "end_time": 1, "workplace_id": 1}
+    ).to_list(100)
+    
+    if not all_shifts:
+        return {"success": True, "data": {"offers": [], "occupied_slots": occupied_slots}}
+    
+    # Batch fetch workplaces
+    workplace_ids = list(set(shift["workplace_id"] for shift in all_shifts))
+    workplaces = await db.workplaces.find(
+        {"workplace_id": {"$in": workplace_ids}},
+        {"_id": 0}
+    ).to_list(100)
+    workplace_map = {wp["workplace_id"]: wp for wp in workplaces}
+    
+    # Batch fetch all open roles for these shifts
+    shift_ids = [shift["shift_id"] for shift in all_shifts]
+    all_roles = await db.roles.find(
+        {"shift_id": {"$in": shift_ids}, "status": "open"},
+        {"_id": 0}
+    ).to_list(1000)
+    roles_by_shift = {}
+    for role in all_roles:
+        roles_by_shift.setdefault(role["shift_id"], []).append(role)
+    
+    # Batch fetch employers
+    employer_ids = list(set(wp["employer_id"] for wp in workplaces if "employer_id" in wp))
+    employers = await db.employer_profiles.find(
+        {"employer_id": {"$in": employer_ids}},
+        {"_id": 0, "employer_id": 1, "company_name": 1, "industry": 1}
+    ).to_list(100)
+    employer_map = {emp["employer_id"]: emp for emp in employers}
+    
+    # Now process with all data in memory
     for occupation in occupations:
-        # Find open roles matching this occupation
-        all_shifts = await db.shifts.find(
-            {"status": "open"},
-            {"_id": 0}
-        ).to_list(100)
-        
         for shift in all_shifts:
             # CHECK FOR SCHEDULING CONFLICT
             has_conflict = False
             for occupied in occupied_slots:
                 if occupied["date"] == shift["shift_date"]:
                     # Check time overlap
-                    # Convert times to comparable format
                     shift_start = shift["start_time"]
                     shift_end = shift["end_time"]
                     occ_start = occupied["start"]
                     occ_end = occupied["end"]
                     
-                    # Simple overlap check (can be enhanced for overnight shifts)
+                    # Simple overlap check
                     if not (shift_end <= occ_start or shift_start >= occ_end):
                         has_conflict = True
                         break
@@ -116,20 +146,13 @@ async def get_job_offers(
             if has_conflict:
                 continue
             
-            # Get workplace
-            workplace = await db.workplaces.find_one(
-                {"workplace_id": shift["workplace_id"]},
-                {"_id": 0}
-            )
-            
+            # Get workplace from map
+            workplace = workplace_map.get(shift["workplace_id"])
             if not workplace:
                 continue
             
-            # Get roles for this shift
-            roles = await db.roles.find(
-                {"shift_id": shift["shift_id"], "status": "open"},
-                {"_id": 0}
-            ).to_list(10)
+            # Get roles for this shift from map
+            roles = roles_by_shift.get(shift["shift_id"], [])
             
             for role in roles:
                 # Calculate match score
@@ -143,11 +166,8 @@ async def get_job_offers(
                 
                 # Only include if match score >= 50%
                 if match_score >= 50.0:
-                    # Get employer info
-                    employer = await db.employer_profiles.find_one(
-                        {"employer_id": workplace["employer_id"]},
-                        {"_id": 0, "company_name": 1, "industry": 1}
-                    )
+                    # Get employer info from map
+                    employer = employer_map.get(workplace.get("employer_id"))
                     
                     # Calculate distance
                     distance = 0
