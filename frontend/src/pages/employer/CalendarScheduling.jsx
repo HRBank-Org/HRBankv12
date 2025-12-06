@@ -401,10 +401,17 @@ const CalendarScheduling = () => {
                     const top = startHour * 5; // 5rem per hour (h-20)
                     const height = duration * 5;
 
+                    const isDragging = draggingShift?.shift_id === shift.shift_id;
+                    
                     return (
                       <div
                         key={shift.shift_id}
-                        className={`absolute left-0 right-0 rounded-lg p-2 pointer-events-auto cursor-pointer shadow hover:shadow-lg transition-all ${getShiftColor(shift)}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, shift)}
+                        onDragEnd={handleDragEnd}
+                        className={`absolute left-0 right-0 rounded-lg p-2 pointer-events-auto cursor-move shadow hover:shadow-lg transition-all ${getShiftColor(shift)} ${
+                          isDragging ? 'opacity-50 scale-95' : ''
+                        }`}
                         style={{
                           top: `${top}rem`,
                           height: `${Math.max(height, 3)}rem`,
