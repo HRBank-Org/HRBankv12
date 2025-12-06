@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'https://skill-mapper-17.preview.emergentagent.com';
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'https://shiftcal-1.preview.emergentagent.com';
 
 const api = axios.create({
   baseURL: API_URL,
