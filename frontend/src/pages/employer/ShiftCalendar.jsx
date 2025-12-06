@@ -6,6 +6,24 @@ import api from '../../utils/api';
 import moment from 'moment';
 
 const ShiftCalendar = () => {
+  const navigate = useNavigate();
+  
+  // Redirect to new calendar scheduling page
+  useEffect(() => {
+    navigate('/employer/calendar-scheduling', { replace: true });
+  }, [navigate]);
+
+  // Return loading state while redirecting
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Redirecting to new calendar...</p>
+      </div>
+    </div>
+  );
+  
+  /* OLD CODE - KEEPING FOR REFERENCE BUT NOT USED
   const [events, setEvents] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
   const [selectedWorkplace, setSelectedWorkplace] = useState('all');
@@ -26,12 +44,12 @@ const ShiftCalendar = () => {
     recurringEndDate: null
   });
 
-  const navigate = useNavigate();
   const theme = useTheme();
 
   useEffect(() => {
     loadData();
   }, []);
+  */
 
   const loadData = async () => {
     try {
