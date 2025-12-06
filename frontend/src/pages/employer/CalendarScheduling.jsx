@@ -115,6 +115,68 @@ const CalendarScheduling = () => {
     setShowAssignWorker(true);
   };
 
+  // Drag and Drop Handlers
+  const handleDragStart = (e, shift) => {
+    e.stopPropagation();
+    setDraggingShift(shift);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget);
+  };
+
+  const handleDragOver = (e, date, hour) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggingShift) {
+      const slotKey = `${date.format('YYYY-MM-DD')}_${hour}`;
+      setDragOverSlot(slotKey);
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragOverSlot(null);
+  };
+
+  const handleDrop = async (e, date, hour) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverSlot(null);
+
+    if (!draggingShift) return;
+
+    try {
+      // Calculate new start and end times
+      const oldStart = moment(draggingShift.start_time);
+      const oldEnd = moment(draggingShift.end_time);
+      const duration = moment.duration(oldEnd.diff(oldStart));
+      
+      const newStart = date.clone().hour(hour).minute(0).second(0);
+      const newEnd = newStart.clone().add(duration);
+
+      // Update shift via API
+      await api.patch(`/api/calendar/shifts/${draggingShift.shift_id}`, {
+        start_time: newStart.toISOString(),
+        end_time: newEnd.toISOString()
+      });
+
+      // Reload shifts to show updated position
+      await loadData();
+      
+      // Show success message (optional)
+      console.log('Shift rescheduled successfully');
+    } catch (error) {
+      console.error('Failed to reschedule shift:', error);
+      alert('Failed to reschedule shift. Please try again.');
+    } finally {
+      setDraggingShift(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggingShift(null);
+    setDragOverSlot(null);
+  };
+
   const getShiftsForDay = (date) => {
     return shifts.filter(shift => {
       const shiftDate = moment(shift.start_time).format('YYYY-MM-DD');
