@@ -411,6 +411,35 @@ async def get_onboarding_status(
     }
 
 
+@router.post("/reset-conversation")
+async def reset_conversation(
+    current_user: dict = Depends(get_current_user)
+):
+    """Reset Emma conversation and start fresh onboarding"""
+    db = await get_database()
+    
+    # Mark all existing conversations as inactive
+    await db.emma_conversations.update_many(
+        {"user_id": current_user['user_id'], "is_active": True},
+        {"$set": {"is_active": False}}
+    )
+    
+    # Create new conversation with fresh greeting
+    new_conversation = await get_or_create_conversation(
+        current_user['user_id'],
+        current_user['user_type'],
+        db
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "message": "Conversation reset successfully. Emma is ready to start fresh!",
+            "conversation_id": new_conversation.conversation_id
+        }
+    }
+
+
 def calculate_onboarding_progress(context: OnboardingContext) -> int:
     """Calculate onboarding completion percentage"""
     progress = 0
