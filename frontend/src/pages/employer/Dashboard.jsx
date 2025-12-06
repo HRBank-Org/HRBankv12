@@ -376,22 +376,22 @@ const EmployerDashboard = () => {
                 {/* Performance Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div className="border border-gray-200 rounded-lg p-6">
-                    <p className="text-sm text-gray-600 mb-2">Total Workers Hired</p>
-                    <p className="text-4xl font-bold text-gray-900">0</p>
-                    <p className="text-xs text-gray-500 mt-2">All time</p>
+                    <p className="text-sm text-gray-600 mb-2">Total Workers</p>
+                    <p className="text-4xl font-bold text-gray-900">{stats.active_workers}</p>
+                    <p className="text-xs text-gray-500 mt-2">Currently active</p>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-6">
-                    <p className="text-sm text-gray-600 mb-2">Average Rating</p>
+                    <p className="text-sm text-gray-600 mb-2">Total Shifts</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-4xl font-bold text-gray-900">--</p>
-                      <span className="text-yellow-500 text-2xl">★</span>
+                      <p className="text-4xl font-bold text-gray-900">{stats.total_shifts}</p>
+                      <span className="text-blue-500 text-2xl">📅</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Worker performance</p>
+                    <p className="text-xs text-gray-500 mt-2">Scheduled shifts</p>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-6">
-                    <p className="text-sm text-gray-600 mb-2">Attendance Rate</p>
-                    <p className="text-4xl font-bold text-gray-900">--%</p>
-                    <p className="text-xs text-gray-500 mt-2">On-time clock-ins</p>
+                    <p className="text-sm text-gray-600 mb-2">Total Hours</p>
+                    <p className="text-4xl font-bold text-gray-900">{Math.round(stats.total_hours)}</p>
+                    <p className="text-xs text-gray-500 mt-2">Scheduled hours</p>
                   </div>
                 </div>
 
