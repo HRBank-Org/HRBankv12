@@ -403,8 +403,9 @@ async def get_onboarding_status(
         "success": True,
         "data": {
             "progress": progress,
-            "profile_completed": context.profile_completed,
-            "documents_uploaded": context.documents_uploaded,
+            "profile_completion": context.profile_completion,
+            "pending_documents": context.pending_documents,
+            "resume_approved": context.resume_approved,
             "last_interaction": context.last_interaction.isoformat() if context.last_interaction else None
         }
     }
