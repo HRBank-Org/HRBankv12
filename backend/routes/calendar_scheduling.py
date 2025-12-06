@@ -74,7 +74,7 @@ async def get_calendar_shifts(
 @router.post("/shifts")
 async def create_calendar_shift(
     shift_data: dict,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Create a new shift on the calendar"""
     db = await get_database()
@@ -181,7 +181,7 @@ async def create_recurring_shifts(db, base_shift, employer_id):
 async def update_calendar_shift(
     shift_id: str,
     updates: dict,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Update a shift"""
     db = await get_database()
@@ -226,7 +226,7 @@ async def update_calendar_shift(
 async def delete_calendar_shift(
     shift_id: str,
     delete_series: bool = False,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Delete a shift"""
     db = await get_database()
@@ -262,7 +262,7 @@ async def delete_calendar_shift(
 @router.get("/shifts/{shift_id}/available-workers")
 async def get_available_workers(
     shift_id: str,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Get available workers for a shift"""
     db = await get_database()
@@ -348,7 +348,7 @@ async def get_available_workers(
 async def assign_worker(
     shift_id: str,
     assignment_data: dict,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Assign a worker to a shift"""
     db = await get_database()
@@ -401,7 +401,7 @@ async def assign_worker(
 async def unassign_worker(
     shift_id: str,
     worker_id: str,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Remove a worker from a shift"""
     db = await get_database()
