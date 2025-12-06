@@ -15,8 +15,8 @@ router = APIRouter(prefix="/api/calendar", tags=["Google Calendar"])
 # Google OAuth credentials
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
-FRONTEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:3000').replace(':8001', ':3000')
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+BACKEND_URL = os.environ.get('BACKEND_URL', 'http://localhost:8001')
 REDIRECT_URI = f"{BACKEND_URL}/api/calendar/google/callback"
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
