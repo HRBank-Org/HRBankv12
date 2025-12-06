@@ -229,11 +229,11 @@ const EmployerDashboard = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-gray-900">Schedule Management</h3>
                   <button
-                    onClick={() => navigate('/employer/workplaces')}
+                    onClick={() => navigate('/employer/calendar-scheduling')}
                     className="px-4 py-2 rounded-lg text-white font-medium text-sm"
                     style={{ backgroundColor: theme.primaryColor }}
                   >
-                    + Create Shift
+                    Open Calendar
                   </button>
                 </div>
 
