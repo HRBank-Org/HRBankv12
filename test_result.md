@@ -1125,7 +1125,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Mobile App - Occupation-Certification Integration"
+    - "Drag-and-Drop Shift Rescheduling - Calendar Page"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
