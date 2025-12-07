@@ -724,6 +724,7 @@ const CalendarScheduling = () => {
             setShowShiftDetail(false);
             setShowAssignWorker(true);
           }}
+          onCopyShift={handleCopyShift}
         />
       )}
 
@@ -732,6 +733,18 @@ const CalendarScheduling = () => {
           isOpen={showAssignWorker}
           onClose={() => {
             setShowAssignWorker(false);
+            setSelectedShift(null);
+          }}
+          shift={selectedShift}
+          onSuccess={loadData}
+        />
+      )}
+
+      {showCopyShift && selectedShift && (
+        <CopyShiftModal
+          isOpen={showCopyShift}
+          onClose={() => {
+            setShowCopyShift(false);
             setSelectedShift(null);
           }}
           shift={selectedShift}
