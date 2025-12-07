@@ -24,6 +24,7 @@ const CalendarScheduling = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showShiftDetail, setShowShiftDetail] = useState(false);
   const [showAssignWorker, setShowAssignWorker] = useState(false);
+  const [showCopyShift, setShowCopyShift] = useState(false);
   const [selectedShift, setSelectedShift] = useState(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   
