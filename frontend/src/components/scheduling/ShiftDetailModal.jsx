@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { FiX, FiClock, FiMapPin, FiUsers, FiDollarSign, FiTrash2, FiUserPlus, FiUserMinus } from 'react-icons/fi';
+import { FiX, FiClock, FiMapPin, FiUsers, FiDollarSign, FiTrash2, FiUserPlus, FiUserMinus, FiCopy, FiSave } from 'react-icons/fi';
 import api from '../../utils/api';
 import moment from 'moment';
 
-const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssignWorker }) => {
+const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssignWorker, onCopyShift }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this shift?')) return;
