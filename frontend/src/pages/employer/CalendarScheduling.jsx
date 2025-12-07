@@ -117,6 +117,11 @@ const CalendarScheduling = () => {
     setShowAssignWorker(true);
   };
 
+  const handleCopyShift = (shift) => {
+    setSelectedShift(shift);
+    setShowCopyShift(true);
+  };
+
   // Drag and Drop Handlers
   const handleDragStart = (e, shift) => {
     e.stopPropagation();
