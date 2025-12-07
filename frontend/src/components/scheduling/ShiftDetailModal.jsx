@@ -246,22 +246,52 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
               )}
             </div>
 
+            {/* Success Message */}
+            {successMessage && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+                {successMessage}
+              </div>
+            )}
+
             {/* Actions */}
-            <div className="flex items-center justify-between pt-4 border-t">
-              <button
-                onClick={handleDelete}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-              >
-                <FiTrash2 className="w-4 h-4" />
-                Delete Shift
-              </button>
-              <button
-                onClick={onClose}
-                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Close
-              </button>
+            <div className="space-y-3 pt-4 border-t">
+              {/* Primary Actions */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleCopyShift}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  <FiCopy className="w-4 h-4" />
+                  Copy Shift
+                </button>
+                <button
+                  onClick={handleSaveAsTemplate}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                >
+                  <FiSave className="w-4 h-4" />
+                  Save as Template
+                </button>
+              </div>
+
+              {/* Secondary Actions */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={handleDelete}
+                  disabled={loading}
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <FiTrash2 className="w-4 h-4" />
+                  Delete Shift
+                </button>
+                <button
+                  onClick={onClose}
+                  className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
