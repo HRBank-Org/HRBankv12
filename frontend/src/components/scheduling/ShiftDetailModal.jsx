@@ -41,6 +41,47 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
     }
   };
 
+  const handleCopyShift = () => {
+    // Close this modal and trigger the copy shift modal
+    onClose();
+    if (onCopyShift) {
+      onCopyShift(shift);
+    }
+  };
+
+  const handleSaveAsTemplate = async () => {
+    setLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      // Save shift data to localStorage as a template
+      const templates = JSON.parse(localStorage.getItem('shift_templates') || '[]');
+      const template = {
+        id: `template_${Date.now()}`,
+        name: `${shift.position_title} - ${shift.workplace_name}`,
+        workplace_id: shift.workplace_id,
+        position_title: shift.position_title,
+        duration_hours: moment(shift.end_time).diff(moment(shift.start_time), 'hours', true),
+        start_time: moment(shift.start_time).format('HH:mm'),
+        positions_needed: shift.positions_needed,
+        hourly_rate: shift.hourly_rate,
+        notes: shift.notes,
+        created_at: new Date().toISOString()
+      };
+      
+      templates.push(template);
+      localStorage.setItem('shift_templates', JSON.stringify(templates));
+      
+      setSuccessMessage('Template saved successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError('Failed to save template');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   const startTime = moment(shift.start_time);
