@@ -101,11 +101,20 @@ const LiveAttendance = () => {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Live Attendance Dashboard</h1>
                 <p className="text-gray-600 mt-1">
-                  {moment().format('dddd, MMMM DD, YYYY')} • Last updated: {moment().format('h:mm A')}
+                  {moment(selectedDate).format('dddd, MMMM DD, YYYY')} • Last updated: {moment().format('h:mm A')}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-700">Date:</label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
               <label className="flex items-center gap-2 text-sm text-gray-700">
                 <input
                   type="checkbox"
