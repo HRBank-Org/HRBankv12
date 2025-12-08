@@ -168,3 +168,42 @@ async def get_dashboard_stats(
             "pending_ratings": pending_ratings
         }
     }
+
+
+@router.patch("/workplaces/{workplace_id}/toggle", response_model=Dict)
+async def toggle_workplace_status(
+    workplace_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Toggle workplace active/inactive status
+    """
+    employer_id = current_user["user_id"]
+    
+    # Get current workplace
+    workplace = await db.workplaces.find_one({
+        "workplace_id": workplace_id,
+        "employer_id": employer_id
+    }, {"_id": 0})
+    
+    if not workplace:
+        raise HTTPException(status_code=404, detail="Workplace not found")
+    
+    # Toggle status
+    current_status = workplace.get("is_active", True)
+    new_status = not current_status
+    
+    # Update workplace
+    await db.workplaces.update_one(
+        {"workplace_id": workplace_id, "employer_id": employer_id},
+        {"$set": {"is_active": new_status}}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "workplace_id": workplace_id,
+            "is_active": new_status
+        }
+    }
