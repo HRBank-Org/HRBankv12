@@ -26,7 +26,7 @@ const LiveAttendance = () => {
 
   const loadAttendance = async () => {
     try {
-      const res = await api.get('/api/live-attendance/today');
+      const res = await api.get(`/api/live-attendance/today?date=${selectedDate}`);
       setAttendance(res.data.data.records);
       setSummary(res.data.data.summary);
     } catch (error) {
