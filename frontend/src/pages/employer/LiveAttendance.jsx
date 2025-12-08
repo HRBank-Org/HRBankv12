@@ -8,6 +8,7 @@ const LiveAttendance = () => {
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
 
   useEffect(() => {
     loadAttendance();
