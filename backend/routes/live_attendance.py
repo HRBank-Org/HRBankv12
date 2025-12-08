@@ -222,7 +222,7 @@ async def get_todays_attendance(
                         scheduled_end=shift_end,
                         status=status,
                         clock_in_time=clock_in_dt,
-                        clock_out_time=datetime.fromisoformat(clock_out_time.replace('Z', '+00:00')) if clock_out_time else None,
+                        clock_out_time=(lambda dt: dt.replace(tzinfo=None) if dt.tzinfo else dt)(datetime.fromisoformat(clock_out_time.replace('Z', '+00:00'))) if clock_out_time else None,
                         minutes_late=minutes_late
                     )
                     attendance_records.append(record.model_dump())
