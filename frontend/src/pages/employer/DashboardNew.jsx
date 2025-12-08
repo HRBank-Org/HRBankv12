@@ -380,11 +380,148 @@ const WorkerCard = ({ worker, theme, navigate }) => {
   );
 };
 
-// Schedule Tab Component - Embedded Calendar
+// Schedule Tab Component - Embedded Calendar + Workplaces
 const ScheduleTab = ({ theme, navigate }) => {
+  const [workplaces, setWorkplaces] = useState([]);
+  const [showWorkplaces, setShowWorkplaces] = useState(false);
+  
+  useEffect(() => {
+    loadWorkplaces();
+  }, []);
+  
+  const loadWorkplaces = async () => {
+    try {
+      const statsRes = await api.get('/api/employer/dashboard/stats');
+      setWorkplaces(statsRes.data.data.workplaces || []);
+    } catch (error) {
+      console.error('Failed to load workplaces:', error);
+    }
+  };
+  
   return (
     <div className="-m-6">
-      <CalendarView embedded={true} />
+      {/* Toggle Button for Workplaces */}
+      <div className="px-6 pt-4 pb-2 bg-white border-b border-gray-200">
+        <button
+          onClick={() => setShowWorkplaces(!showWorkplaces)}
+          className="px-4 py-2 rounded-lg border-2 font-medium hover:bg-gray-50 transition-all"
+          style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
+        >
+          {showWorkplaces ? 'View Calendar' : `View Workplaces (${workplaces.length})`}
+        </button>
+      </div>
+      
+      {/* Calendar View */}
+      {!showWorkplaces && <CalendarView embedded={true} />}
+      
+      {/* Workplaces Management View */}
+      {showWorkplaces && (
+        <div className="p-6 bg-gray-50 min-h-screen">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Workplace Management</h2>
+                <p className="text-gray-600 mt-1">Manage your business locations</p>
+              </div>
+              <button
+                onClick={() => navigate('/employer/workplaces/add')}
+                className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all flex items-center gap-2"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                <FiPlus className="w-5 h-5" />
+                Add Workplace
+              </button>
+            </div>
+            
+            {/* Workplace Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="text-sm text-gray-600 mb-1">Total Workplaces</div>
+                <div className="text-3xl font-bold text-gray-900">{workplaces.length}</div>
+              </div>
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="text-sm text-gray-600 mb-1">Active Locations</div>
+                <div className="text-3xl font-bold text-green-600">{workplaces.length}</div>
+              </div>
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="text-sm text-gray-600 mb-1">With Active Shifts</div>
+                <div className="text-3xl font-bold text-blue-600">{workplaces.length}</div>
+              </div>
+            </div>
+            
+            {/* Workplaces Grid */}
+            {workplaces.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {workplaces.map((workplace) => (
+                  <div
+                    key={workplace.workplace_id}
+                    className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer"
+                    onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
+                  >
+                    {/* Workplace Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">
+                          {workplace.workplace_name}
+                        </h3>
+                        {workplace.address && (
+                          <p className="text-sm text-gray-600 flex items-start gap-1">
+                            <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>{workplace.address}</span>
+                          </p>
+                        )}
+                      </div>
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
+                        style={{ backgroundColor: theme.primaryColor }}>
+                        {workplace.workplace_name?.charAt(0) || 'W'}
+                      </div>
+                    </div>
+                    
+                    {/* Workplace Actions */}
+                    <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/employer/workplaces/${workplace.workplace_id}/edit`);
+                        }}
+                        className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/employer/workplaces/${workplace.workplace_id}/shifts`);
+                        }}
+                        className="flex-1 px-3 py-2 text-sm rounded-lg text-white hover:opacity-90 transition-all"
+                        style={{ backgroundColor: theme.primaryColor }}
+                      >
+                        View Shifts
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+                <FiCalendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No workplaces yet</h3>
+                <p className="text-gray-600 mb-6">Add your first workplace to start scheduling shifts</p>
+                <button
+                  onClick={() => navigate('/employer/workplaces/add')}
+                  className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all"
+                  style={{ backgroundColor: theme.primaryColor }}
+                >
+                  Add Your First Workplace
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
