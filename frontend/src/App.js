@@ -78,7 +78,7 @@ import ManageOccupations from './pages/admin/ManageOccupations';
 import ManageCertifications from './pages/admin/ManageCertifications';
 
 // Employer pages
-import EmployerDashboard from './pages/employer/Dashboard';
+import EmployerDashboard from './pages/employer/DashboardNew';
 import EmployerProfile from './pages/employer/Profile';
 import EmployerOnboarding from './pages/employer/Onboarding';
 import JobPosting from './pages/employer/JobPosting';
