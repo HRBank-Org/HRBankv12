@@ -103,6 +103,7 @@ async def generate_qr_code(
 @router.post("/clock-in", response_model=Dict)
 async def clock_in(
     clock_in_data: dict,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
