@@ -183,7 +183,7 @@ const EmployerDashboard = () => {
         </div>
 
         {/* Quick Actions - Streamlined */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-5 gap-4 mb-6">
           <button
             onClick={() => navigate('/employer/workplaces')}
             className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100"
@@ -199,6 +199,14 @@ const EmployerDashboard = () => {
             <div className="text-3xl mb-2">📅</div>
             <p className="font-semibold text-gray-900 text-sm">Schedule</p>
             <p className="text-xs text-gray-500">{stats.total_shifts} shifts</p>
+          </button>
+          <button
+            onClick={() => navigate('/employer/live-attendance')}
+            className="bg-gradient-to-br from-green-50 to-blue-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-all border-2 border-green-200"
+          >
+            <div className="text-3xl mb-2">👁️</div>
+            <p className="font-semibold text-gray-900 text-sm">Live Attendance</p>
+            <p className="text-xs text-green-600 font-medium">Real-time</p>
           </button>
           <button
             onClick={() => navigate('/employer/jobs')}
