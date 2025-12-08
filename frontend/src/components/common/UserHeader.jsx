@@ -217,17 +217,19 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
           {/* Custom Actions (messages, notifications, etc.) */}
           {actions}
           
-          {/* Hover-Activated Sidebar - Fixed position, always present */}
+          {/* Hover-Activated Sidebar with Visible Trigger */}
           <div 
-            className="fixed top-0 right-0 h-full z-50 transition-all duration-300 ease-in-out"
+            className="fixed top-0 right-0 h-full z-50 flex"
             onMouseEnter={() => setMenuOpen(true)}
             onMouseLeave={() => setMenuOpen(false)}
-            style={{ width: menuOpen ? '280px' : '0px' }}
           >
-            {/* Sidebar Container */}
-            <div className="h-full bg-gray-900 shadow-2xl overflow-hidden">
+            {/* Expanded Sidebar - slides out from behind */}
+            <div 
+              className="h-full bg-gray-900 shadow-2xl transition-all duration-300 ease-in-out overflow-hidden"
+              style={{ width: menuOpen ? '280px' : '0px' }}
+            >
               {/* Sidebar Header */}
-              <div className="px-6 py-6 border-b border-gray-700">
+              <div className="px-6 py-6 border-b border-gray-700 w-[280px]">
                 <div className="text-white">
                   <h3 className="font-bold text-lg">Menu</h3>
                   {user && user.profile && (
@@ -239,7 +241,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
               </div>
 
               {/* Sidebar Content */}
-              <div className="p-4">
+              <div className="p-4 w-[280px]">
                 {/* Documents */}
                 {user && user.user_type && (
                   <button
@@ -306,6 +308,9 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
                 </button>
               </div>
             </div>
+            
+            {/* Visible Trigger Edge - Always visible */}
+            <div className="w-1 h-full bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer"></div>
           </div>
         </div>
       </div>
