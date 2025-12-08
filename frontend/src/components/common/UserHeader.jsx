@@ -7,6 +7,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
   const { user, logout } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate ? useNavigate() : null;
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   const getInitials = (name) => {
     if (!name) return '?';
