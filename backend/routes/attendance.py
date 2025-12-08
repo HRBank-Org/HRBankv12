@@ -240,6 +240,7 @@ async def clock_in(
 @router.post("/clock-out", response_model=Dict)
 async def clock_out(
     clock_out_data: dict,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
