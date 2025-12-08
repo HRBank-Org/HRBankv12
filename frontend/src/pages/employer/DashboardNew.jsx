@@ -386,22 +386,9 @@ const WorkerCard = ({ worker, theme, navigate }) => {
   );
 };
 
-// Schedule Tab Component - Embedded Calendar
+// Schedule Tab Component - This won't be rendered since clicking Schedule navigates directly
 const ScheduleTab = ({ theme, navigate }) => {
-  // Simply redirect to the full calendar page or show a message
-  // Since embedding the full calendar component would require importing all its dependencies
-  // and might cause conflicts, we'll navigate to it
-  
-  useEffect(() => {
-    // Automatically navigate to the calendar page when Schedule tab is clicked
-    navigate('/employer/calendar');
-  }, [navigate]);
-
-  return (
-    <div className="flex items-center justify-center py-12">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-    </div>
-  );
+  return null;
 };
 
 // KPIs Tab Component (Performance & Ratings)
