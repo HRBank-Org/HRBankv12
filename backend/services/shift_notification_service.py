@@ -220,23 +220,28 @@ def get_shift_change_email_html(recipient_name: str, change_type: str, old_detai
 # ==================== NOTIFICATION FUNCTIONS ====================
 
 async def notify_shift_assigned(worker_email: str, worker_phone: str, worker_name: str, 
-                                shift_details: dict, employer_name: str):
+                                shift_details: dict, employer_name: str, worker_id: str = None):
     """
     Notify worker about shift assignment via email and SMS
     """
     try:
-        # Send email
-        subject = f"🎉 New Shift Assigned - {shift_details.get('date', '')}"
-        html_content = get_shift_assignment_email_html(worker_name, shift_details, employer_name)
+        # Check preferences
+        send_email_pref = await check_notification_preference(worker_id, "shift_assigned", "email") if worker_id else True
+        send_sms_pref = await check_notification_preference(worker_id, "shift_assigned", "sms") if worker_id else True
         
-        try:
-            send_email(worker_email, subject, html_content)
-            logger.info(f"Shift assignment email sent to {worker_email}")
-        except EmailDeliveryError as e:
-            logger.error(f"Failed to send assignment email: {str(e)}")
+        # Send email
+        if send_email_pref and worker_email:
+            subject = f"🎉 New Shift Assigned - {shift_details.get('date', '')}"
+            html_content = get_shift_assignment_email_html(worker_name, shift_details, employer_name)
+            
+            try:
+                send_email(worker_email, subject, html_content)
+                logger.info(f"Shift assignment email sent to {worker_email}")
+            except EmailDeliveryError as e:
+                logger.error(f"Failed to send assignment email: {str(e)}")
         
         # Send SMS
-        if worker_phone:
+        if send_sms_pref and worker_phone:
             formatted_phone = format_phone_e164(worker_phone)
             if formatted_phone:
                 sms_message = f"""HR Bank: New Shift Assigned
