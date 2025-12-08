@@ -9,7 +9,6 @@ from typing import List, Optional
 from services.email_service import send_email, EmailDeliveryError
 from services.sms_service import send_sms, format_phone_e164
 from database import get_database
-import moment
 
 logger = logging.getLogger(__name__)
 
