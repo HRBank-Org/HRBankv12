@@ -134,11 +134,24 @@ async def get_dashboard_stats(
         "status": "active"
     })
     
-    # Count workplaces
-    workplaces = await db.employer_workplaces.find(
+    # Get unique workplaces from shifts (since employer_workplaces might be empty)
+    shifts = await db.calendar_shifts.find(
         {"employer_id": employer_id},
-        {"_id": 0, "workplace_id": 1, "workplace_name": 1, "address": 1}
-    ).to_list(100)
+        {"_id": 0, "workplace_id": 1, "workplace_name": 1}
+    ).to_list(1000)
+    
+    # Extract unique workplaces
+    workplace_dict = {}
+    for shift in shifts:
+        wp_id = shift.get("workplace_id")
+        wp_name = shift.get("workplace_name")
+        if wp_id and wp_id not in workplace_dict:
+            workplace_dict[wp_id] = {
+                "workplace_id": wp_id,
+                "workplace_name": wp_name or "Unnamed Workplace"
+            }
+    
+    workplaces = list(workplace_dict.values())
     
     # Count upcoming shifts (next 7 days)
     from datetime import timedelta
