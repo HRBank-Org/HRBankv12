@@ -966,4 +966,4 @@ const CalendarView = ({ embedded = false }) => {
   );
 };
 
-export default CalendarScheduling;
+export default CalendarView;
