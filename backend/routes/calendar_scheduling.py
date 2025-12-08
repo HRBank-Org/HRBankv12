@@ -468,7 +468,8 @@ async def assign_worker(
             worker_phone=worker.get('phone_number'),
             worker_name=worker_name,
             shift_details=shift_details,
-            employer_name=employer.get('company_name', 'Employer') if employer else 'Employer'
+            employer_name=employer.get('company_name', 'Employer') if employer else 'Employer',
+            worker_id=assignment_data["worker_id"]
         )
         
         # Notify employer if shift is now full
