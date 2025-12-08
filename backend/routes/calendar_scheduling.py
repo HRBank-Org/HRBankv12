@@ -354,6 +354,7 @@ async def get_available_workers(
 async def assign_worker(
     shift_id: str,
     assignment_data: dict,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(require_role('employer'))
 ):
     """Assign a worker to a shift"""
@@ -378,10 +379,23 @@ async def assign_worker(
     if any(w.get("worker_id") == assignment_data["worker_id"] for w in assigned):
         raise HTTPException(status_code=400, detail="Worker already assigned")
     
+    # Get worker details for notification
+    worker = await db.workforce_users.find_one(
+        {"user_id": assignment_data["worker_id"]},
+        {"_id": 0, "email": 1, "phone_number": 1, "first_name": 1, "last_name": 1}
+    )
+    
+    # Get employer details
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": current_user["user_id"]},
+        {"_id": 0, "company_name": 1, "email": 1, "phone_number": 1}
+    )
+    
     # Create assignment
     assignment = {
         "worker_id": assignment_data["worker_id"],
         "worker_name": assignment_data["worker_name"],
+        "worker_email": worker.get("email") if worker else None,
         "worker_photo": assignment_data.get("worker_photo"),
         "position": shift["position_title"],
         "status": "confirmed",
@@ -396,6 +410,38 @@ async def assign_worker(
             "$set": {"updated_at": datetime.utcnow().isoformat()}
         }
     )
+    
+    # Send notifications to worker in background
+    if worker:
+        shift_details = {
+            'position': shift.get('position_title', 'N/A'),
+            'date': datetime.fromisoformat(shift['start_time'].replace('Z', '+00:00')).strftime('%B %d, %Y'),
+            'time': f"{datetime.fromisoformat(shift['start_time'].replace('Z', '+00:00')).strftime('%I:%M %p')} - {datetime.fromisoformat(shift['end_time'].replace('Z', '+00:00')).strftime('%I:%M %p')}",
+            'location': shift.get('workplace_name', 'N/A'),
+            'rate': shift.get('hourly_rate', 0)
+        }
+        
+        worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() or assignment_data["worker_name"]
+        
+        background_tasks.add_task(
+            notify_shift_assigned,
+            worker_email=worker.get('email'),
+            worker_phone=worker.get('phone_number'),
+            worker_name=worker_name,
+            shift_details=shift_details,
+            employer_name=employer.get('company_name', 'Employer') if employer else 'Employer'
+        )
+        
+        # Notify employer if shift is now full
+        if len(confirmed) + 1 >= shift.get("positions_needed", 0):
+            background_tasks.add_task(
+                notify_employer_shift_update,
+                employer_email=employer.get('email') if employer else None,
+                employer_phone=employer.get('phone_number') if employer else None,
+                employer_name=employer.get('company_name', 'Employer') if employer else 'Employer',
+                update_type="shift_full",
+                shift_details=shift_details
+            )
     
     return {
         "success": True,
