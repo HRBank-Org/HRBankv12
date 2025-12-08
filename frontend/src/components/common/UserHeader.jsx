@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null }) => {
+const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null, greeting = null, weather = null }) => {
   const { user, logout } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate ? useNavigate() : null;
