@@ -113,3 +113,14 @@ code {
         border-bottom-color: inherit;
     }
 }
+
+/* Sidebar open - push content left */
+body.sidebar-open {
+  margin-right: 280px;
+  transition: margin-right 150ms ease-in-out;
+}
+
+body {
+  margin-right: 0;
+  transition: margin-right 150ms ease-in-out;
+}
