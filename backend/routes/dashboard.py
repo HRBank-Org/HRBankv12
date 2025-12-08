@@ -141,7 +141,7 @@ async def get_dashboard_stats(
          "lat": 1, "long": 1, "attendance_geofence_radius_m": 1, "is_active": 1, "status": 1}
     ).to_list(100)
     
-    # Add active shift count for each workplace
+    # Add active shift count and workers for each workplace
     from datetime import datetime, timezone
     now = datetime.now(timezone.utc).isoformat()
     
@@ -152,9 +152,42 @@ async def get_dashboard_stats(
             "workplace_id": wp["workplace_id"],
             "start_time": {"$gte": now}
         })
+        
+        # Get workers assigned to this workplace (from recent shifts)
+        recent_shifts = await db.calendar_shifts.find({
+            "employer_id": employer_id,
+            "workplace_id": wp["workplace_id"]
+        }, {"_id": 0, "assigned_workers": 1}).limit(50).to_list(50)
+        
+        # Collect unique workers
+        worker_ids = set()
+        for shift in recent_shifts:
+            for worker in shift.get("assigned_workers", []):
+                worker_ids.add(worker.get("worker_id"))
+        
+        # Get worker details
+        workers = []
+        for worker_id in list(worker_ids)[:12]:  # Limit to 12 for display
+            worker = await db.users.find_one(
+                {"user_id": worker_id},
+                {"_id": 0, "user_id": 1, "full_name": 1}
+            )
+            if worker:
+                profile = await db.workforce_profiles.find_one(
+                    {"workforce_id": worker_id},
+                    {"_id": 0, "profile_photo_url": 1}
+                )
+                workers.append({
+                    "worker_id": worker["user_id"],
+                    "name": worker.get("full_name", "Worker"),
+                    "photo_url": profile.get("profile_photo_url") if profile else None
+                })
+        
         workplaces.append({
             **wp,
-            "active_shifts_count": active_shifts
+            "active_shifts_count": active_shifts,
+            "workers": workers,
+            "total_workers": len(worker_ids)
         })
     
     # Count upcoming shifts (next 7 days)
