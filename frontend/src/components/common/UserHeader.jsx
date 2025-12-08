@@ -268,6 +268,59 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
 
               {/* Sidebar Content */}
               <div className="p-4 w-[280px]">
+                {/* Notifications */}
+                {user && user.user_type && (
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate && navigate(`/${user.user_type}/notifications`);
+                    }}
+                    className="w-full px-4 py-4 text-left hover:bg-gray-800 rounded-lg flex items-center gap-4 text-white transition-colors mb-2 relative"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center relative">
+                      <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                      </svg>
+                      {/* Notification badge - can be dynamic */}
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                        3
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-semibold">Notifications</div>
+                      <div className="text-xs text-gray-400">Shifts, approvals & alerts</div>
+                    </div>
+                  </button>
+                )}
+                
+                {/* Messages/Chat */}
+                {user && user.user_type && (
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate && navigate(`/${user.user_type}/messages`);
+                    }}
+                    className="w-full px-4 py-4 text-left hover:bg-gray-800 rounded-lg flex items-center gap-4 text-white transition-colors mb-2 relative"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center relative">
+                      <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      {/* Unread badge - can be dynamic */}
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                        2
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-semibold">Messages</div>
+                      <div className="text-xs text-gray-400">Chat with team</div>
+                    </div>
+                  </button>
+                )}
+                
+                {/* Divider */}
+                <div className="border-t border-gray-700 my-4"></div>
+                
                 {/* Documents */}
                 {user && user.user_type && (
                   <button
