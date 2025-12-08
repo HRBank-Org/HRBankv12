@@ -187,6 +187,7 @@ async def create_recurring_shifts(db, base_shift, employer_id):
 async def update_calendar_shift(
     shift_id: str,
     updates: dict,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(require_role('employer'))
 ):
     """Update a shift"""
@@ -200,6 +201,10 @@ async def update_calendar_shift(
     if not shift:
         raise HTTPException(status_code=404, detail="Shift not found")
     
+    # Check if time is changing and shift has assigned workers
+    time_changed = ("start_time" in updates or "end_time" in updates)
+    assigned_workers = shift.get("assigned_workers", [])
+    
     # Update allowed fields
     update_data = {"updated_at": datetime.utcnow().isoformat()}
     
@@ -211,7 +216,7 @@ async def update_calendar_shift(
             update_data[field] = updates[field]
     
     # Recalculate duration if times changed
-    if "start_time" in updates or "end_time" in updates:
+    if time_changed:
         start = datetime.fromisoformat(updates.get("start_time", shift["start_time"]).replace('Z', '+00:00'))
         end = datetime.fromisoformat(updates.get("end_time", shift["end_time"]).replace('Z', '+00:00'))
         update_data["duration_hours"] = (end - start).total_seconds() / 3600
@@ -220,6 +225,40 @@ async def update_calendar_shift(
         {"shift_id": shift_id},
         {"$set": update_data}
     )
+    
+    # Notify affected workers if time changed
+    if time_changed and assigned_workers:
+        # Get worker details from database
+        worker_ids = [w["worker_id"] for w in assigned_workers]
+        workers_data = await db.workforce_users.find(
+            {"user_id": {"$in": worker_ids}},
+            {"_id": 0, "user_id": 1, "email": 1, "phone_number": 1, "first_name": 1, "last_name": 1}
+        ).to_list(100)
+        
+        # Merge worker details with assignments
+        workers_to_notify = []
+        for worker_data in workers_data:
+            # Find corresponding assignment
+            assignment = next((w for w in assigned_workers if w["worker_id"] == worker_data["user_id"]), None)
+            if assignment:
+                workers_to_notify.append({
+                    "worker_name": f"{worker_data.get('first_name', '')} {worker_data.get('last_name', '')}".strip() or assignment.get("worker_name", "Worker"),
+                    "worker_email": worker_data.get("email"),
+                    "worker_phone": worker_data.get("phone_number")
+                })
+        
+        # Create old and new shift data for notification
+        old_shift_data = shift.copy()
+        new_shift_data = shift.copy()
+        new_shift_data.update(update_data)
+        
+        # Send notifications in background
+        background_tasks.add_task(
+            notify_shift_time_changed,
+            affected_workers=workers_to_notify,
+            old_shift=old_shift_data,
+            new_shift=new_shift_data
+        )
     
     return {
         "success": True,
