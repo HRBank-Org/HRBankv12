@@ -6,6 +6,7 @@ import api from '../../utils/api';
 import UserHeader from '../../components/common/UserHeader';
 import { FiUsers, FiCalendar, FiAward, FiDollarSign, FiSun, FiCloud, FiCloudRain, FiStar, FiClock, FiPlus } from 'react-icons/fi';
 import CalendarView from '../../components/scheduling/CalendarView';
+import RatingModal from '../../components/ratings/RatingModal';
 
 const EmployerDashboardNew = () => {
   const { user } = useAuth();
