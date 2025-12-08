@@ -204,6 +204,9 @@ async def get_todays_attendance(
                 elif clock_in_time:
                     # Check if late
                     clock_in_dt = datetime.fromisoformat(clock_in_time.replace('Z', '+00:00')) if isinstance(clock_in_time, str) else clock_in_time
+                    # Make naive for comparison
+                    if clock_in_dt.tzinfo:
+                        clock_in_dt = clock_in_dt.replace(tzinfo=None)
                     minutes_late = max(0, int((clock_in_dt - shift_start).total_seconds() / 60))
                     
                     status = AttendanceStatus.LATE if minutes_late > 5 else AttendanceStatus.CLOCKED_IN
