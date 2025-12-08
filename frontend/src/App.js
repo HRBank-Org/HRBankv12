@@ -72,6 +72,7 @@ import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimpli
 import FindJobs from './pages/workforce/FindJobs';
 import WorkforceNotificationSettings from './pages/workforce/NotificationSettings';
 import EmployerNotificationSettings from './pages/employer/NotificationSettings';
+import LiveAttendance from './pages/employer/LiveAttendance';
 import VideoInterview from './pages/VideoInterview';
 import ManageOccupations from './pages/admin/ManageOccupations';
 import ManageCertifications from './pages/admin/ManageCertifications';
