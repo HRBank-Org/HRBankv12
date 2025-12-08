@@ -135,11 +135,27 @@ async def get_dashboard_stats(
     })
     
     # Get workplaces from proper workplaces collection
-    workplaces = await db.workplaces.find(
+    workplaces_raw = await db.workplaces.find(
         {"employer_id": employer_id},
         {"_id": 0, "workplace_id": 1, "workplace_name": 1, "address": 1, "postal_code": 1, 
          "lat": 1, "long": 1, "attendance_geofence_radius_m": 1, "is_active": 1, "status": 1}
     ).to_list(100)
+    
+    # Add active shift count for each workplace
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).isoformat()
+    
+    workplaces = []
+    for wp in workplaces_raw:
+        active_shifts = await db.calendar_shifts.count_documents({
+            "employer_id": employer_id,
+            "workplace_id": wp["workplace_id"],
+            "start_time": {"$gte": now}
+        })
+        workplaces.append({
+            **wp,
+            "active_shifts_count": active_shifts
+        })
     
     # Count upcoming shifts (next 7 days)
     from datetime import timedelta
