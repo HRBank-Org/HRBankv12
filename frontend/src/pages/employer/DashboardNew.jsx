@@ -156,7 +156,7 @@ const EmployerDashboardNew = () => {
               </div>
             </div>
             <button
-              onClick={() => setActiveTab('performance')}
+              onClick={() => setActiveTab('kpis')}
               className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-all"
               style={{ backgroundColor: theme.primaryColor }}
             >
