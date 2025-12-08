@@ -325,8 +325,13 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
               </div>
             </div>
             
-            {/* Visible Trigger Edge - Always visible */}
-            <div className="w-1 h-full bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer"></div>
+            {/* Wider Hover Trigger Area - Visible edge with invisible hover zone */}
+            <div className="relative">
+              {/* Invisible hover zone extends 30px */}
+              <div className="absolute right-0 top-0 w-[30px] h-full -mr-[29px]"></div>
+              {/* Visible thin edge */}
+              <div className="w-1 h-full bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer"></div>
+            </div>
           </div>
         </div>
       </div>
