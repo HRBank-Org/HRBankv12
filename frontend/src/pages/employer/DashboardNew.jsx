@@ -671,8 +671,10 @@ const KPIsTab = ({ theme, navigate, pendingRatings }) => {
   const handleRatingSubmit = async (ratingData) => {
     try {
       await api.post('/api/employer/ratings/submit', ratingData);
-      // Reload data
+      // Reload KPI data
       await loadKPIData();
+      // Reload dashboard data to update badge count
+      await loadDashboardData();
       setShowRatingModal(false);
       setSelectedShift(null);
     } catch (error) {
