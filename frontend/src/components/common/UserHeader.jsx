@@ -247,15 +247,15 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
           {/* Custom Actions (messages, notifications, etc.) */}
           {actions}
           
-          {/* Hover-Activated Sidebar with Wider Trigger Area */}
+          {/* Hover-Activated Sidebar */}
           <div 
             className="fixed top-0 right-0 h-full z-40 flex"
             onMouseEnter={() => setMenuOpen(true)}
             onMouseLeave={() => setMenuOpen(false)}
           >
-            {/* Expanded Sidebar - slides out from behind */}
+            {/* Expanded Sidebar - slides out smoothly */}
             <div 
-              className="h-full bg-gray-900 shadow-2xl transition-all duration-150 ease-in-out overflow-hidden"
+              className="h-full bg-gray-900 shadow-2xl transition-all duration-300 ease-out overflow-hidden"
               style={{ width: menuOpen ? '280px' : '0px' }}
             >
               {/* Sidebar Header */}
