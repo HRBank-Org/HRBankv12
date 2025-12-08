@@ -217,29 +217,55 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
           {/* Custom Actions (messages, notifications, etc.) */}
           {actions}
           
-          {/* Hamburger Menu */}
-          <div className="relative">
-            <button 
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
-              title="Menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            
-            {/* Dropdown Menu */}
-            {menuOpen && (
-              <>
-                {/* Backdrop */}
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setMenuOpen(false)}
-                />
-                
-                {/* Menu */}
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+          {/* Menu Button */}
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+            title="Menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          {/* Sliding Sidebar */}
+          {menuOpen && (
+            <>
+              {/* Backdrop */}
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+                onClick={() => setMenuOpen(false)}
+              />
+              
+              {/* Sidebar */}
+              <div 
+                className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
+                style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)' }}
+              >
+                {/* Sidebar Header */}
+                <div className="p-6 border-b border-gray-200" style={{ backgroundColor: theme.primaryColor }}>
+                  <div className="flex items-center justify-between">
+                    <div className="text-white">
+                      <h3 className="font-bold text-lg">Menu</h3>
+                      {user && user.profile && (
+                        <p className="text-sm opacity-90 mt-1">
+                          {user.profile.full_name || user.profile.first_name || 'User'}
+                        </p>
+                      )}
+                    </div>
+                    <button 
+                      onClick={() => setMenuOpen(false)}
+                      className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors text-white"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sidebar Content */}
+                <div className="p-4">
                   {/* Documents */}
                   {user && user.user_type && (
                     <button
@@ -247,12 +273,17 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
                         setMenuOpen(false);
                         navigate && navigate(`/${user.user_type}/documents`);
                       }}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700"
+                      className="w-full px-4 py-4 text-left hover:bg-gray-50 rounded-lg flex items-center gap-4 text-gray-700 transition-colors mb-2"
                     >
-                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="font-medium">Documents</span>
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
+                        <svg className="w-5 h-5" style={{ color: theme.primaryColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">Documents</div>
+                        <div className="text-xs text-gray-500">View and manage files</div>
+                      </div>
                     </button>
                   )}
                   
@@ -263,18 +294,23 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
                         setMenuOpen(false);
                         navigate && navigate(`/${user.user_type}/settings`);
                       }}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700"
+                      className="w-full px-4 py-4 text-left hover:bg-gray-50 rounded-lg flex items-center gap-4 text-gray-700 transition-colors mb-2"
                     >
-                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span className="font-medium">Settings</span>
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
+                        <svg className="w-5 h-5" style={{ color: theme.primaryColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">Settings</div>
+                        <div className="text-xs text-gray-500">Account preferences</div>
+                      </div>
                     </button>
                   )}
                   
                   {/* Divider */}
-                  <div className="border-t border-gray-200 my-2"></div>
+                  <div className="border-t border-gray-200 my-4"></div>
                   
                   {/* Logout */}
                   <button
@@ -282,17 +318,23 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
                       setMenuOpen(false);
                       logout();
                     }}
-                    className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center gap-3 text-red-600"
+                    className="w-full px-4 py-4 text-left hover:bg-red-50 rounded-lg flex items-center gap-4 text-red-600 transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span className="font-medium">Logout</span>
+                    <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="font-semibold">Logout</div>
+                      <div className="text-xs text-red-500">Sign out of your account</div>
+                    </div>
                   </button>
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
+        </div>
         </div>
       </div>
     </header>
