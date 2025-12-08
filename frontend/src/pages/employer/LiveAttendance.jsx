@@ -22,7 +22,7 @@ const LiveAttendance = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [autoRefresh]);
+  }, [autoRefresh, selectedDate]);
 
   const loadAttendance = async () => {
     try {
