@@ -98,23 +98,48 @@ async def check_missed_clock_ins(db):
 
 @router.get("/today")
 async def get_todays_attendance(
+    date: str = None,
     current_user: dict = Depends(require_role('employer'))
 ):
-    """Get live attendance status for all today's shifts"""
+    """Get live attendance status for today's or specified date's shifts"""
     db = await get_database()
     
-    # Get today's date range
-    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    # Allow specifying a date, default to today
+    if date:
+        try:
+            target_date = datetime.fromisoformat(date)
+        except:
+            target_date = datetime.utcnow()
+    else:
+        target_date = datetime.utcnow()
+    
+    # Get date range for the target date (use date strings instead of datetime for better matching)
+    today_start = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
     today_end = today_start + timedelta(days=1)
     
-    # Get all shifts for today
+    # Query using date strings to avoid timezone issues
+    today_start_str = today_start.date().isoformat()
+    today_end_str = today_end.date().isoformat()
+    
+    # Get all shifts for the target date
+    # Check if start_time contains the date (handles different formats)
     shifts = await db.calendar_shifts.find({
-        "employer_id": current_user['user_id'],
-        "start_time": {
-            "$gte": today_start.isoformat(),
-            "$lt": today_end.isoformat()
-        }
+        "employer_id": current_user['user_id']
     }, {"_id": 0}).to_list(500)
+    
+    # Filter shifts by date in Python (more flexible for different datetime formats)
+    filtered_shifts = []
+    for shift in shifts:
+        try:
+            shift_start_str = shift['start_time']
+            # Extract date from ISO string (handles both 2025-12-08 and 2025-12-08T06:00:00)
+            shift_date = shift_start_str[:10]
+            if shift_date == today_start_str:
+                filtered_shifts.append(shift)
+        except:
+            continue
+    
+    shifts = filtered_shifts
     
     attendance_records = []
     current_time = datetime.utcnow()
