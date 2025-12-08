@@ -186,10 +186,55 @@ async def clock_in(
     
     await db.qr_codes.update_one({"qr_code_id": qr_code_id}, {"$inc": {"scan_count": 1}})
     
+    # Calculate lateness
+    shift_start_dt = datetime.combine(datetime.today(), shift_start)
+    clock_in_dt = attendance.clock_in_time
+    is_late = clock_in_dt.time() > shift_start
+    minutes_late = 0
+    
+    if is_late:
+        minutes_late = int((datetime.combine(datetime.today(), clock_in_dt.time()) - shift_start_dt).total_seconds() / 60)
+    
+    # Get worker and workplace details for notification
+    worker = await db.workforce_users.find_one(
+        {"user_id": current_user["user_id"]},
+        {"_id": 0, "email": 1, "phone_number": 1, "first_name": 1, "last_name": 1}
+    )
+    
+    workplace = await db.workplaces.find_one(
+        {"workplace_id": qr_code["workplace_id"]},
+        {"_id": 0, "workplace_name": 1}
+    )
+    
+    if worker:
+        worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() or "Worker"
+        
+        shift_details = {
+            'position': shift.get('position_title', 'N/A'),
+            'workplace': workplace.get('workplace_name', 'N/A') if workplace else 'N/A',
+            'clock_in_time': attendance.clock_in_time.strftime('%I:%M %p'),
+            'scheduled_end': shift_end.strftime('%I:%M %p')
+        }
+        
+        # Send notification in background
+        background_tasks.add_task(
+            notify_clock_in,
+            worker_email=worker.get('email'),
+            worker_phone=worker.get('phone_number'),
+            worker_name=worker_name,
+            shift_details=shift_details,
+            is_late=is_late,
+            minutes_late=minutes_late
+        )
+    
     return {
         "success": True,
-        "data": {"attendance_id": attendance.attendance_id},
-        "message": "Clocked in successfully"
+        "data": {
+            "attendance_id": attendance.attendance_id,
+            "is_late": is_late,
+            "minutes_late": minutes_late if is_late else 0
+        },
+        "message": "Clocked in successfully" + (f" (⚠️ {minutes_late} minutes late)" if is_late else "")
     }
 
 @router.post("/clock-out", response_model=Dict)
