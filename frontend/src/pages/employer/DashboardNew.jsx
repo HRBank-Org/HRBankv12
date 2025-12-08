@@ -122,7 +122,11 @@ const EmployerDashboardNew = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader showBack={false} />
+      <UserHeader 
+        showBack={false} 
+        greeting={`${getGreeting()}, ${getUserName()}`}
+        weather={weather ? getWeatherMessage() : null}
+      />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Pending Ratings Banner */}
