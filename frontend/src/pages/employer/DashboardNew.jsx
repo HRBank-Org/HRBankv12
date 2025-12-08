@@ -822,20 +822,220 @@ const KPIsTab = ({ theme, navigate, pendingRatings }) => {
   );
 };
 
-// Finances Tab Component (Placeholder)
+// Finances Tab Component
 const FinancesTab = ({ theme, navigate }) => {
+  const [liveAttendance, setLiveAttendance] = useState(null);
+  const [timesheets, setTimesheets] = useState([]);
+  const [financialStats, setFinancialStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  useEffect(() => {
+    loadFinanceData();
+  }, [selectedDate]);
+
+  const loadFinanceData = async () => {
+    try {
+      // Load live attendance for selected date
+      const attendanceRes = await api.get(`/api/live-attendance/today?date=${selectedDate}`);
+      setLiveAttendance(attendanceRes.data.data);
+
+      // Load timesheets (pending approval)
+      // TODO: Implement timesheets API
+      setTimesheets([]);
+
+      // Load financial stats
+      // TODO: Implement financial stats API
+      setFinancialStats({
+        total_hours_today: 0,
+        estimated_payroll_today: 0,
+        pending_approvals: 0,
+        total_workers_today: 0
+      });
+
+    } catch (error) {
+      console.error('Failed to load finance data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="text-center py-12">
-      <FiDollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Attendance & Finances</h3>
-      <p className="text-gray-600 mb-4">Live attendance and financial overview</p>
-      <button
-        onClick={() => navigate('/employer/live-attendance')}
-        className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all"
-        style={{ backgroundColor: theme.primaryColor }}
-      >
-        View Live Attendance
-      </button>
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Attendance & Finances</h2>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+          style={{ focusRing: `${theme.primaryColor}40` }}
+        />
+      </div>
+
+      {/* Financial Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="text-sm text-gray-600 mb-1">Workers Today</div>
+          <div className="text-3xl font-bold text-gray-900">
+            {liveAttendance?.summary?.total || 0}
+          </div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="text-sm text-gray-600 mb-1">Clocked In</div>
+          <div className="text-3xl font-bold text-green-600">
+            {liveAttendance?.summary?.clocked_in || 0}
+          </div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="text-sm text-gray-600 mb-1">Missed Clock-In</div>
+          <div className="text-3xl font-bold text-red-600">
+            {liveAttendance?.summary?.missed || 0}
+          </div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="text-sm text-gray-600 mb-1">On Time Off</div>
+          <div className="text-3xl font-bold text-blue-600">
+            {liveAttendance?.summary?.on_time_off || 0}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <button
+          onClick={() => navigate('/employer/live-attendance')}
+          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all text-left"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
+              <FiUsers className="w-6 h-6" style={{ color: theme.primaryColor }} />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-900">Live Attendance</div>
+              <div className="text-sm text-gray-600">Real-time tracking</div>
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => navigate('/employer/timesheets')}
+          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all text-left"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
+              <FiClock className="w-6 h-6" style={{ color: theme.primaryColor }} />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-900">Timesheets</div>
+              <div className="text-sm text-gray-600">Review & approve</div>
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => navigate('/employer/payroll')}
+          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all text-left"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
+              <FiDollarSign className="w-6 h-6" style={{ color: theme.primaryColor }} />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-900">Payroll</div>
+              <div className="text-sm text-gray-600">Financial summary</div>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* Live Attendance Preview */}
+      {liveAttendance && liveAttendance.records && liveAttendance.records.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Today's Attendance</h3>
+            <button
+              onClick={() => navigate('/employer/live-attendance')}
+              className="text-sm font-medium hover:underline"
+              style={{ color: theme.primaryColor }}
+            >
+              View Full Details
+            </button>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clock In</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {liveAttendance.records.slice(0, 10).map((record, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{record.worker_name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">{record.position}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">{record.workplace || 'N/A'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        record.status === 'CLOCKED_IN' ? 'bg-green-100 text-green-800' :
+                        record.status === 'LATE' ? 'bg-yellow-100 text-yellow-800' :
+                        record.status === 'MISSED' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {record.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">
+                        {record.clock_in_time ? new Date(record.clock_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* QR Code & Geofencing Info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 className="font-semibold text-blue-900 mb-2">Attendance Methods Active</h3>
+        <div className="flex items-center gap-6 text-sm text-blue-800">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clipRule="evenodd" />
+              <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 100-2H4a1 1 0 100 2h3zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z" />
+            </svg>
+            <span className="font-medium">QR Code Check-In</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+            </svg>
+            <span className="font-medium">Geofencing Enabled</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
