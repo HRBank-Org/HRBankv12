@@ -768,6 +768,134 @@ const CalendarScheduling = () => {
     );
   }
 
+  const renderRosterView = () => {
+    // Get all shifts for the current week
+    const weekStart = currentDate.clone().startOf('week');
+    const weekEnd = currentDate.clone().endOf('week');
+    const daysInWeek = [];
+    
+    for (let i = 0; i < 7; i++) {
+      daysInWeek.push(weekStart.clone().add(i, 'days'));
+    }
+
+    // Group shifts by position and date
+    const shiftsByPosition = {};
+    
+    shifts.forEach(shift => {
+      const shiftDate = moment(shift.start_time);
+      if (shiftDate.isBetween(weekStart, weekEnd, 'day', '[]')) {
+        const position = shift.position_title;
+        if (!shiftsByPosition[position]) {
+          shiftsByPosition[position] = {};
+          daysInWeek.forEach(day => {
+            shiftsByPosition[position][day.format('YYYY-MM-DD')] = [];
+          });
+        }
+        shiftsByPosition[position][shiftDate.format('YYYY-MM-DD')].push(shift);
+      }
+    });
+
+    const positions = Object.keys(shiftsByPosition);
+
+    return (
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-blue-600 text-white">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold w-48">Position</th>
+                {daysInWeek.map(day => (
+                  <th key={day.format('YYYY-MM-DD')} className="px-4 py-3 text-center font-semibold min-w-36">
+                    <div className="text-sm">{day.format('ddd')}</div>
+                    <div className="text-lg font-bold">{day.format('DD')}</div>
+                    <div className="text-xs opacity-90">{day.format('MMM')}</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {positions.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                    <div className="flex flex-col items-center gap-2">
+                      <FiCalendar className="w-12 h-12 text-gray-300" />
+                      <p className="text-lg font-medium">No shifts scheduled</p>
+                      <p className="text-sm">Create shifts to see them in the roster</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                positions.map((position, idx) => (
+                  <tr key={position} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                    <td className="px-4 py-3 font-medium text-gray-900 border-r border-gray-200">
+                      {position}
+                    </td>
+                    {daysInWeek.map(day => {
+                      const dayKey = day.format('YYYY-MM-DD');
+                      const dayShifts = shiftsByPosition[position][dayKey] || [];
+                      
+                      return (
+                        <td key={dayKey} className="px-2 py-2 border-l border-gray-100">
+                          {dayShifts.length === 0 ? (
+                            <div className="text-center text-gray-300 text-sm">-</div>
+                          ) : (
+                            <div className="space-y-2">
+                              {dayShifts.map(shift => {
+                                const startTime = moment(shift.start_time);
+                                const endTime = moment(shift.end_time);
+                                
+                                return (
+                                  <div
+                                    key={shift.shift_id}
+                                    onClick={() => handleShiftClick(shift)}
+                                    className={`p-2 rounded cursor-pointer hover:shadow-md transition-all ${getShiftColor(shift)}`}
+                                  >
+                                    <div className="text-xs font-semibold truncate">
+                                      {startTime.format('h:mm A')}
+                                    </div>
+                                    <div className="text-xs truncate text-gray-700">
+                                      {shift.workplace_name}
+                                    </div>
+                                    <div className="text-xs flex items-center gap-1 mt-1">
+                                      <FiUsers className="w-3 h-3" />
+                                      <span>{shift.positions_filled || 0}/{shift.positions_needed}</span>
+                                    </div>
+                                    {shift.assigned_workers && shift.assigned_workers.length > 0 && (
+                                      <div className="text-xs mt-1 flex flex-wrap gap-1">
+                                        {shift.assigned_workers.slice(0, 2).map((worker, idx) => (
+                                          <span
+                                            key={idx}
+                                            className="px-1.5 py-0.5 bg-white/50 rounded text-xs"
+                                            title={worker.worker_name}
+                                          >
+                                            {worker.worker_name.split(' ').map(n => n[0]).join('')}
+                                          </span>
+                                        ))}
+                                        {shift.assigned_workers.length > 2 && (
+                                          <span className="px-1.5 py-0.5 bg-white/50 rounded text-xs">
+                                            +{shift.assigned_workers.length - 2}
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {renderDateHeader()}
@@ -776,6 +904,7 @@ const CalendarScheduling = () => {
       {viewMode === 'week' && renderWeekView()}
       {viewMode === 'day' && renderDayView()}
       {viewMode === 'month' && renderMonthView()}
+      {viewMode === 'roster' && renderRosterView()}
 
       {/* Modals */}
       {showCreateModal && (
