@@ -1,9 +1,14 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from models.attendance import QRCode, Attendance, Timesheet
 from typing import Dict
 from datetime import datetime, timedelta
+from services.shift_notification_service import (
+    notify_clock_in,
+    notify_clock_out,
+    notify_geofence_alert
+)
 import qrcode
 import io
 import base64
