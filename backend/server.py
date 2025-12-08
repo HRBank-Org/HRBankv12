@@ -126,6 +126,7 @@ app.include_router(notification_preferences.router, tags=["notification_preferen
 app.include_router(time_off.router, tags=["time_off"])
 app.include_router(live_attendance.router, tags=["live_attendance"])
 app.include_router(dashboard.router, tags=["dashboard"])
+app.include_router(shift_ratings.router, tags=["shift_ratings"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
