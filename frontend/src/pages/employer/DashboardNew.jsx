@@ -111,10 +111,10 @@ const EmployerDashboardNew = () => {
   };
 
   const tabs = [
-    { id: 'workforce', label: 'Workforce', icon: FiUsers, badge: null },
-    { id: 'schedule', label: 'Schedule & Workplaces', icon: FiCalendar, badge: null },
-    { id: 'performance', label: 'Performance & Ratings', icon: FiAward, badge: pendingRatings > 0 ? pendingRatings : null },
-    { id: 'finances', label: 'Attendance & Finances', icon: FiDollarSign, badge: null }
+    { id: 'schedule', label: 'Schedule', icon: FiCalendar, badge: null },
+    { id: 'kpis', label: 'KPIs', icon: FiAward, badge: pendingRatings > 0 ? pendingRatings : null },
+    { id: 'finances', label: 'Finances', icon: FiDollarSign, badge: null },
+    { id: 'workforce', label: 'Workforce', icon: FiUsers, badge: null }
   ];
 
   if (loading) {
