@@ -78,16 +78,20 @@ const EmployerDashboardNew = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [profileRes, workplacesRes] = await Promise.all([
+      const [profileRes, statsRes, workforceRes] = await Promise.all([
         api.get('/api/users/me'),
-        api.get('/api/employer/workplaces')
+        api.get('/api/employer/dashboard/stats'),
+        api.get('/api/employer/dashboard/workforce')
       ]);
 
       setEmployerProfile(profileRes.data.data.profile);
-      setWorkplaces(workplacesRes.data.data.workplaces || []);
-
-      // Load workforce data
-      await loadWorkforce();
+      
+      const stats = statsRes.data.data;
+      setWorkplaces(stats.workplaces || []);
+      setPendingRatings(stats.pending_ratings || 0);
+      
+      const workers = workforceRes.data.data.workers || [];
+      setWorkforce(workers);
       
     } catch (error) {
       console.error('Failed to load dashboard:', error);
