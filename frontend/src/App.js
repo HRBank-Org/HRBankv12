@@ -204,6 +204,8 @@ function AppRoutes() {
         {/* Employer Routes */}
         <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
         <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDashboard /></ProtectedRoute>} />
+        <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerNotifications /></ProtectedRoute>} />
+        <Route path="/employer/messages" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerMessages /></ProtectedRoute>} />
         <Route path="/employer/jobs" element={<ProtectedRoute allowedUserTypes={['employer']}><JobPosting /></ProtectedRoute>} />
         <Route path="/employer/compliance" element={<ProtectedRoute allowedUserTypes={['employer']}><ComplianceOnboarding /></ProtectedRoute>} />
         <Route path="/employer/profile" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerProfile /></ProtectedRoute>} />
