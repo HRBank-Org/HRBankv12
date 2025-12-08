@@ -203,11 +203,28 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
           
           {/* Dynamic Greeting with Weather */}
           {greeting && (
-            <div className="ml-4 text-white">
-              <div className="text-sm font-medium opacity-90">{greeting} 👋</div>
-              {weather && (
-                <div className="text-xs opacity-75">{weather}</div>
-              )}
+            <div className="ml-4 text-white flex items-center gap-3">
+              <div>
+                <div className="text-sm font-medium opacity-90">{greeting} 👋</div>
+                {weather && (
+                  <div className="text-xs opacity-75">{weather}</div>
+                )}
+              </div>
+              
+              {/* Menu Hint Indicator */}
+              <div className="relative group">
+                <div className="flex items-center gap-1 px-3 py-1.5 bg-white bg-opacity-20 rounded-lg cursor-pointer hover:bg-opacity-30 transition-all">
+                  <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-xs font-medium opacity-90">Menu</span>
+                </div>
+                
+                {/* Tooltip */}
+                <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                  Hover on right edge →
+                </div>
+              </div>
             </div>
           )}
         </div>
