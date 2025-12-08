@@ -9,6 +9,16 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
   const navigate = useNavigate ? useNavigate() : null;
   const [menuOpen, setMenuOpen] = React.useState(false);
 
+  // Add/remove body class when sidebar opens to shift content
+  React.useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add('sidebar-open');
+    } else {
+      document.body.classList.remove('sidebar-open');
+    }
+    return () => document.body.classList.remove('sidebar-open');
+  }, [menuOpen]);
+
   const getInitials = (name) => {
     if (!name) return '?';
     return name
