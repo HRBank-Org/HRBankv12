@@ -87,11 +87,22 @@ const LiveAttendance = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Live Attendance Dashboard</h1>
-              <p className="text-gray-600 mt-1">
-                {moment().format('dddd, MMMM DD, YYYY')} • Last updated: {moment().format('h:mm A')}
-              </p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => window.history.back()}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Go back"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Live Attendance Dashboard</h1>
+                <p className="text-gray-600 mt-1">
+                  {moment().format('dddd, MMMM DD, YYYY')} • Last updated: {moment().format('h:mm A')}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-sm text-gray-700">
