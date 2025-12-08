@@ -10,6 +10,12 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: margin-right 0.3s ease-out;
+}
+
+/* Sidebar push effect */
+body.sidebar-open {
+    margin-right: 280px;
 }
 
 code {
