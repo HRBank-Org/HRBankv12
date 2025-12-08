@@ -645,17 +645,187 @@ const ScheduleTab = ({ theme, navigate }) => {
 
 // KPIs Tab Component (Performance & Ratings)
 const KPIsTab = ({ theme, navigate, pendingRatings }) => {
+  const [pendingShifts, setPendingShifts] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedShift, setSelectedShift] = useState(null);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+
+  useEffect(() => {
+    loadKPIData();
+  }, []);
+
+  const loadKPIData = async () => {
+    try {
+      const [pendingRes, analyticsRes] = await Promise.all([
+        api.get('/api/employer/ratings/pending'),
+        api.get('/api/employer/ratings/analytics')
+      ]);
+      
+      setPendingShifts(pendingRes.data.data.pending_ratings || []);
+      setAnalytics(analyticsRes.data.data);
+    } catch (error) {
+      console.error('Failed to load KPI data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRateShift = (shift) => {
+    setSelectedShift(shift);
+    setShowRatingModal(true);
+  };
+
+  const handleRatingSubmit = async (ratingData) => {
+    try {
+      await api.post('/api/employer/ratings/submit', ratingData);
+      // Reload data
+      await loadKPIData();
+      setShowRatingModal(false);
+      setSelectedShift(null);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="text-center py-12">
-      <FiAward className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Key Performance Indicators</h3>
-      <p className="text-gray-600 mb-4">Rate your workers and track performance metrics</p>
-      {pendingRatings > 0 && (
-        <div className="inline-block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg mb-4">
-          <span className="font-semibold">{pendingRatings}</span> shift{pendingRatings > 1 ? 's' : ''} pending rating
+    <div>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Performance & Ratings</h2>
+
+      {/* Stats Overview */}
+      {analytics && analytics.total_ratings > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">Total Ratings</div>
+            <div className="text-3xl font-bold text-gray-900">{analytics.total_ratings}</div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">Average Rating</div>
+            <div className="text-3xl font-bold" style={{ color: theme.primaryColor }}>
+              {analytics.average_rating}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">Top Performers</div>
+            <div className="text-3xl font-bold text-green-600">{analytics.top_performers.length}</div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">Pending Ratings</div>
+            <div className="text-3xl font-bold text-blue-600">{pendingShifts.length}</div>
+          </div>
         </div>
       )}
-      <p className="text-sm text-gray-500">(Coming in Phase 3)</p>
+
+      {/* Pending Ratings */}
+      {pendingShifts.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Pending Ratings ({pendingShifts.length})</h3>
+          <div className="space-y-3">
+            {pendingShifts.slice(0, 10).map((shift) => (
+              <div
+                key={`${shift.shift_id}-${shift.worker_id}`}
+                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    {shift.worker_photo ? (
+                      <img
+                        src={shift.worker_photo}
+                        alt={shift.worker_name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+                        style={{ backgroundColor: theme.primaryColor }}
+                      >
+                        {shift.worker_name?.charAt(0) || 'W'}
+                      </div>
+                    )}
+                    
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">{shift.worker_name}</div>
+                      <div className="text-sm text-gray-600">
+                        {shift.position_title} • {shift.workplace_name}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {new Date(shift.shift_date).toLocaleDateString()} • 
+                        {new Date(shift.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+                        {new Date(shift.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => handleRateShift(shift)}
+                    className="px-6 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-all"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    Rate Now
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Performers */}
+      {analytics && analytics.top_performers && analytics.top_performers.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performers</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {analytics.top_performers.slice(0, 6).map((performer, idx) => (
+              <div key={performer.worker_id} className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                    style={{ backgroundColor: theme.primaryColor }}>
+                    #{idx + 1}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-900">{performer.worker_name}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <FiStar className="w-4 h-4 text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium">{performer.average_rating}</span>
+                      <span className="text-xs text-gray-500">({performer.total_ratings} ratings)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {pendingShifts.length === 0 && (!analytics || analytics.total_ratings === 0) && (
+        <div className="text-center py-12">
+          <FiAward className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Ratings Yet</h3>
+          <p className="text-gray-600">Complete shifts will appear here for rating</p>
+        </div>
+      )}
+
+      {/* Rating Modal */}
+      {showRatingModal && selectedShift && (
+        <RatingModal
+          isOpen={showRatingModal}
+          onClose={() => {
+            setShowRatingModal(false);
+            setSelectedShift(null);
+          }}
+          shift={selectedShift}
+          onSuccess={handleRatingSubmit}
+        />
+      )}
     </div>
   );
 };
