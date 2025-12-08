@@ -460,7 +460,7 @@ const CalendarScheduling = () => {
                 
                 {/* Render shifts */}
                 <div className="absolute inset-0 pointer-events-none p-1">
-                  {dayShifts.map(shift => {
+                  {calculateShiftColumns(dayShifts).map(shift => {
                     const startTime = moment(shift.start_time);
                     const endTime = moment(shift.end_time);
                     const startHour = startTime.hours() + startTime.minutes() / 60;
@@ -470,19 +470,25 @@ const CalendarScheduling = () => {
 
                     const isDragging = draggingShift?.shift_id === shift.shift_id;
                     
+                    // Calculate column-based positioning
+                    const columnWidth = 100 / shift.totalColumns;
+                    const leftPercent = shift.column * columnWidth;
+                    
                     return (
                       <div
                         key={shift.shift_id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, shift)}
                         onDragEnd={handleDragEnd}
-                        className={`absolute left-0 right-0 rounded-lg p-2 pointer-events-auto cursor-move shadow hover:shadow-lg transition-all ${getShiftColor(shift)} ${
+                        className={`absolute rounded-lg p-2 pointer-events-auto cursor-move shadow hover:shadow-lg transition-all ${getShiftColor(shift)} ${
                           isDragging ? 'opacity-50 scale-95' : ''
                         }`}
                         style={{
                           top: `${top}rem`,
                           height: `${Math.max(height, 3)}rem`,
-                          minHeight: '3rem'
+                          minHeight: '3rem',
+                          left: `${leftPercent}%`,
+                          width: `${columnWidth - 1}%` // -1% for gap
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
