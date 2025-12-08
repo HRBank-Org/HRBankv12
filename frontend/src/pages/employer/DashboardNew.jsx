@@ -79,17 +79,20 @@ const EmployerDashboardNew = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [profileRes, statsRes, workforceRes] = await Promise.all([
+      const [profileRes, statsRes, workforceRes, ratingsRes] = await Promise.all([
         api.get('/api/users/me'),
         api.get('/api/employer/dashboard/stats'),
-        api.get('/api/employer/dashboard/workforce')
+        api.get('/api/employer/dashboard/workforce'),
+        api.get('/api/employer/ratings/pending')
       ]);
 
       setEmployerProfile(profileRes.data.data.profile);
       
       const stats = statsRes.data.data;
       setWorkplaces(stats.workplaces || []);
-      setPendingRatings(stats.pending_ratings || 0);
+      
+      const ratings = ratingsRes.data.data;
+      setPendingRatings(ratings.count || 0);
       
       const workers = workforceRes.data.data.workers || [];
       setWorkforce(workers);
