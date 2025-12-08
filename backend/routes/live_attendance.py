@@ -145,8 +145,14 @@ async def get_todays_attendance(
     current_time = datetime.utcnow().replace(tzinfo=None)  # Make naive for comparison
     
     for shift in shifts:
-        shift_start = datetime.fromisoformat(shift['start_time'].replace('Z', '+00:00'))
-        shift_end = datetime.fromisoformat(shift['end_time'].replace('Z', '+00:00'))
+        # Parse and make naive (remove timezone info) for consistent comparison
+        shift_start = datetime.fromisoformat(shift['start_time'].replace('Z', '+00:00').replace('.000+00:00', ''))
+        if shift_start.tzinfo:
+            shift_start = shift_start.replace(tzinfo=None)
+        
+        shift_end = datetime.fromisoformat(shift['end_time'].replace('Z', '+00:00').replace('.000+00:00', ''))
+        if shift_end.tzinfo:
+            shift_end = shift_end.replace(tzinfo=None)
         
         # Get workplace details
         workplace = await db.workplaces.find_one(
