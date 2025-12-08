@@ -777,3 +777,65 @@ async def get_upcoming_shifts(
         "success": True,
         "data": upcoming
     }
+
+
+@router.post("/update-location", response_model=Dict)
+async def update_worker_location(
+    location_data: dict,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Worker updates their current location for geofencing check
+    Called periodically by mobile app
+    """
+    location = location_data.get("location")  # {latitude, longitude}
+    
+    if not location or not location.get('latitude') or not location.get('longitude'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Valid location (latitude, longitude) required"
+        )
+    
+    # Check geofencing
+    result = await check_single_worker_location(
+        db=db,
+        worker_id=current_user["user_id"],
+        current_location=location
+    )
+    
+    if not result["success"]:
+        return {
+            "success": True,
+            "data": {
+                "location_updated": True,
+                "geofence_check": "not_applicable",
+                "message": result.get("message", "No active shift")
+            }
+        }
+    
+    # Update attendance record with latest location
+    if result.get("attendance_id"):
+        await db.attendance.update_one(
+            {"attendance_id": result["attendance_id"]},
+            {
+                "$set": {
+                    "last_location_update": datetime.utcnow().isoformat(),
+                    "last_known_location": location
+                }
+            }
+        )
+    
+    return {
+        "success": True,
+        "data": {
+            "location_updated": True,
+            "within_geofence": result.get("within_geofence", True),
+            "geofence_check": "passed" if result.get("within_geofence") else "failed",
+            "message": "Location updated successfully" + (
+                "" if result.get("within_geofence") 
+                else " - You appear to be away from your workplace"
+            )
+        }
+    }
+
