@@ -125,19 +125,6 @@ const EmployerDashboardNew = () => {
       <UserHeader showBack={false} />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* Greeting Section */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">
-            {getGreeting()}, {getUserName()}! 👋
-          </h1>
-          {employerProfile?.company_name && (
-            <p className="text-gray-600">{employerProfile.company_name}</p>
-          )}
-          {weather && (
-            <p className="text-sm text-gray-500 mt-1">{getWeatherMessage()}</p>
-          )}
-        </div>
-
         {/* Pending Ratings Banner */}
         {pendingRatings > 0 && (
           <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
