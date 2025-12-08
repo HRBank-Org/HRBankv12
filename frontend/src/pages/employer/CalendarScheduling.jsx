@@ -343,6 +343,16 @@ const CalendarScheduling = () => {
             >
               Month
             </button>
+            <button
+              onClick={() => setViewMode('roster')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                viewMode === 'roster'
+                  ? 'bg-white shadow text-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Roster
+            </button>
           </div>
 
           {/* Workplace filter */}
