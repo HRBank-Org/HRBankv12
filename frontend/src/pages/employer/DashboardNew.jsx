@@ -167,14 +167,7 @@ const EmployerDashboardNew = () => {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => {
-                      if (tab.id === 'schedule') {
-                        // Navigate to full calendar page
-                        navigate('/employer/calendar');
-                      } else {
-                        setActiveTab(tab.id);
-                      }
-                    }}
+                    onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap transition-all relative ${
                       isActive 
                         ? 'border-b-2 text-gray-900' 
