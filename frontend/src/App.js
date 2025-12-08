@@ -70,6 +70,8 @@ import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimplified';
 import FindJobs from './pages/workforce/FindJobs';
+import WorkforceNotificationSettings from './pages/workforce/NotificationSettings';
+import EmployerNotificationSettings from './pages/employer/NotificationSettings';
 import VideoInterview from './pages/VideoInterview';
 import ManageOccupations from './pages/admin/ManageOccupations';
 import ManageCertifications from './pages/admin/ManageCertifications';
