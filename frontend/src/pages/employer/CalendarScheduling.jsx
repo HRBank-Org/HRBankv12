@@ -13,7 +13,7 @@ import CopyShiftModal from '../../components/scheduling/CopyShiftModal';
 
 const CalendarScheduling = () => {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState('week'); // week, day, month
+  const [viewMode, setViewMode] = useState('week'); // week, day, month, roster
   const [currentDate, setCurrentDate] = useState(moment());
   const [shifts, setShifts] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
