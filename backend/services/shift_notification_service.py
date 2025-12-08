@@ -8,9 +8,35 @@ from datetime import datetime
 from typing import List, Optional
 from services.email_service import send_email, EmailDeliveryError
 from services.sms_service import send_sms, format_phone_e164
+from database import get_database
 import moment
 
 logger = logging.getLogger(__name__)
+
+
+async def check_notification_preference(user_id: str, notification_type: str, channel: str) -> bool:
+    """
+    Check if user wants to receive this notification on this channel
+    Returns True if notification should be sent
+    """
+    try:
+        db = await get_database()
+        preferences = await db.notification_preferences.find_one(
+            {"user_id": user_id},
+            {"_id": 0}
+        )
+        
+        if not preferences:
+            return True  # No preferences, send by default
+        
+        type_settings = preferences.get(notification_type, {})
+        if not type_settings:
+            return True  # Type not configured, send by default
+        
+        return type_settings.get(channel, True)
+    except Exception as e:
+        logger.error(f"Error checking notification preference: {str(e)}")
+        return True  # On error, send notification
 
 
 # ==================== EMAIL TEMPLATES ====================
