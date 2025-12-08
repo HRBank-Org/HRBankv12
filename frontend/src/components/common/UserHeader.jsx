@@ -199,6 +199,16 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
               {renderUserInfo()}
             </div>
           )}
+          
+          {/* Dynamic Greeting with Weather */}
+          {greeting && (
+            <div className="ml-4 text-white">
+              <div className="text-sm font-medium opacity-90">{greeting} 👋</div>
+              {weather && (
+                <div className="text-xs opacity-75">{weather}</div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right: Documents, Settings, Actions, Logout */}
