@@ -407,13 +407,19 @@ const ScheduleTab = ({ theme, navigate }) => {
   );
 };
 
-// Performance Tab Component (Placeholder)
-const PerformanceTab = ({ theme, navigate }) => {
+// KPIs Tab Component (Performance & Ratings)
+const KPIsTab = ({ theme, navigate, pendingRatings }) => {
   return (
     <div className="text-center py-12">
       <FiAward className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Performance & Ratings</h3>
-      <p className="text-gray-600">Rate your workers and track performance (Coming in Phase 3)</p>
+      <h3 className="text-lg font-medium text-gray-900 mb-2">Key Performance Indicators</h3>
+      <p className="text-gray-600 mb-4">Rate your workers and track performance metrics</p>
+      {pendingRatings > 0 && (
+        <div className="inline-block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg mb-4">
+          <span className="font-semibold">{pendingRatings}</span> shift{pendingRatings > 1 ? 's' : ''} pending rating
+        </div>
+      )}
+      <p className="text-sm text-gray-500">(Coming in Phase 3)</p>
     </div>
   );
 };
