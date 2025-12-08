@@ -381,9 +381,41 @@ async def clock_out(
         }
     )
     
+    # Get worker details for notification
+    worker = await db.workforce_users.find_one(
+        {"user_id": current_user["user_id"]},
+        {"_id": 0, "email": 1, "phone_number": 1, "first_name": 1, "last_name": 1}
+    )
+    
+    if worker:
+        worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() or "Worker"
+        
+        shift_summary = {
+            'position': shift.get('position_title', 'N/A'),
+            'workplace': workplace.get('workplace_name', 'N/A'),
+            'clock_in_time': clock_in.strftime('%I:%M %p'),
+            'clock_out_time': clock_out_time.strftime('%I:%M %p'),
+            'hours_worked': round(duration, 2),
+            'hourly_rate': role.get('hourly_rate', 0),
+            'total_earnings': round(overtime_calc["total_pay"], 2)
+        }
+        
+        # Send notification in background
+        background_tasks.add_task(
+            notify_clock_out,
+            worker_email=worker.get('email'),
+            worker_phone=worker.get('phone_number'),
+            worker_name=worker_name,
+            shift_summary=shift_summary
+        )
+    
     return {
         "success": True,
-        "data": {"timesheet_id": timesheet.timesheet_id},
+        "data": {
+            "timesheet_id": timesheet.timesheet_id,
+            "hours_worked": round(duration, 2),
+            "total_earnings": round(overtime_calc["total_pay"], 2)
+        },
         "message": "Clocked out successfully"
     }
 
