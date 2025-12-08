@@ -335,7 +335,6 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
             </>
           )}
         </div>
-        </div>
       </div>
     </header>
   );
