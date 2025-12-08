@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from typing import Dict, List
 from datetime import datetime, timedelta
 from auth.dependencies import require_role, get_current_user
 from models.employment import EmploymentRelationship, TerminationRequest, RehireRequest
+from services.shift_notification_service import notify_employment_status_change
 import uuid
 
 router = APIRouter(prefix="/api/employer/workforce-management", tags=["Workforce Management"])
