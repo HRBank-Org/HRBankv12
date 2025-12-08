@@ -222,7 +222,10 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
               </div>
               
               {/* Menu Hint Indicator - Hamburger Icon */}
-              <div className="relative group">
+              <div 
+                className="relative group"
+                onMouseEnter={() => setMenuOpen(true)}
+              >
                 <div className="flex items-center justify-center p-2 bg-white bg-opacity-20 rounded-lg cursor-pointer hover:bg-opacity-30 transition-all animate-pulse">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -231,7 +234,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
                 
                 {/* Tooltip */}
                 <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                  Hover on right edge →
+                  Menu options →
                 </div>
               </div>
             </div>
