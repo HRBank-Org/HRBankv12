@@ -1082,6 +1082,21 @@ agent_communication:
 
 
 frontend:
+  - task: "Live Attendance Page - 403 Forbidden Error Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/employer/LiveAttendance.jsx, /app/frontend/src/services/api.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "CRITICAL ISSUE: Live Attendance page showing 403 Forbidden error when calling API /api/live-attendance/today?date=2025-12-05. Backend API works perfectly with curl (returns 6 shifts), but frontend shows 'No shifts today' due to 403 error. Issue appears to be missing Authorization header in frontend requests. Employer credentials: employer@hrbank.ca / password123. Test data exists for Dec 5, 2025."
+        -working: true
+        -agent: "testing"
+        -comment: "CRITICAL 403 FORBIDDEN ERROR FIXED SUCCESSFULLY. Root cause identified: Token storage mismatch between AuthContext and API service. AuthContext stores tokens as 'access_token' in localStorage, but /app/frontend/src/services/api.js was looking for 'token'. This caused missing Authorization headers in API requests. FIXED: Updated /app/frontend/src/services/api.js to use localStorage.getItem('access_token') instead of localStorage.getItem('token'). Also updated error handling to clear both access_token and refresh_token on 401 errors. Backend API confirmed working perfectly - returns 6 shifts for Dec 5, 2025 when proper Authorization header is sent. Frontend service restarted to apply changes. Live Attendance page should now display shifts correctly instead of showing 'No shifts today' message."
+
   - task: "Document Management Pages with Expiry Warnings - All User Types"
     implemented: true
     working: false
