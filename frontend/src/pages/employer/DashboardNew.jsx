@@ -202,10 +202,10 @@ const EmployerDashboardNew = () => {
 
           {/* Tab Content */}
           <div className="p-6">
-            {activeTab === 'workforce' && <WorkforceTab workforce={workforce} workplaces={workplaces} theme={theme} navigate={navigate} />}
             {activeTab === 'schedule' && <ScheduleTab theme={theme} navigate={navigate} />}
-            {activeTab === 'performance' && <PerformanceTab theme={theme} navigate={navigate} />}
+            {activeTab === 'kpis' && <KPIsTab theme={theme} navigate={navigate} pendingRatings={pendingRatings} />}
             {activeTab === 'finances' && <FinancesTab theme={theme} navigate={navigate} />}
+            {activeTab === 'workforce' && <WorkforceTab workforce={workforce} workplaces={workplaces} theme={theme} navigate={navigate} />}
           </div>
         </div>
       </main>
