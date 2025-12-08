@@ -117,6 +117,7 @@ async def get_inactive_workforce(
 async def terminate_employment(
     workforce_id: str,
     termination_data: TerminationRequest,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
