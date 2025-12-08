@@ -142,7 +142,7 @@ async def get_todays_attendance(
     shifts = filtered_shifts
     
     attendance_records = []
-    current_time = datetime.utcnow()
+    current_time = datetime.utcnow().replace(tzinfo=None)  # Make naive for comparison
     
     for shift in shifts:
         shift_start = datetime.fromisoformat(shift['start_time'].replace('Z', '+00:00'))
