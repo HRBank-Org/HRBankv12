@@ -211,7 +211,7 @@ async def terminate_employment(
     
     # Send notification to worker if requested
     if termination_data.notify_worker:
-        # Create notification
+        # Create in-app notification
         notification = {
             "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
             "user_id": workforce_id,
@@ -228,6 +228,30 @@ async def terminate_employment(
             "created_date": datetime.utcnow().isoformat()
         }
         await db.notifications.insert_one(notification)
+        
+        # Send email and SMS notifications
+        worker = await db.workforce_users.find_one(
+            {"user_id": workforce_id},
+            {"_id": 0, "email": 1, "phone_number": 1, "first_name": 1, "last_name": 1}
+        )
+        
+        employer = await db.employer_profiles.find_one(
+            {"employer_id": current_user["user_id"]},
+            {"_id": 0, "company_name": 1}
+        )
+        
+        if worker:
+            worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() or "Worker"
+            employer_name = employer.get('company_name', 'Employer') if employer else 'Employer'
+            
+            background_tasks.add_task(
+                notify_employment_status_change,
+                worker_email=worker.get('email'),
+                worker_phone=worker.get('phone_number'),
+                worker_name=worker_name,
+                status="fired",
+                employer_name=employer_name
+            )
     
     return {
         "success": True,
