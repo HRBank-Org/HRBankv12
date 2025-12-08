@@ -192,6 +192,66 @@ const CalendarScheduling = () => {
     });
   };
 
+  // Calculate columns for overlapping shifts
+  const calculateShiftColumns = (dayShifts) => {
+    const shiftsWithColumns = dayShifts.map(shift => ({
+      ...shift,
+      column: 0,
+      totalColumns: 1
+    }));
+
+    // Sort by start time
+    shiftsWithColumns.sort((a, b) => 
+      moment(a.start_time).diff(moment(b.start_time))
+    );
+
+    // Detect overlaps and assign columns
+    for (let i = 0; i < shiftsWithColumns.length; i++) {
+      const currentShift = shiftsWithColumns[i];
+      const currentStart = moment(currentShift.start_time);
+      const currentEnd = moment(currentShift.end_time);
+      
+      // Find all shifts that overlap with current shift
+      const overlapping = [];
+      for (let j = 0; j < shiftsWithColumns.length; j++) {
+        if (i === j) continue;
+        
+        const otherShift = shiftsWithColumns[j];
+        const otherStart = moment(otherShift.start_time);
+        const otherEnd = moment(otherShift.end_time);
+        
+        // Check if times overlap
+        const hasOverlap = currentStart.isBefore(otherEnd) && currentEnd.isAfter(otherStart);
+        
+        if (hasOverlap) {
+          overlapping.push(otherShift);
+        }
+      }
+
+      if (overlapping.length > 0) {
+        // Assign columns to avoid overlap
+        const usedColumns = new Set(overlapping.map(s => s.column));
+        let assignedColumn = 0;
+        
+        // Find first available column
+        while (usedColumns.has(assignedColumn)) {
+          assignedColumn++;
+        }
+        
+        currentShift.column = assignedColumn;
+        const maxColumns = Math.max(assignedColumn + 1, ...overlapping.map(s => s.totalColumns));
+        
+        // Update totalColumns for all overlapping shifts
+        currentShift.totalColumns = maxColumns;
+        overlapping.forEach(s => {
+          s.totalColumns = maxColumns;
+        });
+      }
+    }
+
+    return shiftsWithColumns;
+  };
+
   const getShiftColor = (shift) => {
     const filled = shift.positions_filled || 0;
     const needed = shift.positions_needed || 1;
