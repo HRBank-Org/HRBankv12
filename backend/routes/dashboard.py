@@ -178,6 +178,7 @@ async def toggle_workplace_status(
 ):
     """
     Toggle workplace active/inactive status
+    Only workplaces with no active (future) shifts can be deactivated
     """
     employer_id = current_user["user_id"]
     
@@ -190,8 +191,27 @@ async def toggle_workplace_status(
     if not workplace:
         raise HTTPException(status_code=404, detail="Workplace not found")
     
-    # Toggle status
     current_status = workplace.get("is_active", True)
+    
+    # If trying to deactivate, check for active shifts
+    if current_status:  # Currently active, trying to deactivate
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc).isoformat()
+        
+        # Check for any future shifts at this workplace
+        active_shifts_count = await db.calendar_shifts.count_documents({
+            "employer_id": employer_id,
+            "workplace_id": workplace_id,
+            "start_time": {"$gte": now}
+        })
+        
+        if active_shifts_count > 0:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Cannot deactivate workplace with {active_shifts_count} upcoming shift(s). Please remove or reassign shifts first."
+            )
+    
+    # Toggle status
     new_status = not current_status
     
     # Update workplace
