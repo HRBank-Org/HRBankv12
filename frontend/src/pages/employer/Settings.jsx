@@ -452,6 +452,23 @@ const EmployerSettings = () => {
           </div>
         </div>
 
+        {/* Notification Settings Section */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Configure how you want to receive notifications about shifts, attendance, and other important events.
+          </p>
+          <button
+            onClick={() => navigate('/employer/settings/notifications')}
+            className="px-4 py-2 rounded-lg border-2 font-medium hover:bg-gray-50 transition-all"
+            style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
+          >
+            Manage Notification Preferences
+          </button>
+        </div>
+
         {/* Password Change Section */}
         <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
           <div className="flex items-center justify-between mb-4">
