@@ -157,12 +157,12 @@ async def get_todays_attendance(
         for worker_assignment in shift.get('assigned_workers', []):
             worker_id = worker_assignment['worker_id']
             
-            # Check for time-off
+            # Check for time-off (convert date to string for MongoDB query)
             time_off = await db.time_off_requests.find_one({
                 "worker_id": worker_id,
                 "status": "approved",
-                "start_date": {"$lte": today_start.date()},
-                "end_date": {"$gte": today_start.date()}
+                "start_date": {"$lte": today_start_str},
+                "end_date": {"$gte": today_start_str}
             })
             
             if time_off:
