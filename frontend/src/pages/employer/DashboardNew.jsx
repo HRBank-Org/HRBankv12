@@ -98,15 +98,35 @@ const EmployerDashboardNew = () => {
 
   const loadWorkforce = async () => {
     try {
-      // Get all workers with their employment relationships
-      const response = await api.get('/api/employer/workforce');
-      setWorkforce(response.data.data.workers || []);
+      // Get all active workers with their employment relationships
+      const response = await api.get('/api/employer/workforce-management/active');
+      const workers = response.data.data.active_workers || [];
+      
+      // Transform data to match UI expectations
+      const transformedWorkers = workers.map(worker => ({
+        user_id: worker.user_id,
+        name: worker.full_name || worker.email,
+        email: worker.email,
+        occupation: worker.position_title || 'Worker',
+        photo_url: worker.profile_picture,
+        rating: worker.average_rating,
+        rating_count: worker.total_shifts_completed || 0,
+        status: 'active',
+        skills: [], // TODO: Get from worker profile
+        certifications: [], // TODO: Get from worker profile
+        workplace_id: null, // TODO: Get primary workplace
+        total_hours: worker.total_hours_worked || 0,
+        shifts_completed: worker.total_shifts_completed || 0
+      }));
+      
+      setWorkforce(transformedWorkers);
       
       // Count pending ratings (shifts completed but not rated)
-      // TODO: Implement actual pending ratings count
+      // TODO: Implement actual pending ratings count from shifts
       setPendingRatings(5);
     } catch (error) {
       console.error('Failed to load workforce:', error);
+      setWorkforce([]);
     }
   };
 
