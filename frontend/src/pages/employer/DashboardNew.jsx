@@ -514,6 +514,49 @@ const ScheduleTab = ({ theme, navigate }) => {
                         </div>
                       </div>
                       
+                      {/* Worker Icons - Workforce Distribution */}
+                      {workplace.workers && workplace.workers.length > 0 && (
+                        <div className="mb-3 pb-3 border-b border-gray-100">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-gray-600">Assigned Workers</span>
+                            <span className="text-xs text-gray-500">{workplace.total_workers} total</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {workplace.workers.slice(0, 12).map((worker, idx) => (
+                              <div
+                                key={worker.worker_id || idx}
+                                className="relative group"
+                                title={worker.name}
+                              >
+                                {worker.photo_url ? (
+                                  <img
+                                    src={worker.photo_url}
+                                    alt={worker.name}
+                                    className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                                  />
+                                ) : (
+                                  <div 
+                                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                                    style={{ backgroundColor: theme.primaryColor }}
+                                  >
+                                    {worker.name?.charAt(0) || '?'}
+                                  </div>
+                                )}
+                                {/* Tooltip on hover */}
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                                  {worker.name}
+                                </div>
+                              </div>
+                            ))}
+                            {workplace.total_workers > 12 && (
+                              <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white shadow-sm flex items-center justify-center text-gray-600 text-xs font-semibold">
+                                +{workplace.total_workers - 12}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Workplace Actions */}
                       <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
                         {hasActiveShifts && isActive && (
