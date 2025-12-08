@@ -393,3 +393,185 @@ async def notify_employer_shift_update(employer_email: str, employer_phone: str,
     except Exception as e:
         logger.error(f"Error in notify_employer_shift_update: {str(e)}")
         return False
+
+
+async def notify_clock_in(worker_email: str, worker_phone: str, worker_name: str,
+                         shift_details: dict, is_late: bool = False, minutes_late: int = 0):
+    """
+    Notify worker about successful clock-in
+    """
+    try:
+        if is_late:
+            subject = f"⚠️ Clock-In Confirmed (Late) - {shift_details.get('position', '')}"
+            late_message = f"<p style='color: #f57c00;'><strong>Note:</strong> You clocked in {minutes_late} minutes late.</p>"
+            sms_late_note = f"\n⚠️ You were {minutes_late} minutes late."
+        else:
+            subject = f"✅ Clock-In Confirmed - {shift_details.get('position', '')}"
+            late_message = ""
+            sms_late_note = ""
+        
+        # Send email
+        if worker_email:
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #1976d2;">✅ Clocked In Successfully</h2>
+                <p>Hello {worker_name},</p>
+                <p>You have successfully clocked in for your shift:</p>
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                    <p style="margin: 5px 0;"><strong>Position:</strong> {shift_details.get('position', 'N/A')}</p>
+                    <p style="margin: 5px 0;"><strong>Location:</strong> {shift_details.get('workplace', 'N/A')}</p>
+                    <p style="margin: 5px 0;"><strong>Clock-In Time:</strong> {shift_details.get('clock_in_time', 'N/A')}</p>
+                    <p style="margin: 5px 0;"><strong>Scheduled End:</strong> {shift_details.get('scheduled_end', 'N/A')}</p>
+                </div>
+                {late_message}
+                <p style="margin-top: 30px;">Have a great shift!<br><strong>HR Bank Team</strong></p>
+            </body>
+            </html>
+            """
+            try:
+                send_email(worker_email, subject, html_content)
+                logger.info(f"Clock-in email sent to {worker_email}")
+            except EmailDeliveryError as e:
+                logger.error(f"Failed to send clock-in email: {str(e)}")
+        
+        # Send SMS
+        if worker_phone:
+            formatted_phone = format_phone_e164(worker_phone)
+            if formatted_phone:
+                sms_message = f"""HR Bank: Clocked In ✅
+
+{worker_name}, you're clocked in for:
+{shift_details.get('position', 'N/A')} at {shift_details.get('workplace', 'N/A')}
+Time: {shift_details.get('clock_in_time', 'N/A')}{sms_late_note}
+
+Have a great shift!"""
+                
+                await send_sms(formatted_phone, sms_message.strip())
+                logger.info(f"Clock-in SMS sent to {formatted_phone}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Error in notify_clock_in: {str(e)}")
+        return False
+
+
+async def notify_clock_out(worker_email: str, worker_phone: str, worker_name: str,
+                          shift_summary: dict):
+    """
+    Notify worker about successful clock-out with hours worked summary
+    """
+    try:
+        subject = f"✅ Clock-Out Confirmed - Shift Complete"
+        
+        # Send email
+        if worker_email:
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #4caf50;">✅ Shift Complete</h2>
+                <p>Hello {worker_name},</p>
+                <p>You have successfully clocked out. Here's your shift summary:</p>
+                <div style="background-color: #e8f5e9; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #4caf50;">
+                    <h3 style="margin: 0 0 15px 0; color: #2e7d32;">Shift Summary</h3>
+                    <p style="margin: 5px 0;"><strong>Position:</strong> {shift_summary.get('position', 'N/A')}</p>
+                    <p style="margin: 5px 0;"><strong>Location:</strong> {shift_summary.get('workplace', 'N/A')}</p>
+                    <p style="margin: 5px 0;"><strong>Clock-In:</strong> {shift_summary.get('clock_in_time', 'N/A')}</p>
+                    <p style="margin: 5px 0;"><strong>Clock-Out:</strong> {shift_summary.get('clock_out_time', 'N/A')}</p>
+                    <p style="margin: 15px 0 5px 0; font-size: 18px;"><strong>Total Hours:</strong> <span style="color: #1976d2; font-size: 24px;">{shift_summary.get('hours_worked', '0')} hours</span></p>
+                    <p style="margin: 5px 0;"><strong>Hourly Rate:</strong> ${shift_summary.get('hourly_rate', '0')}</p>
+                    <p style="margin: 5px 0; font-size: 18px;"><strong>Earnings:</strong> <span style="color: #2e7d32; font-size: 24px;">${shift_summary.get('total_earnings', '0')}</span></p>
+                </div>
+                <p>Your timesheet has been submitted for approval.</p>
+                <p style="margin-top: 30px;">Great work today!<br><strong>HR Bank Team</strong></p>
+            </body>
+            </html>
+            """
+            try:
+                send_email(worker_email, subject, html_content)
+                logger.info(f"Clock-out email sent to {worker_email}")
+            except EmailDeliveryError as e:
+                logger.error(f"Failed to send clock-out email: {str(e)}")
+        
+        # Send SMS
+        if worker_phone:
+            formatted_phone = format_phone_e164(worker_phone)
+            if formatted_phone:
+                sms_message = f"""HR Bank: Shift Complete ✅
+
+{worker_name}, you're clocked out!
+
+Hours worked: {shift_summary.get('hours_worked', '0')}h
+Earnings: ${shift_summary.get('total_earnings', '0')}
+
+Great work today!"""
+                
+                await send_sms(formatted_phone, sms_message.strip())
+                logger.info(f"Clock-out SMS sent to {formatted_phone}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Error in notify_clock_out: {str(e)}")
+        return False
+
+
+async def notify_geofence_alert(worker_email: str, worker_phone: str, worker_name: str,
+                                workplace_name: str, current_location: dict):
+    """
+    Notify worker when they appear to be away from workplace during shift
+    """
+    try:
+        # Send SMS (priority for location alerts)
+        if worker_phone:
+            formatted_phone = format_phone_e164(worker_phone)
+            if formatted_phone:
+                sms_message = f"""HR Bank: Location Check
+
+{worker_name}, our system detected you may be away from {workplace_name}.
+
+Are you currently at your assigned workplace?
+
+If you're on an authorized break or task, please ignore this message.
+
+Questions? Contact your employer."""
+                
+                await send_sms(formatted_phone, sms_message.strip())
+                logger.info(f"Geofence alert SMS sent to {formatted_phone}")
+        
+        # Send email as backup
+        if worker_email:
+            subject = f"📍 Location Check - {workplace_name}"
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #f57c00;">📍 Location Verification</h2>
+                <p>Hello {worker_name},</p>
+                <p>Our system has detected that you may be away from your assigned workplace location.</p>
+                <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                    <p style="margin: 5px 0;"><strong>Assigned Workplace:</strong> {workplace_name}</p>
+                    <p style="margin: 15px 0 5px 0;">If you are:</p>
+                    <ul style="margin: 5px 0;">
+                        <li>On an authorized break</li>
+                        <li>Running a work-related errand</li>
+                        <li>At your assigned location (GPS error)</li>
+                    </ul>
+                    <p style="margin: 5px 0;">You can ignore this message.</p>
+                </div>
+                <p><strong>Note:</strong> This is an automated check to ensure worker safety and compliance. If you have questions, please contact your employer.</p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>HR Bank Team</strong></p>
+            </body>
+            </html>
+            """
+            try:
+                send_email(worker_email, subject, html_content)
+                logger.info(f"Geofence alert email sent to {worker_email}")
+            except EmailDeliveryError as e:
+                logger.error(f"Failed to send geofence email: {str(e)}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Error in notify_geofence_alert: {str(e)}")
+        return False
