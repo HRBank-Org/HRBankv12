@@ -9,6 +9,7 @@ from services.shift_notification_service import (
     notify_clock_out,
     notify_geofence_alert
 )
+from services.geofencing_service import check_single_worker_location
 import qrcode
 import io
 import base64
