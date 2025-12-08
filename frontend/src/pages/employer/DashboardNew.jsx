@@ -12,7 +12,7 @@ const EmployerDashboardNew = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   
-  const [activeTab, setActiveTab] = useState('kpis'); // schedule (navigates to calendar), kpis, finances, workforce
+  const [activeTab, setActiveTab] = useState('schedule'); // schedule (embedded calendar), kpis, finances, workforce
   const [employerProfile, setEmployerProfile] = useState(null);
   const [weather, setWeather] = useState(null);
   const [workforce, setWorkforce] = useState([]);
