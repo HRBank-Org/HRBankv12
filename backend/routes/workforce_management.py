@@ -270,6 +270,7 @@ async def terminate_employment(
 async def rehire_worker(
     workforce_id: str,
     rehire_data: RehireRequest,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
