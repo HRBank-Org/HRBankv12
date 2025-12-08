@@ -379,182 +379,20 @@ const WorkerCard = ({ worker, theme, navigate }) => {
   );
 };
 
-// Schedule Tab Component
+// Schedule Tab Component - Embedded Calendar
 const ScheduleTab = ({ theme, navigate }) => {
-  const [upcomingShifts, setUpcomingShifts] = useState([]);
-  const [workplaces, setWorkplaces] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  // Simply redirect to the full calendar page or show a message
+  // Since embedding the full calendar component would require importing all its dependencies
+  // and might cause conflicts, we'll navigate to it
+  
   useEffect(() => {
-    loadScheduleData();
-  }, []);
-
-  const loadScheduleData = async () => {
-    try {
-      // Load upcoming shifts (next 7 days)
-      const today = new Date();
-      const weekLater = new Date(today);
-      weekLater.setDate(today.getDate() + 7);
-
-      const shiftsRes = await api.get('/api/calendar/shifts', {
-        params: {
-          start_date: today.toISOString(),
-          end_date: weekLater.toISOString()
-        }
-      });
-
-      const shifts = shiftsRes.data.data || [];
-      setUpcomingShifts(shifts.slice(0, 10)); // Show first 10
-
-      // Load workplaces for stats
-      const statsRes = await api.get('/api/employer/dashboard/stats');
-      setWorkplaces(statsRes.data.data.workplaces || []);
-    } catch (error) {
-      console.error('Failed to load schedule data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatShiftTime = (startTime, endTime) => {
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    return `${start.toLocaleDateString()} • ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
-    );
-  }
+    // Automatically navigate to the calendar page when Schedule tab is clicked
+    navigate('/employer/calendar');
+  }, [navigate]);
 
   return (
-    <div>
-      {/* Quick Actions */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900">Schedule Management</h2>
-        <button
-          onClick={() => navigate('/employer/calendar')}
-          className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all flex items-center gap-2"
-          style={{ backgroundColor: theme.primaryColor }}
-        >
-          <FiCalendar className="w-5 h-5" />
-          Open Full Calendar
-        </button>
-      </div>
-
-      {/* Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-sm text-blue-700 mb-1">Upcoming Shifts</div>
-          <div className="text-3xl font-bold text-blue-900">{upcomingShifts.length}</div>
-          <div className="text-xs text-blue-600 mt-1">Next 7 days</div>
-        </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <div className="text-sm text-purple-700 mb-1">Active Workplaces</div>
-          <div className="text-3xl font-bold text-purple-900">{workplaces.length}</div>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="text-sm text-green-700 mb-1">Total Assignments</div>
-          <div className="text-3xl font-bold text-green-900">
-            {upcomingShifts.reduce((sum, shift) => sum + (shift.assigned_workers?.length || 0), 0)}
-          </div>
-        </div>
-      </div>
-
-      {/* Upcoming Shifts Preview */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Shifts</h3>
-        {upcomingShifts.length > 0 ? (
-          <div className="space-y-3">
-            {upcomingShifts.map((shift, idx) => (
-              <div
-                key={shift.shift_id || idx}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                onClick={() => navigate('/employer/calendar')}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-semibold text-gray-900">{shift.position_title || 'Shift'}</span>
-                      {shift.workplace_name && (
-                        <span className="text-sm px-2 py-1 bg-purple-50 text-purple-700 rounded">
-                          {shift.workplace_name}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <span className="flex items-center gap-1">
-                        <FiClock className="w-4 h-4" />
-                        {formatShiftTime(shift.start_time, shift.end_time)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FiUsers className="w-4 h-4" />
-                        {shift.assigned_workers?.length || 0} assigned
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 bg-gray-50 rounded-lg">
-            <FiCalendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-600">No upcoming shifts in the next 7 days</p>
-            <button
-              onClick={() => navigate('/employer/calendar')}
-              className="mt-4 px-4 py-2 rounded-lg border-2 font-medium hover:bg-gray-50 transition-all"
-              style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
-            >
-              Create Your First Shift
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Workplaces Section */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Your Workplaces</h3>
-          <button
-            onClick={() => navigate('/employer/workplaces')}
-            className="text-sm font-medium hover:underline"
-            style={{ color: theme.primaryColor }}
-          >
-            Manage Workplaces
-          </button>
-        </div>
-        
-        {workplaces.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {workplaces.map((workplace, idx) => (
-              <div
-                key={workplace.workplace_id || idx}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all"
-              >
-                <h4 className="font-semibold text-gray-900 mb-1">{workplace.workplace_name}</h4>
-                {workplace.address && (
-                  <p className="text-sm text-gray-600">{workplace.address}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 bg-gray-50 rounded-lg">
-            <p className="text-gray-600 mb-4">No workplaces added yet</p>
-            <button
-              onClick={() => navigate('/employer/workplaces')}
-              className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-all"
-              style={{ backgroundColor: theme.primaryColor }}
-            >
-              Add Your First Workplace
-            </button>
-          </div>
-        )}
-      </div>
+    <div className="flex items-center justify-center py-12">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
     </div>
   );
 };
