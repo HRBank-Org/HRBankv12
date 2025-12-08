@@ -387,9 +387,13 @@ const WorkerCard = ({ worker, theme, navigate }) => {
   );
 };
 
-// Schedule Tab Component - This won't be rendered since clicking Schedule navigates directly
+// Schedule Tab Component - Embedded Calendar
 const ScheduleTab = ({ theme, navigate }) => {
-  return null;
+  return (
+    <div className="-m-6">
+      <CalendarView embedded={true} />
+    </div>
+  );
 };
 
 // KPIs Tab Component (Performance & Ratings)
