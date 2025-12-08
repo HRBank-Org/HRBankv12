@@ -452,58 +452,107 @@ const ScheduleTab = ({ theme, navigate }) => {
             {/* Workplaces Grid */}
             {workplaces.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {workplaces.map((workplace) => (
-                  <div
-                    key={workplace.workplace_id}
-                    className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer"
-                    onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
-                  >
-                    {/* Workplace Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
-                          {workplace.workplace_name}
-                        </h3>
-                        {workplace.address && (
-                          <p className="text-sm text-gray-600 flex items-start gap-1">
-                            <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span>{workplace.address}</span>
-                          </p>
-                        )}
+                {workplaces.map((workplace) => {
+                  const isActive = workplace.is_active !== false; // Default to true if not set
+                  
+                  return (
+                    <div
+                      key={workplace.workplace_id}
+                      className={`bg-white rounded-lg border p-6 hover:shadow-lg transition-all ${
+                        isActive ? 'border-gray-200' : 'border-gray-300 bg-gray-50'
+                      }`}
+                    >
+                      {/* Workplace Header */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-lg font-bold text-gray-900">
+                              {workplace.workplace_name}
+                            </h3>
+                            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              isActive 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-gray-200 text-gray-600'
+                            }`}>
+                              {isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                          {workplace.address && (
+                            <div className="space-y-1">
+                              <p className="text-sm text-gray-600 flex items-start gap-1">
+                                <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span>{workplace.address}</span>
+                              </p>
+                              {workplace.postal_code && (
+                                <p className="text-xs text-gray-500 ml-5">
+                                  {workplace.postal_code}
+                                </p>
+                              )}
+                              {workplace.attendance_geofence_radius_m && (
+                                <p className="text-xs text-gray-500 ml-5">
+                                  Geofence: {workplace.attendance_geofence_radius_m}m radius
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ${
+                          isActive ? '' : 'opacity-50'
+                        }`}
+                          style={{ backgroundColor: theme.primaryColor }}>
+                          {workplace.workplace_name?.charAt(0) || 'W'}
+                        </div>
                       </div>
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                        style={{ backgroundColor: theme.primaryColor }}>
-                        {workplace.workplace_name?.charAt(0) || 'W'}
+                      
+                      {/* Workplace Actions */}
+                      <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                await api.patch(`/api/employer/dashboard/workplaces/${workplace.workplace_id}/toggle`);
+                                await loadWorkplaces(); // Reload to show updated status
+                              } catch (error) {
+                                console.error('Failed to toggle workplace status:', error);
+                                alert('Failed to update workplace status');
+                              }
+                            }}
+                            className={`flex-1 px-3 py-2 text-sm rounded-lg border font-medium transition-all ${
+                              isActive 
+                                ? 'border-red-300 text-red-700 hover:bg-red-50' 
+                                : 'border-green-300 text-green-700 hover:bg-green-50'
+                            }`}
+                          >
+                            {isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/employer/calendar?workplace=${workplace.workplace_id}`);
+                            }}
+                            className="flex-1 px-3 py-2 text-sm rounded-lg text-white hover:opacity-90 transition-all"
+                            style={{ backgroundColor: theme.primaryColor }}
+                          >
+                            View Shifts
+                          </button>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/employer/workplaces/${workplace.workplace_id}/edit`);
+                          }}
+                          className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all"
+                        >
+                          Edit Details
+                        </button>
                       </div>
                     </div>
-                    
-                    {/* Workplace Actions */}
-                    <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/employer/workplaces/${workplace.workplace_id}/edit`);
-                        }}
-                        className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/employer/workplaces/${workplace.workplace_id}/shifts`);
-                        }}
-                        className="flex-1 px-3 py-2 text-sm rounded-lg text-white hover:opacity-90 transition-all"
-                        style={{ backgroundColor: theme.primaryColor }}
-                      >
-                        View Shifts
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
