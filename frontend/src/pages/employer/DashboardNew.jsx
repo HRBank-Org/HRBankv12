@@ -454,6 +454,8 @@ const ScheduleTab = ({ theme, navigate }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {workplaces.map((workplace) => {
                   const isActive = workplace.is_active !== false; // Default to true if not set
+                  const hasActiveShifts = workplace.active_shifts_count > 0;
+                  const canDeactivate = isActive && !hasActiveShifts;
                   
                   return (
                     <div
@@ -496,6 +498,11 @@ const ScheduleTab = ({ theme, navigate }) => {
                                   Geofence: {workplace.attendance_geofence_radius_m}m radius
                                 </p>
                               )}
+                              {hasActiveShifts && (
+                                <p className="text-xs font-medium text-blue-600 ml-5 mt-1">
+                                  {workplace.active_shifts_count} upcoming shift{workplace.active_shifts_count > 1 ? 's' : ''}
+                                </p>
+                              )}
                             </div>
                           )}
                         </div>
@@ -509,22 +516,37 @@ const ScheduleTab = ({ theme, navigate }) => {
                       
                       {/* Workplace Actions */}
                       <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
+                        {hasActiveShifts && isActive && (
+                          <div className="mb-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-xs text-yellow-800">
+                              Cannot deactivate with upcoming shifts
+                            </p>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
+                              if (!canDeactivate && isActive) {
+                                alert(`Cannot deactivate ${workplace.workplace_name}. It has ${workplace.active_shifts_count} upcoming shift(s). Please remove or reassign shifts first.`);
+                                return;
+                              }
                               try {
                                 await api.patch(`/api/employer/dashboard/workplaces/${workplace.workplace_id}/toggle`);
                                 await loadWorkplaces(); // Reload to show updated status
                               } catch (error) {
                                 console.error('Failed to toggle workplace status:', error);
-                                alert('Failed to update workplace status');
+                                const errorMsg = error.response?.data?.detail || 'Failed to update workplace status';
+                                alert(errorMsg);
                               }
                             }}
+                            disabled={!canDeactivate && isActive}
                             className={`flex-1 px-3 py-2 text-sm rounded-lg border font-medium transition-all ${
                               isActive 
-                                ? 'border-red-300 text-red-700 hover:bg-red-50' 
-                                : 'border-green-300 text-green-700 hover:bg-green-50'
+                                ? canDeactivate
+                                  ? 'border-red-300 text-red-700 hover:bg-red-50 cursor-pointer'
+                                  : 'border-gray-300 text-gray-400 cursor-not-allowed opacity-50'
+                                : 'border-green-300 text-green-700 hover:bg-green-50 cursor-pointer'
                             }`}
                           >
                             {isActive ? 'Deactivate' : 'Activate'}
