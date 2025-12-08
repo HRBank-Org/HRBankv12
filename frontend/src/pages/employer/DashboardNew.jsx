@@ -636,7 +636,7 @@ const ScheduleTab = ({ theme, navigate }) => {
 };
 
 // KPIs Tab Component (Performance & Ratings)
-const KPIsTab = ({ theme, navigate, pendingRatings }) => {
+const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
   const [pendingShifts, setPendingShifts] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -673,8 +673,10 @@ const KPIsTab = ({ theme, navigate, pendingRatings }) => {
       await api.post('/api/employer/ratings/submit', ratingData);
       // Reload KPI data
       await loadKPIData();
-      // Reload dashboard data to update badge count
-      await loadDashboardData();
+      // Call parent callback to update badge count
+      if (onRatingSuccess) {
+        await onRatingSuccess();
+      }
       setShowRatingModal(false);
       setSelectedShift(null);
     } catch (error) {
