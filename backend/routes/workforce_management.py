@@ -349,6 +349,30 @@ async def rehire_worker(
     }
     await db.notifications.insert_one(notification)
     
+    # Send email and SMS notifications
+    worker_data = await db.workforce_users.find_one(
+        {"user_id": workforce_id},
+        {"_id": 0, "email": 1, "phone_number": 1, "first_name": 1, "last_name": 1}
+    )
+    
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": current_user["user_id"]},
+        {"_id": 0, "company_name": 1}
+    )
+    
+    if worker_data:
+        worker_name = f"{worker_data.get('first_name', '')} {worker_data.get('last_name', '')}".strip() or "Worker"
+        employer_name = employer.get('company_name', 'Employer') if employer else 'Employer'
+        
+        background_tasks.add_task(
+            notify_employment_status_change,
+            worker_email=worker_data.get('email'),
+            worker_phone=worker_data.get('phone_number'),
+            worker_name=worker_name,
+            status="hired",
+            employer_name=employer_name
+        )
+    
     return {
         "success": True,
         "data": {
