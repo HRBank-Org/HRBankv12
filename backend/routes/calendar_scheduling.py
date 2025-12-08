@@ -2,12 +2,17 @@
 Clean Calendar-Based Scheduling API
 Simple, intuitive scheduling endpoints
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from typing import List, Optional
 from datetime import datetime, timedelta
 from auth.dependencies import get_current_user, require_role
 from database import get_database
 import uuid
+from services.shift_notification_service import (
+    notify_shift_assigned,
+    notify_shift_time_changed,
+    notify_employer_shift_update
+)
 
 router = APIRouter(prefix="/api/calendar", tags=["Calendar Scheduling"])
 
