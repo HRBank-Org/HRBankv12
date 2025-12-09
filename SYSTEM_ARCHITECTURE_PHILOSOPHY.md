@@ -284,6 +284,135 @@ No hidden fees. No surprise deductions.
 
 ---
 
+## 👥 **WORKFORCE VALIDATION SYSTEM**
+
+### **Platform-Side Worker Verification (Before Match Engine Access)**
+
+**Problem:** Fake workers, unqualified candidates, credential fraud
+
+**HR Bank Solution - Multi-Layer Worker Validation:**
+
+#### **1. Initial Registration Validation**
+```javascript
+Worker Registration Required Fields:
+├─ Full legal name
+├─ Government ID verification
+├─ Contact information (phone + email verified)
+├─ Address (physical location)
+├─ Emergency contact
+├─ Banking information (for payment)
+└─ Right to work documentation
+```
+
+#### **2. HR Bank Staff Manual Review**
+```
+Human Review Process (Cannot be bypassed):
+├─ Identity verification (ID documents)
+├─ Work eligibility confirmation (visa, work permit)
+├─ Background check initiation
+├─ Reference checks (previous employers)
+├─ Criminal background check (if required for occupation)
+└─ Profile approval or rejection with reason
+```
+
+#### **3. Institution-Issued Credentials**
+```
+Institution User Type Issues:
+├─ Educational credentials (degrees, diplomas)
+├─ Professional licenses (trade certifications)
+├─ Training certificates (safety, equipment)
+├─ Industry-specific credentials
+└─ Blockchain-verified credentials (tamper-proof)
+
+Platform Validates:
+├─ Credential issuer is verified institution
+├─ Credential is current and not expired
+├─ Credential matches occupation requirements
+└─ No fraudulent or revoked credentials
+```
+
+#### **4. Experience Verification**
+```python
+# HR Bank staff validates:
+for previous_job in worker_history:
+    verify_employer_exists()
+    verify_dates_of_employment()
+    verify_job_title_matches_claimed_experience()
+    contact_previous_employer_for_reference()
+    validate_skills_gained()
+
+# Only after validation:
+worker.verified_experience_years = calculated_total
+worker.profile_status = 'verified'
+worker.available_for_matching = True
+```
+
+#### **5. Skills Assessment**
+```
+Platform-Administered Tests:
+├─ Occupation-specific skill tests
+├─ Safety knowledge assessments
+├─ Equipment operation certifications
+├─ Language proficiency (if required)
+└─ Practical demonstrations (for some roles)
+
+Results stored and shown to employers:
+- Verified skills list
+- Test scores/certifications
+- Date of last assessment
+- Skill level (beginner/intermediate/expert)
+```
+
+#### **6. Ongoing Compliance Monitoring**
+```python
+# Continuous validation
+check_credential_expiry_dates()
+monitor_attendance_patterns()
+track_employer_ratings()
+verify_address_changes()
+validate_continued_work_eligibility()
+
+# Actions taken
+if credential_expired:
+    worker.status = 'incomplete_profile'
+    worker.available_for_matching = False
+    send_renewal_reminder()
+
+if poor_attendance_pattern:
+    worker.reputation_score -= penalty
+    limit_match_engine_visibility()
+```
+
+---
+
+## 🔄 **TWO-WAY ACCOUNTABILITY**
+
+### **Employers Are Accountable For:**
+- ✅ Posting real jobs tied to real workplaces
+- ✅ Paying compliant wages (provincial + occupation minimums)
+- ✅ Providing work within 14 days of hiring
+- ✅ Maintaining safe workplaces
+- ✅ Fair treatment and accurate ratings
+- ✅ Timely payment processing
+
+### **Workers Are Accountable For:**
+- ✅ Honest credentials and experience
+- ✅ Maintaining valid licenses/certifications
+- ✅ Showing up to scheduled shifts
+- ✅ Professional conduct at workplace
+- ✅ Meeting job requirements
+- ✅ Geofence check-in compliance
+
+### **Platform Is Accountable For:**
+- ✅ Validating both employers AND workers
+- ✅ Enforcing compliance on both sides
+- ✅ Protecting workers from exploitation
+- ✅ Protecting employers from fraud
+- ✅ Maintaining marketplace integrity
+- ✅ Fair dispute resolution
+
+---
+
 ## 📊 **VALIDATION CASCADE**
 
 Every action flows through validation layers:
