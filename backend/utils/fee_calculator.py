@@ -3,10 +3,25 @@ Platform Fee Calculator
 Handles pricing structure for the HR Bank platform
 """
 
-from typing import Dict
+from typing import Dict, Optional
 from utils.occupation_categories import MINIMUM_WAGE, PLATFORM_FEE_PER_HOUR
 
-def calculate_fees(hourly_rate: float, minimum_rate: float = None) -> Dict:
+async def get_provincial_minimum_wage(province_code: str) -> float:
+    """
+    Get minimum wage for a specific province from database
+    Falls back to default if not found
+    """
+    try:
+        from server import db
+        wage = await db.minimum_wages.find_one(
+            {"province_code": province_code.upper()},
+            {"_id": 0, "minimum_wage": 1}
+        )
+        return wage['minimum_wage'] if wage else MINIMUM_WAGE
+    except:
+        return MINIMUM_WAGE
+
+def calculate_fees(hourly_rate: float, minimum_rate: float = None, provincial_minimum: float = None) -> Dict:
     """
     Calculate platform fees based on hourly rate
     
