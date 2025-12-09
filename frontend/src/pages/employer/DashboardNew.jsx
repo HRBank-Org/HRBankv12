@@ -484,7 +484,7 @@ const ScheduleTab = ({ theme, navigate }) => {
   
   const loadWorkplaces = async () => {
     try {
-      const statsRes = await api.get('/app/employer/dashboard/stats');
+      const statsRes = await api.get('/api/employer/dashboard/stats');
       setWorkplaces(statsRes.data.data.workplaces || []);
     } catch (error) {
       console.error('Failed to load workplaces:', error);
