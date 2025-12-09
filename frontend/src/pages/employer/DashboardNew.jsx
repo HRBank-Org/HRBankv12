@@ -1019,8 +1019,7 @@ const FinancesTab = ({ theme, navigate }) => {
         </button>
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900">Attendance & Finances</h2>
+      <div className="flex items-center justify-end mb-6">
         <input
           type="date"
           value={selectedDate}
