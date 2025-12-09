@@ -1167,7 +1167,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Drag-and-Drop Shift Rescheduling - Calendar Page"
+    - "Complete Payroll Workflow - Timesheets to Payroll Processing"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
