@@ -1431,13 +1431,19 @@ const FinancesTab = ({ theme, navigate }) => {
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-2">
-                Worker: <span className="font-medium">{editingTimesheet.worker_details?.name}</span>
+                Worker: <span className="font-medium">{editingTimesheet.worker_name}</span>
               </p>
               <p className="text-sm text-gray-600 mb-2">
-                Original Hours: <span className="font-medium">{editingTimesheet.actual_hours}h</span>
+                Week: <span className="font-medium">{editingTimesheet.week_start} to {editingTimesheet.week_end}</span>
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+                Shifts: <span className="font-medium">{editingTimesheet.shift_count || 0} shifts</span>
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+                Original Hours: <span className="font-medium">{(editingTimesheet.total_hours || 0).toFixed(2)}h</span>
               </p>
               <p className="text-sm text-gray-600 mb-4">
-                Original Pay: <span className="font-medium">${editingTimesheet.actual_pay?.toFixed(2)}</span>
+                Original Pay: <span className="font-medium">${(editingTimesheet.total_pay || 0).toFixed(2)}</span>
               </p>
             </div>
 
@@ -1453,9 +1459,9 @@ const FinancesTab = ({ theme, navigate }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                 style={{ focusRing: `${theme.primaryColor}40` }}
               />
-              {adjustedHours && (
+              {adjustedHours && editingTimesheet.total_hours && (
                 <p className="text-sm text-gray-600 mt-1">
-                  New Pay: ${(parseFloat(adjustedHours) * editingTimesheet.hourly_rate).toFixed(2)}
+                  New Pay: ${(parseFloat(adjustedHours) * (editingTimesheet.total_pay / editingTimesheet.total_hours)).toFixed(2)}
                 </p>
               )}
             </div>
