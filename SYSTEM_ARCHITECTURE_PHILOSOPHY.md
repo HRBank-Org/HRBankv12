@@ -338,16 +338,38 @@ Every action flows through validation layers:
 
 ## 🚫 **WHAT WE PREVENT**
 
-### **Fake Job Postings**
+### **Employer-Side Abuse:**
+
+#### **Fake Job Postings**
 ❌ Cannot post job without creating role first
 ❌ Cannot create role without workplace
 ❌ Cannot create workplace without company registration
 
-### **Resume Harvesting**
-❌ No blind applications allowed
-❌ Employer must invite specific workers
-❌ Employment relationship created immediately
-❌ 14-day rule forces actual work or release
+#### **Resume Harvesting**
+❌ Jobs must be tied to real business operations
+❌ Match engine only shows validated job postings
+❌ Employment relationship created when accepted
+❌ 14-day rule forces actual work or release worker
+
+### **Worker-Side Abuse:**
+
+#### **Fake Credentials**
+❌ Experience must be verified by HR Bank staff
+❌ Licenses validated through institution accounts
+❌ Work eligibility checked before pool entry
+❌ Credentials cross-referenced with issuers
+
+#### **No-Show Workers**
+❌ Attendance tracked via geofencing
+❌ QR code check-in required
+❌ Reputation score affects future matching
+❌ Pattern of no-shows results in suspension
+
+#### **Unqualified Applicants**
+❌ Skills assessed by platform staff
+❌ Required certifications verified
+❌ Background checks completed
+❌ Only matched to jobs they're qualified for
 
 ### **Below-Minimum-Wage Exploitation**
 ❌ System enforces provincial minimum wage
