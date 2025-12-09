@@ -930,6 +930,7 @@ const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
 
 // Finances Tab Component
 const FinancesTab = ({ theme, navigate }) => {
+  const [activeView, setActiveView] = useState('attendance'); // attendance, timesheets, payroll
   const [liveAttendance, setLiveAttendance] = useState(null);
   const [timesheets, setTimesheets] = useState([]);
   const [financialStats, setFinancialStats] = useState(null);
