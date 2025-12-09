@@ -1219,13 +1219,10 @@ const FinancesTab = ({ theme, navigate }) => {
                           Approve
                         </button>
                         <button
-                          onClick={() => {
-                            // TODO: Open edit modal
-                            alert('Edit functionality - Coming soon!');
-                          }}
+                          onClick={() => openEditModal(timesheet)}
                           className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700"
                         >
-                          Edit
+                          Edit Hours
                         </button>
                       </div>
                     </td>
