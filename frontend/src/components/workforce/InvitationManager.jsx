@@ -534,16 +534,28 @@ const InvitationManager = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Occupation Template *</label>
                 <select
                   value={newRole.occupation_template}
-                  onChange={(e) => setNewRole({...newRole, occupation_template: e.target.value})}
+                  onChange={(e) => {
+                    const selectedTemplate = occupationTemplates.find(t => t.title === e.target.value);
+                    setNewRole({
+                      ...newRole, 
+                      occupation_template: e.target.value,
+                      hourly_rate: selectedTemplate?.minimum_hourly_rate || ''
+                    });
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 >
                   <option value="">Select occupation</option>
                   {occupationTemplates.map(template => (
                     <option key={template.title} value={template.title}>
-                      {template.icon} {template.title} ({template.category})
+                      {template.icon} {template.title} - Min: ${template.minimum_hourly_rate}/hr
                     </option>
                   ))}
                 </select>
+                {newRole.occupation_template && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Minimum rate: ${occupationTemplates.find(t => t.title === newRole.occupation_template)?.minimum_hourly_rate}/hour
+                  </p>
+                )}
               </div>
               
               <div>
