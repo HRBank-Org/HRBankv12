@@ -19,7 +19,7 @@ const WorkerDetailModal = ({ isOpen, onClose, workerId }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/api/employer/workforce/${workerId}/details`);
+      const response = await api.get(`/api/employer/workforce-management/${workerId}/details`);
       setWorker(response.data.data);
     } catch (err) {
       console.error('Failed to load worker details:', err);
