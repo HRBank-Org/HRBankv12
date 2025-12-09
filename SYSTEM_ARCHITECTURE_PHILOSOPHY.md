@@ -135,25 +135,37 @@ if employer_proposed_rate < effective_minimum:
 
 ---
 
-### **4. INVITATION-BASED EMPLOYMENT (No Blind Applications)**
+### **4. DUAL HIRING PATHWAYS (Invitation + Match Engine)**
 
-**Problem Prevented:** Resume harvesting, fake job interviews, ghost jobs
+**Problem Prevented:** Fake workers, unqualified candidates, no-show employees
 
-**Our Solution:**
-- ✅ Employer must INVITE specific workers
+**Our Solution - TWO VALIDATED PATHWAYS:**
+
+#### **Pathway A: Employer Invitation**
+- ✅ Employer invites specific workers they know
 - ✅ Invitation tied to specific role with defined rate
 - ✅ 7-day token expiry (prevents indefinite "recruiting")
 - ✅ Email + SMS verification (real contact info required)
 - ✅ Employment relationship auto-created on acceptance
 - ✅ Worker profile completeness verified
 
-**Accountability Chain:**
+#### **Pathway B: Match Engine (Platform-Validated)**
+- ✅ Workers validated by HR Bank staff BEFORE entering pool
+- ✅ Experience verification required
+- ✅ Work eligibility checked by platform staff
+- ✅ Licenses validated (issued by institution user type)
+- ✅ Credentials verified through institution accounts
+- ✅ Workers matched to jobs based on qualifications
+- ✅ Both parties commit to job before scheduling
+
+**Worker Accountability (Match Engine):**
 ```
-Employer creates role → Sends invitation → Worker accepts
-    ↓                        ↓                    ↓
-Rate validated      Token expires 7 days    Auto-employment created
-Certs defined       SMS/Email verified       14-day rule starts
-Workplace linked    Worker data stored       Shift must be assigned
+Worker registers → HR Bank validates → Credentials verified by institutions
+    ↓                      ↓                           ↓
+Experience checked    Work eligibility confirmed    Licenses validated
+Background verified   Skills assessed              Profile approved
+    ↓                      ↓                           ↓
+Available in workforce pool → Matched to jobs → Must attend or face penalties
 ```
 
 ---
