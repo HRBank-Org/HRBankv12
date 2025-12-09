@@ -390,8 +390,63 @@ async def accept_invitation(
     
     response_message = "Invitation accepted"
     
+    # NEW: Create employment relationship for role-based invitations
+    if invite.get("role_id") and invite.get("invited_by_user_type") == "employer":
+        # Create employment relationship
+        relationship = {
+            "relationship_id": f"rel_{uuid.uuid4().hex[:12]}",
+            "employer_id": invite["invited_by_user_id"],
+            "workforce_id": current_user["user_id"],
+            "workplace_id": invite.get("workplace_id"),
+            "employment_type": "full_time",
+            "position_title": invite.get("role_name"),
+            "occupation": invite.get("occupation_template"),
+            "status": "active",
+            "employment_start_date": datetime.utcnow().isoformat(),
+            "created_date": datetime.utcnow().isoformat(),
+            "updated_date": datetime.utcnow().isoformat(),
+            "last_shift_date": None,
+            "days_without_shift": 0
+        }
+        
+        await db.employment_relationships.insert_one(relationship)
+        
+        # Update role status to filled
+        await db.workplace_roles.update_one(
+            {"role_id": invite["role_id"]},
+            {"$set": {
+                "status": "filled",
+                "filled_by_workforce_id": current_user["user_id"],
+                "filled_date": datetime.utcnow(),
+                "positions_filled": 1,
+                "updated_date": datetime.utcnow()
+            }}
+        )
+        
+        response_message = f"Welcome! You've been added to the team as {invite.get('role_name')}"
+        
+        # Check profile completeness - schedule Emma notification if incomplete
+        workforce_profile = await db.workforce_profiles.find_one({"user_id": current_user["user_id"]})
+        
+        if not workforce_profile or workforce_profile.get("profile_completeness", 0) < 100:
+            # Schedule Emma reminder
+            emma_notification = {
+                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                "user_id": current_user["user_id"],
+                "notification_type": "profile_incomplete",
+                "title": "Complete Your Profile",
+                "message": "Please complete your profile and upload required documents within 7 days to continue working.",
+                "priority": "high",
+                "status": "pending",
+                "scheduled_date": datetime.utcnow() + timedelta(days=1),
+                "expiry_date": datetime.utcnow() + timedelta(days=7),
+                "created_date": datetime.utcnow().isoformat()
+            }
+            
+            await db.notifications.insert_one(emma_notification)
+    
     # Auto-apply to shift if shift_id exists
-    if invite.get("shift_id"):
+    elif invite.get("shift_id"):
         shift = await db.shifts.find_one({"shift_id": invite["shift_id"]})
         if shift and shift.get("status") == "open":
             # Create booking/application
@@ -415,7 +470,7 @@ async def accept_invitation(
             response_message = "Invitation accepted and applied to shift"
     
     # Store job_id reference if job_id exists (for easier application later)
-    if invite.get("job_id"):
+    elif invite.get("job_id"):
         response_message = "Invitation accepted. You can now view and apply to the job."
     
     return {
