@@ -352,6 +352,52 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
 
 // Worker Card Component
 const WorkerCard = ({ worker, theme, onClick }) => {
+  // Determine badge color and text based on shift status
+  const getShiftStatusBadge = () => {
+    if (!worker.days_without_shift && worker.days_without_shift !== 0) return null;
+    
+    const days = worker.days_without_shift;
+    
+    if (worker.shift_status === 'at_risk_pool_return' || worker.shift_status === 'no_shifts_given') {
+      return {
+        text: `⚠️ ${days} days - Returns to pool`,
+        bgColor: 'bg-red-100',
+        textColor: 'text-red-800',
+        borderColor: 'border-red-300'
+      };
+    } else if (worker.shift_status === 'warning') {
+      return {
+        text: `⏰ ${days} days - ${14 - days} days left`,
+        bgColor: 'bg-yellow-100',
+        textColor: 'text-yellow-800',
+        borderColor: 'border-yellow-300'
+      };
+    } else if (worker.shift_status === 'new_hire') {
+      return {
+        text: `🆕 New hire - ${days} days`,
+        bgColor: 'bg-blue-100',
+        textColor: 'text-blue-800',
+        borderColor: 'border-blue-300'
+      };
+    } else if (days <= 7) {
+      return {
+        text: `✅ ${days} days ago`,
+        bgColor: 'bg-green-100',
+        textColor: 'text-green-800',
+        borderColor: 'border-green-300'
+      };
+    } else {
+      return {
+        text: `📅 ${days} days ago`,
+        bgColor: 'bg-gray-100',
+        textColor: 'text-gray-800',
+        borderColor: 'border-gray-300'
+      };
+    }
+  };
+  
+  const shiftBadge = getShiftStatusBadge();
+  
   return (
     <div
       onClick={onClick}
@@ -397,6 +443,13 @@ const WorkerCard = ({ worker, theme, onClick }) => {
           )}
         </div>
       </div>
+
+      {/* Shift Status Badge */}
+      {shiftBadge && (
+        <div className={`mb-3 px-2 py-1 rounded text-xs font-medium border ${shiftBadge.bgColor} ${shiftBadge.textColor} ${shiftBadge.borderColor}`}>
+          {shiftBadge.text}
+        </div>
+      )}
 
       {/* Skills */}
       {worker.skills && worker.skills.length > 0 && (
