@@ -1187,8 +1187,8 @@ const FinancesTab = ({ theme, navigate }) => {
                 {timesheets.slice(0, 10).map((timesheet) => (
                   <tr key={timesheet.timesheet_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{timesheet.worker_details?.name || timesheet.worker_details?.email || 'Unknown Worker'}</div>
-                      <div className="text-xs text-gray-500">{timesheet.shift_date}</div>
+                      <div className="text-sm font-medium text-gray-900">{timesheet.worker_name || 'Unknown Worker'}</div>
+                      <div className="text-xs text-gray-500">Week: {timesheet.week_start} to {timesheet.week_end}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">{timesheet.position || 'N/A'}</div>
@@ -1197,21 +1197,23 @@ const FinancesTab = ({ theme, navigate }) => {
                       <div className="text-sm text-gray-600">{timesheet.workplace_name || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">${timesheet.actual_pay?.toFixed(2)}</div>
-                      <div className="text-xs text-gray-500">{timesheet.actual_hours}h × ${timesheet.hourly_rate}/hr</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        ${(timesheet.adjusted_pay || timesheet.total_pay || 0).toFixed(2)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {(timesheet.adjusted_hours || timesheet.total_hours || 0).toFixed(2)}h • {timesheet.shift_count || 0} shifts
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
                         <button
                           onClick={async () => {
                             try {
-                              await api.post(`/api/employer/timesheets/${timesheet.timesheet_id}/approve`, {
-                                approved: true
-                              });
+                              await api.post(`/api/employer/weekly-timesheets/${timesheet.timesheet_id}/approve`);
                               loadFinanceData(); // Reload data
                               alert('Timesheet approved!');
                             } catch (error) {
-                              alert('Failed to approve: ' + error.message);
+                              alert('Failed to approve: ' + (error.response?.data?.detail || error.message));
                             }
                           }}
                           className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700"
