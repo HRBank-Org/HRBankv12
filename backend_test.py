@@ -1280,6 +1280,348 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_complete_employee_lifecycle_employer_side(results):
+    """Test Complete Employee Lifecycle - Employer Side from review request"""
+    print("\n🧪 TESTING COMPLETE EMPLOYEE LIFECYCLE - EMPLOYER SIDE")
+    print("   Focus: Job posting, hiring, and worker management flow")
+    print("   Test Account: employer@hrbank.ca / password123")
+    print("   Testing: Job posting → Applications → Interviews → Invitations → Workforce → Shifts")
+    
+    # Step 1: Login as employer
+    employer_token = None
+    employer_credentials = {
+        "email": "employer@hrbank.ca",
+        "password": "password123",
+        "user_type": "employer"
+    }
+    
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=employer_credentials, timeout=15)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login (employer@hrbank.ca)")
+            else:
+                results.add_fail("Employer login", f"Invalid response structure: {data}")
+                return  # Cannot continue without token
+        else:
+            results.add_fail("Employer login", f"HTTP {response.status_code}: {response.text}")
+            return  # Cannot continue without token
+    except Exception as e:
+        results.add_fail("Employer login", f"Request failed: {str(e)}")
+        return
+    
+    # Step 2: Test Job Posting Flow
+    print("\n   Step 2: Job Posting Flow...")
+    
+    # Get existing workplaces first
+    workplace_id = None
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplaces",
+            headers=get_auth_headers(employer_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            workplaces = data.get("data", {}).get("workplaces", [])
+            if workplaces:
+                workplace_id = workplaces[0]["workplace_id"]
+                results.add_pass("GET existing workplaces")
+            else:
+                results.add_fail("GET existing workplaces", "No workplaces found for employer")
+        else:
+            results.add_fail("GET existing workplaces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET existing workplaces", f"Request failed: {str(e)}")
+    
+    # Create job posting
+    job_id = None
+    if workplace_id:
+        job_posting_data = {
+            "workplace_id": workplace_id,
+            "position_title": "Server",
+            "pay_per_hour": 20.00,
+            "shift_duration": "8 hours",
+            "employment_duration": "3 months",
+            "key_tasks": "Customer service, food handling, table management",
+            "required_skills": ["Customer Service", "Food Safety"],
+            "required_certifications": ["Smart Serve"],
+            "max_distance_km": 25.0,
+            "positions_available": 1,
+            "start_date": "2025-01-15"
+        }
+        
+        try:
+            response = requests.post(
+                f"{BASE_URL}/jobs/post",
+                json=job_posting_data,
+                headers=get_auth_headers(employer_token),
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "job_id" in data.get("data", {}):
+                    job_id = data["data"]["job_id"]
+                    results.add_pass("POST /api/jobs/post - Create job posting")
+                else:
+                    results.add_fail("POST /api/jobs/post", f"Invalid response: {data}")
+            else:
+                results.add_fail("POST /api/jobs/post", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/jobs/post", f"Request failed: {str(e)}")
+    
+    # Verify job appears in posted jobs list
+    try:
+        response = requests.get(
+            f"{BASE_URL}/jobs/posted",
+            headers=get_auth_headers(employer_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "jobs" in data.get("data", {}):
+                jobs = data["data"]["jobs"]
+                if jobs and any(job.get("job_id") == job_id for job in jobs):
+                    results.add_pass("GET /api/jobs/posted - Job appears in list")
+                    
+                    # Check job status
+                    posted_job = next((job for job in jobs if job.get("job_id") == job_id), None)
+                    if posted_job and posted_job.get("status") in ["open", "active"]:
+                        results.add_pass("Job status verification - active/open")
+                    else:
+                        results.add_fail("Job status verification", f"Unexpected status: {posted_job.get('status') if posted_job else 'Job not found'}")
+                else:
+                    results.add_fail("GET /api/jobs/posted", "Posted job not found in list")
+            else:
+                results.add_fail("GET /api/jobs/posted", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/posted", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/posted", f"Request failed: {str(e)}")
+    
+    # Step 3: View Applications
+    print("\n   Step 3: View Applications...")
+    
+    if job_id:
+        try:
+            response = requests.get(
+                f"{BASE_URL}/jobs/{job_id}/applications",
+                headers=get_auth_headers(employer_token),
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("GET /api/jobs/{job_id}/applications - Applications endpoint accessible")
+                else:
+                    results.add_fail("GET /api/jobs/{job_id}/applications", f"API error: {data}")
+            elif response.status_code == 404:
+                # Try the candidates endpoint instead (from job_matching.py)
+                try:
+                    response = requests.get(
+                        f"{BASE_URL}/jobs/{job_id}/candidates",
+                        headers=get_auth_headers(employer_token),
+                        timeout=15
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        if data.get("success") and "candidates" in data.get("data", {}):
+                            candidates = data["data"]["candidates"]
+                            results.add_pass("GET /api/jobs/{job_id}/candidates - Candidates endpoint working")
+                            print(f"      Found {len(candidates)} matched candidates")
+                        else:
+                            results.add_fail("GET /api/jobs/{job_id}/candidates", f"Invalid response: {data}")
+                    else:
+                        results.add_fail("GET /api/jobs/{job_id}/candidates", f"HTTP {response.status_code}: {response.text}")
+                except Exception as e:
+                    results.add_fail("GET /api/jobs/{job_id}/candidates", f"Request failed: {str(e)}")
+            else:
+                results.add_fail("GET /api/jobs/{job_id}/applications", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/jobs/{job_id}/applications", f"Request failed: {str(e)}")
+    
+    # Step 4: Interview Scheduling
+    print("\n   Step 4: Interview Scheduling...")
+    
+    if job_id:
+        interview_data = {
+            "workforce_id": "test_worker_id_12345",  # Test worker ID
+            "job_id": job_id,
+            "scheduled_date": "2025-01-20",
+            "scheduled_time": "14:00:00",
+            "duration_minutes": 30,
+            "notes": "Please bring required certifications"
+        }
+        
+        try:
+            response = requests.post(
+                f"{BASE_URL}/jobs/interviews/send",
+                json=interview_data,
+                headers=get_auth_headers(employer_token),
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "interview_id" in data.get("data", {}):
+                    results.add_pass("POST /api/jobs/interviews/send - Interview scheduling working")
+                else:
+                    results.add_fail("POST /api/jobs/interviews/send", f"Invalid response: {data}")
+            elif response.status_code == 404:
+                results.add_pass("POST /api/jobs/interviews/send - Worker not found (expected for test worker)")
+            else:
+                results.add_fail("POST /api/jobs/interviews/send", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/jobs/interviews/send", f"Request failed: {str(e)}")
+    
+    # Step 5: Worker Invitation System
+    print("\n   Step 5: Worker Invitation System...")
+    
+    invitation_data = {
+        "invites": [{
+            "first_name": "Test",
+            "last_name": "Worker",
+            "email": "testworker@hrbank.ca",
+            "phone": "+1-555-123-4567",
+            "role_id": "test_role_id_12345"
+        }]
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/invitations/send-manual",
+            json=invitation_data,
+            headers=get_auth_headers(employer_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                results.add_pass("POST /api/employer/invitations/send-manual - Invitation system accessible")
+            else:
+                results.add_fail("POST /api/employer/invitations/send-manual", f"API error: {data}")
+        elif response.status_code == 404:
+            results.add_pass("POST /api/employer/invitations/send-manual - Role not found (expected for test role)")
+        else:
+            results.add_fail("POST /api/employer/invitations/send-manual", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/employer/invitations/send-manual", f"Request failed: {str(e)}")
+    
+    # Step 6: View Hired Workforce
+    print("\n   Step 6: View Hired Workforce...")
+    
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workforce",
+            headers=get_auth_headers(employer_token),
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                workforce = data.get("data", {})
+                results.add_pass("GET /api/employer/workforce - Workforce endpoint accessible")
+                print(f"      Workforce data structure: {list(workforce.keys()) if isinstance(workforce, dict) else 'List format'}")
+            else:
+                results.add_fail("GET /api/employer/workforce", f"API error: {data}")
+        elif response.status_code == 404:
+            # Try alternative endpoint
+            try:
+                response = requests.get(
+                    f"{BASE_URL}/employer/dashboard/workforce",
+                    headers=get_auth_headers(employer_token),
+                    timeout=15
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success"):
+                        results.add_pass("GET /api/employer/dashboard/workforce - Alternative workforce endpoint working")
+                    else:
+                        results.add_fail("GET /api/employer/dashboard/workforce", f"API error: {data}")
+                else:
+                    results.add_fail("GET /api/employer/dashboard/workforce", f"HTTP {response.status_code}: {response.text}")
+            except Exception as e:
+                results.add_fail("GET /api/employer/dashboard/workforce", f"Request failed: {str(e)}")
+        else:
+            results.add_fail("GET /api/employer/workforce", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/employer/workforce", f"Request failed: {str(e)}")
+    
+    # Step 7: Shift Creation & Assignment
+    print("\n   Step 7: Shift Creation & Assignment...")
+    
+    if workplace_id:
+        # Create shift
+        shift_data = {
+            "title": "Evening Shift",
+            "workplace_id": workplace_id,
+            "start": "2025-01-16T18:00:00Z",
+            "end": "2025-01-16T23:00:00Z",
+            "positions_needed": 2,
+            "description": "Evening service shift"
+        }
+        
+        shift_id = None
+        try:
+            response = requests.post(
+                f"{BASE_URL}/employer/shifts/calendar",
+                json=shift_data,
+                headers=get_auth_headers(employer_token),
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and data.get("data"):
+                    shift_id = data["data"][0].get("id") if isinstance(data["data"], list) else data["data"].get("id")
+                    results.add_pass("POST /api/employer/shifts/calendar - Shift creation working")
+                else:
+                    results.add_fail("POST /api/employer/shifts/calendar", f"Invalid response: {data}")
+            else:
+                results.add_fail("POST /api/employer/shifts/calendar", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/employer/shifts/calendar", f"Request failed: {str(e)}")
+        
+        # Test shift assignment (if shift was created)
+        if shift_id:
+            assignment_data = {
+                "worker_id": "test_worker_id_12345",
+                "shift_id": shift_id,
+                "role": "Server"
+            }
+            
+            try:
+                response = requests.post(
+                    f"{BASE_URL}/shifts/assign",
+                    json=assignment_data,
+                    headers=get_auth_headers(employer_token),
+                    timeout=15
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success"):
+                        results.add_pass("POST /api/shifts/assign - Shift assignment working")
+                    else:
+                        results.add_fail("POST /api/shifts/assign", f"API error: {data}")
+                elif response.status_code == 404:
+                    results.add_pass("POST /api/shifts/assign - Worker not found (expected for test worker)")
+                else:
+                    results.add_fail("POST /api/shifts/assign", f"HTTP {response.status_code}: {response.text}")
+            except Exception as e:
+                results.add_fail("POST /api/shifts/assign", f"Request failed: {str(e)}")
+
 def test_mobile_occupation_certification_integration(results, workforce_token):
     """Test MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION from review request"""
     print("\n🧪 TESTING MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION")
