@@ -75,7 +75,7 @@ def calculate_fees(hourly_rate: float, minimum_rate: float = None, provincial_mi
         "fee_structure": "employer_only" if is_minimum_wage else "both_parties"
     }
 
-def calculate_shift_fees(hourly_rate: float, duration_hours: float, minimum_rate: float = None) -> Dict:
+def calculate_shift_fees(hourly_rate: float, duration_hours: float, minimum_rate: float = None, provincial_minimum: float = None) -> Dict:
     """
     Calculate total fees for a complete shift
     
