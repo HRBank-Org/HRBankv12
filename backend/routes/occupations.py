@@ -127,6 +127,20 @@ async def create_occupation_profile(
             detail="You already have a profile for this occupation"
         )
     
+    # Link to occupation template if provided
+    occupation_template_id = occupation_data.get("occupation_template_id")
+    if occupation_template_id:
+        # Verify template exists
+        template = await db.occupation_templates.find_one({
+            "template_id": occupation_template_id,
+            "is_active": True
+        })
+        if not template:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Occupation template not found"
+            )
+    
     # Create occupation profile - NO ADMIN APPROVAL NEEDED
     # Profile is immediately active for job matching (without certifications)
     occupation = OccupationProfile(
@@ -135,7 +149,12 @@ async def create_occupation_profile(
         **occupation_data
     )
     
-    await db.occupation_profiles.insert_one(occupation.model_dump())
+    # Add template link if provided
+    occupation_dict = occupation.model_dump()
+    if occupation_template_id:
+        occupation_dict["occupation_template_id"] = occupation_template_id
+    
+    await db.occupation_profiles.insert_one(occupation_dict)
     
     # Update workforce profile occupation count
     await db.workforce_profiles.update_one(
