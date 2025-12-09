@@ -1265,8 +1265,8 @@ const FinancesTab = ({ theme, navigate }) => {
         </div>
       )}
 
-      {/* QR Code & Geofencing Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          {/* QR Code & Geofencing Info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="font-semibold text-blue-900 mb-2">Attendance Methods Active</h3>
         <div className="flex items-center gap-6 text-sm text-blue-800">
           <div className="flex items-center gap-2">
