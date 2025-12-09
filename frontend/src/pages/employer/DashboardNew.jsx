@@ -1193,6 +1193,7 @@ const FinancesTab = ({ theme, navigate }) => {
               </tbody>
             </table>
           </div>
+        </div>
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
               <FiClock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
