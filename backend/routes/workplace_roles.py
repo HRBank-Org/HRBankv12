@@ -54,18 +54,36 @@ async def create_workplace_role(
             detail=f"Occupation template '{occupation_template}' not found"
         )
     
-    # Get minimum rate for this occupation
-    from utils.fee_calculator import get_minimum_rate_for_occupation, validate_hourly_rate
+    # Get employer's province
+    employer_profile = await db.employer_profiles.find_one(
+        {"employer_id": current_user['user_id']},
+        {"_id": 0, "province": 1}
+    )
     
-    minimum_rate = get_minimum_rate_for_occupation(occupation_template)
+    employer_province = employer_profile.get('province', 'ON') if employer_profile else 'ON'
+    
+    # Get provincial minimum wage
+    provincial_wage = await db.minimum_wages.find_one(
+        {"province_code": employer_province},
+        {"_id": 0, "minimum_wage": 1}
+    )
+    
+    provincial_minimum = provincial_wage['minimum_wage'] if provincial_wage else 16.55
+    
+    # Get occupation minimum rate
+    from utils.fee_calculator import get_minimum_rate_for_occupation
+    occupation_minimum = get_minimum_rate_for_occupation(occupation_template)
+    
+    # Effective minimum is the HIGHER of the two
+    effective_minimum = max(provincial_minimum, occupation_minimum)
     
     # Validate hourly rate if provided
     if role_data.hourly_rate:
-        validation = validate_hourly_rate(role_data.hourly_rate, occupation_template)
-        if not validation["is_valid"]:
+        if role_data.hourly_rate < effective_minimum:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=validation["error"]
+                detail=f"Hourly rate ${role_data.hourly_rate:.2f} is below the required minimum of ${effective_minimum:.2f}. "
+                       f"Provincial minimum wage: ${provincial_minimum:.2f}, Occupation minimum: ${occupation_minimum:.2f}"
             )
     
     # Combine occupation-required certs with employer's additional certs
