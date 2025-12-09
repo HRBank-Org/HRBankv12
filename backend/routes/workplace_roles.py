@@ -54,6 +54,20 @@ async def create_workplace_role(
             detail=f"Occupation template '{occupation_template}' not found"
         )
     
+    # Get minimum rate for this occupation
+    from utils.fee_calculator import get_minimum_rate_for_occupation, validate_hourly_rate
+    
+    minimum_rate = get_minimum_rate_for_occupation(occupation_template)
+    
+    # Validate hourly rate if provided
+    if role_data.hourly_rate:
+        validation = validate_hourly_rate(role_data.hourly_rate, occupation_template)
+        if not validation["is_valid"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=validation["error"]
+            )
+    
     # Combine occupation-required certs with employer's additional certs
     all_required_certs = list(set(occupation_required_certs + role_data.additional_certifications))
     
