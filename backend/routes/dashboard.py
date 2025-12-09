@@ -86,6 +86,56 @@ async def get_dashboard_workforce(
             sort=[("start_time", -1)]
         )
         
+        # Calculate days without shift (14-day rule tracking)
+        last_completed_shift = await db.bookings.find_one(
+            {
+                "employer_id": employer_id,
+                "workforce_id": workforce_id,
+                "status": "completed"
+            },
+            {"_id": 0, "end_time": 1, "shift_date": 1},
+            sort=[("end_time", -1)]
+        )
+        
+        days_without_shift = None
+        last_shift_date = None
+        shift_status = "active"
+        
+        if last_completed_shift:
+            last_shift_date_str = last_completed_shift.get('end_time') or last_completed_shift.get('shift_date')
+            if last_shift_date_str:
+                if isinstance(last_shift_date_str, str):
+                    last_shift_date = datetime.fromisoformat(last_shift_date_str.replace('Z', '+00:00'))
+                else:
+                    last_shift_date = last_shift_date_str
+                
+                days_without_shift = (datetime.utcnow() - last_shift_date).days
+                
+                # Determine shift status
+                if days_without_shift >= 14:
+                    shift_status = "at_risk_pool_return"  # Should be returned to pool
+                elif days_without_shift >= 10:
+                    shift_status = "warning"  # Warning zone
+                else:
+                    shift_status = "active"  # Good standing
+        else:
+            # No completed shifts - use employment start date
+            start_date_str = rel.get('employment_start_date')
+            if start_date_str:
+                if isinstance(start_date_str, str):
+                    start_date = datetime.fromisoformat(start_date_str.replace('Z', '+00:00'))
+                else:
+                    start_date = start_date_str
+                
+                days_without_shift = (datetime.utcnow() - start_date).days
+                
+                if days_without_shift >= 14:
+                    shift_status = "no_shifts_given"
+                elif days_without_shift >= 10:
+                    shift_status = "warning"
+                else:
+                    shift_status = "new_hire"
+        
         workers.append({
             "user_id": worker["user_id"],
             "name": worker.get("full_name") or worker["email"],
@@ -98,6 +148,9 @@ async def get_dashboard_workforce(
             "skills": list(all_skills)[:10],  # Limit to 10 skills for display
             "certifications": all_certifications,
             "workplace_id": recent_shift.get("workplace_id") if recent_shift else None,
+            "days_without_shift": days_without_shift,
+            "last_shift_date": last_shift_date.isoformat() if last_shift_date else None,
+            "shift_status": shift_status,
             "workplace_name": recent_shift.get("workplace_name") if recent_shift else None,
             "total_hours": rel.get("total_hours_worked", 0),
             "shifts_completed": rel.get("total_shifts_completed", 0),
