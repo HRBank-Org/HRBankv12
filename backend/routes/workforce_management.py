@@ -392,59 +392,102 @@ async def get_workforce_details(
 ):
     """
     Get detailed information about a specific worker
-    Includes current relationship, performance, and history
+    Includes profile, performance metrics, ratings, skills, certifications, and work history
     """
-    # Get current relationship
-    relationship = await db.employment_relationships.find_one({
-        "employer_id": current_user["user_id"],
-        "workforce_id": workforce_id
-    })
+    # Get worker profile
+    workforce_profile = await db.workforce_profiles.find_one(
+        {"user_id": workforce_id},
+        {"_id": 0}
+    )
     
-    if not relationship:
+    if not workforce_profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Employment relationship not found"
+            detail="Worker not found"
         )
     
-    # Get worker details
-    worker = await db.users.find_one(
+    # Get user basic info
+    user = await db.users.find_one(
         {"user_id": workforce_id},
         {"_id": 0, "password_hash": 0}
     )
     
-    # Get all bookings
+    # Get occupation profiles for skills and certifications
+    occupations = await db.occupation_profiles.find({
+        "user_id": workforce_id,
+        "active": True
+    }, {"_id": 0}).to_list(10)
+    
+    # Aggregate skills and certifications from all occupations
+    all_skills = set()
+    all_certifications = []
+    total_experience_years = 0
+    primary_occupation = None
+    
+    for occ in occupations:
+        all_skills.update(occ.get('skills', []))
+        all_certifications.extend(occ.get('certifications', []))
+        total_experience_years = max(total_experience_years, occ.get('years_of_experience', 0))
+        if not primary_occupation:
+            primary_occupation = occ.get('occupation_title')
+    
+    # Get all completed bookings with this employer
     bookings = await db.bookings.find({
         "employer_id": current_user["user_id"],
+        "workforce_id": workforce_id,
+        "status": "completed"
+    }, {"_id": 0}).to_list(1000)
+    
+    # Calculate total hours worked
+    total_hours = sum([b.get("duration_hours", 0) for b in bookings])
+    
+    # Get all ratings from this employer
+    ratings = await db.shift_ratings.find({
+        "employer_id": current_user["user_id"],
         "workforce_id": workforce_id
-    }).to_list(1000)
+    }, {"_id": 0}).to_list(1000)
     
-    # Get ratings
-    ratings = await db.ratings.find({
-        "from_user_id": current_user["user_id"],
-        "to_user_id": workforce_id
-    }).to_list(100)
+    # Calculate average rating per metric
+    rating_metrics = {}
+    if ratings:
+        metrics = ['technical_skills', 'communication', 'quality_of_work', 'timeliness', 'professionalism', 'teamwork']
+        for metric in metrics:
+            metric_values = [r.get('worker_ratings', {}).get(metric, 0) for r in ratings if r.get('worker_ratings', {}).get(metric)]
+            if metric_values:
+                rating_metrics[metric] = sum(metric_values) / len(metric_values)
     
+    # Calculate overall average
+    average_rating = sum(rating_metrics.values()) / len(rating_metrics) if rating_metrics else 0
+    
+    # Get hourly rate (from first occupation or employment relationship)
+    hourly_rate = None
+    relationship = await db.employment_relationships.find_one({
+        "employer_id": current_user["user_id"],
+        "workforce_id": workforce_id
+    }, {"_id": 0})
+    
+    if occupations and occupations[0].get('hourly_rate_preference'):
+        hourly_rate = occupations[0].get('hourly_rate_preference')
+    elif relationship:
+        hourly_rate = relationship.get('hourly_rate')
+    
+    # Prepare response data
     return {
         "success": True,
         "data": {
-            "worker": worker,
-            "relationship": {
-                "relationship_id": relationship["relationship_id"],
-                "status": relationship["status"],
-                "employment_start_date": relationship.get("employment_start_date"),
-                "employment_end_date": relationship.get("employment_end_date"),
-                "position_title": relationship.get("position_title"),
-                "employment_type": relationship.get("employment_type"),
-                "termination_reason": relationship.get("termination_reason"),
-                "eligible_for_rehire": relationship.get("eligible_for_rehire", True)
-            },
-            "performance": {
-                "total_shifts": len([b for b in bookings if b.get("status") == "completed"]),
-                "total_hours": sum([b.get("duration_hours", 0) for b in bookings if b.get("status") == "completed"]),
-                "pending_shifts": len([b for b in bookings if b.get("status") in ["pending", "accepted", "confirmed"]]),
-                "average_rating": relationship.get("average_rating"),
-                "total_ratings": len(ratings)
-            }
+            "user_id": workforce_id,
+            "name": f"{user.get('first_name', '')} {user.get('last_name', '')}".strip() or user.get('full_name', 'Worker'),
+            "photo_url": workforce_profile.get('profile_photo_url'),
+            "occupation": primary_occupation or 'General Worker',
+            "experience_years": total_experience_years,
+            "hourly_rate": hourly_rate,
+            "total_hours_worked": round(total_hours, 1),
+            "total_shifts_completed": len(bookings),
+            "average_rating": round(average_rating, 1) if average_rating > 0 else None,
+            "rating_count": len(ratings),
+            "ratings": rating_metrics,
+            "skills": list(all_skills),
+            "certifications": list(set(all_certifications))
         }
     }
 
