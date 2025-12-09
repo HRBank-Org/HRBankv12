@@ -1193,10 +1193,19 @@ const FinancesTab = ({ theme, navigate }) => {
               </tbody>
             </table>
           </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <FiClock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-600">No timesheets pending approval</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Live Attendance Preview */}
+      {/* LIVE ATTENDANCE VIEW */}
+      {activeView === 'attendance' && (
+        <div>
+          {/* Live Attendance Table */}
       {liveAttendance && liveAttendance.records && liveAttendance.records.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
