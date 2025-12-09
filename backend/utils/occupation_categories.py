@@ -1,7 +1,20 @@
 """
 Comprehensive occupation categories and titles for HR Bank
 Organized by industry sectors with common job titles
+
+Pricing Structure:
+- Super-admin sets minimum rates per occupation
+- Workers receive gross pay (deductions handled by payroll processors)
+- Platform fees:
+  * Minimum wage jobs: $1/hour fee to employer only
+  * Above minimum wage: $1/hour fee to BOTH worker and employer
 """
+
+# Ontario minimum wage (update as needed)
+MINIMUM_WAGE = 16.55
+
+# Platform fee structure
+PLATFORM_FEE_PER_HOUR = 1.00
 
 OCCUPATION_CATEGORIES = {
     "Food & Hospitality": {
