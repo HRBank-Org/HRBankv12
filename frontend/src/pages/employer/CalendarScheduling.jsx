@@ -298,13 +298,22 @@ const CalendarScheduling = () => {
           <h1 className="text-3xl font-bold text-gray-900">Schedule Calendar</h1>
         </div>
 
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <FiPlus className="w-5 h-5" />
-          Create Shift
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowRecruitment(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <FiUsers className="w-5 h-5" />
+            Find Workers
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <FiPlus className="w-5 h-5" />
+            Create Shift
+          </button>
+        </div>
       </div>
     );
   };
