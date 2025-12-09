@@ -948,19 +948,23 @@ const FinancesTab = ({ theme, navigate }) => {
 
       // Load timesheets (pending approval)
       const timesheetsRes = await api.get('/api/employer/timesheets/pending');
-      setTimesheets(timesheetsRes.data.data.timesheets || []);
+      console.log('Timesheets API Response:', timesheetsRes.data);
+      const loadedTimesheets = timesheetsRes.data.data.timesheets || [];
+      console.log('Loaded timesheets:', loadedTimesheets.length);
+      setTimesheets(loadedTimesheets);
 
       // Load financial stats from timesheets
       const stats = timesheetsRes.data.data;
       setFinancialStats({
-        total_hours_today: liveAttendance?.summary?.total_hours || 0,
-        estimated_payroll_today: liveAttendance?.summary?.estimated_cost || 0,
+        total_hours_today: attendanceRes.data.data?.summary?.total_hours || 0,
+        estimated_payroll_today: attendanceRes.data.data?.summary?.estimated_cost || 0,
         pending_approvals: stats.total_pending || 0,
         total_pending_pay: stats.total_pay || 0
       });
 
     } catch (error) {
       console.error('Failed to load finance data:', error);
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
