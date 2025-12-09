@@ -21,31 +21,34 @@ OCCUPATION_CATEGORIES = {
         "icon": "🍽️",
         "description": "Restaurants, hotels, catering, events",
         "occupations": [
-            "Server / Waiter / Waitress",
-            "Line Cook",
-            "Prep Cook",
-            "Dishwasher",
-            "Host / Hostess",
-            "Barista",
-            "Fast Food Worker",
-            "Food Runner",
-            "Busser",
-            "Catering Staff",
-            "Banquet Server",
-            "Hotel Front Desk",
-            "Housekeeper",
-            "Concierge",
-            "Room Attendant",
-            "Event Staff",
-            "Kitchen Manager",
-            "Restaurant Manager",
+            {"title": "Server / Waiter / Waitress", "minimum_hourly_rate": 16.55},
+            {"title": "Line Cook", "minimum_hourly_rate": 18.00},
+            {"title": "Prep Cook", "minimum_hourly_rate": 16.55},
+            {"title": "Dishwasher", "minimum_hourly_rate": 16.55},
+            {"title": "Host / Hostess", "minimum_hourly_rate": 16.55},
+            {"title": "Barista", "minimum_hourly_rate": 16.55},
+            {"title": "Fast Food Worker", "minimum_hourly_rate": 16.55},
+            {"title": "Food Runner", "minimum_hourly_rate": 16.55},
+            {"title": "Busser", "minimum_hourly_rate": 16.55},
+            {"title": "Catering Staff", "minimum_hourly_rate": 17.00},
+            {"title": "Banquet Server", "minimum_hourly_rate": 17.50},
+            {"title": "Hotel Front Desk", "minimum_hourly_rate": 18.00},
+            {"title": "Housekeeper", "minimum_hourly_rate": 16.55},
+            {"title": "Concierge", "minimum_hourly_rate": 19.00},
+            {"title": "Room Attendant", "minimum_hourly_rate": 16.55},
+            {"title": "Event Staff", "minimum_hourly_rate": 17.00},
+            {"title": "Kitchen Manager", "minimum_hourly_rate": 22.00},
+            {"title": "Restaurant Manager", "minimum_hourly_rate": 24.00},
             {
                 "title": "Bartender",
+                "minimum_hourly_rate": 17.50,
                 "required_certifications": [
                     "Smart Serve Ontario",
                     "Safe Food Handling Certificate"
                 ]
-            }
+            },
+            {"title": "Chef", "minimum_hourly_rate": 22.00},
+            {"title": "Sous Chef", "minimum_hourly_rate": 20.00}
         ]
     },
     "Retail & Grocery": {
