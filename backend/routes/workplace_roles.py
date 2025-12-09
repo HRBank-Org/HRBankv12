@@ -268,6 +268,175 @@ async def delete_workplace_role(
         "message": "Role deleted successfully"
     }
 
+@router.post("/{role_id}/post-to-match-engine", response_model=Dict)
+async def post_role_to_match_engine(
+    role_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Post an unfilled role to the match engine as a job posting
+    The match engine will find qualified candidates
+    """
+    
+    # Verify role belongs to employer and is unfilled
+    role = await db.workplace_roles.find_one({
+        "role_id": role_id,
+        "employer_id": current_user['user_id']
+    })
+    
+    if not role:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Role not found"
+        )
+    
+    if role.get('status') != 'unfilled':
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only post unfilled roles to match engine"
+        )
+    
+    # Get employer details
+    employer_profile = await db.employer_profiles.find_one(
+        {"employer_id": current_user['user_id']},
+        {"_id": 0}
+    )
+    
+    # Get workplace details if applicable
+    workplace = None
+    if role.get('workplace_id'):
+        workplace = await db.workplaces.find_one(
+            {"workplace_id": role['workplace_id']},
+            {"_id": 0}
+        )
+    
+    # Create job posting from role
+    job_posting = {
+        "job_id": f"job_{uuid.uuid4().hex[:12]}",
+        "employer_id": current_user['user_id'],
+        "company_name": employer_profile.get('company_name', 'Company'),
+        "workplace_id": role.get('workplace_id'),
+        "workplace_name": workplace.get('workplace_name') if workplace else None,
+        "workplace_address": workplace.get('address') if workplace else employer_profile.get('address'),
+        "workplace_latitude": workplace.get('latitude') if workplace else None,
+        "workplace_longitude": workplace.get('longitude') if workplace else None,
+        
+        # Job details from role
+        "position_title": role['role_name'],
+        "occupation_category": role['occupation_category'],
+        "job_title": f"{role['role_name']} ({role['occupation_template']})",
+        "job_description": role.get('description', f"We are looking for a qualified {role['occupation_template']} to join our team."),
+        "employment_type": "full_time",
+        
+        # Requirements
+        "required_skills": role.get('required_skills', []),
+        "required_certifications": role.get('required_certifications', []),
+        "occupation_required_certifications": role.get('occupation_required_certifications', []),
+        
+        # Compensation
+        "hourly_rate_min": role.get('hourly_rate'),
+        "hourly_rate_max": role.get('hourly_rate'),
+        
+        # Availability
+        "positions_available": role.get('positions_available', 1),
+        "max_distance_km": 50,  # Default 50km radius
+        
+        # Status
+        "status": "active",
+        "posted_from_role_id": role_id,
+        
+        # Metadata
+        "created_date": datetime.utcnow().isoformat(),
+        "application_deadline": (datetime.utcnow() + timedelta(days=30)).isoformat()
+    }
+    
+    await db.jobs.insert_one(job_posting)
+    
+    # Update role status
+    await db.workplace_roles.update_one(
+        {"role_id": role_id},
+        {"$set": {
+            "status": "posted_to_match",
+            "posted_as_job_id": job_posting['job_id'],
+            "posted_date": datetime.utcnow(),
+            "updated_date": datetime.utcnow()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "job_id": job_posting['job_id'],
+            "role_id": role_id
+        },
+        "message": f"Role '{role['role_name']}' posted to match engine successfully"
+    }
+
+@router.get("/{role_id}/matched-candidates", response_model=Dict)
+async def get_matched_candidates(
+    role_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get candidates matched to this role via the match engine
+    """
+    
+    # Verify role belongs to employer
+    role = await db.workplace_roles.find_one({
+        "role_id": role_id,
+        "employer_id": current_user['user_id']
+    })
+    
+    if not role:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Role not found"
+        )
+    
+    if role.get('status') != 'posted_to_match' or not role.get('posted_as_job_id'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Role has not been posted to match engine"
+        )
+    
+    job_id = role['posted_as_job_id']
+    
+    # Get matched candidates
+    matches = await db.job_matches.find(
+        {"job_id": job_id},
+        {"_id": 0}
+    ).sort("match_score", -1).to_list(100)
+    
+    # Enrich with worker details
+    for match in matches:
+        worker = await db.users.find_one(
+            {"user_id": match['workforce_id']},
+            {"_id": 0, "first_name": 1, "last_name": 1, "email": 1}
+        )
+        
+        if worker:
+            match['worker_name'] = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip()
+            match['worker_email'] = worker.get('email')
+        
+        # Get application status if exists
+        application = await db.job_applications.find_one(
+            {"job_id": job_id, "workforce_id": match['workforce_id']},
+            {"_id": 0, "status": 1}
+        )
+        
+        if application:
+            match['application_status'] = application.get('status')
+    
+    return {
+        "success": True,
+        "data": {
+            "matches": matches,
+            "total": len(matches)
+        }
+    }
+
 @router.get("/templates/occupations", response_model=Dict)
 async def get_occupation_templates(
     current_user: dict = Depends(require_role("employer")),
