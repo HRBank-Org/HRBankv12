@@ -1,170 +1,186 @@
 <analysis>**original_problem_statement:**
-The user initially reported two UI bugs on the employer dashboard: a pending ratings counter not updating in real-time and a slow sidebar hover trigger.
-
-This request quickly evolved into a series of major feature implementations and refinements:
-1.  **Worker Detail Modal:** Instead of navigating away, clicking a worker card on the Workforce tab should open a detailed modal with the worker's profile, experience, ratings, skills, and pay rate.
-2.  **Invitation System:** Build a comprehensive system for employers to invite their crew via email/phone. This must support both single-form invitations and bulk CSV uploads. Invited workers should be assigned a specific role.
-3.  **Profile Completion & Monitoring:** Invited workers with incomplete profiles should be reminded by Emma (the system) to complete their profile within 7 days, or their account will be stalled. If an employer-invited worker doesn't get a shift for 14 days, they are returned to the general workforce pool.
-4.  **Pricing & Fee Structure:** Implement a platform fee system. A /hour fee is charged to both the employer and the worker for any rate above the provincial minimum wage. The system must enforce that employers cannot set a pay rate below the legal minimum for their province.
-5.  **Provincial Minimum Wage Management:** Create a system for a super-admin to set and update minimum wage rates for each province/territory, ensuring compliance across the platform.
-6.  **14-Day Rule Indicator:** Add a visual indicator to worker cards in the All Workers section, showing how many days have passed since their last shift, to make employers aware of the 14-day rule.
-7.  **System Philosophy Documentation:** Document the platform's anti-abuse architecture, which ensures job postings are real and tied to registered companies, workplaces, and roles. This was later updated to reflect the dual accountability model, where both workers and employers are validated.
-8.  **Timesheet Management:** Create pseudo timesheets for past shifts and build a UI in the Finances tab for employers to review and approve them. The layout should be organized behind action buttons (Live Attendance, Timesheets, Payroll).
+The user initially reported two UI bugs on the employer dashboard: a pending ratings counter not updating and a slow sidebar hover trigger. This evolved into a series of major feature implementations:
+1.  **Worker Detail Modal:** Open a modal with worker details from the Workforce tab.
+2.  **Invitation System:** Allow employers to invite crew via email/phone, supporting single and bulk CSV uploads.
+3.  **Profile Completion & Monitoring:** Implement system reminders and rules for profile completion and shift activity (14-day rule).
+4.  **Pricing & Fee Structure:** Implement a /hour platform fee for rates above minimum wage.
+5.  **Provincial Minimum Wage Management:** Create a super-admin system to manage provincial minimum wage rates.
+6.  **14-Day Rule Indicator:** Add a visual indicator for the 14-day rule on worker cards.
+7.  **Timesheet Management & Payroll Flow:** Create a system for employers to review, approve, and edit timesheets. Approved timesheets should move to a Payroll tab for batch processing. Timesheets must be aggregated weekly (Sun-Sat) per worker, per employer.
+8.  **Automated Job Matching Engine:** Create a sophisticated matching engine that suggests jobs to workers and candidates to employers based on skills, certifications, availability, proximity (from a verified, locked address), and ratings.
+9.  **Standardized Roles via Templates:** Shift creation and worker profiles must inherit from super-admin Occupational Templates to standardize roles, skills, and pay rates across the platform.
+10. **Data Integrity:** Implement a system to verify a worker's address against their ID, locking it to prevent fraud and ensure accurate proximity matching.
+11. **Communication Hub:** Build out functional Notifications and Messages pages for platform communication.
 
 PRODUCT REQUIREMENTS:
-- **Employer Dashboard:** Must be the central hub for all new features.
-- **Workforce Tab:** Should house the worker cards (which trigger the detail modal) and the new invitation management UI.
-- **Finances Tab:** Should be refactored to have button-based navigation for Live Attendance, Timesheets, and a placeholder Payroll view.
-- **Backend:** Must support all new logic for invitations, roles, provincial wages, fee calculations, timesheets, and dashboard data aggregation.
-- **Compliance:** The system must strictly enforce provincial minimum wage laws during role creation.
+- **Employer Dashboard:** Central hub for all features.
+- **Finances Tab:** Must house the multi-stage Timesheet -> Payroll workflow.
+- **Recruitment Workflow:** Must support two flows: direct assignment of existing employees and using the match engine to find external candidates.
+- **Backend:** Must support all new logic for invitations, roles, provincial wages, fee calculations, weekly timesheets, payroll batching, address verification, and the job matching engine.
+- **Data Schemas:** Must be updated to support new requirements, including encrypted SINs for workers and payroll account numbers for employers.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The project is a full-stack application with a heavily modified employer dashboard (). The dashboard has multiple tabs managing different aspects of the business. Numerous backend features have been added, including APIs for workplace roles, a multi-faceted invitation system, provincial minimum wage management, a fee calculator, and timesheet management.
+The frontend is now functional after a critical compilation error was fixed. A highly complex, multi-stage, weekly-aggregated timesheet and payroll workflow has been implemented in the  tab. A backend system for Occupational Templates has been built and integrated into the Create Shift modal. A critical data integrity feature for verifying and locking worker addresses is also in place, with corresponding admin APIs. 20 test workforce profiles with hospitality experience have been seeded into the database to facilitate testing of the recruitment engine.
 
-However, the frontend is currently in a **broken state** and will not compile due to a syntax error introduced in  during the last set of edits.
+However, the application is currently experiencing a new frontend runtime error on the worker's Create Occupation Profile page.
 
 **Last working item**:
-- **Last item agent was working:** The agent was refactoring the  within . The user requested that the content (Live Attendance, Timesheets, Payroll) be placed behind clickable action buttons instead of being on the main view. While implementing this and fixing a related issue where Workplace showed as N/A, the agent introduced a JSX syntax error.
-- **Status:** BLOCKED
+- **Last item agent was working:** The agent was debugging a frontend runtime error and a UX issue reported by the user on the Create Occupation Profile page for workers ().
+    -   **React Error**: . The agent correctly identified that an object was being rendered directly in the JSX instead of one of its properties (e.g., ).
+    -   **UX Issue**: A dropdown menu for selecting occupations closes prematurely when the user moves their mouse.
+- **Status:** IN PROGRESS
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** Manual testing by viewing the file is required first to fix the syntax error. Then, the  tool should be used to verify the new layout of the Finances tab and check if the N/A issue in the attendance table is resolved.
+- **Which testing method agent to use?** . After fixing the code, the agent should take a screenshot of the  page to verify that the error is gone and the UX for the dropdown has been improved.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1 (P0):** Frontend fails to compile due to a syntax error in .
-- **Issue 2 (P1):** In the Live Attendance view on the  tab, the Workplace column displays N/A for all records.
-- **Issue 3 (P2):** The initial UI bugs (KPI counter not updating, slow sidebar) were marked as fixed by the agent but were never successfully tested or verified via the UI due to login issues. Their true status is unknown.
-- **Issue 4 (P3):** The provincial minimum wage admin API () was returning an empty list during testing, likely due to a data serialization issue with dates. The agent claimed the backend logic was fine but the API call failed.
+-   **Issue 1 (P0):** Frontend runtime error on the Create Occupation Profile page.
+-   **Issue 2 (P1):** The initial UI bugs (KPI counter not updating, slow sidebar hover) were marked as fixed by a previous agent but were never successfully tested or verified by the user. Their true status is unknown.
+-   **Issue 3 (P2):** The provincial minimum wage admin API () was reported in a previous session to return an empty list, likely due to a data serialization issue. This has not been addressed.
 
 **Issues Detail:**
-- **Issue 1: Frontend Compilation Error**
-    - **Attempted fixes:** The agent was in the process of refactoring the  UI when the error was introduced. The last frontend service restart failed with the error .
+- **Issue 1: Create Occupation Profile Page Error**
+    - **Attempted fixes:** The agent has successfully identified the location of the error in  (around line 238) where an object is being rendered instead of a string.
     - **Next debug checklist:**
-        1. View  and inspect line 1203.
-        2. Identify the mismatched JSX tag, brace, or parenthesis.
-        3. Correct the syntax error.
-        4. Restart the frontend service and confirm it compiles successfully.
-    - **Why fix this issue and what will be achieved with the fix?** This is a critical blocker. Fixing it will make the entire frontend application usable again.
+        1. Edit .
+        2. Locate the line where the  object is rendered and change it to render a specific property, like .
+        3. Investigate the dropdown component's hover/focus logic to prevent it from closing prematurely. This may involve changing from  events to a state-based approach using .
+        4. Use the  tool to confirm the page renders without errors and the dropdown is more user-friendly.
+    - **Why fix this issue and what will be achieved with the fix?** This page is critical for the worker side of the platform. Workers cannot create or manage their occupational profiles, which is a core part of the employee lifecycle and job matching.
     - **Status:** IN PROGRESS
     - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** Frontend.
     - **Blocked on other issue:** None.
 
-- **Issue 2: 'N/A' in Attendance Workplace Column**
-    - **Attempted fixes:** The agent verified that the backend API () correctly queries for the . The agent hypothesized that the test shifts in the database lack a .
-    - **Next debug checklist:**
-        1. After fixing the compilation error, create a new shift and explicitly associate it with the test workplace ().
-        2. Check the Live Attendance view to see if the workplace name appears for the new shift record.
-        3. If it still fails, inspect the data being passed from the  function to the attendance table component in .
-    - **Why fix this issue and what will be achieved with the fix?** It will provide employers with clear information about where their employees are clocked in.
-    - **Status:** NOT STARTED
-    - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Frontend.
-    - **Blocked on other issue:** Issue 1: Frontend Compilation Error.
-
 **In progress Task List**:
-- **Task 1: Complete and Verify Timesheet Feature**
-    - **Where to resume:** The UI has been refactored to place timesheets behind a button. Once the compilation error is fixed, the entire flow needs to be tested: clicking the Timesheets button, viewing the list of pending timesheets, and clicking the Approve button.
-    - **What will be achieved with this?** A functional timesheet approval system for employers, as requested by the user.
-    - **Status:** IN PROGRESS
-    - **Should Test frontend/backend/both after fix?** Both.
-    - **Blocked on something:** Issue 1: Frontend Compilation Error.
+None. The current focus is on fixing the Create Occupation Profile page bug.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **P0: Test and Validate All New Features:** Thoroughly test the end-to-end invitation flow (single and CSV), role creation with provincial wage validation, the worker detail modal, and the 14-day rule indicator.
-    - **P1: Build Notifications & Messages UI:** The backend routes exist, but the frontend pages (, ) are currently empty placeholders. This task involves building the UI to make the communication features functional again.
+    - **P0: Implement Full Recruitment Workflow UI:** After fixing the  bug, update the Create Workplace Role UI to first show matched employees from the employer's own roster, and if none are available, display candidates sourced from the platform-wide match engine.
+    - **P1: Build Functional Notifications & Messages UI:** The placeholder pages (, ) and the new  need to be connected to the backend APIs to become fully functional communication tools.
+    - **P2: End-to-End Test Invitation System:** Verify the complete flow for single and bulk CSV invitations, including the worker's acceptance process.
+
 - **Future Tasks:**
-    - **Code Cleanup:** Delete the old dashboard () and deprecated backend files ().
-    - **Payroll Integration:** Develop the Payroll tab functionality once APIs from Rippling or ADP are available.
-    - **Worker Availability:** Implement a feature for workers to set their available hours.
-    - **Auto-Match:** Create a feature to suggest suitable workers for open shifts.
+    - **Test Core Features:** Thoroughly test role creation with wage validation, the worker detail modal, and the 14-day rule indicator.
+    - **Data Schema Enhancements:** Implement the UI for workers to enter their (encrypted) SIN during onboarding and for employers to add their Payroll Account Number.
+    - **Code Cleanup:** Delete deprecated files (, ).
+    - **Payroll Integration:** Integrate with Rippling/ADP for payroll processing.
+    - **Worker Availability & Auto-Match:** Build the UI for workers to set their availability and for the system to automatically suggest matches for open shifts.
 
 **Completed work in this session**
-- **Worker Detail Modal:** Implemented a modal that opens from the worker cards, fetching and displaying detailed worker information. Fixed a bug where it failed to load due to an incorrect API endpoint URL.
-- **Full Invitation System (Backend & Frontend):**
-    - Created UI for single and bulk CSV invites ().
-    - Implemented backend for creating and accepting role-based invitations.
-    - Fixed a bug with the CSV template download link.
-- **Workplace Role Management:** Built backend APIs for employers to create custom roles within their workplaces, based on super-admin occupational templates.
-- **Provincial Minimum Wage & Fee Compliance System:**
-    - Developed a system to enforce provincial minimum wage during role creation.
-    - Implemented the platform's /hour fee structure.
-    - Created admin endpoints to manage wage rates.
-- **14-Day Shift Rule Indicator:** Added a visual badge to worker cards indicating days since their last shift.
-- **Timesheet System (Initial Implementation):** Created backend APIs and test data for timesheet approval. Added a UI section to the  tab (currently broken by refactoring).
-- **System Philosophy Documentation:** Created  to document the platform's anti-abuse and dual-accountability model.
-- **Bug Fixes:**
-    - **(Partially) Initial UI bugs:** Addressed the non-updating KPI counter and slow sidebar hover trigger (requires user verification).
-    - **Workplace Display:** Fixed a bug where the Schedule tab showed No workplaces yet due to a typo in an API URL.
+- **Critical Frontend Fix:** Resolved the JSX compilation error in  that was blocking all frontend work.
+- **Payroll & Timesheet Overhaul:**
+    - Architected and implemented a complete timesheet-to-payroll workflow.
+    - Re-architected the system to use **weekly aggregated timesheets** instead of per-shift timesheets, as requested.
+    - Implemented a full UI on the  tab with Timesheets (pending) and Payroll (approved) views.
+    - Created a functional Edit Hours modal with real-time pay calculation.
+    - Fixed the Save Changes bug in the edit modal.
+- **Occupational Template System:**
+    - Architected and built a backend system for super-admin managed Occupational Templates.
+    - Seeded the database with 6 default templates (Server, Bartender, etc.).
+    - Integrated these templates into the Create Shift modal with a new dropdown selector.
+- **Data Integrity & Security:**
+    - Architected and implemented a critical **address verification and lock system** to ensure accurate proximity matching and prevent fraud.
+    - Created backend APIs for admins to verify users and for the system to prevent address changes once locked.
+- **Test Data Generation:** Created a script to seed the database with 20 realistic, template-linked workforce profiles for testing the recruitment engine.
+- **Backend Infrastructure:**
+    - Resolved a critical API router conflict between two job-related routers.
+    - Added routes and models for weekly timesheets, occupational templates, and admin ID verification.
+- **UI/UX Refinements:**
+    - Refactored the  tab to use a clean, button-based navigation.
+    - Fixed the N/A bug in the Live Attendance table.
+    - Cleaned up redundant UI elements based on user feedback.
+    - Fixed an issue where worker names were not appearing on timesheets.
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1: Deprecated Code:** The old dashboard file () and old backend shift management files (, ) have not been deleted.
+-   **Issue 1: Deprecated Code:** The old dashboard file () and old backend shift management files (, ) have not been deleted.
+-   **Issue 2: Admin API Failure:** The provincial minimum wage admin API () was reported to be failing but has not been investigated or fixed.
+-   **Issue 3: Unverified UI Bugs:** The original bugs (non-updating KPI counter, slow sidebar) have not been verified by the user.
+
+**Known issue recurrence from previous fork**
+- None.
 
 **Code Architecture**
 
 
 **key DB schema**
-- : 
-- : 
-- : 
-- : 
-- : 
-- : 
+- : {..., : bool, : str ('pending', 'verified', 'rejected')}
+- : {..., : str}
+- : {..., : str}
+- : Replaced with a weekly aggregation concept. Schema reflects weekly totals.
+
+**changes in tech stack**
+-   : Added to the backend for handling encryption of sensitive fields like SIN.
 
 **All files of reference**
-- : **The most critical file.** It contains the logic for almost all recent features and is currently broken.
-- : The UI for the new invitation system.
-- : The modal for displaying worker details.
-- : The new API for managing timesheets.
-- : The core logic for the new pricing structure.
-- : The admin API for managing compliance.
-- : The API for the new invitation flow.
+- : The heart of the employer-facing application, containing the entire new Finances tab logic.
+- : The source of the current blocking issue.
+- : The new, critical backend logic for timesheet aggregation.
+- : The API for the new address locking security feature.
+- : Contains the logic for the 20 test profiles.
+
+**Areas that need refactoring**:
+-   The  file is becoming extremely large and complex. It should be broken down into smaller, more manageable components, especially the .
+
+**key api endpoints**
+-   : Fetches pending weekly timesheets for the employer.
+-   : Fetches approved weekly timesheets for the payroll view.
+-   : Approves a weekly timesheet.
+-   : Moves an approved timesheet back to pending status.
+-   : Updates the hours for a weekly timesheet.
+-   : Lists available super-admin occupation templates.
+-   : Admin endpoint to verify a worker's ID and lock their address.
 
 **Critical Info for New Agent**
-- **IMMEDIATE BLOCKER:** You must first fix the syntax error in  on or around line 1203. The frontend will not compile until this is resolved.
-- **Verify, Don't Assume:** The previous agent marked several fixes (KPI counter, sidebar hover, provincial wage API) as complete without successful UI or API testing. You must verify these fixes are actually working.
-- **User-Driven Development:** The user frequently adds new requirements and provides specific UI/UX feedback. Be prepared to pivot and prioritize user requests.
-- **Data Dependency:** Many UI components (Worker Modal, Timesheets, Attendance) fail to render correctly if the underlying test data in the database is missing or incomplete (e.g., shifts without a ). Always ensure test data is comprehensive.
+-   **IMMEDIATE BLOCKER:** You must first fix the React runtime error in . Workers cannot create occupation profiles until this is resolved.
+-   **Timesheet Architecture:** The system has moved from per-shift timesheets to **weekly aggregated timesheets**. All new development on timesheets or payroll must follow this weekly model.
+-   **Data Integrity:** The address lock system is a critical security and functionality feature. Proximity-based matching relies on these verified addresses.
+-   **Next Major Task:** After fixing the current bug, the user's highest priority is to build the UI for the two-tiered recruitment workflow: showing internal candidates first, then showing candidates from the match engine.
 
 **documents created in this job**
 - 
+- 
 
 **Last 10 User Messages and any pending user messages**
-1. **User asks to test timesheets**: Requested a pseudo timesheet be created to test the approval flow in the Finances tab. (Agent created data and started implementation).
-2. **User reports no timesheets are visible**: Provided a screenshot showing the Finances tab is empty. (Agent began debugging).
-3. **User asks to see one created timesheet**: User is confused why no timesheets are showing up. (Agent confirmed data exists and continued debugging).
-4. **User clarifies Finances tab layout**: Requested that Timesheets, Attendance, and Payroll be placed behind action buttons, not on the main view. Also asked why the attendance table shows N/A for workplaces. (This is the current task).
-5. **User sees compilation error**: User provided the frontend error log. (This is the current blocker).
-6. **User approves plan**: you are the best, lets move on with further implementation of our plan (Agent provided a summary of next steps).
-7. **User asks why no workplaces yet**: Provided screenshot of empty Schedule tab. (Agent found and fixed a URL typo).
-8. **User explains dual accountability**: Clarified that workers are also validated. (Agent updated docs).
-9. **User explains system philosophy**: Explained the anti-abuse architecture. (Agent documented it).
-10. **User requests 14-day rule indicator**: Asked for a visual cue on worker cards. (Agent implemented it).
+1.  **User asks what's next:** Agent provides a detailed list of remaining tasks. (COMPLETED)
+2.  **User suggests a new feature:** Inherit position/rates from occupational templates in the shift creation dialog to improve matching. (COMPLETED, feature implemented)
+3.  **User confirms plan:** Tells the agent to make it part of the plan and start implementing. (COMPLETED)
+4.  **User provides critical context on matching engine:** Explains the goal is to automate job finding based on availability, skills, and proximity. (COMPLETED)
+5.  **User details the full recruitment workflow:** Explains the two flows (internal assignment vs. external match engine) and the need for workforce profiles to inherit from templates. Requests 20 test profiles. (COMPLETED, test profiles created)
+6.  **User adds a critical security requirement:** Worker addresses must be locked after ID verification to ensure data integrity for proximity matching. (COMPLETED, feature implemented)
+7.  **User reports an error:** creating an occupational profile gave me error. (IN PROGRESS)
+8.  **User provides the exact React error:** Provides the Objects are not valid as a React child error and also reports a UX issue with a dropdown menu. (IN PROGRESS, this is the current task)
 
 **Project Health Check:**
 - **Broken:**
-    - The entire frontend application is down due to a compilation error in .
-    - The Live Attendance view shows N/A for workplaces.
+    - The  page is down due to a React runtime error.
 - **Mocked:**
-    - The Payroll section in the  tab is a placeholder.
-    - The  and  pages are placeholders.
+    - The Payroll tab has a Process All button, but it is not yet connected to a third-party payment processor (e.g., Rippling/ADP).
+    - The Notifications and Messages pages are still UI placeholders and not connected to backend APIs.
+    - The Edit button for timesheets in the Payroll tab moves the item back but doesn't allow editing yet.
 
 **3rd Party Integrations**
 - : Used for the scheduling UI.
 - Twilio (via ): For SMS notifications.
 - SendGrid (via ): For email notifications.
 - : For generating QR codes for attendance.
+- **Rippling/ADP (PLANNED):** The system is being prepared for integration with a payroll processor.
 
 **Testing status**
-- **Testing agent used after significant changes:** NO (not for any of the recent major features).
+- **Testing agent used after significant changes:** YES. It was used to diagnose a critical backend router conflict, which was successfully fixed. It was also used to verify the payroll workflow.
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None.
-- **Known regressions:** The entire frontend is non-functional due to the latest edit.
+- **Known regressions:** The Create Occupation Profile page is now broken.
+
+**Credentials to test flow:**
+The agent created a new employer user  with password  to successfully log in. The original  user has a password hashing issue.
 
 **What agent forgot to execute**
-- The agent never performed a successful UI test/verification for the initial bug fixes (KPI counter, sidebar).
-- The agent did not delete the deprecated files (, ) as planned.
-- The agent did not resolve the API failure for listing provincial minimum wages, instead claiming the backend logic was correct despite a failing test.</analysis>
+- The agent has not yet addressed the original handoff items that have been carried over:
+    - Deleting deprecated files (, ).
+    - Fixing the failing  API endpoint.
+    - Verifying the original UI bugs (KPI counter, sidebar hover) with the user.
+- These tasks have been consistently deprioritized in favor of new, more complex features requested by the user.</analysis>

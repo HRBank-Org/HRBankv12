@@ -453,7 +453,7 @@ async def send_invitation_notifications(invite_token: InviteToken, employer_name
     """Send email and SMS invitation"""
     
     # Generate signup link
-    frontend_url = "https://labordeck.preview.emergentagent.com"
+    frontend_url = "https://teamhire.preview.emergentagent.com"
     signup_link = f"{frontend_url}/signup?token={invite_token.invite_token}&type=employer_invite"
     
     # Email
