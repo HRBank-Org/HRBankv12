@@ -326,10 +326,10 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
 };
 
 // Worker Card Component
-const WorkerCard = ({ worker, theme, navigate }) => {
+const WorkerCard = ({ worker, theme, onClick }) => {
   return (
     <div
-      onClick={() => navigate(`/employer/workforce/${worker.user_id}`)}
+      onClick={onClick}
       className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all cursor-pointer group"
     >
       {/* Worker Photo */}
