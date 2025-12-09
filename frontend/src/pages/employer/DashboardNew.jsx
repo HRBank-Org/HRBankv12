@@ -1069,9 +1069,21 @@ const FinancesTab = ({ theme, navigate }) => {
       </div>
 
       {/* Debug - Remove after testing */}
-      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-        <p className="text-sm">Debug: Timesheets state = {timesheets ? timesheets.length : 'null'}</p>
+      <div className="mb-4 p-4 bg-yellow-100 border-2 border-yellow-500 rounded-lg">
+        <p className="text-sm font-bold text-gray-900">🔍 DEBUG INFO:</p>
+        <p className="text-sm">Timesheets array: {timesheets ? JSON.stringify(timesheets.length) : 'NULL'}</p>
         <p className="text-sm">Loading: {loading ? 'Yes' : 'No'}</p>
+        <p className="text-sm">Financial Stats: {financialStats ? 'Loaded' : 'NULL'}</p>
+        <p className="text-xs mt-2 text-gray-600">Check browser console (F12) for API logs</p>
+      </div>
+
+      {/* Pending Timesheets - ALWAYS SHOW FOR DEBUGGING */}
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded">
+        <h3 className="font-bold mb-2">Timesheets Section (Always Visible for Debug)</h3>
+        <p>Condition: timesheets={timesheets ? 'exists' : 'null'}, length={timesheets?.length}</p>
+        {!timesheets && <p className="text-red-600">Timesheets is NULL!</p>}
+        {timesheets && timesheets.length === 0 && <p className="text-orange-600">Timesheets array is EMPTY!</p>}
+        {timesheets && timesheets.length > 0 && <p className="text-green-600">Timesheets array has {timesheets.length} items!</p>}
       </div>
 
       {/* Pending Timesheets */}
