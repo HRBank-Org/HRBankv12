@@ -227,11 +227,13 @@ qr_code.workplace_id == shift.workplace_id
 
 ---
 
-### **7. MATCH ENGINE RESTRICTIONS (Qualified Postings Only)**
+### **7. MATCH ENGINE - TWO-WAY VALIDATION**
 
-**Problem Prevented:** Spam postings, fake jobs flooding the platform
+**Problem Prevented:** Spam postings, fake jobs, unqualified workers, credential fraud
 
-**Our Solution:**
+**Our Solution - BOTH SIDES VALIDATED:**
+
+#### **Employer Side (Job Posting Validation):**
 - ✅ Jobs can ONLY be posted from existing unfilled roles
 - ✅ Role must have passed all compliance validations
 - ✅ Workplace must exist and be active
@@ -242,14 +244,91 @@ qr_code.workplace_id == shift.workplace_id
 **Job Posting Requirements:**
 ```python
 # To post job to match engine:
-requirements = {
+employer_requirements = {
     'unfilled_role': True,              # Must have created role first
     'workplace_active': True,           # Workplace exists and operational
     'rate_validated': True,             # Meets all minimum wage requirements
     'certifications_defined': True,     # Required certs specified
     'employer_payment_method': True,    # Payment method verified
-    'no_outstanding_violations': True   # Clean compliance record
+    'no_outstanding_violations': True,  # Clean compliance record
+    'real_business_operations': True    # Tied to actual workplace
 }
+```
+
+#### **Worker Side (Match Engine Access Validation):**
+- ✅ Workers must be validated by HR Bank staff BEFORE pool entry
+- ✅ Experience verified and documented
+- ✅ Work eligibility confirmed
+- ✅ Credentials issued by verified institutions
+- ✅ Background checks completed
+- ✅ Skills assessed and certified
+- ✅ Reputation score must meet minimum threshold
+
+**Worker Matching Requirements:**
+```python
+# To be matched to jobs:
+worker_requirements = {
+    'profile_verified_by_hr_bank_staff': True,  # Human review completed
+    'work_eligibility_confirmed': True,         # Legal to work
+    'credentials_validated': True,              # Certs verified via institutions
+    'experience_checked': True,                 # Previous employers contacted
+    'background_check_passed': True,            # No disqualifying issues
+    'required_certifications_valid': True,      # Not expired
+    'reputation_score_acceptable': True,        # Good attendance history
+    'skills_match_job_requirements': True       # Qualified for role
+}
+```
+
+#### **Matching Algorithm Validation:**
+```python
+# Match engine ensures:
+def match_worker_to_job(worker, job):
+    # Worker qualifications
+    assert worker.profile_verified == True
+    assert worker.has_required_certifications(job.required_certs)
+    assert worker.experience_years >= job.minimum_experience
+    assert worker.reputation_score >= job.minimum_reputation
+    assert worker.work_eligibility_valid == True
+    
+    # Employer legitimacy
+    assert job.from_validated_role == True
+    assert job.workplace_exists == True
+    assert job.rate >= provincial_minimum
+    assert job.rate >= occupation_minimum
+    assert employer.payment_method_verified == True
+    
+    # Both sides accountable
+    if match_accepted:
+        create_binding_commitment()
+        track_attendance()
+        enforce_14_day_rule()
+        update_both_reputation_scores()
+```
+
+#### **Post-Match Accountability:**
+```python
+# After match is made and accepted:
+
+# Worker must:
+- Show up to shift (geofence verified)
+- Check in via QR code
+- Complete scheduled hours
+- Maintain professional conduct
+- Earn positive ratings from employer
+
+# Employer must:
+- Provide work within 14 days
+- Maintain safe workplace
+- Pay agreed rate (no reduction)
+- Provide scheduled hours
+- Rate worker fairly
+
+# Platform enforces:
+- Attendance tracking (geofence + QR)
+- 14-day rule automation
+- Payment processing
+- Dispute resolution
+- Reputation score updates for both parties
 ```
 
 ---
