@@ -1135,24 +1135,13 @@ const FinancesTab = ({ theme, navigate }) => {
                           Approve
                         </button>
                         <button
-                          onClick={async () => {
-                            const reason = prompt('Rejection reason:');
-                            if (reason) {
-                              try {
-                                await api.post(`/api/employer/timesheets/${timesheet.timesheet_id}/approve`, {
-                                  approved: false,
-                                  rejection_reason: reason
-                                });
-                                loadFinanceData();
-                                alert('Timesheet rejected');
-                              } catch (error) {
-                                alert('Failed to reject: ' + error.message);
-                              }
-                            }
+                          onClick={() => {
+                            // TODO: Open edit modal
+                            alert('Edit functionality - Coming soon!');
                           }}
-                          className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700"
+                          className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700"
                         >
-                          Reject
+                          Edit
                         </button>
                       </div>
                     </td>
