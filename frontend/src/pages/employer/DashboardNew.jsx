@@ -204,23 +204,47 @@ const EmployerDashboardNew = () => {
 const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   const [showWorkerModal, setShowWorkerModal] = useState(false);
+  const [showInvitations, setShowInvitations] = useState(false);
 
   const handleWorkerClick = (workerId) => {
     setSelectedWorkerId(workerId);
     setShowWorkerModal(true);
   };
 
+  if (showInvitations) {
+    return (
+      <div>
+        <button
+          onClick={() => setShowInvitations(false)}
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
+        >
+          ← Back to Workforce
+        </button>
+        <InvitationManager />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-900">Workforce Inventory</h2>
-        <button
-          onClick={() => navigate('/employer/find-workers')}
-          className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-all"
-          style={{ backgroundColor: theme.primaryColor }}
-        >
-          + Recruit Workers
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowInvitations(true)}
+            className="px-4 py-2 rounded-lg border-2 font-medium hover:opacity-90 transition-all"
+            style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
+          >
+            📧 Roles & Invitations
+          </button>
+          <button
+            onClick={() => navigate('/employer/find-workers')}
+            className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-all"
+            style={{ backgroundColor: theme.primaryColor }}
+          >
+            + Recruit Workers
+          </button>
+        </div>
       </div>
 
       {/* Workforce Distribution */}
