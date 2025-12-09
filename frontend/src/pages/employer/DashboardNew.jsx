@@ -1063,6 +1063,97 @@ const FinancesTab = ({ theme, navigate }) => {
         </button>
       </div>
 
+      {/* Pending Timesheets */}
+      {timesheets && timesheets.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Timesheets Pending Approval ({timesheets.length})</h3>
+            <button
+              onClick={() => navigate('/employer/timesheets')}
+              className="text-sm font-medium hover:underline"
+              style={{ color: theme.primaryColor }}
+            >
+              View All Timesheets
+            </button>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hours</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {timesheets.slice(0, 10).map((timesheet) => (
+                  <tr key={timesheet.timesheet_id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{timesheet.worker_name}</div>
+                      <div className="text-xs text-gray-500">{timesheet.position || timesheet.workplace_name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">{timesheet.shift_date}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{timesheet.actual_hours}h</div>
+                      <div className="text-xs text-gray-500">Scheduled: {timesheet.scheduled_hours}h</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">${timesheet.actual_pay?.toFixed(2)}</div>
+                      <div className="text-xs text-gray-500">${timesheet.hourly_rate}/hr</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async () => {
+                            try {
+                              await api.post(`/api/employer/timesheets/${timesheet.timesheet_id}/approve`, {
+                                approved: true
+                              });
+                              loadFinanceData(); // Reload data
+                              alert('Timesheet approved!');
+                            } catch (error) {
+                              alert('Failed to approve: ' + error.message);
+                            }
+                          }}
+                          className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const reason = prompt('Rejection reason:');
+                            if (reason) {
+                              try {
+                                await api.post(`/api/employer/timesheets/${timesheet.timesheet_id}/approve`, {
+                                  approved: false,
+                                  rejection_reason: reason
+                                });
+                                loadFinanceData();
+                                alert('Timesheet rejected');
+                              } catch (error) {
+                                alert('Failed to reject: ' + error.message);
+                              }
+                            }
+                          }}
+                          className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Live Attendance Preview */}
       {liveAttendance && liveAttendance.records && liveAttendance.records.length > 0 && (
         <div className="mb-6">
