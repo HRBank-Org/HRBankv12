@@ -933,14 +933,19 @@ const FinancesTab = ({ theme, navigate }) => {
   const [activeView, setActiveView] = useState('attendance'); // attendance, timesheets, payroll
   const [liveAttendance, setLiveAttendance] = useState(null);
   const [timesheets, setTimesheets] = useState([]);
+  const [approvedTimesheets, setApprovedTimesheets] = useState([]);
   const [financialStats, setFinancialStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTimesheet, setEditingTimesheet] = useState(null);
+  const [adjustedHours, setAdjustedHours] = useState('');
+  const [adjustmentReason, setAdjustmentReason] = useState('');
 
   useEffect(() => {
     console.log('FinancesTab useEffect triggered');
     loadFinanceData();
-  }, [selectedDate]);
+  }, [selectedDate, activeView]);
 
   const loadFinanceData = async () => {
     try {
@@ -955,13 +960,23 @@ const FinancesTab = ({ theme, navigate }) => {
       console.log('Loaded timesheets:', loadedTimesheets.length);
       setTimesheets(loadedTimesheets);
 
+      // Load approved timesheets for payroll tab
+      const approvedRes = await api.get('/api/employer/payroll-management/approved-timesheets');
+      console.log('Approved Timesheets API Response:', approvedRes.data);
+      const loadedApproved = approvedRes.data.data.timesheets || [];
+      console.log('Loaded approved timesheets:', loadedApproved.length);
+      setApprovedTimesheets(loadedApproved);
+
       // Load financial stats from timesheets
       const stats = timesheetsRes.data.data;
+      const approvedStats = approvedRes.data.data;
       setFinancialStats({
         total_hours_today: attendanceRes.data.data?.summary?.total_hours || 0,
         estimated_payroll_today: attendanceRes.data.data?.summary?.estimated_cost || 0,
         pending_approvals: stats.total_pending || 0,
-        total_pending_pay: stats.total_pay || 0
+        total_pending_pay: stats.total_pay || 0,
+        approved_count: approvedStats.total_ready || 0,
+        approved_total: approvedStats.total_pay || 0
       });
 
     } catch (error) {
