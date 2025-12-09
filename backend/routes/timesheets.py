@@ -55,7 +55,7 @@ async def get_pending_timesheets(
                 'email': worker.get('email')
             }
         
-        # Get occupation
+        # Get occupation from occupation_profiles first, fallback to booking position
         occupation = await db.occupation_profiles.find_one(
             {"user_id": timesheet['workforce_id'], "active": True},
             {"_id": 0, "occupation_title": 1}
@@ -63,6 +63,23 @@ async def get_pending_timesheets(
         
         if occupation:
             timesheet['position'] = occupation.get('occupation_title')
+        elif not timesheet.get('position'):
+            # Try to get from the shift/booking
+            shift = await db.bookings.find_one(
+                {"shift_id": timesheet.get('shift_id')},
+                {"_id": 0, "position": 1}
+            )
+            if shift:
+                timesheet['position'] = shift.get('position')
+        
+        # Get workplace details
+        if timesheet.get('workplace_id') and not timesheet.get('workplace_name'):
+            workplace = await db.workplaces.find_one(
+                {"workplace_id": timesheet['workplace_id']},
+                {"_id": 0, "name": 1}
+            )
+            if workplace:
+                timesheet['workplace_name'] = workplace.get('name')
     
     # Calculate totals
     total_hours = sum([ts.get('actual_hours', 0) for ts in timesheets])
