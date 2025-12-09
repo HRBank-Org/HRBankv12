@@ -953,30 +953,28 @@ const FinancesTab = ({ theme, navigate }) => {
       const attendanceRes = await api.get(`/api/live-attendance/today?date=${selectedDate}`);
       setLiveAttendance(attendanceRes.data.data);
 
-      // Load timesheets (pending approval)
-      const timesheetsRes = await api.get('/api/employer/timesheets/pending');
-      console.log('Timesheets API Response:', timesheetsRes.data);
+      // Load weekly timesheets (pending approval)
+      const timesheetsRes = await api.get('/api/employer/weekly-timesheets/pending');
+      console.log('Weekly Timesheets API Response:', timesheetsRes.data);
       const loadedTimesheets = timesheetsRes.data.data.timesheets || [];
-      console.log('Loaded timesheets:', loadedTimesheets.length);
+      console.log('Loaded weekly timesheets:', loadedTimesheets.length);
       setTimesheets(loadedTimesheets);
 
-      // Load approved timesheets for payroll tab
-      const approvedRes = await api.get('/api/employer/payroll-management/approved-timesheets');
-      console.log('Approved Timesheets API Response:', approvedRes.data);
+      // Load approved weekly timesheets for payroll tab
+      const approvedRes = await api.get('/api/employer/weekly-timesheets/approved');
+      console.log('Approved Weekly Timesheets API Response:', approvedRes.data);
       const loadedApproved = approvedRes.data.data.timesheets || [];
-      console.log('Loaded approved timesheets:', loadedApproved.length);
+      console.log('Loaded approved weekly timesheets:', loadedApproved.length);
       setApprovedTimesheets(loadedApproved);
 
       // Load financial stats from timesheets
-      const stats = timesheetsRes.data.data;
-      const approvedStats = approvedRes.data.data;
       setFinancialStats({
         total_hours_today: attendanceRes.data.data?.summary?.total_hours || 0,
         estimated_payroll_today: attendanceRes.data.data?.summary?.estimated_cost || 0,
-        pending_approvals: stats.total_pending || 0,
-        total_pending_pay: stats.total_pay || 0,
-        approved_count: approvedStats.total_ready || 0,
-        approved_total: approvedStats.total_pay || 0
+        pending_approvals: loadedTimesheets.length,
+        total_pending_pay: loadedTimesheets.reduce((sum, ts) => sum + (ts.adjusted_pay || ts.total_pay || 0), 0),
+        approved_count: loadedApproved.length,
+        approved_total: loadedApproved.reduce((sum, ts) => sum + (ts.adjusted_pay || ts.total_pay || 0), 0)
       });
 
     } catch (error) {
