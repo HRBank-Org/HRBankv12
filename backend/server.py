@@ -136,6 +136,7 @@ app.include_router(minimum_wage_admin.router, tags=["minimum_wage_admin"])
 app.include_router(timesheets.router, tags=["timesheets"])
 app.include_router(payroll_management.router, tags=["payroll_management"])
 app.include_router(weekly_timesheets.router, tags=["weekly_timesheets"])
+app.include_router(occupation_templates.router, tags=["occupation_templates"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
