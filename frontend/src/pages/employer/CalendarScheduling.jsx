@@ -26,6 +26,7 @@ const CalendarScheduling = () => {
   const [showShiftDetail, setShowShiftDetail] = useState(false);
   const [showAssignWorker, setShowAssignWorker] = useState(false);
   const [showCopyShift, setShowCopyShift] = useState(false);
+  const [showRecruitment, setShowRecruitment] = useState(false);
   const [selectedShift, setSelectedShift] = useState(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   
