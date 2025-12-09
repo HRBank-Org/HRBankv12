@@ -1283,7 +1283,28 @@ const FinancesTab = ({ theme, navigate }) => {
             <span className="font-medium">Geofencing Enabled</span>
           </div>
         </div>
-      </div>
+          </div>
+        </div>
+      )}
+
+      {/* PAYROLL VIEW */}
+      {activeView === 'payroll' && (
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Payroll</h2>
+              <p className="text-sm text-gray-600 mt-1">Payroll processing will be available once ADP/Rippling integration is complete</p>
+            </div>
+          </div>
+
+          <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <FiDollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Payroll Integration Coming Soon</h3>
+            <p className="text-gray-600 mb-4">Connect with ADP or Rippling to process payroll</p>
+            <p className="text-sm text-gray-500">Approved timesheets will be exported for payroll processing</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
