@@ -8,6 +8,7 @@ import { FiUsers, FiCalendar, FiAward, FiDollarSign, FiSun, FiCloud, FiCloudRain
 import CalendarView from '../../components/scheduling/CalendarView';
 import RatingModal from '../../components/ratings/RatingModal';
 import WorkerDetailModal from '../../components/workforce/WorkerDetailModal';
+import InvitationManager from '../../components/workforce/InvitationManager';
 
 const EmployerDashboardNew = () => {
   const { user } = useAuth();
