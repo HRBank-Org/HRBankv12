@@ -117,14 +117,17 @@ async def create_workplace_role(
         positions_available=role_data.positions_available
     )
     
-    # Add minimum rate and fee calculation to role
+    # Add minimum rates and fee calculation to role
     role_dict = role.model_dump()
-    role_dict['minimum_hourly_rate'] = minimum_rate
+    role_dict['provincial_minimum_wage'] = provincial_minimum
+    role_dict['occupation_minimum_rate'] = occupation_minimum
+    role_dict['effective_minimum_rate'] = effective_minimum
+    role_dict['province_code'] = employer_province
     
     # Calculate fees if rate is provided
     if role_data.hourly_rate:
         from utils.fee_calculator import calculate_fees
-        fee_breakdown = calculate_fees(role_data.hourly_rate, minimum_rate)
+        fee_breakdown = calculate_fees(role_data.hourly_rate, occupation_minimum, provincial_minimum)
         role_dict['fee_breakdown'] = fee_breakdown
     
     await db.workplace_roles.insert_one(role_dict)
@@ -135,7 +138,10 @@ async def create_workplace_role(
             "role_id": role.role_id,
             "role_name": role.role_name,
             "occupation_template": role.occupation_template,
-            "minimum_hourly_rate": minimum_rate,
+            "provincial_minimum_wage": provincial_minimum,
+            "occupation_minimum_rate": occupation_minimum,
+            "effective_minimum_rate": effective_minimum,
+            "province": employer_province,
             "fee_breakdown": role_dict.get('fee_breakdown')
         },
         "message": f"Role '{role.role_name}' created successfully"
