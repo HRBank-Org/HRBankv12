@@ -159,12 +159,16 @@ const InvitationManager = () => {
 
   const downloadCSVTemplate = () => {
     const template = 'first_name,last_name,email,phone,role_name\nJohn,Doe,john@example.com,+1234567890,Chef\nJane,Smith,jane@example.com,+0987654321,Server';
-    const blob = new Blob([template], { type: 'text/csv' });
+    const blob = new Blob([template], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'invitation_template.csv';
-    a.click();
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'invitation_template.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   return (
