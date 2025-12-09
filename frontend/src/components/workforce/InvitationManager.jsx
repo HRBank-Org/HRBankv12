@@ -255,7 +255,14 @@ const InvitationManager = () => {
                   </div>
                   
                   {role.hourly_rate && (
-                    <p className="text-sm text-gray-700 mb-2">${role.hourly_rate}/hour</p>
+                    <div className="mb-2">
+                      <p className="text-sm font-medium text-gray-900">${role.hourly_rate}/hr (gross)</p>
+                      {role.fee_breakdown && (
+                        <p className="text-xs text-gray-600">
+                          Employer pays: ${role.fee_breakdown.employer_pays}/hr
+                        </p>
+                      )}
+                    </div>
                   )}
                   
                   <div className="text-xs text-gray-500">
