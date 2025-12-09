@@ -937,8 +937,9 @@ const FinancesTab = ({ theme, navigate }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
+    console.log('FinancesTab useEffect triggered');
     loadFinanceData();
-  }, [selectedDate]);
+  }, [selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadFinanceData = async () => {
     try {
