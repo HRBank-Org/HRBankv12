@@ -1058,54 +1058,6 @@ const FinancesTab = ({ theme, navigate }) => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <button
-          onClick={() => navigate('/employer/live-attendance')}
-          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all text-left"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
-              <FiUsers className="w-6 h-6" style={{ color: theme.primaryColor }} />
-            </div>
-            <div>
-              <div className="font-semibold text-gray-900">Live Attendance</div>
-              <div className="text-sm text-gray-600">Real-time tracking</div>
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={() => navigate('/employer/timesheets')}
-          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all text-left"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
-              <FiClock className="w-6 h-6" style={{ color: theme.primaryColor }} />
-            </div>
-            <div>
-              <div className="font-semibold text-gray-900">Timesheets</div>
-              <div className="text-sm text-gray-600">Review & approve</div>
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={() => navigate('/employer/payroll')}
-          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all text-left"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
-              <FiDollarSign className="w-6 h-6" style={{ color: theme.primaryColor }} />
-            </div>
-            <div>
-              <div className="font-semibold text-gray-900">Payroll</div>
-              <div className="text-sm text-gray-600">Financial summary</div>
-            </div>
-          </div>
-        </button>
-      </div>
-
       {/* TIMESHEETS VIEW */}
       {activeView === 'timesheets' && (
         <div>
