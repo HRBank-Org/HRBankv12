@@ -202,6 +202,14 @@ const EmployerDashboardNew = () => {
 
 // Workforce Tab Component
 const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
+  const [selectedWorkerId, setSelectedWorkerId] = useState(null);
+  const [showWorkerModal, setShowWorkerModal] = useState(false);
+
+  const handleWorkerClick = (workerId) => {
+    setSelectedWorkerId(workerId);
+    setShowWorkerModal(true);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
