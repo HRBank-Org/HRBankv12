@@ -11,7 +11,7 @@ from models.job_matching import (
 from auth.dependencies import get_current_user, require_role
 from database import get_database
 
-router = APIRouter(prefix="/api/jobs", tags=["Job Matching"])
+router = APIRouter(prefix="/api/job-matching", tags=["Job Matching"])
 
 def calculate_distance(lat1, lon1, lat2, lon2):
     """Calculate distance between two coordinates in kilometers using Haversine formula"""
