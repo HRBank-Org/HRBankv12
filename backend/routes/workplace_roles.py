@@ -476,14 +476,18 @@ async def get_occupation_templates(
     from utils.occupation_categories import OCCUPATION_CATEGORIES
     
     # Format for frontend consumption
+    from utils.fee_calculator import MINIMUM_WAGE, PLATFORM_FEE_PER_HOUR
+    
     templates = []
     for category_name, category_data in OCCUPATION_CATEGORIES.items():
         for occ in category_data.get("occupations", []):
             if isinstance(occ, dict):
+                min_rate = occ.get("minimum_hourly_rate", MINIMUM_WAGE)
                 templates.append({
                     "title": occ.get("title"),
                     "category": category_name,
                     "required_certifications": occ.get("required_certifications", []),
+                    "minimum_hourly_rate": min_rate,
                     "icon": category_data.get("icon", "📋")
                 })
             else:
@@ -491,6 +495,7 @@ async def get_occupation_templates(
                     "title": occ,
                     "category": category_name,
                     "required_certifications": [],
+                    "minimum_hourly_rate": MINIMUM_WAGE,
                     "icon": category_data.get("icon", "📋")
                 })
     
@@ -498,6 +503,12 @@ async def get_occupation_templates(
         "success": True,
         "data": {
             "templates": templates,
-            "total": len(templates)
+            "total": len(templates),
+            "minimum_wage": MINIMUM_WAGE,
+            "platform_fee_per_hour": PLATFORM_FEE_PER_HOUR,
+            "fee_structure": {
+                "minimum_wage_jobs": "Employer pays $1/hour platform fee",
+                "above_minimum": "Both worker and employer pay $1/hour platform fee"
+            }
         }
     }
