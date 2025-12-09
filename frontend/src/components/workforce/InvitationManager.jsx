@@ -519,6 +519,16 @@ const InvitationManager = () => {
             </div>
             
             <div className="p-6 space-y-4">
+              {/* Platform Fee Info */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">💡 Platform Fee Structure</h4>
+                <div className="text-xs text-blue-800 space-y-1">
+                  <p>• <strong>Minimum wage positions:</strong> Employer pays $1/hour platform fee</p>
+                  <p>• <strong>Above minimum wage:</strong> Both worker and employer pay $1/hour platform fee</p>
+                  <p className="text-blue-600 mt-2">Workers receive gross pay. Payroll deductions handled by processors (ADP/Rippling).</p>
+                </div>
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Role Name *</label>
                 <input
