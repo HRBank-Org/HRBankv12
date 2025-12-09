@@ -1364,8 +1364,8 @@ const FinancesTab = ({ theme, navigate }) => {
                     {approvedTimesheets.map((timesheet) => (
                       <tr key={timesheet.timesheet_id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{timesheet.worker_details?.name || 'Unknown Worker'}</div>
-                          <div className="text-xs text-gray-500">{timesheet.shift_date}</div>
+                          <div className="text-sm font-medium text-gray-900">{timesheet.worker_name || 'Unknown Worker'}</div>
+                          <div className="text-xs text-gray-500">Week: {timesheet.week_start} to {timesheet.week_end}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-600">{timesheet.position || 'N/A'}</div>
@@ -1375,10 +1375,10 @@ const FinancesTab = ({ theme, navigate }) => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
-                            ${(timesheet.adjusted_pay || timesheet.actual_pay || 0).toFixed(2)}
+                            ${(timesheet.adjusted_pay || timesheet.total_pay || 0).toFixed(2)}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {(timesheet.adjusted_hours || timesheet.actual_hours || 0)}h × ${timesheet.hourly_rate}/hr
+                            {(timesheet.adjusted_hours || timesheet.total_hours || 0).toFixed(2)}h • {timesheet.shift_count || 0} shifts
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
