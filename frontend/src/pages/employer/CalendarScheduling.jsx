@@ -973,6 +973,15 @@ const CalendarScheduling = () => {
           onSuccess={loadData}
         />
       )}
+
+      {showRecruitment && (
+        <RecruitmentModal
+          isOpen={showRecruitment}
+          onClose={() => setShowRecruitment(false)}
+          workplaces={workplaces}
+          onSuccess={loadData}
+        />
+      )}
     </div>
   );
 };
