@@ -152,6 +152,8 @@ def test_employer_lifecycle():
                     results.add_pass("POST /api/jobs/create - Job posting created successfully")
                 else:
                     results.add_fail("POST /api/jobs/create", f"Invalid response: {data}")
+            elif response.status_code == 403:
+                results.add_fail("POST /api/jobs/create", "CRITICAL: Route conflict detected - job_matching.py routes not accessible due to jobs.py router precedence")
             else:
                 results.add_fail("POST /api/jobs/create", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
@@ -190,6 +192,8 @@ def test_employer_lifecycle():
                     results.add_pass("Job status verification - No jobs yet (acceptable)")
             else:
                 results.add_fail("GET /api/employer/jobs/posted", f"Invalid response structure: {data}")
+        elif response.status_code == 403:
+            results.add_fail("GET /api/employer/jobs/posted", "CRITICAL: Route conflict detected - job_matching.py routes not accessible due to jobs.py router precedence")
         else:
             results.add_fail("GET /api/employer/jobs/posted", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
