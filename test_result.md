@@ -998,10 +998,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "ALL PRE-DEPLOYMENT TESTING COMPLETED SUCCESSFULLY"
-  stuck_tasks: []
-  test_all: true
-  test_priority: "high_first"
+    - "Complete Employee Lifecycle - Employer Side Testing"
+  stuck_tasks:
+    - "Complete Employee Lifecycle - Employer Side Testing"
+  test_all: false
+  test_priority: "stuck_first"
 
 agent_communication:
     -agent: "main"
