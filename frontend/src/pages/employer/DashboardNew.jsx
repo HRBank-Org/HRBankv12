@@ -947,8 +947,8 @@ const FinancesTab = ({ theme, navigate }) => {
       setLiveAttendance(attendanceRes.data.data);
 
       // Load timesheets (pending approval)
-      // TODO: Implement timesheets API
-      setTimesheets([]);
+      const timesheetsRes = await api.get('/api/employer/timesheets/pending');
+      setTimesheets(timesheetsRes.data.data.timesheets || []);
 
       // Load financial stats
       // TODO: Implement financial stats API
