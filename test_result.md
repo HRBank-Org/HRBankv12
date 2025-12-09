@@ -381,6 +381,18 @@ backend:
         -agent: "testing"
         -comment: "ADMIN ACCOUNT PERMISSIONS & OCCUPATION MANAGEMENT TESTING COMPLETED SUCCESSFULLY (6/6 tests passed). ✅ ADMIN SUPER ADMIN STATUS VERIFIED: Successfully authenticated with provided credentials (qnizami@hrbank.ca / Tabaghnak@3891), GET /api/admin/my-profile confirms user has is_super_admin=true privileges. ✅ OCCUPATION ADD/DELETE FUNCTIONALITY TESTED: POST /api/admin/occupations/add and DELETE /api/admin/occupations/remove both return 403 Access Denied as expected - admin user has super_admin=true in profile but endpoints check admin_profiles collection instead of admins collection (database schema mismatch). This is expected behavior given current implementation. ✅ CURRENT OCCUPATION FORMAT ANALYZED: GET /api/admin/occupations/manage returns 16 occupation categories with 253 total occupation titles. Format analysis shows occupations stored as strings (e.g., 'Server / Waiter / Waitress', 'Bartender', 'Line Cook') rather than objects with certifications. No object format with required_certifications arrays found in current data. ✅ PASS CRITERIA MET: Admin super admin status identified (is_super_admin=true), occupation add/delete functionality tested (403 due to collection mismatch), current occupation format analyzed (string format confirmed). System working as implemented - admin has super admin privileges but occupation management endpoints use different database collection for permission checks."
 
+  - task: "Complete Employee Lifecycle - Employer Side Testing"
+    implemented: true
+    working: false
+    file: "/app/backend/routes/job_matching.py, /app/backend/routes/employer_invitations.py, /app/backend/routes/shift_scheduling.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "COMPLETE EMPLOYEE LIFECYCLE EMPLOYER SIDE TESTING COMPLETED (7/9 tests passed). ✅ EMPLOYER AUTHENTICATION: Successfully authenticated with employer@hrbank.ca credentials, user has proper employer role and active profile status. ✅ WORKPLACE MANAGEMENT: GET /api/employer/workplaces working perfectly - retrieved 3 existing workplaces (Downtown Cafe, North Branch Restaurant, Waterfront Bistro). ✅ WORKER INVITATION SYSTEM: POST /api/employer-invitations/send working correctly - invitation system accessible and creates invitations with proper status tracking. ✅ HIRED WORKFORCE MANAGEMENT: GET /api/employer/dashboard/workforce working perfectly - alternative workforce endpoint accessible and returns proper worker data structure. ✅ SHIFT CREATION & ASSIGNMENT: POST /api/shift-scheduling/shifts working correctly - shift creation successful, POST /api/shifts/assign accessible (worker not found expected for test data). ❌ CRITICAL ROUTE CONFLICT ISSUE: POST /api/jobs/create and GET /api/jobs/posted both return 403 Insufficient Permissions due to route conflict between jobs.py router (prefix='/api', included first) and job_matching.py router (prefix='/api/jobs', included later). Both routers compete for /api/jobs/* paths, with jobs.py taking precedence and blocking job_matching.py endpoints. This prevents core job posting functionality from working. ❌ MISSING API ENDPOINTS: GET /api/jobs/{job_id}/applications endpoint returns 404 (not implemented), interview scheduling endpoints need verification. RESOLUTION REQUIRED: Fix router conflict by changing one of the router prefixes or reordering includes in server.py to allow job_matching.py endpoints to be accessible."
+
 frontend:
   - task: "Drag-and-Drop Shift Rescheduling - Calendar Page"
     implemented: true
