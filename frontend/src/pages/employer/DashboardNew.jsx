@@ -1067,6 +1067,12 @@ const FinancesTab = ({ theme, navigate }) => {
         </button>
       </div>
 
+      {/* Debug - Remove after testing */}
+      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <p className="text-sm">Debug: Timesheets state = {timesheets ? timesheets.length : 'null'}</p>
+        <p className="text-sm">Loading: {loading ? 'Yes' : 'No'}</p>
+      </div>
+
       {/* Pending Timesheets */}
       {timesheets && timesheets.length > 0 && (
         <div className="mb-6">
