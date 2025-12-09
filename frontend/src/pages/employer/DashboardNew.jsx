@@ -1108,17 +1108,16 @@ const FinancesTab = ({ theme, navigate }) => {
 
       {/* TIMESHEETS VIEW */}
       {activeView === 'timesheets' && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Timesheets Pending Approval ({timesheets.length})</h3>
-            <button
-              onClick={() => navigate('/employer/timesheets')}
-              className="text-sm font-medium hover:underline"
-              style={{ color: theme.primaryColor }}
-            >
-              View All Timesheets
-            </button>
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Timesheets</h2>
+              <p className="text-sm text-gray-600 mt-1">Review and approve worker timesheets</p>
+            </div>
           </div>
+
+          {timesheets && timesheets.length > 0 ? (
+            <div className="mb-6">
 
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
