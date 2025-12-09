@@ -1019,43 +1019,48 @@ const FinancesTab = ({ theme, navigate }) => {
         </button>
       </div>
 
-      <div className="flex items-center justify-end mb-6">
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
-          style={{ focusRing: `${theme.primaryColor}40` }}
-        />
-      </div>
+      {/* Date Picker - Only for Live Attendance */}
+      {activeView === 'attendance' && (
+        <div className="flex items-center justify-end mb-6">
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+            style={{ focusRing: `${theme.primaryColor}40` }}
+          />
+        </div>
+      )}
 
-      {/* Financial Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="text-sm text-gray-600 mb-1">Workers Today</div>
-          <div className="text-3xl font-bold text-gray-900">
-            {liveAttendance?.summary?.total || 0}
+      {/* Financial Stats Overview - Only for Live Attendance */}
+      {activeView === 'attendance' && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">Workers Today</div>
+            <div className="text-3xl font-bold text-gray-900">
+              {liveAttendance?.summary?.total || 0}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">Clocked In</div>
+            <div className="text-3xl font-bold text-green-600">
+              {liveAttendance?.summary?.clocked_in || 0}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">Missed Clock-In</div>
+            <div className="text-3xl font-bold text-red-600">
+              {liveAttendance?.summary?.missed || 0}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">On Time Off</div>
+            <div className="text-3xl font-bold text-blue-600">
+              {liveAttendance?.summary?.on_time_off || 0}
+            </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="text-sm text-gray-600 mb-1">Clocked In</div>
-          <div className="text-3xl font-bold text-green-600">
-            {liveAttendance?.summary?.clocked_in || 0}
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="text-sm text-gray-600 mb-1">Missed Clock-In</div>
-          <div className="text-3xl font-bold text-red-600">
-            {liveAttendance?.summary?.missed || 0}
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="text-sm text-gray-600 mb-1">On Time Off</div>
-          <div className="text-3xl font-bold text-blue-600">
-            {liveAttendance?.summary?.on_time_off || 0}
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* TIMESHEETS VIEW */}
       {activeView === 'timesheets' && (
