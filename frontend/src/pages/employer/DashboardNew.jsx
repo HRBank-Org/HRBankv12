@@ -940,7 +940,7 @@ const FinancesTab = ({ theme, navigate }) => {
   useEffect(() => {
     console.log('FinancesTab useEffect triggered');
     loadFinanceData();
-  }, [selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
 
   const loadFinanceData = async () => {
     try {
