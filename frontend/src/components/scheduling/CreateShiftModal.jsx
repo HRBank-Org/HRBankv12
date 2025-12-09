@@ -6,6 +6,7 @@ import moment from 'moment';
 const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, initialTime }) => {
   const [formData, setFormData] = useState({
     workplace_id: '',
+    occupation_template_id: '',
     position_title: '',
     date: initialDate || moment().format('YYYY-MM-DD'),
     start_time: initialTime || '09:00',
@@ -22,12 +23,75 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [occupationTemplates, setOccupationTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [workplaceProvince, setWorkplaceProvince] = useState(null);
 
   useEffect(() => {
     if (workplaces.length > 0 && !formData.workplace_id) {
       setFormData(prev => ({ ...prev, workplace_id: workplaces[0].workplace_id }));
     }
   }, [workplaces]);
+
+  // Load occupation templates
+  useEffect(() => {
+    const loadTemplates = async () => {
+      try {
+        const response = await api.get('/api/occupation-templates/list');
+        setOccupationTemplates(response.data.data.templates || []);
+      } catch (err) {
+        console.error('Failed to load occupation templates:', err);
+      }
+    };
+    
+    if (isOpen) {
+      loadTemplates();
+    }
+  }, [isOpen]);
+
+  // Get workplace province
+  useEffect(() => {
+    if (formData.workplace_id && workplaces.length > 0) {
+      const workplace = workplaces.find(w => w.workplace_id === formData.workplace_id);
+      if (workplace && workplace.province_code) {
+        setWorkplaceProvince(workplace.province_code);
+      }
+    }
+  }, [formData.workplace_id, workplaces]);
+
+  // Handle template selection
+  const handleTemplateSelect = async (templateId) => {
+    if (!templateId) {
+      setSelectedTemplate(null);
+      setFormData(prev => ({
+        ...prev,
+        occupation_template_id: '',
+        position_title: '',
+        hourly_rate: '',
+        required_skills: [],
+        required_certifications: []
+      }));
+      return;
+    }
+
+    try {
+      const response = await api.get(`/api/occupation-templates/${templateId}?province=${workplaceProvince || 'ON'}`);
+      const template = response.data.data;
+      setSelectedTemplate(template);
+
+      // Auto-populate fields from template
+      setFormData(prev => ({
+        ...prev,
+        occupation_template_id: templateId,
+        position_title: template.occupation_title,
+        hourly_rate: template.suggested_rate_for_province || template.suggested_rates?.ON || '',
+        required_skills: template.required_skills || [],
+        required_certifications: template.required_certifications || []
+      }));
+    } catch (err) {
+      console.error('Failed to load template details:', err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
