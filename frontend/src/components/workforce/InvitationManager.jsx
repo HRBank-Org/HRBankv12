@@ -559,15 +559,34 @@ const InvitationManager = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (Optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate *</label>
                 <input
                   type="number"
                   step="0.01"
                   value={newRole.hourly_rate}
                   onChange={(e) => setNewRole({...newRole, hourly_rate: e.target.value})}
-                  placeholder="25.00"
+                  placeholder="Enter hourly rate"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  min={occupationTemplates.find(t => t.title === newRole.occupation_template)?.minimum_hourly_rate || 0}
                 />
+                {newRole.hourly_rate && newRole.occupation_template && (
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+                    <p className="font-semibold text-blue-900 mb-1">💰 Fee Breakdown:</p>
+                    {parseFloat(newRole.hourly_rate) <= (occupationTemplates.find(t => t.title === newRole.occupation_template)?.minimum_hourly_rate || 0) ? (
+                      <>
+                        <p className="text-blue-800">• Worker receives: <strong>${newRole.hourly_rate}/hr</strong> (gross)</p>
+                        <p className="text-blue-800">• Employer pays: <strong>${(parseFloat(newRole.hourly_rate) + 1).toFixed(2)}/hr</strong> (includes $1 platform fee)</p>
+                        <p className="text-green-700 mt-1">✓ Minimum wage - No fee for worker</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-blue-800">• Worker gross: <strong>${newRole.hourly_rate}/hr</strong></p>
+                        <p className="text-blue-800">• Worker net: <strong>${(parseFloat(newRole.hourly_rate) - 1).toFixed(2)}/hr</strong> (after $1 platform fee)</p>
+                        <p className="text-blue-800">• Employer pays: <strong>${(parseFloat(newRole.hourly_rate) + 1).toFixed(2)}/hr</strong> (includes $1 platform fee)</p>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
               
               <div>
