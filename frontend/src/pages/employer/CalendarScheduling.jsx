@@ -10,6 +10,7 @@ import CreateShiftModal from '../../components/scheduling/CreateShiftModal';
 import ShiftDetailModal from '../../components/scheduling/ShiftDetailModal';
 import AssignWorkerModal from '../../components/scheduling/AssignWorkerModal';
 import CopyShiftModal from '../../components/scheduling/CopyShiftModal';
+import RecruitmentModal from '../../components/scheduling/RecruitmentModal';
 
 const CalendarScheduling = () => {
   const navigate = useNavigate();
