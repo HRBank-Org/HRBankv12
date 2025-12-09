@@ -24,6 +24,11 @@ class InviteToken(BaseModel):
     job_id: Optional[str] = None  # For job-specific invites
     shift_id: Optional[str] = None  # For shift-specific invites
     
+    # NEW: Role-based invitations
+    role_id: Optional[str] = None  # Links to workplace_roles
+    role_name: Optional[str] = None  # For display
+    occupation_template: Optional[str] = None  # e.g., "Chef"
+    
     # Token
     invite_token: str = Field(default_factory=lambda: uuid.uuid4().hex)
     expires_at: datetime
