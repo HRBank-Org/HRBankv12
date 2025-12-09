@@ -988,7 +988,7 @@ const FinancesTab = ({ theme, navigate }) => {
   // Move timesheet back to pending for editing
   const handleMoveBackForEdit = async (timesheetId) => {
     try {
-      await api.post(`/api/employer/payroll-management/${timesheetId}/move-back-to-pending`);
+      await api.post(`/api/employer/weekly-timesheets/${timesheetId}/move-back`);
       alert('Timesheet moved back to Timesheets tab for editing');
       loadFinanceData(); // Reload data
     } catch (error) {
@@ -999,7 +999,7 @@ const FinancesTab = ({ theme, navigate }) => {
   // Open edit modal
   const openEditModal = (timesheet) => {
     setEditingTimesheet(timesheet);
-    setAdjustedHours(timesheet.actual_hours || '');
+    setAdjustedHours(timesheet.adjusted_hours || timesheet.total_hours || '');
     setAdjustmentReason('');
     setShowEditModal(true);
   };
@@ -1012,15 +1012,17 @@ const FinancesTab = ({ theme, navigate }) => {
     }
 
     try {
-      await api.put(`/api/employer/payroll-management/${editingTimesheet.timesheet_id}/adjust-hours`, {
+      const response = await api.put(`/api/employer/weekly-timesheets/${editingTimesheet.timesheet_id}/adjust`, {
         adjusted_hours: parseFloat(adjustedHours),
         adjustment_reason: adjustmentReason
       });
+      
       alert('Hours adjusted successfully!');
       setShowEditModal(false);
       setEditingTimesheet(null);
       loadFinanceData(); // Reload data
     } catch (error) {
+      console.error('Adjust error:', error);
       alert('Failed to adjust hours: ' + (error.response?.data?.detail || error.message));
     }
   };
