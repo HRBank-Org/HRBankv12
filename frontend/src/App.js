@@ -81,6 +81,7 @@ import ManageCertifications from './pages/admin/ManageCertifications';
 import EmployerDashboard from './pages/employer/DashboardNew';
 import EmployerNotifications from './pages/employer/Notifications';
 import EmployerMessages from './pages/employer/Messages';
+import MessageThread from './pages/employer/MessageThread';
 import EmployerProfile from './pages/employer/Profile';
 import EmployerOnboarding from './pages/employer/Onboarding';
 import JobPosting from './pages/employer/JobPosting';
