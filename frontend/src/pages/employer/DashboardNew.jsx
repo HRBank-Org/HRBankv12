@@ -1332,15 +1332,163 @@ const FinancesTab = ({ theme, navigate }) => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-gray-900">Payroll</h2>
-              <p className="text-sm text-gray-600 mt-1">Payroll processing will be available once ADP/Rippling integration is complete</p>
+              <p className="text-sm text-gray-600 mt-1">Process approved timesheets for payroll</p>
             </div>
+            {approvedTimesheets.length > 0 && (
+              <button
+                onClick={handleProcessPayroll}
+                className="px-6 py-2 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                Process All ({approvedTimesheets.length})
+              </button>
+            )}
           </div>
 
-          <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <FiDollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Payroll Integration Coming Soon</h3>
-            <p className="text-gray-600 mb-4">Connect with ADP or Rippling to process payroll</p>
-            <p className="text-sm text-gray-500">Approved timesheets will be exported for payroll processing</p>
+          {approvedTimesheets && approvedTimesheets.length > 0 ? (
+            <div className="mb-6">
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job Title</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {approvedTimesheets.map((timesheet) => (
+                      <tr key={timesheet.timesheet_id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{timesheet.worker_details?.name || 'Unknown Worker'}</div>
+                          <div className="text-xs text-gray-500">{timesheet.shift_date}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-600">{timesheet.position || 'N/A'}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-600">{timesheet.workplace_name || 'N/A'}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            ${(timesheet.adjusted_pay || timesheet.actual_pay || 0).toFixed(2)}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {(timesheet.adjusted_hours || timesheet.actual_hours || 0)}h × ${timesheet.hourly_rate}/hr
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handleMoveBackForEdit(timesheet.timesheet_id)}
+                            className="px-3 py-1 bg-orange-600 text-white text-xs font-medium rounded hover:bg-orange-700"
+                          >
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Summary */}
+              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-900">Total Ready for Processing</p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      {approvedTimesheets.length} timesheets • {approvedTimesheets.reduce((sum, ts) => sum + (ts.adjusted_hours || ts.actual_hours || 0), 0).toFixed(2)} hours
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-blue-900">
+                      ${approvedTimesheets.reduce((sum, ts) => sum + (ts.adjusted_pay || ts.actual_pay || 0), 0).toFixed(2)}
+                    </p>
+                    <p className="text-xs text-blue-700">Gross Payroll</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <FiDollarSign className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-600">No approved timesheets ready for payroll</p>
+              <p className="text-sm text-gray-500 mt-2">Approve timesheets to process payroll</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Edit Hours Modal */}
+      {showEditModal && editingTimesheet && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Adjust Hours</h3>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                Worker: <span className="font-medium">{editingTimesheet.worker_details?.name}</span>
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+                Original Hours: <span className="font-medium">{editingTimesheet.actual_hours}h</span>
+              </p>
+              <p className="text-sm text-gray-600 mb-4">
+                Original Pay: <span className="font-medium">${editingTimesheet.actual_pay?.toFixed(2)}</span>
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Adjusted Hours
+              </label>
+              <input
+                type="number"
+                step="0.25"
+                value={adjustedHours}
+                onChange={(e) => setAdjustedHours(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                style={{ focusRing: `${theme.primaryColor}40` }}
+              />
+              {adjustedHours && (
+                <p className="text-sm text-gray-600 mt-1">
+                  New Pay: ${(parseFloat(adjustedHours) * editingTimesheet.hourly_rate).toFixed(2)}
+                </p>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Reason for Adjustment
+              </label>
+              <textarea
+                value={adjustmentReason}
+                onChange={(e) => setAdjustmentReason(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                rows="3"
+                placeholder="Explain why hours are being adjusted..."
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleAdjustHours}
+                className="flex-1 px-4 py-2 text-white font-medium rounded-lg hover:opacity-90"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingTimesheet(null);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
