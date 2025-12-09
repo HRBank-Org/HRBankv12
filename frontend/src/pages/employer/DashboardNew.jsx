@@ -950,13 +950,13 @@ const FinancesTab = ({ theme, navigate }) => {
       const timesheetsRes = await api.get('/api/employer/timesheets/pending');
       setTimesheets(timesheetsRes.data.data.timesheets || []);
 
-      // Load financial stats
-      // TODO: Implement financial stats API
+      // Load financial stats from timesheets
+      const stats = timesheetsRes.data.data;
       setFinancialStats({
-        total_hours_today: 0,
-        estimated_payroll_today: 0,
-        pending_approvals: 0,
-        total_workers_today: 0
+        total_hours_today: liveAttendance?.summary?.total_hours || 0,
+        estimated_payroll_today: liveAttendance?.summary?.estimated_cost || 0,
+        pending_approvals: stats.total_pending || 0,
+        total_pending_pay: stats.total_pay || 0
       });
 
     } catch (error) {
