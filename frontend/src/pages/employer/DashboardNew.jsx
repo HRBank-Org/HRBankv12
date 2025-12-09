@@ -287,7 +287,12 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">All Workers</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {workforce.map(worker => (
-            <WorkerCard key={worker.user_id} worker={worker} theme={theme} navigate={navigate} />
+            <WorkerCard 
+              key={worker.user_id} 
+              worker={worker} 
+              theme={theme} 
+              onClick={() => handleWorkerClick(worker.user_id)} 
+            />
           ))}
         </div>
       </div>
@@ -306,6 +311,16 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
           </button>
         </div>
       )}
+
+      {/* Worker Detail Modal */}
+      <WorkerDetailModal
+        isOpen={showWorkerModal}
+        onClose={() => {
+          setShowWorkerModal(false);
+          setSelectedWorkerId(null);
+        }}
+        workerId={selectedWorkerId}
+      />
     </div>
   );
 };
