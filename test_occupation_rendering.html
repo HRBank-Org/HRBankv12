@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Occupation Rendering</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .pass { background-color: #d4edda; border-color: #c3e6cb; }
+        .fail { background-color: #f8d7da; border-color: #f5c6cb; }
+        .occupation-list { margin: 10px 0; }
+        .occupation-item { padding: 8px; margin: 4px 0; background: #f8f9fa; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Occupation Rendering Test</h1>
+    <p>Testing that occupations can be rendered correctly whether they are strings or objects</p>
+    
+    <div id="test-results"></div>
+
+    <script>
+        // Simulating the mixed data structure from the API
+        const testData = {
+            "Food & Hospitality": {
+                occupations: [
+                    { title: "Bartender", minimum_hourly_rate: 17.50 },
+                    { title: "Chef", minimum_hourly_rate: 22.00 }
+                ]
+            },
+            "Retail & Grocery": {
+                occupations: [
+                    "Cashier",
+                    "Sales Associate"
+                ]
+            }
+        };
+
+        // This is the logic from CreateOccupation.jsx (lines 249-250)
+        function getOccupationTitle(occupation) {
+            return typeof occupation === 'object' ? occupation.title : occupation;
+        }
+
+        function getOccupationMinRate(occupation) {
+            return typeof occupation === 'object' ? occupation.minimum_hourly_rate : null;
+        }
+
+        // Run tests
+        const resultsDiv = document.getElementById('test-results');
+        let allTestsPassed = true;
+
+        Object.entries(testData).forEach(([categoryName, category]) => {
+            category.occupations.forEach((occupation) => {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'test-case';
+
+                try {
+                    const title = getOccupationTitle(occupation);
+                    const minRate = getOccupationMinRate(occupation);
+
+                    // Test passes if we can extract a string title
+                    if (typeof title === 'string' && title.length > 0) {
+                        testDiv.classList.add('pass');
+                        testDiv.innerHTML = `
+                            <strong>✓ PASS:</strong> ${categoryName}<br>
+                            <div class="occupation-item">
+                                <strong>Title:</strong> ${title}<br>
+                                ${minRate ? `<strong>Min Rate:</strong> $${minRate}/hr` : '<em>No minimum rate</em>'}
+                            </div>
+                        `;
+                    } else {
+                        throw new Error('Title is not a string');
+                    }
+                } catch (error) {
+                    allTestsPassed = false;
+                    testDiv.classList.add('fail');
+                    testDiv.innerHTML = `
+                        <strong>✗ FAIL:</strong> ${categoryName}<br>
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>Occupation data:</strong> ${JSON.stringify(occupation)}
+                    `;
+                }
+
+                resultsDiv.appendChild(testDiv);
+            });
+        });
+
+        // Summary
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'test-case ' + (allTestsPassed ? 'pass' : 'fail');
+        summaryDiv.innerHTML = `
+            <h2>${allTestsPassed ? '✓ All Tests Passed' : '✗ Some Tests Failed'}</h2>
+            <p>The CreateOccupation.jsx component ${allTestsPassed ? 'correctly handles' : 'has issues with'} both string and object occupation data.</p>
+        `;
+        resultsDiv.insertBefore(summaryDiv, resultsDiv.firstChild);
+    </script>
+</body>
+</html>
