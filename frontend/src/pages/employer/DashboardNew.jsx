@@ -404,18 +404,18 @@ const ScheduleTab = ({ theme, navigate }) => {
   const [workplaces, setWorkplaces] = useState([]);
   const [showWorkplaces, setShowWorkplaces] = useState(false);
   
-  useEffect(() => {
-    loadWorkplaces();
-  }, []);
-  
   const loadWorkplaces = async () => {
     try {
-      const statsRes = await api.get('/api/employer/dashboard/stats');
+      const statsRes = await api.get('/app/employer/dashboard/stats');
       setWorkplaces(statsRes.data.data.workplaces || []);
     } catch (error) {
       console.error('Failed to load workplaces:', error);
     }
   };
+  
+  useEffect(() => {
+    loadWorkplaces();
+  }, []);
   
   return (
     <div className="-m-6">
