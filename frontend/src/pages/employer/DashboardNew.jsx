@@ -1070,6 +1070,19 @@ const FinancesTab = ({ theme, navigate }) => {
               <h2 className="text-xl font-bold text-gray-900">Timesheets</h2>
               <p className="text-sm text-gray-600 mt-1">Review and approve worker timesheets</p>
             </div>
+            <div>
+              <select 
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                style={{ focusRing: `${theme.primaryColor}40` }}
+                defaultValue="current"
+              >
+                <option value="current">Current Week</option>
+                <option value="last">Last Week</option>
+                <option value="2weeks">2 Weeks Ago</option>
+                <option value="3weeks">3 Weeks Ago</option>
+                <option value="month">This Month</option>
+              </select>
+            </div>
           </div>
 
           {timesheets && timesheets.length > 0 ? (
@@ -1079,9 +1092,9 @@ const FinancesTab = ({ theme, navigate }) => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hours</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
@@ -1091,18 +1104,17 @@ const FinancesTab = ({ theme, navigate }) => {
                   <tr key={timesheet.timesheet_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{timesheet.worker_details?.name || timesheet.worker_details?.email || 'Unknown Worker'}</div>
-                      <div className="text-xs text-gray-500">{timesheet.position || timesheet.workplace_name}</div>
+                      <div className="text-xs text-gray-500">{timesheet.shift_date}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{timesheet.shift_date}</div>
+                      <div className="text-sm text-gray-600">{timesheet.position || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{timesheet.actual_hours}h</div>
-                      <div className="text-xs text-gray-500">Scheduled: {timesheet.scheduled_hours}h</div>
+                      <div className="text-sm text-gray-600">{timesheet.workplace_name || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">${timesheet.actual_pay?.toFixed(2)}</div>
-                      <div className="text-xs text-gray-500">${timesheet.hourly_rate}/hr</div>
+                      <div className="text-xs text-gray-500">{timesheet.actual_hours}h × ${timesheet.hourly_rate}/hr</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
