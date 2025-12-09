@@ -31,14 +31,22 @@ def calculate_fees(hourly_rate: float, minimum_rate: float = None, provincial_mi
     
     Args:
         hourly_rate: The gross hourly rate for the position
-        minimum_rate: The minimum rate for this occupation (optional)
+        minimum_rate: The occupation minimum rate (optional)
+        provincial_minimum: The provincial minimum wage (optional)
     
     Returns:
         Dictionary with fee breakdown
     """
     
+    # Determine effective minimum (highest of provincial, occupation, or default)
+    effective_minimum = MINIMUM_WAGE
+    if provincial_minimum:
+        effective_minimum = max(effective_minimum, provincial_minimum)
+    if minimum_rate:
+        effective_minimum = max(effective_minimum, minimum_rate)
+    
     # Determine if this is a minimum wage job
-    is_minimum_wage = hourly_rate <= (minimum_rate or MINIMUM_WAGE)
+    is_minimum_wage = hourly_rate <= effective_minimum
     
     if is_minimum_wage:
         # Minimum wage: Only employer pays platform fee
