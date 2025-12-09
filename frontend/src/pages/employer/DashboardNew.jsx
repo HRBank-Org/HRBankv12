@@ -982,6 +982,43 @@ const FinancesTab = ({ theme, navigate }) => {
 
   return (
     <div>
+      {/* View Toggle Buttons */}
+      <div className="flex gap-3 mb-6">
+        <button
+          onClick={() => setActiveView('attendance')}
+          className={`px-6 py-3 rounded-lg font-medium transition-all ${
+            activeView === 'attendance'
+              ? 'text-white'
+              : 'bg-white border-2 text-gray-700 hover:bg-gray-50'
+          }`}
+          style={activeView === 'attendance' ? { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor } : { borderColor: theme.primaryColor }}
+        >
+          📊 Live Attendance
+        </button>
+        <button
+          onClick={() => setActiveView('timesheets')}
+          className={`px-6 py-3 rounded-lg font-medium transition-all ${
+            activeView === 'timesheets'
+              ? 'text-white'
+              : 'bg-white border-2 text-gray-700 hover:bg-gray-50'
+          }`}
+          style={activeView === 'timesheets' ? { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor } : { borderColor: theme.primaryColor }}
+        >
+          ⏰ Timesheets {timesheets.length > 0 && `(${timesheets.length})`}
+        </button>
+        <button
+          onClick={() => setActiveView('payroll')}
+          className={`px-6 py-3 rounded-lg font-medium transition-all ${
+            activeView === 'payroll'
+              ? 'text-white'
+              : 'bg-white border-2 text-gray-700 hover:bg-gray-50'
+          }`}
+          style={activeView === 'payroll' ? { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor } : { borderColor: theme.primaryColor }}
+        >
+          💰 Payroll
+        </button>
+      </div>
+
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-900">Attendance & Finances</h2>
         <input
