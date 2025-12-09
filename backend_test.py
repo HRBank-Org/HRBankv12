@@ -3691,6 +3691,9 @@ def main():
     if admin_token:
         test_job_matching_system(results, admin_token)
     
+    # Priority: CRITICAL - Complete Employee Lifecycle - Employer Side (NEW TEST FROM REVIEW REQUEST)
+    test_complete_employee_lifecycle_employer_side(results)
+    
     # Priority: HIGH - Payroll System with Updated Minimum Wage
     test_payroll_system_minimum_wage(results)
     
