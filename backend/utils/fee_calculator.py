@@ -82,13 +82,14 @@ def calculate_shift_fees(hourly_rate: float, duration_hours: float, minimum_rate
     Args:
         hourly_rate: The gross hourly rate
         duration_hours: Number of hours worked
-        minimum_rate: The minimum rate for this occupation
+        minimum_rate: The occupation minimum rate
+        provincial_minimum: The provincial minimum wage
     
     Returns:
         Dictionary with total fee breakdown
     """
     
-    hourly_fees = calculate_fees(hourly_rate, minimum_rate)
+    hourly_fees = calculate_fees(hourly_rate, minimum_rate, provincial_minimum)
     
     return {
         **hourly_fees,
