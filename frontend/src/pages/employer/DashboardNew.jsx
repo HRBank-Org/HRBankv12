@@ -987,6 +987,75 @@ const FinancesTab = ({ theme, navigate }) => {
     }
   };
 
+  // Move timesheet back to pending for editing
+  const handleMoveBackForEdit = async (timesheetId) => {
+    try {
+      await api.post(`/api/employer/payroll-management/${timesheetId}/move-back-to-pending`);
+      alert('Timesheet moved back to Timesheets tab for editing');
+      loadFinanceData(); // Reload data
+    } catch (error) {
+      alert('Failed to move timesheet: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Open edit modal
+  const openEditModal = (timesheet) => {
+    setEditingTimesheet(timesheet);
+    setAdjustedHours(timesheet.actual_hours || '');
+    setAdjustmentReason('');
+    setShowEditModal(true);
+  };
+
+  // Adjust hours in Timesheets tab
+  const handleAdjustHours = async () => {
+    if (!editingTimesheet || !adjustedHours || !adjustmentReason) {
+      alert('Please enter adjusted hours and reason');
+      return;
+    }
+
+    try {
+      await api.put(`/api/employer/payroll-management/${editingTimesheet.timesheet_id}/adjust-hours`, {
+        adjusted_hours: parseFloat(adjustedHours),
+        adjustment_reason: adjustmentReason
+      });
+      alert('Hours adjusted successfully!');
+      setShowEditModal(false);
+      setEditingTimesheet(null);
+      loadFinanceData(); // Reload data
+    } catch (error) {
+      alert('Failed to adjust hours: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Process payroll batch
+  const handleProcessPayroll = async () => {
+    if (approvedTimesheets.length === 0) {
+      alert('No approved timesheets to process');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Process ${approvedTimesheets.length} timesheets for payroll?\n\nTotal Amount: $${approvedTimesheets.reduce((sum, ts) => sum + (ts.adjusted_pay || ts.actual_pay || 0), 0).toFixed(2)}\n\nThis will send the batch to your payment processor.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const timesheetIds = approvedTimesheets.map(ts => ts.timesheet_id);
+      const response = await api.post('/api/employer/payroll-management/process-batch', {
+        timesheet_ids: timesheetIds,
+        batch_name: `Payroll ${new Date().toISOString().split('T')[0]}`
+      });
+
+      const data = response.data.data;
+      alert(`Payroll batch created successfully!\n\nWorkers: ${data.total_workers}\nTotal: $${data.total_amount.toFixed(2)}\n${data.workers_missing_sin > 0 ? `\nWarning: ${data.workers_missing_sin} workers missing SIN` : ''}`);
+      
+      loadFinanceData(); // Reload data
+    } catch (error) {
+      alert('Failed to process payroll: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
