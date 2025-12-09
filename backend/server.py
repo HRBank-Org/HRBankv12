@@ -129,6 +129,7 @@ app.include_router(dashboard.router, tags=["dashboard"])
 app.include_router(shift_ratings.router, tags=["shift_ratings"])
 app.include_router(qr_attendance.router, tags=["qr_attendance"])
 app.include_router(workplace_roles.router, tags=["workplace_roles"])
+app.include_router(employer_invitations.router, tags=["employer_invitations"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
