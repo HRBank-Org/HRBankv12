@@ -65,6 +65,35 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
     }
   }, [formData.workplace_id, workplaces]);
 
+  // Handle workplace role selection - INHERIT ALL PROPERTIES
+  const handleRoleSelect = (roleId) => {
+    if (!roleId) {
+      setSelectedRole(null);
+      setSelectedTemplate(null);
+      return;
+    }
+
+    const role = workplaceRoles.find(r => r.role_id === roleId);
+    if (role) {
+      setSelectedRole(role);
+      setSelectedTemplate(null); // Clear template if role is selected
+      
+      // Inherit ALL properties from the role
+      setFormData(prev => ({
+        ...prev,
+        workplace_id: role.workplace_id,
+        position_title: role.role_name,
+        occupation_template_id: role.occupation_template_id || '',
+        hourly_rate: role.pay_rate || role.hourly_rate || '',
+        start_time: role.shift_start_time || prev.start_time,
+        end_time: role.shift_end_time || prev.end_time,
+        positions_needed: role.positions_needed || 1,
+        required_skills: role.required_skills || [],
+        required_certifications: role.required_certifications || []
+      }));
+    }
+  };
+
   // Handle template selection
   const handleTemplateSelect = async (templateId) => {
     if (!templateId) {
@@ -84,6 +113,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
       const response = await api.get(`/api/occupation-templates/${templateId}?province=${workplaceProvince || 'ON'}`);
       const template = response.data.data;
       setSelectedTemplate(template);
+      setSelectedRole(null); // Clear role if template is selected
 
       // Auto-populate fields from template
       setFormData(prev => ({
