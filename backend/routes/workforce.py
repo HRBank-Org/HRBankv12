@@ -383,8 +383,9 @@ async def complete_task(
         )
     
     # Create task completion record
+    completion_id = f"tc_{uuid.uuid4().hex[:12]}"
     completion = {
-        "task_completion_id": f"tc_{uuid.uuid4().hex[:12]}",
+        "task_completion_id": completion_id,
         "worker_id": current_user["user_id"],
         "shift_id": shift_id,
         "task_text": task_text,
@@ -396,9 +397,20 @@ async def complete_task(
     
     await db.task_completions.insert_one(completion)
     
+    # Return completion without MongoDB _id
     return {
         "success": True,
-        "data": {"completion": completion},
+        "data": {
+            "completion": {
+                "task_completion_id": completion_id,
+                "worker_id": current_user["user_id"],
+                "shift_id": shift_id,
+                "task_text": task_text,
+                "task_type": task_type,
+                "completed": True,
+                "completed_at": completion["completed_at"]
+            }
+        },
         "message": "Task marked as complete"
     }
 
