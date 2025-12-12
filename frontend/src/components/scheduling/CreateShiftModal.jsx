@@ -266,7 +266,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                   </select>
                   {selectedTemplate && (
                     <p className="text-xs text-gray-500 mt-1">
-                      ✓ Auto-filled: Position, Rate, Skills & Certifications
+                      ✓ Auto-filled: Position, Rate, Skills
                     </p>
                   )}
                 </div>
