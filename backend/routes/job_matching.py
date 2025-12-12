@@ -203,7 +203,11 @@ async def post_job_to_matching_engine(
     )
     
     # Save to database
-    await db.job_postings.insert_one(job.model_dump())
+    job_dict = job.model_dump()
+    # Convert date objects to strings for MongoDB compatibility
+    if job_dict.get('start_date'):
+        job_dict['start_date'] = job_dict['start_date'].isoformat()
+    await db.job_postings.insert_one(job_dict)
     
     # Trigger matching algorithm
     await run_matching_algorithm(db, job)
