@@ -162,10 +162,19 @@ async def list_workplace_roles(
     if workplace_id:
         query["workplace_id"] = workplace_id
     
-    roles = await db.workplace_roles.find(query, {"_id": 0}).sort("created_date", -1).to_list(1000)
+    roles = await db.workplace_roles.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     
     # Enrich with workplace and worker info
     for role in roles:
+        # Calculate display status based on positions
+        positions_filled = role.get('positions_filled', 0)
+        positions_needed = role.get('positions_needed', 1)
+        
+        if positions_filled >= positions_needed:
+            role['display_status'] = 'filled'
+        else:
+            role['display_status'] = 'open'
+        
         # Add workplace information
         if role.get('workplace_id'):
             workplace = await db.workplaces.find_one(
@@ -200,8 +209,8 @@ async def list_workplace_roles(
         "data": {
             "roles": roles,
             "total": len(roles),
-            "unfilled": len([r for r in roles if r.get('status') == 'unfilled']),
-            "filled": len([r for r in roles if r.get('status') == 'filled'])
+            "unfilled": len([r for r in roles if r.get('display_status') == 'open']),
+            "filled": len([r for r in roles if r.get('display_status') == 'filled'])
         }
     }
 
