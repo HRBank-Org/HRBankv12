@@ -254,8 +254,10 @@ async def run_matching_algorithm(db, job: JobPosting):
             # Try direct lat/long fields
             worker_lat = worker.get('lat')
             worker_lng = worker.get('long') or worker.get('lng')
-            if worker_lat and worker_lng:
+            print(f"DEBUG: Worker {worker.get('first_name', 'Unknown')} has lat={worker_lat}, long={worker_lng}")
+            if worker_lat is not None and worker_lng is not None:
                 worker_coords = {'lat': worker_lat, 'lng': worker_lng}
+                print(f"DEBUG: Created worker_coords: {worker_coords}")
         
         job_coords = job.workplace_coordinates
         if not job_coords:
