@@ -7189,6 +7189,9 @@ def main():
     # NEW: Test employer invitation system (from review request)
     test_employer_invitation_system(results)
     
+    # NEW: Test External Job Matching Engine Complete Flow (from review request)
+    test_external_job_matching_engine_complete_flow(results)
+    
     # Test job matching system with admin credentials
     if admin_token:
         test_job_matching_system(results, admin_token)
