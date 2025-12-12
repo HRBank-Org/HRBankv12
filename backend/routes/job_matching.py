@@ -272,7 +272,7 @@ async def run_matching_algorithm(db, job: JobPosting):
 
 @router.get("/posted")
 async def get_employer_posted_jobs(
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Get all jobs posted by employer"""
     db = await get_database()
@@ -290,7 +290,7 @@ async def get_employer_posted_jobs(
 async def get_job_candidates(
     job_id: str,
     min_score: float = Query(default=50, ge=0, le=100),
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Get matched candidates for a job"""
     db = await get_database()
@@ -345,7 +345,7 @@ async def get_job_candidates(
 @router.post("/interviews/send")
 async def send_interview_invitation(
     invitation_data: InterviewInvitationCreate,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Send interview invitation to workforce"""
     db = await get_database()
@@ -393,7 +393,7 @@ async def send_interview_invitation(
 @router.post("/offers/send")
 async def send_job_offer(
     offer_data: JobOfferCreate,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Send job offer to workforce"""
     db = await get_database()
