@@ -101,8 +101,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
         occupation_template_id: '',
         position_title: '',
         hourly_rate: '',
-        required_skills: [],
-        required_certifications: []
+        required_skills: []
       }));
       return;
     }
@@ -113,14 +112,13 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
       setSelectedTemplate(template);
       setSelectedRole(null); // Clear role if template is selected
 
-      // Auto-populate fields from template
+      // Auto-populate fields from template (certifications stay at role level)
       setFormData(prev => ({
         ...prev,
         occupation_template_id: templateId,
         position_title: template.occupation_title,
         hourly_rate: template.suggested_rate_for_province || template.suggested_rates?.ON || '',
-        required_skills: template.required_skills || [],
-        required_certifications: template.required_certifications || []
+        required_skills: template.required_skills || []
       }));
     } catch (err) {
       console.error('Failed to load template details:', err);
