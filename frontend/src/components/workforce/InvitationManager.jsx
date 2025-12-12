@@ -883,7 +883,7 @@ const InvitationManager = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Positions Available</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Positions Needed</label>
                 <input
                   type="number"
                   value={newRole.positions_available}
@@ -891,6 +891,102 @@ const InvitationManager = () => {
                   min="1"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 />
+              </div>
+              
+              {/* Workplace Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Workplace/Branch *</label>
+                <select
+                  value={newRole.workplace_id || ''}
+                  onChange={(e) => setNewRole({...newRole, workplace_id: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  required
+                >
+                  <option value="">Select workplace</option>
+                  {workplaces.map(wp => (
+                    <option key={wp.workplace_id} value={wp.workplace_id}>
+                      {wp.workplace_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Shift Schedule */}
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <h4 className="font-semibold text-gray-900 mb-3">🕐 Shift Schedule</h4>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Time *</label>
+                    <input
+                      type="time"
+                      value={newRole.shift_start || ''}
+                      onChange={(e) => setNewRole({...newRole, shift_start: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">End Time *</label>
+                    <input
+                      type="time"
+                      value={newRole.shift_end || ''}
+                      onChange={(e) => setNewRole({...newRole, shift_end: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Days of Week *</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                      <label key={day} className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          checked={(newRole.days_of_week || []).includes(day)}
+                          onChange={(e) => {
+                            const days = newRole.days_of_week || [];
+                            if (e.target.checked) {
+                              setNewRole({...newRole, days_of_week: [...days, day]});
+                            } else {
+                              setNewRole({...newRole, days_of_week: days.filter(d => d !== day)});
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        <span className="text-sm">{day.substring(0, 3)}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 44-Hour Compliance Warning */}
+                {newRole.shift_start && newRole.shift_end && newRole.days_of_week && newRole.days_of_week.length > 0 && (() => {
+                  const start = new Date(`2000-01-01T${newRole.shift_start}`);
+                  const end = new Date(`2000-01-01T${newRole.shift_end}`);
+                  let hoursPerShift = (end - start) / (1000 * 60 * 60);
+                  if (hoursPerShift < 0) hoursPerShift += 24; // Handle overnight shifts
+                  const totalWeeklyHours = hoursPerShift * newRole.days_of_week.length;
+                  const exceeds44 = totalWeeklyHours > 44;
+                  
+                  return (
+                    <div className={`p-3 rounded-lg border ${exceeds44 ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'}`}>
+                      <p className={`text-sm font-semibold ${exceeds44 ? 'text-red-900' : 'text-green-900'}`}>
+                        {exceeds44 ? '⚠️ Compliance Warning' : '✅ Compliant Schedule'}
+                      </p>
+                      <p className={`text-xs mt-1 ${exceeds44 ? 'text-red-800' : 'text-green-800'}`}>
+                        {hoursPerShift.toFixed(1)} hours/shift × {newRole.days_of_week.length} days = {totalWeeklyHours.toFixed(1)} hours/week
+                      </p>
+                      {exceeds44 && (
+                        <p className="text-xs text-red-700 mt-2">
+                          Canadian labor law limits work to 44 hours/week. Consider reducing days or splitting into multiple part-time roles.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
               
               <div>
