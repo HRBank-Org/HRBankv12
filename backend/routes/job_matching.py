@@ -263,7 +263,10 @@ async def run_matching_algorithm(db, job: JobPosting):
             continue
         
         if not worker_coords or not job_coords:
+            print(f"DEBUG: Skipping worker {worker.get('first_name', 'Unknown')} - worker_coords: {worker_coords}, job_coords: {job_coords}")
             continue
+        
+        print(f"DEBUG: Processing worker {worker.get('first_name', 'Unknown')} at {worker_coords}")
         
         # Calculate distance
         distance_km = calculate_distance(
