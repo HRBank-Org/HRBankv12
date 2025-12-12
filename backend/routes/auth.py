@@ -11,11 +11,10 @@ from starlette.responses import RedirectResponse
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-def get_db():
+async def get_db():
     """Dependency to get database instance"""
     from database import get_database
-    import asyncio
-    return asyncio.run(get_database())
+    return await get_database()
 
 @router.post("/signup", response_model=Dict, status_code=status.HTTP_201_CREATED)
 async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
