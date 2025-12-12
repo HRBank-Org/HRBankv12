@@ -171,6 +171,132 @@ const InvitationManager = () => {
     window.URL.revokeObjectURL(url);
   };
 
+
+  // RoleCard component with candidate badges
+  const RoleCard = ({ role, theme, onViewCandidates }) => {
+    const [candidateCounts, setCandidateCounts] = useState({ internal: 0, external: 0 });
+    const [workplaceName, setWorkplaceName] = useState(role.workplace_name || 'Loading...');
+    
+    useEffect(() => {
+      // Fetch candidate counts and workplace name for this role
+      const fetchRoleData = async () => {
+        try {
+          // Fetch candidate counts
+          const countsResponse = await api.get(`/api/employer/workplace-roles/${role.role_id}/candidate-count`);
+          setCandidateCounts(countsResponse.data.data);
+          
+          // Fetch workplace name if not already present
+          if (!role.workplace_name && role.workplace_id) {
+            const workplaceResponse = await api.get(`/api/employer/workplaces/${role.workplace_id}`);
+            setWorkplaceName(workplaceResponse.data.data.workplace.workplace_name);
+          }
+        } catch (error) {
+          console.error('Failed to fetch role data:', error);
+        }
+      };
+      
+      if (role.status !== 'filled') {
+        fetchRoleData();
+      }
+    }, [role.role_id, role.status, role.workplace_id, role.workplace_name]);
+    
+    return (
+      <div 
+        className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition-all cursor-pointer hover:border-blue-300"
+        onClick={() => onViewCandidates(role.role_id)}
+      >
+        {/* Header with Job Title and Status */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <h4 className="text-lg font-bold text-gray-900 mb-1">{role.role_name}</h4>
+            <p className="text-sm text-gray-600">{role.occupation_template}</p>
+          </div>
+          <span
+            className={`px-3 py-1 text-xs font-semibold rounded-full ${
+              role.status === 'filled' ? 'bg-green-100 text-green-800' :
+              role.status === 'posted_to_match' ? 'bg-blue-100 text-blue-800' :
+              'bg-yellow-100 text-yellow-800'
+            }`}
+          >
+            {role.status === 'filled' ? '✓ Filled' : role.status === 'posted_to_match' ? '📢 Posted' : '⏳ Open'}
+          </span>
+        </div>
+        
+        {/* Key Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* Branch/Workplace */}
+          <div className="flex items-start gap-2">
+            <span className="text-gray-400 text-sm">📍</span>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Branch</p>
+              <p className="text-sm font-medium text-gray-900">{workplaceName}</p>
+            </div>
+          </div>
+          
+          {/* Pay Rate */}
+          {role.hourly_rate && (
+            <div className="flex items-start gap-2">
+              <span className="text-gray-400 text-sm">💰</span>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Pay Rate</p>
+                <p className="text-sm font-bold text-gray-900">${role.hourly_rate}/hr</p>
+                {role.fee_breakdown && (
+                  <p className="text-xs text-gray-500">
+                    (Employer: ${role.fee_breakdown.employer_pays}/hr)
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Positions Status */}
+        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
+          <span className="text-gray-400 text-sm">👥</span>
+          <div className="flex-1">
+            <p className="text-xs text-gray-500">Positions</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-500 h-2 rounded-full transition-all"
+                  style={{ width: `${((role.positions_filled || 0) / (role.positions_available || 1)) * 100}%` }}
+                ></div>
+              </div>
+              <span className="text-sm font-medium text-gray-900">
+                {role.positions_filled || 0}/{role.positions_available || 0}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Candidate Badges */}
+        {role.status !== 'filled' && (candidateCounts.internal > 0 || candidateCounts.external > 0) && (
+          <div className="flex gap-2">
+            {candidateCounts.internal > 0 && (
+              <div className="flex items-center gap-1 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg text-xs font-medium">
+                <span className="text-green-700">👥 {candidateCounts.internal}</span>
+                <span className="text-green-600">Internal</span>
+              </div>
+            )}
+            {candidateCounts.external > 0 && (
+              <div className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg text-xs font-medium">
+                <span className="text-blue-700">🌐 {candidateCounts.external}</span>
+                <span className="text-blue-600">External</span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {role.filled_by_worker_name && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <p className="text-xs text-gray-500">Filled by</p>
+            <p className="text-sm font-medium text-gray-900">{role.filled_by_worker_name}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Navigation Tabs */}
