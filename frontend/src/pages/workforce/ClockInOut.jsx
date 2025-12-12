@@ -10,12 +10,21 @@ const ClockInOut = () => {
   const [qrScanning, setQrScanning] = useState(false);
   const [qrInput, setQrInput] = useState('');
   const [loading, setLoading] = useState(true);
+  const [shiftTasks, setShiftTasks] = useState({ standard: [], custom: [] });
+  const [taskCompletions, setTaskCompletions] = useState({});
+  const [allTasksComplete, setAllTasksComplete] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 
   useEffect(() => {
     loadBooking();
   }, [bookingId]);
+  
+  useEffect(() => {
+    if (attendance && booking) {
+      loadShiftTasks();
+    }
+  }, [attendance, booking]);
 
   const loadBooking = async () => {
     try {
@@ -34,6 +43,84 @@ const ClockInOut = () => {
       console.error('Failed to load booking:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadShiftTasks = async () => {
+    try {
+      const shiftDate = booking.shift_date.split('T')[0]; // Get YYYY-MM-DD
+      
+      // Get shift details with tasks
+      const shiftsRes = await api.get(`/api/workforce/my-shifts?date=${shiftDate}`);
+      const shifts = shiftsRes.data.data.shifts || [];
+      
+      // Find shift matching this booking (by comparing shift details)
+      const matchingShift = shifts.find(s => 
+        s.position_title === booking.role_title && 
+        s.workplace_name === booking.workplace_name
+      );
+      
+      if (matchingShift) {
+        setShiftTasks({
+          standard: matchingShift.standard_tasks || [],
+          custom: matchingShift.custom_tasks || []
+        });
+        
+        // Get task completions
+        const completionsRes = await api.get(`/api/workforce/task-completions?date=${shiftDate}`);
+        const completions = completionsRes.data.data.completions || [];
+        
+        // Build completion map
+        const completionMap = {};
+        completions.forEach(comp => {
+          if (comp.shift_id === matchingShift.shift_id) {
+            completionMap[comp.task_text] = comp;
+          }
+        });
+        setTaskCompletions(completionMap);
+        
+        // Check if all tasks are complete
+        const allTasks = [...(matchingShift.standard_tasks || []), ...(matchingShift.custom_tasks || [])];
+        const completedCount = allTasks.filter(task => completionMap[task]?.completed).length;
+        setAllTasksComplete(allTasks.length > 0 && completedCount === allTasks.length);
+      }
+    } catch (error) {
+      console.error('Failed to load shift tasks:', error);
+    }
+  };
+
+  const handleTaskToggle = async (taskText, taskType) => {
+    try {
+      const isCompleted = taskCompletions[taskText]?.completed || false;
+      
+      if (isCompleted) {
+        // Uncomplete
+        const completionId = taskCompletions[taskText].task_completion_id;
+        await api.delete(`/api/workforce/task-completions/${completionId}`);
+      } else {
+        // Complete
+        const shiftDate = booking.shift_date.split('T')[0];
+        const shiftsRes = await api.get(`/api/workforce/my-shifts?date=${shiftDate}`);
+        const shifts = shiftsRes.data.data.shifts || [];
+        const matchingShift = shifts.find(s => 
+          s.position_title === booking.role_title && 
+          s.workplace_name === booking.workplace_name
+        );
+        
+        if (matchingShift) {
+          await api.post('/api/workforce/task-completions', {
+            shift_id: matchingShift.shift_id,
+            task_text: taskText,
+            task_type: taskType
+          });
+        }
+      }
+      
+      // Reload tasks
+      await loadShiftTasks();
+    } catch (error) {
+      console.error('Failed to toggle task:', error);
+      alert('Failed to update task. Please try again.');
     }
   };
 
@@ -218,12 +305,75 @@ const ClockInOut = () => {
                 <p className="text-xs text-gray-500 mt-2">Hours worked</p>
               </div>
 
+              {/* Task Checklist */}
+              {(shiftTasks.standard.length > 0 || shiftTasks.custom.length > 0) && (
+                <div className="border-t border-gray-200 pt-6 mt-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                    📋 Complete Your Tasks Before Clock Out
+                  </h4>
+                  <div className="space-y-2 mb-4">
+                    {[...shiftTasks.standard, ...shiftTasks.custom].map((task, idx) => {
+                      const isCompleted = taskCompletions[task]?.completed || false;
+                      const isCustom = shiftTasks.custom.includes(task);
+                      
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => handleTaskToggle(task, isCustom ? 'custom' : 'standard')}
+                          className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                            isCompleted 
+                              ? 'bg-green-50 border-green-200' 
+                              : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="mt-0.5">
+                            {isCompleted ? (
+                              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" strokeWidth={2} />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className={`text-sm ${isCompleted ? 'text-gray-600 line-through' : 'text-gray-900 font-medium'}`}>
+                              {task}
+                            </p>
+                            {isCustom && (
+                              <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
+                                Custom
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {!allTasksComplete && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-orange-800 flex items-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span><strong>Note:</strong> Complete all tasks above to enable clock out.</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <button
                 onClick={handleClockOut}
-                className="w-full px-6 py-4 rounded-lg text-white font-semibold text-lg"
+                disabled={!allTasksComplete && (shiftTasks.standard.length > 0 || shiftTasks.custom.length > 0)}
+                className="w-full px-6 py-4 rounded-lg text-white font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: theme.primaryColor }}
               >
-                Clock Out
+                {allTasksComplete || (shiftTasks.standard.length === 0 && shiftTasks.custom.length === 0) 
+                  ? 'Clock Out' 
+                  : '🔒 Complete Tasks to Clock Out'}
               </button>
 
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
