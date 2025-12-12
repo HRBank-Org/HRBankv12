@@ -286,7 +286,7 @@ async def send_csv_bulk_invitations(
             # Send notifications
             await send_invitation_notifications(
                 invite_token=invite_token,
-                employer_name=current_user.get('company_name', 'Employer'),
+                employer_name=employer_name,
                 db=db
             )
             
