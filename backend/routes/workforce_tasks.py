@@ -148,7 +148,9 @@ async def mark_task_complete(
         "workplace_id": shift.get("workplace_id")
     }
     
-    await db.task_completions.insert_one(completion)
+    result = await db.task_completions.insert_one(completion.copy())
+    # Remove MongoDB's _id before returning
+    completion.pop("_id", None)
     
     return {
         "success": True,
