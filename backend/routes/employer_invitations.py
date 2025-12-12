@@ -401,11 +401,18 @@ async def resend_invitation(
         }}
     )
     
+    # Get employer details
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": current_user['user_id']},
+        {"_id": 0, "company_name": 1}
+    )
+    employer_name = employer.get('company_name', 'Employer') if employer else 'Employer'
+    
     # Resend notifications
     invite['expires_at'] = new_expiry
     await send_invitation_notifications(
         invite_token=InviteToken(**invite),
-        employer_name=current_user.get('company_name', 'Employer'),
+        employer_name=employer_name,
         db=db
     )
     
