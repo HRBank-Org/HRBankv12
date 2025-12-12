@@ -533,7 +533,7 @@ const ScheduleTab = ({ theme, navigate, initialShowWorkplaces = false }) => {
       </div>
       
       {/* Calendar View */}
-      {!showWorkplaces && <CalendarView embedded={true} />}
+      {!showWorkplaces && <CalendarView embedded={true} initialWorkplace={selectedWorkplaceFilter} />}
       
       {/* Workplaces Management View */}
       {showWorkplaces && (
