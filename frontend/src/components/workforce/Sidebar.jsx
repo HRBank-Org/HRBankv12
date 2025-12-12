@@ -1,13 +1,22 @@
 import React from 'react';
-import { FiCheckCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiX } from 'react-icons/fi';
 
-const Sidebar = ({ profile, theme }) => {
+const Sidebar = ({ profile, theme, onClose }) => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const availability = profile?.availability || [];
   
   return (
-    <div className="w-64 bg-white border-r border-gray-200 min-h-screen p-6">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">⏰ Availability</h3>
+    <div className="h-full bg-white p-6 overflow-y-auto">
+      {/* Header with Close Button */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-bold text-gray-900">⏰ Availability</h3>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <FiX className="w-6 h-6 text-gray-600" />
+        </button>
+      </div>
       
       <div className="space-y-2">
         {daysOfWeek.map((day) => {
@@ -38,6 +47,22 @@ const Sidebar = ({ profile, theme }) => {
         <div className="text-xs text-blue-700 mb-1">Weekly Availability</div>
         <div className="text-2xl font-bold text-blue-900">{availability.length}/7</div>
         <div className="text-xs text-blue-600 mt-1">days available</div>
+      </div>
+      
+      {/* Action Buttons */}
+      <div className="mt-6 space-y-3">
+        <button
+          className="w-full py-3 rounded-lg text-white font-medium"
+          style={{ backgroundColor: theme.primaryColor }}
+        >
+          Update Availability
+        </button>
+        <button
+          onClick={onClose}
+          className="w-full py-3 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
