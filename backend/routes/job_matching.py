@@ -283,7 +283,7 @@ async def get_employer_posted_jobs(
     
     jobs = await db.job_postings.find({
         'employer_id': current_user['user_id']
-    }).to_list(length=None)
+    }, {'_id': 0}).to_list(length=None)
     
     return {
         'success': True,
