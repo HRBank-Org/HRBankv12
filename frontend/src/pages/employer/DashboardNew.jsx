@@ -328,7 +328,7 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {workforce.map(worker => (
+          {filteredWorkforce.map(worker => (
             <WorkerCard 
               key={worker.user_id} 
               worker={worker} 
@@ -337,6 +337,12 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
             />
           ))}
         </div>
+        
+        {filteredWorkforce.length === 0 && selectedWorkplace !== 'all' && (
+          <div className="text-center py-12">
+            <p className="text-gray-600">No workers at this workplace</p>
+          </div>
+        )}
       </div>
 
       {workforce.length === 0 && (
