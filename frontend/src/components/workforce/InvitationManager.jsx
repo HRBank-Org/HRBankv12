@@ -490,7 +490,15 @@ const InvitationManager = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {roles.map((role) => (
+                  {roles
+                    .filter(r => {
+                      const wpMatch = filterWorkplace === 'all' || r.workplace_id === filterWorkplace;
+                      const statusMatch = filterStatus === 'all' || 
+                        (filterStatus === 'filled' && r.positions_filled >= r.positions_needed) ||
+                        (filterStatus === 'open' && r.positions_filled < r.positions_needed);
+                      return wpMatch && statusMatch;
+                    })
+                    .map((role) => (
                     <tr 
                       key={role.role_id}
                       onClick={() => window.location.href = `/employer/roles/${role.role_id}/candidates`}
