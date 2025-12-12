@@ -1280,6 +1280,219 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_address_validation_api(results):
+    """Test Address Validation API - Complete Flow from review request"""
+    print("\n🧪 TESTING ADDRESS VALIDATION API - COMPLETE FLOW")
+    print("   Focus: Canadian address validation for Workplace Setup page")
+    print("   Testing: /api/validation/validate-address endpoint")
+    print("   Test Cases: Valid addresses, invalid postal codes, invalid provinces")
+    
+    # Test Case 1: Valid Canadian Address
+    print("\n   Test Case 1: Valid Canadian Address")
+    valid_address_data = {
+        "address": "123 Main St",
+        "city": "Windsor", 
+        "province": "ON",
+        "postal_code": "N9A 1A1"
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/validation/validate-address",
+            json=valid_address_data,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("valid") == True and "formatted" in data:
+                formatted = data["formatted"]
+                if (formatted.get("address") == "123 Main St" and
+                    formatted.get("city") == "Windsor" and
+                    formatted.get("province") == "ON" and
+                    formatted.get("postal_code") == "N9A 1A1"):
+                    results.add_pass("Valid address validation - Windsor, ON N9A 1A1")
+                else:
+                    results.add_fail("Valid address validation", f"Incorrect formatting: {formatted}")
+            else:
+                results.add_fail("Valid address validation", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Valid address validation", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Valid address validation", f"Request failed: {str(e)}")
+    
+    # Test Case 2: Invalid Postal Code
+    print("\n   Test Case 2: Invalid Postal Code")
+    invalid_postal_data = {
+        "address": "123 Main St",
+        "city": "Windsor",
+        "province": "ON", 
+        "postal_code": "INVALID"
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/validation/validate-address",
+            json=invalid_postal_data,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("valid") == False and "errors" in data:
+                errors = data["errors"]
+                if any("postal code" in error.lower() for error in errors):
+                    results.add_pass("Invalid postal code validation - INVALID rejected")
+                else:
+                    results.add_fail("Invalid postal code validation", f"Wrong error message: {errors}")
+            else:
+                results.add_fail("Invalid postal code validation", f"Should be invalid: {data}")
+        else:
+            results.add_fail("Invalid postal code validation", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Invalid postal code validation", f"Request failed: {str(e)}")
+    
+    # Test Case 3: Invalid Province
+    print("\n   Test Case 3: Invalid Province")
+    invalid_province_data = {
+        "address": "123 Main St",
+        "city": "Windsor",
+        "province": "ZZ",
+        "postal_code": "N9A 1A1"
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/validation/validate-address",
+            json=invalid_province_data,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("valid") == False and "errors" in data:
+                errors = data["errors"]
+                if any("province" in error.lower() for error in errors):
+                    results.add_pass("Invalid province validation - ZZ rejected")
+                else:
+                    results.add_fail("Invalid province validation", f"Wrong error message: {errors}")
+            else:
+                results.add_fail("Invalid province validation", f"Should be invalid: {data}")
+        else:
+            results.add_fail("Invalid province validation", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Invalid province validation", f"Request failed: {str(e)}")
+    
+    # Test Case 4: Multiple Validation Errors
+    print("\n   Test Case 4: Multiple Validation Errors")
+    multiple_errors_data = {
+        "address": "123",  # Too short
+        "city": "W",       # Too short
+        "province": "XX",  # Invalid
+        "postal_code": "123456"  # Invalid format
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/validation/validate-address",
+            json=multiple_errors_data,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("valid") == False and "errors" in data:
+                errors = data["errors"]
+                if len(errors) >= 3:  # Should have multiple errors
+                    results.add_pass("Multiple validation errors - All fields rejected")
+                else:
+                    results.add_fail("Multiple validation errors", f"Expected multiple errors, got: {errors}")
+            else:
+                results.add_fail("Multiple validation errors", f"Should be invalid: {data}")
+        else:
+            results.add_fail("Multiple validation errors", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Multiple validation errors", f"Request failed: {str(e)}")
+    
+    # Test Case 5: Edge Case - Valid Postal Code Formats
+    print("\n   Test Case 5: Valid Postal Code Formats")
+    postal_formats = [
+        "N9A1A1",    # No space
+        "N9A 1A1",   # With space
+        "n9a 1a1",   # Lowercase
+        "N9A  1A1"   # Extra space
+    ]
+    
+    for postal_code in postal_formats:
+        try:
+            test_data = {
+                "address": "123 Main St",
+                "city": "Windsor",
+                "province": "ON",
+                "postal_code": postal_code
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/validation/validate-address",
+                json=test_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("valid") == True:
+                    formatted_postal = data.get("formatted", {}).get("postal_code")
+                    if formatted_postal == "N9A 1A1":
+                        results.add_pass(f"Postal code format validation - '{postal_code}' → 'N9A 1A1'")
+                    else:
+                        results.add_fail(f"Postal code format validation - '{postal_code}'", f"Wrong formatting: {formatted_postal}")
+                else:
+                    results.add_fail(f"Postal code format validation - '{postal_code}'", f"Should be valid: {data}")
+            else:
+                results.add_fail(f"Postal code format validation - '{postal_code}'", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail(f"Postal code format validation - '{postal_code}'", f"Request failed: {str(e)}")
+    
+    # Test Case 6: Province Code vs Full Name
+    print("\n   Test Case 6: Province Code vs Full Name")
+    province_tests = [
+        ("ON", "Ontario"),
+        ("BC", "British Columbia"),
+        ("Alberta", "AB"),
+        ("Quebec", "QC")
+    ]
+    
+    for input_province, expected_code in province_tests:
+        try:
+            test_data = {
+                "address": "123 Main St",
+                "city": "Calgary" if expected_code in ["AB", "Alberta"] else "Toronto",
+                "province": input_province,
+                "postal_code": "T2P 1A1" if expected_code in ["AB", "Alberta"] else "M5V 3A8"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/validation/validate-address",
+                json=test_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("valid") == True:
+                    formatted_province = data.get("formatted", {}).get("province")
+                    expected_final_code = expected_code if len(expected_code) == 2 else input_province
+                    if formatted_province == expected_final_code:
+                        results.add_pass(f"Province validation - '{input_province}' → '{expected_final_code}'")
+                    else:
+                        results.add_fail(f"Province validation - '{input_province}'", f"Expected {expected_final_code}, got {formatted_province}")
+                else:
+                    results.add_fail(f"Province validation - '{input_province}'", f"Should be valid: {data}")
+            else:
+                results.add_fail(f"Province validation - '{input_province}'", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail(f"Province validation - '{input_province}'", f"Request failed: {str(e)}")
+
 def test_external_job_matching_engine_complete_flow(results):
     """Test External Job Matching Engine - Complete Flow from review request"""
     print("\n🧪 TESTING EXTERNAL JOB MATCHING ENGINE - COMPLETE FLOW")
