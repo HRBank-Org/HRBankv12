@@ -497,6 +497,7 @@ const WorkerCard = ({ worker, theme, onClick }) => {
 const ScheduleTab = ({ theme, navigate, initialShowWorkplaces = false }) => {
   const [workplaces, setWorkplaces] = useState([]);
   const [showWorkplaces, setShowWorkplaces] = useState(initialShowWorkplaces);
+  const [selectedWorkplaceFilter, setSelectedWorkplaceFilter] = useState('all');
   
   const loadWorkplaces = async () => {
     try {
