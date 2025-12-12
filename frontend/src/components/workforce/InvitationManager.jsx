@@ -1132,6 +1132,143 @@ const InvitationManager = () => {
           </div>
         </div>
       )}
+      
+      {/* Edit Role Modal */}
+      {showEditModal && editingRole && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">Edit Role: {editingRole.role_name}</h3>
+              <button onClick={() => setShowEditModal(false)} className="text-gray-500 hover:text-gray-700">
+                <FiX size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Positions Needed</label>
+                <input
+                  type="number"
+                  value={editingRole.positions_needed}
+                  onChange={(e) => setEditingRole({...editingRole, positions_needed: parseInt(e.target.value)})}
+                  min="1"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Currently {editingRole.positions_filled || 0} positions filled
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pay Rate ($/hr)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editingRole.pay_rate || editingRole.hourly_rate}
+                  onChange={(e) => setEditingRole({...editingRole, pay_rate: parseFloat(e.target.value)})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="font-semibold text-gray-900 mb-3">🕐 Shift Schedule</h4>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                    <input
+                      type="time"
+                      value={editingRole.shift_start_time || ''}
+                      onChange={(e) => setEditingRole({...editingRole, shift_start_time: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                    <input
+                      type="time"
+                      value={editingRole.shift_end_time || ''}
+                      onChange={(e) => setEditingRole({...editingRole, shift_end_time: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Days of Week</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                      <label key={day} className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          checked={(editingRole.days_of_week || []).includes(day)}
+                          onChange={(e) => {
+                            const days = editingRole.days_of_week || [];
+                            if (e.target.checked) {
+                              setEditingRole({...editingRole, days_of_week: [...days, day]});
+                            } else {
+                              setEditingRole({...editingRole, days_of_week: days.filter(d => d !== day)});
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        <span className="text-sm">{day.substring(0, 3)}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 44-Hour Compliance Check */}
+                {editingRole.shift_start_time && editingRole.shift_end_time && editingRole.days_of_week && editingRole.days_of_week.length > 0 && (() => {
+                  const start = new Date(`2000-01-01T${editingRole.shift_start_time}`);
+                  const end = new Date(`2000-01-01T${editingRole.shift_end_time}`);
+                  let hoursPerShift = (end - start) / (1000 * 60 * 60);
+                  if (hoursPerShift < 0) hoursPerShift += 24;
+                  const totalWeeklyHours = hoursPerShift * editingRole.days_of_week.length;
+                  const exceeds44 = totalWeeklyHours > 44;
+                  
+                  return (
+                    <div className={`p-3 rounded-lg border ${exceeds44 ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'}`}>
+                      <p className={`text-sm font-semibold ${exceeds44 ? 'text-red-900' : 'text-green-900'}`}>
+                        {exceeds44 ? '⚠️ Compliance Warning' : '✅ Compliant Schedule'}
+                      </p>
+                      <p className={`text-xs mt-1 ${exceeds44 ? 'text-red-800' : 'text-green-800'}`}>
+                        {hoursPerShift.toFixed(1)} hours/shift × {editingRole.days_of_week.length} days = {totalWeeklyHours.toFixed(1)} hours/week
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={editingRole.description || ''}
+                  onChange={(e) => setEditingRole({...editingRole, description: e.target.value})}
+                  rows="3"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+            </div>
+            
+            <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditRole}
+                className="px-6 py-2 rounded-lg text-white font-medium"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
