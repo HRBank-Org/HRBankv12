@@ -35,7 +35,6 @@ const WorkforceDashboardNew = () => {
     activeJobs: 0
   });
   const [loading, setLoading] = useState(true);
-  const [availabilityDrawerOpen, setAvailabilityDrawerOpen] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -139,7 +138,7 @@ const WorkforceDashboardNew = () => {
       
       {/* Main Content - Full Width */}
       <div className="px-4 sm:px-6 lg:px-8 py-6">
-          {/* Header Section with Personality Ratings and Availability Button */}
+          {/* Header Section with Greeting */}
           <div className="mb-8">
             <div className="flex items-start justify-between">
               <div>
@@ -149,37 +148,6 @@ const WorkforceDashboardNew = () => {
                 <p className="text-gray-600 mt-1">
                   Here's your work overview for today
                 </p>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                {/* Availability Quick Button */}
-                <button
-                  onClick={() => setAvailabilityDrawerOpen(true)}
-                  className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all"
-                >
-                  <FiCalendar className="w-5 h-5 text-gray-700" />
-                  <div className="text-left">
-                    <div className="text-sm font-medium text-gray-900">Availability</div>
-                    <div className="text-xs text-gray-600">{profile?.availability?.length || 0}/7 days</div>
-                  </div>
-                </button>
-                
-                {/* Personality Ratings */}
-                <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-                  <div className="text-sm font-medium text-gray-700 mb-2">Personality Traits</div>
-                  <div className="space-y-2">
-                    <RatingBadge label="Teamwork" value={4.7} />
-                    <RatingBadge label="Reliability" value={4.8} />
-                    <RatingBadge label="Communication" value={4.6} />
-                    <RatingBadge label="Professionalism" value={4.9} />
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Overall</span>
-                      <span className="text-lg font-bold text-gray-900">{stats.rating.toFixed(1)} ⭐</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -256,26 +224,6 @@ const WorkforceDashboardNew = () => {
           </div>
         </div>
       </div>
-      
-      {/* Availability Slide-out Drawer */}
-      {availabilityDrawerOpen && (
-        <>
-          {/* Overlay */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
-            onClick={() => setAvailabilityDrawerOpen(false)}
-          />
-          
-          {/* Drawer */}
-          <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform">
-            <Sidebar 
-              profile={profile} 
-              theme={theme} 
-              onClose={() => setAvailabilityDrawerOpen(false)}
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 };

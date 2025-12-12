@@ -325,6 +325,27 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
                 {/* Divider */}
                 <div className="border-t border-gray-700 my-4"></div>
                 
+                {/* Availability - Workforce Only */}
+                {user && user.user_type === 'workforce' && (
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate && navigate('/workforce/availability');
+                    }}
+                    className="w-full px-4 py-4 text-left hover:bg-gray-800 rounded-lg flex items-center gap-4 text-white transition-colors mb-2"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="font-semibold">Availability</div>
+                      <div className="text-xs text-gray-400">Set your work schedule</div>
+                    </div>
+                  </button>
+                )}
+                
                 {/* Documents */}
                 {user && user.user_type && (
                   <button
