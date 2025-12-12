@@ -200,11 +200,11 @@ const MyTasks = () => {
                   </div>
 
                   {/* Tasks */}
-                  <div className=\"p-6\">
+                  <div className="p-6">
                     {allTasks.length === 0 ? (
-                      <p className=\"text-gray-500 text-center py-4\">No tasks for this shift</p>
+                      <p className="text-gray-500 text-center py-4">No tasks for this shift</p>
                     ) : (
-                      <div className=\"space-y-3\">
+                      <div className="space-y-3">
                         {allTasks.map(({ task, type }, idx) => {
                           const isCompleted = taskCompletions[shift.shift_id]?.[task]?.completed || false;
                           const completion = taskCompletions[shift.shift_id]?.[task];
@@ -219,27 +219,27 @@ const MyTasks = () => {
                               }`}
                               onClick={() => handleTaskToggle(shift, task, type)}
                             >
-                              <div className=\"mt-1\">
+                              <div className="mt-1">
                                 {isCompleted ? (
-                                  <FiCheckCircle size={24} className=\"text-green-600\" />
+                                  <FiCheckCircle size={24} className="text-green-600" />
                                 ) : (
-                                  <FiCircle size={24} className=\"text-gray-400\" />
+                                  <FiCircle size={24} className="text-gray-400" />
                                 )}
                               </div>
                               
-                              <div className=\"flex-1\">
+                              <div className="flex-1">
                                 <p className={`text-base ${isCompleted ? 'text-gray-600 line-through' : 'text-gray-900 font-medium'}`}>
                                   {task}
                                 </p>
                                 
                                 {type === 'custom' && (
-                                  <span className=\"inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded\">
+                                  <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
                                     Custom Task
                                   </span>
                                 )}
                                 
                                 {isCompleted && completion && (
-                                  <p className=\"text-xs text-gray-500 mt-1\">
+                                  <p className="text-xs text-gray-500 mt-1">
                                     ✓ Completed {moment(completion.completed_at).format('h:mm A')}
                                   </p>
                                 )}
