@@ -1109,11 +1109,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Complete Employee Lifecycle - Employer Side Testing"
+    - "Roles & Invitations UI - Display 4 Workplace Roles"
+    - "Fix Role Status Display - Backend Calculation Issue"
+    - "Create Additional Roles - 7 Total Required"
   stuck_tasks:
     - "Complete Employee Lifecycle - Employer Side Testing"
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
     -agent: "main"
