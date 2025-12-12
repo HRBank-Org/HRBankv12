@@ -15,6 +15,8 @@ const WorkplaceSetup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [validationError, setValidationError] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -23,12 +25,60 @@ const WorkplaceSetup = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear validation error when user types
+    if (e.target.name === 'postal_code') {
+      setValidationError('');
+    }
+  };
+
+  const validateAddress = async () => {
+    if (!formData.address || !formData.postal_code) {
+      return true; // Skip validation if fields are empty
+    }
+
+    setValidating(true);
+    setValidationError('');
+
+    try {
+      // Extract city and province from address
+      const addressParts = formData.address.split(',').map(s => s.trim());
+      const city = addressParts.length >= 2 ? addressParts[addressParts.length - 2] : '';
+      const province = addressParts.length >= 3 ? addressParts[addressParts.length - 1] : 'ON';
+
+      const response = await api.post('/api/validation/validate-address', {
+        address: formData.address,
+        city: city,
+        province: province,
+        postal_code: formData.postal_code
+      });
+
+      if (!response.data.valid) {
+        setValidationError(response.data.errors?.join(', ') || 'Address validation failed');
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Address validation error:', err);
+      // Don't block submission if validation service fails
+      return true;
+    } finally {
+      setValidating(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    // Validate address before submission
+    const isAddressValid = await validateAddress();
+    if (!isAddressValid) {
+      setLoading(false);
+      setError('Please correct the address validation errors before continuing.');
+      return;
+    }
 
     try {
       await api.post('/api/employer/workplaces', formData);
