@@ -4,15 +4,18 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import UserHeader from '../../components/common/UserHeader';
-import Sidebar from '../../components/workforce/Sidebar';
 import RatingBadge from '../../components/workforce/RatingBadge';
 import OccupationProfileCard from '../../components/workforce/OccupationProfileCard';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { 
   FiCalendar, FiClock, FiDollarSign, FiAward, FiBriefcase, 
   FiCheckCircle, FiAlertCircle, FiTrendingUp, FiMapPin,
-  FiStar, FiUsers, FiFileText, FiMail
+  FiStar, FiUsers, FiFileText, FiMail, FiList, FiGrid
 } from 'react-icons/fi';
 import moment from 'moment';
+
+const localizer = momentLocalizer(moment);
 
 const WorkforceDashboardNew = () => {
   const { user } = useAuth();
@@ -201,10 +204,10 @@ const WorkforceDashboardNew = () => {
                 label="Earnings"
               />
               <TabButton
-                active={activeTab === 'jobs'}
-                onClick={() => setActiveTab('jobs')}
+                active={activeTab === 'career'}
+                onClick={() => setActiveTab('career')}
                 icon={<FiBriefcase />}
-                label="Find Jobs"
+                label="Career"
               />
               <TabButton
                 active={activeTab === 'profile'}
@@ -219,7 +222,7 @@ const WorkforceDashboardNew = () => {
           <div className="p-6">
             {activeTab === 'schedule' && <ScheduleTab stats={stats} theme={theme} navigate={navigate} />}
             {activeTab === 'earnings' && <EarningsTab stats={stats} theme={theme} />}
-            {activeTab === 'jobs' && <JobsTab stats={stats} theme={theme} navigate={navigate} />}
+            {activeTab === 'career' && <CareerTab stats={stats} theme={theme} navigate={navigate} />}
             {activeTab === 'profile' && <ProfileTab profile={profile} occupationProfiles={occupationProfiles} theme={theme} navigate={navigate} />}
           </div>
         </div>
