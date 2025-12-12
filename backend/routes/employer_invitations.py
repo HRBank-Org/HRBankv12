@@ -187,6 +187,13 @@ async def send_csv_bulk_invitations(
             detail=f"CSV must contain headers: {', '.join(required_headers)}"
         )
     
+    # Get employer details for email
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": current_user['user_id']},
+        {"_id": 0, "company_name": 1}
+    )
+    employer_name = employer.get('company_name', 'Employer') if employer else 'Employer'
+    
     # Get all employer's roles for validation
     employer_roles = await db.workplace_roles.find(
         {"employer_id": current_user['user_id']},
