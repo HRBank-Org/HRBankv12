@@ -8,14 +8,17 @@ import RatingBadge from '../../components/workforce/RatingBadge';
 import OccupationProfileCard from '../../components/workforce/OccupationProfileCard';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { GoogleMap, LoadScript, Marker, InfoWindow, Circle } from '@react-google-maps/api';
 import { 
   FiCalendar, FiClock, FiDollarSign, FiAward, FiBriefcase, 
   FiCheckCircle, FiAlertCircle, FiTrendingUp, FiMapPin,
-  FiStar, FiUsers, FiFileText, FiMail, FiList, FiGrid
+  FiStar, FiUsers, FiFileText, FiMail, FiList, FiGrid, FiMap
 } from 'react-icons/fi';
 import moment from 'moment';
 
 const localizer = momentLocalizer(moment);
+
+const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '';
 
 const WorkforceDashboardNew = () => {
   const { user } = useAuth();
@@ -458,6 +461,24 @@ const EarningsTab = ({ stats, theme }) => (
 // Career Tab - Job Offers and Interview Calendar
 const CareerTab = ({ stats, theme, navigate }) => {
   const [showMarketInsights, setShowMarketInsights] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  
+  // Sample market data with locations (Toronto area)
+  const marketData = [
+    { id: 1, title: 'Food Service', count: 42, lat: 43.6532, lng: -79.3832, location: 'Downtown Toronto' },
+    { id: 2, title: 'Security', count: 28, lat: 43.7184, lng: -79.5181, location: 'Etobicoke' },
+    { id: 3, title: 'Bartending', count: 15, lat: 43.6529, lng: -79.3849, location: 'Entertainment District' },
+    { id: 4, title: 'Food Service', count: 18, lat: 43.7615, lng: -79.4111, location: 'North York' },
+    { id: 5, title: 'Security', count: 12, lat: 43.6426, lng: -79.3871, location: 'Financial District' },
+  ];
+  
+  const mapCenter = { lat: 43.6532, lng: -79.3832 };
+  
+  const mapContainerStyle = {
+    width: '100%',
+    height: '500px',
+    borderRadius: '8px'
+  };
   
   return (
     <div>
@@ -465,8 +486,14 @@ const CareerTab = ({ stats, theme, navigate }) => {
         <h2 className="text-xl font-bold text-gray-900">Career Hub</h2>
         <button
           onClick={() => setShowMarketInsights(!showMarketInsights)}
-          className="text-sm font-medium px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 text-sm font-medium px-4 py-2 border-2 rounded-lg transition-all"
+          style={{ 
+            borderColor: showMarketInsights ? theme.primaryColor : '#d1d5db',
+            backgroundColor: showMarketInsights ? `${theme.primaryColor}10` : 'white',
+            color: showMarketInsights ? theme.primaryColor : '#4b5563'
+          }}
         >
+          <FiMap className="w-4 h-4" />
           {showMarketInsights ? 'Hide' : 'Show'} Market Insights
         </button>
       </div>
@@ -517,43 +544,140 @@ const CareerTab = ({ stats, theme, navigate }) => {
         </div>
       </div>
 
-      {/* Market Insights (Optional - Collapsible) */}
+      {/* Market Insights Map (Collapsible) */}
       {showMarketInsights && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
           <div className="flex items-start gap-3 mb-4">
             <FiTrendingUp className="w-6 h-6 text-blue-600 mt-1" />
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Market Insights</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Market Insights Map</h3>
               <p className="text-sm text-gray-600">
-                See what types of jobs are available in your area (for awareness only)
+                See where job opportunities are located in your area
               </p>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Sample market data */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="text-2xl font-bold text-gray-900 mb-1">42</div>
-              <div className="text-sm text-gray-600">Food Service Jobs</div>
-              <div className="text-xs text-gray-500 mt-2">In your city</div>
+          {/* Map */}
+          <div className="mb-4 border border-gray-300 rounded-lg overflow-hidden">
+            {GOOGLE_MAPS_API_KEY ? (
+              <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={mapCenter}
+                  zoom={11}
+                  options={{
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                  }}
+                >
+                  {/* Your location circle */}
+                  <Circle
+                    center={mapCenter}
+                    radius={1000}
+                    options={{
+                      fillColor: theme.primaryColor,
+                      fillOpacity: 0.2,
+                      strokeColor: theme.primaryColor,
+                      strokeOpacity: 0.8,
+                      strokeWeight: 2,
+                    }}
+                  />
+                  
+                  {/* Job markers */}
+                  {marketData.map((job) => (
+                    <Marker
+                      key={job.id}
+                      position={{ lat: job.lat, lng: job.lng }}
+                      onClick={() => setSelectedMarker(job)}
+                      icon={{
+                        path: window.google?.maps?.SymbolPath?.CIRCLE,
+                        scale: 10,
+                        fillColor: job.title === 'Food Service' ? '#3b82f6' : job.title === 'Security' ? '#8b5cf6' : '#10b981',
+                        fillOpacity: 0.9,
+                        strokeColor: 'white',
+                        strokeWeight: 2,
+                      }}
+                      label={{
+                        text: job.count.toString(),
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Info window */}
+                  {selectedMarker && (
+                    <InfoWindow
+                      position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }}
+                      onCloseClick={() => setSelectedMarker(null)}
+                    >
+                      <div className="p-2">
+                        <div className="font-bold text-gray-900">{selectedMarker.title}</div>
+                        <div className="text-sm text-gray-600">{selectedMarker.count} opportunities</div>
+                        <div className="text-xs text-gray-500 mt-1">{selectedMarker.location}</div>
+                      </div>
+                    </InfoWindow>
+                  )}
+                </GoogleMap>
+              </LoadScript>
+            ) : (
+              <div className="h-[500px] bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <FiMap className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                  <p>Map unavailable</p>
+                  <p className="text-sm mt-1">Google Maps API key not configured</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-6 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+              <span className="text-sm text-gray-700">Food Service</span>
             </div>
-            
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="text-2xl font-bold text-gray-900 mb-1">28</div>
-              <div className="text-sm text-gray-600">Security Jobs</div>
-              <div className="text-xs text-gray-500 mt-2">Within 25km</div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+              <span className="text-sm text-gray-700">Security</span>
             </div>
-            
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="text-2xl font-bold text-gray-900 mb-1">15</div>
-              <div className="text-sm text-gray-600">Bartending Jobs</div>
-              <div className="text-xs text-gray-500 mt-2">In your city</div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-green-500"></div>
+              <span className="text-sm text-gray-700">Bartending</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.primaryColor, opacity: 0.3 }}></div>
+              <span className="text-sm text-gray-700">Your Location</span>
+            </div>
+          </div>
+
+          {/* Stats Summary */}
+          <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {marketData.filter(j => j.title === 'Food Service').reduce((sum, j) => sum + j.count, 0)}
+              </div>
+              <div className="text-xs text-gray-600 mt-1">Food Service</div>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-purple-600">
+                {marketData.filter(j => j.title === 'Security').reduce((sum, j) => sum + j.count, 0)}
+              </div>
+              <div className="text-xs text-gray-600 mt-1">Security</div>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {marketData.filter(j => j.title === 'Bartending').reduce((sum, j) => sum + j.count, 0)}
+              </div>
+              <div className="text-xs text-gray-600 mt-1">Bartending</div>
             </div>
           </div>
 
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-xs text-blue-900">
-              <strong>Note:</strong> These are general market statistics. You'll receive personalized job offers based on your profile, skills, and availability through our matching system.
+              <strong>Note:</strong> These are general market statistics for your area. You'll receive personalized job offers based on your profile, skills, and availability through our matching system.
             </p>
           </div>
         </div>
