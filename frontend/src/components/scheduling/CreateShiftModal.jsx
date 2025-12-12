@@ -26,6 +26,8 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
   const [occupationTemplates, setOccupationTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [workplaceProvince, setWorkplaceProvince] = useState(null);
+  const [workplaceRoles, setWorkplaceRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
 
   useEffect(() => {
     if (workplaces.length > 0 && !formData.workplace_id) {
