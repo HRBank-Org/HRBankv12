@@ -60,8 +60,7 @@ const MyTasks = () => {
         await api.post('/api/workforce/task-completions', {
           shift_id: shift.shift_id,
           task_text: task,
-          task_type: taskType,
-          completed: true
+          task_type: taskType
         });
       }
       
