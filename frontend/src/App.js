@@ -17,7 +17,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import { isSubdomainPortal } from './utils/subdomainDetector';
 
 // Workforce pages
-import WorkforceDashboard from './pages/workforce/Dashboard';
+import WorkforceDashboard from './pages/workforce/DashboardNew';
 import WorkforceProfile from './pages/workforce/Profile';
 import WorkforceOnboarding from './pages/workforce/Onboarding';
 import ProfileWizard from './pages/workforce/ProfileWizard';
