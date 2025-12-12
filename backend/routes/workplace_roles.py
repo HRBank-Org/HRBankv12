@@ -538,6 +538,42 @@ async def get_occupation_templates(
     }
 
 
+@router.get("/{role_id}", response_model=Dict)
+async def get_role_details(
+    role_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get detailed information about a specific role"""
+    
+    # Get role details
+    role = await db.workplace_roles.find_one(
+        {"role_id": role_id, "employer_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Get workplace details if workplace_id exists
+    if role.get("workplace_id"):
+        workplace = await db.workplaces.find_one(
+            {"workplace_id": role["workplace_id"]},
+            {"_id": 0, "workplace_name": 1, "workplace_address": 1, "coordinates": 1}
+        )
+        if workplace:
+            role["workplace_name"] = workplace.get("workplace_name")
+            role["workplace_address"] = workplace.get("workplace_address")
+    
+    return {
+        "success": True,
+        "data": {
+            "role": role
+        }
+    }
+
+
+
 @router.get("/{role_id}/candidate-count", response_model=Dict)
 async def get_role_candidate_count(
     role_id: str,
