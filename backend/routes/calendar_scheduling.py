@@ -115,6 +115,8 @@ async def create_calendar_shift(
         "required_certifications": shift_data.get("required_certifications", []),
         "notes": shift_data.get("notes"),
         "hourly_rate": shift_data.get("hourly_rate"),
+        "standard_tasks": shift_data.get("standard_tasks", []),
+        "custom_tasks": shift_data.get("custom_tasks", []),
         "is_recurring": shift_data.get("is_recurring", False),
         "recurrence_rule": shift_data.get("recurrence_rule"),
         "recurrence_end_date": shift_data.get("recurrence_end_date"),
