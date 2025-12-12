@@ -20,6 +20,7 @@ const WorkforceDashboardNew = () => {
   // Tab management: schedule, earnings, jobs, profile
   const [activeTab, setActiveTab] = useState('schedule');
   const [profile, setProfile] = useState(null);
+  const [occupationProfiles, setOccupationProfiles] = useState([]);
   const [stats, setStats] = useState({
     upcomingShifts: [],
     thisWeekHours: 0,
@@ -57,17 +58,20 @@ const WorkforceDashboardNew = () => {
       setLoading(true);
       
       // Load all dashboard data
-      const [profileRes, shiftsRes, offersRes] = await Promise.all([
+      const [profileRes, shiftsRes, offersRes, occupationsRes] = await Promise.all([
         api.get('/api/workforce/me/profile').catch(() => ({ data: { data: {} } })),
         api.get('/api/jobs/my-shifts').catch(() => ({ data: { data: { shifts: [] } } })),
-        api.get('/api/job-matching/offers').catch(() => ({ data: { data: { offers: [] } } }))
+        api.get('/api/job-matching/offers').catch(() => ({ data: { data: { offers: [] } } })),
+        api.get('/api/occupations/me').catch(() => ({ data: { data: { occupations: [] } } }))
       ]);
 
       const profileData = profileRes.data.data;
       const shifts = shiftsRes.data.data.shifts || [];
       const offers = offersRes.data.data.offers || [];
+      const occupations = occupationsRes.data.data.occupations || [];
 
       setProfile(profileData);
+      setOccupationProfiles(occupations);
 
       // Calculate stats
       const now = moment();
