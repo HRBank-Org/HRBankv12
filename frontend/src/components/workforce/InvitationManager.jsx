@@ -342,13 +342,39 @@ const InvitationManager = () => {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Workplace Roles</h3>
-            <button
-              onClick={() => setShowRoleModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium hover:opacity-90"
-              style={{ backgroundColor: theme.primaryColor }}
-            >
-              <FiPlus /> Create Role
-            </button>
+            <div className="flex items-center gap-3">
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setRoleViewMode('cards')}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-all ${
+                    roleViewMode === 'cards'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  📇 Cards
+                </button>
+                <button
+                  onClick={() => setRoleViewMode('list')}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-all ${
+                    roleViewMode === 'list'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  📋 List
+                </button>
+              </div>
+              
+              <button
+                onClick={() => setShowRoleModal(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium hover:opacity-90"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                <FiPlus /> Create Role
+              </button>
+            </div>
           </div>
 
           {loading ? (
@@ -365,7 +391,7 @@ const InvitationManager = () => {
                 Create Your First Role
               </button>
             </div>
-          ) : (
+          ) : roleViewMode === 'cards' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {roles.map(role => (
                 <RoleCard 
@@ -375,6 +401,72 @@ const InvitationManager = () => {
                   onViewCandidates={(roleId) => window.location.href = `/employer/roles/${roleId}/candidates`}
                 />
               ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role Title</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Workplace</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay Rate</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shifts This Week</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidates</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {roles.map((role) => (
+                    <tr 
+                      key={role.role_id}
+                      onClick={() => window.location.href = `/employer/roles/${role.role_id}/candidates`}
+                      className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{role.role_name}</div>
+                          <div className="text-xs text-gray-500">{role.occupation_template}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {role.workplace_name || 'Loading...'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-semibold text-gray-900">${role.hourly_rate}/hr</div>
+                        {role.fee_breakdown && (
+                          <div className="text-xs text-gray-500">Emp: ${role.fee_breakdown.employer_pays}/hr</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {role.shifts_this_week || 0} shifts
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          role.status === 'filled' ? 'bg-green-100 text-green-800' :
+                          role.status === 'posted_to_match' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {role.positions_filled || 0}/{role.positions_available} Filled
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex gap-2">
+                          {role.internal_candidates > 0 && (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                              👥 {role.internal_candidates}
+                            </span>
+                          )}
+                          {role.external_candidates > 0 && (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                              🌐 {role.external_candidates}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
