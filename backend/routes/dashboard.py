@@ -43,13 +43,13 @@ async def get_dashboard_workforce(
         
         # Get workforce profile with photo
         profile = await db.workforce_profiles.find_one(
-            {"workforce_id": workforce_id},
-            {"_id": 0, "profile_photo_url": 1, "city": 1, "province": 1}
+            {"user_id": workforce_id},
+            {"_id": 0, "profile_photo_url": 1, "city": 1, "province": 1, "occupation_titles": 1}
         )
         
         # Get occupation profiles (worker can have multiple occupations)
         occupations = await db.occupation_profiles.find(
-            {"workforce_id": workforce_id},
+            {"user_id": workforce_id},
             {"_id": 0}
         ).to_list(100)
         
