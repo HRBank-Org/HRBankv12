@@ -56,7 +56,7 @@ const EditWorkplace = () => {
 
     try {
       await api.patch(`/api/employer/workplaces/${workplaceId}`, formData);
-      navigate('/employer/workplaces');
+      navigate('/employer/dashboard', { state: { activeTab: 'schedule', showWorkplaces: true } });
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Failed to update workplace');
     } finally {
