@@ -144,7 +144,6 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
         hourly_rate: formData.hourly_rate ? parseFloat(formData.hourly_rate) : null,
         notes: formData.notes,
         required_skills: formData.required_skills,
-        required_certifications: formData.required_certifications,
         is_recurring: formData.is_recurring,
         recurrence_rule: formData.is_recurring ? formData.recurrence_rule : null,
         recurrence_end_date: formData.is_recurring && formData.recurrence_end_date 
