@@ -251,10 +251,9 @@ const InvitationManager = () => {
             </div>
           )}
         </div>
-      );
-    }
+      )}
     
-    // Separate RoleCard component with candidate badges
+    {/* RoleCard component definition */}
     const RoleCard = ({ role, theme, onViewCandidates }) => {
       const [candidateCounts, setCandidateCounts] = useState({ internal: 0, external: 0 });
       const [workplaceName, setWorkplaceName] = useState(role.workplace_name || 'Loading...');
