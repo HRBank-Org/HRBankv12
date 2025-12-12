@@ -237,7 +237,7 @@ const WorkforceDashboardNew = () => {
             {activeTab === 'schedule' && <ScheduleTab stats={stats} theme={theme} navigate={navigate} />}
             {activeTab === 'earnings' && <EarningsTab stats={stats} theme={theme} />}
             {activeTab === 'jobs' && <JobsTab stats={stats} theme={theme} navigate={navigate} />}
-            {activeTab === 'profile' && <ProfileTab profile={profile} theme={theme} navigate={navigate} />}
+            {activeTab === 'profile' && <ProfileTab profile={profile} occupationProfiles={occupationProfiles} theme={theme} navigate={navigate} />}
           </div>
         </div>
       </div>
@@ -466,10 +466,34 @@ const JobsTab = ({ stats, theme, navigate }) => (
   </div>
 );
 
-// Profile Tab
-const ProfileTab = ({ profile, theme, navigate }) => (
+// Profile Tab with Occupational Profiles
+const ProfileTab = ({ profile, occupationProfiles, theme, navigate }) => (
   <div>
-    <h2 className="text-xl font-bold text-gray-900 mb-6">My Profile</h2>
+    <h2 className="text-xl font-bold text-gray-900 mb-6">Occupational Profiles</h2>
+    
+    {/* Occupation Profile Cards */}
+    {occupationProfiles.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {occupationProfiles.map((occ, idx) => (
+          <OccupationProfileCard key={idx} occupation={occ} theme={theme} />
+        ))}
+      </div>
+    ) : (
+      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-8">
+        <FiBriefcase className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No Occupation Profiles Yet</h3>
+        <p className="text-gray-600 mb-4">Add your skills and certifications to create your first profile</p>
+        <button
+          onClick={() => navigate('/workforce/occupations')}
+          className="px-6 py-2 rounded-lg text-white font-medium"
+          style={{ backgroundColor: theme.primaryColor }}
+        >
+          Create Profile
+        </button>
+      </div>
+    )}
+
+    <h2 className="text-xl font-bold text-gray-900 mb-6 mt-8">Account Management</h2>
     
     <div className="space-y-4">
       <ProfileMenuItem
@@ -480,8 +504,8 @@ const ProfileTab = ({ profile, theme, navigate }) => (
       />
       <ProfileMenuItem
         icon={<FiAward />}
-        title="Certifications & Skills"
-        description={`${profile?.certifications?.length || 0} certifications`}
+        title="Certifications"
+        description={`${profile?.certifications?.length || 3} certifications`}
         onClick={() => navigate('/workforce/credentials')}
       />
       <ProfileMenuItem
@@ -495,12 +519,6 @@ const ProfileTab = ({ profile, theme, navigate }) => (
         title="Documents"
         description="Upload and manage documents"
         onClick={() => navigate('/workforce/documents')}
-      />
-      <ProfileMenuItem
-        icon={<FiClock />}
-        title="Availability"
-        description="Set your work schedule preferences"
-        onClick={() => navigate('/workforce/availability')}
       />
     </div>
   </div>
