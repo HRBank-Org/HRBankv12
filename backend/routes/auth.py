@@ -155,7 +155,8 @@ async def login(credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
         )
     
     # Verify password
-    if not verify_password(credentials.password, user["password_hash"]):
+    password_field = user.get("hashed_password") or user.get("password_hash")
+    if not password_field or not verify_password(credentials.password, password_field):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
