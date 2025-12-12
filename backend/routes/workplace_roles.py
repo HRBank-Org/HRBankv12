@@ -21,7 +21,24 @@ async def create_workplace_role(
     """
     Create a new workplace role from occupation template
     Employer selects occupation template and can add additional requirements
+    Includes compliance validation for max 44 hours/week
     """
+    
+    # Validate weekly hours compliance
+    from utils.compliance_validator import validate_role_weekly_hours
+    compliance_check = await validate_role_weekly_hours(db, role_data.model_dump())
+    
+    if not compliance_check["compliant"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Role schedule exceeds maximum 44 hours per week",
+                "weekly_hours": compliance_check["weekly_hours"],
+                "max_hours": compliance_check["max_hours"],
+                "days_scheduled": compliance_check["days_per_week"],
+                "hours_per_shift": compliance_check["hours_per_shift"]
+            }
+        )
     
     # Get occupation template details to fetch required certifications
     from utils.occupation_categories import OCCUPATION_CATEGORIES
