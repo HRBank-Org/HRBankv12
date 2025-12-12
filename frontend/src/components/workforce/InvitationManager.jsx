@@ -50,12 +50,14 @@ const InvitationManager = () => {
     setLoading(true);
     try {
       if (activeView === 'roles') {
-        const [rolesRes, templatesRes] = await Promise.all([
+        const [rolesRes, templatesRes, statsRes] = await Promise.all([
           api.get('/api/employer/workplace-roles/list'),
-          api.get('/api/employer/workplace-roles/templates/occupations')
+          api.get('/api/employer/workplace-roles/templates/occupations'),
+          api.get('/api/employer/dashboard/stats')
         ]);
         setRoles(rolesRes.data.data.roles || []);
         setOccupationTemplates(templatesRes.data.data.templates || []);
+        setWorkplaces(statsRes.data.data.workplaces || []);
       } else if (activeView === 'invitations') {
         const invitesRes = await api.get('/api/employer/invitations/list');
         setInvitations(invitesRes.data.data.invitations || []);
