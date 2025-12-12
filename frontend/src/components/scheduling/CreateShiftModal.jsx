@@ -68,7 +68,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
     }
   }, [formData.workplace_id, workplaces]);
 
-  // Handle workplace role selection - INHERIT ALL PROPERTIES
+  // Handle workplace role selection - INHERIT ALL PROPERTIES including tasks
   const handleRoleSelect = (roleId) => {
     if (!roleId) {
       setSelectedRole(null);
@@ -81,7 +81,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
       setSelectedRole(role);
       setSelectedTemplate(null); // Clear template if role is selected
       
-      // Inherit ALL properties from the role (except certifications - role level only)
+      // Inherit ALL properties from the role including standard tasks
       setFormData(prev => ({
         ...prev,
         workplace_id: role.workplace_id,
@@ -91,7 +91,8 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
         start_time: role.shift_start_time || prev.start_time,
         end_time: role.shift_end_time || prev.end_time,
         positions_needed: role.positions_needed || 1,
-        required_skills: role.required_skills || []
+        required_skills: role.required_skills || [],
+        standard_tasks: role.standard_tasks || [] // Inherit role tasks
       }));
     }
   };
