@@ -136,11 +136,21 @@ async def get_dashboard_workforce(
                 else:
                     shift_status = "new_hire"
         
+        # Determine occupation to display
+        if primary_occupation and primary_occupation.get("occupation_title"):
+            occupation_display = primary_occupation.get("occupation_title")
+        elif profile and profile.get("occupation_titles") and len(profile.get("occupation_titles")) > 0:
+            occupation_display = profile.get("occupation_titles")[0]
+        elif rel.get("role_name"):
+            occupation_display = rel.get("role_name")
+        else:
+            occupation_display = "General Worker"
+        
         workers.append({
             "user_id": worker["user_id"],
             "name": worker.get("full_name") or worker["email"],
             "email": worker["email"],
-            "occupation": primary_occupation.get("occupation_title") if primary_occupation else "General Worker",
+            "occupation": occupation_display,
             "photo_url": profile.get("profile_photo_url") if profile else None,
             "rating": avg_rating,
             "rating_count": total_rating_count,
