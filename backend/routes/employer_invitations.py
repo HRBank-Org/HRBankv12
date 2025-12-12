@@ -129,7 +129,7 @@ async def send_manual_invitations(
             # Send email and SMS
             await send_invitation_notifications(
                 invite_token=invite_token,
-                employer_name=current_user.get('company_name', 'Employer'),
+                employer_name=employer_name,
                 db=db
             )
             
