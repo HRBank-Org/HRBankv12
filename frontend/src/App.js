@@ -219,6 +219,7 @@ function AppRoutes() {
         <Route path="/employer/workplaces/:workplaceId" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetail /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId/edit" element={<ProtectedRoute allowedUserTypes={['employer']}><EditWorkplace /></ProtectedRoute>} />
         <Route path="/employer/jobs/post" element={<ProtectedRoute allowedUserTypes={['employer']}><PostJob /></ProtectedRoute>} />
+        <Route path="/employer/jobs" element={<ProtectedRoute allowedUserTypes={['employer']}><JobsCandidates /></ProtectedRoute>} />
         <Route path="/employer/shifts/create" element={<ProtectedRoute allowedUserTypes={['employer']}><CreateShift /></ProtectedRoute>} />
         <Route path="/employer/shifts/:shiftId" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftDetail /></ProtectedRoute>} />
         <Route path="/employer/shifts/:shiftId/attendance" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftAttendance /></ProtectedRoute>} />
