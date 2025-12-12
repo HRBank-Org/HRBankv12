@@ -459,14 +459,22 @@ const InvitationManager = () => {
             </div>
           ) : roleViewMode === 'cards' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {roles.map(role => (
-                <RoleCard 
-                  key={role.role_id} 
-                  role={role} 
-                  theme={theme}
-                  onViewCandidates={(roleId) => window.location.href = `/employer/roles/${roleId}/candidates`}
-                />
-              ))}
+              {roles
+                .filter(r => {
+                  const wpMatch = filterWorkplace === 'all' || r.workplace_id === filterWorkplace;
+                  const statusMatch = filterStatus === 'all' || 
+                    (filterStatus === 'filled' && r.positions_filled >= r.positions_needed) ||
+                    (filterStatus === 'open' && r.positions_filled < r.positions_needed);
+                  return wpMatch && statusMatch;
+                })
+                .map(role => (
+                  <RoleCard 
+                    key={role.role_id} 
+                    role={role} 
+                    theme={theme}
+                    onViewCandidates={(roleId) => window.location.href = `/employer/roles/${roleId}/candidates`}
+                  />
+                ))}
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
