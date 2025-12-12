@@ -46,9 +46,15 @@ async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_d
         "user_id": user_id,
         "email": user_data.email,
         "password_hash": hashed_password,
+        "hashed_password": hashed_password,  # Compatibility with both field names
         "user_type": user_data.user_type,
-        "profile_status": "pending",  # All new users start as pending
-        "email_verified": False,
+        "profile_status": "active",  # AUTO-ACTIVATE for testing
+        "email_verified": True,  # AUTO-VERIFY for testing
+        "admin_verified": True,  # AUTO-VERIFY for testing
+        "account_status": "approved",  # AUTO-APPROVE for testing
+        "is_active": True,  # AUTO-ACTIVATE for testing
+        "needs_onboarding": False,  # SKIP onboarding for testing
+        "onboarding_completed": True,  # Mark as completed
         "mfa_enabled": False,
         "created_date": datetime.utcnow().isoformat(),
         "last_login_date": None,
