@@ -312,7 +312,7 @@ async def get_job_candidates(
     matches = await db.job_matches.find({
         'job_id': job_id,
         'match_score': {'$gte': min_score}
-    }).sort('match_score', -1).to_list(length=None)
+    }, {'_id': 0}).sort('match_score', -1).to_list(length=None)
     
     # Enrich with worker profiles
     candidates = []
