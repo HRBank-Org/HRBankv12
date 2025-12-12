@@ -232,8 +232,19 @@ async def run_matching_algorithm(db, job: JobPosting):
     
     for worker in workforce_members:
         # Skip if no coordinates
+        # Handle both coordinate formats: {lat, lng} and direct lat/long fields
         worker_coords = worker.get('coordinates')
+        if not worker_coords:
+            # Try direct lat/long fields
+            worker_lat = worker.get('lat')
+            worker_lng = worker.get('long') or worker.get('lng')
+            if worker_lat and worker_lng:
+                worker_coords = {'lat': worker_lat, 'lng': worker_lng}
+        
         job_coords = job.workplace_coordinates
+        if not job_coords:
+            # Try to get coordinates from workplace data
+            continue
         
         if not worker_coords or not job_coords:
             continue
