@@ -269,97 +269,154 @@ const TabButton = ({ active, onClick, icon, label }) => (
   </button>
 );
 
-// Schedule Tab
-const ScheduleTab = ({ stats, theme, navigate }) => (
-  <div>
-    <div className="flex items-center justify-between mb-6">
-      <h2 className="text-xl font-bold text-gray-900">Upcoming Shifts</h2>
-      <button
-        onClick={() => navigate('/workforce/calendar')}
-        className="px-4 py-2 rounded-lg text-white font-medium"
-        style={{ backgroundColor: theme.primaryColor }}
-      >
-        View Calendar
-      </button>
-    </div>
-
-    {stats.upcomingShifts.length === 0 ? (
-      <div className="text-center py-12 bg-gray-50 rounded-lg">
-        <FiCalendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No Upcoming Shifts</h3>
-        <p className="text-gray-600 mb-4">Browse available jobs to get started</p>
-        <button
-          onClick={() => navigate('/workforce/find-jobs')}
-          className="px-6 py-2 rounded-lg text-white font-medium"
-          style={{ backgroundColor: theme.primaryColor }}
-        >
-          Find Jobs
-        </button>
-      </div>
-    ) : (
-      <div className="space-y-4">
-        {stats.upcomingShifts.map((shift, idx) => (
-          <div
-            key={idx}
-            className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate(`/workforce/shift/${shift.booking_id || shift.shift_id}`)}
+// Schedule Tab with Calendar, My Tasks, and Attendance toggle
+const ScheduleTab = ({ stats, theme, navigate }) => {
+  const [scheduleView, setScheduleView] = useState('calendar'); // calendar, tasks, attendance
+  const [calendarView, setCalendarView] = useState('month'); // day, week, month
+  
+  return (
+    <div>
+      {/* View Toggle */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setScheduleView('calendar')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              scheduleView === 'calendar'
+                ? 'bg-white shadow-sm text-gray-900'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-semibold text-gray-900">{shift.role_title || shift.position_title}</h3>
-                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
-                    Confirmed
-                  </span>
-                </div>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <FiCalendar className="w-4 h-4" />
-                    <span>{moment(shift.shift_date).format('dddd, MMMM D, YYYY')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiClock className="w-4 h-4" />
-                    <span>{shift.start_time} - {shift.end_time}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiMapPin className="w-4 h-4" />
-                    <span>{shift.workplace_name}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-bold text-gray-900">
-                  ${((shift.hours || 8) * (shift.hourly_rate || 18)).toFixed(0)}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {shift.hours || 8}h × ${shift.hourly_rate || 18}/h
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <FiCalendar className="w-4 h-4" />
+              Calendar
             </div>
+          </button>
+          <button
+            onClick={() => setScheduleView('tasks')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              scheduleView === 'tasks'
+                ? 'bg-white shadow-sm text-gray-900'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <FiList className="w-4 h-4" />
+              My Tasks
+            </div>
+          </button>
+          <button
+            onClick={() => setScheduleView('attendance')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              scheduleView === 'attendance'
+                ? 'bg-white shadow-sm text-gray-900'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <FiClock className="w-4 h-4" />
+              Attendance
+            </div>
+          </button>
+        </div>
+        
+        {/* Calendar View Toggle (only show when calendar is selected) */}
+        {scheduleView === 'calendar' && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCalendarView('day')}
+              className={`px-3 py-1 text-sm rounded ${
+                calendarView === 'day' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              Day
+            </button>
+            <button
+              onClick={() => setCalendarView('week')}
+              className={`px-3 py-1 text-sm rounded ${
+                calendarView === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              Week
+            </button>
+            <button
+              onClick={() => setCalendarView('month')}
+              className={`px-3 py-1 text-sm rounded ${
+                calendarView === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              Month
+            </button>
           </div>
-        ))}
+        )}
       </div>
-    )}
 
-    {/* Quick Actions */}
-    <div className="grid grid-cols-2 gap-4 mt-6">
-      <button
-        onClick={() => navigate('/workforce/my-tasks')}
-        className="flex items-center justify-center gap-2 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-      >
-        <FiCheckCircle className="w-5 h-5" />
-        <span className="font-medium">My Tasks</span>
-      </button>
-      <button
-        onClick={() => navigate('/workforce/attendance')}
-        className="flex items-center justify-center gap-2 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-      >
-        <FiClock className="w-5 h-5" />
-        <span className="font-medium">Attendance</span>
-      </button>
+      {/* Calendar View */}
+      {scheduleView === 'calendar' && (
+        <div className="bg-white rounded-lg p-4" style={{ height: '600px' }}>
+          <Calendar
+            localizer={localizer}
+            events={stats.upcomingShifts.map(shift => ({
+              title: shift.role_title || shift.position_title,
+              start: new Date(shift.shift_date + 'T' + shift.start_time),
+              end: new Date(shift.shift_date + 'T' + shift.end_time),
+              resource: shift
+            }))}
+            startAccessor="start"
+            endAccessor="end"
+            view={calendarView}
+            onView={(view) => setCalendarView(view)}
+            onSelectEvent={(event) => navigate(`/workforce/shift/${event.resource.booking_id || event.resource.shift_id}`)}
+            style={{ height: '100%' }}
+            views={['day', 'week', 'month']}
+          />
+        </div>
+      )}
+
+      {/* My Tasks View */}
+      {scheduleView === 'tasks' && (
+        <div className="bg-white rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-900">Today's Tasks</h3>
+            <button
+              onClick={() => navigate('/workforce/my-tasks')}
+              className="text-sm font-medium hover:underline"
+              style={{ color: theme.primaryColor }}
+            >
+              View All Tasks →
+            </button>
+          </div>
+          <div className="text-center py-12 text-gray-500">
+            <FiCheckCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p>No tasks for today</p>
+            <p className="text-sm mt-2">Tasks will appear here when you have scheduled shifts</p>
+          </div>
+        </div>
+      )}
+
+      {/* Attendance View */}
+      {scheduleView === 'attendance' && (
+        <div className="bg-white rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-900">Recent Attendance</h3>
+            <button
+              onClick={() => navigate('/workforce/attendance')}
+              className="text-sm font-medium hover:underline"
+              style={{ color: theme.primaryColor }}
+            >
+              View Full History →
+            </button>
+          </div>
+          <div className="text-center py-12 text-gray-500">
+            <FiClock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p>No attendance records yet</p>
+            <p className="text-sm mt-2">Your clock-in/out history will appear here</p>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 // Earnings Tab
 const EarningsTab = ({ stats, theme }) => (
