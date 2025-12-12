@@ -718,7 +718,8 @@ const ScheduleTab = ({ theme, navigate, initialShowWorkplaces = false }) => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/employer/calendar?workplace=${workplace.workplace_id}`);
+                              setSelectedWorkplaceFilter(workplace.workplace_id);
+                              setShowWorkplaces(false);
                             }}
                             className="flex-1 px-3 py-2 text-sm rounded-lg text-white hover:opacity-90 transition-all"
                             style={{ backgroundColor: theme.primaryColor }}
