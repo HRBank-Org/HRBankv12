@@ -24,7 +24,7 @@ async def get_dashboard_workforce(
     # Get all active employment relationships
     relationships = await db.employment_relationships.find({
         "employer_id": employer_id,
-        "status": "active"
+        "employment_status": "active"
     }, {"_id": 0}).to_list(1000)
     
     workers = []
