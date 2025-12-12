@@ -35,6 +35,7 @@ import CalendarScheduling from './pages/employer/CalendarScheduling';
 import EmploymentHistory from './pages/workforce/EmploymentHistory';
 import WorkforceSettings from './pages/workforce/Settings';
 import WorkforceDocuments from './pages/workforce/Documents';
+import MyTasks from './pages/workforce/MyTasks';
 import EmployerSettings from './pages/employer/Settings';
 import EmployerDocuments from './pages/employer/Documents';
 import InstitutionDocuments from './pages/institution/Documents';
@@ -203,6 +204,7 @@ function AppRoutes() {
         <Route path="/workforce/documents" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceDocuments /></ProtectedRoute>} />
         <Route path="/workforce/credentials/verify" element={<ProtectedRoute allowedUserTypes={['workforce']}><CredentialVerification /></ProtectedRoute>} />
         <Route path="/workforce/credentials" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyCredentials /></ProtectedRoute>} />
+        <Route path="/workforce/my-tasks" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyTasks /></ProtectedRoute>} />
         
         {/* Employer Routes */}
         <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
