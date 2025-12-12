@@ -6901,6 +6901,9 @@ def main():
     else:
         results.add_fail("Mobile testing setup", "Failed to create workforce test user")
     
+    # NEW: Test employer invitation system (from review request)
+    test_employer_invitation_system(results)
+    
     # Test job matching system with admin credentials
     if admin_token:
         test_job_matching_system(results, admin_token)
