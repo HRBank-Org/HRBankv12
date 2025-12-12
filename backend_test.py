@@ -4170,6 +4170,9 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
+    # Priority: CRITICAL - Address Validation API (NEW TEST FROM REVIEW REQUEST)
+    test_address_validation_api(results)
+    
     # Priority: HIGH - Authentication System
     admin_token = test_admin_authentication_system(results)
     
