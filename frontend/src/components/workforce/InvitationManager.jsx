@@ -531,7 +531,7 @@ const InvitationManager = () => {
                           role.status === 'posted_to_match' ? 'bg-blue-100 text-blue-800' :
                           'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {role.positions_filled || 0}/{role.positions_available} Filled
+                          {role.positions_filled || 0}/{role.positions_needed} Filled
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
