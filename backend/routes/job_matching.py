@@ -197,7 +197,10 @@ async def post_job_to_matching_engine(
         workplace_address=workplace.get('address', ''),
         workplace_city=workplace.get('city', ''),
         workplace_postal_code=workplace.get('postal_code', ''),
-        workplace_coordinates=workplace.get('coordinates'),
+        workplace_coordinates=workplace.get('coordinates') or (
+            {'lat': workplace.get('lat'), 'lng': workplace.get('long')} 
+            if workplace.get('lat') and workplace.get('long') else None
+        ),
         company_name=employer_profile.get('company_name', 'Company'),
         company_logo_url=employer_profile.get('company_logo_url')
     )
