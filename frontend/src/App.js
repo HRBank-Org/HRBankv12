@@ -68,6 +68,7 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
+import MyTasks from './pages/workforce/MyTasks';
 import CreateOccupationSimplified from './pages/workforce/CreateOccupationSimplified';
 import FindJobs from './pages/workforce/FindJobs';
 import WorkforceNotificationSettings from './pages/workforce/NotificationSettings';
