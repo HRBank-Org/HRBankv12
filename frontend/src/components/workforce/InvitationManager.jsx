@@ -236,21 +236,34 @@ const InvitationManager = () => {
           </div>
           
           {/* Pay Rate */}
-          {role.hourly_rate && (
+          {role.pay_rate && (
             <div className="flex items-start gap-2">
               <span className="text-gray-400 text-sm">💰</span>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wide">Pay Rate</p>
-                <p className="text-sm font-bold text-gray-900">${role.hourly_rate}/hr</p>
-                {role.fee_breakdown && (
-                  <p className="text-xs text-gray-500">
-                    (Employer: ${role.fee_breakdown.employer_pays}/hr)
-                  </p>
-                )}
+                <p className="text-sm font-bold text-gray-900">${role.pay_rate}/hr</p>
               </div>
             </div>
           )}
         </div>
+        
+        {/* Shift Schedule */}
+        {role.shift_start_time && role.shift_end_time && (
+          <div className="flex items-start gap-2 mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <span className="text-blue-600 text-sm">🕐</span>
+            <div className="flex-1">
+              <p className="text-xs text-blue-600 uppercase tracking-wide mb-1">Shift Schedule</p>
+              <p className="text-sm font-semibold text-blue-900">
+                {role.shift_start_time} - {role.shift_end_time}
+              </p>
+              {role.days_of_week && role.days_of_week.length > 0 && (
+                <p className="text-xs text-blue-700 mt-1">
+                  {role.days_of_week.length === 7 ? 'Every day' : role.days_of_week.slice(0, 3).map(d => d.substring(0, 3)).join(', ') + (role.days_of_week.length > 3 ? '...' : '')}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* Positions Status */}
         <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
