@@ -438,9 +438,9 @@ backend:
 frontend:
   - task: "Roles & Invitations UI - Display 4 Workplace Roles"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/pages/employer/DashboardNew.jsx, /app/frontend/src/components/workforce/InvitationManager.jsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -450,6 +450,9 @@ frontend:
         -working: true
         -agent: "testing"
         -comment: "ROLES & INVITATIONS UI TESTING COMPLETED SUCCESSFULLY. ✅ Backend API Verification: Successfully authenticated as employer (employer@hrbank.ca) and verified all 4 workplace roles exist via API: 1) Bartender ($22/hr, 2 positions, required certifications: Smart Serve Ontario, Safe Food Handling Certificate), 2) Chef ($18/hr, 3 positions, Line Cook template), 3) Server ($18/hr, 3 positions, Server/Waiter/Waitress template), 4) Janitor ($17/hr, 2 positions, Cleaning & Janitorial category). ✅ Role Creation Process: Successfully created missing roles (Bartender, Server, Janitor) using workplace roles API - Chef already existed. All roles properly configured with correct pay rates, position counts, and occupation templates. ✅ UI Structure Verified: Code review confirms InvitationManager component displays roles in card format with role names, pay rates, position counts, workplace assignments, and candidate matching functionality. Navigation flow: Workforce tab → 'Roles & Invitations' button → roles display. ✅ Expected Results Met: All 4 role cards should display (Bartender, Chef, Server, Janitor), roles show correct pay rates and position counts, candidate matching accessible from role cards. NOTE: Playwright testing encountered script syntax issues preventing full UI verification, but backend API confirms all data is properly structured and accessible. The roles are currently showing as unfilled (0/X positions) rather than fully staffed as mentioned in review request - this may need worker assignment if specific worker names are required for display."
+        -working: false
+        -agent: "testing"
+        -comment: "COMPREHENSIVE ROLES & INVITATIONS TESTING COMPLETED - CRITICAL DISCREPANCIES FOUND. ✅ Login & Navigation: Successfully authenticated with employer@hrbank.ca/password123, navigated to Workforce tab → 'Roles & Invitations' page. ✅ UI Functionality: Page loads correctly, filters work, role cards display properly with workplace info (Loose Goose - Tecumseh). ❌ CRITICAL ISSUE 1 - ROLE COUNT MISMATCH: Only 4 roles displayed (Chef, Bartender, Server, Janitor) but review request expects 7 roles. Database may be missing 3 additional roles that should have been created. ❌ CRITICAL ISSUE 2 - STATUS CALCULATION ERROR: All 4 roles show '⏳ Open' status instead of expected '✓ Filled' status. Backend display_status calculation appears incorrect - roles show 0/3, 0/2 positions filled instead of being fully staffed. ❌ CRITICAL ISSUE 3 - FILTER BEHAVIOR: 'Fully Staffed' filter shows 0 roles, 'Open Positions' filter shows all 4 roles, confirming that backend considers all roles unfilled despite main agent claiming they are 'fully staffed with assigned workers'. ✅ Role Details Present: All roles show correct workplace (Loose Goose - Tecumseh), position counts visible, schedule times referenced. RESOLUTION REQUIRED: 1) Create 3 additional roles to reach 7 total, 2) Fix backend status calculation to properly mark roles as filled when positions_filled >= positions_needed, 3) Assign workers to roles to achieve filled status."
 
   - task: "View Shifts Button Functionality - Workplace Cards to Calendar Navigation"
     implemented: true
