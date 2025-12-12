@@ -319,7 +319,7 @@ async def get_job_candidates(
     for match in matches:
         worker_profile = await db.workforce_profiles.find_one({
             'user_id': match['workforce_id']
-        })
+        }, {'_id': 0})
         
         if worker_profile:
             # Get occupations
