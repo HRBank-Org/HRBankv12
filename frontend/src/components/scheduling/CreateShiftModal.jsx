@@ -15,7 +15,6 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
     hourly_rate: '',
     notes: '',
     required_skills: [],
-    required_certifications: [],
     is_recurring: false,
     recurrence_rule: 'weekly',
     recurrence_end_date: ''
