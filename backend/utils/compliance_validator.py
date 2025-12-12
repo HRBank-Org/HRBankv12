@@ -24,10 +24,10 @@ async def validate_weekly_hours(db, worker_id: str, new_shift_hours: float, shif
         # Parse shift start date
         shift_date = datetime.fromisoformat(shift_start.replace('Z', '+00:00'))
         
-        # Calculate week boundaries (Monday to Sunday)
-        # Get Monday of the week
-        days_since_monday = shift_date.weekday()
-        week_start = (shift_date - timedelta(days=days_since_monday)).replace(
+        # Calculate week boundaries (SUNDAY to SATURDAY)
+        # Get Sunday of the week (weekday() returns 0=Monday, 6=Sunday)
+        days_since_sunday = (shift_date.weekday() + 1) % 7  # Convert to 0=Sunday
+        week_start = (shift_date - timedelta(days=days_since_sunday)).replace(
             hour=0, minute=0, second=0, microsecond=0
         )
         week_end = week_start + timedelta(days=7)
