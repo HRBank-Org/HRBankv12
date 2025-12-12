@@ -192,11 +192,12 @@ def test_workplace_creation_integration(results, token):
             timeout=15
         )
         
-        if response.status_code == 200:
+        if response.status_code in [200, 201]:
             data = response.json()
             if data.get("success"):
                 results.add_pass("Workplace creation with valid address")
                 print(f"      ✅ Workplace created successfully")
+                print(f"      ✅ Workplace ID: {data.get('data', {}).get('workplace_id')}")
             else:
                 results.add_fail("Workplace creation", f"Creation failed: {data}")
         else:
