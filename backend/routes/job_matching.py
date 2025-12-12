@@ -303,7 +303,7 @@ async def get_job_candidates(
     job = await db.job_postings.find_one({
         'job_id': job_id,
         'employer_id': current_user['user_id']
-    })
+    }, {'_id': 0})
     
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
