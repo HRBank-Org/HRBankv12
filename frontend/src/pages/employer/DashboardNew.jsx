@@ -230,29 +230,13 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-900">Workforce Inventory</h2>
-        <div className="flex gap-3">
-          <button
-            onClick={() => navigate('/employer/jobs')}
-            className="px-4 py-2 rounded-lg border-2 font-medium hover:opacity-90 transition-all"
-            style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
-          >
-            🎯 View Job Candidates
-          </button>
-          <button
-            onClick={() => setShowInvitations(true)}
-            className="px-4 py-2 rounded-lg border-2 font-medium hover:opacity-90 transition-all"
-            style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
-          >
-            📧 Roles & Invitations
-          </button>
-          <button
-            onClick={() => navigate('/employer/find-workers')}
-            className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-all"
-            style={{ backgroundColor: theme.primaryColor }}
-          >
-            + Recruit Workers
-          </button>
-        </div>
+        <button
+          onClick={() => setShowInvitations(true)}
+          className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-all"
+          style={{ backgroundColor: theme.primaryColor }}
+        >
+          📧 Roles & Invitations
+        </button>
       </div>
 
       {/* Workforce Distribution */}
