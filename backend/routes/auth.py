@@ -13,8 +13,9 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 def get_db():
     """Dependency to get database instance"""
-    from server import db
-    return db
+    from database import get_database
+    import asyncio
+    return asyncio.run(get_database())
 
 @router.post("/signup", response_model=Dict, status_code=status.HTTP_201_CREATED)
 async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
