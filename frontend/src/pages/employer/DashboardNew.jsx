@@ -9,6 +9,7 @@ import CalendarView from '../../components/scheduling/CalendarView';
 import RatingModal from '../../components/ratings/RatingModal';
 import WorkerDetailModal from '../../components/workforce/WorkerDetailModal';
 import InvitationManager from '../../components/workforce/InvitationManager';
+import TaskAnalytics from '../../components/employer/TaskAnalytics';
 
 const EmployerDashboardNew = () => {
   const { user } = useAuth();
@@ -822,6 +823,16 @@ const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
   return (
     <div>
       <h2 className="text-xl font-bold text-gray-900 mb-6">Performance & Ratings</h2>
+
+      {/* Task Analytics Section */}
+      <div className="mb-8">
+        <TaskAnalytics theme={theme} />
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-300 my-8"></div>
+
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Shift Ratings</h2>
 
       {/* Stats Overview */}
       {analytics && analytics.total_ratings > 0 && (
