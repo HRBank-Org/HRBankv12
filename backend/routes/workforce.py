@@ -277,24 +277,10 @@ async def get_my_shifts(
     if not date:
         date = dt.utcnow().strftime('%Y-%m-%d')
     
-    # Parse the date to get start and end of day
-    try:
-        target_date = dt.strptime(date, '%Y-%m-%d')
-        start_of_day = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
-        end_of_day = target_date.replace(hour=23, minute=59, second=59, microsecond=999999)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid date format. Use YYYY-MM-DD"
-        )
-    
-    # Find shifts for this worker on this date
+    # Find shifts for this worker on this date (date field is stored as YYYY-MM-DD string)
     shifts = await db.calendar_shifts.find({
         "worker_id": current_user["user_id"],
-        "date": {
-            "$gte": start_of_day.isoformat(),
-            "$lte": end_of_day.isoformat()
-        }
+        "date": date
     }, {"_id": 0}).to_list(1000)
     
     # Enrich shifts with workplace and role information
