@@ -381,6 +381,46 @@ const InvitationManager = () => {
             <p className="text-sm font-medium text-gray-900">{role.filled_by_worker_name}</p>
           </div>
         )}
+        
+        {/* Action Buttons */}
+        <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditingRole({
+                ...role,
+                positions_needed: role.positions_needed || 1
+              });
+              setShowEditModal(true);
+            }}
+            className="flex-1 px-3 py-2 text-sm rounded-lg border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all"
+          >
+            ✏️ Edit
+          </button>
+          
+          {(role.positions_filled === 0 || !role.positions_filled) && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteRole(role.role_id, role.positions_filled);
+              }}
+              className="px-3 py-2 text-sm rounded-lg border-2 border-red-300 text-red-700 font-medium hover:bg-red-50 transition-all"
+            >
+              🗑️
+            </button>
+          )}
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewCandidates(role.role_id);
+            }}
+            className="flex-1 px-3 py-2 text-sm rounded-lg text-white font-medium hover:opacity-90 transition-all"
+            style={{ backgroundColor: theme.primaryColor }}
+          >
+            View Details
+          </button>
+        </div>
       </div>
     );
   };
