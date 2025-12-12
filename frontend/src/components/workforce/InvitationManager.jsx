@@ -495,9 +495,10 @@ const InvitationManager = () => {
                   {roles
                     .filter(r => {
                       const wpMatch = filterWorkplace === 'all' || r.workplace_id === filterWorkplace;
+                      const isFilled = (r.display_status === 'filled') || (r.positions_filled >= r.positions_needed);
                       const statusMatch = filterStatus === 'all' || 
-                        (filterStatus === 'filled' && r.positions_filled >= r.positions_needed) ||
-                        (filterStatus === 'open' && r.positions_filled < r.positions_needed);
+                        (filterStatus === 'filled' && isFilled) ||
+                        (filterStatus === 'open' && !isFilled);
                       return wpMatch && statusMatch;
                     })
                     .map((role) => (
