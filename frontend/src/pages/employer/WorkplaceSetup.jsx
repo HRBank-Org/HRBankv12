@@ -233,11 +233,11 @@ const WorkplaceSetup = () => {
               </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || validating}
                 className="flex-1 py-3 px-4 rounded-lg text-white font-semibold transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: theme.primaryColor }}
               >
-                {loading ? 'Creating Workplace...' : 'Create Workplace'}
+                {validating ? 'Validating Address...' : loading ? 'Creating Workplace...' : 'Create Workplace'}
               </button>
             </div>
           </form>
