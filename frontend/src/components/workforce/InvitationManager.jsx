@@ -26,7 +26,11 @@ const InvitationManager = () => {
     additional_certifications: [],
     hourly_rate: '',
     description: '',
-    positions_available: 1
+    positions_available: 1,
+    workplace_id: '',
+    shift_start: '',
+    shift_end: '',
+    days_of_week: []
   });
   
   // Manual invitation state
