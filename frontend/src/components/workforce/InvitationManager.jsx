@@ -390,6 +390,58 @@ const InvitationManager = () => {
               </button>
             </div>
           </div>
+          
+          {/* Filters */}
+          {roles.length > 0 && (
+            <div className="flex gap-3 mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              {/* Workplace Filter */}
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Filter by Branch</label>
+                <select
+                  value={filterWorkplace}
+                  onChange={(e) => setFilterWorkplace(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">All Workplaces</option>
+                  {workplaces.map(wp => (
+                    <option key={wp.workplace_id} value={wp.workplace_id}>
+                      {wp.workplace_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Status Filter */}
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Filter by Status</label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="open">Open Positions</option>
+                  <option value="filled">Fully Staffed</option>
+                </select>
+              </div>
+              
+              {/* Results Count */}
+              <div className="flex items-end">
+                <div className="px-4 py-2 bg-white rounded-lg border border-gray-300">
+                  <p className="text-xs text-gray-500">Showing</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {roles.filter(r => {
+                      const wpMatch = filterWorkplace === 'all' || r.workplace_id === filterWorkplace;
+                      const statusMatch = filterStatus === 'all' || 
+                        (filterStatus === 'filled' && r.positions_filled >= r.positions_needed) ||
+                        (filterStatus === 'open' && r.positions_filled < r.positions_needed);
+                      return wpMatch && statusMatch;
+                    }).length}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {loading ? (
             <div className="text-center py-8">Loading...</div>
