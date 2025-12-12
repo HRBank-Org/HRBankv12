@@ -135,7 +135,7 @@ const InvitationManager = () => {
         shift_end_time: editingRole.shift_end_time,
         days_of_week: editingRole.days_of_week,
         pay_rate: editingRole.pay_rate,
-        description: editingRole.description
+        standard_tasks: editingRole.standard_tasks || []
       });
       
       setShowEditModal(false);
