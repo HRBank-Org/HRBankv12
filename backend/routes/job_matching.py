@@ -232,6 +232,18 @@ async def run_matching_algorithm(db, job: JobPosting):
         'profile_status': 'active'
     }).to_list(length=None)
     
+    # Debug: Check if we have any workforce members
+    print(f"DEBUG: Found {len(workforce_members)} active workforce members")
+    
+    # If no active members, try without profile_status filter for debugging
+    if len(workforce_members) == 0:
+        all_members = await db.workforce_profiles.find({}).to_list(length=None)
+        print(f"DEBUG: Total workforce profiles in database: {len(all_members)}")
+        if all_members:
+            print(f"DEBUG: First profile status: {all_members[0].get('profile_status', 'NOT SET')}")
+            # Use all members for matching if no active ones found
+            workforce_members = all_members
+    
     matches = []
     
     for worker in workforce_members:
