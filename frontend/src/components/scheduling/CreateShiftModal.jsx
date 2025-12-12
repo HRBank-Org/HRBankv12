@@ -212,6 +212,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
+                  <option value="">Select workplace</option>
                   {workplaces.map(wp => (
                     <option key={wp.workplace_id} value={wp.workplace_id}>
                       {wp.workplace_name}
@@ -220,32 +221,61 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                 </select>
               </div>
 
-              {/* Occupation Template */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FiUsers className="inline w-4 h-4 mr-1" />
-                  Occupation Template (Optional)
+              {/* Inherit from Workplace Role */}
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                <label className="block text-sm font-medium text-blue-900 mb-2">
+                  🎯 Inherit from Existing Role (Recommended)
                 </label>
                 <select
-                  value={formData.occupation_template_id}
-                  onChange={(e) => handleTemplateSelect(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={selectedRole?.role_id || ''}
+                  onChange={(e) => handleRoleSelect(e.target.value)}
+                  className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                 >
-                  <option value="">-- Select from template or enter manually --</option>
-                  {occupationTemplates.map(template => (
-                    <option key={template.template_id} value={template.template_id}>
-                      {template.occupation_title} ({template.occupation_category})
-                      {template.suggested_rates?.[workplaceProvince] ? 
-                        ` - Suggested: $${template.suggested_rates[workplaceProvince]}/hr` : ''}
-                    </option>
-                  ))}
+                  <option value="">-- Select a role to auto-fill all details --</option>
+                  {workplaceRoles
+                    .filter(role => !formData.workplace_id || role.workplace_id === formData.workplace_id)
+                    .map(role => (
+                      <option key={role.role_id} value={role.role_id}>
+                        {role.role_name} - ${role.pay_rate || role.hourly_rate}/hr
+                        {role.shift_start_time && ` (${role.shift_start_time}-${role.shift_end_time})`}
+                      </option>
+                    ))}
                 </select>
-                {selectedTemplate && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    ✓ Auto-filled: Position, Rate, Skills & Certifications
+                {selectedRole && (
+                  <p className="text-xs text-blue-700 mt-2 font-medium">
+                    ✓ Inherited: Role name, workplace, pay rate, shift times, positions needed
                   </p>
                 )}
               </div>
+
+              {/* Occupation Template - Alternative to Role */}
+              {!selectedRole && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FiUsers className="inline w-4 h-4 mr-1" />
+                    Or use Occupation Template
+                  </label>
+                  <select
+                    value={formData.occupation_template_id}
+                    onChange={(e) => handleTemplateSelect(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">-- Select from template or enter manually --</option>
+                    {occupationTemplates.map(template => (
+                      <option key={template.template_id} value={template.template_id}>
+                        {template.occupation_title} ({template.occupation_category})
+                        {template.suggested_rates?.[workplaceProvince] ? 
+                          ` - Suggested: $${template.suggested_rates[workplaceProvince]}/hr` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedTemplate && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      ✓ Auto-filled: Position, Rate, Skills & Certifications
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Position */}
               <div>
