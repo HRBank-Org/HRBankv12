@@ -90,6 +90,7 @@ import Workplaces from './pages/employer/Workplaces';
 import WorkplaceDetail from './pages/employer/WorkplaceDetail';
 import EditWorkplace from './pages/employer/EditWorkplace';
 import PostJob from './pages/employer/PostJob';
+import JobsCandidates from './pages/employer/JobsCandidates';
 import CreateShift from './pages/employer/CreateShift';
 import ShiftDetail from './pages/employer/ShiftDetail';
 import ShiftAttendance from './pages/employer/ShiftAttendance';
