@@ -39,6 +39,9 @@ const EmployerDashboardNew = () => {
       }
     }
   }, [location]);
+  
+  // Get showWorkplaces flag from location state
+  const showWorkplacesFromState = location.state?.showWorkplaces || false;
 
   const getGreeting = () => {
     const hour = new Date().getHours();
