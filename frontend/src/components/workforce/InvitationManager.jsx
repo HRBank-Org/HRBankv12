@@ -213,12 +213,12 @@ const InvitationManager = () => {
           </div>
           <span
             className={`px-3 py-1 text-xs font-semibold rounded-full ${
-              role.status === 'filled' ? 'bg-green-100 text-green-800' :
+              role.display_status === 'filled' || (role.positions_filled >= role.positions_needed) ? 'bg-green-100 text-green-800' :
               role.status === 'posted_to_match' ? 'bg-blue-100 text-blue-800' :
               'bg-yellow-100 text-yellow-800'
             }`}
           >
-            {role.status === 'filled' ? '✓ Filled' : role.status === 'posted_to_match' ? '📢 Posted' : '⏳ Open'}
+            {(role.display_status === 'filled' || role.positions_filled >= role.positions_needed) ? '✓ Filled' : role.status === 'posted_to_match' ? '📢 Posted' : '⏳ Open'}
           </span>
         </div>
         
