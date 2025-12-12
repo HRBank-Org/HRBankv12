@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime, timezone
 
 # Import routes
-from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, blockchain_credentials, translation, partner_logos, calendar, workforce_management, eula, documents, admin_management, google_calendar, shift_scheduling, admin_occupations, admin_certifications, otp_verification, file_upload, validation, institution_classes, credential_verification, compliance, payroll, rosters, workforce_tasks, workforce_roster, emma, job_matching, admin_credentials, shift_management, calendar_scheduling, notification_preferences, time_off, live_attendance, dashboard, shift_ratings, qr_attendance, workplace_roles, employer_invitations, workforce_monitoring, fee_calculator_api, minimum_wage_admin, timesheets, payroll_management, weekly_timesheets, occupation_templates, admin_id_verification, workforce_profile_update, interviews
+from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, blockchain_credentials, translation, partner_logos, calendar, workforce_management, eula, documents, admin_management, google_calendar, shift_scheduling, admin_occupations, admin_certifications, otp_verification, file_upload, validation, institution_classes, credential_verification, compliance, payroll, rosters, workforce_tasks, workforce_roster, emma, job_matching, admin_credentials, shift_management, calendar_scheduling, notification_preferences, time_off, live_attendance, dashboard, shift_ratings, qr_attendance, workplace_roles, employer_invitations, workforce_monitoring, fee_calculator_api, minimum_wage_admin, timesheets, payroll_management, weekly_timesheets, occupation_templates, admin_id_verification, workforce_profile_update, interviews, task_analytics
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -142,6 +142,7 @@ app.include_router(admin_id_verification.router, tags=["admin_id_verification"])
 app.include_router(workforce_profile_update.router, tags=["workforce_profile_update"])
 
 app.include_router(interviews.router, tags=["interviews"])
+app.include_router(task_analytics.router, prefix="/api", tags=["task_analytics"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
