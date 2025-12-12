@@ -142,7 +142,7 @@ def test_employer_login_for_frontend_testing(results):
     # Test employer login
     employer_credentials = {
         "email": "employer@hrbank.ca",
-        "password": "Test123!",
+        "password": "password123",
         "user_type": "employer"
     }
     
