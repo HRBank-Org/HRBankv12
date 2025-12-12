@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
@@ -13,6 +13,7 @@ import InvitationManager from '../../components/workforce/InvitationManager';
 const EmployerDashboardNew = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   
   const [activeTab, setActiveTab] = useState('schedule'); // schedule (embedded calendar), kpis, finances, workforce
@@ -22,11 +23,22 @@ const EmployerDashboardNew = () => {
   const [workplaces, setWorkplaces] = useState([]);
   const [pendingRatings, setPendingRatings] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showInvitations, setShowInvitations] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
     loadWeather();
-  }, []);
+    
+    // Check if we're navigating back from another page with state
+    if (location.state) {
+      if (location.state.activeTab) {
+        setActiveTab(location.state.activeTab);
+      }
+      if (location.state.showInvitations) {
+        setShowInvitations(true);
+      }
+    }
+  }, [location]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
