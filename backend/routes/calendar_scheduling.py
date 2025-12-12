@@ -122,7 +122,11 @@ async def create_calendar_shift(
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
         "created_by": current_user["user_id"],
-        "color": shift_data.get("color")
+        "color": shift_data.get("color"),
+        "standard_tasks": shift_data.get("standard_tasks", []),
+        "custom_tasks": shift_data.get("custom_tasks", []),
+        "role_id": shift_data.get("role_id"),
+        "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.utcnow().strftime('%Y-%m-%d')
     }
     
     await db.calendar_shifts.insert_one(shift)
