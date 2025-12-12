@@ -206,11 +206,17 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   const [showWorkerModal, setShowWorkerModal] = useState(false);
   const [showInvitations, setShowInvitations] = useState(false);
+  const [selectedWorkplace, setSelectedWorkplace] = useState('all');
 
   const handleWorkerClick = (workerId) => {
     setSelectedWorkerId(workerId);
     setShowWorkerModal(true);
   };
+
+  // Filter workforce by selected workplace
+  const filteredWorkforce = selectedWorkplace === 'all' 
+    ? workforce 
+    : workforce.filter(w => w.workplace_id === selectedWorkplace);
 
   if (showInvitations) {
     return (
