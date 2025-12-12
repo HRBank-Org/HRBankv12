@@ -511,12 +511,21 @@ async def send_invitation_notifications(invite_token: InviteToken, employer_name
     if invite_token.phone:
         try:
             from services.sms_service import send_sms
+            import logging
+            logger = logging.getLogger(__name__)
             
             sms_body = f"You're invited to join {employer_name} as {invite_token.role_name}! Sign up: {signup_link} (Expires in 7 days)"
             
-            await send_sms(
-                phone_number=invite_token.phone,
+            logger.info(f"Sending invitation SMS to {invite_token.phone}")
+            result = await send_sms(
+                to_phone=invite_token.phone,
                 message=sms_body
             )
+            if result.get('success'):
+                logger.info(f"Invitation SMS sent successfully to {invite_token.phone}")
+            else:
+                logger.warning(f"SMS send failed for {invite_token.phone}: {result.get('error')}")
         except Exception as e:
-            print(f"Failed to send SMS: {e}")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send invitation SMS to {invite_token.phone}: {e}", exc_info=True)
