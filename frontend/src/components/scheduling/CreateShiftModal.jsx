@@ -375,15 +375,100 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                 </div>
               </div>
 
+              {/* Tasks Section */}
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-semibold text-gray-900 mb-3">📋 Shift Tasks</h3>
+                
+                {/* Standard Tasks from Role (Read-only) */}
+                {formData.standard_tasks && formData.standard_tasks.length > 0 && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Standard Tasks (from role)
+                    </label>
+                    <div className="space-y-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      {formData.standard_tasks.map((task, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm text-blue-900">
+                          <span className="text-blue-400">☐</span>
+                          <span>{task}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Custom Tasks for This Shift */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Custom Tasks (one-time for this shift)
+                  </label>
+                  
+                  {formData.custom_tasks.length > 0 && (
+                    <div className="mb-3 space-y-2">
+                      {formData.custom_tasks.map((task, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
+                          <span className="text-gray-400">☐</span>
+                          <span className="flex-1 text-sm text-gray-900">{task}</span>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({
+                              ...formData,
+                              custom_tasks: formData.custom_tasks.filter((_, i) => i !== idx)
+                            })}
+                            className="text-red-500 hover:text-red-700 text-xs"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customTaskInput}
+                      onChange={(e) => setCustomTaskInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && customTaskInput.trim()) {
+                          e.preventDefault();
+                          setFormData({
+                            ...formData,
+                            custom_tasks: [...formData.custom_tasks, customTaskInput.trim()]
+                          });
+                          setCustomTaskInput('');
+                        }
+                      }}
+                      placeholder="e.g., Prepare for special event"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customTaskInput.trim()) {
+                          setFormData({
+                            ...formData,
+                            custom_tasks: [...formData.custom_tasks, customTaskInput.trim()]
+                          });
+                          setCustomTaskInput('');
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+                    >
+                      + Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
               {/* Notes */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
+                  Additional Notes
                 </label>
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows="3"
+                  rows="2"
                   placeholder="Any additional details..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
