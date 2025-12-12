@@ -25,13 +25,16 @@ const InvitationManager = () => {
     required_skills: [],
     additional_certifications: [],
     hourly_rate: '',
-    description: '',
+    standard_tasks: [], // Replaced description with task list
     positions_available: 1,
     workplace_id: '',
     shift_start: '',
     shift_end: '',
     days_of_week: []
   });
+  
+  // Task input state
+  const [newTaskInput, setNewTaskInput] = useState('');
   
   // Edit role state
   const [editingRole, setEditingRole] = useState(null);
