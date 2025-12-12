@@ -164,8 +164,29 @@ async def list_workplace_roles(
     
     roles = await db.workplace_roles.find(query, {"_id": 0}).sort("created_date", -1).to_list(1000)
     
-    # Enrich with filled worker info
+    # Enrich with workplace and worker info
     for role in roles:
+        # Add workplace information
+        if role.get('workplace_id'):
+            workplace = await db.workplaces.find_one(
+                {"workplace_id": role['workplace_id']},
+                {"_id": 0, "workplace_name": 1, "workplace_address": 1}
+            )
+            if workplace:
+                role['workplace_name'] = workplace.get('workplace_name')
+                role['workplace_address'] = workplace.get('workplace_address')
+        else:
+            # If no workplace_id, try to get first workplace for this employer
+            workplace = await db.workplaces.find_one(
+                {"employer_id": current_user['user_id']},
+                {"_id": 0, "workplace_name": 1, "workplace_id": 1}
+            )
+            if workplace:
+                role['workplace_name'] = workplace.get('workplace_name')
+                # Optionally set the workplace_id for future reference
+                role['default_workplace'] = True
+        
+        # Add filled worker info
         if role.get('filled_by_workforce_id'):
             worker = await db.users.find_one(
                 {"user_id": role['filled_by_workforce_id']},
