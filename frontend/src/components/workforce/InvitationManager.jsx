@@ -112,13 +112,14 @@ const InvitationManager = () => {
         required_skills: [],
         additional_certifications: [],
         hourly_rate: '',
-        description: '',
+        standard_tasks: [],
         positions_available: 1,
         workplace_id: '',
         shift_start: '',
         shift_end: '',
         days_of_week: []
       });
+      setNewTaskInput('');
       loadData();
       alert('Role created successfully!');
     } catch (error) {
