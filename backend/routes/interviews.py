@@ -4,7 +4,7 @@ from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import require_role
 
-router = APIRouter()
+router = APIRouter(prefix="/api/employer/interviews")
 
 def get_db():
     """Dependency to get database instance"""
