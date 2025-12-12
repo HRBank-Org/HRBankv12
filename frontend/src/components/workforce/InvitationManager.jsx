@@ -138,8 +138,8 @@ const InvitationManager = () => {
   const handleResendInvite = async (inviteId) => {
     try {
       await api.post(`/api/employer/invitations/${inviteId}/resend`);
+      await loadData();
       alert('Invitation resent successfully!');
-      loadData();
     } catch (error) {
       alert('Failed to resend: ' + (error.response?.data?.detail || error.message));
     }
@@ -150,8 +150,8 @@ const InvitationManager = () => {
     
     try {
       await api.delete(`/api/employer/invitations/${inviteId}/cancel`);
-      alert('Invitation cancelled');
-      loadData();
+      await loadData();
+      alert('Invitation cancelled successfully!');
     } catch (error) {
       alert('Failed to cancel: ' + (error.response?.data?.detail || error.message));
     }
