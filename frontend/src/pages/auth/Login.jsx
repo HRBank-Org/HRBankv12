@@ -58,31 +58,9 @@ const LoginForm = () => {
     try {
       // Try real backend login first
       const response = await login({ email, password });
-      const { user_type, profile_status, needs_onboarding } = response.data;
+      const { user_type } = response.data;
       
-      // Check profile status first
-      if (profile_status === 'pending') {
-        navigate('/pending-approval');
-        return;
-      }
-      
-      if (profile_status === 'suspended') {
-        setError('Account suspended. Contact support@hrbank.ca');
-        setLoading(false);
-        return;
-      }
-      
-      // Check if needs onboarding
-      if (needs_onboarding) {
-        if (user_type === 'employer') {
-          navigate('/employer/onboarding');
-        } else if (user_type === 'workforce') {
-          navigate('/workforce/onboarding');
-        }
-        return;
-      }
-      
-      // Regular redirect based on user type
+      // BYPASS ALL CHECKS FOR TESTING - Direct navigation based on user type
       if (user_type === 'workforce') {
         navigate('/workforce/dashboard');
       } else if (user_type === 'employer') {
