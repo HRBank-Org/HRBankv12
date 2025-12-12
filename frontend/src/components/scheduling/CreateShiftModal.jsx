@@ -15,10 +15,14 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
     hourly_rate: '',
     notes: '',
     required_skills: [],
+    standard_tasks: [], // From role
+    custom_tasks: [], // Shift-specific
     is_recurring: false,
     recurrence_rule: 'weekly',
     recurrence_end_date: ''
   });
+  
+  const [customTaskInput, setCustomTaskInput] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
