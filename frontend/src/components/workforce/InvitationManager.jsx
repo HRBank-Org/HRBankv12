@@ -1106,15 +1106,72 @@ const InvitationManager = () => {
                 })()}
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={newRole.description}
-                  onChange={(e) => setNewRole({...newRole, description: e.target.value})}
-                  placeholder="Role responsibilities and requirements..."
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
+              {/* Daily Tasks - Replaces Description */}
+              <div className="border-t border-gray-200 pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  📋 Standard Daily Tasks
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  These tasks will appear on every shift for this role. Workers will check them off daily.
+                </p>
+                
+                {/* Task List */}
+                {newRole.standard_tasks.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {newRole.standard_tasks.map((task, idx) => (
+                      <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
+                        <span className="text-gray-400">☐</span>
+                        <span className="flex-1 text-sm text-gray-900">{task}</span>
+                        <button
+                          type="button"
+                          onClick={() => setNewRole({
+                            ...newRole,
+                            standard_tasks: newRole.standard_tasks.filter((_, i) => i !== idx)
+                          })}
+                          className="text-red-500 hover:text-red-700 text-xs"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Add Task Input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newTaskInput}
+                    onChange={(e) => setNewTaskInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && newTaskInput.trim()) {
+                        e.preventDefault();
+                        setNewRole({
+                          ...newRole,
+                          standard_tasks: [...newRole.standard_tasks, newTaskInput.trim()]
+                        });
+                        setNewTaskInput('');
+                      }
+                    }}
+                    placeholder="e.g., Stock bar and prepare garnishes"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newTaskInput.trim()) {
+                        setNewRole({
+                          ...newRole,
+                          standard_tasks: [...newRole.standard_tasks, newTaskInput.trim()]
+                        });
+                        setNewTaskInput('');
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+                  >
+                    + Add Task
+                  </button>
+                </div>
               </div>
             </div>
             
