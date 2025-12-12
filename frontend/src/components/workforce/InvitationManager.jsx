@@ -278,7 +278,7 @@ const InvitationManager = () => {
                 ></div>
               </div>
               <span className="text-sm font-medium text-gray-900">
-                {role.positions_filled || 0}/{role.positions_available || 0}
+                {role.positions_filled || 0}/{role.positions_needed || 0}
               </span>
             </div>
           </div>
