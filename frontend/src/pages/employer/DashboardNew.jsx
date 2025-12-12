@@ -306,7 +306,27 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
 
       {/* Worker Cards Grid */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">All Workers</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">All Workers</h3>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Filter by workplace:</label>
+            <select
+              value={selectedWorkplace}
+              onChange={(e) => setSelectedWorkplace(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Workplaces ({workforce.length})</option>
+              {workplaces.map(workplace => {
+                const count = workforce.filter(w => w.workplace_id === workplace.workplace_id).length;
+                return (
+                  <option key={workplace.workplace_id} value={workplace.workplace_id}>
+                    {workplace.workplace_name} ({count})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {workforce.map(worker => (
             <WorkerCard 
