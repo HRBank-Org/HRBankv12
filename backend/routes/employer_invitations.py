@@ -472,10 +472,10 @@ async def send_invitation_notifications(invite_token: InviteToken, employer_name
         <p>If you have any questions, please contact {employer_name}.</p>
         """
         
-        await send_email(
-            to_email=invite_token.email,
+        send_email(
+            to=invite_token.email,
             subject=f"Invitation to Join {employer_name}",
-            body=email_body
+            html_content=email_body
         )
     except Exception as e:
         print(f"Failed to send email: {e}")
