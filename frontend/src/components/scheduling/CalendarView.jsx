@@ -11,13 +11,13 @@ import ShiftDetailModal from '../../components/scheduling/ShiftDetailModal';
 import AssignWorkerModal from '../../components/scheduling/AssignWorkerModal';
 import CopyShiftModal from '../../components/scheduling/CopyShiftModal';
 
-const CalendarView = ({ embedded = false }) => {
+const CalendarView = ({ embedded = false, initialWorkplace = 'all' }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('roster'); // week, day, month, roster - Default to roster
   const [currentDate, setCurrentDate] = useState(moment());
   const [shifts, setShifts] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
-  const [selectedWorkplace, setSelectedWorkplace] = useState('all');
+  const [selectedWorkplace, setSelectedWorkplace] = useState(initialWorkplace);
   const [loading, setLoading] = useState(true);
   
   // Modals
