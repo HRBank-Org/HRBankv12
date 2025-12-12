@@ -124,9 +124,9 @@ const EmployerDashboardNew = () => {
 
   const tabs = [
     { id: 'schedule', label: 'Schedule', icon: FiCalendar, badge: null },
-    { id: 'kpis', label: 'KPIs', icon: FiAward, badge: pendingRatings > 0 ? pendingRatings : null },
+    { id: 'workforce', label: 'Workforce', icon: FiUsers, badge: null },
     { id: 'finances', label: 'Finances', icon: FiDollarSign, badge: null },
-    { id: 'workforce', label: 'Workforce', icon: FiUsers, badge: null }
+    { id: 'kpis', label: 'KPIs', icon: FiAward, badge: pendingRatings > 0 ? pendingRatings : null }
   ];
 
   if (loading) {
