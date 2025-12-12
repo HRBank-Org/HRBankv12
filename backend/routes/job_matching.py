@@ -326,7 +326,7 @@ async def get_job_candidates(
             occupations = await db.occupation_profiles.find({
                 'user_id': match['workforce_id'],
                 'active': True
-            }).to_list(length=None)
+            }, {'_id': 0}).to_list(length=None)
             
             candidates.append({
                 **match,
