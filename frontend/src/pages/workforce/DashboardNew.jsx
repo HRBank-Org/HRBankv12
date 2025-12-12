@@ -241,6 +241,7 @@ const WorkforceDashboardNew = () => {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 };
