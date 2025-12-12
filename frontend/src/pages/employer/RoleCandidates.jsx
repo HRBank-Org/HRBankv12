@@ -29,7 +29,7 @@ const RoleCandidates = () => {
       
       // Load role details
       const roleRes = await api.get(`/api/employer/workplace-roles/${roleId}`);
-      setRole(roleRes.data.data.role);
+      setRole(roleRes.data.data);
       
       // Load internal candidates (from own workforce)
       const internalRes = await api.get(`/api/employer/workplace-roles/${roleId}/internal-candidates`);
