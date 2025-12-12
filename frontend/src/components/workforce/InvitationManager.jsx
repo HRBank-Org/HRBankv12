@@ -222,7 +222,9 @@ const InvitationManager = () => {
             <span className="text-gray-400 text-sm">📍</span>
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wide">Branch</p>
-              <p className="text-sm font-medium text-gray-900">{workplaceName}</p>
+              <p className="text-sm font-medium text-gray-900">
+                {role.workplace_name || role.default_workplace ? role.workplace_name : 'No workplace assigned'}
+              </p>
             </div>
           </div>
           
