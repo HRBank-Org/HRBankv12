@@ -55,11 +55,16 @@ async def fix_workforce_profiles():
         
         # Update the profile if needed
         if update_data:
-            await db.workforce_profiles.update_one(
-                {'workforce_id': profile['workforce_id']},
-                {'$set': update_data}
-            )
-            updated_count += 1
+            # Use user_id if workforce_id doesn't exist
+            profile_id = profile.get('workforce_id') or profile.get('user_id')
+            if profile_id:
+                await db.workforce_profiles.update_one(
+                    {'$or': [{'workforce_id': profile_id}, {'user_id': profile_id}]},
+                    {'$set': update_data}
+                )
+                updated_count += 1
+            else:
+                print(f"  Warning: No ID found for profile {profile.get('email', 'unknown')}")
     
     print(f"\n✅ Updated {updated_count} workforce profiles")
     
