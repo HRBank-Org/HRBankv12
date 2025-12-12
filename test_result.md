@@ -423,15 +423,18 @@ frontend:
 
   - task: "Job Posting UI - Auto-Suggest Certifications"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/pages/employer/JobPosting.jsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Enhanced job posting form to auto-fetch and suggest required certifications when employer enters position title. Certifications auto-populate on blur. Visual distinction: suggested certs show green with checkmark and '(suggested)' label, manually-added certs show blue. Employer can remove any certification (not mandatory). Added loading indicator and helpful message showing count of auto-suggested certs."
+        -working: false
+        -agent: "testing"
+        -comment: "CRITICAL ISSUE: Unable to complete comprehensive testing due to login authentication problems. The login page loads correctly at https://teamhire.preview.emergentagent.com/login with proper form fields (email, password, user type tabs), but login attempts with provided credentials (employer@hrbank.ca / password123) are not completing successfully. The page remains on the login screen without redirecting to the employer dashboard. This prevents testing of the job posting auto-suggest certifications feature, occupation template integration, and the complete recruitment workflow. Backend APIs may be working (as confirmed in test_result.md) but frontend authentication flow appears to have issues. RECOMMENDATION: Main agent should verify login functionality and authentication flow before proceeding with feature testing."
 
   - task: "Workforce Profile - Show Required vs Optional Certifications"
     implemented: true
