@@ -171,7 +171,7 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
 @router.post("/post")
 async def post_job_to_matching_engine(
     job_data: JobPostingCreate,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Employer posts a job to the matching engine"""
     db = await get_database()
