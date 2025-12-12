@@ -241,43 +241,98 @@ const InvitationManager = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {roles.map(role => (
-                <div key={role.role_id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{role.role_name}</h4>
-                      <p className="text-sm text-gray-600">{role.occupation_template}</p>
-                    </div>
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded ${
-                        role.status === 'filled' ? 'bg-green-100 text-green-800' :
-                        role.status === 'posted_to_match' ? 'bg-blue-100 text-blue-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {role.status === 'filled' ? 'Filled' : role.status === 'posted_to_match' ? 'Posted' : 'Unfilled'}
-                    </span>
-                  </div>
-                  
-                  {role.hourly_rate && (
-                    <div className="mb-2">
-                      <p className="text-sm font-medium text-gray-900">${role.hourly_rate}/hr (gross)</p>
-                      {role.fee_breakdown && (
-                        <p className="text-xs text-gray-600">
-                          Employer pays: ${role.fee_breakdown.employer_pays}/hr
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="text-xs text-gray-500">
-                    {role.positions_filled}/{role.positions_available} positions filled
-                  </div>
-                  
-                  {role.filled_by_worker_name && (
-                    <div className="mt-2 text-xs text-gray-600">
-                      Filled by: {role.filled_by_worker_name}
-                    </div>
-                  )}
+                <RoleCard 
+                  key={role.role_id} 
+                  role={role} 
+                  theme={theme}
+                  onViewCandidates={(roleId) => window.location.href = `/employer/roles/${roleId}/candidates`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    // Separate RoleCard component with candidate badges
+    const RoleCard = ({ role, theme, onViewCandidates }) => {
+      const [candidateCounts, setCandidateCounts] = useState({ internal: 0, external: 0 });
+      
+      useEffect(() => {
+        // Fetch candidate counts for this role
+        const fetchCandidates = async () => {
+          try {
+            const response = await api.get(`/api/employer/workplace-roles/${role.role_id}/candidate-count`);
+            setCandidateCounts(response.data.data);
+          } catch (error) {
+            console.error('Failed to fetch candidate counts:', error);
+          }
+        };
+        
+        if (role.status !== 'filled') {
+          fetchCandidates();
+        }
+      }, [role.role_id, role.status]);
+      
+      return (
+        <div 
+          className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+          onClick={() => onViewCandidates(role.role_id)}
+        >
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h4 className="font-semibold text-gray-900">{role.role_name}</h4>
+              <p className="text-sm text-gray-600">{role.occupation_template}</p>
+            </div>
+            <span
+              className={`px-2 py-1 text-xs font-medium rounded ${
+                role.status === 'filled' ? 'bg-green-100 text-green-800' :
+                role.status === 'posted_to_match' ? 'bg-blue-100 text-blue-800' :
+                'bg-yellow-100 text-yellow-800'
+              }`}
+            >
+              {role.status === 'filled' ? 'Filled' : role.status === 'posted_to_match' ? 'Posted' : 'Unfilled'}
+            </span>
+          </div>
+          
+          {role.hourly_rate && (
+            <div className="mb-2">
+              <p className="text-sm font-medium text-gray-900">${role.hourly_rate}/hr (gross)</p>
+              {role.fee_breakdown && (
+                <p className="text-xs text-gray-600">
+                  Employer pays: ${role.fee_breakdown.employer_pays}/hr
+                </p>
+              )}
+            </div>
+          )}
+          
+          <div className="text-xs text-gray-500 mb-3">
+            {role.positions_filled}/{role.positions_available} positions filled
+          </div>
+          
+          {/* Candidate Badges */}
+          {role.status !== 'filled' && (candidateCounts.internal > 0 || candidateCounts.external > 0) && (
+            <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
+              {candidateCounts.internal > 0 && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded text-xs">
+                  <span className="font-medium text-green-700">👥 {candidateCounts.internal}</span>
+                  <span className="text-green-600">Internal</span>
+                </div>
+              )}
+              {candidateCounts.external > 0 && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                  <span className="font-medium text-blue-700">🌐 {candidateCounts.external}</span>
+                  <span className="text-blue-600">External</span>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {role.filled_by_worker_name && (
+            <div className="mt-2 text-xs text-gray-600">
+              Filled by: {role.filled_by_worker_name}
+            </div>
+          )}
                 </div>
               ))}
             </div>
