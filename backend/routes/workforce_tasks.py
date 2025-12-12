@@ -9,7 +9,7 @@ from auth.dependencies import get_current_user, require_role
 from database import get_database
 import uuid
 
-router = APIRouter(prefix="/api/workforce", tags=["Workforce Tasks"])
+router = APIRouter(prefix="/workforce", tags=["Workforce Tasks"])
 
 @router.get("/my-shifts")
 async def get_my_shifts(
