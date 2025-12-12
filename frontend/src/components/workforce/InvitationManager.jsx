@@ -12,6 +12,11 @@ const InvitationManager = () => {
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(false);
   
+  // Filter states
+  const [filterWorkplace, setFilterWorkplace] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all'); // all, open, filled
+  const [workplaces, setWorkplaces] = useState([]);
+  
   // Role creation state
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [newRole, setNewRole] = useState({
