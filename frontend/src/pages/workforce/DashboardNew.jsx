@@ -129,16 +129,41 @@ const WorkforceDashboardNew = () => {
     <div className="min-h-screen bg-gray-50">
       <UserHeader />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {getGreeting()}, {getUserName()}! 👋
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Here's your work overview for today
-          </p>
-        </div>
+      <div className="flex">
+        {/* Sidebar */}
+        <Sidebar profile={profile} theme={theme} />
+        
+        {/* Main Content */}
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6">
+          {/* Header Section with Personality Ratings */}
+          <div className="mb-8">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {getGreeting()}, {getUserName()}! 👋
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Here's your work overview for today
+                </p>
+              </div>
+              {/* Personality Ratings */}
+              <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                <div className="text-sm font-medium text-gray-700 mb-2">Personality Traits</div>
+                <div className="space-y-2">
+                  <RatingBadge label="Teamwork" value={4.7} />
+                  <RatingBadge label="Reliability" value={4.8} />
+                  <RatingBadge label="Communication" value={4.6} />
+                  <RatingBadge label="Professionalism" value={4.9} />
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-600">Overall</span>
+                    <span className="text-lg font-bold text-gray-900">{stats.rating.toFixed(1)} ⭐</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
