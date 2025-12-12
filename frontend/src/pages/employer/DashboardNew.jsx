@@ -494,9 +494,9 @@ const WorkerCard = ({ worker, theme, onClick }) => {
 };
 
 // Schedule Tab Component - Embedded Calendar + Workplaces
-const ScheduleTab = ({ theme, navigate }) => {
+const ScheduleTab = ({ theme, navigate, initialShowWorkplaces = false }) => {
   const [workplaces, setWorkplaces] = useState([]);
-  const [showWorkplaces, setShowWorkplaces] = useState(false);
+  const [showWorkplaces, setShowWorkplaces] = useState(initialShowWorkplaces);
   
   const loadWorkplaces = async () => {
     try {
@@ -510,6 +510,13 @@ const ScheduleTab = ({ theme, navigate }) => {
   useEffect(() => {
     loadWorkplaces();
   }, []);
+  
+  // Update showWorkplaces when initialShowWorkplaces changes
+  useEffect(() => {
+    if (initialShowWorkplaces) {
+      setShowWorkplaces(true);
+    }
+  }, [initialShowWorkplaces]);
   
   return (
     <div className="-m-6">
