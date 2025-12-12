@@ -220,10 +220,20 @@ const RoleCandidates = () => {
     );
   }
 
+  const handleBack = () => {
+    // Go back to dashboard with workforce tab and show invitations
+    navigate('/employer/dashboard', { 
+      state: { 
+        activeTab: 'workforce',
+        showInvitations: true 
+      } 
+    });
+  };
+
   if (!role) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-        <UserHeader showBack={true} onBackClick={() => navigate('/employer/dashboard')} />
+        <UserHeader showBack={true} onBackClick={handleBack} />
         <div className="max-w-7xl mx-auto px-4 py-12 text-center">
           <p className="text-gray-600">Role not found</p>
         </div>
@@ -235,7 +245,7 @@ const RoleCandidates = () => {
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
       <UserHeader 
         showBack={true}
-        onBackClick={() => navigate('/employer/dashboard')}
+        onBackClick={handleBack}
         title="Role Candidates"
       />
 
