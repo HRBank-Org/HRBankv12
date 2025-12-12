@@ -75,7 +75,29 @@ const InvitationManager = () => {
 
   const handleCreateRole = async () => {
     try {
-      await api.post('/api/employer/workplace-roles/create', newRole);
+      // Validate required fields
+      if (!newRole.workplace_id) {
+        alert('Please select a workplace');
+        return;
+      }
+      if (!newRole.shift_start || !newRole.shift_end) {
+        alert('Please set shift start and end times');
+        return;
+      }
+      if (!newRole.days_of_week || newRole.days_of_week.length === 0) {
+        alert('Please select at least one day of the week');
+        return;
+      }
+      
+      // Create role with all scheduling fields
+      await api.post('/api/employer/workplace-roles/create', {
+        ...newRole,
+        shift_start_time: newRole.shift_start,
+        shift_end_time: newRole.shift_end,
+        positions_needed: newRole.positions_available,
+        is_recurring: true
+      });
+      
       setShowRoleModal(false);
       setNewRole({
         role_name: '',
@@ -84,7 +106,11 @@ const InvitationManager = () => {
         additional_certifications: [],
         hourly_rate: '',
         description: '',
-        positions_available: 1
+        positions_available: 1,
+        workplace_id: '',
+        shift_start: '',
+        shift_end: '',
+        days_of_week: []
       });
       loadData();
       alert('Role created successfully!');
