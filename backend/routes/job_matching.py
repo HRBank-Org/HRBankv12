@@ -266,8 +266,9 @@ async def run_matching_algorithm(db, job: JobPosting):
             continue
         
         # Get worker's occupations
+        worker_id = worker.get('user_id') or worker.get('workforce_id')
         worker_occupations = await db.occupation_profiles.find({
-            'user_id': worker['user_id'],
+            'user_id': worker_id,
             'active': True
         }).to_list(length=None)
         
