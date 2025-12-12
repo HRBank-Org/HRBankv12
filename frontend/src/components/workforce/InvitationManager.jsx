@@ -176,30 +176,22 @@ const InvitationManager = () => {
   // RoleCard component with candidate badges
   const RoleCard = ({ role, theme, onViewCandidates }) => {
     const [candidateCounts, setCandidateCounts] = useState({ internal: 0, external: 0 });
-    const [workplaceName, setWorkplaceName] = useState(role.workplace_name || 'Loading...');
     
     useEffect(() => {
-      // Fetch candidate counts and workplace name for this role
-      const fetchRoleData = async () => {
+      // Fetch candidate counts for this role
+      const fetchCandidateCounts = async () => {
         try {
-          // Fetch candidate counts
           const countsResponse = await api.get(`/api/employer/workplace-roles/${role.role_id}/candidate-count`);
           setCandidateCounts(countsResponse.data.data);
-          
-          // Fetch workplace name if not already present
-          if (!role.workplace_name && role.workplace_id) {
-            const workplaceResponse = await api.get(`/api/employer/workplaces/${role.workplace_id}`);
-            setWorkplaceName(workplaceResponse.data.data.workplace.workplace_name);
-          }
         } catch (error) {
-          console.error('Failed to fetch role data:', error);
+          console.error('Failed to fetch candidate counts:', error);
         }
       };
       
       if (role.status !== 'filled') {
-        fetchRoleData();
+        fetchCandidateCounts();
       }
-    }, [role.role_id, role.status, role.workplace_id, role.workplace_name]);
+    }, [role.role_id, role.status]);
     
     return (
       <div 
