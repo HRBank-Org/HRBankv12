@@ -33,6 +33,10 @@ const InvitationManager = () => {
     days_of_week: []
   });
   
+  // Edit role state
+  const [editingRole, setEditingRole] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  
   // Manual invitation state
   const [manualInvites, setManualInvites] = useState([{
     first_name: '',
