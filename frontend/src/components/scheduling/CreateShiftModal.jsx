@@ -35,19 +35,23 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
     }
   }, [workplaces]);
 
-  // Load occupation templates
+  // Load occupation templates and workplace roles
   useEffect(() => {
-    const loadTemplates = async () => {
+    const loadData = async () => {
       try {
-        const response = await api.get('/api/occupation-templates/list');
-        setOccupationTemplates(response.data.data.templates || []);
+        const [templatesRes, rolesRes] = await Promise.all([
+          api.get('/api/occupation-templates/list'),
+          api.get('/api/employer/workplace-roles/list')
+        ]);
+        setOccupationTemplates(templatesRes.data.data.templates || []);
+        setWorkplaceRoles(rolesRes.data.data.roles || []);
       } catch (err) {
-        console.error('Failed to load occupation templates:', err);
+        console.error('Failed to load data:', err);
       }
     };
     
     if (isOpen) {
-      loadTemplates();
+      loadData();
     }
   }, [isOpen]);
 
