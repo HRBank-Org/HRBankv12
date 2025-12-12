@@ -174,10 +174,10 @@ const WorkplaceSetup = () => {
                 required
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 focus:outline-none"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-opacity-50 focus:outline-none ${validationError ? 'border-red-300' : 'border-gray-300'}`}
                 placeholder="123 Main St, Windsor, ON"
               />
-              <p className="text-xs text-gray-500 mt-1">📍 We'll use Google Maps to verify this address</p>
+              <p className="text-xs text-gray-500 mt-1">📍 Full address including city and province (e.g., 123 Main St, Windsor, ON)</p>
             </div>
 
             <div>
@@ -191,10 +191,13 @@ const WorkplaceSetup = () => {
                 required
                 value={formData.postal_code}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50 focus:outline-none"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-opacity-50 focus:outline-none ${validationError ? 'border-red-300' : 'border-gray-300'}`}
                 placeholder="N9A 1A1"
                 maxLength={7}
               />
+              {validationError && (
+                <p className="text-xs text-red-600 mt-1">⚠️ {validationError}</p>
+              )}
             </div>
 
             <div>
