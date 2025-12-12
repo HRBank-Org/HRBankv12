@@ -456,94 +456,156 @@ const EarningsTab = ({ stats, theme }) => (
 );
 
 // Career Tab - Job Offers and Interview Calendar
-const CareerTab = ({ stats, theme, navigate }) => (
-  <div>
-    <h2 className="text-xl font-bold text-gray-900 mb-6">Career Opportunities</h2>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      {/* Job Offers */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl">
-            {stats.pendingOffers}
-          </div>
-          <div>
-            <div className="font-semibold text-gray-900 text-lg">Job Offers</div>
-            <div className="text-sm text-gray-600">Pending review</div>
-          </div>
-        </div>
+const CareerTab = ({ stats, theme, navigate }) => {
+  const [showMarketInsights, setShowMarketInsights] = useState(false);
+  
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Career Hub</h2>
         <button
-          onClick={() => navigate('/workforce/find-jobs')}
-          className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          onClick={() => setShowMarketInsights(!showMarketInsights)}
+          className="text-sm font-medium px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
-          View Job Offers
+          {showMarketInsights ? 'Hide' : 'Show'} Market Insights
         </button>
-      </div>
-
-      {/* Interviews */}
-      <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-xl">
-            0
-          </div>
-          <div>
-            <div className="font-semibold text-gray-900 text-lg">Interviews</div>
-            <div className="text-sm text-gray-600">Scheduled</div>
-          </div>
-        </div>
-        <button
-          onClick={() => navigate('/workforce/interviews')}
-          className="w-full py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
-        >
-          View Interview Calendar
-        </button>
-      </div>
-    </div>
-
-    {/* Active Jobs Section */}
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-gray-900">Active Positions</h3>
-        <span className="text-sm text-gray-600">{stats.activeJobs} active</span>
       </div>
       
-      {stats.activeJobs === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <FiBriefcase className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p>No active positions</p>
-          <p className="text-sm mt-2">Browse job offers to get started</p>
-        </div>
-      ) : (
-        <div className="text-center py-8">
-          <p className="text-gray-600">You have {stats.activeJobs} active position(s)</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Job Offers */}
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl">
+              {stats.pendingOffers}
+            </div>
+            <div>
+              <div className="font-bold text-gray-900 text-lg">Job Offers</div>
+              <div className="text-sm text-gray-600">Matched by system</div>
+            </div>
+          </div>
+          <p className="text-sm text-gray-700 mb-4">
+            Review offers matched to your skills and availability
+          </p>
           <button
-            onClick={() => navigate('/workforce/my-jobs')}
-            className="mt-4 px-6 py-2 rounded-lg text-white font-medium"
-            style={{ backgroundColor: theme.primaryColor }}
+            onClick={() => navigate('/workforce/job-offers')}
+            className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
           >
-            View My Jobs
+            View Job Offers
           </button>
         </div>
-      )}
-    </div>
 
-    {/* Quick Browse */}
-    <div className="mt-6 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="font-semibold text-gray-900 text-lg mb-1">Looking for more opportunities?</h3>
-          <p className="text-sm text-gray-600">Browse available jobs matching your skills and availability</p>
+        {/* Interviews */}
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-lg p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-14 h-14 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-xl">
+              0
+            </div>
+            <div>
+              <div className="font-bold text-gray-900 text-lg">Interviews</div>
+              <div className="text-sm text-gray-600">Upcoming schedule</div>
+            </div>
+          </div>
+          <p className="text-sm text-gray-700 mb-4">
+            Manage your interview calendar and preparations
+          </p>
+          <button
+            onClick={() => navigate('/workforce/interviews')}
+            className="w-full py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+          >
+            View Interview Calendar
+          </button>
         </div>
-        <button
-          onClick={() => navigate('/workforce/find-jobs')}
-          className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex-shrink-0"
-        >
-          Browse Jobs
-        </button>
+      </div>
+
+      {/* Market Insights (Optional - Collapsible) */}
+      {showMarketInsights && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <div className="flex items-start gap-3 mb-4">
+            <FiTrendingUp className="w-6 h-6 text-blue-600 mt-1" />
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Market Insights</h3>
+              <p className="text-sm text-gray-600">
+                See what types of jobs are available in your area (for awareness only)
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Sample market data */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="text-2xl font-bold text-gray-900 mb-1">42</div>
+              <div className="text-sm text-gray-600">Food Service Jobs</div>
+              <div className="text-xs text-gray-500 mt-2">In your city</div>
+            </div>
+            
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="text-2xl font-bold text-gray-900 mb-1">28</div>
+              <div className="text-sm text-gray-600">Security Jobs</div>
+              <div className="text-xs text-gray-500 mt-2">Within 25km</div>
+            </div>
+            
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="text-2xl font-bold text-gray-900 mb-1">15</div>
+              <div className="text-sm text-gray-600">Bartending Jobs</div>
+              <div className="text-xs text-gray-500 mt-2">In your city</div>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-900">
+              <strong>Note:</strong> These are general market statistics. You'll receive personalized job offers based on your profile, skills, and availability through our matching system.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Active Jobs Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-gray-900">My Active Positions</h3>
+          <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+            {stats.activeJobs} active
+          </span>
+        </div>
+        
+        {stats.activeJobs === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <FiBriefcase className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+            <p className="font-medium">No active positions</p>
+            <p className="text-sm mt-2">Accept job offers to start working</p>
+          </div>
+        ) : (
+          <div>
+            <p className="text-gray-600 mb-4">You have {stats.activeJobs} active position(s)</p>
+            <button
+              onClick={() => navigate('/workforce/my-jobs')}
+              className="px-6 py-2 rounded-lg text-white font-medium"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              View My Active Jobs
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Info Card */}
+      <div className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <FiAlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-blue-900">
+            <p className="font-semibold mb-1">How the matching system works:</p>
+            <ul className="list-disc list-inside space-y-1 text-sm">
+              <li>Our system automatically matches you with suitable job opportunities</li>
+              <li>You'll receive job offers based on your skills, certifications, and availability</li>
+              <li>Review and accept/decline offers in the Job Offers section</li>
+              <li>Accepted offers may lead to interview invitations</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Profile Tab with Occupational Profiles
 const ProfileTab = ({ profile, occupationProfiles, theme, navigate }) => (
