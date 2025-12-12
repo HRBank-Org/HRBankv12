@@ -459,6 +459,8 @@ async def send_invitation_notifications(invite_token: InviteToken, employer_name
     # Email
     try:
         from services.email_service import send_email
+        import logging
+        logger = logging.getLogger(__name__)
         
         email_body = f"""
         <h2>You're Invited to Join {employer_name}!</h2>
@@ -472,13 +474,17 @@ async def send_invitation_notifications(invite_token: InviteToken, employer_name
         <p>If you have any questions, please contact {employer_name}.</p>
         """
         
+        logger.info(f"Sending invitation email to {invite_token.email}")
         send_email(
             to=invite_token.email,
             subject=f"Invitation to Join {employer_name}",
             html_content=email_body
         )
+        logger.info(f"Invitation email sent successfully to {invite_token.email}")
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send invitation email to {invite_token.email}: {e}", exc_info=True)
     
     # SMS
     if invite_token.phone:
