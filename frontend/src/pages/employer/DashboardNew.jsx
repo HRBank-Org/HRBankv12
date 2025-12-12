@@ -205,7 +205,7 @@ const EmployerDashboardNew = () => {
 
           {/* Tab Content */}
           <div className="p-6">
-            {activeTab === 'schedule' && <ScheduleTab theme={theme} navigate={navigate} />}
+            {activeTab === 'schedule' && <ScheduleTab theme={theme} navigate={navigate} initialShowWorkplaces={showWorkplacesFromState} />}
             {activeTab === 'kpis' && <KPIsTab theme={theme} navigate={navigate} pendingRatings={pendingRatings} onRatingSuccess={loadDashboardData} />}
             {activeTab === 'finances' && <FinancesTab theme={theme} navigate={navigate} />}
             {activeTab === 'workforce' && <WorkforceTab workforce={workforce} workplaces={workplaces} theme={theme} navigate={navigate} initialShowInvitations={showInvitations} />}
