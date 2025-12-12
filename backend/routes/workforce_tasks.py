@@ -65,7 +65,7 @@ async def get_task_completions(
     date: str,
     current_user: dict = Depends(require_role("workforce"))
 ):
-    """Get all task completions for the worker on a specific date"""
+    """Get all task completions for the worker's shifts on a specific date"""
     db = await get_database()
     
     try:
@@ -75,14 +75,24 @@ async def get_task_completions(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     
-    # Get all task completions for this worker on this date
-    completions = await db.task_completions.find({
-        "worker_id": current_user["user_id"],
-        "completed_at": {
+    # First, find all shifts for this worker on this date
+    shifts = await db.calendar_shifts.find({
+        "assigned_workers.worker_id": current_user["user_id"],
+        "start_time": {
             "$gte": start_of_day.isoformat(),
             "$lte": end_of_day.isoformat()
         }
-    }, {"_id": 0}).to_list(1000)
+    }, {"_id": 0, "shift_id": 1}).to_list(100)
+    
+    shift_ids = [shift["shift_id"] for shift in shifts]
+    
+    # Get all task completions for these shifts
+    completions = []
+    if shift_ids:
+        completions = await db.task_completions.find({
+            "worker_id": current_user["user_id"],
+            "shift_id": {"$in": shift_ids}
+        }, {"_id": 0}).to_list(1000)
     
     return {
         "success": True,
