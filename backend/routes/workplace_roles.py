@@ -271,7 +271,7 @@ async def update_workplace_role(
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Update a workplace role"""
+    """Update a workplace role with compliance validation"""
     
     # Verify role belongs to employer
     role = await db.workplace_roles.find_one({
@@ -284,6 +284,33 @@ async def update_workplace_role(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Role not found"
         )
+    
+    # If updating schedule, validate weekly hours
+    if any([
+        hasattr(update_data, 'shift_start_time') and update_data.shift_start_time,
+        hasattr(update_data, 'shift_end_time') and update_data.shift_end_time,
+        hasattr(update_data, 'days_of_week') and update_data.days_of_week
+    ]):
+        from utils.compliance_validator import validate_role_weekly_hours
+        
+        # Merge current role data with updates
+        validation_data = {
+            "shift_start_time": getattr(update_data, 'shift_start_time', None) or role.get("shift_start_time", "09:00"),
+            "shift_end_time": getattr(update_data, 'shift_end_time', None) or role.get("shift_end_time", "17:00"),
+            "days_of_week": getattr(update_data, 'days_of_week', None) or role.get("days_of_week", [])
+        }
+        
+        compliance_check = await validate_role_weekly_hours(db, validation_data)
+        
+        if not compliance_check["compliant"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "Updated role schedule exceeds maximum 44 hours per week",
+                    "weekly_hours": compliance_check["weekly_hours"],
+                    "max_hours": compliance_check["max_hours"]
+                }
+            )
     
     # Build update dict
     update_dict = {"updated_date": datetime.utcnow()}
