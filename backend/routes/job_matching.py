@@ -279,7 +279,7 @@ async def run_matching_algorithm(db, job: JobPosting):
         if match_data['match_score'] >= 50:
             job_match = JobMatch(
                 job_id=job.job_id,
-                workforce_id=worker['user_id'],
+                workforce_id=worker_id,
                 distance_km=distance_km,
                 **match_data
             )
