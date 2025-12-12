@@ -257,7 +257,10 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate, initialShowInvit
         <h2 className="text-xl font-bold text-gray-900">Workforce Inventory</h2>
         <div className="flex gap-3">
           <button
-            onClick={() => navigate('/employer/workplaces')}
+            onClick={() => {
+              // Navigate to Schedule tab and show workplaces view
+              navigate('/employer/dashboard', { state: { activeTab: 'schedule', showWorkplaces: true } });
+            }}
             className="px-4 py-2 rounded-lg border-2 font-medium hover:opacity-90 transition-all"
             style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
           >
