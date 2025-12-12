@@ -456,7 +456,7 @@ async def send_job_offer(
 
 @router.get("/matched")
 async def get_matched_jobs(
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Get jobs matched to workforce member"""
     db = await get_database()
@@ -491,7 +491,7 @@ async def get_matched_jobs(
 
 @router.get("/offers")
 async def get_job_offers(
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Get job offers sent to workforce"""
     db = await get_database()
@@ -514,7 +514,7 @@ async def get_job_offers(
 
 @router.get("/interviews")
 async def get_interviews(
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Get interview invitations"""
     db = await get_database()
@@ -533,7 +533,7 @@ async def get_interviews(
 async def apply_to_job(
     job_id: str,
     application_data: Optional[JobApplicationCreate] = None,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Apply to a matched job"""
     db = await get_database()
@@ -594,7 +594,7 @@ async def apply_to_job(
 @router.post("/offers/{offer_id}/accept")
 async def accept_job_offer(
     offer_id: str,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Accept a job offer"""
     db = await get_database()
@@ -629,7 +629,7 @@ async def accept_job_offer(
 async def reject_job_offer(
     offer_id: str,
     message: Optional[str] = None,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Reject a job offer"""
     db = await get_database()
@@ -662,7 +662,7 @@ async def reject_job_offer(
 @router.post("/employment/quit")
 async def quit_current_job(
     reason: Optional[str] = None,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Quit current job and return to available workforce pool"""
     db = await get_database()
@@ -814,7 +814,7 @@ async def quit_current_job(
 
 @router.get("/employment/status")
 async def get_employment_status(
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role('workforce'))
 ):
     """Get current employment status"""
     db = await get_database()
