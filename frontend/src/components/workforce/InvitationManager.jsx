@@ -122,6 +122,45 @@ const InvitationManager = () => {
       alert('Failed to create role: ' + (error.response?.data?.detail || error.message));
     }
   };
+  
+  const handleEditRole = async () => {
+    try {
+      await api.patch(`/api/employer/workplace-roles/${editingRole.role_id}`, {
+        positions_needed: editingRole.positions_needed,
+        shift_start_time: editingRole.shift_start_time,
+        shift_end_time: editingRole.shift_end_time,
+        days_of_week: editingRole.days_of_week,
+        pay_rate: editingRole.pay_rate,
+        description: editingRole.description
+      });
+      
+      setShowEditModal(false);
+      setEditingRole(null);
+      loadData();
+      alert('Role updated successfully!');
+    } catch (error) {
+      alert('Failed to update role: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+  
+  const handleDeleteRole = async (roleId, positionsFilled) => {
+    if (positionsFilled > 0) {
+      alert('Cannot delete role with assigned workers. Please remove workers first.');
+      return;
+    }
+    
+    if (!window.confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await api.delete(`/api/employer/workplace-roles/${roleId}`);
+      loadData();
+      alert('Role deleted successfully!');
+    } catch (error) {
+      alert('Failed to delete role: ' + (error.response?.data?.detail || error.message));
+    }
+  };
 
   const handleSendManualInvites = async () => {
     try {
