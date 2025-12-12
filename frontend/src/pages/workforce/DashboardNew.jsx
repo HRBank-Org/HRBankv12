@@ -455,54 +455,90 @@ const EarningsTab = ({ stats, theme }) => (
   </div>
 );
 
-// Jobs Tab
-const JobsTab = ({ stats, theme, navigate }) => (
+// Career Tab - Job Offers and Interview Calendar
+const CareerTab = ({ stats, theme, navigate }) => (
   <div>
-    <div className="flex items-center justify-between mb-6">
-      <h2 className="text-xl font-bold text-gray-900">Job Opportunities</h2>
-      <button
-        onClick={() => navigate('/workforce/find-jobs')}
-        className="px-4 py-2 rounded-lg text-white font-medium"
-        style={{ backgroundColor: theme.primaryColor }}
-      >
-        Browse All Jobs
-      </button>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+    <h2 className="text-xl font-bold text-gray-900 mb-6">Career Opportunities</h2>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      {/* Job Offers */}
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl">
             {stats.pendingOffers}
           </div>
           <div>
-            <div className="font-semibold text-gray-900">New Job Offers</div>
-            <div className="text-sm text-gray-600">Review and respond</div>
+            <div className="font-semibold text-gray-900 text-lg">Job Offers</div>
+            <div className="text-sm text-gray-600">Pending review</div>
           </div>
         </div>
         <button
           onClick={() => navigate('/workforce/find-jobs')}
-          className="w-full py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+          className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
         >
-          View Offers
+          View Job Offers
         </button>
       </div>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+      {/* Interviews */}
+      <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
-            {stats.activeJobs}
+          <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-xl">
+            0
           </div>
           <div>
-            <div className="font-semibold text-gray-900">Active Jobs</div>
-            <div className="text-sm text-gray-600">Current positions</div>
+            <div className="font-semibold text-gray-900 text-lg">Interviews</div>
+            <div className="text-sm text-gray-600">Scheduled</div>
           </div>
         </div>
         <button
-          onClick={() => navigate('/workforce/my-jobs')}
-          className="w-full py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700"
+          onClick={() => navigate('/workforce/interviews')}
+          className="w-full py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
         >
-          View Active Jobs
+          View Interview Calendar
+        </button>
+      </div>
+    </div>
+
+    {/* Active Jobs Section */}
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-gray-900">Active Positions</h3>
+        <span className="text-sm text-gray-600">{stats.activeJobs} active</span>
+      </div>
+      
+      {stats.activeJobs === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <FiBriefcase className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <p>No active positions</p>
+          <p className="text-sm mt-2">Browse job offers to get started</p>
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-gray-600">You have {stats.activeJobs} active position(s)</p>
+          <button
+            onClick={() => navigate('/workforce/my-jobs')}
+            className="mt-4 px-6 py-2 rounded-lg text-white font-medium"
+            style={{ backgroundColor: theme.primaryColor }}
+          >
+            View My Jobs
+          </button>
+        </div>
+      )}
+    </div>
+
+    {/* Quick Browse */}
+    <div className="mt-6 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-gray-900 text-lg mb-1">Looking for more opportunities?</h3>
+          <p className="text-sm text-gray-600">Browse available jobs matching your skills and availability</p>
+        </div>
+        <button
+          onClick={() => navigate('/workforce/find-jobs')}
+          className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex-shrink-0"
+        >
+          Browse Jobs
         </button>
       </div>
     </div>
