@@ -438,15 +438,18 @@ frontend:
 
   - task: "Workforce Profile - Show Required vs Optional Certifications"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/pages/workforce/OccupationDetail.jsx, /app/frontend/src/pages/workforce/OccupationProfiles.jsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Added required certifications display to both occupation detail page and occupation profiles list. Detail page shows blue info box with list of required certifications, marking each as verified (green check) or missing (warning icon). List page shows yellow alert badge for profiles missing required certifications with count. Both pages fetch occupation requirements on load and cross-reference with worker's verified credentials."
+        -working: false
+        -agent: "testing"
+        -comment: "CRITICAL ISSUE: Cannot test workforce profile certification features due to authentication problems. The login system is not functioning properly - attempts to login with provided credentials fail to redirect to the appropriate dashboard. This prevents testing of the occupation-certification integration in workforce profiles, including the required vs optional certification display, visual indicators for missing certifications, and the cross-referencing functionality. The code implementation appears correct based on review, but functional testing cannot be completed without working authentication. RECOMMENDATION: Main agent should fix login authentication flow before workforce profile features can be properly tested."
 
   - task: "New Dashboard Phase 1 - Tabbed Interface with Workforce Tab"
     implemented: true
