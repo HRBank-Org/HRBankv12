@@ -12,6 +12,7 @@ const RoleCandidates = () => {
   
   const [role, setRole] = useState(null);
   const [activeTab, setActiveTab] = useState('internal'); // internal, external, interviews
+  const [viewMode, setViewMode] = useState('cards'); // cards or list
   const [internalCandidates, setInternalCandidates] = useState([]);
   const [externalCandidates, setExternalCandidates] = useState([]);
   const [interviews, setInterviews] = useState([]);
