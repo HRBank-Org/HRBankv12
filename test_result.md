@@ -105,6 +105,21 @@
 user_problem_statement: "Complete HR Bank workforce management platform implementation including: 1) Emma AI Assistant for onboarding with resume parsing, 2) Job matching system with priority-based algorithm (Distance 35%, Availability 35%, Certs 20%, Skills 10%), 3) Employer job posting and candidate selection, 4) Workforce job browsing and offer management, 5) Quit job functionality returning workers to available pool, 6) Dashboard reorganization for both workforce and employer, 7) Subdomain routing for admin.hrbank.ca, employer.hrbank.ca, workforce.hrbank.ca, institution.hrbank.ca. 8) MOBILE APP FEATURES: Attendance system with QR code scanning, geofencing validation, clock-in/clock-out functionality, and video interview integration with Jitsi Meet. 9) NEW TASK: Integrate occupation-to-certification linking system into job posting UI, workforce profile UI, and matching engine. Employer should see auto-suggested certifications (removable), workforce should see required vs optional certs, matching engine should prioritize occupation-linked certs over employer-added certs."
 
 backend:
+  - task: "Address Validation API - Workplace Setup Integration"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/validation.py, /app/backend/utils/address_validation.py, /app/frontend/src/pages/employer/WorkplaceSetup.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Fixed address validation bug on /employer/workplaces/setup page. Added Canadian address validation using /api/validation/validate-address endpoint. Frontend validates addresses before submitting workplace creation. Validates postal codes, provinces, and complete address format."
+        -working: true
+        -agent: "testing"
+        -comment: "ADDRESS VALIDATION FEATURE TESTING COMPLETED SUCCESSFULLY (5/5 tests passed). ✅ Backend API Testing: POST /api/validation/validate-address working perfectly - Valid address (123 Main St, Windsor, ON N9A 1A1) returns {valid: true, formatted: {...}}, Invalid postal code (INVALID123) properly rejected with error message, Invalid province (ZZ) properly rejected with list of valid provinces. ✅ Postal Code Format Handling: Supports multiple formats (N9A1A1, N9A 1A1, n9a 1a1, N9A  1A1) all normalize to 'N9A 1A1'. ✅ Province Validation: Accepts both codes (ON, BC) and full names (Ontario, Alberta) and normalizes to 2-letter codes. ✅ Frontend Integration: Employer login successful (employer@hrbank.ca), workplace creation with validated address working correctly, returns workplace_id on successful creation. ✅ Complete Workflow: Address validation → Frontend form validation → Backend workplace creation all working seamlessly. Address validation feature is production-ready and meets all requirements from review request."
+
   - task: "Occupation-Certification Linking - New API Endpoint"
     implemented: true
     working: true
