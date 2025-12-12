@@ -214,11 +214,18 @@ const EmployerDashboardNew = () => {
 };
 
 // Workforce Tab Component
-const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
+const WorkforceTab = ({ workforce, workplaces, theme, navigate, initialShowInvitations = false }) => {
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   const [showWorkerModal, setShowWorkerModal] = useState(false);
-  const [showInvitations, setShowInvitations] = useState(false);
+  const [showInvitations, setShowInvitations] = useState(initialShowInvitations);
   const [selectedWorkplace, setSelectedWorkplace] = useState('all');
+  
+  // Update when initialShowInvitations changes
+  useEffect(() => {
+    if (initialShowInvitations) {
+      setShowInvitations(true);
+    }
+  }, [initialShowInvitations]);
 
   const handleWorkerClick = (workerId) => {
     setSelectedWorkerId(workerId);
