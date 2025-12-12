@@ -536,3 +536,225 @@ async def get_occupation_templates(
             }
         }
     }
+
+
+@router.get("/{role_id}/candidate-count", response_model=Dict)
+async def get_role_candidate_count(
+    role_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get count of internal and external candidates for a role"""
+    
+    # Get role details
+    role = await db.workplace_roles.find_one(
+        {"role_id": role_id, "employer_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Count internal candidates (from employer's workforce)
+    internal_count = await db.workforce_profiles.count_documents({
+        "employer_id": current_user["user_id"],
+        "occupation_titles": {"$regex": role["occupation_template"], "$options": "i"},
+        "status": "active"
+    })
+    
+    # Count external candidates from matching engine
+    # Get workplace coordinates for distance calculation
+    workplace = await db.workplaces.find_one(
+        {"workplace_id": role.get("workplace_id")},
+        {"_id": 0, "coordinates": 1, "workplace_address": 1}
+    )
+    
+    external_count = 0
+    if workplace and workplace.get("coordinates"):
+        # Count external workforce with matching occupation
+        external_count = await db.workforce_profiles.count_documents({
+            "employer_id": {"$ne": current_user["user_id"]},
+            "occupation_titles": {"$regex": role["occupation_template"], "$options": "i"},
+            "status": "active",
+            "coordinates": {"$exists": True}
+        })
+    
+    return {
+        "success": True,
+        "data": {
+            "internal": internal_count,
+            "external": external_count
+        }
+    }
+
+
+@router.get("/{role_id}/internal-candidates", response_model=Dict)
+async def get_internal_candidates(
+    role_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get internal candidates (from employer's own workforce) for a role"""
+    
+    role = await db.workplace_roles.find_one(
+        {"role_id": role_id, "employer_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Find workers from employer's workforce that match the occupation
+    candidates = await db.workforce_profiles.find(
+        {
+            "employer_id": current_user["user_id"],
+            "occupation_titles": {"$regex": role["occupation_template"], "$options": "i"},
+            "status": "active"
+        },
+        {"_id": 0}
+    ).to_list(100)
+    
+    return {
+        "success": True,
+        "data": {
+            "candidates": candidates,
+            "count": len(candidates)
+        }
+    }
+
+
+@router.get("/{role_id}/external-candidates", response_model=Dict)
+async def get_external_candidates(
+    role_id: str,
+    min_score: int = 50,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get external candidates (from platform) using matching engine"""
+    
+    role = await db.workplace_roles.find_one(
+        {"role_id": role_id, "employer_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Get workplace details for matching
+    workplace = await db.workplaces.find_one(
+        {"workplace_id": role.get("workplace_id")},
+        {"_id": 0}
+    )
+    
+    if not workplace or not workplace.get("coordinates"):
+        return {
+            "success": True,
+            "data": {
+                "candidates": [],
+                "message": "Workplace coordinates not available for proximity matching"
+            }
+        }
+    
+    # Use job matching logic
+    from utils.matching_engine import calculate_match_score
+    
+    # Find external workforce with matching occupation
+    external_workforce = await db.workforce_profiles.find(
+        {
+            "employer_id": {"$ne": current_user["user_id"]},
+            "occupation_titles": {"$regex": role["occupation_template"], "$options": "i"},
+            "status": "active",
+            "coordinates": {"$exists": True}
+        },
+        {"_id": 0}
+    ).to_list(100)
+    
+    # Calculate match scores
+    candidates_with_scores = []
+    for worker in external_workforce:
+        match_data = calculate_match_score(
+            worker,
+            {
+                "required_skills": role.get("required_skills", []),
+                "required_certifications": role.get("required_certifications", []),
+                "workplace_coordinates": workplace["coordinates"]
+            }
+        )
+        
+        if match_data["match_score"] >= min_score:
+            candidates_with_scores.append({
+                **worker,
+                **match_data
+            })
+    
+    # Sort by match score
+    candidates_with_scores.sort(key=lambda x: x["match_score"], reverse=True)
+    
+    return {
+        "success": True,
+        "data": {
+            "candidates": candidates_with_scores,
+            "count": len(candidates_with_scores)
+        }
+    }
+
+
+@router.post("/{role_id}/assign", response_model=Dict)
+async def assign_worker_to_role(
+    role_id: str,
+    assignment_data: dict,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Assign a worker to a role (hire them)"""
+    
+    role = await db.workplace_roles.find_one(
+        {"role_id": role_id, "employer_id": current_user["user_id"]}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    workforce_id = assignment_data.get("workforce_id")
+    source = assignment_data.get("source", "internal")  # internal or external
+    
+    # Update role
+    positions_filled = role.get("positions_filled", 0) + 1
+    status = "filled" if positions_filled >= role.get("positions_available", 1) else "partially_filled"
+    
+    await db.workplace_roles.update_one(
+        {"role_id": role_id},
+        {
+            "$set": {
+                "positions_filled": positions_filled,
+                "status": status,
+                "updated_at": datetime.utcnow()
+            },
+            "$push": {
+                "assigned_workers": {
+                    "workforce_id": workforce_id,
+                    "assigned_at": datetime.utcnow(),
+                    "source": source
+                }
+            }
+        }
+    )
+    
+    # If external hire, update workforce profile
+    if source == "external":
+        await db.workforce_profiles.update_one(
+            {"workforce_id": workforce_id},
+            {
+                "$set": {
+                    "employer_id": current_user["user_id"],
+                    "status": "active",
+                    "hired_at": datetime.utcnow()
+                }
+            }
+        )
+    
+    return {
+        "success": True,
+        "message": f"Worker assigned to {role['role_name']} successfully"
+    }
+
