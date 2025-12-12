@@ -274,7 +274,7 @@ const InvitationManager = () => {
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-blue-500 h-2 rounded-full transition-all"
-                  style={{ width: `${((role.positions_filled || 0) / (role.positions_available || 1)) * 100}%` }}
+                  style={{ width: `${((role.positions_filled || 0) / (role.positions_needed || 1)) * 100}%` }}
                 ></div>
               </div>
               <span className="text-sm font-medium text-gray-900">
