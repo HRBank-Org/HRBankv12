@@ -6,6 +6,7 @@ import api from '../../utils/api';
 const InvitationManager = () => {
   const theme = useTheme();
   const [activeView, setActiveView] = useState('roles'); // roles, invite, invitations
+  const [roleViewMode, setRoleViewMode] = useState('cards'); // cards or list
   const [roles, setRoles] = useState([]);
   const [occupationTemplates, setOccupationTemplates] = useState([]);
   const [invitations, setInvitations] = useState([]);
