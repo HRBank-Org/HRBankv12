@@ -263,47 +263,6 @@ const WorkforceTab = ({ workforce, workplaces, theme, navigate }) => {
         </div>
       </div>
 
-      {/* Workplace Distribution */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribution by Workplace</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {workplaces.map(workplace => {
-            const workersAtLocation = workforce.filter(w => w.workplace_id === workplace.workplace_id);
-            
-            return (
-              <div key={workplace.workplace_id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900">{workplace.workplace_name}</h4>
-                  <span className="text-sm text-gray-500">{workersAtLocation.length} workers</span>
-                </div>
-                
-                {/* Worker Icons */}
-                <div className="flex flex-wrap gap-1">
-                  {workersAtLocation.slice(0, 12).map((worker, idx) => (
-                    <div
-                      key={idx}
-                      className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm cursor-pointer hover:scale-110 transition-transform"
-                      title={`${worker.name} - ${worker.occupation}`}
-                    >
-                      {worker.photo_url ? (
-                        <img src={worker.photo_url} alt={worker.name} className="w-full h-full rounded-full object-cover" />
-                      ) : (
-                        worker.name?.charAt(0) || '?'
-                      )}
-                    </div>
-                  ))}
-                  {workersAtLocation.length > 12 && (
-                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-semibold">
-                      +{workersAtLocation.length - 12}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Worker Cards Grid */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
