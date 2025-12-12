@@ -465,13 +465,13 @@ async def google_callback(
         refresh_token = create_refresh_token(token_data)
         
         # Redirect to frontend with tokens in URL
-        frontend_url = os.environ.get('FRONTEND_URL', 'https://tasktracker-340.preview.emergentagent.com')
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://workmatched.preview.emergentagent.com')
         callback_url = f"{frontend_url}/auth/google/callback?access_token={access_token}&refresh_token={refresh_token}&user_type={user_type}"
         
         return RedirectResponse(url=callback_url)
         
     except Exception as e:
         # Redirect to login with error
-        frontend_url = os.environ.get('FRONTEND_URL', 'https://tasktracker-340.preview.emergentagent.com')
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://workmatched.preview.emergentagent.com')
         error_url = f"{frontend_url}/login?error=google_auth_failed"
         return RedirectResponse(url=error_url)
