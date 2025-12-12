@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
-import { FiUsers, FiMapPin, FiStar, FiCheckCircle, FiXCircle, FiCalendar, FiArrowLeft } from 'react-icons/fi';
+import { FiUsers, FiMapPin, FiStar, FiCheckCircle, FiXCircle, FiCalendar, FiArrowLeft, FiClock } from 'react-icons/fi';
 import UserHeader from '../../components/common/UserHeader';
 
 const RoleCandidates = () => {
@@ -11,8 +11,8 @@ const RoleCandidates = () => {
   const theme = useTheme();
   
   const [role, setRole] = useState(null);
-  const [activeTab, setActiveTab] = useState('internal'); // internal, external, interviews
-  const [viewMode, setViewMode] = useState('cards'); // cards or list
+  const [activeTab, setActiveTab] = useState('internal');
+  const [viewMode, setViewMode] = useState('cards');
   const [internalCandidates, setInternalCandidates] = useState([]);
   const [externalCandidates, setExternalCandidates] = useState([]);
   const [interviews, setInterviews] = useState([]);
@@ -27,20 +27,16 @@ const RoleCandidates = () => {
     try {
       setLoading(true);
       
-      // Load role details
       const roleRes = await api.get(`/api/employer/workplace-roles/${roleId}`);
       const roleData = roleRes.data.data.role || roleRes.data.data;
       setRole(roleData);
       
-      // Load internal candidates (from own workforce)
       const internalRes = await api.get(`/api/employer/workplace-roles/${roleId}/internal-candidates`);
       setInternalCandidates(internalRes.data.data.candidates || []);
       
-      // Load external candidates (from matching engine)
       const externalRes = await api.get(`/api/employer/workplace-roles/${roleId}/external-candidates?min_score=50`);
       setExternalCandidates(externalRes.data.data.candidates || []);
       
-      // Load scheduled interviews
       const interviewsRes = await api.get(`/api/employer/interviews/list?role_id=${roleId}`);
       setInterviews(interviewsRes.data.data.interviews || []);
       
@@ -63,7 +59,7 @@ const RoleCandidates = () => {
       });
       
       alert('Interview invitation sent successfully!');
-      loadRoleData(); // Refresh to show updated interview list
+      loadRoleData();
     } catch (error) {
       console.error('Failed to send invitation:', error);
       alert('Failed to send interview invitation. Please try again.');
@@ -96,117 +92,68 @@ const RoleCandidates = () => {
     <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-4">
-          {/* Profile Photo */}
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
             {candidate.profile_photo_url ? (
-              <img src={candidate.profile_photo_url} alt={candidate.full_name} className="w-full h-full object-cover" />
+              <img src={candidate.profile_photo_url} alt={candidate.name} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-2xl font-bold text-gray-500">
-                {candidate.full_name?.charAt(0) || candidate.name?.charAt(0) || 'W'}
-              </span>
+              <FiUsers size={24} className="text-gray-500" />
             )}
           </div>
-
-          {/* Candidate Info */}
           <div>
-            <h3 className="text-lg font-bold text-gray-900">{candidate.full_name || candidate.name}</h3>
-            <p className="text-sm text-gray-600 mb-2">
-              {candidate.occupation_title || candidate.occupation || 'Workforce Member'}
-            </p>
-            {candidate.behavior_rating > 0 && (
-              <div className="flex items-center gap-1">
-                <FiStar className="w-4 h-4 text-yellow-500 fill-current" />
-                <span className="text-sm font-medium text-gray-700">
-                  {candidate.behavior_rating.toFixed(1)}
-                </span>
-                <span className="text-xs text-gray-500">
-                  ({candidate.rating_count || 0} reviews)
-                </span>
+            <h3 className="text-lg font-semibold text-gray-900">{candidate.name || candidate.full_name}</h3>
+            <p className="text-sm text-gray-600">{candidate.occupation_title || candidate.primary_occupation}</p>
+            {candidate.location && (
+              <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                <FiMapPin size={12} />
+                <span>{candidate.location}</span>
               </div>
             )}
           </div>
         </div>
-
-        {/* Match Score (for external only) */}
-        {!isInternal && candidate.match_score && (
-          <div className={`px-4 py-2 rounded-lg border-2 ${getMatchScoreColor(candidate.match_score)}`}>
-            <div className="text-2xl font-bold text-center">{Math.round(candidate.match_score)}%</div>
-            <div className="text-xs text-center">Match</div>
-          </div>
-        )}
         
-        {/* Internal Badge */}
-        {isInternal && (
-          <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-            ✓ Your Team
+        {candidate.match_score && (
+          <div className={`px-3 py-1 rounded-lg border text-sm font-semibold ${getMatchScoreColor(candidate.match_score)}`}>
+            {candidate.match_score}% Match
           </div>
         )}
       </div>
-
-      {/* Match Details (external only) */}
-      {!isInternal && candidate.distance_km !== undefined && (
-        <div className="grid grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
-          <div>
-            <div className="text-xs text-gray-600 mb-1">Distance</div>
-            <div className="flex items-center gap-1">
-              <FiMapPin className="w-4 h-4 text-gray-400" />
-              <span className="text-sm font-medium">{candidate.distance_km.toFixed(1)} km</span>
-            </div>
+      
+      {candidate.rating && (
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center">
+            <FiStar className="text-yellow-400 fill-yellow-400" size={16} />
+            <span className="ml-1 text-sm font-semibold">{candidate.rating.toFixed(1)}</span>
           </div>
-          <div>
-            <div className="text-xs text-gray-600 mb-1">Availability</div>
-            <div className="text-sm font-medium">{Math.round(candidate.availability_score || 0)}%</div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-600 mb-1">Skills</div>
-            <div className="text-sm font-medium">
-              {candidate.skills_matched || 0}/{candidate.total_skills_required || 0}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-600 mb-1">Certs</div>
-            <div className="text-sm font-medium">
-              {candidate.certifications_matched || 0}/{candidate.total_certifications_required || 0}
-            </div>
-          </div>
+          <span className="text-xs text-gray-500">({candidate.rating_count || 0} reviews)</span>
         </div>
       )}
-
-      {/* Skills */}
+      
       {candidate.skills && candidate.skills.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-xs font-semibold text-gray-700 mb-2">Skills:</h4>
-          <div className="flex flex-wrap gap-1">
-            {candidate.skills.slice(0, 6).map((skill, idx) => (
+          <p className="text-xs text-gray-500 mb-2">Skills:</p>
+          <div className="flex flex-wrap gap-2">
+            {candidate.skills.slice(0, 5).map((skill, idx) => (
               <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">
                 {skill}
               </span>
             ))}
-            {candidate.skills.length > 6 && (
-              <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                +{candidate.skills.length - 6} more
-              </span>
-            )}
           </div>
         </div>
       )}
-
-      {/* Action Buttons */}
-      <div className="flex gap-3">
+      
+      <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200">
         <button
-          onClick={() => onInterview(candidate)}
-          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          onClick={() => onInterview(candidate, isInternal)}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
         >
-          <FiCalendar className="inline mr-1" />
-          Schedule Interview
+          📅 Interview
         </button>
         <button
-          onClick={() => onHire(candidate)}
-          className="flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
+          onClick={() => onHire(candidate, isInternal)}
+          className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-white hover:opacity-90"
           style={{ backgroundColor: theme.primaryColor }}
         >
-          <FiCheckCircle className="inline mr-1" />
-          Hire Now
+          ✓ Hire
         </button>
       </div>
     </div>
@@ -214,297 +161,215 @@ const RoleCandidates = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
+        <UserHeader />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+        </div>
       </div>
     );
   }
-
-  const handleBack = () => {
-    // Go back to dashboard with workforce tab and show invitations
-    navigate('/employer/dashboard', { 
-      state: { 
-        activeTab: 'workforce',
-        showInvitations: true 
-      } 
-    });
-  };
 
   if (!role) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-        <UserHeader showBack={true} onBackClick={handleBack} />
-        <div className="max-w-7xl mx-auto px-4 py-12 text-center">
-          <p className="text-gray-600">Role not found</p>
+        <UserHeader />
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <p className="text-center text-gray-600">Role not found</p>
         </div>
       </div>
     );
   }
 
+  // Calculate display status
+  const isFilled = (role.positions_filled || 0) >= (role.positions_needed || 1);
+  const displayStatus = isFilled ? 'filled' : 'open';
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        showBack={true}
-        onBackClick={handleBack}
-        title="Role Candidates"
-      />
+      <UserHeader />
+      
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/employer/dashboard', { state: { activeTab: 'workforce', showInvitations: true } })}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+        >
+          <FiArrowLeft />
+          <span>Back to Roles</span>
+        </button>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Role Header - Detailed View */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          {/* Title Section */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-start justify-between mb-4">
+        {/* Role Header Card - Redesigned */}
+        <div className="bg-white rounded-xl shadow-md mb-6 overflow-hidden">
+          {/* Top Section - Title & Status */}
+          <div className="p-8 border-b border-gray-200" style={{ background: `linear-gradient(135deg, ${theme.primaryColor}15 0%, ${theme.primaryColor}05 100%)` }}>
+            <div className="flex items-start justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{role.role_name}</h1>
-                <p className="text-lg text-gray-600">{role.occupation_template}</p>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">{role.role_name}</h1>
+                <p className="text-lg text-gray-600">{role.occupation_type || role.occupation_template}</p>
               </div>
-              <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                role.status === 'filled' ? 'bg-green-100 text-green-800' :
-                role.status === 'posted_to_match' ? 'bg-blue-100 text-blue-800' :
-                'bg-yellow-100 text-yellow-800'
+              <span className={`px-5 py-2.5 rounded-full text-sm font-bold shadow-sm ${
+                displayStatus === 'filled' ? 'bg-green-100 text-green-800 border-2 border-green-300' :
+                'bg-yellow-100 text-yellow-800 border-2 border-yellow-300'
               }`}>
-                {role.status === 'filled' ? '✓ Filled' : role.status === 'posted_to_match' ? '📢 Posted' : '⏳ Open'}
+                {displayStatus === 'filled' ? '✓ Fully Staffed' : '⏳ Open Positions'}
               </span>
             </div>
-          </div>
 
-          {/* Role Details Grid */}
-          <div className="p-6">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Role Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Pay Rate */}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-                  💰
+            {/* Key Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Workplace */}
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                    📍
+                  </div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Branch</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Pay Rate</p>
-                  <p className="text-xl font-bold text-gray-900">${role.hourly_rate}/hr</p>
-                  {role.fee_breakdown && (
-                    <p className="text-xs text-gray-600 mt-1">
-                      Employer pays: ${role.fee_breakdown.employer_pays}/hr
-                    </p>
-                  )}
-                </div>
+                <p className="text-lg font-bold text-gray-900">{role.workplace_name || 'Main Location'}</p>
               </div>
 
-              {/* Workplace */}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                  📍
+              {/* Pay Rate */}
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                    💰
+                  </div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Pay Rate</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Branch</p>
-                  <p className="text-lg font-semibold text-gray-900">{role.workplace_name || 'Main Location'}</p>
-                  {role.workplace_address && (
-                    <p className="text-xs text-gray-600 mt-1">{role.workplace_address}</p>
-                  )}
-                </div>
+                <p className="text-lg font-bold text-gray-900">${role.pay_rate || role.hourly_rate}/hr</p>
               </div>
 
               {/* Positions */}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
-                  👥
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Positions</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {role.positions_filled || 0}/{role.positions_available}
-                  </p>
-                  <div className="w-32 bg-gray-200 rounded-full h-2 mt-2">
-                    <div 
-                      className="bg-purple-500 h-2 rounded-full transition-all"
-                      style={{ width: `${((role.positions_filled || 0) / (role.positions_available || 1)) * 100}%` }}
-                    ></div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
+                    👥
                   </div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Positions</p>
+                </div>
+                <p className="text-lg font-bold text-gray-900">
+                  {role.positions_filled || 0}/{role.positions_needed || 0}
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-purple-500 h-2 rounded-full transition-all"
+                    style={{ width: `${((role.positions_filled || 0) / (role.positions_needed || 1)) * 100}%` }}
+                  ></div>
                 </div>
               </div>
-            </div>
 
-            {/* Required Skills & Certifications */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-gray-200">
-              {/* Required Skills */}
-              {role.required_skills && role.required_skills.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Required Skills</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {role.required_skills.map((skill, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm">
-                        {skill}
-                      </span>
-                    ))}
+              {/* Shift Schedule */}
+              {role.shift_start_time && role.shift_end_time && (
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                      🕐
+                    </div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Schedule</p>
                   </div>
-                </div>
-              )}
-
-              {/* Required Certifications */}
-              {role.required_certifications && role.required_certifications.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Required Certifications</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {role.required_certifications.map((cert, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-sm">
-                        {cert}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-sm font-bold text-gray-900">
+                    {role.shift_start_time} - {role.shift_end_time}
+                  </p>
+                  {role.days_of_week && role.days_of_week.length > 0 && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      {role.days_of_week.length === 7 ? 'Every day' : role.days_of_week.map(d => d.substring(0, 3)).join(', ')}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Description */}
-            {role.description && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">Role Description</h4>
-                <p className="text-gray-700 leading-relaxed">{role.description}</p>
+          {/* Description Section */}
+          {role.description && (
+            <div className="p-6 bg-gray-50">
+              <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-2">Role Description</h4>
+              <p className="text-gray-700">{role.description}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Tabs & Content */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200">
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab('internal')}
+                className={`flex-1 px-6 py-4 text-sm font-semibold transition-all ${
+                  activeTab === 'internal'
+                    ? 'border-b-2 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                style={{ borderColor: activeTab === 'internal' ? theme.primaryColor : 'transparent' }}
+              >
+                👥 Internal Candidates ({internalCandidates.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('external')}
+                className={`flex-1 px-6 py-4 text-sm font-semibold transition-all ${
+                  activeTab === 'external'
+                    ? 'border-b-2 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                style={{ borderColor: activeTab === 'external' ? theme.primaryColor : 'transparent' }}
+              >
+                🌐 External Candidates ({externalCandidates.length})
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-6">
+            {activeTab === 'internal' && (
+              <div>
+                {internalCandidates.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 mb-2">No internal candidates found</p>
+                    <p className="text-sm text-gray-400">Try viewing external candidates</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {internalCandidates.map(candidate => (
+                      <CandidateCard
+                        key={candidate.workforce_id || candidate.user_id}
+                        candidate={candidate}
+                        isInternal={true}
+                        onInterview={sendInterviewInvitation}
+                        onHire={assignToRole}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'external' && (
+              <div>
+                {externalCandidates.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 mb-2">No external candidates found</p>
+                    <p className="text-sm text-gray-400">The matching engine found no suitable candidates</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {externalCandidates.map(candidate => (
+                      <CandidateCard
+                        key={candidate.workforce_id || candidate.user_id}
+                        candidate={candidate}
+                        isInternal={false}
+                        onInterview={sendInterviewInvitation}
+                        onHire={assignToRole}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('internal')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'internal'
-                ? 'bg-white shadow-md text-gray-900'
-                : 'bg-white/50 text-gray-600 hover:bg-white/80'
-            }`}
-          >
-            👥 Your Team ({internalCandidates.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('external')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'external'
-                ? 'bg-white shadow-md text-gray-900'
-                : 'bg-white/50 text-gray-600 hover:bg-white/80'
-            }`}
-          >
-            🌐 External Candidates ({externalCandidates.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('interviews')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'interviews'
-                ? 'bg-white shadow-md text-gray-900'
-                : 'bg-white/50 text-gray-600 hover:bg-white/80'
-            }`}
-          >
-            📅 Interviews ({interviews.length})
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="space-y-4">
-          {activeTab === 'internal' && (
-            <>
-              {internalCandidates.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                  <FiUsers className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Internal Candidates</h3>
-                  <p className="text-gray-600 mb-4">None of your current workers match this role</p>
-                  <button
-                    onClick={() => setActiveTab('external')}
-                    className="px-6 py-3 rounded-lg text-white font-medium"
-                    style={{ backgroundColor: theme.primaryColor }}
-                  >
-                    View External Candidates
-                  </button>
-                </div>
-              ) : (
-                internalCandidates.map((candidate) => (
-                  <CandidateCard
-                    key={candidate.user_id || candidate.workforce_id}
-                    candidate={candidate}
-                    isInternal={true}
-                    onInterview={(c) => sendInterviewInvitation(c, true)}
-                    onHire={(c) => assignToRole(c, true)}
-                  />
-                ))
-              )}
-            </>
-          )}
-
-          {activeTab === 'external' && (
-            <>
-              {externalCandidates.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                  <FiUsers className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No External Candidates Found</h3>
-                  <p className="text-gray-600">Try adjusting role requirements or search radius</p>
-                </div>
-              ) : (
-                externalCandidates.map((candidate) => (
-                  <CandidateCard
-                    key={candidate.workforce_id}
-                    candidate={candidate}
-                    isInternal={false}
-                    onInterview={(c) => sendInterviewInvitation(c, false)}
-                    onHire={(c) => assignToRole(c, false)}
-                  />
-                ))
-              )}
-            </>
-          )}
-
-          {activeTab === 'interviews' && (
-            <>
-              {interviews.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                  <FiCalendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Scheduled Interviews</h3>
-                  <p className="text-gray-600">Schedule interviews from the candidates tabs</p>
-                </div>
-              ) : (
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Candidate</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {interviews.map((interview) => (
-                        <tr key={interview.interview_id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{interview.candidate_name}</div>
-                            <div className="text-sm text-gray-500">{interview.source === 'internal' ? '👥 Internal' : '🌐 External'}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            {new Date(interview.interview_date).toLocaleDateString()} at {new Date(interview.interview_date).toLocaleTimeString()}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{interview.interview_location}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded ${
-                              interview.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                              interview.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {interview.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <button className="text-blue-600 hover:text-blue-800 mr-3">Edit</button>
-                            <button className="text-red-600 hover:text-red-800">Cancel</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </main>
+      </div>
     </div>
   );
 };
