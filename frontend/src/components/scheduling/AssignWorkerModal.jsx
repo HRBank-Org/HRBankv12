@@ -47,6 +47,44 @@ const AssignWorkerModal = ({ isOpen, onClose, shift, onSuccess }) => {
     setError('');
 
     try {
+      // First, check weekly hours compliance
+      const complianceCheck = await api.post('/api/compliance/check-assignment-compliance', {
+        worker_id: worker.worker_id,
+        shift_id: shift.shift_id
+      });
+
+      const complianceData = complianceCheck.data.data;
+      
+      // If there are errors (compliance violations), show them and prevent assignment
+      const hasErrors = complianceData.warnings.some(w => w.level === 'error');
+      if (hasErrors) {
+        const errorMessages = complianceData.warnings
+          .filter(w => w.level === 'error')
+          .map(w => w.message)
+          .join('\n');
+        setError(errorMessages);
+        setSubmitting(false);
+        return;
+      }
+
+      // If there are warnings (overtime but not violation), confirm with user
+      const hasWarnings = complianceData.warnings.some(w => w.level === 'warning');
+      if (hasWarnings) {
+        const warningMessages = complianceData.warnings
+          .map(w => w.message)
+          .join('\n');
+        
+        const confirmed = window.confirm(
+          `⚠️ OVERTIME ALERT:\n\n${warningMessages}\n\nWorker will be in overtime. Continue with assignment?`
+        );
+        
+        if (!confirmed) {
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      // Proceed with assignment
       await api.post(`/api/calendar/shifts/${shift.shift_id}/assign`, {
         worker_id: worker.worker_id,
         worker_name: worker.worker_name,
