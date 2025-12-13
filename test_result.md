@@ -1377,7 +1377,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Workplace Detail Page UI - New Standardized Layout"
+    - "Generic Tasks Feature - Role Creation and Shift Inheritance"
+    - "Frontend Authentication Flow Issues"
   stuck_tasks:
     - "Workplace Detail Page UI - New Standardized Layout"
   test_all: false
