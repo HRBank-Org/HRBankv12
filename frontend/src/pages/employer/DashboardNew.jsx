@@ -17,7 +17,7 @@ const EmployerDashboardNew = () => {
   const location = useLocation();
   const theme = useTheme();
   
-  const [activeTab, setActiveTab] = useState('schedule'); // schedule (embedded calendar), kpis, finances, workforce
+  const [activeTab, setActiveTab] = useState('roles'); // roles, schedule, kpis, finances, workforce
   const [employerProfile, setEmployerProfile] = useState(null);
   const [weather, setWeather] = useState(null);
   const [workforce, setWorkforce] = useState([]);
@@ -124,6 +124,7 @@ const EmployerDashboardNew = () => {
   };
 
   const tabs = [
+    { id: 'roles', label: 'Roles & Hiring', icon: FiBriefcase, badge: null },
     { id: 'schedule', label: 'Schedule', icon: FiCalendar, badge: null },
     { id: 'workforce', label: 'Workforce', icon: FiUsers, badge: null },
     { id: 'finances', label: 'Finances', icon: FiDollarSign, badge: null },
@@ -206,6 +207,7 @@ const EmployerDashboardNew = () => {
 
           {/* Tab Content */}
           <div className="p-6">
+            {activeTab === 'roles' && <RolesTab theme={theme} navigate={navigate} />}
             {activeTab === 'schedule' && <ScheduleTab theme={theme} navigate={navigate} initialShowWorkplaces={showWorkplacesFromState} />}
             {activeTab === 'kpis' && <KPIsTab theme={theme} navigate={navigate} pendingRatings={pendingRatings} onRatingSuccess={loadDashboardData} />}
             {activeTab === 'finances' && <FinancesTab theme={theme} navigate={navigate} />}
