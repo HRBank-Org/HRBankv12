@@ -658,8 +658,6 @@ const RoleCard = ({ role, theme, navigate, onUpdate }) => {
   );
 };
 
-};
-
 // Workforce Tab Component
 const WorkforceTab = ({ workforce, workplaces, theme, navigate, initialShowInvitations = false }) => {
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
