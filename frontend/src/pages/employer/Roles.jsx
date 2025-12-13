@@ -53,7 +53,14 @@ const Roles = () => {
     const filled = role.positions_filled || 0;
     const needed = role.positions_available || 1;
     
-    if (filled >= needed) {
+    // Handle data inconsistency - overfilled roles
+    if (filled > needed) {
+      return (
+        <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium" title="More workers assigned than positions available">
+          Overfilled ({filled}/{needed}) ⚠️
+        </span>
+      );
+    } else if (filled >= needed) {
       return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">Filled</span>;
     } else if (filled > 0) {
       return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">Partial ({filled}/{needed})</span>;
