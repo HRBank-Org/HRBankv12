@@ -84,27 +84,18 @@ const LiveAttendance = () => {
   const groupedAttendance = groupByWorkplace();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <ModernSidebar />
+      
+      <div className="ml-[70px] transition-all duration-300">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="px-8 py-6 bg-white shadow-sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => window.history.back()}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Go back"
-              >
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Live Attendance Dashboard</h1>
-                <p className="text-gray-600 mt-1">
-                  {moment(selectedDate).format('dddd, MMMM DD, YYYY')} • Last updated: {moment().format('h:mm A')}
-                </p>
-              </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Live Attendance</h1>
+              <p className="text-gray-600 mt-1">
+                {moment(selectedDate).format('dddd, MMMM DD, YYYY')} • Last updated: {moment().format('h:mm A')}
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
