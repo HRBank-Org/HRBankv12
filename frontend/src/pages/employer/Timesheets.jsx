@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import RateWorkforce from '../../components/ratings/RateWorkforce';
+import ModernSidebar from '../../components/layout/ModernSidebar';
 
 const Timesheets = () => {
   const [timesheets, setTimesheets] = useState([]);
