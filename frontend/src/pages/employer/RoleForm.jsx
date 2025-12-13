@@ -23,6 +23,7 @@ const RoleForm = () => {
     occupation_template: '',
     required_skills: [],
     additional_certifications: [],
+    generic_tasks: [],
     hourly_rate: '',
     description: '',
     positions_available: 1
@@ -30,6 +31,7 @@ const RoleForm = () => {
 
   const [newSkill, setNewSkill] = useState('');
   const [newCert, setNewCert] = useState('');
+  const [newTask, setNewTask] = useState({ task_name: '', estimated_minutes: 15, is_mandatory: true });
 
   useEffect(() => {
     loadInitialData();
@@ -72,6 +74,7 @@ const RoleForm = () => {
           occupation_template: role.occupation_template || '',
           required_skills: role.required_skills || [],
           additional_certifications: role.required_certifications || [],
+          generic_tasks: role.generic_tasks || [],
           hourly_rate: role.hourly_rate || '',
           description: role.description || '',
           positions_available: role.positions_available || 1
