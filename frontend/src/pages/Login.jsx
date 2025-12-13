@@ -49,59 +49,36 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          user_type: activeTab
-        }),
+      // Use AuthContext login function
+      const response = await authLogin({
+        email: formData.email,
+        password: formData.password,
+        user_type: activeTab
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: 'Login Successful',
-          description: `Welcome back!`,
-        });
-        
-        // Store user data
-        localStorage.setItem('hrbank_user', JSON.stringify({
-          ...data.user,
-          userType: data.user.user_type,
-          isAuthenticated: true
-        }));
-        
-        // Navigate to role-specific dashboard
-        const userType = data.user.user_type;
-        if (userType === 'employer') {
-          navigate('/employer/home');
-        } else if (userType === 'workforce') {
-          navigate('/workforce/dashboard');
-        } else if (userType === 'institution') {
-          navigate('/institution/dashboard');
-        } else if (userType === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/');
-        }
+      toast({
+        title: 'Login Successful',
+        description: `Welcome back!`,
+      });
+      
+      // Navigate to role-specific dashboard based on user_type
+      const userType = response.user_type || activeTab;
+      if (userType === 'employer') {
+        navigate('/employer/home');
+      } else if (userType === 'workforce') {
+        navigate('/workforce/dashboard');
+      } else if (userType === 'institution') {
+        navigate('/institution/dashboard');
+      } else if (userType === 'admin') {
+        navigate('/admin/dashboard');
       } else {
-        toast({
-          title: 'Login Failed',
-          description: data.detail || 'Invalid credentials',
-          variant: 'destructive'
-        });
+        navigate('/');
       }
     } catch (error) {
       console.error('Login error:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to connect to server. Please try again.',
+        title: 'Login Failed',
+        description: error.detail || error.message || 'Invalid credentials',
         variant: 'destructive'
       });
     } finally {
