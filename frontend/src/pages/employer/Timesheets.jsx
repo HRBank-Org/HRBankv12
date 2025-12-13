@@ -193,7 +193,7 @@ const Timesheets = () => {
             ))}
           </div>
         )}
-      </main>
+        </div>
 
       {/* Rating Modal */}
       {ratingBooking && (
