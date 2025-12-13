@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import ModernSidebar from '../../components/layout/ModernSidebar';
-import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 import { FiCalendar, FiUsers, FiFileText, FiTrendingUp, FiClock, FiMapPin, FiAlertCircle, FiCheckCircle, FiDollarSign, FiAward, FiUserCheck } from 'react-icons/fi';
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
