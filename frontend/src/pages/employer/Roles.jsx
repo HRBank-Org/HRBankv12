@@ -4,7 +4,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
-import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiMapPin, FiDollarSign, FiAward, FiFilter, FiSearch, FiChevronRight } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiMapPin, FiDollarSign, FiAward, FiFilter, FiSearch, FiChevronRight, FiUserPlus } from 'react-icons/fi';
 
 const Roles = () => {
   const navigate = useNavigate();
