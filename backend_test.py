@@ -4413,6 +4413,9 @@ def main():
     # Priority: CRITICAL - Address Validation API (NEW TEST FROM REVIEW REQUEST)
     test_address_validation_api(results)
     
+    # Priority: CRITICAL - Workplace Detail Page Backend APIs (NEW TEST FROM REVIEW REQUEST)
+    test_workplace_detail_backend_apis(results)
+    
     # Priority: HIGH - Authentication System
     admin_token = test_admin_authentication_system(results)
     
