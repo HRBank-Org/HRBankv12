@@ -86,7 +86,7 @@ const LoginForm = () => {
       if (user_type === 'workforce') {
         navigate('/workforce/dashboard');
       } else if (user_type === 'employer') {
-        navigate('/employer/dashboard');
+        navigate('/employer/home');
       } else if (user_type === 'institution') {
         navigate('/institution/dashboard');
       } else if (user_type === 'admin') {
