@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
-import UserHeader from '../../components/common/UserHeader';
+import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import { FiUsers, FiCalendar, FiAward, FiDollarSign, FiSun, FiCloud, FiCloudRain, FiStar, FiClock, FiPlus } from 'react-icons/fi';
 import CalendarView from '../../components/scheduling/CalendarView';
@@ -140,15 +140,10 @@ const EmployerDashboardNew = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <GenericHeader />
       <ModernSidebar />
       
-      <div className="ml-[70px] transition-all duration-300">
-        <UserHeader 
-          showBack={false} 
-          greeting={`${getGreeting()}, ${getUserName()}`}
-          weather={weather ? getWeatherMessage() : null}
-        />
-
+      <div className="ml-[70px] pt-[64px] transition-all duration-300">
         <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Pending Ratings Banner */}
         {pendingRatings > 0 && (
