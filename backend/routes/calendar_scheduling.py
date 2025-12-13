@@ -99,6 +99,25 @@ async def create_calendar_shift(
     end = datetime.fromisoformat(shift_data["end_time"].replace('Z', '+00:00'))
     duration = (end - start).total_seconds() / 3600
     
+    # Inherit generic_tasks from role if role_id is provided
+    inherited_tasks = []
+    role_id = shift_data.get("role_id")
+    if role_id:
+        role = await db.workplace_roles.find_one({
+            "role_id": role_id,
+            "employer_id": current_user["user_id"]
+        }, {"_id": 0, "generic_tasks": 1})
+        
+        if role and role.get("generic_tasks"):
+            # Convert generic_tasks to simple task names for standard_tasks
+            inherited_tasks = [
+                task["task_name"] if isinstance(task, dict) else task 
+                for task in role.get("generic_tasks", [])
+            ]
+    
+    # Merge inherited tasks with provided standard_tasks
+    all_standard_tasks = list(set(inherited_tasks + shift_data.get("standard_tasks", [])))
+    
     # Create shift
     shift = {
         "shift_id": str(uuid.uuid4()),
@@ -123,9 +142,9 @@ async def create_calendar_shift(
         "updated_at": datetime.utcnow().isoformat(),
         "created_by": current_user["user_id"],
         "color": shift_data.get("color"),
-        "standard_tasks": shift_data.get("standard_tasks", []),
-        "custom_tasks": shift_data.get("custom_tasks", []),
-        "role_id": shift_data.get("role_id"),
+        "standard_tasks": all_standard_tasks,  # Includes inherited + custom
+        "custom_tasks": shift_data.get("custom_tasks", []),  # Additional shift-specific tasks
+        "role_id": role_id,
         "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.utcnow().strftime('%Y-%m-%d')
     }
     
