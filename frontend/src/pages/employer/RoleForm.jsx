@@ -455,6 +455,89 @@ const RoleForm = () => {
                 )}
               </div>
             </div>
+
+            {/* Generic Tasks */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Generic Tasks (Inherited by Shifts)
+              </h2>
+              
+              <p className="text-sm text-gray-600 mb-4">
+                Define tasks that workers must complete during shifts for this role. These tasks will automatically appear when creating shifts.
+              </p>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-12 gap-2">
+                  <input
+                    type="text"
+                    value={newTask.task_name}
+                    onChange={(e) => setNewTask({...newTask, task_name: e.target.value})}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTask())}
+                    placeholder="Task name (e.g., Clean kitchen, Prep ingredients)"
+                    className="col-span-6 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    value={newTask.estimated_minutes}
+                    onChange={(e) => setNewTask({...newTask, estimated_minutes: parseInt(e.target.value)})}
+                    placeholder="Minutes"
+                    min="5"
+                    className="col-span-2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  />
+                  <label className="col-span-3 flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg">
+                    <input
+                      type="checkbox"
+                      checked={newTask.is_mandatory}
+                      onChange={(e) => setNewTask({...newTask, is_mandatory: e.target.checked})}
+                      className="w-5 h-5 rounded"
+                      style={{ accentColor: theme.primaryColor }}
+                    />
+                    <span className="text-sm text-gray-700">Mandatory</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addTask}
+                    className="col-span-1 px-4 py-3 rounded-lg text-white font-medium hover:opacity-90"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    +
+                  </button>
+                </div>
+
+                {formData.generic_tasks.length > 0 && (
+                  <div className="space-y-2">
+                    {formData.generic_tasks.map((task, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{task.task_name}</p>
+                            <p className="text-sm text-gray-500">
+                              Estimated: {task.estimated_minutes} minutes • {task.is_mandatory ? 'Mandatory' : 'Optional'}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeTask(idx)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <FiX size={20} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {formData.generic_tasks.length === 0 && (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <p className="text-gray-500 text-sm">No tasks added yet. Add tasks that workers should complete during this role.</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </form>
         </div>
       </div>
