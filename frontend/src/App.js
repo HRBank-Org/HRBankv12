@@ -91,6 +91,7 @@ import JobPosting from './pages/employer/JobPosting';
 import WorkplaceSetup from './pages/employer/WorkplaceSetup';
 import WorkplacesNew from './pages/employer/WorkplacesNew';
 import WorkplaceDetail from './pages/employer/WorkplaceDetail';
+import WorkplaceDetailEdit from './pages/employer/WorkplaceDetailEdit';
 import EditWorkplace from './pages/employer/EditWorkplace';
 import PostJob from './pages/employer/PostJob';
 import JobsCandidates from './pages/employer/JobsCandidates';
@@ -225,7 +226,8 @@ function AppRoutes() {
         <Route path="/employer/live-attendance" element={<ProtectedRoute allowedUserTypes={['employer']}><LiveAttendance /></ProtectedRoute>} />
         <Route path="/employer/workplace-setup" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceSetup /></ProtectedRoute>} />
         <Route path="/employer/workplaces" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplacesNew /></ProtectedRoute>} />
-        <Route path="/employer/workplaces/:workplaceId" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetail /></ProtectedRoute>} />
+        <Route path="/employer/workplaces/:workplaceId" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetailEdit /></ProtectedRoute>} />
+        <Route path="/employer/workplaces/:workplaceId/shifts" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetail /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId/edit" element={<ProtectedRoute allowedUserTypes={['employer']}><EditWorkplace /></ProtectedRoute>} />
         <Route path="/employer/jobs/post" element={<ProtectedRoute allowedUserTypes={['employer']}><PostJob /></ProtectedRoute>} />
         <Route path="/employer/jobs" element={<ProtectedRoute allowedUserTypes={['employer']}><JobsCandidates /></ProtectedRoute>} />
