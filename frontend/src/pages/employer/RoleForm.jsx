@@ -138,7 +138,7 @@ const RoleForm = () => {
       };
 
       if (isEditMode) {
-        await api.put(`/api/employer/workplace-roles/${roleId}`, payload);
+        await api.put(`/api/employer/workplace-roles/${roleId}/update`, payload);
       } else {
         await api.post('/api/employer/workplace-roles/create', payload);
       }

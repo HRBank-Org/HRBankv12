@@ -41,7 +41,7 @@ const Roles = () => {
     if (!window.confirm('Are you sure you want to delete this role?')) return;
     
     try {
-      await api.delete(`/api/employer/workplace-roles/${roleId}`);
+      await api.delete(`/api/employer/workplace-roles/${roleId}/delete`);
       await loadData();
     } catch (error) {
       console.error('Failed to delete role:', error);
