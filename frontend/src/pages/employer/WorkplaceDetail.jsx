@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
+import GenericHeader from '../../components/layout/GenericHeader';
+import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
 
 const WorkplaceDetail = () => {
@@ -161,7 +163,8 @@ const WorkplaceDetail = () => {
             ))}
           </div>
         )}
-      </main>
+        </div>
+      </div>
 
       {/* Duplicate Shift Dialog */}
       {duplicating && (
