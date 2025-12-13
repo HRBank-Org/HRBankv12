@@ -1,9 +1,13 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import CalendarView from '../../components/scheduling/CalendarView';
 
 const Roster = () => {
+  const [searchParams] = useSearchParams();
+  const workplaceParam = searchParams.get('workplace') || 'all';
+
   return (
     <div className="min-h-screen bg-gray-50">
       <GenericHeader />
@@ -22,7 +26,7 @@ const Roster = () => {
         {/* Calendar Content */}
         <div className="p-8">
           <div className="bg-white rounded-2xl shadow-sm p-6">
-            <CalendarView />
+            <CalendarView initialWorkplace={workplaceParam} />
           </div>
         </div>
       </div>
