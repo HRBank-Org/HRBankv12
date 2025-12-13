@@ -238,6 +238,7 @@ function AppRoutes() {
         <Route path="/employer/roles" element={<ProtectedRoute allowedUserTypes={['employer']}><Roles /></ProtectedRoute>} />
         <Route path="/employer/roles/create" element={<ProtectedRoute allowedUserTypes={['employer']}><RoleForm /></ProtectedRoute>} />
         <Route path="/employer/roles/:roleId/edit" element={<ProtectedRoute allowedUserTypes={['employer']}><RoleForm /></ProtectedRoute>} />
+        <Route path="/employer/roles/:roleId/fill" element={<ProtectedRoute allowedUserTypes={['employer']}><FillPositions /></ProtectedRoute>} />
         <Route path="/employer/roles/:roleId/candidates" element={<ProtectedRoute allowedUserTypes={['employer']}><RoleCandidates /></ProtectedRoute>} />
         <Route path="/employer/shifts/create" element={<ProtectedRoute allowedUserTypes={['employer']}><CreateShift /></ProtectedRoute>} />
         <Route path="/employer/shifts/:shiftId" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftDetail /></ProtectedRoute>} />
