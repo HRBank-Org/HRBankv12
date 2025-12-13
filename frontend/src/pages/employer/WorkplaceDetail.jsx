@@ -206,6 +206,8 @@ const WorkplaceDetail = () => {
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 };
