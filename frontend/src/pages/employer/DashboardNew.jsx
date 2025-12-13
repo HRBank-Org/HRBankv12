@@ -215,7 +215,8 @@ const EmployerDashboardNew = () => {
             {activeTab === 'workforce' && <WorkforceTab workforce={workforce} workplaces={workplaces} theme={theme} navigate={navigate} initialShowInvitations={showInvitations} />}
           </div>
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
