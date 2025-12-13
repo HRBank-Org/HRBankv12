@@ -305,16 +305,26 @@ const RoleForm = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
+                    Generic Tasks (One per line)
                   </label>
                   <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows={4}
-                    placeholder="Describe the role responsibilities..."
+                    name="generic_tasks_text"
+                    value={formData.generic_tasks.map(t => t.task_name).join('\n')}
+                    onChange={(e) => {
+                      const tasks = e.target.value.split('\n').filter(t => t.trim()).map(taskName => ({
+                        task_name: taskName.trim(),
+                        estimated_minutes: 15,
+                        is_mandatory: true
+                      }));
+                      setFormData(prev => ({ ...prev, generic_tasks: tasks }));
+                    }}
+                    rows={6}
+                    placeholder="Enter tasks that workers will complete during shifts (one per line)&#10;Example:&#10;Set up workstation&#10;Clean and organize area&#10;Complete daily checklist&#10;End-of-shift cleanup"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    These tasks will be inherited by all shifts for this role. Employers can add shift-specific tasks when creating shifts.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
