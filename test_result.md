@@ -1360,8 +1360,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Complete Payroll Workflow - Timesheets to Payroll Processing"
-  stuck_tasks: []
+    - "Workplace Detail Page UI - New Standardized Layout"
+  stuck_tasks:
+    - "Workplace Detail Page UI - New Standardized Layout"
   test_all: false
   test_priority: "high_first"
 
