@@ -320,25 +320,20 @@ const Roles = () => {
                     <div className="flex items-center gap-2 ml-4">
                       <button
                         onClick={() => navigate(`/employer/roles/${role.role_id}/edit`)}
-                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+                        style={{ backgroundColor: theme.primaryColor }}
                         title="Edit Role"
                       >
-                        <FiEdit2 size={20} />
+                        <FiEdit2 size={18} />
+                        Edit
                       </button>
                       <button
                         onClick={() => handleDeleteRole(role.role_id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="px-4 py-2 border-2 border-red-600 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors flex items-center gap-2"
                         title="Delete Role"
                       >
-                        <FiTrash2 size={20} />
-                      </button>
-                      <button
-                        onClick={() => navigate(`/employer/roles/${role.role_id}/detail`)}
-                        className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
-                        style={{ backgroundColor: theme.primaryColor }}
-                      >
-                        View Details
-                        <FiChevronRight size={16} />
+                        <FiTrash2 size={18} />
+                        Delete
                       </button>
                     </div>
                   </div>
