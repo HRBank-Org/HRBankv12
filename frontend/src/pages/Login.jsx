@@ -75,7 +75,19 @@ const Login = () => {
           isAuthenticated: true
         }));
         
-        navigate('/dashboard');
+        // Navigate to role-specific dashboard
+        const userType = data.user.user_type;
+        if (userType === 'employer') {
+          navigate('/employer/home');
+        } else if (userType === 'workforce') {
+          navigate('/workforce/dashboard');
+        } else if (userType === 'institution') {
+          navigate('/institution/dashboard');
+        } else if (userType === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
       } else {
         toast({
           title: 'Login Failed',
