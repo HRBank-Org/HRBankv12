@@ -223,133 +223,93 @@ const Home = () => {
       
       {/* Main Content */}
       <div className="ml-[70px] transition-all duration-300">
-        {/* Custom Header Section */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="p-8">
-            {/* Top Row: Logo + User Info + Weather */}
-            <div className="flex items-start justify-between mb-6">
-              {/* Left: Company Logo + Info */}
-              <div className="flex items-center gap-4">
+        {/* Clean Header Section */}
+        <div className="bg-white border-b border-gray-200 px-8 py-6">
+          <div className="flex items-center justify-between">
+            {/* Left: Greeting */}
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                {getGreeting()}, {user?.profile?.first_name || 'there'}! 👋
+              </h1>
+              <p className="text-gray-600">
+                Here's your workforce overview and insights
+              </p>
+            </div>
+
+            {/* Right: Action Icons + User Badge */}
+            <div className="flex items-center gap-3">
+              {/* Notifications */}
+              <button
+                onClick={() => navigate('/employer/notifications')}
+                className="relative p-3 hover:bg-gray-100 rounded-xl transition-colors group"
+                title="Notifications"
+              >
+                <FiBell size={20} className="text-gray-600 group-hover:text-gray-900" />
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold text-white flex items-center justify-center"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    {notificationCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Messages/Chat */}
+              <button
+                onClick={() => navigate('/employer/messages')}
+                className="relative p-3 hover:bg-gray-100 rounded-xl transition-colors group"
+                title="Messages"
+              >
+                <FiMessageSquare size={20} className="text-gray-600 group-hover:text-gray-900" />
+                {messageCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold text-white flex items-center justify-center"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    {messageCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Settings */}
+              <button
+                onClick={() => navigate('/employer/settings')}
+                className="p-3 hover:bg-gray-100 rounded-xl transition-colors group"
+                title="Settings"
+              >
+                <FiSettings size={20} className="text-gray-600 group-hover:text-gray-900" />
+              </button>
+
+              {/* Divider */}
+              <div className="h-10 w-px bg-gray-300"></div>
+
+              {/* User Badge */}
+              <button
+                onClick={() => navigate('/employer/settings')}
+                className="flex items-center gap-3 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+              >
                 {user?.profile?.photo_url ? (
                   <img 
-                    src={user.profile.photo_url.startsWith('http') 
-                      ? user.profile.photo_url 
-                      : `${process.env.REACT_APP_BACKEND_URL}${user.profile.photo_url}`
-                    }
-                    alt={user?.profile?.business_name || 'Company Logo'}
-                    className="w-16 h-16 rounded-xl shadow-lg"
-                    style={{ objectFit: 'cover' }}
+                    src={user.profile.photo_url} 
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full object-cover"
                   />
                 ) : (
                   <div 
-                    className="w-16 h-16 rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-2xl"
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
                     style={{ backgroundColor: theme.primaryColor }}
                   >
-                    {(user?.profile?.business_name?.[0] || user?.profile?.first_name?.[0] || 'C').toUpperCase()}
+                    {(user?.profile?.first_name?.[0] || 'U').toUpperCase()}
                   </div>
                 )}
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {user?.profile?.business_name || 'Loose Goose Bar & Bistro'}
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    {user?.profile?.address || '1997 Whitewood Drive'} • {user?.profile?.city || 'Bella Roses'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Right: Weather */}
-              <div className="text-right">
-                <div className="text-sm text-gray-600">☀️ {getWeatherMessage()}</div>
-              </div>
-            </div>
-
-            {/* Bottom Row: Greeting + Actions + User Details */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-1">
-                  {getGreeting()}, {user?.profile?.first_name || 'there'}! 👋
-                </h2>
-                <p className="text-gray-600">
-                  Here's your workforce overview and insights
-                </p>
-              </div>
-
-              {/* Action Icons + User Badge */}
-              <div className="flex items-center gap-3">
-                {/* Notifications */}
-                <button
-                  onClick={() => navigate('/employer/notifications')}
-                  className="relative p-3 hover:bg-gray-100 rounded-xl transition-colors group"
-                  title="Notifications"
-                >
-                  <FiBell size={20} className="text-gray-600 group-hover:text-gray-900" />
-                  {notificationCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold text-white flex items-center justify-center"
-                      style={{ backgroundColor: theme.primaryColor }}
-                    >
-                      {notificationCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Messages/Chat */}
-                <button
-                  onClick={() => navigate('/employer/messages')}
-                  className="relative p-3 hover:bg-gray-100 rounded-xl transition-colors group"
-                  title="Messages"
-                >
-                  <FiMessageSquare size={20} className="text-gray-600 group-hover:text-gray-900" />
-                  {messageCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold text-white flex items-center justify-center"
-                      style={{ backgroundColor: theme.primaryColor }}
-                    >
-                      {messageCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Settings */}
-                <button
-                  onClick={() => navigate('/employer/settings')}
-                  className="p-3 hover:bg-gray-100 rounded-xl transition-colors group"
-                  title="Settings"
-                >
-                  <FiSettings size={20} className="text-gray-600 group-hover:text-gray-900" />
-                </button>
-
-                {/* Divider */}
-                <div className="h-10 w-px bg-gray-300"></div>
-
-                {/* User Badge */}
-                <button
-                  onClick={() => navigate('/employer/settings')}
-                  className="flex items-center gap-3 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                  {user?.profile?.photo_url ? (
-                    <img 
-                      src={user.profile.photo_url} 
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
-                      style={{ backgroundColor: theme.primaryColor }}
-                    >
-                      {(user?.profile?.first_name?.[0] || 'U').toUpperCase()}
-                    </div>
-                  )}
-                  <div className="text-left">
-                    <div className="font-semibold text-gray-900">
-                      {user?.profile?.first_name} {user?.profile?.last_name}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      {user?.user_type === 'employer' ? 'HR Manager' : 'Manager'}
-                    </div>
+                <div className="text-left">
+                  <div className="font-semibold text-gray-900">
+                    {user?.profile?.first_name} {user?.profile?.last_name}
                   </div>
-                </button>
-              </div>
+                  <div className="text-xs text-gray-600">
+                    {user?.user_type === 'employer' ? 'HR Manager' : 'Manager'}
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
         </div>
