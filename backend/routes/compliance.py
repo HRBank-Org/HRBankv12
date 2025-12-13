@@ -1,482 +1,239 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
-from typing import Dict
+from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import datetime, timedelta
-from auth.dependencies import get_current_user, require_role, get_db
-from models.compliance import (
-    EmployerCompliance, 
-    WorkerCompliance, 
-    WSIBDocument,
-    PAYROLL_PROVIDERS,
-    WSIB_INDUSTRY_TYPES,
-    EMPLOYER_CLASSIFICATION_DISCLOSURE,
-    EMPLOYER_TOS_TEXT,
-    WORKER_CASUAL_EMPLOYMENT_DISCLOSURE,
-    WORKER_TOS_TEXT
-)
-import logging
+from typing import Dict, List
+import pytz
+from ..dependencies import require_role, get_database
 
-logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/compliance", tags=["compliance"])
+router = APIRouter(prefix="/api/compliance", tags=["compliance"])
 
+# Provincial weekly hour limits (standard + overtime threshold)
+PROVINCIAL_LIMITS = {
+    "ON": {"standard": 44, "max": 48, "max_with_agreement": 60},
+    "QC": {"standard": 40, "max": 50, "max_with_agreement": 60},
+    "BC": {"standard": 40, "max": 48, "max_with_agreement": 60},
+    "AB": {"standard": 44, "max": 48, "max_with_agreement": 60},
+    "MB": {"standard": 40, "max": 48, "max_with_agreement": 60},
+    "SK": {"standard": 40, "max": 48, "max_with_agreement": 60},
+    "NS": {"standard": 48, "max": 48, "max_with_agreement": 60},
+    "NB": {"standard": 44, "max": 48, "max_with_agreement": 60},
+    "NL": {"standard": 40, "max": 48, "max_with_agreement": 60},
+    "PE": {"standard": 48, "max": 48, "max_with_agreement": 60},
+}
 
-# ==================== EMPLOYER COMPLIANCE ====================
-
-@router.get("/employer/legal-texts")
-async def get_employer_legal_texts():
-    """Get legal disclosure texts for employer onboarding"""
-    return {
-        "success": True,
-        "data": {
-            "classification_disclosure": EMPLOYER_CLASSIFICATION_DISCLOSURE,
-            "terms_of_service": EMPLOYER_TOS_TEXT,
-            "payroll_providers": PAYROLL_PROVIDERS,
-            "wsib_industry_types": WSIB_INDUSTRY_TYPES
-        }
-    }
-
-
-@router.post("/employer/confirm-classification")
-async def confirm_worker_classification(
-    data: dict,
-    current_user: dict = Depends(require_role("employer")),
-    db = Depends(get_db)
+@router.get("/worker-weekly-hours/{worker_id}")
+async def get_worker_weekly_hours(
+    worker_id: str,
+    week_start_date: str,  # ISO format YYYY-MM-DD
+    current_user: dict = Depends(require_role('employer'))
 ):
-    """
-    Employer confirms workers are employees (T4, not T4A)
-    Required before employer can post shifts
-    """
-    payroll_provider = data.get("payroll_provider")
+    """Calculate worker's total hours for a specific week"""
+    db = await get_database()
     
-    if not payroll_provider or payroll_provider not in PAYROLL_PROVIDERS:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid payroll provider. Must be one of: {', '.join(PAYROLL_PROVIDERS)}"
-        )
+    # Parse week start date
+    week_start = datetime.fromisoformat(week_start_date)
+    week_end = week_start + timedelta(days=7)
     
-    # Get or create compliance record
-    compliance = await db.employer_compliance.find_one({"employer_id": current_user["user_id"]})
+    # Get all assigned shifts for this worker in the week
+    assignments = await db.shift_assignments.find({
+        "worker_id": worker_id,
+        "shift_date": {
+            "$gte": week_start.isoformat(),
+            "$lt": week_end.isoformat()
+        },
+        "status": {"$in": ["assigned", "confirmed", "completed"]}
+    }).to_list(100)
     
-    if compliance:
-        # Update existing
-        await db.employer_compliance.update_one(
-            {"employer_id": current_user["user_id"]},
-            {"$set": {
-                "payroll_type": "T4_employee",
-                "payroll_provider": payroll_provider,
-                "classification_confirmed": True,
-                "classification_confirmed_date": datetime.utcnow(),
-                "updated_date": datetime.utcnow()
-            }}
-        )
-    else:
-        # Create new
-        new_compliance = EmployerCompliance(
-            employer_id=current_user["user_id"],
-            payroll_type="T4_employee",
-            payroll_provider=payroll_provider,
-            classification_confirmed=True,
-            classification_confirmed_date=datetime.utcnow()
-        )
-        await db.employer_compliance.insert_one(new_compliance.model_dump())
+    total_hours = 0
+    shift_details = []
     
-    return {
-        "success": True,
-        "message": "Worker classification confirmed. You can now upload WSIB certificate."
-    }
-
-
-@router.post("/employer/acknowledge-terms")
-async def acknowledge_employer_terms(
-    current_user: dict = Depends(require_role("employer")),
-    db = Depends(get_db)
-):
-    """
-    Employer acknowledges platform terms of service
-    """
-    compliance = await db.employer_compliance.find_one({"employer_id": current_user["user_id"]})
+    for assignment in assignments:
+        # Get shift details
+        shift = await db.calendar_shifts.find_one({"shift_id": assignment["shift_id"]})
+        if shift:
+            # Calculate hours
+            start_time = datetime.fromisoformat(shift["start_time"])
+            end_time = datetime.fromisoformat(shift["end_time"])
+            hours = (end_time - start_time).total_seconds() / 3600
+            total_hours += hours
+            
+            shift_details.append({
+                "shift_id": shift["shift_id"],
+                "date": shift["shift_date"],
+                "position": shift["position_title"],
+                "hours": round(hours, 2),
+                "workplace": shift["workplace_name"]
+            })
     
-    if not compliance:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Please confirm worker classification first"
-        )
+    # Get worker's province to check limits
+    worker = await db.workforce_profiles.find_one({"user_id": worker_id})
+    province = worker.get("province_code", "ON") if worker else "ON"
     
-    await db.employer_compliance.update_one(
-        {"employer_id": current_user["user_id"]},
-        {"$set": {
-            "terms_acknowledged": True,
-            "terms_acknowledged_date": datetime.utcnow(),
-            "updated_date": datetime.utcnow()
-        }}
-    )
-    
-    return {
-        "success": True,
-        "message": "Terms acknowledged successfully"
-    }
-
-
-@router.post("/employer/wsib/upload")
-async def upload_wsib_certificate(
-    wsib_account_number: str,
-    industry_type: str,
-    certificate_url: str,  # Already uploaded via file upload endpoint
-    issue_date: str,
-    expiry_date: str,
-    current_user: dict = Depends(require_role("employer")),
-    db = Depends(get_db)
-):
-    """
-    Upload WSIB certificate for verification
-    Certificate must be manually verified by admin before employer can post shifts
-    """
-    if industry_type not in WSIB_INDUSTRY_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid industry type. Must be one of: {', '.join(WSIB_INDUSTRY_TYPES)}"
-        )
-    
-    # Parse dates
-    try:
-        issue_dt = datetime.fromisoformat(issue_date)
-        expiry_dt = datetime.fromisoformat(expiry_date)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid date format. Use YYYY-MM-DD"
-        )
-    
-    # Check if expiry date is valid (should be future date)
-    if expiry_dt < datetime.utcnow():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="WSIB certificate has already expired. Please upload current certificate."
-        )
-    
-    # Calculate days until expiry
-    days_until_expiry = (expiry_dt - datetime.utcnow()).days
-    
-    # Create WSIB document
-    wsib_doc = WSIBDocument(
-        employer_id=current_user["user_id"],
-        wsib_account_number=wsib_account_number,
-        certificate_url=certificate_url,
-        industry_type=industry_type,
-        issue_date=issue_dt,
-        expiry_date=expiry_dt,
-        days_until_expiry=days_until_expiry,
-        verification_status='pending'
-    )
-    
-    await db.wsib_documents.insert_one(wsib_doc.model_dump())
-    
-    # Update employer compliance
-    await db.employer_compliance.update_one(
-        {"employer_id": current_user["user_id"]},
-        {"$set": {
-            "wsib_account_number": wsib_account_number,
-            "wsib_certificate_url": certificate_url,
-            "wsib_industry_type": industry_type,
-            "wsib_expiry_date": expiry_dt,
-            "wsib_verified": False,  # Awaiting admin verification
-            "updated_date": datetime.utcnow()
-        }}
-    )
-    
-    return {
-        "success": True,
-        "message": "WSIB certificate uploaded successfully. Awaiting admin verification.",
-        "data": {
-            "wsib_doc_id": wsib_doc.wsib_doc_id,
-            "verification_status": "pending",
-            "days_until_expiry": days_until_expiry
-        }
-    }
-
-
-@router.get("/employer/status")
-async def get_employer_compliance_status(
-    current_user: dict = Depends(require_role("employer")),
-    db = Depends(get_db)
-):
-    """
-    Get employer's current compliance status
-    """
-    compliance = await db.employer_compliance.find_one(
-        {"employer_id": current_user["user_id"]},
-        {"_id": 0}
-    )
-    
-    if not compliance:
-        # Create default compliance record
-        new_compliance = EmployerCompliance(employer_id=current_user["user_id"])
-        await db.employer_compliance.insert_one(new_compliance.model_dump())
-        compliance = new_compliance.model_dump()
-    
-    # Check if employer can post shifts
-    can_post_shifts = (
-        compliance.get("classification_confirmed", False) and
-        compliance.get("terms_acknowledged", False) and
-        compliance.get("wsib_verified", False)
-    )
-    
-    # Update can_post_shifts status
-    await db.employer_compliance.update_one(
-        {"employer_id": current_user["user_id"]},
-        {"$set": {"can_post_shifts": can_post_shifts}}
-    )
-    
-    compliance["can_post_shifts"] = can_post_shifts
+    limits = PROVINCIAL_LIMITS.get(province, PROVINCIAL_LIMITS["ON"])
     
     return {
         "success": True,
         "data": {
-            "compliance": compliance,
-            "requirements": {
-                "classification_confirmed": compliance.get("classification_confirmed", False),
-                "terms_acknowledged": compliance.get("terms_acknowledged", False),
-                "wsib_verified": compliance.get("wsib_verified", False),
-                "can_post_shifts": can_post_shifts
+            "worker_id": worker_id,
+            "week_start": week_start_date,
+            "total_hours": round(total_hours, 2),
+            "shift_count": len(shift_details),
+            "shifts": shift_details,
+            "compliance": {
+                "province": province,
+                "standard_hours": limits["standard"],
+                "max_hours": limits["max"],
+                "max_with_agreement": limits["max_with_agreement"],
+                "is_within_standard": total_hours <= limits["standard"],
+                "is_compliant": total_hours <= limits["max"],
+                "overtime_hours": max(0, total_hours - limits["standard"]),
+                "warning_level": (
+                    "none" if total_hours <= limits["standard"] else
+                    "overtime" if total_hours <= limits["max"] else
+                    "excess"
+                )
             }
         }
     }
 
 
-# ==================== WORKER COMPLIANCE ====================
-
-@router.get("/worker/legal-texts")
-async def get_worker_legal_texts():
-    """Get legal disclosure texts for worker onboarding"""
+@router.get("/unstaffed-shifts")
+async def get_unstaffed_shifts(
+    days_ahead: int = 7,
+    current_user: dict = Depends(require_role('employer'))
+):
+    """Get shifts that are understaffed or have no workers assigned"""
+    db = await get_database()
+    
+    # Get shifts for next X days
+    today = datetime.now()
+    end_date = today + timedelta(days=days_ahead)
+    
+    shifts = await db.calendar_shifts.find({
+        "employer_id": current_user["user_id"],
+        "shift_date": {
+            "$gte": today.date().isoformat(),
+            "$lte": end_date.date().isoformat()
+        },
+        "status": {"$in": ["open", "partial"]}
+    }).to_list(500)
+    
+    understaffed_shifts = []
+    
+    for shift in shifts:
+        # Count assigned workers
+        assignments = await db.shift_assignments.count_documents({
+            "shift_id": shift["shift_id"],
+            "status": {"$in": ["assigned", "confirmed"]}
+        })
+        
+        positions_needed = shift.get("positions_needed", 1)
+        open_positions = positions_needed - assignments
+        
+        if open_positions > 0:
+            understaffed_shifts.append({
+                "shift_id": shift["shift_id"],
+                "workplace_id": shift["workplace_id"],
+                "workplace_name": shift["workplace_name"],
+                "position_title": shift["position_title"],
+                "shift_date": shift["shift_date"],
+                "start_time": shift["start_time"],
+                "end_time": shift["end_time"],
+                "positions_needed": positions_needed,
+                "positions_filled": assignments,
+                "open_positions": open_positions,
+                "urgency": (
+                    "critical" if open_positions == positions_needed else  # No workers assigned
+                    "high" if open_positions >= positions_needed / 2 else  # More than half empty
+                    "medium"
+                )
+            })
+    
+    # Sort by urgency and date
+    urgency_order = {"critical": 0, "high": 1, "medium": 2}
+    understaffed_shifts.sort(key=lambda x: (urgency_order[x["urgency"]], x["shift_date"]))
+    
     return {
         "success": True,
         "data": {
-            "casual_employment_disclosure": WORKER_CASUAL_EMPLOYMENT_DISCLOSURE,
-            "terms_of_service": WORKER_TOS_TEXT
+            "total_understaffed": len(understaffed_shifts),
+            "critical_count": sum(1 for s in understaffed_shifts if s["urgency"] == "critical"),
+            "high_count": sum(1 for s in understaffed_shifts if s["urgency"] == "high"),
+            "shifts": understaffed_shifts
         }
     }
 
 
-@router.post("/worker/acknowledge-casual-employment")
-async def acknowledge_casual_employment(
+@router.post("/check-assignment-compliance")
+async def check_assignment_compliance(
     data: dict,
-    current_user: dict = Depends(require_role("workforce")),
-    db = Depends(get_db)
+    current_user: dict = Depends(require_role('employer'))
 ):
     """
-    Worker acknowledges casual employment status
+    Check if assigning a worker to a shift would violate weekly hour limits
+    Request body: { worker_id, shift_id }
     """
-    ip_address = data.get("ip_address")  # Frontend should send client IP
+    db = await get_database()
     
-    # Get or create compliance record
-    compliance = await db.worker_compliance.find_one({"worker_id": current_user["user_id"]})
+    worker_id = data.get("worker_id")
+    shift_id = data.get("shift_id")
     
-    if compliance:
-        # Update existing
-        await db.worker_compliance.update_one(
-            {"worker_id": current_user["user_id"]},
-            {"$set": {
-                "casual_employment_acknowledged": True,
-                "casual_employment_acknowledged_date": datetime.utcnow(),
-                "casual_employment_ip_address": ip_address,
-                "updated_date": datetime.utcnow()
-            }}
-        )
-    else:
-        # Create new
-        new_compliance = WorkerCompliance(
-            worker_id=current_user["user_id"],
-            casual_employment_acknowledged=True,
-            casual_employment_acknowledged_date=datetime.utcnow(),
-            casual_employment_ip_address=ip_address
-        )
-        await db.worker_compliance.insert_one(new_compliance.model_dump())
+    if not worker_id or not shift_id:
+        raise HTTPException(status_code=400, detail="worker_id and shift_id required")
     
-    return {
-        "success": True,
-        "message": "Casual employment status acknowledged"
-    }
-
-
-@router.post("/worker/acknowledge-terms")
-async def acknowledge_worker_terms(
-    current_user: dict = Depends(require_role("workforce")),
-    db = Depends(get_db)
-):
-    """
-    Worker acknowledges platform terms of service
-    """
-    compliance = await db.worker_compliance.find_one({"worker_id": current_user["user_id"]})
+    # Get shift details
+    shift = await db.calendar_shifts.find_one({"shift_id": shift_id})
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
     
-    if not compliance:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Please acknowledge casual employment status first"
-        )
+    # Calculate shift hours
+    start_time = datetime.fromisoformat(shift["start_time"])
+    end_time = datetime.fromisoformat(shift["end_time"])
+    shift_hours = (end_time - start_time).total_seconds() / 3600
     
-    await db.worker_compliance.update_one(
-        {"worker_id": current_user["user_id"]},
-        {"$set": {
-            "terms_acknowledged": True,
-            "terms_acknowledged_date": datetime.utcnow(),
-            "updated_date": datetime.utcnow()
-        }}
+    # Get week start (Monday)
+    shift_date = datetime.fromisoformat(shift["shift_date"])
+    week_start = shift_date - timedelta(days=shift_date.weekday())
+    
+    # Get worker's current weekly hours
+    weekly_hours_response = await get_worker_weekly_hours(
+        worker_id=worker_id,
+        week_start_date=week_start.date().isoformat(),
+        current_user=current_user
     )
     
-    return {
-        "success": True,
-        "message": "Terms acknowledged successfully"
-    }
-
-
-@router.get("/worker/status")
-async def get_worker_compliance_status(
-    current_user: dict = Depends(require_role("workforce")),
-    db = Depends(get_db)
-):
-    """
-    Get worker's current compliance status
-    """
-    compliance = await db.worker_compliance.find_one(
-        {"worker_id": current_user["user_id"]},
-        {"_id": 0}
-    )
+    current_hours = weekly_hours_response["data"]["total_hours"]
+    projected_hours = current_hours + shift_hours
+    compliance = weekly_hours_response["data"]["compliance"]
     
-    if not compliance:
-        # Create default compliance record
-        new_compliance = WorkerCompliance(worker_id=current_user["user_id"])
-        await db.worker_compliance.insert_one(new_compliance.model_dump())
-        compliance = new_compliance.model_dump()
+    warnings = [
+        {
+            "level": "info",
+            "message": f"Worker currently has {round(current_hours, 2)} hours this week"
+        }
+    ]
+    
+    if projected_hours > compliance["standard_hours"]:
+        warnings.append({
+            "level": "warning",
+            "message": f"This shift adds {round(shift_hours, 2)} hours, bringing total to {round(projected_hours, 2)} hours (overtime)"
+        })
+    
+    if projected_hours > compliance["max_hours"]:
+        warnings.append({
+            "level": "error",
+            "message": f"⚠️ COMPLIANCE VIOLATION: Exceeds {compliance['province']} maximum of {compliance['max_hours']} hours/week"
+        })
     
     return {
         "success": True,
         "data": {
+            "worker_id": worker_id,
+            "shift_id": shift_id,
+            "shift_hours": round(shift_hours, 2),
+            "current_weekly_hours": round(current_hours, 2),
+            "projected_weekly_hours": round(projected_hours, 2),
             "compliance": compliance,
-            "requirements": {
-                "casual_employment_acknowledged": compliance.get("casual_employment_acknowledged", False),
-                "terms_acknowledged": compliance.get("terms_acknowledged", False)
-            }
+            "can_assign": projected_hours <= compliance["max_hours"],
+            "warnings": [w for w in warnings if w is not None]
         }
     }
-
-
-# ==================== ADMIN - WSIB VERIFICATION ====================
-
-@router.get("/admin/wsib/pending", response_model=Dict)
-async def get_pending_wsib_verifications(
-    current_user: dict = Depends(require_role("admin")),
-    db = Depends(get_db)
-):
-    """
-    Admin: Get list of pending WSIB certificate verifications
-    """
-    pending_docs = await db.wsib_documents.find(
-        {"verification_status": "pending"},
-        {"_id": 0}
-    ).to_list(100)
-    
-    # Enrich with employer info
-    for doc in pending_docs:
-        employer = await db.users.find_one(
-            {"user_id": doc["employer_id"]},
-            {"_id": 0, "email": 1, "full_name": 1}
-        )
-        if employer:
-            doc["employer_email"] = employer.get("email")
-            doc["employer_name"] = employer.get("full_name")
-    
-    return {
-        "success": True,
-        "data": {
-            "pending_verifications": pending_docs,
-            "count": len(pending_docs)
-        }
-    }
-
-
-@router.post("/admin/wsib/verify/{wsib_doc_id}")
-async def verify_wsib_certificate(
-    wsib_doc_id: str,
-    data: dict,
-    current_user: dict = Depends(require_role("admin")),
-    db = Depends(get_db)
-):
-    """
-    Admin: Approve or reject WSIB certificate
-    """
-    action = data.get("action")  # approve or reject
-    notes = data.get("notes", "")
-    
-    if action not in ["approve", "reject"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Action must be 'approve' or 'reject'"
-        )
-    
-    wsib_doc = await db.wsib_documents.find_one({"wsib_doc_id": wsib_doc_id})
-    
-    if not wsib_doc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WSIB document not found"
-        )
-    
-    if action == "approve":
-        # Update WSIB document
-        await db.wsib_documents.update_one(
-            {"wsib_doc_id": wsib_doc_id},
-            {"$set": {
-                "verification_status": "approved",
-                "verified_by": current_user["user_id"],
-                "verified_date": datetime.utcnow(),
-                "notes": notes
-            }}
-        )
-        
-        # Update employer compliance
-        await db.employer_compliance.update_one(
-            {"employer_id": wsib_doc["employer_id"]},
-            {"$set": {
-                "wsib_verified": True,
-                "wsib_verified_by": current_user["user_id"],
-                "wsib_verified_date": datetime.utcnow(),
-                "updated_date": datetime.utcnow()
-            }}
-        )
-        
-        # Check if employer can now post shifts
-        compliance = await db.employer_compliance.find_one({"employer_id": wsib_doc["employer_id"]})
-        can_post_shifts = (
-            compliance.get("classification_confirmed", False) and
-            compliance.get("terms_acknowledged", False) and
-            compliance.get("wsib_verified", False)
-        )
-        
-        await db.employer_compliance.update_one(
-            {"employer_id": wsib_doc["employer_id"]},
-            {"$set": {"can_post_shifts": can_post_shifts}}
-        )
-        
-        return {
-            "success": True,
-            "message": "WSIB certificate approved. Employer can now post shifts.",
-            "data": {"can_post_shifts": can_post_shifts}
-        }
-    
-    else:  # reject
-        rejection_reason = data.get("rejection_reason", "Certificate not valid")
-        
-        await db.wsib_documents.update_one(
-            {"wsib_doc_id": wsib_doc_id},
-            {"$set": {
-                "verification_status": "rejected",
-                "verified_by": current_user["user_id"],
-                "verified_date": datetime.utcnow(),
-                "rejection_reason": rejection_reason,
-                "notes": notes
-            }}
-        )
-        
-        return {
-            "success": True,
-            "message": f"WSIB certificate rejected: {rejection_reason}"
-        }
