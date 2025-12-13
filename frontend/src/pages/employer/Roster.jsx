@@ -1,16 +1,18 @@
 import React from 'react';
+import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import CalendarView from '../../components/scheduling/CalendarView';
 
 const Roster = () => {
   return (
     <div className="min-h-screen bg-gray-50">
+      <GenericHeader />
       <ModernSidebar />
       
       {/* Main Content */}
-      <div className="ml-[70px] transition-all duration-300">
+      <div className="ml-[70px] pt-[64px] transition-all duration-300">
         {/* Header */}
-        <div className="px-8 py-6 bg-white shadow-sm">
+        <div className="px-8 py-6 bg-white shadow-sm border-b border-gray-200">
           <h1 className="text-3xl font-bold text-gray-900">Roster & Schedule</h1>
           <p className="text-gray-600 mt-1">
             Manage your workforce schedule and shift assignments
