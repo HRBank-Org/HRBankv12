@@ -7,6 +7,7 @@ import BreakReminderBanner from '../../components/workforce/BreakReminderBanner'
 
 const ClockInOut = () => {
   const { bookingId } = useParams();
+  const { user } = useAuth();
   const [booking, setBooking] = useState(null);
   const [attendance, setAttendance] = useState(null);
   const [qrScanning, setQrScanning] = useState(false);
