@@ -65,44 +65,6 @@ const WorkplacesNew = () => {
 
         {/* Main Content */}
         <div className="p-8">
-          {/* Action Bar: Add Button + View Toggle */}
-          <div className="mb-6 flex items-center justify-between">
-            <button
-              onClick={() => navigate('/employer/workplace-setup')}
-              className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all flex items-center gap-2"
-              style={{ backgroundColor: theme.primaryColor }}
-            >
-              <FiPlus size={20} />
-              Add Workplace
-            </button>
-
-            {/* View Mode Toggle */}
-            <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm p-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded transition-colors ${
-                  viewMode === 'grid' 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-500 hover:text-gray-900'
-                }`}
-                title="Grid View"
-              >
-                <FiGrid size={20} />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded transition-colors ${
-                  viewMode === 'list' 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-500 hover:text-gray-900'
-                }`}
-                title="List View"
-              >
-                <FiList size={20} />
-              </button>
-            </div>
-          </div>
-
           {/* Stats Cards + Map Side by Side */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Left: Stats */}
@@ -171,7 +133,50 @@ const WorkplacesNew = () => {
 
           {/* Workplace Cards/List */}
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900">Your Workplaces ({workplaces.length})</h2>
+            {/* Section Header with Add Button + View Toggle */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">Your Workplaces ({workplaces.length})</h2>
+              
+              <div className="flex items-center gap-3">
+                {/* Add Workplace Button */}
+                <button
+                  onClick={() => navigate('/employer/workplace-setup')}
+                  className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all flex items-center gap-2"
+                  style={{ backgroundColor: theme.primaryColor }}
+                >
+                  <FiPlus size={20} />
+                  Add Workplace
+                </button>
+
+                {/* View Mode Toggle */}
+                {workplaces.length > 0 && (
+                  <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm p-1 border border-gray-200">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 rounded transition-colors ${
+                        viewMode === 'grid' 
+                          ? 'bg-gray-100 text-gray-900' 
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                      title="Grid View"
+                    >
+                      <FiGrid size={20} />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2 rounded transition-colors ${
+                        viewMode === 'list' 
+                          ? 'bg-gray-100 text-gray-900' 
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                      title="List View"
+                    >
+                      <FiList size={20} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             
             {workplaces.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">
