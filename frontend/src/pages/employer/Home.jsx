@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
-import { FiCalendar, FiUsers, FiFileText, FiTrendingUp, FiClock, FiMapPin, FiAlertCircle, FiCheckCircle, FiDollarSign, FiAward, FiUserCheck } from 'react-icons/fi';
+import { FiCalendar, FiUsers, FiFileText, FiTrendingUp, FiClock, FiMapPin, FiAlertCircle, FiCheckCircle, FiDollarSign, FiAward, FiUserCheck, FiBell, FiMessageSquare, FiSettings } from 'react-icons/fi';
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Home = () => {
@@ -23,6 +23,8 @@ const Home = () => {
   });
   const [loading, setLoading] = useState(true);
   const [attentionItems, setAttentionItems] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(3);
+  const [messageCount, setMessageCount] = useState(5);
 
   // Chart data
   const attendanceData = [
@@ -262,7 +264,7 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Bottom Row: Greeting + User Details */}
+            {/* Bottom Row: Greeting + Actions + User Details */}
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-1">
@@ -273,30 +275,80 @@ const Home = () => {
                 </p>
               </div>
 
-              {/* User Badge */}
-              <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-xl">
-                {user?.profile?.photo_url ? (
-                  <img 
-                    src={user.profile.photo_url} 
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
-                    style={{ backgroundColor: theme.primaryColor }}
-                  >
-                    {(user?.profile?.first_name?.[0] || 'U').toUpperCase()}
+              {/* Action Icons + User Badge */}
+              <div className="flex items-center gap-3">
+                {/* Notifications */}
+                <button
+                  onClick={() => navigate('/employer/notifications')}
+                  className="relative p-3 hover:bg-gray-100 rounded-xl transition-colors group"
+                  title="Notifications"
+                >
+                  <FiBell size={20} className="text-gray-600 group-hover:text-gray-900" />
+                  {notificationCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold text-white flex items-center justify-center"
+                      style={{ backgroundColor: theme.primaryColor }}
+                    >
+                      {notificationCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Messages/Chat */}
+                <button
+                  onClick={() => navigate('/employer/messages')}
+                  className="relative p-3 hover:bg-gray-100 rounded-xl transition-colors group"
+                  title="Messages"
+                >
+                  <FiMessageSquare size={20} className="text-gray-600 group-hover:text-gray-900" />
+                  {messageCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold text-white flex items-center justify-center"
+                      style={{ backgroundColor: theme.primaryColor }}
+                    >
+                      {messageCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Settings */}
+                <button
+                  onClick={() => navigate('/employer/profile')}
+                  className="p-3 hover:bg-gray-100 rounded-xl transition-colors group"
+                  title="Settings"
+                >
+                  <FiSettings size={20} className="text-gray-600 group-hover:text-gray-900" />
+                </button>
+
+                {/* Divider */}
+                <div className="h-10 w-px bg-gray-300"></div>
+
+                {/* User Badge */}
+                <button
+                  onClick={() => navigate('/employer/profile')}
+                  className="flex items-center gap-3 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  {user?.profile?.photo_url ? (
+                    <img 
+                      src={user.profile.photo_url} 
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div 
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                      style={{ backgroundColor: theme.primaryColor }}
+                    >
+                      {(user?.profile?.first_name?.[0] || 'U').toUpperCase()}
+                    </div>
+                  )}
+                  <div className="text-left">
+                    <div className="font-semibold text-gray-900">
+                      {user?.profile?.first_name} {user?.profile?.last_name}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {user?.user_type === 'employer' ? 'HR Manager' : 'Manager'}
+                    </div>
                   </div>
-                )}
-                <div>
-                  <div className="font-semibold text-gray-900">
-                    {user?.profile?.first_name} {user?.profile?.last_name}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {user?.user_type === 'employer' ? 'HR Manager' : 'Manager'}
-                  </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
