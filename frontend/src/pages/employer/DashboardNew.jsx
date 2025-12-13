@@ -437,6 +437,7 @@ const EmployerDashboardNew = () => {
       </main>
     </div>
   );
+};
 
 // Roles & Hiring Tab Component - Starting point of workflow
 const RolesTab = ({ theme, navigate }) => {
