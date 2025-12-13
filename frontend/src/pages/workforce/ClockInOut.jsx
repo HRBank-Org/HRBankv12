@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 import api from '../../utils/api';
+import BreakReminderBanner from '../../components/workforce/BreakReminderBanner';
 
 const ClockInOut = () => {
   const { bookingId } = useParams();
