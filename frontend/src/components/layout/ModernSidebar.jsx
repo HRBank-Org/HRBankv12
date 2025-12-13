@@ -31,8 +31,7 @@ const ModernSidebar = () => {
       type: 'item',
       label: 'Workplaces',
       icon: FiMapPin,
-      path: '/employer/dashboard',
-      state: { activeTab: 'schedule', showWorkplaces: true }
+      path: '/employer/workplaces'
     },
     {
       type: 'category',
