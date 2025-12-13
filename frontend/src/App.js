@@ -99,6 +99,7 @@ import JobsCandidates from './pages/employer/JobsCandidates';
 import RoleCandidates from './pages/employer/RoleCandidates';
 import Roles from './pages/employer/Roles';
 import RoleForm from './pages/employer/RoleForm';
+import FillPositions from './pages/employer/FillPositions';
 import CreateShift from './pages/employer/CreateShift';
 import ShiftDetail from './pages/employer/ShiftDetail';
 import ShiftAttendance from './pages/employer/ShiftAttendance';
