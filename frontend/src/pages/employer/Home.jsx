@@ -6,6 +6,7 @@ import ModernSidebar from '../../components/layout/ModernSidebar';
 import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 import { FiCalendar, FiUsers, FiFileText, FiTrendingUp, FiClock, FiMapPin, FiAlertCircle, FiCheckCircle, FiDollarSign, FiAward, FiUserCheck } from 'react-icons/fi';
+import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Home = () => {
   const { user } = useAuth();
@@ -23,6 +24,38 @@ const Home = () => {
   });
   const [loading, setLoading] = useState(true);
   const [attentionItems, setAttentionItems] = useState([]);
+
+  // Chart data
+  const attendanceData = [
+    { day: 'Mon', attendance: 22, scheduled: 25 },
+    { day: 'Tue', attendance: 24, scheduled: 25 },
+    { day: 'Wed', attendance: 23, scheduled: 26 },
+    { day: 'Thu', attendance: 25, scheduled: 27 },
+    { day: 'Fri', attendance: 26, scheduled: 28 },
+    { day: 'Sat', attendance: 18, scheduled: 20 },
+    { day: 'Sun', attendance: 15, scheduled: 18 }
+  ];
+
+  const hoursData = [
+    { week: 'Week 1', hours: 320 },
+    { week: 'Week 2', hours: 335 },
+    { week: 'Week 3', hours: 342 },
+    { week: 'Week 4', hours: 355 }
+  ];
+
+  const departmentData = [
+    { name: 'Kitchen', value: 8, color: '#3b82f6' },
+    { name: 'Service', value: 12, color: '#8b5cf6' },
+    { name: 'Bar', value: 4, color: '#10b981' },
+    { name: 'Management', value: 3, color: '#f59e0b' }
+  ];
+
+  const payrollData = [
+    { month: 'Sep', amount: 45000 },
+    { month: 'Oct', amount: 48000 },
+    { month: 'Nov', amount: 52000 },
+    { month: 'Dec', amount: 49000 }
+  ];
 
   useEffect(() => {
     loadDashboardData();
@@ -250,6 +283,142 @@ const Home = () => {
               </div>
             </div>
           )}
+
+          {/* Charts & Analytics Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FiTrendingUp size={24} className="text-blue-600" />
+              Analytics & Insights
+            </h2>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Attendance Trend Chart */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-4">Weekly Attendance</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <AreaChart data={attendanceData}>
+                    <defs>
+                      <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="day" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Legend />
+                    <Area 
+                      type="monotone" 
+                      dataKey="attendance" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2}
+                      fill="url(#colorAttendance)" 
+                      name="Present"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="scheduled" 
+                      stroke="#94a3b8" 
+                      strokeWidth={2}
+                      fillOpacity={0.1}
+                      fill="#94a3b8" 
+                      name="Scheduled"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Hours Worked Trend */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-4">Hours Worked (Monthly)</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={hoursData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="week" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Bar dataKey="hours" fill="#10b981" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Team Distribution */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-4">Team by Department</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={departmentData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {departmentData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Payroll Trend */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-4">Payroll Expenses</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={payrollData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                      formatter={(value) => `$${value.toLocaleString()}`}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="amount" 
+                      stroke="#f59e0b" 
+                      strokeWidth={3}
+                      dot={{ fill: '#f59e0b', r: 5 }}
+                      name="Amount ($)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
 
           {/* Module Highlights */}
           {moduleHighlights.map((section, sectionIndex) => (
