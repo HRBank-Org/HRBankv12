@@ -64,7 +64,7 @@ const RoleForm = () => {
       // If edit mode, load role data
       if (isEditMode) {
         const roleRes = await api.get(`/api/employer/workplace-roles/${roleId}`);
-        const role = roleRes.data.data.role;
+        const role = roleRes.data.data; // Fixed: data contains the role directly
         
         setFormData({
           workplace_id: role.workplace_id || '',
