@@ -123,16 +123,16 @@ const ModernSidebar = () => {
         {/* Logo */}
         <div className="flex items-center justify-center h-20 border-b border-gray-700/50">
           <div className="flex items-center gap-3 px-4">
-            <div 
-              className="flex items-center justify-center rounded-xl"
+            <img 
+              src={theme.logo}
+              alt="HR Bank"
+              className="rounded-xl"
               style={{
                 width: '40px',
                 height: '40px',
-                backgroundColor: theme.primaryColor || '#ff6b35',
+                objectFit: 'cover'
               }}
-            >
-              <span className="text-white font-bold text-lg">HR</span>
-            </div>
+            />
             {showExpanded && (
               <span className="text-white font-bold text-lg whitespace-nowrap">
                 HR Bank
