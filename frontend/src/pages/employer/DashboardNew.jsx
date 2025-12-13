@@ -213,8 +213,6 @@ const EmployerDashboardNew = () => {
           </div>
         </div>
       </main>
-      
-      <ModernSidebar />
     </div>
   );
 };
