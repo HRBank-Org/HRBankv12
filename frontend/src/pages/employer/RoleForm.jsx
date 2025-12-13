@@ -31,7 +31,6 @@ const RoleForm = () => {
 
   const [newSkill, setNewSkill] = useState('');
   const [newCert, setNewCert] = useState('');
-  const [newTask, setNewTask] = useState({ task_name: '', estimated_minutes: 15, is_mandatory: true });
 
   useEffect(() => {
     loadInitialData();
