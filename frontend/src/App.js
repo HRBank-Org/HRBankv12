@@ -98,6 +98,7 @@ import PostJob from './pages/employer/PostJob';
 import JobsCandidates from './pages/employer/JobsCandidates';
 import RoleCandidates from './pages/employer/RoleCandidates';
 import Roles from './pages/employer/Roles';
+import RoleForm from './pages/employer/RoleForm';
 import CreateShift from './pages/employer/CreateShift';
 import ShiftDetail from './pages/employer/ShiftDetail';
 import ShiftAttendance from './pages/employer/ShiftAttendance';
@@ -234,6 +235,8 @@ function AppRoutes() {
         <Route path="/employer/jobs/post" element={<ProtectedRoute allowedUserTypes={['employer']}><PostJob /></ProtectedRoute>} />
         <Route path="/employer/jobs" element={<ProtectedRoute allowedUserTypes={['employer']}><JobsCandidates /></ProtectedRoute>} />
         <Route path="/employer/roles" element={<ProtectedRoute allowedUserTypes={['employer']}><Roles /></ProtectedRoute>} />
+        <Route path="/employer/roles/create" element={<ProtectedRoute allowedUserTypes={['employer']}><RoleForm /></ProtectedRoute>} />
+        <Route path="/employer/roles/:roleId/edit" element={<ProtectedRoute allowedUserTypes={['employer']}><RoleForm /></ProtectedRoute>} />
         <Route path="/employer/roles/:roleId/candidates" element={<ProtectedRoute allowedUserTypes={['employer']}><RoleCandidates /></ProtectedRoute>} />
         <Route path="/employer/shifts/create" element={<ProtectedRoute allowedUserTypes={['employer']}><CreateShift /></ProtectedRoute>} />
         <Route path="/employer/shifts/:shiftId" element={<ProtectedRoute allowedUserTypes={['employer']}><ShiftDetail /></ProtectedRoute>} />
