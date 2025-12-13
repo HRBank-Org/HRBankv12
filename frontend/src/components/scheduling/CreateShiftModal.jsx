@@ -349,15 +349,42 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       End Time *
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.end_time}
-                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
+                    </label>
+                    <input
+                      type="time"
+                      value={formData.end_time}
+                      onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
                 </div>
+                
+                {/* Workplace Operating Hours Indicator */}
+                {formData.workplace_id && formData.date && workplaces.length > 0 && (() => {
+                  const workplace = workplaces.find(w => w.workplace_id === formData.workplace_id);
+                  const dayOfWeek = moment(formData.date).format('dddd').toLowerCase();
+                  const dayHours = workplace?.operating_hours?.[dayOfWeek];
+                  
+                  if (dayHours && dayHours.is_open && !selectedRole) {
+                    return (
+                      <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                        <p className="text-xs text-green-700">
+                          ⏰ <strong>Times inherited from workplace hours:</strong> {workplace.workplace_name} operates {dayHours.open} - {dayHours.close} on {moment(formData.date).format('dddd')}s
+                        </p>
+                      </div>
+                    );
+                  } else if (dayHours && !dayHours.is_open) {
+                    return (
+                      <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-xs text-yellow-700">
+                          ⚠️ <strong>Note:</strong> {workplace.workplace_name} is typically closed on {moment(formData.date).format('dddd')}s
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               {/* Positions and Rate */}
