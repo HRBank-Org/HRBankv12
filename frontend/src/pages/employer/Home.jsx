@@ -311,7 +311,7 @@ const Home = () => {
 
                 {/* Settings */}
                 <button
-                  onClick={() => navigate('/employer/profile')}
+                  onClick={() => navigate('/employer/settings')}
                   className="p-3 hover:bg-gray-100 rounded-xl transition-colors group"
                   title="Settings"
                 >
@@ -323,7 +323,7 @@ const Home = () => {
 
                 {/* User Badge */}
                 <button
-                  onClick={() => navigate('/employer/profile')}
+                  onClick={() => navigate('/employer/settings')}
                   className="flex items-center gap-3 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
                 >
                   {user?.profile?.photo_url ? (
