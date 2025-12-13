@@ -89,6 +89,7 @@ import EmployerProfile from './pages/employer/Profile';
 import EmployerOnboarding from './pages/employer/Onboarding';
 import JobPosting from './pages/employer/JobPosting';
 import WorkplaceSetup from './pages/employer/WorkplaceSetup';
+// WorkplaceForm handles both create and edit
 import WorkplacesNew from './pages/employer/WorkplacesNew';
 import WorkplaceDetail from './pages/employer/WorkplaceDetail';
 import WorkplaceForm from './pages/employer/WorkplaceForm';
@@ -224,7 +225,7 @@ function AppRoutes() {
         <Route path="/employer/profile" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerProfile /></ProtectedRoute>} />
         <Route path="/employer/settings/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerNotificationSettings /></ProtectedRoute>} />
         <Route path="/employer/live-attendance" element={<ProtectedRoute allowedUserTypes={['employer']}><LiveAttendance /></ProtectedRoute>} />
-        <Route path="/employer/workplace-setup" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceSetup /></ProtectedRoute>} />
+        <Route path="/employer/workplace-setup" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceForm /></ProtectedRoute>} />
         <Route path="/employer/workplaces" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplacesNew /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceForm /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId/shifts" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetail /></ProtectedRoute>} />
