@@ -58,15 +58,34 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
     }
   }, [isOpen]);
 
-  // Get workplace province
+  // Get workplace province and inherit operating hours
   useEffect(() => {
     if (formData.workplace_id && workplaces.length > 0) {
       const workplace = workplaces.find(w => w.workplace_id === formData.workplace_id);
-      if (workplace && workplace.province_code) {
-        setWorkplaceProvince(workplace.province_code);
+      if (workplace) {
+        if (workplace.province_code) {
+          setWorkplaceProvince(workplace.province_code);
+        }
+        
+        // Inherit operating hours from workplace based on selected date
+        if (workplace.operating_hours && formData.date) {
+          const dayOfWeek = moment(formData.date).format('dddd').toLowerCase();
+          const dayHours = workplace.operating_hours[dayOfWeek];
+          
+          if (dayHours && dayHours.is_open) {
+            // Only update times if they haven't been manually set or if role hasn't been selected
+            if (!selectedRole) {
+              setFormData(prev => ({
+                ...prev,
+                start_time: dayHours.open || prev.start_time,
+                end_time: dayHours.close || prev.end_time
+              }));
+            }
+          }
+        }
       }
     }
-  }, [formData.workplace_id, workplaces]);
+  }, [formData.workplace_id, formData.date, workplaces, selectedRole]);
 
   // Handle workplace role selection - INHERIT ALL PROPERTIES including tasks
   const handleRoleSelect = (roleId) => {
