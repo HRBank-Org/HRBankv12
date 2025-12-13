@@ -21,6 +21,9 @@ class WorkplaceRole(BaseModel):
     required_certifications: List[str] = []  # Includes both occupation-linked and employer-added
     occupation_required_certifications: List[str] = []  # Certifications from occupation template
     
+    # Generic Tasks (inherited by shifts)
+    generic_tasks: List[Dict] = []  # [{task_name, estimated_minutes, is_mandatory}]
+    
     # Compensation
     hourly_rate: Optional[float] = None
     
@@ -45,6 +48,7 @@ class WorkplaceRoleCreate(BaseModel):
     occupation_template: str
     required_skills: List[str] = []
     additional_certifications: List[str] = []  # Employer can add extra certs
+    generic_tasks: List[Dict] = []  # [{task_name, estimated_minutes, is_mandatory}]
     hourly_rate: Optional[float] = None
     description: Optional[str] = None
     positions_available: int = 1
@@ -54,6 +58,7 @@ class WorkplaceRoleUpdate(BaseModel):
     role_name: Optional[str] = None
     required_skills: Optional[List[str]] = None
     additional_certifications: Optional[List[str]] = None
+    generic_tasks: Optional[List[Dict]] = None
     hourly_rate: Optional[float] = None
     description: Optional[str] = None
     positions_available: Optional[int] = None
