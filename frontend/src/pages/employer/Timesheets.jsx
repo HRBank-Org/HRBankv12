@@ -195,18 +195,19 @@ const Timesheets = () => {
         )}
         </div>
 
-      {/* Rating Modal */}
-      {ratingBooking && (
-        <RateWorkforce 
-          booking={ratingBooking}
-          onComplete={() => {
-            setRatingBooking(null);
-            alert('Rating submitted! Timesheet approved.');
-            loadTimesheets();
-          }}
-          onCancel={() => setRatingBooking(null)}
-        />
-      )}
+        {/* Rating Modal */}
+        {ratingBooking && (
+          <RateWorkforce 
+            booking={ratingBooking}
+            onComplete={() => {
+              setRatingBooking(null);
+              alert('Rating submitted! Timesheet approved.');
+              loadTimesheets();
+            }}
+            onCancel={() => setRatingBooking(null)}
+          />
+        )}
+      </div>
     </div>
   );
 };
