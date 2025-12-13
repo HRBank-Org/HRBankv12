@@ -98,7 +98,7 @@ const WorkplaceDetailEdit = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.put(`/api/employer/workplaces/${workplaceId}`, formData);
+      await api.patch(`/api/employer/workplaces/${workplaceId}`, formData);
       setWorkplace({ ...workplace, ...formData });
       setEditing(false);
     } catch (error) {
