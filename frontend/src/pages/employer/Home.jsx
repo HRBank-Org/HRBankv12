@@ -236,6 +236,11 @@ const Home = () => {
 
         {/* Content */}
         <div className="p-8">
+          {/* Unstaffed Shifts Alert - Priority 1 */}
+          <div className="mb-8">
+            <UnstaffedShiftsAlert theme={theme} />
+          </div>
+
           {/* Attention Needed Section */}
           {attentionItems.length > 0 && (
             <div className="mb-8">
