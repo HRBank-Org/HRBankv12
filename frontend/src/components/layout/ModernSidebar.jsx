@@ -41,8 +41,7 @@ const ModernSidebar = () => {
       type: 'item',
       label: 'Roles',
       icon: FiUsers,
-      path: '/employer/dashboard',
-      state: { activeTab: 'workforce', showInvitations: true }
+      path: '/employer/roles'
     },
     {
       type: 'item',
