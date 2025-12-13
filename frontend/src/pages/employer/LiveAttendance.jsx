@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiRefreshCw, FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiCalendar, FiUser } from 'react-icons/fi';
 import api from '../../services/api';
 import moment from 'moment';
+import ModernSidebar from '../../components/layout/ModernSidebar';
 
 const LiveAttendance = () => {
   const [attendance, setAttendance] = useState([]);
