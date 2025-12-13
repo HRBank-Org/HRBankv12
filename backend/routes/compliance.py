@@ -258,7 +258,7 @@ async def check_assignment_compliance(
 @router.get("/shift-break-requirements/{shift_id}")
 async def get_shift_break_requirements(
     shift_id: str,
-    current_user: dict = Depends(require_role(['employer', 'workforce']))
+    current_user: dict = Depends(require_role('employer', 'workforce'))
 ):
     """Calculate required breaks for a shift based on duration"""
     db = await get_database()
@@ -341,7 +341,7 @@ async def get_shift_break_requirements(
 @router.post("/track-break")
 async def track_break(
     data: dict,
-    current_user: dict = Depends(require_role(['employer', 'workforce']))
+    current_user: dict = Depends(require_role('employer', 'workforce'))
 ):
     """
     Record when a worker takes a break
@@ -412,7 +412,7 @@ async def track_break(
 async def get_worker_break_status(
     worker_id: str,
     shift_id: str,
-    current_user: dict = Depends(require_role(['employer', 'workforce']))
+    current_user: dict = Depends(require_role('employer', 'workforce'))
 ):
     """Get break compliance status for a worker's current shift"""
     db = await get_database()
