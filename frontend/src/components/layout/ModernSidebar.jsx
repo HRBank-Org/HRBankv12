@@ -47,8 +47,7 @@ const ModernSidebar = () => {
       type: 'item',
       label: 'Team',
       icon: FiUserCheck,
-      path: '/employer/dashboard',
-      state: { activeTab: 'workforce' }
+      path: '/employer/workforce-management'
     },
     {
       type: 'item',
