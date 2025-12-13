@@ -6,6 +6,20 @@ from dependencies import require_role, get_database
 
 router = APIRouter(prefix="/api/compliance", tags=["compliance"])
 
+# Break requirements (in minutes)
+BREAK_REQUIREMENTS = {
+    "short_break": {
+        "duration": 10,  # minutes
+        "after_hours": 2,  # after 2 hours of work
+        "description": "10-minute break required after 2 hours of work"
+    },
+    "meal_break": {
+        "duration": 30,  # minutes
+        "after_hours": 4,  # after 4 hours of work
+        "description": "30-minute meal break required after 4 hours of work"
+    }
+}
+
 # Provincial weekly hour limits (standard + overtime threshold)
 PROVINCIAL_LIMITS = {
     "ON": {"standard": 44, "max": 48, "max_with_agreement": 60},
