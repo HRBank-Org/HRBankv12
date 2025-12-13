@@ -226,14 +226,26 @@ const Home = () => {
           <div className="p-8">
             {/* Top Row: Logo + User Info + Weather */}
             <div className="flex items-start justify-between mb-6">
-              {/* Left: Logo + Company Info */}
+              {/* Left: Company Logo + Info */}
               <div className="flex items-center gap-4">
-                <img 
-                  src={theme.logo}
-                  alt="HR Bank"
-                  className="w-16 h-16 rounded-xl shadow-lg"
-                  style={{ objectFit: 'cover' }}
-                />
+                {user?.profile?.photo_url ? (
+                  <img 
+                    src={user.profile.photo_url.startsWith('http') 
+                      ? user.profile.photo_url 
+                      : `${process.env.REACT_APP_BACKEND_URL}${user.profile.photo_url}`
+                    }
+                    alt={user?.profile?.business_name || 'Company Logo'}
+                    className="w-16 h-16 rounded-xl shadow-lg"
+                    style={{ objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div 
+                    className="w-16 h-16 rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-2xl"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    {(user?.profile?.business_name?.[0] || user?.profile?.first_name?.[0] || 'C').toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
                     {user?.profile?.business_name || 'Loose Goose Bar & Bistro'}
