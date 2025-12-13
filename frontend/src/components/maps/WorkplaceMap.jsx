@@ -64,9 +64,9 @@ const WorkplaceMap = ({ workplaces, onMarkerClick }) => {
               workplace: workplace
             });
           } else {
-            // Geocode the address
-            const query = `${workplace.address}, ${workplace.city}, ${workplace.province || 'Ontario'}, Canada`;
-            const response = await fetch(
+            // Geocode the address - try full address first
+            let query = `${workplace.address}, ${workplace.city}, ${workplace.province || 'Ontario'}, Canada`;
+            let response = await fetch(
               `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
               {
                 headers: {
@@ -75,7 +75,24 @@ const WorkplaceMap = ({ workplaces, onMarkerClick }) => {
               }
             );
             
-            const data = await response.json();
+            let data = await response.json();
+            
+            // If full address fails, try just city/town
+            if (!data || data.length === 0) {
+              console.log(`Full address not found for ${workplace.workplace_name}, trying city only...`);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
+              query = `${workplace.city}, ${workplace.province || 'Ontario'}, Canada`;
+              response = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+                {
+                  headers: {
+                    'User-Agent': 'HRBank-WorkplaceManagement'
+                  }
+                }
+              );
+              data = await response.json();
+            }
             
             if (data && data.length > 0) {
               geocodedMarkers.push({
@@ -85,6 +102,8 @@ const WorkplaceMap = ({ workplaces, onMarkerClick }) => {
                 position: [parseFloat(data[0].lat), parseFloat(data[0].lon)],
                 workplace: workplace
               });
+            } else {
+              console.warn(`Could not geocode ${workplace.workplace_name}`);
             }
             
             // Rate limiting - wait 1 second between requests (Nominatim requirement)
