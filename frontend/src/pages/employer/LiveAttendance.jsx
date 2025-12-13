@@ -127,6 +127,8 @@ const LiveAttendance = () => {
           </div>
         </div>
 
+        {/* Content */}
+        <div className="p-8">
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-sm p-4">
