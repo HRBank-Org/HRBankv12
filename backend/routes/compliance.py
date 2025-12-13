@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import datetime, timedelta
 from typing import Dict, List
-import pytz
-from dependencies import require_role, get_database
+from auth.dependencies import require_role
+from database import get_database
 
 router = APIRouter(prefix="/api/compliance", tags=["compliance"])
 
