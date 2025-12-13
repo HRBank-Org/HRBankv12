@@ -67,30 +67,37 @@ const WorkplaceDetail = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header */}
-      <header className="text-white px-6 py-4 shadow-md" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/employer/dashboard', { state: { activeTab: 'schedule', showWorkplaces: true } })} className="hover:opacity-80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <div>
-              <h1 className="text-xl font-bold">{workplace?.workplace_name}</h1>
-              <p className="text-sm opacity-90">{workplace?.address}</p>
+    <div className="min-h-screen bg-gray-50">
+      <GenericHeader />
+      <ModernSidebar />
+      
+      <div className="ml-[70px] pt-[64px]">
+        {/* Page Header */}
+        <div className="px-8 py-6 bg-white border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => navigate('/employer/workplaces')} 
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">{workplace?.workplace_name}</h1>
+                <p className="text-gray-600 mt-1">{workplace?.address}, {workplace?.city}</p>
+              </div>
             </div>
+            <button
+              onClick={() => navigate(`/employer/workplaces/${workplaceId}/create-shift`)}
+              className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              + Create Shift
+            </button>
           </div>
-          <button
-            onClick={() => navigate(`/employer/workplaces/${workplaceId}/create-shift`)}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
-          >
-            + Create Shift
-          </button>
         </div>
-      </header>
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-8 py-8">
