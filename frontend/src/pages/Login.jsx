@@ -6,10 +6,12 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useToast } from '../hooks/use-toast';
 import { getLogoByUserType, getLogoBackgroundColor } from '../utils/logoUtils';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login: authLogin } = useAuth();
   const [searchParams] = useSearchParams();
   const userTypeFromUrl = searchParams.get('type') || 'workforce';
   const [activeTab, setActiveTab] = useState(userTypeFromUrl);
