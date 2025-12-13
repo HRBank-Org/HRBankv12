@@ -4159,6 +4159,246 @@ def test_emma_ai_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_workplace_detail_backend_apis(results):
+    """Test backend APIs that support the workplace detail page functionality"""
+    print("\n🧪 TESTING WORKPLACE DETAIL PAGE BACKEND APIS")
+    print("   Focus: APIs supporting workplace detail page from review request")
+    print("   Testing: Employer login, workplace management, shift management")
+    
+    # Test 1: Employer Authentication
+    print("\n   Test 1: Employer Authentication")
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login - employer@hrbank.ca / Test123!")
+            else:
+                results.add_fail("Employer login", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Employer login", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Employer login", f"Request failed: {str(e)}")
+    
+    if not employer_token:
+        results.add_fail("Workplace detail backend testing", "Cannot proceed without employer authentication")
+        return
+    
+    # Test 2: Get Employer Workplaces
+    print("\n   Test 2: Get Employer Workplaces")
+    workplaces = []
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplaces",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "workplaces" in data.get("data", {}):
+                workplaces = data["data"]["workplaces"]
+                if len(workplaces) > 0:
+                    results.add_pass(f"GET /api/employer/workplaces - Found {len(workplaces)} workplace(s)")
+                else:
+                    results.add_pass("GET /api/employer/workplaces - Empty list (no workplaces yet)")
+            else:
+                results.add_fail("GET /api/employer/workplaces", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/employer/workplaces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/employer/workplaces", f"Request failed: {str(e)}")
+    
+    # Test 3: Get Workplace Shifts (if workplace exists)
+    if workplaces:
+        print("\n   Test 3: Get Workplace Shifts")
+        workplace_id = workplaces[0].get("workplace_id")
+        workplace_name = workplaces[0].get("workplace_name", "Unknown")
+        
+        try:
+            response = requests.get(
+                f"{BASE_URL}/employer/shifts",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "shifts" in data.get("data", {}):
+                    shifts = data["data"]["shifts"]
+                    workplace_shifts = [s for s in shifts if s.get("workplace_id") == workplace_id]
+                    results.add_pass(f"GET /api/employer/shifts - Found {len(workplace_shifts)} shift(s) for workplace '{workplace_name}'")
+                else:
+                    results.add_fail("GET /api/employer/shifts", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/employer/shifts", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/employer/shifts", f"Request failed: {str(e)}")
+    
+    # Test 4: Workplace Roles API
+    print("\n   Test 4: Workplace Roles API")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplace-roles/list",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "roles" in data.get("data", {}):
+                roles = data["data"]["roles"]
+                results.add_pass(f"GET /api/employer/workplace-roles/list - Found {len(roles)} role(s)")
+            else:
+                results.add_fail("GET /api/employer/workplace-roles/list", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/employer/workplace-roles/list", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/employer/workplace-roles/list", f"Request failed: {str(e)}")
+    
+    # Test 5: Shift Management API
+    print("\n   Test 5: Enhanced Shift Management API")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/shift-management/shifts",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "shifts" in data.get("data", {}):
+                shifts = data["data"]["shifts"]
+                results.add_pass(f"GET /api/employer/shift-management/shifts - Found {len(shifts)} shift(s)")
+            else:
+                results.add_fail("GET /api/employer/shift-management/shifts", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/employer/shift-management/shifts", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/employer/shift-management/shifts", f"Request failed: {str(e)}")
+    
+    # Test 6: Create Shift API (if workplace exists)
+    if workplaces:
+        print("\n   Test 6: Create Shift API")
+        workplace_id = workplaces[0].get("workplace_id")
+        
+        # Create a test shift for tomorrow
+        from datetime import datetime, timedelta
+        tomorrow = datetime.now() + timedelta(days=1)
+        start_time = tomorrow.replace(hour=9, minute=0, second=0, microsecond=0)
+        end_time = start_time + timedelta(hours=8)
+        
+        shift_data = {
+            "workplace_id": workplace_id,
+            "shift_name": "Test Shift for Workplace Detail",
+            "position_title": "Test Worker",
+            "start_time": start_time.isoformat() + "Z",
+            "end_time": end_time.isoformat() + "Z",
+            "positions_needed": 2,
+            "description": "Test shift created by backend testing",
+            "hourly_rate": 20.00,
+            "required_skills": ["Communication", "Teamwork"],
+            "required_certifications": []
+        }
+        
+        try:
+            response = requests.post(
+                f"{BASE_URL}/employer/shift-management/shifts",
+                json=shift_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "shift" in data.get("data", {}):
+                    created_shift = data["data"]["shift"]
+                    shift_id = created_shift.get("shift_id")
+                    results.add_pass(f"POST /api/employer/shift-management/shifts - Created shift '{shift_id}'")
+                    
+                    # Test 7: Update Shift API
+                    print("\n   Test 7: Update Shift API")
+                    update_data = {
+                        "shift_name": "Updated Test Shift",
+                        "description": "Updated description for workplace detail testing"
+                    }
+                    
+                    try:
+                        response = requests.patch(
+                            f"{BASE_URL}/employer/shift-management/shifts/{shift_id}",
+                            json=update_data,
+                            headers=get_auth_headers(employer_token),
+                            timeout=10
+                        )
+                        
+                        if response.status_code == 200:
+                            data = response.json()
+                            if data.get("success"):
+                                results.add_pass(f"PATCH /api/employer/shift-management/shifts/{shift_id} - Updated successfully")
+                            else:
+                                results.add_fail("PATCH shift update", f"Invalid response: {data}")
+                        else:
+                            results.add_fail("PATCH shift update", f"HTTP {response.status_code}: {response.text}")
+                    except Exception as e:
+                        results.add_fail("PATCH shift update", f"Request failed: {str(e)}")
+                    
+                    # Test 8: Delete Shift API (cleanup)
+                    print("\n   Test 8: Delete Shift API (cleanup)")
+                    try:
+                        response = requests.delete(
+                            f"{BASE_URL}/employer/shift-management/shifts/{shift_id}",
+                            headers=get_auth_headers(employer_token),
+                            timeout=10
+                        )
+                        
+                        if response.status_code == 200:
+                            data = response.json()
+                            if data.get("success"):
+                                results.add_pass(f"DELETE /api/employer/shift-management/shifts/{shift_id} - Deleted successfully")
+                            else:
+                                results.add_fail("DELETE shift cleanup", f"Invalid response: {data}")
+                        else:
+                            results.add_fail("DELETE shift cleanup", f"HTTP {response.status_code}: {response.text}")
+                    except Exception as e:
+                        results.add_fail("DELETE shift cleanup", f"Request failed: {str(e)}")
+                        
+                else:
+                    results.add_fail("POST create shift", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("POST create shift", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST create shift", f"Request failed: {str(e)}")
+    
+    # Test 9: Authentication Enforcement
+    print("\n   Test 9: Authentication Enforcement")
+    workplace_endpoints = [
+        ("GET", "/employer/workplaces"),
+        ("GET", "/employer/shifts"),
+        ("GET", "/employer/workplace-roles/list"),
+        ("GET", "/employer/shift-management/shifts")
+    ]
+    
+    for method, endpoint in workplace_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Auth required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Auth required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Auth required for {method} {endpoint}", f"Request failed: {str(e)}")
+
 def main():
     """Run comprehensive HR Bank backend tests"""
     results = TestResults()
