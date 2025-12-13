@@ -217,6 +217,227 @@ const EmployerDashboardNew = () => {
       </main>
     </div>
   );
+
+// Roles & Hiring Tab Component - Starting point of workflow
+const RolesTab = ({ theme, navigate }) => {
+  const [roles, setRoles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('all'); // all, open, filled, posted
+
+  useEffect(() => {
+    loadRoles();
+  }, []);
+
+  const loadRoles = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/api/employer/workplace-roles/list');
+      setRoles(response.data.data.roles || []);
+    } catch (error) {
+      console.error('Failed to load roles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRoleStatus = (role) => {
+    if (role.filled_positions >= role.positions_available) return 'filled';
+    if (role.posted_to_matching) return 'posted';
+    return 'open';
+  };
+
+  const filteredRoles = roles.filter(role => {
+    if (filterStatus === 'all') return true;
+    return getRoleStatus(role) === filterStatus;
+  });
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Roles & Hiring Pipeline</h2>
+          <p className="text-gray-600 mt-1">Create roles, post to matching engine, review candidates, and hire workers</p>
+        </div>
+        <button
+          onClick={() => navigate('/employer/roles/create')}
+          className="flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all"
+          style={{ backgroundColor: theme.primaryColor }}
+        >
+          <FiPlus className="w-5 h-5" />
+          Create New Role
+        </button>
+      </div>
+
+      {/* Filter Pills */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-sm text-gray-600 font-medium">Filter:</span>
+        <div className="flex gap-2">
+          {[
+            { value: 'all', label: 'All Roles', color: 'gray' },
+            { value: 'open', label: 'Open', color: 'blue' },
+            { value: 'posted', label: 'Posted to Matching', color: 'green' },
+            { value: 'filled', label: 'Filled', color: 'purple' }
+          ].map(filter => (
+            <button
+              key={filter.value}
+              onClick={() => setFilterStatus(filter.value)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                filterStatus === filter.value
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {filter.label} ({roles.filter(r => filter.value === 'all' ? true : getRoleStatus(r) === filter.value).length})
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {roles.length === 0 ? (
+        <div className="bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+          <FiBriefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">No Roles Created Yet</h3>
+          <p className="text-gray-600 mb-6">
+            Create your first role to start the hiring process.<br/>
+            The system will match qualified workers based on skills, certifications, and availability.
+          </p>
+          <button
+            onClick={() => navigate('/employer/roles/create')}
+            className="px-8 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all inline-flex items-center gap-2"
+            style={{ backgroundColor: theme.primaryColor }}
+          >
+            <FiPlus className="w-5 h-5" />
+            Create Your First Role
+          </button>
+          
+          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg text-left max-w-2xl mx-auto">
+            <p className="text-sm text-blue-900 font-semibold mb-2">📋 How it works:</p>
+            <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+              <li>Create a role (position, requirements, schedule)</li>
+              <li>Post to matching engine or send direct invitations</li>
+              <li>Review matched candidates and interview invitations</li>
+              <li>Hire workers and assign them to shifts</li>
+              <li>Track attendance, tasks, and performance</li>
+            </ol>
+          </div>
+        </div>
+      ) : (
+        /* Roles Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredRoles.map(role => (
+            <RoleCard key={role.role_id} role={role} theme={theme} navigate={navigate} onUpdate={loadRoles} />
+          ))}
+        </div>
+      )}
+
+      {filteredRoles.length === 0 && roles.length > 0 && (
+        <div className="text-center py-12 text-gray-500">
+          <p>No roles match the selected filter</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Role Card Component
+const RoleCard = ({ role, theme, navigate, onUpdate }) => {
+  const status = role.filled_positions >= role.positions_available ? 'filled' : 
+                 role.posted_to_matching ? 'posted' : 'open';
+  
+  const statusConfig = {
+    open: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', label: 'Open' },
+    posted: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', label: 'Posted' },
+    filled: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', label: 'Filled' }
+  };
+  
+  const config = statusConfig[status];
+  
+  return (
+    <div className="bg-white rounded-lg border-2 border-gray-200 p-6 hover:shadow-lg transition-all">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-gray-900 mb-1">{role.role_name}</h3>
+          <p className="text-sm text-gray-600">{role.occupation_template}</p>
+        </div>
+        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text} ${config.border} border`}>
+          {config.label}
+        </span>
+      </div>
+
+      {/* Details */}
+      <div className="space-y-2 mb-4 text-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-gray-600">Hourly Rate:</span>
+          <span className="font-semibold text-gray-900">${role.hourly_rate || '—'}/hr</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-gray-600">Positions:</span>
+          <span className="font-semibold text-gray-900">{role.filled_positions || 0}/{role.positions_available}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-gray-600">Workplace:</span>
+          <span className="font-semibold text-gray-900 truncate ml-2">{role.workplace_name || 'N/A'}</span>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+          <span>Hiring Progress</span>
+          <span>{Math.round(((role.filled_positions || 0) / role.positions_available) * 100)}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="h-2 rounded-full transition-all"
+            style={{ 
+              width: `${Math.min(((role.filled_positions || 0) / role.positions_available) * 100, 100)}%`,
+              backgroundColor: theme.primaryColor 
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        {status === 'open' && (
+          <button
+            onClick={() => navigate(`/employer/roles/${role.role_id}/candidates`)}
+            className="flex-1 py-2 px-4 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+          >
+            Post & Match
+          </button>
+        )}
+        {status === 'posted' && (
+          <button
+            onClick={() => navigate(`/employer/roles/${role.role_id}/candidates`)}
+            className="flex-1 py-2 px-4 text-white rounded-lg text-sm font-medium hover:opacity-90"
+            style={{ backgroundColor: theme.primaryColor }}
+          >
+            View Candidates
+          </button>
+        )}
+        {status === 'filled' && (
+          <button
+            onClick={() => navigate(`/employer/roles/${role.role_id}`)}
+            className="flex-1 py-2 px-4 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700"
+          >
+            View Details
+          </button>
+        )}
+        <button
+          onClick={() => navigate(`/employer/roles/${role.role_id}/edit`)}
+          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200"
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+  );
+};
+
 };
 
 // Workforce Tab Component
