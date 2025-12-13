@@ -57,6 +57,42 @@ async def send_manual_invitations(
     )
     employer_name = employer.get('company_name', 'Employer') if employer else 'Employer'
     
+    # Group invites by role_id to check position limits
+    role_invite_counts = {}
+    for inv in invite_batch.invites:
+        role_invite_counts[inv.role_id] = role_invite_counts.get(inv.role_id, 0) + 1
+    
+    # Validate position limits for each role
+    for role_id, count in role_invite_counts.items():
+        role = await db.workplace_roles.find_one({
+            "role_id": role_id,
+            "employer_id": current_user['user_id']
+        }, {"_id": 0, "role_name": 1, "positions_needed": 1, "assigned_workers": 1})
+        
+        if not role:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Role {role_id} not found"
+            )
+        
+        current_filled = len(role.get('assigned_workers', []))
+        
+        # Count pending invitations for this role
+        pending_count = await db.invite_tokens.count_documents({
+            "invited_by_user_id": current_user['user_id'],
+            "role_id": role_id,
+            "status": "sent"
+        })
+        
+        total_positions = role.get('positions_needed', 1)
+        available = total_positions - current_filled - pending_count
+        
+        if count > available:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Role '{role['role_name']}' only has {available} available position(s). Cannot invite {count} people."
+            )
+    
     successful_invites = []
     failed_invites = []
     
