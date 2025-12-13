@@ -121,6 +121,15 @@ const ClockInOut = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
+      {/* Break Reminder Banner - shows when worker needs a break */}
+      {attendance && booking?.shift_id && user?.user_id && (
+        <BreakReminderBanner 
+          workerId={user.user_id}
+          shiftId={booking.shift_id}
+          onBreakTaken={() => console.log('Break taken')}
+        />
+      )}
+      
       <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <button onClick={() => navigate('/workforce/dashboard')} className="hover:opacity-80">
