@@ -452,7 +452,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/pages/employer/WorkplaceDetail.jsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -462,6 +462,9 @@ frontend:
         -working: false
         -agent: "testing"
         -comment: "CRITICAL FRONTEND AUTHENTICATION ISSUE PREVENTING WORKPLACE DETAIL PAGE TESTING. ❌ AUTHENTICATION PROBLEM: Unable to complete login flow via frontend UI despite backend API working correctly (confirmed via curl: employer@hrbank.ca / Test123! returns valid JWT token). Login page loads correctly but login attempts remain on login screen without redirecting to dashboard. ✅ BACKEND VERIFICATION: All required APIs working perfectly - GET /api/employer/workplaces returns 2 workplaces (Loose Goose Bar & Bistro, Loose Goose - Tecumseh), GET /api/employer/shifts returns 49 shifts with proper structure (shift_id, workplace_name, role_name, dates, times, status badges). ✅ CODE STRUCTURE VERIFIED: WorkplaceDetail.jsx properly implements GenericHeader and ModernSidebar components, includes all required UI elements (workplace name/address, back button, Create Shift button, Shifts & Schedules heading, shift cards with Duplicate/Manage Roles buttons, duplicate modal with date picker). ❌ TESTING BLOCKED: Cannot verify UI rendering, layout components, or interactive functionality due to frontend authentication flow issues. The JSX syntax has been fixed but frontend login system needs investigation before workplace detail page can be properly tested."
+        -working: false
+        -agent: "testing"
+        -comment: "COMPREHENSIVE WORKPLACE DETAIL PAGE TESTING ATTEMPTED - AUTHENTICATION FLOW CONFIRMED BROKEN. ✅ CRITICAL FIX VERIFICATION: Login.jsx correctly updated to navigate to '/employer/home' instead of generic '/dashboard' route (line 89 confirmed). ✅ BACKEND API VALIDATION: All backend APIs working perfectly - POST /api/auth/login returns valid JWT token for employer@hrbank.ca/Test123!, GET /api/employer/workplaces returns 2 workplaces (Loose Goose Bar & Bistro, Loose Goose - Tecumseh), workplace detail APIs accessible with proper authentication. ✅ FRONTEND COMPILATION: Frontend service running successfully, no JSX syntax errors, WorkplaceDetail.jsx properly structured with GenericHeader, ModernSidebar, workplace info display, shift cards, and duplicate modal functionality. ❌ CRITICAL AUTHENTICATION FLOW ISSUE: Frontend login form submission does not complete authentication flow - login page loads correctly, form accepts credentials, but fails to redirect to /employer/home despite backend returning valid tokens. Direct navigation to /employer/home redirects back to login, confirming authentication context is not being established. ❌ ROOT CAUSE: Frontend AuthContext or login form submission logic has integration issues preventing successful authentication despite backend working correctly. RESOLUTION REQUIRED: Debug frontend authentication flow, token storage, or AuthContext integration to enable proper login before workplace detail page can be tested."
 
   - task: "Task Management System for Workers - Complete UI and API Integration"
     implemented: true
