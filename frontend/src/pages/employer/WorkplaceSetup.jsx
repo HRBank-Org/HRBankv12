@@ -84,7 +84,7 @@ const WorkplaceSetup = () => {
       await api.post('/api/employer/workplaces', formData);
       setSuccess(true);
       setTimeout(() => {
-        navigate('/employer/dashboard');
+        navigate('/employer/workplaces');
       }, 2000);
     } catch (err) {
       console.error('Workplace creation error:', err);
@@ -96,23 +96,31 @@ const WorkplaceSetup = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: `${theme.accentColor}20` }}>
-              <svg className="w-8 h-8" fill="none" stroke={theme.accentColor} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+      <div className="min-h-screen bg-gray-50">
+        <GenericHeader />
+        <ModernSidebar />
+        
+        <div className="ml-[70px] pt-[64px] flex items-center justify-center h-96">
+          <div className="max-w-md w-full text-center">
+            <div className="bg-white rounded-xl shadow-sm p-8">
+              <div 
+                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{ backgroundColor: `${theme.primaryColor}20` }}
+              >
+                <svg className="w-8 h-8" fill="none" stroke={theme.primaryColor} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Workplace Created! 🎉</h2>
+              <p className="text-gray-600 mb-6">You can now manage shifts and assign workers.</p>
+              <button
+                onClick={() => navigate('/employer/workplaces')}
+                className="px-6 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                View Workplaces
+              </button>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Workplace Created! 🎉</h2>
-            <p className="text-gray-600 mb-6">You can now start posting jobs and hiring workers.</p>
-            <button
-              onClick={() => navigate('/employer/dashboard')}
-              className="px-6 py-3 rounded-lg text-white font-semibold"
-              style={{ backgroundColor: theme.primaryColor }}
-            >
-              Go to Dashboard
-            </button>
           </div>
         </div>
       </div>
@@ -120,22 +128,31 @@ const WorkplaceSetup = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header */}
-      <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <GenericHeader />
+      <ModernSidebar />
+      
+      <div className="ml-[70px] pt-[64px]">
+        {/* Page Header */}
+        <div className="px-8 py-6 bg-white border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
+            <button 
+              onClick={() => navigate('/employer/workplaces')} 
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
             <div>
-              <h1 className="text-lg font-bold">Create Your First Workplace</h1>
-              <p className="text-sm opacity-90">Add your business location</p>
+              <h1 className="text-3xl font-bold text-gray-900">Add New Workplace</h1>
+              <p className="text-gray-600 mt-1">Set up a new business location</p>
             </div>
           </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-8">
+        {/* Main Content */}
+        <div className="max-w-4xl mx-auto px-8 py-8">
         <div className="bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Workplace Information</h2>
           <p className="text-gray-600 mb-6">Tell us about your workplace location</p>
@@ -226,7 +243,7 @@ const WorkplaceSetup = () => {
             <div className="flex gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => navigate('/employer/dashboard')}
+                onClick={() => navigate('/employer/workplaces')}
                 className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancel
