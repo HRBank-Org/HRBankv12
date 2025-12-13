@@ -385,6 +385,33 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                   }
                   return null;
                 })()}
+                
+                {/* Break Requirements Indicator */}
+                {formData.start_time && formData.end_time && (() => {
+                  const startTime = moment(`2000-01-01 ${formData.start_time}`);
+                  const endTime = moment(`2000-01-01 ${formData.end_time}`);
+                  const hours = endTime.diff(startTime, 'hours', true);
+                  
+                  if (hours >= 2) {
+                    const breaks = [];
+                    if (hours >= 2) breaks.push('10-min break after 2 hours');
+                    if (hours >= 4) breaks.push('30-min meal break after 4 hours');
+                    if (hours >= 6) breaks.push('Additional 10-min break');
+                    
+                    return (
+                      <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-xs text-blue-700">
+                          ☕ <strong>Break Requirements ({hours.toFixed(1)} hour shift):</strong>
+                        </p>
+                        <ul className="text-xs text-blue-600 ml-4 mt-1 list-disc">
+                          {breaks.map((b, i) => <li key={i}>{b}</li>)}
+                        </ul>
+                        <p className="text-xs text-blue-500 mt-1">Workers will be notified automatically</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               {/* Positions and Rate */}
