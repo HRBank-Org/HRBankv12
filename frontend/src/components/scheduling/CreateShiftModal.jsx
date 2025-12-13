@@ -100,7 +100,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
       setSelectedRole(role);
       setSelectedTemplate(null); // Clear template if role is selected
       
-      // Inherit ALL properties from the role including standard tasks
+      // Inherit ALL properties from the role including generic tasks
       setFormData(prev => ({
         ...prev,
         workplace_id: role.workplace_id,
@@ -111,7 +111,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
         end_time: role.shift_end_time || prev.end_time,
         positions_needed: role.positions_needed || 1,
         required_skills: role.required_skills || [],
-        standard_tasks: role.standard_tasks || [] // Inherit role tasks
+        standard_tasks: (role.generic_tasks || []).map(t => typeof t === 'string' ? t : t.task_name) // Inherit generic tasks from role
       }));
     }
   };
