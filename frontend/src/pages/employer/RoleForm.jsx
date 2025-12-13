@@ -128,22 +128,7 @@ const RoleForm = () => {
     }));
   };
 
-  const addTask = () => {
-    if (newTask.task_name.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        generic_tasks: [...prev.generic_tasks, { ...newTask }]
-      }));
-      setNewTask({ task_name: '', estimated_minutes: 15, is_mandatory: true });
-    }
-  };
-
-  const removeTask = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      generic_tasks: prev.generic_tasks.filter((_, i) => i !== index)
-    }));
-  };
+  // Task functions removed - now using simple textarea input
 
   const handleSubmit = async (e) => {
     e.preventDefault();
