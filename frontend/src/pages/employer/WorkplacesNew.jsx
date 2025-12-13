@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
-import { FiMapPin, FiUsers, FiCalendar, FiPlus } from 'react-icons/fi';
+import { FiMapPin, FiUsers, FiCalendar, FiPlus, FiGrid, FiList } from 'react-icons/fi';
 
 const WorkplacesNew = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const WorkplacesNew = () => {
   const { user } = useAuth();
   const [workplaces, setWorkplaces] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   useEffect(() => {
     loadWorkplaces();
@@ -21,8 +22,11 @@ const WorkplacesNew = () => {
   const loadWorkplaces = async () => {
     try {
       const response = await api.get('/api/employer/workplaces');
+      console.log('Workplaces response:', response.data);
       if (response.data.success) {
-        setWorkplaces(response.data.data.workplaces || []);
+        const workplacesData = response.data.data?.workplaces || response.data.workplaces || [];
+        setWorkplaces(workplacesData);
+        console.log('Loaded workplaces:', workplacesData);
       }
     } catch (error) {
       console.error('Failed to load workplaces:', error);
@@ -61,16 +65,42 @@ const WorkplacesNew = () => {
 
         {/* Main Content */}
         <div className="p-8">
-          {/* Add Workplace Button */}
-          <div className="mb-6">
+          {/* Action Bar: Add Button + View Toggle */}
+          <div className="mb-6 flex items-center justify-between">
             <button
-              onClick={() => navigate('/employer/workplace/setup')}
+              onClick={() => navigate('/employer/workplace-setup')}
               className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all flex items-center gap-2"
               style={{ backgroundColor: theme.primaryColor }}
             >
               <FiPlus size={20} />
               Add Workplace
             </button>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'grid' 
+                    ? 'bg-gray-100 text-gray-900' 
+                    : 'text-gray-500 hover:text-gray-900'
+                }`}
+                title="Grid View"
+              >
+                <FiGrid size={20} />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'list' 
+                    ? 'bg-gray-100 text-gray-900' 
+                    : 'text-gray-500 hover:text-gray-900'
+                }`}
+                title="List View"
+              >
+                <FiList size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Stats Cards + Map Side by Side */}
@@ -139,9 +169,9 @@ const WorkplacesNew = () => {
             </div>
           </div>
 
-          {/* Workplace Cards */}
+          {/* Workplace Cards/List */}
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900">Your Workplaces</h2>
+            <h2 className="text-xl font-bold text-gray-900">Your Workplaces ({workplaces.length})</h2>
             
             {workplaces.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">
@@ -149,37 +179,33 @@ const WorkplacesNew = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Workplaces Yet</h3>
                 <p className="text-gray-600 mb-4">Get started by adding your first workplace</p>
                 <button
-                  onClick={() => navigate('/employer/workplace/setup')}
+                  onClick={() => navigate('/employer/workplace-setup')}
                   className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-all"
                   style={{ backgroundColor: theme.primaryColor }}
                 >
                   Add Workplace
                 </button>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6">
+            ) : viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {workplaces.map((workplace) => (
                   <div
                     key={workplace.workplace_id}
                     className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => navigate(`/employer/workplace/${workplace.workplace_id}`)}
+                    onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{workplace.name}</h3>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{workplace.workplace_name || workplace.name}</h3>
                         <p className="text-gray-600 text-sm flex items-center gap-2">
                           <FiMapPin size={16} />
                           {workplace.address}, {workplace.city}, {workplace.province} {workplace.postal_code}
                         </p>
                       </div>
                       <span 
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          workplace.status === 'active' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
+                        className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700"
                       >
-                        {workplace.status || 'Active'}
+                        Active
                       </span>
                     </div>
                     
@@ -190,11 +216,60 @@ const WorkplacesNew = () => {
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <FiCalendar size={18} />
-                        <span className="text-sm">{workplace.active_shifts || 0} Active Shifts</span>
+                        <span className="text-sm">{workplace.active_shifts || 0} Shifts</span>
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Workplace Name</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Address</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Workers</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Shifts</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {workplaces.map((workplace) => (
+                      <tr 
+                        key={workplace.workplace_id}
+                        className="hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-gray-900">{workplace.workplace_name || workplace.name}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-gray-600 text-sm">
+                            {workplace.address}, {workplace.city}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <FiUsers size={16} />
+                            <span className="text-sm">{workplace.assigned_workers || 0}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <FiCalendar size={16} />
+                            <span className="text-sm">{workplace.active_shifts || 0}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            Active
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
