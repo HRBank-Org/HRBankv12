@@ -251,3 +251,307 @@ async def check_assignment_compliance(
             "warnings": [w for w in warnings if w is not None]
         }
     }
+
+
+
+
+@router.get("/shift-break-requirements/{shift_id}")
+async def get_shift_break_requirements(
+    shift_id: str,
+    current_user: dict = Depends(require_role(['employer', 'workforce']))
+):
+    """Calculate required breaks for a shift based on duration"""
+    db = await get_database()
+    
+    shift = await db.calendar_shifts.find_one({"shift_id": shift_id})
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Calculate shift duration
+    start_time = datetime.fromisoformat(shift["start_time"])
+    end_time = datetime.fromisoformat(shift["end_time"])
+    shift_hours = (end_time - start_time).total_seconds() / 3600
+    
+    required_breaks = []
+    
+    # 10-min break after 2 hours
+    if shift_hours >= 2:
+        # Calculate when break should be taken (2 hours into shift)
+        break_time = start_time + timedelta(hours=2)
+        required_breaks.append({
+            "type": "short_break",
+            "duration": 10,
+            "required_after_hours": 2,
+            "suggested_time": break_time.isoformat(),
+            "description": "10-minute break",
+            "is_mandatory": True
+        })
+    
+    # 30-min meal break after 4 hours
+    if shift_hours >= 4:
+        break_time = start_time + timedelta(hours=4)
+        required_breaks.append({
+            "type": "meal_break",
+            "duration": 30,
+            "required_after_hours": 4,
+            "suggested_time": break_time.isoformat(),
+            "description": "30-minute meal break",
+            "is_mandatory": True
+        })
+    
+    # Additional 10-min break for every additional 2 hours
+    if shift_hours >= 6:
+        break_time = start_time + timedelta(hours=6)
+        required_breaks.append({
+            "type": "short_break",
+            "duration": 10,
+            "required_after_hours": 6,
+            "suggested_time": break_time.isoformat(),
+            "description": "10-minute break",
+            "is_mandatory": True
+        })
+    
+    if shift_hours >= 8:
+        break_time = start_time + timedelta(hours=8)
+        required_breaks.append({
+            "type": "short_break",
+            "duration": 10,
+            "required_after_hours": 8,
+            "suggested_time": break_time.isoformat(),
+            "description": "10-minute break",
+            "is_mandatory": True
+        })
+    
+    return {
+        "success": True,
+        "data": {
+            "shift_id": shift_id,
+            "shift_hours": round(shift_hours, 2),
+            "total_break_time": sum(b["duration"] for b in required_breaks),
+            "required_breaks": required_breaks,
+            "compliance_notes": [
+                "Breaks are mandatory under labor law",
+                "Workers must clock out for breaks",
+                "System will notify workers when breaks are due"
+            ]
+        }
+    }
+
+
+@router.post("/track-break")
+async def track_break(
+    data: dict,
+    current_user: dict = Depends(require_role(['employer', 'workforce']))
+):
+    """
+    Record when a worker takes a break
+    Request: { shift_id, worker_id, break_type, break_start, break_end }
+    """
+    db = await get_database()
+    
+    shift_id = data.get("shift_id")
+    worker_id = data.get("worker_id")
+    break_type = data.get("break_type")  # 'short_break' or 'meal_break'
+    break_start = data.get("break_start")  # ISO timestamp
+    break_end = data.get("break_end")  # ISO timestamp (optional if ongoing)
+    
+    if not all([shift_id, worker_id, break_type, break_start]):
+        raise HTTPException(status_code=400, detail="Missing required fields")
+    
+    # Calculate break duration
+    start_dt = datetime.fromisoformat(break_start)
+    duration_minutes = None
+    
+    if break_end:
+        end_dt = datetime.fromisoformat(break_end)
+        duration_minutes = (end_dt - start_dt).total_seconds() / 60
+    
+    # Create or update break record
+    break_record = {
+        "shift_id": shift_id,
+        "worker_id": worker_id,
+        "break_type": break_type,
+        "break_start": break_start,
+        "break_end": break_end,
+        "duration_minutes": round(duration_minutes, 2) if duration_minutes else None,
+        "status": "completed" if break_end else "ongoing",
+        "created_at": datetime.now().isoformat()
+    }
+    
+    # Check if break already exists
+    existing_break = await db.break_tracking.find_one({
+        "shift_id": shift_id,
+        "worker_id": worker_id,
+        "break_type": break_type,
+        "status": "ongoing"
+    })
+    
+    if existing_break and break_end:
+        # Update existing ongoing break
+        await db.break_tracking.update_one(
+            {"_id": existing_break["_id"]},
+            {"$set": {
+                "break_end": break_end,
+                "duration_minutes": round(duration_minutes, 2),
+                "status": "completed",
+                "updated_at": datetime.now().isoformat()
+            }}
+        )
+    else:
+        # Insert new break record
+        await db.break_tracking.insert_one(break_record)
+    
+    return {
+        "success": True,
+        "message": "Break recorded successfully",
+        "data": break_record
+    }
+
+
+@router.get("/worker-break-status/{worker_id}/{shift_id}")
+async def get_worker_break_status(
+    worker_id: str,
+    shift_id: str,
+    current_user: dict = Depends(require_role(['employer', 'workforce']))
+):
+    """Get break compliance status for a worker's current shift"""
+    db = await get_database()
+    
+    # Get shift details
+    shift = await db.calendar_shifts.find_one({"shift_id": shift_id})
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Get attendance record to see when worker clocked in
+    attendance = await db.attendance.find_one({
+        "shift_id": shift_id,
+        "worker_id": worker_id,
+        "clock_out_time": None  # Currently clocked in
+    })
+    
+    if not attendance:
+        return {
+            "success": True,
+            "data": {
+                "is_clocked_in": False,
+                "message": "Worker not currently clocked in"
+            }
+        }
+    
+    clock_in_time = datetime.fromisoformat(attendance["clock_in_time"])
+    current_time = datetime.now()
+    hours_worked = (current_time - clock_in_time).total_seconds() / 3600
+    
+    # Get required breaks
+    break_reqs_response = await get_shift_break_requirements(shift_id, current_user)
+    required_breaks = break_reqs_response["data"]["required_breaks"]
+    
+    # Get taken breaks
+    taken_breaks = await db.break_tracking.find({
+        "shift_id": shift_id,
+        "worker_id": worker_id,
+        "status": "completed"
+    }).to_list(20)
+    
+    # Check compliance
+    break_compliance = []
+    missing_breaks = []
+    
+    for req_break in required_breaks:
+        if hours_worked >= req_break["required_after_hours"]:
+            # This break should have been taken
+            taken = any(
+                b["break_type"] == req_break["type"] 
+                for b in taken_breaks
+            )
+            
+            if taken:
+                break_compliance.append({
+                    "break_type": req_break["type"],
+                    "description": req_break["description"],
+                    "status": "taken",
+                    "compliant": True
+                })
+            else:
+                missing_breaks.append({
+                    "break_type": req_break["type"],
+                    "description": req_break["description"],
+                    "status": "overdue",
+                    "compliant": False,
+                    "should_notify": True
+                })
+    
+    # Determine if worker needs break now
+    needs_break_now = len(missing_breaks) > 0
+    
+    return {
+        "success": True,
+        "data": {
+            "worker_id": worker_id,
+            "shift_id": shift_id,
+            "is_clocked_in": True,
+            "hours_worked": round(hours_worked, 2),
+            "break_compliance": break_compliance,
+            "missing_breaks": missing_breaks,
+            "needs_break_now": needs_break_now,
+            "next_break_due": missing_breaks[0] if missing_breaks else None,
+            "taken_breaks_count": len(taken_breaks),
+            "compliance_status": "compliant" if len(missing_breaks) == 0 else "non_compliant"
+        }
+    }
+
+
+@router.get("/pending-break-notifications")
+async def get_pending_break_notifications(
+    current_user: dict = Depends(require_role('employer'))
+):
+    """Get list of workers who need break reminders"""
+    db = await get_database()
+    
+    # Get all currently clocked-in workers for this employer
+    today = datetime.now().date().isoformat()
+    
+    attendance_records = await db.attendance.find({
+        "employer_id": current_user["user_id"],
+        "attendance_date": today,
+        "clock_out_time": None  # Currently clocked in
+    }).to_list(500)
+    
+    workers_needing_breaks = []
+    
+    for attendance in attendance_records:
+        worker_id = attendance["worker_id"]
+        shift_id = attendance["shift_id"]
+        
+        # Get break status
+        try:
+            status_response = await get_worker_break_status(
+                worker_id=worker_id,
+                shift_id=shift_id,
+                current_user=current_user
+            )
+            
+            status_data = status_response["data"]
+            
+            if status_data["needs_break_now"]:
+                workers_needing_breaks.append({
+                    "worker_id": worker_id,
+                    "worker_name": attendance.get("worker_name", "Unknown"),
+                    "shift_id": shift_id,
+                    "workplace_name": attendance.get("workplace_name", "Unknown"),
+                    "hours_worked": status_data["hours_worked"],
+                    "missing_breaks": status_data["missing_breaks"],
+                    "next_break": status_data["next_break_due"]
+                })
+        except Exception as e:
+            print(f"Error checking break status for worker {worker_id}: {str(e)}")
+            continue
+    
+    return {
+        "success": True,
+        "data": {
+            "total_workers_on_shift": len(attendance_records),
+            "workers_needing_breaks": len(workers_needing_breaks),
+            "workers": workers_needing_breaks
+        }
+    }
