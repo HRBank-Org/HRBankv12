@@ -80,6 +80,8 @@ import ManageCertifications from './pages/admin/ManageCertifications';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
+import EmployerHome from './pages/employer/Home';
+import EmployerRoster from './pages/employer/Roster';
 import EmployerNotifications from './pages/employer/Notifications';
 import EmployerMessages from './pages/employer/Messages';
 import MessageThread from './pages/employer/MessageThread';
@@ -101,6 +103,7 @@ import ManageTasks from './pages/employer/ManageTasks';
 import WorkforceManagement from './pages/employer/WorkforceManagement';
 import RosterManagement from './pages/employer/RosterManagement';
 import RosterDetail from './pages/employer/RosterDetail';
+import Payroll from './pages/employer/Payroll';
 
 // Institution pages (old imports removed, using new system)
 
@@ -207,6 +210,9 @@ function AppRoutes() {
         <Route path="/workforce/credentials" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyCredentials /></ProtectedRoute>} />
         
         {/* Employer Routes */}
+        <Route path="/employer/home" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerHome /></ProtectedRoute>} />
+        <Route path="/employer/roster" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerRoster /></ProtectedRoute>} />
+        <Route path="/employer/payroll" element={<ProtectedRoute allowedUserTypes={['employer']}><Payroll /></ProtectedRoute>} />
         <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
         <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDashboard /></ProtectedRoute>} />
         <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerNotifications /></ProtectedRoute>} />
