@@ -134,6 +134,22 @@ const Roles = () => {
 
         {/* Main Content */}
         <div className="p-8">
+          {/* Data Warning Alert */}
+          {stats.overfilledRoles > 0 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="text-orange-600">⚠️</div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-bold text-orange-900">Data Inconsistency Detected</h3>
+                  <p className="text-sm text-orange-700">
+                    {stats.overfilledRoles} role(s) have more workers assigned than positions available. 
+                    Please review and update position counts or remove excess assignments.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-xl shadow-sm p-6">
