@@ -122,13 +122,10 @@ const WorkplacesNew = () => {
                 <FiMapPin size={20} className="text-gray-600" />
                 Active Locations Map
               </h2>
-              <div className="bg-gray-100 rounded-lg h-full min-h-[300px] flex items-center justify-center">
-                <div className="text-center">
-                  <FiMapPin size={48} className="text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600 font-medium mb-1">Map Integration Coming Soon</p>
-                  <p className="text-sm text-gray-500">Pin pointing for {activeLocations} active location{activeLocations !== 1 ? 's' : ''}</p>
-                </div>
-              </div>
+              <WorkplaceMap 
+                workplaces={workplaces} 
+                onMarkerClick={(workplace) => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
+              />
             </div>
           </div>
 
