@@ -252,6 +252,7 @@ const LiveAttendance = () => {
             <p className="text-gray-600">There are no scheduled shifts for today.</p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
