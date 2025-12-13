@@ -242,7 +242,8 @@ const WorkplaceSetup = () => {
             </div>
           </form>
         </div>
-      </main>
+        </div>
+      </div>
     </div>
   );
 };
