@@ -139,14 +139,17 @@ const EmployerDashboardNew = () => {
   }
 
   return (
-    <div className="min-h-screen transition-all duration-150 ease-in-out" style={{ backgroundColor: theme.bgColor, marginRight: 0 }}>
-      <UserHeader 
-        showBack={false} 
-        greeting={`${getGreeting()}, ${getUserName()}`}
-        weather={weather ? getWeatherMessage() : null}
-      />
+    <div className="min-h-screen bg-gray-50">
+      <ModernSidebar />
+      
+      <div className="ml-[70px] transition-all duration-300">
+        <UserHeader 
+          showBack={false} 
+          greeting={`${getGreeting()}, ${getUserName()}`}
+          weather={weather ? getWeatherMessage() : null}
+        />
 
-      <main className="max-w-7xl mx-auto px-4 py-6 transition-all duration-150 ease-in-out">
+        <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Pending Ratings Banner */}
         {pendingRatings > 0 && (
           <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
