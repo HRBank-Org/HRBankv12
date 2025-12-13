@@ -79,7 +79,14 @@ const Roles = () => {
     filledRoles: roles.filter(r => r.positions_filled >= r.positions_available).length,
     unfilledRoles: roles.filter(r => r.positions_filled === 0).length,
     totalPositions: roles.reduce((sum, r) => sum + (r.positions_available || 1), 0),
-    filledPositions: roles.reduce((sum, r) => sum + (r.positions_filled || 0), 0)
+    // Cap filled positions at available to handle data inconsistencies
+    filledPositions: roles.reduce((sum, r) => {
+      const filled = r.positions_filled || 0;
+      const available = r.positions_available || 1;
+      return sum + Math.min(filled, available);
+    }, 0),
+    // Track overfilled positions (data issue warning)
+    overfilledRoles: roles.filter(r => (r.positions_filled || 0) > (r.positions_available || 1)).length
   };
 
   if (loading) {
