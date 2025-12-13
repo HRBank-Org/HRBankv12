@@ -515,12 +515,12 @@ const WorkplaceForm = () => {
                       
                       <div className="space-y-2">
                         <button
-                          onClick={() => navigate(`/employer/workplaces/${workplaceId}/shifts`)}
+                          onClick={() => navigate(`/employer/roster?workplace=${workplaceId}`)}
                           className="w-full px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between group"
                         >
                           <div className="flex items-center gap-3">
                             <FiCalendar size={20} className="text-gray-600" />
-                            <span className="text-sm font-medium text-gray-900">Manage Shifts</span>
+                            <span className="text-sm font-medium text-gray-900">View Shifts</span>
                           </div>
                           <FiChevronRight size={18} className="text-gray-400 group-hover:text-gray-600" />
                         </button>
