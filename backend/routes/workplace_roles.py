@@ -112,6 +112,7 @@ async def create_workplace_role(
         required_skills=role_data.required_skills,
         required_certifications=all_required_certs,
         occupation_required_certifications=occupation_required_certs,
+        generic_tasks=role_data.generic_tasks,
         hourly_rate=role_data.hourly_rate,
         description=role_data.description,
         positions_available=role_data.positions_available
