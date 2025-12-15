@@ -16,7 +16,7 @@ const GenericHeader = () => {
       className="fixed top-0 right-0 z-40 shadow-lg transition-all duration-300"
       style={{ 
         backgroundColor: theme.primaryColor || '#ff6b35',
-        left: '70px' // Start after collapsed sidebar
+        left: 'var(--sidebar-width, 70px)' // Dynamic based on sidebar state
       }}
     >
       <div className="flex items-center justify-between px-6 py-3">
