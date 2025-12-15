@@ -188,7 +188,8 @@ const WorkforceManagement = () => {
             ))}
           </div>
         )}
-      </main>
+        </main>
+      </div>
 
       {/* Terminate Modal */}
       {showTerminateModal && selectedWorker && (
