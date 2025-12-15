@@ -104,8 +104,6 @@ const ModernSidebar = () => {
     return false;
   };
 
-  const showExpanded = isExpanded || hovering;
-
   return (
     <>
       {/* Sidebar */}
