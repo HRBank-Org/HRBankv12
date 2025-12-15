@@ -425,6 +425,94 @@ async def duplicate_shift(
     }
 
 
+
+@router.delete("/shifts/{shift_id}", response_model=Dict)
+async def delete_shift(
+    shift_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Delete a shift (only if no workers assigned)"""
+    
+    # Find shift
+    shift = await db.shifts.find_one({"shift_id": shift_id})
+    
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Verify employer owns the workplace
+    workplace = await db.workplaces.find_one({
+        "workplace_id": shift.get("workplace_id"),
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not workplace:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this shift")
+    
+    # Check if shift has assigned workers
+    assigned_workers = shift.get("assigned_workers", [])
+    if len(assigned_workers) > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete shift with assigned workers. Please unassign workers first."
+        )
+    
+    # Delete shift
+    await db.shifts.delete_one({"shift_id": shift_id})
+    
+    return {
+        "success": True,
+        "message": "Shift deleted successfully"
+    }
+
+@router.delete("/shifts/{shift_id}/unassign/{workforce_id}", response_model=Dict)
+async def unassign_worker_from_shift(
+    shift_id: str,
+    workforce_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Remove a worker from a shift"""
+    
+    # Find shift
+    shift = await db.shifts.find_one({"shift_id": shift_id})
+    
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Verify employer owns the workplace
+    workplace = await db.workplaces.find_one({
+        "workplace_id": shift.get("workplace_id"),
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not workplace:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this shift")
+    
+    # Remove worker from assigned list
+    assigned_workers = shift.get("assigned_workers", [])
+    
+    # Handle both list of strings and list of dicts
+    if assigned_workers and isinstance(assigned_workers[0], str):
+        assigned_workers = [w for w in assigned_workers if w != workforce_id]
+    else:
+        assigned_workers = [w for w in assigned_workers if w.get("workforce_id") != workforce_id]
+    
+    # Update shift
+    await db.shifts.update_one(
+        {"shift_id": shift_id},
+        {"$set": {
+            "assigned_workers": assigned_workers,
+            "assigned_worker_count": len(assigned_workers),
+            "updated_at": datetime.utcnow().isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Worker unassigned successfully"
+    }
+
 # ==================== INVITATION ENDPOINTS ====================
 
 @router.post("/shifts/{shift_id}/invite", response_model=Dict)
