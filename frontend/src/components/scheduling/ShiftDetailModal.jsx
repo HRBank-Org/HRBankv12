@@ -9,15 +9,18 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this shift?')) return;
+    if (!confirm('Are you sure you want to delete this shift? This action cannot be undone.')) return;
 
     setLoading(true);
     setError('');
 
     try {
-      await api.delete(`/api/calendar/shifts/${shift.shift_id}`);
-      onDelete();
-      onClose();
+      await api.delete(`/api/employer/shift-management/shifts/${shift.shift_id}`);
+      setSuccessMessage('Shift deleted successfully!');
+      setTimeout(() => {
+        onDelete();
+        onClose();
+      }, 1000);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to delete shift');
     } finally {
@@ -32,8 +35,12 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
     setError('');
 
     try {
-      await api.delete(`/api/calendar/shifts/${shift.shift_id}/unassign/${workerId}`);
-      onUpdate();
+      await api.delete(`/api/employer/shift-management/shifts/${shift.shift_id}/unassign-worker/${workerId}`);
+      setSuccessMessage('Worker unassigned successfully!');
+      setTimeout(() => {
+        onUpdate();
+        setSuccessMessage('');
+      }, 2000);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to unassign worker');
     } finally {
