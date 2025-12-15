@@ -869,15 +869,23 @@ const CalendarView = ({ embedded = false, initialWorkplace = 'all' }) => {
                                     </div>
                                     {shift.assigned_workers && shift.assigned_workers.length > 0 && (
                                       <div className="text-xs mt-1 flex flex-wrap gap-1">
-                                        {shift.assigned_workers.slice(0, 2).map((worker, idx) => (
-                                          <span
-                                            key={idx}
-                                            className="px-1.5 py-0.5 bg-white/50 rounded text-xs"
-                                            title={worker.worker_name}
-                                          >
-                                            {worker.worker_name.split(' ').map(n => n[0]).join('')}
-                                          </span>
-                                        ))}
+                                        {shift.assigned_workers.slice(0, 2).map((worker, idx) => {
+                                          // Handle both worker objects and worker IDs
+                                          const workerName = typeof worker === 'string' ? 'Worker' : (worker.worker_name || worker.name || 'Worker');
+                                          const initials = typeof worker === 'string' ? 
+                                            (idx + 1).toString() : 
+                                            workerName.split(' ').map(n => n[0]).join('').substring(0, 2);
+                                          
+                                          return (
+                                            <span
+                                              key={idx}
+                                              className="px-1.5 py-0.5 bg-white/50 rounded text-xs"
+                                              title={typeof worker === 'string' ? `Worker ${idx + 1}` : workerName}
+                                            >
+                                              {initials}
+                                            </span>
+                                          );
+                                        })}
                                         {shift.assigned_workers.length > 2 && (
                                           <span className="px-1.5 py-0.5 bg-white/50 rounded text-xs">
                                             +{shift.assigned_workers.length - 2}
