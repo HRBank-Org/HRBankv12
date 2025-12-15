@@ -10,8 +10,8 @@ Pricing Structure:
   * Above minimum wage: $1/hour fee to BOTH worker and employer
 """
 
-# Ontario minimum wage (update as needed)
-MINIMUM_WAGE = 16.55
+# Ontario minimum wage (effective October 1, 2025)
+MINIMUM_WAGE = 17.60
 
 # Platform fee structure
 PLATFORM_FEE_PER_HOUR = 1.00
@@ -21,34 +21,35 @@ OCCUPATION_CATEGORIES = {
         "icon": "🍽️",
         "description": "Restaurants, hotels, catering, events",
         "occupations": [
-            {"title": "Server / Waiter / Waitress", "minimum_hourly_rate": 16.55},
-            {"title": "Line Cook", "minimum_hourly_rate": 18.00},
-            {"title": "Prep Cook", "minimum_hourly_rate": 16.55},
-            {"title": "Dishwasher", "minimum_hourly_rate": 16.55},
-            {"title": "Host / Hostess", "minimum_hourly_rate": 16.55},
-            {"title": "Barista", "minimum_hourly_rate": 16.55},
-            {"title": "Fast Food Worker", "minimum_hourly_rate": 16.55},
-            {"title": "Food Runner", "minimum_hourly_rate": 16.55},
-            {"title": "Busser", "minimum_hourly_rate": 16.55},
-            {"title": "Catering Staff", "minimum_hourly_rate": 17.00},
-            {"title": "Banquet Server", "minimum_hourly_rate": 17.50},
-            {"title": "Hotel Front Desk", "minimum_hourly_rate": 18.00},
-            {"title": "Housekeeper", "minimum_hourly_rate": 16.55},
-            {"title": "Concierge", "minimum_hourly_rate": 19.00},
-            {"title": "Room Attendant", "minimum_hourly_rate": 16.55},
-            {"title": "Event Staff", "minimum_hourly_rate": 17.00},
+            {"title": "Server / Waiter / Waitress", "minimum_hourly_rate": 17.60},
+            {"title": "Line Cook", "minimum_hourly_rate": 18.50},
+            {"title": "Prep Cook", "minimum_hourly_rate": 17.60},
+            {"title": "Dishwasher", "minimum_hourly_rate": 17.60},
+            {"title": "Host / Hostess", "minimum_hourly_rate": 17.60},
+            {"title": "Barista", "minimum_hourly_rate": 17.60},
+            {"title": "Fast Food Worker", "minimum_hourly_rate": 17.60},
+            {"title": "Food Runner", "minimum_hourly_rate": 17.60},
+            {"title": "Busser", "minimum_hourly_rate": 17.60},
+            {"title": "Catering Staff", "minimum_hourly_rate": 18.00},
+            {"title": "Banquet Server", "minimum_hourly_rate": 18.50},
+            {"title": "Hotel Front Desk", "minimum_hourly_rate": 18.50},
+            {"title": "Housekeeper", "minimum_hourly_rate": 17.60},
+            {"title": "Concierge", "minimum_hourly_rate": 19.50},
+            {"title": "Room Attendant", "minimum_hourly_rate": 17.60},
+            {"title": "Event Staff", "minimum_hourly_rate": 18.00},
             {"title": "Kitchen Manager", "minimum_hourly_rate": 22.00},
             {"title": "Restaurant Manager", "minimum_hourly_rate": 24.00},
             {
                 "title": "Bartender",
-                "minimum_hourly_rate": 17.50,
+                "minimum_hourly_rate": 18.00,
                 "required_certifications": [
                     "Smart Serve Ontario",
                     "Safe Food Handling Certificate"
                 ]
             },
             {"title": "Chef", "minimum_hourly_rate": 22.00},
-            {"title": "Sous Chef", "minimum_hourly_rate": 20.00}
+            {"title": "Sous Chef", "minimum_hourly_rate": 20.00},
+            {"title": "Shift Supervisor", "minimum_hourly_rate": 20.00}
         ]
     },
     "Retail & Grocery": {
