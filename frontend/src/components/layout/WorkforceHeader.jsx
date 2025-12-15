@@ -11,9 +11,11 @@ const WorkforceHeader = () => {
   const theme = useTheme();
   const [notificationCount, setNotificationCount] = useState(0);
   const [messageCount, setMessageCount] = useState(0);
+  const [occupations, setOccupations] = useState([]);
 
   useEffect(() => {
     loadCounts();
+    loadOccupations();
   }, []);
 
   const loadCounts = async () => {
@@ -27,6 +29,16 @@ const WorkforceHeader = () => {
       setMessageCount(msgRes.data.data?.total_unread || 0);
     } catch (error) {
       console.error('Failed to load counts:', error);
+    }
+  };
+
+  const loadOccupations = async () => {
+    try {
+      const res = await api.get('/api/occupations/me');
+      const occs = res.data.data?.occupations || [];
+      setOccupations(occs);
+    } catch (error) {
+      console.error('Failed to load occupations:', error);
     }
   };
 
@@ -57,7 +69,7 @@ const WorkforceHeader = () => {
             </div>
           )}
           
-          {/* User Name */}
+          {/* User Name & Occupations */}
           <div className="text-white">
             <div className="font-bold text-lg leading-tight">
               {user?.profile?.first_name && user?.profile?.last_name 
@@ -66,7 +78,10 @@ const WorkforceHeader = () => {
               }
             </div>
             <div className="text-sm opacity-90">
-              {user?.email}
+              {occupations.length > 0 
+                ? occupations.map(occ => occ.occupation_title).join(' • ')
+                : 'No occupation profiles'
+              }
             </div>
           </div>
         </div>
