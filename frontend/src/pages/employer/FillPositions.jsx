@@ -382,7 +382,8 @@ const FillPositions = () => {
             </div>
           )}
         </div>
-      </main>
+        </main>
+      </div>
 
       {/* Invite Modal */}
       {showInviteModal && (
