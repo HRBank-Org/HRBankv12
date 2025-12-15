@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
-import UserHeader from '../../components/common/UserHeader';
+import GenericHeader from '../../components/layout/GenericHeader';
+import ModernSidebar from '../../components/layout/ModernSidebar';
 
 const WorkforceManagement = () => {
   const [activeTab, setActiveTab] = useState('active');
@@ -49,15 +50,18 @@ const WorkforceManagement = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header with User Info */}
-      <UserHeader 
-        onBackClick={() => navigate('/employer/dashboard')}
-        showBack={true}
-        title="Workforce Management"
-      />
+    <div className="min-h-screen bg-gray-50">
+      <GenericHeader />
+      <ModernSidebar />
+      
+      <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
+        {/* Page Title */}
+        <div className="bg-white border-b border-gray-200 px-8 py-6">
+          <h1 className="text-3xl font-bold text-gray-900">Team Management</h1>
+          <p className="text-gray-600 mt-1">Manage your workforce and view worker details</p>
+        </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+        <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs */}
         <div className="flex gap-2 mb-6 border-b border-gray-200">
           <button
