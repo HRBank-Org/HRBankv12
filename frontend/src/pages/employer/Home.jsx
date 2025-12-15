@@ -89,8 +89,7 @@ const Home = () => {
           title: `${stats.pendingRatings} shifts need ratings`,
           description: 'Help your workers grow with feedback',
           action: 'Rate Now',
-          path: '/employer/dashboard',
-          state: { activeTab: 'kpis' },
+          path: '/employer/roster',
           priority: 'high'
         });
       }
@@ -108,8 +107,7 @@ const Home = () => {
           title: `${stats.openRoles} open positions to fill`,
           description: 'Start recruiting to fill roles',
           action: 'View Roles',
-          path: '/employer/dashboard',
-          state: { activeTab: 'workforce', showInvitations: true },
+          path: '/employer/roles',
           priority: 'medium'
         });
       }
