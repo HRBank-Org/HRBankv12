@@ -227,15 +227,19 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                          {worker.worker_name.charAt(0)}
+                          {typeof worker === 'string' ? (idx + 1) : (worker.worker_name?.charAt(0) || 'W')}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{worker.worker_name}</div>
-                          <div className="text-sm text-gray-600">{worker.position}</div>
+                          <div className="font-medium text-gray-900">
+                            {typeof worker === 'string' ? `Worker ${idx + 1}` : (worker.worker_name || worker.name || 'Worker')}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {typeof worker === 'string' ? worker : (worker.position || 'Worker')}
+                          </div>
                         </div>
                       </div>
                       <button
-                        onClick={() => handleUnassignWorker(worker.worker_id)}
+                        onClick={() => handleUnassignWorker(typeof worker === 'string' ? worker : (worker.worker_id || worker.workforce_id || worker.user_id))}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         disabled={loading}
                       >
