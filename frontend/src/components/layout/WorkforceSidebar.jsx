@@ -43,7 +43,7 @@ const WorkforceSidebar = () => {
     {
       type: 'item',
       label: 'Performance',
-      icon: FiSettings,
+      icon: FiAward,
       path: '/workforce/performance'
     },
     {
