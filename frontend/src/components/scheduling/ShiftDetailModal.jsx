@@ -9,19 +9,30 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this shift? This action cannot be undone.')) return;
+    console.log('🗑️ DELETE CLICKED - Shift ID:', shift.shift_id);
+    
+    if (!confirm('Are you sure you want to delete this shift? This action cannot be undone.')) {
+      console.log('❌ Delete cancelled by user');
+      return;
+    }
 
     setLoading(true);
     setError('');
+    
+    const deleteUrl = `/api/employer/shifts/${shift.shift_id}`;
+    console.log('🔄 Calling DELETE API:', deleteUrl);
 
     try {
-      await api.delete(`/api/employer/shifts/${shift.shift_id}`);
+      const response = await api.delete(deleteUrl);
+      console.log('✅ DELETE SUCCESS:', response.data);
       setSuccessMessage('Shift deleted successfully!');
       setTimeout(() => {
         onDelete();
         onClose();
       }, 1000);
     } catch (err) {
+      console.error('❌ DELETE FAILED:', err);
+      console.error('Error details:', err.response?.data);
       setError(err.response?.data?.detail || 'Failed to delete shift');
     } finally {
       setLoading(false);
@@ -29,19 +40,30 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
   };
 
   const handleUnassignWorker = async (workerId) => {
-    if (!confirm('Remove this worker from the shift?')) return;
+    console.log('👤 UNASSIGN CLICKED - Worker ID:', workerId);
+    
+    if (!confirm('Remove this worker from the shift?')) {
+      console.log('❌ Unassign cancelled by user');
+      return;
+    }
 
     setLoading(true);
     setError('');
+    
+    const unassignUrl = `/api/employer/shifts/${shift.shift_id}/unassign/${workerId}`;
+    console.log('🔄 Calling UNASSIGN API:', unassignUrl);
 
     try {
-      await api.delete(`/api/employer/shifts/${shift.shift_id}/unassign/${workerId}`);
+      const response = await api.delete(unassignUrl);
+      console.log('✅ UNASSIGN SUCCESS:', response.data);
       setSuccessMessage('Worker unassigned successfully!');
       setTimeout(() => {
         onUpdate();
         setSuccessMessage('');
       }, 2000);
     } catch (err) {
+      console.error('❌ UNASSIGN FAILED:', err);
+      console.error('Error details:', err.response?.data);
       setError(err.response?.data?.detail || 'Failed to unassign worker');
     } finally {
       setLoading(false);
