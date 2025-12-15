@@ -208,6 +208,10 @@ function AppRoutes() {
         <Route path="/workforce/find-jobs" element={<ProtectedRoute allowedUserTypes={['workforce']}><FindJobs /></ProtectedRoute>} />
         <Route path="/workforce/interview/:interviewId" element={<ProtectedRoute allowedUserTypes={['workforce', 'employer']}><VideoInterview /></ProtectedRoute>} />
         <Route path="/workforce/clock/:bookingId" element={<ProtectedRoute allowedUserTypes={['workforce']}><ClockInOut /></ProtectedRoute>} />
+        <Route path="/workforce/tasks" element={<ProtectedRoute allowedUserTypes={['workforce']}><Tasks /></ProtectedRoute>} />
+        <Route path="/workforce/performance" element={<ProtectedRoute allowedUserTypes={['workforce']}><Performance /></ProtectedRoute>} />
+        <Route path="/workforce/attendance" element={<ProtectedRoute allowedUserTypes={['workforce']}><Attendance /></ProtectedRoute>} />
+        <Route path="/workforce/wallet" element={<ProtectedRoute allowedUserTypes={['workforce']}><Wallet /></ProtectedRoute>} />
         <Route path="/workforce/timesheets" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyTimesheets /></ProtectedRoute>} />
         <Route path="/workforce/employment-history" element={<ProtectedRoute allowedUserTypes={['workforce']}><EmploymentHistory /></ProtectedRoute>} />
         <Route path="/workforce/messages" element={<ProtectedRoute allowedUserTypes={['workforce']}><Messages /></ProtectedRoute>} />
