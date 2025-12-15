@@ -6,8 +6,9 @@ const ProtectedRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userData = localStorage.getItem('hrbank_user');
-    setIsAuthenticated(!!userData);
+    // Check for access_token instead of hrbank_user
+    const accessToken = localStorage.getItem('access_token');
+    setIsAuthenticated(!!accessToken);
     setIsLoading(false);
   }, []);
 
@@ -19,7 +20,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;
