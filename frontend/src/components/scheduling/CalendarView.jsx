@@ -58,16 +58,23 @@ const CalendarView = ({ embedded = false, initialWorkplace = 'all' }) => {
         endDate = currentDate.clone().endOf('month').endOf('week');
       }
 
-      // Load shifts
-      const shiftsRes = await api.get('/api/calendar/shifts', {
-        params: {
-          start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
-          workplace_id: selectedWorkplace
-        }
+      // Load shifts from employer API (where the actual data is)
+      const shiftsRes = await api.get('/api/employer/shifts');
+      
+      // Filter by date range and workplace
+      let allShifts = shiftsRes.data.data?.shifts || [];
+      
+      if (selectedWorkplace && selectedWorkplace !== 'all') {
+        allShifts = allShifts.filter(s => s.workplace_id === selectedWorkplace);
+      }
+      
+      // Filter by date range using moment
+      allShifts = allShifts.filter(s => {
+        const shiftDate = moment(s.shift_date || s.start_time);
+        return shiftDate.isBetween(moment(startDate), moment(endDate), 'day', '[]');
       });
       
-      setShifts(shiftsRes.data.data || []);
+      setShifts(allShifts);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
