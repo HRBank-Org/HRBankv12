@@ -251,7 +251,7 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
                         </div>
                       </div>
                       <button
-                        onClick={() => handleUnassignWorker(typeof worker === 'string' ? worker : (worker.worker_id || worker.workforce_id || worker.user_id))}
+                        onClick={() => setConfirmUnassign(typeof worker === 'string' ? worker : (worker.worker_id || worker.workforce_id || worker.user_id))}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         disabled={loading}
                       >
