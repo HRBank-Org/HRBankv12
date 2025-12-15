@@ -38,6 +38,9 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
 
   const handleUnassignWorker = async (workerId) => {
     console.log('👤 UNASSIGN CLICKED - Worker ID:', workerId);
+    
+    // Close dialog immediately to prevent loop
+    setConfirmUnassign(null);
     setLoading(true);
     setError('');
     
@@ -49,16 +52,16 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
       console.log('✅ UNASSIGN SUCCESS:', response.data);
       setSuccessMessage('✅ Worker removed successfully!');
       setTimeout(() => {
-        onUpdate();
+        if (onUpdate) onUpdate();
         setSuccessMessage('');
       }, 2000);
     } catch (err) {
       console.error('❌ UNASSIGN FAILED:', err);
       console.error('Error details:', err.response?.data);
       setError(err.response?.data?.detail || 'Failed to unassign worker');
+      setLoading(false);
     } finally {
       setLoading(false);
-      setConfirmUnassign(null);
     }
   };
 
