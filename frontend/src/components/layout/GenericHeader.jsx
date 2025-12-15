@@ -13,8 +13,11 @@ const GenericHeader = () => {
 
   return (
     <header 
-      className="fixed top-0 left-0 right-0 z-50 shadow-lg"
-      style={{ backgroundColor: theme.primaryColor || '#ff6b35' }}
+      className="fixed top-0 right-0 z-40 shadow-lg transition-all duration-300"
+      style={{ 
+        backgroundColor: theme.primaryColor || '#ff6b35',
+        left: '70px' // Start after collapsed sidebar
+      }}
     >
       <div className="flex items-center justify-between px-6 py-3">
         {/* Left: Company Logo + Info + User */}
