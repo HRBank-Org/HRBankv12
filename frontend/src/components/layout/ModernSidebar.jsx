@@ -99,6 +99,16 @@ const ModernSidebar = () => {
 
   const showExpanded = isExpanded || hovering;
 
+  // Add effect to push body content when sidebar expands
+  React.useEffect(() => {
+    document.body.style.transition = 'margin-left 300ms ease-in-out';
+    document.body.style.marginLeft = showExpanded ? '240px' : '70px';
+    
+    return () => {
+      document.body.style.marginLeft = '0px';
+    };
+  }, [showExpanded]);
+
   return (
     <div
       className="fixed left-0 top-0 h-screen z-50 transition-all duration-300 ease-in-out"
@@ -110,13 +120,19 @@ const ModernSidebar = () => {
     >
       {/* Sidebar */}
       <div
-        className="h-full flex flex-col shadow-2xl"
+        className="h-full flex flex-col relative"
         style={{
-          backgroundColor: '#1a1d29',
-          borderTopRightRadius: '24px',
-          borderBottomRightRadius: '24px'
+          backgroundColor: '#1a1d29'
         }}
       >
+        {/* Shadow overlay effect (appears as if content casts shadow on sidebar) */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.3)',
+            zIndex: 1
+          }}
+        />
         {/* Logo */}
         <div className="flex items-center justify-center h-20 border-b border-gray-700/50">
           <div className="flex items-center gap-3 px-4">
