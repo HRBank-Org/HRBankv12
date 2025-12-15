@@ -58,16 +58,23 @@ const CalendarScheduling = () => {
         endDate = currentDate.clone().endOf('month').endOf('week');
       }
 
-      // Load shifts from shift-management API
-      const shiftsRes = await api.get('/api/employer/shift-management/shifts', {
-        params: {
-          start_date: startDate.format('YYYY-MM-DD'),
-          end_date: endDate.format('YYYY-MM-DD'),
-          workplace_id: selectedWorkplace
-        }
+      // Load shifts from employer API (where the actual data is)
+      const shiftsRes = await api.get('/api/employer/shifts');
+      
+      // Filter by date range and workplace
+      let allShifts = shiftsRes.data.data?.shifts || [];
+      
+      if (selectedWorkplace && selectedWorkplace !== 'all') {
+        allShifts = allShifts.filter(s => s.workplace_id === selectedWorkplace);
+      }
+      
+      // Filter by date range
+      allShifts = allShifts.filter(s => {
+        const shiftDate = moment(s.shift_date || s.start_time);
+        return shiftDate.isBetween(startDate, endDate, 'day', '[]');
       });
       
-      setShifts(shiftsRes.data.data?.shifts || []);
+      setShifts(allShifts);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
