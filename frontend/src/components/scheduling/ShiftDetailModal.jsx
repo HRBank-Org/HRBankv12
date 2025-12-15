@@ -7,6 +7,8 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmUnassign, setConfirmUnassign] = useState(null);
 
   const handleDelete = async () => {
     console.log('🗑️ DELETE CLICKED - Shift ID:', shift.shift_id);
