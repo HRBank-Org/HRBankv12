@@ -10,12 +10,6 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
 
   const handleDelete = async () => {
     console.log('🗑️ DELETE CLICKED - Shift ID:', shift.shift_id);
-    
-    if (!confirm('Are you sure you want to delete this shift? This action cannot be undone.')) {
-      console.log('❌ Delete cancelled by user');
-      return;
-    }
-
     setLoading(true);
     setError('');
     
@@ -25,28 +19,23 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
     try {
       const response = await api.delete(deleteUrl);
       console.log('✅ DELETE SUCCESS:', response.data);
-      setSuccessMessage('Shift deleted successfully!');
+      setSuccessMessage('✅ Shift deleted successfully!');
       setTimeout(() => {
         onDelete();
         onClose();
-      }, 1000);
+      }, 1500);
     } catch (err) {
       console.error('❌ DELETE FAILED:', err);
       console.error('Error details:', err.response?.data);
       setError(err.response?.data?.detail || 'Failed to delete shift');
     } finally {
       setLoading(false);
+      setConfirmDelete(false);
     }
   };
 
   const handleUnassignWorker = async (workerId) => {
     console.log('👤 UNASSIGN CLICKED - Worker ID:', workerId);
-    
-    if (!confirm('Remove this worker from the shift?')) {
-      console.log('❌ Unassign cancelled by user');
-      return;
-    }
-
     setLoading(true);
     setError('');
     
@@ -56,7 +45,7 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
     try {
       const response = await api.delete(unassignUrl);
       console.log('✅ UNASSIGN SUCCESS:', response.data);
-      setSuccessMessage('Worker unassigned successfully!');
+      setSuccessMessage('✅ Worker removed successfully!');
       setTimeout(() => {
         onUpdate();
         setSuccessMessage('');
@@ -67,6 +56,7 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
       setError(err.response?.data?.detail || 'Failed to unassign worker');
     } finally {
       setLoading(false);
+      setConfirmUnassign(null);
     }
   };
 
