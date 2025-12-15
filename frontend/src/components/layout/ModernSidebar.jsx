@@ -216,8 +216,17 @@ const ModernSidebar = () => {
             />
           </button>
         </div>
+        </div>
       </div>
-    </div>
+
+      {/* Spacer to push content - this element takes up space in the document flow */}
+      <div 
+        className="transition-all duration-300 ease-in-out flex-shrink-0"
+        style={{
+          width: showExpanded ? '240px' : '70px'
+        }}
+      />
+    </>
   );
 };
 
