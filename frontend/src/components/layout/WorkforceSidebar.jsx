@@ -30,15 +30,27 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
+      label: 'Tasks',
+      icon: FiCheckSquare,
+      path: '/workforce/tasks'
+    },
+    {
+      type: 'item',
       label: 'My Shifts',
       icon: FiCalendar,
       path: '/workforce/my-shifts'
     },
     {
       type: 'item',
-      label: 'Calendar',
-      icon: FiCalendar,
-      path: '/workforce/calendar'
+      label: 'Performance',
+      icon: FiSettings,
+      path: '/workforce/performance'
+    },
+    {
+      type: 'item',
+      label: 'Attendance',
+      icon: FiClock,
+      path: '/workforce/attendance'
     },
     {
       type: 'item',
@@ -47,14 +59,24 @@ const WorkforceSidebar = () => {
       path: '/workforce/availability'
     },
     {
+      type: 'category',
+      label: 'Earnings'
+    },
+    {
       type: 'item',
-      label: 'Clock In/Out',
-      icon: FiClock,
-      path: '/workforce/clock'
+      label: 'Wallet',
+      icon: FiFileText,
+      path: '/workforce/wallet'
+    },
+    {
+      type: 'item',
+      label: 'Timesheets',
+      icon: FiFileText,
+      path: '/workforce/timesheets'
     },
     {
       type: 'category',
-      label: 'Career & Jobs'
+      label: 'Career'
     },
     {
       type: 'item',
@@ -67,42 +89,6 @@ const WorkforceSidebar = () => {
       label: 'Find Jobs',
       icon: FiSearch,
       path: '/workforce/find-jobs'
-    },
-    {
-      type: 'category',
-      label: 'Documents & Pay'
-    },
-    {
-      type: 'item',
-      label: 'My Timesheets',
-      icon: FiFileText,
-      path: '/workforce/timesheets'
-    },
-    {
-      type: 'category',
-      label: 'Communication'
-    },
-    {
-      type: 'item',
-      label: 'Messages',
-      icon: FiMail,
-      path: '/workforce/messages'
-    },
-    {
-      type: 'item',
-      label: 'Notifications',
-      icon: FiBell,
-      path: '/workforce/notifications'
-    },
-    {
-      type: 'category',
-      label: 'Account'
-    },
-    {
-      type: 'item',
-      label: 'Settings',
-      icon: FiSettings,
-      path: '/workforce/settings'
     }
   ];
 
