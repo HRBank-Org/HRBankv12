@@ -101,7 +101,7 @@ const Roles = () => {
       <div className="min-h-screen bg-gray-50">
         <GenericHeader />
         <ModernSidebar />
-        <div className="ml-[70px] pt-[64px] flex items-center justify-center h-96">
+        <div className="transition-all duration-300 pt-[64px] flex items-center justify-center h-96" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
         </div>
       </div>
@@ -113,7 +113,7 @@ const Roles = () => {
       <GenericHeader />
       <ModernSidebar />
       
-      <div className="ml-[70px] pt-[64px]">
+      <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
         {/* Page Header */}
         <div className="px-8 py-6 bg-white border-b border-gray-200">
           <div className="flex items-center justify-between">
