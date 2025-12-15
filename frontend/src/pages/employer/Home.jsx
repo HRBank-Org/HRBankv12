@@ -223,7 +223,7 @@ const Home = () => {
       <ModernSidebar />
       
       {/* Main Content */}
-      <div className="ml-[70px] pt-[64px]">
+      <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
         {/* Page Title Section */}
         <div className="bg-white border-b border-gray-200 px-8 py-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-1">
