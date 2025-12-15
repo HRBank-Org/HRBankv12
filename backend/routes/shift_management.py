@@ -401,16 +401,25 @@ async def unassign_worker_from_shift(
     
     # Remove worker
     assigned = shift.get("assigned_workers", [])
-    assigned = [w for w in assigned if w.get("workforce_id") != workforce_id]
     
-    confirmed_count = len([w for w in assigned if w.get("status") == "confirmed"])
+    # Handle both list of strings and list of dicts
+    if assigned and isinstance(assigned[0], str):
+        # List of IDs
+        assigned = [w for w in assigned if w != workforce_id]
+        confirmed_count = len(assigned)
+    else:
+        # List of objects
+        assigned = [w for w in assigned if w.get("workforce_id") != workforce_id]
+        confirmed_count = len([w for w in assigned if w.get("status") == "confirmed"])
     
     # Update shift
     update_data = {
         "assigned_workers": assigned,
         "positions_filled": confirmed_count,
+        "assigned_worker_count": confirmed_count,
         "open_positions": shift.get("positions_needed", 0) - confirmed_count,
-        "updated_date": datetime.utcnow().isoformat()
+        "updated_date": datetime.utcnow().isoformat(),
+        "status": "open" if confirmed_count == 0 else "scheduled"
     }
     
     # Update status
