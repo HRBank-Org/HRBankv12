@@ -88,7 +88,6 @@ import MessageThread from './pages/employer/MessageThread';
 import EmployerProfile from './pages/employer/Profile';
 import EmployerOnboarding from './pages/employer/Onboarding';
 import JobPosting from './pages/employer/JobPosting';
-import WorkplaceSetup from './pages/employer/WorkplaceSetup';
 // WorkplaceForm handles both create and edit
 import WorkplacesNew from './pages/employer/WorkplacesNew';
 import WorkplaceDetail from './pages/employer/WorkplaceDetail';
