@@ -149,8 +149,7 @@ const Home = () => {
           icon: FiMapPin,
           stat: `${stats.workplaces} locations`,
           description: 'Active sites',
-          path: '/employer/dashboard',
-          state: { activeTab: 'schedule', showWorkplaces: true },
+          path: '/employer/workplaces',
           color: '#06b6d4'
         }
       ]
@@ -163,8 +162,7 @@ const Home = () => {
           icon: FiUsers,
           stat: `${stats.openRoles} open`,
           description: 'Positions to fill',
-          path: '/employer/dashboard',
-          state: { activeTab: 'workforce', showInvitations: true },
+          path: '/employer/roles',
           color: '#8b5cf6'
         },
         {
@@ -172,8 +170,7 @@ const Home = () => {
           icon: FiUserCheck,
           stat: `${stats.activeEmployees} active`,
           description: 'Employees',
-          path: '/employer/dashboard',
-          state: { activeTab: 'workforce' },
+          path: '/employer/workforce-management',
           color: '#10b981'
         },
         {
