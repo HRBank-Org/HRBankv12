@@ -4,6 +4,7 @@ import { FiArrowLeft, FiMail, FiVideo, FiCheckCircle, FiClock, FiUsers, FiStar, 
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import GenericHeader from '../../components/layout/GenericHeader';
+import ModernSidebar from '../../components/layout/ModernSidebar';
 import BulkInviteModal from '../../components/employer/BulkInviteModal';
 
 const FillPositions = () => {
@@ -118,9 +119,10 @@ const FillPositions = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-        <GenericHeader title="Fill Positions" onBackClick={() => navigate('/employer/roles')} />
-        <div className="flex items-center justify-center h-64">
+      <div className="min-h-screen bg-gray-50">
+        <GenericHeader />
+        <ModernSidebar />
+        <div className="transition-all duration-300 pt-[64px] flex items-center justify-center h-64" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
         </div>
       </div>
@@ -129,11 +131,14 @@ const FillPositions = () => {
 
   if (!role) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-        <GenericHeader title="Fill Positions" onBackClick={() => navigate('/employer/roles')} />
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg p-8 text-center">
-            <p className="text-gray-600">Role not found</p>
+      <div className="min-h-screen bg-gray-50">
+        <GenericHeader />
+        <ModernSidebar />
+        <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="bg-white rounded-lg p-8 text-center">
+              <p className="text-gray-600">Role not found</p>
+            </div>
           </div>
         </div>
       </div>
@@ -145,10 +150,12 @@ const FillPositions = () => {
   const availablePositions = Math.max(0, totalPositions - currentFilled - pendingInvites.length);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <GenericHeader title="Fill Positions" onBackClick={() => navigate('/employer/roles')} />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <GenericHeader />
+      <ModernSidebar />
+      
+      <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
+        <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Role Summary Card */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex items-start justify-between">
