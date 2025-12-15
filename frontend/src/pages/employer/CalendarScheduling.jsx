@@ -58,16 +58,16 @@ const CalendarScheduling = () => {
         endDate = currentDate.clone().endOf('month').endOf('week');
       }
 
-      // Load shifts
-      const shiftsRes = await api.get('/api/calendar/shifts', {
+      // Load shifts from shift-management API
+      const shiftsRes = await api.get('/api/employer/shift-management/shifts', {
         params: {
-          start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
+          start_date: startDate.format('YYYY-MM-DD'),
+          end_date: endDate.format('YYYY-MM-DD'),
           workplace_id: selectedWorkplace
         }
       });
       
-      setShifts(shiftsRes.data.data || []);
+      setShifts(shiftsRes.data.data?.shifts || []);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
