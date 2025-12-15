@@ -58,6 +58,7 @@ import DocumentReview from './pages/admin/DocumentReview';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageAdmins from './pages/admin/ManageAdmins';
+import MinimumWageManager from './pages/admin/MinimumWageManager';
 import ManageZones from './pages/admin/ManageZones';
 import WSIBVerification from './pages/admin/WSIBVerification';
 import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
