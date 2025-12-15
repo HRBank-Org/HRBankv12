@@ -306,9 +306,10 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
               {/* Secondary Actions */}
               <div className="flex items-center justify-between">
                 <button
-                  onClick={handleDelete}
-                  disabled={loading}
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={loading || (shift.assigned_workers && shift.assigned_workers.length > 0)}
                   className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                  title={shift.assigned_workers && shift.assigned_workers.length > 0 ? 'Remove all workers first' : 'Delete this shift'}
                 >
                   <FiTrash2 className="w-4 h-4" />
                   Delete Shift
