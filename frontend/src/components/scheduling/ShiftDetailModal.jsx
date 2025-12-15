@@ -15,7 +15,7 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
     setError('');
 
     try {
-      await api.delete(`/api/employer/shift-management/shifts/${shift.shift_id}`);
+      await api.delete(`/api/employer/shifts/${shift.shift_id}`);
       setSuccessMessage('Shift deleted successfully!');
       setTimeout(() => {
         onDelete();
@@ -35,7 +35,7 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
     setError('');
 
     try {
-      await api.delete(`/api/employer/shift-management/shifts/${shift.shift_id}/unassign-worker/${workerId}`);
+      await api.delete(`/api/employer/shifts/${shift.shift_id}/unassign/${workerId}`);
       setSuccessMessage('Worker unassigned successfully!');
       setTimeout(() => {
         onUpdate();
