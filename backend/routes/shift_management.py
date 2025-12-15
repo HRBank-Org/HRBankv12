@@ -386,7 +386,7 @@ async def assign_worker_to_shift(
 async def unassign_worker_from_shift(
     shift_id: str,
     workforce_id: str,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Remove a worker from a shift"""
     db = await get_database()
