@@ -9,6 +9,13 @@ const ModernSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
+  
+  const showExpanded = isExpanded || hovering;
+
+  // Update CSS variable when sidebar state changes
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--sidebar-width', showExpanded ? '240px' : '70px');
+  }, [showExpanded]);
 
   const menuItems = [
     {
