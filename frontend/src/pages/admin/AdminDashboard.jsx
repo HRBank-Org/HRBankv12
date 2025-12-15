@@ -77,6 +77,24 @@ const AdminDashboard = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <button
+            onClick={() => navigate('/admin/minimum-wage')}
+            className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-green-500 text-left"
+          >
+            <div className="flex items-start justify-between mb-2">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">⚖️</span>
+              </div>
+              {adminProfile?.is_super_admin && (
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">
+                  SUPER ADMIN
+                </span>
+              )}
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-1">Minimum Wage Management</h3>
+            <p className="text-sm text-gray-600">Update provincial minimum wage rates</p>
+          </button>
+
+          <button
             onClick={() => navigate('/admin/document-review')}
             className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left"
           >
