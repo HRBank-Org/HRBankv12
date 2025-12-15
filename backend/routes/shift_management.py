@@ -176,7 +176,7 @@ async def update_shift(
 @router.delete("/shifts/{shift_id}")
 async def delete_shift(
     shift_id: str,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role('employer'))
 ):
     """Delete a shift"""
     db = await get_database()
