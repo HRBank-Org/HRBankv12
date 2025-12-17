@@ -70,7 +70,8 @@ const Roles = () => {
   };
 
   const filteredRoles = roles.filter(role => {
-    const matchesSearch = role.role_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const roleName = role.role_name || role.title || '';
+    const matchesSearch = roleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          role.occupation_template?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = filterStatus === 'all' || 
