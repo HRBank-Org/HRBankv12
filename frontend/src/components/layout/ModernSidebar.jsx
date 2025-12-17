@@ -137,9 +137,9 @@ const ModernSidebar = () => {
               alt="HR Bank"
               className="rounded-xl"
               style={{
-                width: '40px',
-                height: '40px',
-                objectFit: 'cover'
+                width: '48px',
+                height: '48px',
+                objectFit: 'contain'
               }}
             />
             {showExpanded && (
