@@ -7964,6 +7964,257 @@ def test_worker_invitation_system(results):
     except Exception as e:
         results.add_fail("Error case - duplicate invitation", f"Request failed: {str(e)}")
 
+def test_workplace_management_system(results):
+    """Test the Workplace Management Feature for HR Bank application"""
+    print("\n🧪 TESTING WORKPLACE MANAGEMENT SYSTEM")
+    print("   Focus: Dependencies, Status Toggle, Delete, Workforce Inventory")
+    print("   Test Account: employer@hrbank.ca / Test123!")
+    
+    # Test 1: Login as employer
+    employer_credentials = {
+        "email": "employer@hrbank.ca",
+        "password": "Test123!",
+        "user_type": "employer"
+    }
+    
+    employer_token = None
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=employer_credentials, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login - employer@hrbank.ca")
+            else:
+                results.add_fail("Employer login", f"Invalid response structure: {data}")
+                return
+        else:
+            results.add_fail("Employer login", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login", f"Request failed: {str(e)}")
+        return
+    
+    # Test 2: Get list of workplaces
+    workplaces = []
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplaces",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "workplaces" in data.get("data", {}):
+                workplaces = data["data"]["workplaces"]
+                results.add_pass(f"GET workplaces - Found {len(workplaces)} workplace(s)")
+            else:
+                results.add_fail("GET workplaces", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET workplaces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET workplaces", f"Request failed: {str(e)}")
+    
+    if not workplaces:
+        results.add_fail("Workplace Management Tests", "No workplaces found - cannot test workplace management features")
+        return
+    
+    # Use the first workplace for testing
+    test_workplace = workplaces[0]
+    workplace_id = test_workplace.get("workplace_id")
+    
+    if not workplace_id:
+        results.add_fail("Workplace Management Tests", "No workplace_id found in workplace data")
+        return
+    
+    print(f"\n   Testing with workplace: {workplace_id}")
+    
+    # Test 3: GET workplace dependencies
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplaces/{workplace_id}/dependencies",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "workplace_id" in data.get("data", {}) and
+                "has_dependencies" in data.get("data", {}) and
+                "can_delete" in data.get("data", {}) and
+                "can_deactivate" in data.get("data", {})):
+                
+                deps_data = data["data"]
+                results.add_pass(f"GET dependencies - workplace_id: {deps_data['workplace_id']}, has_dependencies: {deps_data['has_dependencies']}")
+                
+                # Store dependency info for later tests
+                has_dependencies = deps_data["has_dependencies"]
+                can_delete = deps_data["can_delete"]
+                
+            else:
+                results.add_fail("GET dependencies", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET dependencies", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET dependencies", f"Request failed: {str(e)}")
+    
+    # Test 4: Update workplace status (deactivate)
+    current_status = test_workplace.get("status", "active")
+    new_status = "inactive" if current_status == "active" else "active"
+    
+    try:
+        response = requests.patch(
+            f"{BASE_URL}/employer/workplaces/{workplace_id}/status",
+            json={"status": new_status},
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("workplace_id") == workplace_id and
+                data.get("data", {}).get("status") == new_status):
+                results.add_pass(f"PATCH status - Changed from {current_status} to {new_status}")
+            else:
+                results.add_fail("PATCH status", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("PATCH status", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("PATCH status", f"Request failed: {str(e)}")
+    
+    # Test 5: Update workplace status back to original
+    try:
+        response = requests.patch(
+            f"{BASE_URL}/employer/workplaces/{workplace_id}/status",
+            json={"status": current_status},
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                data.get("data", {}).get("status") == current_status):
+                results.add_pass(f"PATCH status - Restored to {current_status}")
+            else:
+                results.add_fail("PATCH status restore", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("PATCH status restore", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("PATCH status restore", f"Request failed: {str(e)}")
+    
+    # Test 6: Test delete workplace without force (should fail if has dependencies)
+    try:
+        response = requests.delete(
+            f"{BASE_URL}/employer/workplaces/{workplace_id}?force=false",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 400:
+            # Expected if workplace has dependencies
+            data = response.json()
+            if "active/upcoming shift" in data.get("detail", "").lower() or "dependencies" in data.get("detail", "").lower():
+                results.add_pass("DELETE workplace (no force) - Correctly blocked due to dependencies")
+            else:
+                results.add_fail("DELETE workplace (no force)", f"Wrong error message: {data}")
+        elif response.status_code == 200:
+            # Workplace was deleted (no dependencies)
+            data = response.json()
+            if data.get("success"):
+                results.add_pass("DELETE workplace (no force) - Successfully deleted (no dependencies)")
+                # Workplace is now deleted, skip force delete test
+                return
+            else:
+                results.add_fail("DELETE workplace (no force)", f"Invalid success response: {data}")
+        else:
+            results.add_fail("DELETE workplace (no force)", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("DELETE workplace (no force)", f"Request failed: {str(e)}")
+    
+    # Test 7: Test workforce inventory stats
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workforce-inventory/stats",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "status_counts" in data.get("data", {}) and
+                "total" in data.get("data", {})):
+                
+                stats_data = data["data"]
+                results.add_pass(f"GET workforce inventory stats - Total: {stats_data['total']}, Status counts: {stats_data['status_counts']}")
+            else:
+                results.add_fail("GET workforce inventory stats", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET workforce inventory stats", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET workforce inventory stats", f"Request failed: {str(e)}")
+    
+    # Test 8: Test workforce cleanup dry run
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/workforce-inventory/cleanup?dry_run=true",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "dry_run" in data.get("data", {}) and
+                data["data"]["dry_run"] == True):
+                
+                cleanup_data = data["data"]
+                would_terminate = cleanup_data.get("would_terminate_count", 0)
+                results.add_pass(f"POST workforce cleanup (dry run) - Would terminate {would_terminate} worker(s)")
+            else:
+                results.add_fail("POST workforce cleanup (dry run)", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST workforce cleanup (dry run)", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST workforce cleanup (dry run)", f"Request failed: {str(e)}")
+    
+    # Test 9: Test invalid workplace ID
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplaces/invalid-workplace-id/dependencies",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 404:
+            results.add_pass("GET dependencies (invalid ID) - Correctly returned 404")
+        else:
+            results.add_fail("GET dependencies (invalid ID)", f"Expected 404, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("GET dependencies (invalid ID)", f"Request failed: {str(e)}")
+    
+    # Test 10: Test invalid status value
+    try:
+        response = requests.patch(
+            f"{BASE_URL}/employer/workplaces/{workplace_id}/status",
+            json={"status": "invalid_status"},
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 400:
+            results.add_pass("PATCH status (invalid value) - Correctly rejected invalid status")
+        else:
+            results.add_fail("PATCH status (invalid value)", f"Expected 400, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("PATCH status (invalid value)", f"Request failed: {str(e)}")
+
+
 def main():
     """Run comprehensive backend tests focused on mobile app occupation-certification integration"""
     print("🚀 MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION TESTING")
@@ -7984,6 +8235,9 @@ def main():
     
     # Test admin authentication system with specific credentials
     admin_token = test_admin_authentication_system(results)
+    
+    # NEW: Test workplace management system (from review request)
+    test_workplace_management_system(results)
     
     # Create workforce user for mobile testing
     workforce_user, workforce_token = create_workforce_test_user()
