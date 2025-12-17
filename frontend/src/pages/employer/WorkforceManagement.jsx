@@ -4,14 +4,22 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
+import WorkerInviteModal from '../../components/employer/WorkerInviteModal';
+import { FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw } from 'react-icons/fi';
 
 const WorkforceManagement = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [workers, setWorkers] = useState([]);
+  const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showTerminateModal, setShowTerminateModal] = useState(false);
   const [showRehireModal, setShowRehireModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [selectedWorker, setSelectedWorker] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedWorkplace, setSelectedWorkplace] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [workplaces, setWorkplaces] = useState([]);
   const navigate = useNavigate();
   const theme = useTheme();
 
