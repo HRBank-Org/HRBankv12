@@ -278,7 +278,7 @@ const Roles = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-gray-900">{role.role_name}</h3>
+                        <h3 className="text-xl font-bold text-gray-900">{role.role_name || role.title || 'Unnamed Role'}</h3>
                         {getStatusBadge(role)}
                       </div>
                       
