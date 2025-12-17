@@ -538,7 +538,7 @@ const InviteModalWrapper = ({ isOpen, onClose, onSuccess, roles, workplaces, sel
       isOpen={true}
       onClose={onClose}
       role={{ role_id: chosenRole.role_id, title: chosenRole.role_name }}
-      workplace={{ workplace_id: chosenWorkplace.workplace_id, name: chosenWorkplace.workplace_name }}
+      workplace={{ workplace_id: chosenWorkplace.workplace_id, name: chosenWorkplace.name || chosenWorkplace.workplace_name }}
     />
   );
 };
