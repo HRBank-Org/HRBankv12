@@ -340,8 +340,23 @@ const CalendarScheduling = () => {
 
   const renderControls = () => {
     return (
-      <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between mb-4 bg-white p-3 rounded-lg shadow">
+        <div className="flex items-center gap-3">
+          {/* Create Shift Button */}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            disabled={!setupComplete}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              setupComplete 
+                ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            title={!setupComplete ? 'Create workplaces and roles first' : 'Create a new shift'}
+          >
+            <FiPlus className="w-4 h-4" />
+            Create Shift
+          </button>
+          
           {/* View mode toggle */}
           <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
             <button
