@@ -243,13 +243,47 @@ const WorkplaceForm = () => {
             </div>
             <div className="flex items-center gap-3">
               {mode === 'view' ? (
-                <button
-                  onClick={() => setMode('edit')}
-                  className="px-6 py-3 rounded-lg border-2 font-medium hover:bg-gray-50 transition-colors"
-                  style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
-                >
-                  Edit Details
-                </button>
+                <div className="flex items-center gap-3">
+                  {/* Status Badge */}
+                  <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                    workplaceStatus === 'active' 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {workplaceStatus === 'active' ? '● Active' : '○ Inactive'}
+                  </span>
+                  
+                  {/* Status Toggle Button */}
+                  <button
+                    onClick={handleStatusToggle}
+                    className={`p-2 rounded-lg transition-colors ${
+                      workplaceStatus === 'active'
+                        ? 'text-amber-600 hover:bg-amber-50'
+                        : 'text-green-600 hover:bg-green-50'
+                    }`}
+                    title={workplaceStatus === 'active' ? 'Deactivate Workplace' : 'Activate Workplace'}
+                  >
+                    {workplaceStatus === 'active' ? <FiToggleRight size={24} /> : <FiToggleLeft size={24} />}
+                  </button>
+                  
+                  {/* Delete Button */}
+                  <button
+                    onClick={handleDelete}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete Workplace"
+                  >
+                    <FiTrash2 size={20} />
+                  </button>
+                  
+                  {/* Edit Button */}
+                  <button
+                    onClick={() => setMode('edit')}
+                    className="px-6 py-3 rounded-lg border-2 font-medium hover:bg-gray-50 transition-colors"
+                    style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
+                  >
+                    Edit Details
+                  </button>
+                </div>
               ) : (
                 <>
                   {isEditMode && (
