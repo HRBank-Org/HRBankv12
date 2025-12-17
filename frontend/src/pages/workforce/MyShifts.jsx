@@ -18,9 +18,12 @@ const MyShifts = () => {
     try {
       // Get all rosters and filter for shifts assigned to this workforce member
       const response = await api.get('/api/workforce/my-shifts');
-      setShifts(response.data.data || []);
+      const shiftsData = response.data.data?.shifts || response.data.data || response.data?.shifts || [];
+      // Ensure it's always an array
+      setShifts(Array.isArray(shiftsData) ? shiftsData : []);
     } catch (error) {
       console.error('Failed to load shifts:', error);
+      setShifts([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
