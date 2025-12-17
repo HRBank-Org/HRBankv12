@@ -6,15 +6,20 @@ import api from '../../utils/api';
 const EditWorkplace = () => {
   const { workplaceId } = useParams();
   const [formData, setFormData] = useState({
-    workplace_name: '',
+    name: '',
     address: '',
+    city: '',
+    province: 'ON',
     postal_code: '',
-    job_matching_radius_km: 20,
-    timezone: 'America/Toronto'
+    phone: '',
+    description: '',
+    geofence_radius: 100
   });
+  const [originalData, setOriginalData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -27,13 +32,18 @@ const EditWorkplace = () => {
       const response = await api.get('/api/employer/workplaces');
       const workplace = response.data.data.workplaces.find(w => w.workplace_id === workplaceId);
       if (workplace) {
-        setFormData({
-          workplace_name: workplace.workplace_name,
-          address: workplace.address,
-          postal_code: workplace.postal_code,
-          job_matching_radius_km: workplace.job_matching_radius_km,
-          timezone: workplace.timezone
-        });
+        const data = {
+          name: workplace.name || '',
+          address: workplace.address || '',
+          city: workplace.city || '',
+          province: workplace.province || 'ON',
+          postal_code: workplace.postal_code || '',
+          phone: workplace.phone || '',
+          description: workplace.description || '',
+          geofence_radius: workplace.geofence_radius || 100
+        };
+        setFormData(data);
+        setOriginalData(data);
       }
     } catch (error) {
       console.error('Failed to load workplace:', error);
@@ -41,6 +51,14 @@ const EditWorkplace = () => {
       setLoading(false);
     }
   };
+  
+  // Check if form has changes
+  useEffect(() => {
+    if (originalData) {
+      const changed = Object.keys(formData).some(key => formData[key] !== originalData[key]);
+      setHasChanges(changed);
+    }
+  }, [formData, originalData]);
 
   const handleChange = (e) => {
     setFormData({
