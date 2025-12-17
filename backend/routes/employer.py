@@ -1063,3 +1063,41 @@ async def process_auto_terminations(
         },
         "message": f"Auto-terminated {len(terminated_workers)} worker(s) who were unassigned for 2+ weeks"
     }
+
+
+
+@router.get("/workforce-inventory/stats", response_model=Dict)
+async def get_workforce_inventory_stats(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get workforce inventory statistics including workers approaching auto-termination"""
+    from services.workforce_cleanup_service import get_workforce_inventory_stats as get_stats
+    
+    stats = await get_stats(db, current_user["user_id"])
+    
+    return {
+        "success": True,
+        "data": stats
+    }
+
+
+@router.post("/workforce-inventory/cleanup", response_model=Dict)
+async def run_workforce_cleanup(
+    dry_run: bool = True,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Manually trigger workforce cleanup (terminate workers unassigned for 2+ weeks).
+    Use dry_run=true to preview what would be terminated without making changes.
+    """
+    from services.workforce_cleanup_service import terminate_unassigned_workers
+    
+    result = await terminate_unassigned_workers(db, current_user["user_id"], dry_run=dry_run)
+    
+    return {
+        "success": True,
+        "data": result,
+        "message": "Dry run completed" if dry_run else f"Terminated {result['terminated_count']} worker(s)"
+    }
