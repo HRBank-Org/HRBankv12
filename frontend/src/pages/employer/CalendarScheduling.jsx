@@ -405,12 +405,12 @@ const CalendarScheduling = () => {
           <select
             value={selectedWorkplace}
             onChange={(e) => setSelectedWorkplace(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
           >
             <option value="all">All Workplaces</option>
             {workplaces.map(wp => (
               <option key={wp.workplace_id} value={wp.workplace_id}>
-                {wp.workplace_name}
+                {wp.name || wp.workplace_name}
               </option>
             ))}
           </select>
