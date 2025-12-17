@@ -178,3 +178,250 @@ def validate_address(address: str, city: str, province: str, postal_code: str) -
         "errors": errors,
         "formatted": formatted if len(errors) == 0 else {}
     }
+
+
+# ==================== GOOGLE PLACES INTEGRATION ====================
+
+import os
+import httpx
+import logging
+
+logger = logging.getLogger(__name__)
+
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+GOOGLE_PLACES_API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY', GOOGLE_MAPS_API_KEY)
+
+
+async def geocode_address(
+    street_address: str,
+    city: str,
+    province: str,
+    postal_code: str = "",
+    country: str = "Canada"
+) -> Optional[Dict]:
+    """
+    Geocode a structured address using Google Geocoding API.
+    Returns coordinates and formatted address.
+    """
+    if not GOOGLE_MAPS_API_KEY:
+        logger.warning("Google Maps API key not configured")
+        return None
+    
+    # Build address string
+    address_parts = [street_address, city, province]
+    if postal_code:
+        address_parts.append(postal_code)
+    address_parts.append(country)
+    
+    full_address = ", ".join(filter(None, address_parts))
+    
+    try:
+        url = "https://maps.googleapis.com/maps/api/geocode/json"
+        params = {
+            "address": full_address,
+            "key": GOOGLE_MAPS_API_KEY,
+            "components": "country:CA"
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params, timeout=10.0)
+            data = response.json()
+        
+        if data.get("status") == "OK" and data.get("results"):
+            result = data["results"][0]
+            location = result["geometry"]["location"]
+            
+            components = {}
+            for comp in result.get("address_components", []):
+                types = comp.get("types", [])
+                if "street_number" in types:
+                    components["street_number"] = comp["long_name"]
+                elif "route" in types:
+                    components["street_name"] = comp["long_name"]
+                elif "locality" in types:
+                    components["city"] = comp["long_name"]
+                elif "administrative_area_level_1" in types:
+                    components["province"] = comp["short_name"]
+                elif "postal_code" in types:
+                    components["postal_code"] = comp["long_name"]
+            
+            return {
+                "latitude": location["lat"],
+                "longitude": location["lng"],
+                "formatted_address": result.get("formatted_address"),
+                "place_id": result.get("place_id"),
+                "components": components,
+                "valid": True
+            }
+        
+        return {"valid": False, "error": data.get("status")}
+        
+    except Exception as e:
+        logger.error(f"Geocoding error: {e}")
+        return {"valid": False, "error": str(e)}
+
+
+async def get_place_autocomplete(input_text: str, session_token: str = None) -> list:
+    """
+    Get address suggestions from Google Places Autocomplete.
+    """
+    if not GOOGLE_PLACES_API_KEY or len(input_text) < 3:
+        return []
+    
+    try:
+        url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
+        params = {
+            "input": input_text,
+            "key": GOOGLE_PLACES_API_KEY,
+            "components": "country:ca",
+            "types": "address"
+        }
+        
+        if session_token:
+            params["sessiontoken"] = session_token
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params, timeout=10.0)
+            data = response.json()
+        
+        if data.get("status") == "OK":
+            return [
+                {
+                    "description": pred["description"],
+                    "place_id": pred["place_id"],
+                    "main_text": pred.get("structured_formatting", {}).get("main_text", ""),
+                    "secondary_text": pred.get("structured_formatting", {}).get("secondary_text", "")
+                }
+                for pred in data.get("predictions", [])
+            ]
+        
+        return []
+        
+    except Exception as e:
+        logger.error(f"Places autocomplete error: {e}")
+        return []
+
+
+async def get_place_details(place_id: str) -> Optional[Dict]:
+    """
+    Get detailed address components from a place_id.
+    """
+    if not GOOGLE_PLACES_API_KEY:
+        return None
+    
+    try:
+        url = "https://maps.googleapis.com/maps/api/place/details/json"
+        params = {
+            "place_id": place_id,
+            "key": GOOGLE_PLACES_API_KEY,
+            "fields": "address_component,formatted_address,geometry"
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params, timeout=10.0)
+            data = response.json()
+        
+        if data.get("status") == "OK" and data.get("result"):
+            result = data["result"]
+            
+            components = {
+                "street_number": "",
+                "street_name": "",
+                "city": "",
+                "province": "",
+                "postal_code": "",
+                "country": ""
+            }
+            
+            for comp in result.get("address_components", []):
+                types = comp.get("types", [])
+                if "street_number" in types:
+                    components["street_number"] = comp["long_name"]
+                elif "route" in types:
+                    components["street_name"] = comp["long_name"]
+                elif "locality" in types:
+                    components["city"] = comp["long_name"]
+                elif "administrative_area_level_1" in types:
+                    components["province"] = comp["short_name"]
+                elif "postal_code" in types:
+                    components["postal_code"] = comp["long_name"]
+                elif "country" in types:
+                    components["country"] = comp["short_name"]
+            
+            street_address = f"{components['street_number']} {components['street_name']}".strip()
+            location = result.get("geometry", {}).get("location", {})
+            
+            # Format postal code
+            postal = components["postal_code"]
+            if postal and len(postal.replace(" ", "")) == 6:
+                postal = f"{postal[:3]} {postal[3:]}" if " " not in postal else postal
+            
+            return {
+                "street_address": street_address,
+                "city": components["city"],
+                "province": components["province"],
+                "postal_code": postal.upper(),
+                "country": components["country"],
+                "latitude": location.get("lat"),
+                "longitude": location.get("lng"),
+                "formatted_address": result.get("formatted_address"),
+                "place_id": place_id
+            }
+        
+        return None
+        
+    except Exception as e:
+        logger.error(f"Place details error: {e}")
+        return None
+
+
+def parse_address_string(address_string: str) -> Dict:
+    """
+    Parse a combined address string into components.
+    Example: "123 Main St, Windsor, ON N9A 1A1" -> {street, city, province, postal}
+    """
+    result = {
+        "street_address": "",
+        "city": "",
+        "province": "",
+        "postal_code": "",
+        "raw": address_string
+    }
+    
+    if not address_string:
+        return result
+    
+    # Canadian postal code regex
+    postal_pattern = r'[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d'
+    postal_match = re.search(postal_pattern, address_string)
+    if postal_match:
+        postal = postal_match.group().upper().replace("-", " ")
+        if " " not in postal and len(postal) == 6:
+            postal = f"{postal[:3]} {postal[3:]}"
+        result["postal_code"] = postal
+        address_string = address_string[:postal_match.start()] + address_string[postal_match.end():]
+    
+    # Split by comma
+    parts = [p.strip() for p in address_string.split(',')]
+    
+    if len(parts) >= 3:
+        result["street_address"] = parts[0]
+        result["city"] = parts[1]
+        province_part = parts[2].split()[0] if parts[2] else ""
+        prov_result = validate_province(province_part)
+        if prov_result['valid']:
+            result["province"] = prov_result['code']
+    elif len(parts) == 2:
+        result["street_address"] = parts[0]
+        city_province = parts[1].split()
+        if city_province:
+            result["city"] = city_province[0]
+            if len(city_province) > 1:
+                prov_result = validate_province(city_province[1])
+                if prov_result['valid']:
+                    result["province"] = prov_result['code']
+    elif len(parts) == 1:
+        result["street_address"] = parts[0]
+    
+    return result
+
