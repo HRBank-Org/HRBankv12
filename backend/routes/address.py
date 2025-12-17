@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Dict, List, Optional
 from auth.dependencies import get_current_user, get_db
 
-router = APIRouter(prefix="/address", tags=["Address"])
+router = APIRouter(prefix="/api/address", tags=["Address"])
 
 
 @router.get("/autocomplete", response_model=Dict)
