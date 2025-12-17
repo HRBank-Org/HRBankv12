@@ -70,6 +70,7 @@ const WorkplaceForm = () => {
           timezone: wp.timezone || 'America/Toronto',
           operating_hours: wp.operating_hours || formData.operating_hours
         });
+        setWorkplaceStatus(wp.status || 'active');
       }
 
       const workers = workersRes.data.data || [];
@@ -81,6 +82,63 @@ const WorkplaceForm = () => {
       console.error('Failed to load data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // Load dependencies before delete/deactivate
+  const loadDependencies = async () => {
+    try {
+      const res = await api.get(`/api/employer/workplaces/${workplaceId}/dependencies`);
+      setDependencies(res.data.data);
+      return res.data.data;
+    } catch (error) {
+      console.error('Failed to load dependencies:', error);
+      return null;
+    }
+  };
+  
+  // Handle status toggle (activate/deactivate)
+  const handleStatusToggle = async () => {
+    const deps = await loadDependencies();
+    if (deps && deps.has_dependencies && workplaceStatus === 'active') {
+      setShowDeactivateModal(true);
+    } else {
+      confirmStatusToggle();
+    }
+  };
+  
+  const confirmStatusToggle = async () => {
+    setActionLoading(true);
+    try {
+      const newStatus = workplaceStatus === 'active' ? 'inactive' : 'active';
+      await api.patch(`/api/employer/workplaces/${workplaceId}/status`, { status: newStatus });
+      setWorkplaceStatus(newStatus);
+      setShowDeactivateModal(false);
+      alert(`Workplace ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to update status');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+  
+  // Handle delete
+  const handleDelete = async () => {
+    const deps = await loadDependencies();
+    setShowDeleteModal(true);
+  };
+  
+  const confirmDelete = async (force = false) => {
+    setActionLoading(true);
+    try {
+      await api.delete(`/api/employer/workplaces/${workplaceId}?force=${force}`);
+      setShowDeleteModal(false);
+      alert('Workplace deleted successfully');
+      navigate('/employer/workplaces');
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to delete workplace');
+    } finally {
+      setActionLoading(false);
     }
   };
 
