@@ -78,7 +78,7 @@ async def validate_address(
     postal_code = address_data.get("postal_code", "")
     
     # First validate format
-    validation = validate_full_address(street_address, city, province, postal_code)
+    validation = validate_address(street_address, city, province, postal_code)
     
     if not validation["valid"]:
         return {
