@@ -211,10 +211,149 @@ const WorkplaceForm = () => {
     );
   }
 
+  // Render Dependency Modal (for both deactivate and delete)
+  const renderDependencyModal = () => {
+    if (!showDeactivateModal && !showDeleteModal) return null;
+    
+    const isDeactivate = showDeactivateModal;
+    const title = isDeactivate ? 'Deactivate Workplace' : 'Delete Workplace';
+    const actionText = isDeactivate ? 'Deactivate' : 'Delete';
+    const actionColor = isDeactivate ? 'bg-amber-600 hover:bg-amber-700' : 'bg-red-600 hover:bg-red-700';
+    
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className={`p-3 rounded-full ${isDeactivate ? 'bg-amber-100' : 'bg-red-100'}`}>
+                <FiAlertTriangle size={24} className={isDeactivate ? 'text-amber-600' : 'text-red-600'} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+                <p className="text-sm text-gray-600">{formData.workplace_name}</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Body */}
+          <div className="p-6 space-y-4">
+            {dependencies ? (
+              <>
+                {dependencies.has_dependencies && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <p className="text-amber-800 font-medium mb-3">
+                      This workplace has active dependencies:
+                    </p>
+                    <ul className="space-y-2 text-sm text-amber-700">
+                      {dependencies.active_shifts_count > 0 && (
+                        <li className="flex items-center gap-2">
+                          <FiCalendar size={16} />
+                          <span><strong>{dependencies.active_shifts_count}</strong> active/upcoming shift(s)</span>
+                        </li>
+                      )}
+                      {dependencies.assigned_workers_count > 0 && (
+                        <li className="flex items-center gap-2">
+                          <FiUsers size={16} />
+                          <span><strong>{dependencies.assigned_workers_count}</strong> assigned worker(s)</span>
+                        </li>
+                      )}
+                      {dependencies.roles_count > 0 && (
+                        <li className="flex items-center gap-2">
+                          <span className="w-4 h-4 rounded-full bg-amber-600 flex items-center justify-center text-white text-xs">R</span>
+                          <span><strong>{dependencies.roles_count}</strong> role(s) at this workplace</span>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+                
+                {isDeactivate ? (
+                  <div className="text-gray-600 space-y-2">
+                    <p><strong>Deactivating this workplace will:</strong></p>
+                    <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                      <li>Prevent new shifts from being created here</li>
+                      <li>Keep existing shifts and assignments active</li>
+                      <li>Deactivate all roles at this workplace</li>
+                      <li>Move assigned workers to your general workforce inventory</li>
+                    </ul>
+                    <p className="text-sm mt-3 text-amber-700 font-medium">
+                      ⚠️ Workers unassigned for more than 2 weeks will be automatically terminated from your workforce.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-gray-600 space-y-2">
+                    {dependencies?.can_delete ? (
+                      <p className="text-sm">
+                        This workplace has no active dependencies and can be safely deleted.
+                      </p>
+                    ) : (
+                      <>
+                        <p><strong>Deleting this workplace will:</strong></p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Cancel all active shifts at this location</li>
+                          <li>Unassign all workers from this workplace</li>
+                          <li>Delete all roles associated with this workplace</li>
+                          <li>Move unassigned workers to your workforce inventory</li>
+                        </ul>
+                        <p className="text-sm mt-3 text-red-600 font-medium">
+                          ⚠️ This action cannot be undone. Consider deactivating instead if you may need this workplace later.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+              </div>
+            )}
+          </div>
+          
+          {/* Footer */}
+          <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <button
+              onClick={() => {
+                setShowDeactivateModal(false);
+                setShowDeleteModal(false);
+                setDependencies(null);
+              }}
+              className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              disabled={actionLoading}
+            >
+              Cancel
+            </button>
+            {isDeactivate ? (
+              <button
+                onClick={confirmStatusToggle}
+                disabled={actionLoading || !dependencies}
+                className={`px-5 py-2.5 rounded-lg text-white font-medium transition-colors disabled:opacity-50 ${actionColor}`}
+              >
+                {actionLoading ? 'Processing...' : 'Deactivate Workplace'}
+              </button>
+            ) : (
+              <button
+                onClick={() => confirmDelete(!dependencies?.can_delete)}
+                disabled={actionLoading || !dependencies}
+                className={`px-5 py-2.5 rounded-lg text-white font-medium transition-colors disabled:opacity-50 ${actionColor}`}
+              >
+                {actionLoading ? 'Deleting...' : (dependencies?.can_delete ? 'Delete Workplace' : 'Force Delete')}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <GenericHeader />
       <ModernSidebar />
+      
+      {/* Dependency Modal */}
+      {renderDependencyModal()}
       
       <div className="ml-[70px] pt-[64px]">
         {/* Page Header */}
