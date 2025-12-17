@@ -73,14 +73,20 @@ const WorkforceManagement = () => {
     }
   };
   
-  const handleCancelInvite = async (inviteId) => {
-    if (!window.confirm('Are you sure you want to cancel this invitation?')) return;
+  const [cancellingInvite, setCancellingInvite] = useState(null);
+  
+  const handleCancelInvite = async (inviteId, inviteName) => {
+    console.log('Cancel clicked for:', inviteId, inviteName);
+    setCancellingInvite(inviteId);
     try {
       await api.delete(`/api/employer/invitations/${inviteId}/cancel`);
-      alert('Invitation cancelled');
+      console.log('Cancel successful');
       loadData();
     } catch (error) {
+      console.error('Cancel failed:', error);
       alert(error.response?.data?.detail || 'Failed to cancel invitation');
+    } finally {
+      setCancellingInvite(null);
     }
   };
   
