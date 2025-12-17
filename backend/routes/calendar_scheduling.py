@@ -99,21 +99,40 @@ async def create_calendar_shift(
     end = datetime.fromisoformat(shift_data["end_time"].replace('Z', '+00:00'))
     duration = (end - start).total_seconds() / 3600
     
-    # Inherit generic_tasks from role if role_id is provided
+    # Inherit properties from role if role_id is provided
     inherited_tasks = []
+    role_hourly_rate = None
     role_id = shift_data.get("role_id")
     if role_id:
         role = await db.workplace_roles.find_one({
             "role_id": role_id,
             "employer_id": current_user["user_id"]
-        }, {"_id": 0, "generic_tasks": 1})
+        }, {"_id": 0, "generic_tasks": 1, "hourly_rate": 1, "pay_rate": 1})
         
-        if role and role.get("generic_tasks"):
-            # Convert generic_tasks to simple task names for standard_tasks
-            inherited_tasks = [
-                task["task_name"] if isinstance(task, dict) else task 
-                for task in role.get("generic_tasks", [])
-            ]
+        if role:
+            # Get role rate
+            role_hourly_rate = role.get("hourly_rate") or role.get("pay_rate")
+            
+            # Validate shift rate is not less than role rate
+            shift_rate = shift_data.get("hourly_rate")
+            if shift_rate and role_hourly_rate:
+                if float(shift_rate) < float(role_hourly_rate):
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"Shift rate (${shift_rate}) cannot be less than role rate (${role_hourly_rate}). Shift rates can only be used for incentive premiums."
+                    )
+            
+            # If no shift rate provided, inherit from role
+            if not shift_rate and role_hourly_rate:
+                shift_data["hourly_rate"] = role_hourly_rate
+            
+            # Get inherited tasks
+            if role.get("generic_tasks"):
+                # Convert generic_tasks to simple task names for standard_tasks
+                inherited_tasks = [
+                    task["task_name"] if isinstance(task, dict) else task 
+                    for task in role.get("generic_tasks", [])
+                ]
     
     # Merge inherited tasks with provided standard_tasks
     all_standard_tasks = list(set(inherited_tasks + shift_data.get("standard_tasks", [])))
