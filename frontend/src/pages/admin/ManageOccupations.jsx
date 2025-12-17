@@ -97,17 +97,23 @@ const ManageOccupations = () => {
       alert('Please enter occupation title');
       return;
     }
+    
+    if (!occupationForm.minimum_hourly_rate || parseFloat(occupationForm.minimum_hourly_rate) <= 0) {
+      alert('Please enter a valid minimum hourly rate');
+      return;
+    }
 
     try {
       await api.post('/api/admin/occupations/add', {
         category: selectedCategory,
         occupation: occupationForm.title,
+        minimum_hourly_rate: parseFloat(occupationForm.minimum_hourly_rate),
         required_certifications: occupationForm.certifications
       });
       alert('Occupation added successfully!');
       loadCategories();
       setShowOccupationModal(false);
-      setOccupationForm({ title: '', certifications: [] });
+      setOccupationForm({ title: '', minimum_hourly_rate: '', certifications: [] });
       setCertSearchQuery('');
     } catch (error) {
       alert('Failed to add occupation');
