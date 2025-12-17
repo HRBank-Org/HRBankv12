@@ -102,52 +102,41 @@ const ClockInOutNew = () => {
   // Load shift data
   useEffect(() => {
     const loadData = async () => {
-      if (!activeShiftId) {
-        // Try to load today's shifts
-        try {
-          const res = await api.get('/api/attendance/my-attendance/today');
-          if (res.data.data.shifts?.length > 0) {
-            const todayShift = res.data.data.shifts[0];
-            setShift(todayShift);
-            setAttendance(todayShift.attendance);
-          }
-        } catch (error) {
-          console.error('Failed to load today\'s shifts:', error);
-        }
-        setLoading(false);
-        return;
-      }
-      
       try {
-        // Get shift details
-        const shiftRes = await api.get(`/api/shifts/${activeShiftId}`);
-        const shiftData = shiftRes.data.data;
+        // Always load today's shifts first
+        const res = await api.get('/api/attendance/my-attendance/today');
+        const todayShifts = res.data.data.shifts || [];
         
-        // Get workplace details
-        if (shiftData.workplace_id) {
-          const wpRes = await api.get('/api/employer/workplaces');
-          const workplace = wpRes.data.data.workplaces?.find(w => w.workplace_id === shiftData.workplace_id);
-          if (workplace) {
-            shiftData.workplace = {
-              name: workplace.workplace_name || workplace.name,
-              address: workplace.address,
-              lat: workplace.lat || workplace.latitude,
-              lng: workplace.long || workplace.longitude
-            };
-          }
+        if (todayShifts.length === 0) {
+          setLoading(false);
+          return;
         }
         
-        setShift(shiftData);
+        // If we have a specific shift ID, find that shift
+        let targetShift = null;
+        if (activeShiftId) {
+          targetShift = todayShifts.find(s => s.shift_id === activeShiftId);
+        }
         
-        // Get attendance status
-        try {
-          const attRes = await api.get(`/api/attendance/shifts/${activeShiftId}/clock-status`);
-          setAttendance(attRes.data.data);
-        } catch (error) {
-          console.log('No attendance record yet');
+        // Otherwise use the first shift
+        if (!targetShift) {
+          targetShift = todayShifts[0];
+        }
+        
+        setShift(targetShift);
+        setAttendance(targetShift.attendance);
+        
+        // Get attendance status if not already set
+        if (!targetShift.attendance && targetShift.shift_id) {
+          try {
+            const attRes = await api.get(`/api/attendance/shifts/${targetShift.shift_id}/clock-status`);
+            setAttendance(attRes.data.data);
+          } catch (error) {
+            console.log('No attendance record yet');
+          }
         }
       } catch (error) {
-        console.error('Failed to load shift:', error);
+        console.error('Failed to load shifts:', error);
       } finally {
         setLoading(false);
       }
