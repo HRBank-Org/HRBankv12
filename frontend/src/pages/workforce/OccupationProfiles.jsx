@@ -94,28 +94,26 @@ const OccupationProfiles = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      <div className=\"min-h-screen bg-gray-50 flex items-center justify-center\">
+        <div className=\"animate-spin rounded-full h-12 w-12 border-b-2\" style={{ borderColor: theme.primaryColor }}></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header with User Info */}
-      <UserHeader 
-        onBackClick={() => navigate('/workforce/dashboard')}
-        showBack={true}
-      />
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Your Career Profiles</h2>
-          <p className="text-gray-600 mt-1">
-            You have {occupations.length} of 3 occupation profiles. Each profile works like a separate resume.
+    <div className=\"min-h-screen bg-gray-50\">
+      <WorkforceHeader />
+      <WorkforceSidebar />
+      
+      <div className=\"transition-all duration-300 pt-[64px]\" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
+        <div className=\"bg-white border-b border-gray-200 px-8 py-6\">
+          <h1 className=\"text-3xl font-bold text-gray-900 mb-1\">My Profiles</h1>
+          <p className=\"text-gray-600\">
+            Manage your occupation profiles ({occupations.length} of 3 profiles)
           </p>
         </div>
+
+        <div className=\"p-8\">
 
         {/* Info Box */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
