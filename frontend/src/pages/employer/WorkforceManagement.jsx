@@ -164,16 +164,117 @@ const WorkforceManagement = () => {
           </button>
         </div>
 
-        {/* Workers List */}
+        {/* Content */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
           </div>
+        ) : activeTab === 'invitations' ? (
+          /* Invitations Tab */
+          invitations.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <FiMail size={48} className="text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Invitations Sent</h3>
+              <p className="text-gray-500 mb-4">Start building your team by inviting workers</p>
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                <FiUserPlus className="inline mr-2" />
+                Invite Your First Worker
+              </button>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {invitations.map((invite) => (
+                    <tr key={invite.invite_id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                            {invite.full_name?.charAt(0)?.toUpperCase() || '?'}
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-900">{invite.full_name}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-sm text-gray-900">{invite.email}</p>
+                        {invite.phone && <p className="text-xs text-gray-500">{invite.phone}</p>}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-sm text-gray-900">{invite.role_name}</p>
+                        <p className="text-xs text-gray-500">{invite.occupation_template}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          invite.status === 'sent' ? 'bg-yellow-100 text-yellow-800' :
+                          invite.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                          invite.status === 'expired' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {invite.status === 'sent' && <FiClock className="inline mr-1" size={12} />}
+                          {invite.status === 'accepted' && <FiCheck className="inline mr-1" size={12} />}
+                          {invite.status.charAt(0).toUpperCase() + invite.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(invite.created_date).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        {invite.status === 'sent' && (
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleResendInvite(invite.invite_id)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                              title="Resend Invitation"
+                            >
+                              <FiRefreshCw size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleCancelInvite(invite.invite_id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                              title="Cancel Invitation"
+                            >
+                              <FiX size={16} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
         ) : workers.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <p className="text-gray-500">
-              {activeTab === 'active' ? 'No active workers' : 'No past workers'}
+              {activeTab === 'active' ? 'No active workers. Start by inviting workers to join your team!' : 'No past workers'}
             </p>
+            {activeTab === 'active' && (
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="mt-4 px-6 py-3 rounded-lg text-white font-medium hover:opacity-90"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                <FiUserPlus className="inline mr-2" />
+                Invite Workers
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
