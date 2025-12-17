@@ -239,7 +239,8 @@ function AppRoutes() {
         <Route path="/employer/workplaces" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplacesNew /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceForm /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId/shifts" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetail /></ProtectedRoute>} />
-        <Route path="/employer/workplaces/:workplaceId/edit" element={<ProtectedRoute allowedUserTypes={['employer']}><EditWorkplace /></ProtectedRoute>} />
+        {/* Redirect old /edit route to new WorkplaceForm */}
+        <Route path="/employer/workplaces/:workplaceId/edit" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceForm /></ProtectedRoute>} />
         <Route path="/employer/jobs/post" element={<ProtectedRoute allowedUserTypes={['employer']}><PostJob /></ProtectedRoute>} />
         <Route path="/employer/jobs" element={<ProtectedRoute allowedUserTypes={['employer']}><JobsCandidates /></ProtectedRoute>} />
         <Route path="/employer/roles" element={<ProtectedRoute allowedUserTypes={['employer']}><Roles /></ProtectedRoute>} />
