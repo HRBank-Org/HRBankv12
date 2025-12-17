@@ -54,14 +54,14 @@ const WorkplaceForm = () => {
       const wp = wpRes.data.data.workplaces.find(w => w.workplace_id === workplaceId);
       if (wp) {
         setFormData({
-          workplace_name: wp.workplace_name || '',
+          workplace_name: wp.name || wp.workplace_name || '',
           address: wp.address || '',
           city: wp.city || '',
           province: wp.province || 'ON',
           postal_code: wp.postal_code || '',
           phone: wp.phone || '',
           email: wp.email || '',
-          job_matching_radius_km: wp.job_matching_radius_km || 20,
+          job_matching_radius_km: wp.job_matching_radius_km || wp.geofence_radius || 20,
           timezone: wp.timezone || 'America/Toronto',
           operating_hours: wp.operating_hours || formData.operating_hours
         });
