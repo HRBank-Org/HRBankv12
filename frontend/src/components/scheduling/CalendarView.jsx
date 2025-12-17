@@ -279,40 +279,8 @@ const CalendarView = ({ embedded = false, initialWorkplace = 'all', setupComplet
     return colors[index % colors.length];
   };
 
-  const renderDateHeader = () => {
-    let dateText = '';
-    if (viewMode === 'day') {
-      dateText = currentDate.format('dddd, MMMM DD, YYYY');
-    } else if (viewMode === 'week') {
-      const weekStart = currentDate.clone().startOf('week');
-      const weekEnd = currentDate.clone().endOf('week');
-      dateText = `${weekStart.format('MMM DD')} - ${weekEnd.format('MMM DD, YYYY')}`;
-    } else {
-      dateText = currentDate.format('MMMM YYYY');
-    }
-
-    return (
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/employer/dashboard')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <FiChevronLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Schedule Calendar</h1>
-        </div>
-
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <FiPlus className="w-5 h-5" />
-          Create Shift
-        </button>
-      </div>
-    );
-  };
+  // Header removed - title is handled by parent Roster component
+  const renderDateHeader = () => null;
 
   const renderControls = () => {
     return (
