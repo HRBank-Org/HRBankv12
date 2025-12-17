@@ -251,11 +251,16 @@ const WorkforceManagement = () => {
                               <FiRefreshCw size={16} />
                             </button>
                             <button
-                              onClick={() => handleCancelInvite(invite.invite_id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                              onClick={() => handleCancelInvite(invite.invite_id, invite.full_name)}
+                              disabled={cancellingInvite === invite.invite_id}
+                              className={`p-2 text-red-600 hover:bg-red-50 rounded-lg ${cancellingInvite === invite.invite_id ? 'opacity-50' : ''}`}
                               title="Cancel Invitation"
                             >
-                              <FiX size={16} />
+                              {cancellingInvite === invite.invite_id ? (
+                                <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <FiX size={16} />
+                              )}
                             </button>
                           </div>
                         )}
