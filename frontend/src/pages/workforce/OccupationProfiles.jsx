@@ -418,15 +418,16 @@ const OccupationProfiles = () => {
           </div>
         )}
 
-        {!canAddMore && occupations.length >= 3 && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center mt-6">
-            <p className="text-sm text-gray-700">
-              You've reached the maximum of 3 occupation profiles. 
-              To add a new one, please delete an existing profile first.
-            </p>
-          </div>
-        )}
-      </main>
+          {!canAddMore && occupations.length >= 3 && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center mt-6">
+              <p className="text-sm text-gray-700">
+                You've reached the maximum of 3 occupation profiles. 
+                To add a new one, please delete an existing profile first.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
