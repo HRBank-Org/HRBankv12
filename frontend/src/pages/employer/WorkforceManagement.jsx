@@ -379,7 +379,7 @@ const WorkforceManagement = () => {
           onSuccess={() => {
             setShowTerminateModal(false);
             setSelectedWorker(null);
-            loadWorkers();
+            loadData();
           }}
           theme={theme}
         />
@@ -396,12 +396,139 @@ const WorkforceManagement = () => {
           onSuccess={() => {
             setShowRehireModal(false);
             setSelectedWorker(null);
-            loadWorkers();
+            loadData();
           }}
           theme={theme}
         />
       )}
+      
+      {/* Worker Invite Modal */}
+      {showInviteModal && (
+        <InviteModalWrapper
+          isOpen={showInviteModal}
+          onClose={() => {
+            setShowInviteModal(false);
+            setSelectedRole(null);
+            setSelectedWorkplace(null);
+          }}
+          onSuccess={() => {
+            setShowInviteModal(false);
+            setSelectedRole(null);
+            setSelectedWorkplace(null);
+            setActiveTab('invitations');
+            loadData();
+          }}
+          roles={roles}
+          workplaces={workplaces}
+          selectedRole={selectedRole}
+          selectedWorkplace={selectedWorkplace}
+          theme={theme}
+        />
+      )}
     </div>
+  );
+};
+
+// Invite Modal Wrapper - allows selecting role/workplace before inviting
+const InviteModalWrapper = ({ isOpen, onClose, onSuccess, roles, workplaces, selectedRole, selectedWorkplace, theme }) => {
+  const [step, setStep] = useState(selectedRole && selectedWorkplace ? 'invite' : 'select');
+  const [chosenRole, setChosenRole] = useState(selectedRole);
+  const [chosenWorkplace, setChosenWorkplace] = useState(selectedWorkplace);
+  
+  // Filter roles based on selected workplace
+  const filteredRoles = chosenWorkplace 
+    ? roles.filter(r => r.workplace_id === chosenWorkplace.workplace_id)
+    : roles;
+    
+  if (!isOpen) return null;
+  
+  if (step === 'select') {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200" style={{ backgroundColor: theme.primaryColor }}>
+            <h2 className="text-xl font-bold text-white">Select Position to Fill</h2>
+            <p className="text-white text-opacity-80 text-sm">Choose a workplace and role for new workers</p>
+          </div>
+          
+          <div className="p-6 space-y-4">
+            {/* Workplace Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Workplace</label>
+              <select
+                value={chosenWorkplace?.workplace_id || ''}
+                onChange={(e) => {
+                  const wp = workplaces.find(w => w.workplace_id === e.target.value);
+                  setChosenWorkplace(wp);
+                  setChosenRole(null);
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+              >
+                <option value="">Select a workplace...</option>
+                {workplaces.map(wp => (
+                  <option key={wp.workplace_id} value={wp.workplace_id}>
+                    {wp.workplace_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Role Selection */}
+            {chosenWorkplace && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                {filteredRoles.length === 0 ? (
+                  <p className="text-sm text-gray-500">No roles found for this workplace. Please create roles first.</p>
+                ) : (
+                  <select
+                    value={chosenRole?.role_id || ''}
+                    onChange={(e) => {
+                      const role = filteredRoles.find(r => r.role_id === e.target.value);
+                      setChosenRole(role);
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  >
+                    <option value="">Select a role...</option>
+                    {filteredRoles.map(role => (
+                      <option key={role.role_id} value={role.role_id}>
+                        {role.role_name} - ${role.hourly_rate?.toFixed(2)}/hr
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+          </div>
+          
+          <div className="px-6 py-4 bg-gray-50 flex justify-between">
+            <button
+              onClick={onClose}
+              className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => setStep('invite')}
+              disabled={!chosenRole || !chosenWorkplace}
+              className="px-5 py-2 rounded-lg text-white font-medium disabled:opacity-50"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show the actual invite modal
+  return (
+    <WorkerInviteModal
+      isOpen={true}
+      onClose={onClose}
+      role={{ role_id: chosenRole.role_id, title: chosenRole.role_name }}
+      workplace={{ workplace_id: chosenWorkplace.workplace_id, name: chosenWorkplace.workplace_name }}
+    />
   );
 };
 
