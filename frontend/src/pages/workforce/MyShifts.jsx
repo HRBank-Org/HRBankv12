@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../contexts/ThemeContext';
+import WorkforceHeader from '../../components/layout/WorkforceHeader';
+import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
-import { Calendar, Clock, MapPin, DollarSign, CheckCircle } from 'lucide-react';
-import { Card } from '../../components/ui/card';
+import { FiCalendar, FiClock, FiMapPin, FiDollarSign } from 'react-icons/fi';
 
 const MyShifts = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('upcoming'); // upcoming, completed, all
@@ -62,115 +65,126 @@ const MyShifts = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">My Shifts</h1>
-        <p className="text-gray-600">View and manage your scheduled shifts</p>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex gap-2 mb-6 border-b">
-        <button
-          onClick={() => setFilter('upcoming')}
-          className={`px-4 py-2 font-medium transition-colors ${
-            filter === 'upcoming'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Upcoming
-        </button>
-        <button
-          onClick={() => setFilter('completed')}
-          className={`px-4 py-2 font-medium transition-colors ${
-            filter === 'completed'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Completed
-        </button>
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 font-medium transition-colors ${
-            filter === 'all'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          All
-        </button>
-      </div>
-
-      {/* Shifts List */}
-      {shifts.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Shifts Found</h3>
-          <p className="text-gray-600">You don't have any shifts scheduled yet</p>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {shifts.map((shift) => (
-            <Card
-              key={shift.shift_id}
-              className="p-6 hover:shadow-lg transition-shadow"
-              style={{ borderLeftWidth: '4px', borderLeftColor: shift.color || '#3B82F6' }}
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{shift.role_name}</h3>
-                  <div className="flex items-center text-sm text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {shift.workplace_name}
-                  </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(shift.status)}`}>
-                  {shift.status}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Date</div>
-                  <div className="text-sm font-medium text-gray-900">{formatDate(shift.shift_date)}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Time</div>
-                  <div className="text-sm font-medium text-gray-900">
-                    {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Hours</div>
-                  <div className="text-sm font-medium text-gray-900">
-                    {calculateHours(shift.start_time, shift.end_time)} hrs
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Pay Rate</div>
-                  <div className="text-sm font-medium text-green-600">
-                    ${shift.hourly_rate || '17.60'}/hr
-                  </div>
-                </div>
-              </div>
-
-              {shift.notes && (
-                <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                  <strong>Notes:</strong> {shift.notes}
-                </div>
-              )}
-            </Card>
-          ))}
+    <div className="min-h-screen bg-gray-50">
+      <WorkforceHeader />
+      <WorkforceSidebar />
+      
+      <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
+        <div className="bg-white border-b border-gray-200 px-8 py-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">My Shifts</h1>
+          <p className="text-gray-600">View and manage your scheduled shifts across all employers</p>
         </div>
-      )}
+
+        <div className="p-8">
+
+          {/* Filter Tabs */}
+          <div className="flex gap-2 mb-6 bg-white rounded-xl p-2 shadow-sm">
+            <button
+              onClick={() => setFilter('upcoming')}
+              className={`flex-1 px-4 py-2 font-medium rounded-lg transition-colors ${
+                filter === 'upcoming'
+                  ? 'text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              style={{ backgroundColor: filter === 'upcoming' ? theme.primaryColor : 'transparent' }}
+            >
+              Upcoming
+            </button>
+            <button
+              onClick={() => setFilter('completed')}
+              className={`flex-1 px-4 py-2 font-medium rounded-lg transition-colors ${
+                filter === 'completed'
+                  ? 'text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              style={{ backgroundColor: filter === 'completed' ? theme.primaryColor : 'transparent' }}
+            >
+              Completed
+            </button>
+            <button
+              onClick={() => setFilter('all')}
+              className={`flex-1 px-4 py-2 font-medium rounded-lg transition-colors ${
+                filter === 'all'
+                  ? 'text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              style={{ backgroundColor: filter === 'all' ? theme.primaryColor : 'transparent' }}
+            >
+              All
+            </button>
+          </div>
+
+          {/* Shifts List */}
+          {shifts.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 text-center shadow-sm">
+              <FiCalendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Shifts Found</h3>
+              <p className="text-gray-600">You don't have any shifts scheduled yet</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {shifts.map((shift) => (
+                <div
+                  key={shift.shift_id}
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4"
+                  style={{ borderLeftColor: shift.color || theme.primaryColor }}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{shift.role_name}</h3>
+                      <div className="flex items-center text-sm text-gray-600 mb-2">
+                        <FiMapPin className="mr-2" size={16} />
+                        {shift.workplace_name}
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(shift.status)}`}>
+                      {shift.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Date</div>
+                      <div className="text-sm font-medium text-gray-900">{formatDate(shift.shift_date)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Time</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Hours</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {calculateHours(shift.start_time, shift.end_time)} hrs
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Pay Rate</div>
+                      <div className="text-sm font-medium text-green-600">
+                        ${shift.hourly_rate || '17.60'}/hr
+                      </div>
+                    </div>
+                  </div>
+
+                  {shift.notes && (
+                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      <strong>Notes:</strong> {shift.notes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
