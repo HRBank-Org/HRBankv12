@@ -385,9 +385,9 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                     placeholder="Optional"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  {selectedTemplate && selectedTemplate.suggested_rate_for_province && (
+                  {selectedRole && selectedRole.hourly_rate && (
                     <p className="text-xs text-blue-600 mt-1">
-                      ✓ Suggested rate for {workplaceProvince}: ${selectedTemplate.suggested_rate_for_province}/hr
+                      ✓ Rate from role: ${selectedRole.hourly_rate}/hr
                     </p>
                   )}
                 </div>
