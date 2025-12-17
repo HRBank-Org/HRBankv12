@@ -178,3 +178,40 @@ The Worker Invitation System is fully functional with all core features working 
 
 The Worker Invitation System UI is fully functional with all user interface components working as expected. All test scenarios passed successfully, including the two-step modal flow, form submissions, data display, and responsive design elements.
 
+---
+
+## Current Test Focus: Workplace Management Feature
+
+### Features Implemented:
+1. **Backend Endpoints**: 
+   - `GET /api/employer/workplaces/{id}/dependencies` - Get dependencies before delete/deactivate
+   - `PATCH /api/employer/workplaces/{id}/status` - Activate/deactivate workplace
+   - `DELETE /api/employer/workplaces/{id}` - Delete workplace with optional force parameter
+   - `GET /api/employer/workforce-inventory/stats` - Get workforce inventory statistics
+   - `POST /api/employer/workforce-inventory/cleanup` - Manual cleanup trigger
+
+2. **Frontend UI (WorkplaceForm.jsx)**:
+   - Status badge showing Active/Inactive state
+   - Toggle button for activate/deactivate
+   - Delete button with trash icon
+   - Dependency check modal for deactivation with dependencies
+   - Delete confirmation modal showing safe delete or force delete option
+
+3. **Background Service**:
+   - `/app/backend/services/workforce_cleanup_service.py` - Auto-termination of workers unassigned for 2+ weeks
+
+### Test Accounts:
+- **Employer**: employer@hrbank.ca / Test123!
+
+### API Endpoints to Test:
+1. GET /api/employer/workplaces/{id}/dependencies - Should return dependency info
+2. PATCH /api/employer/workplaces/{id}/status - Should toggle active/inactive
+3. DELETE /api/employer/workplaces/{id} - Should delete (with force option if has dependencies)
+4. GET /api/employer/workforce-inventory/stats - Should return inventory stats
+
+### UI Flows to Test:
+1. Employer login -> Workplaces -> Click workplace -> View details with status badge
+2. Click toggle button to deactivate (should show modal if dependencies exist)
+3. Click delete button -> Should show confirmation modal with dependency info
+4. Verify status changes persist and display correctly
+
