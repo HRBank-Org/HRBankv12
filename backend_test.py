@@ -7614,6 +7614,356 @@ def test_employer_invitation_system(results):
     except Exception as e:
         results.add_fail("Invitation retrieval", f"Request failed: {str(e)}")
 
+def test_worker_invitation_system(results):
+    """Test Worker Invitation System - Complete Flow from review request"""
+    print("\n🧪 TESTING WORKER INVITATION SYSTEM - COMPLETE FLOW")
+    print("   Focus: Employer inviting workers to roles")
+    print("   Test Credentials: employer@hrbank.ca / Test123!")
+    print("   Testing: Login, Get Workplaces/Roles, Send Invitations, List/Resend/Cancel")
+    
+    # Test 1: Login and Get Token
+    print("\n   Test 1: Login and Get Token")
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login - valid credentials")
+            else:
+                results.add_fail("Employer login", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Employer login", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Employer login", f"Request failed: {str(e)}")
+    
+    if not employer_token:
+        results.add_fail("Worker invitation system", "Cannot proceed without valid employer token")
+        return
+    
+    headers = {"Authorization": f"Bearer {employer_token}"}
+    
+    # Test 2: Get Workplaces
+    print("\n   Test 2: Get Workplaces")
+    workplace_id = None
+    try:
+        response = requests.get(f"{BASE_URL}/employer/workplaces", headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "workplaces" in data.get("data", {}):
+                workplaces = data["data"]["workplaces"]
+                if workplaces:
+                    workplace_id = workplaces[0].get("workplace_id")
+                    results.add_pass("Get workplaces - success")
+                else:
+                    results.add_pass("Get workplaces - empty list (expected for new employer)")
+            else:
+                results.add_fail("Get workplaces", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Get workplaces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Get workplaces", f"Request failed: {str(e)}")
+    
+    # Test 3: Get Workplace Roles
+    print("\n   Test 3: Get Workplace Roles")
+    role_id = None
+    try:
+        response = requests.get(f"{BASE_URL}/employer/workplace-roles/list", headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "roles" in data.get("data", {}):
+                roles = data["data"]["roles"]
+                if roles:
+                    role_id = roles[0].get("role_id")
+                    results.add_pass("Get workplace roles - success")
+                else:
+                    results.add_pass("Get workplace roles - empty list (expected for new employer)")
+            else:
+                results.add_fail("Get workplace roles", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Get workplace roles", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Get workplace roles", f"Request failed: {str(e)}")
+    
+    # If no existing workplace/role, create test ones
+    if not workplace_id:
+        print("\n   Creating test workplace...")
+        try:
+            workplace_data = {
+                "workplace_name": "Test Restaurant",
+                "address": "123 Test Street, Toronto, ON",
+                "postal_code": "M5V 3A8",
+                "attendance_geofence_radius_m": 100,
+                "job_matching_radius_km": 20,
+                "timezone": "America/Toronto"
+            }
+            
+            response = requests.post(f"{BASE_URL}/employer/workplaces", json=workplace_data, headers=headers, timeout=10)
+            
+            if response.status_code == 201:
+                data = response.json()
+                if data.get("success"):
+                    workplace_id = data["data"]["workplace_id"]
+                    results.add_pass("Create test workplace")
+                else:
+                    results.add_fail("Create test workplace", f"Invalid response: {data}")
+            else:
+                results.add_fail("Create test workplace", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Create test workplace", f"Request failed: {str(e)}")
+    
+    if not role_id and workplace_id:
+        print("\n   Creating test role...")
+        try:
+            role_data = {
+                "workplace_id": workplace_id,
+                "role_name": "Line Cook",
+                "occupation_template": "Line Cook",
+                "required_skills": ["Cooking", "Food Safety"],
+                "additional_certifications": ["Food Handler Certificate"],
+                "hourly_rate": 20.00,
+                "description": "Prepare food items according to recipes",
+                "positions_available": 2
+            }
+            
+            response = requests.post(f"{BASE_URL}/employer/workplace-roles/create", json=role_data, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    role_id = data["data"]["role_id"]
+                    results.add_pass("Create test role")
+                else:
+                    results.add_fail("Create test role", f"Invalid response: {data}")
+            else:
+                results.add_fail("Create test role", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Create test role", f"Request failed: {str(e)}")
+    
+    if not workplace_id or not role_id:
+        results.add_fail("Worker invitation system", "Cannot proceed without workplace_id and role_id")
+        return
+    
+    # Test 4: Send Worker Invitation
+    print("\n   Test 4: Send Worker Invitation")
+    invite_id = None
+    try:
+        invite_data = {
+            "role_id": role_id,
+            "workplace_id": workplace_id,
+            "invites": [{
+                "first_name": "Test",
+                "last_name": "Worker",
+                "email": "testworker123@example.com",
+                "phone": "+15195559999"
+            }]
+        }
+        
+        response = requests.post(f"{BASE_URL}/employer/invite-workers", json=invite_data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "successful" in data.get("data", {}):
+                successful = data["data"]["successful"]
+                if successful and len(successful) > 0:
+                    results.add_pass("Send worker invitation - success")
+                else:
+                    results.add_fail("Send worker invitation", f"No successful invitations: {data}")
+            else:
+                results.add_fail("Send worker invitation", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Send worker invitation", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Send worker invitation", f"Request failed: {str(e)}")
+    
+    # Test 5: List Invitations
+    print("\n   Test 5: List Invitations")
+    try:
+        response = requests.get(f"{BASE_URL}/employer/invitations/list", headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "invitations" in data.get("data", {}):
+                invitations = data["data"]["invitations"]
+                if invitations:
+                    invite_id = invitations[0].get("invite_id")
+                    results.add_pass("List invitations - success")
+                else:
+                    results.add_pass("List invitations - empty list")
+            else:
+                results.add_fail("List invitations", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("List invitations", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("List invitations", f"Request failed: {str(e)}")
+    
+    # Test 6: Resend Invitation
+    if invite_id:
+        print("\n   Test 6: Resend Invitation")
+        try:
+            response = requests.post(f"{BASE_URL}/employer/invitations/{invite_id}/resend", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("Resend invitation - success")
+                else:
+                    results.add_fail("Resend invitation", f"Invalid response: {data}")
+            else:
+                results.add_fail("Resend invitation", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Resend invitation", f"Request failed: {str(e)}")
+    
+    # Test 7: Create New Invitation for Cancellation Test
+    print("\n   Test 7: Create New Invitation for Cancellation")
+    cancel_invite_id = None
+    try:
+        invite_data = {
+            "role_id": role_id,
+            "workplace_id": workplace_id,
+            "invites": [{
+                "first_name": "Cancel",
+                "last_name": "Test",
+                "email": "canceltest456@example.com",
+                "phone": "+15195558888"
+            }]
+        }
+        
+        response = requests.post(f"{BASE_URL}/employer/invite-workers", json=invite_data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                # Get the new invitation ID
+                list_response = requests.get(f"{BASE_URL}/employer/invitations/list", headers=headers, timeout=10)
+                if list_response.status_code == 200:
+                    list_data = list_response.json()
+                    invitations = list_data.get("data", {}).get("invitations", [])
+                    for inv in invitations:
+                        if inv.get("email") == "canceltest456@example.com":
+                            cancel_invite_id = inv.get("invite_id")
+                            break
+                    results.add_pass("Create invitation for cancellation test")
+                else:
+                    results.add_fail("Create invitation for cancellation test", "Could not retrieve invitation ID")
+            else:
+                results.add_fail("Create invitation for cancellation test", f"Invalid response: {data}")
+        else:
+            results.add_fail("Create invitation for cancellation test", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Create invitation for cancellation test", f"Request failed: {str(e)}")
+    
+    # Test 8: Cancel Invitation
+    if cancel_invite_id:
+        print("\n   Test 8: Cancel Invitation")
+        try:
+            response = requests.delete(f"{BASE_URL}/employer/invitations/{cancel_invite_id}/cancel", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("Cancel invitation - success")
+                else:
+                    results.add_fail("Cancel invitation", f"Invalid response: {data}")
+            else:
+                results.add_fail("Cancel invitation", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Cancel invitation", f"Request failed: {str(e)}")
+    
+    # Test 9: Verify Cancelled Invitation Status
+    if cancel_invite_id:
+        print("\n   Test 9: Verify Cancelled Invitation Status")
+        try:
+            response = requests.get(f"{BASE_URL}/employer/invitations/list", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    invitations = data.get("data", {}).get("invitations", [])
+                    cancelled_invite = None
+                    for inv in invitations:
+                        if inv.get("invite_id") == cancel_invite_id:
+                            cancelled_invite = inv
+                            break
+                    
+                    if cancelled_invite and cancelled_invite.get("status") == "cancelled":
+                        results.add_pass("Verify cancelled invitation status - correct")
+                    else:
+                        results.add_fail("Verify cancelled invitation status", f"Status not cancelled: {cancelled_invite}")
+                else:
+                    results.add_fail("Verify cancelled invitation status", f"Invalid response: {data}")
+            else:
+                results.add_fail("Verify cancelled invitation status", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Verify cancelled invitation status", f"Request failed: {str(e)}")
+    
+    # Test 10: Error Cases
+    print("\n   Test 10: Error Cases")
+    
+    # Test sending invitation without email AND phone
+    try:
+        invalid_invite_data = {
+            "role_id": role_id,
+            "workplace_id": workplace_id,
+            "invites": [{
+                "first_name": "Invalid",
+                "last_name": "Test",
+                "email": "",
+                "phone": ""
+            }]
+        }
+        
+        response = requests.post(f"{BASE_URL}/employer/invite-workers", json=invalid_invite_data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            failed = data.get("data", {}).get("failed", [])
+            if failed and len(failed) > 0:
+                results.add_pass("Error case - invitation without email AND phone rejected")
+            else:
+                results.add_fail("Error case - invitation without email AND phone", "Should have failed")
+        else:
+            results.add_pass("Error case - invitation without email AND phone rejected (HTTP error)")
+    except Exception as e:
+        results.add_fail("Error case - invitation without email AND phone", f"Request failed: {str(e)}")
+    
+    # Test duplicate invitation
+    try:
+        duplicate_invite_data = {
+            "role_id": role_id,
+            "workplace_id": workplace_id,
+            "invites": [{
+                "first_name": "Test",
+                "last_name": "Worker",
+                "email": "testworker123@example.com",  # Same email as before
+                "phone": "+15195559999"
+            }]
+        }
+        
+        response = requests.post(f"{BASE_URL}/employer/invite-workers", json=duplicate_invite_data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            failed = data.get("data", {}).get("failed", [])
+            if failed and len(failed) > 0:
+                results.add_pass("Error case - duplicate invitation rejected")
+            else:
+                results.add_fail("Error case - duplicate invitation", "Should have failed")
+        else:
+            results.add_pass("Error case - duplicate invitation rejected (HTTP error)")
+    except Exception as e:
+        results.add_fail("Error case - duplicate invitation", f"Request failed: {str(e)}")
+
 def main():
     """Run comprehensive backend tests focused on mobile app occupation-certification integration"""
     print("🚀 MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION TESTING")
