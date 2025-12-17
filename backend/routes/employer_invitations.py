@@ -582,3 +582,167 @@ async def send_invitation_notifications(invite_token: InviteToken, employer_name
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Failed to send invitation SMS to {invite_token.phone}: {e}", exc_info=True)
+
+
+# ==================== NEW ENDPOINT FOR WorkerInviteModal ====================
+
+@invite_workers_router.post("/invite-workers", response_model=Dict)
+async def invite_workers(
+    request: WorkerInviteRequest,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Send worker invitations from the WorkerInviteModal component.
+    This endpoint accepts role_id, workplace_id, and an array of invites.
+    Each invite can have email, phone, first_name, and last_name.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    if len(request.invites) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one invitation is required"
+        )
+    
+    if len(request.invites) > 50:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot send more than 50 invitations at once"
+        )
+    
+    # Get role details
+    role = await db.workplace_roles.find_one({
+        "role_id": request.role_id,
+        "employer_id": current_user['user_id']
+    }, {"_id": 0})
+    
+    if not role:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Role not found or doesn't belong to you"
+        )
+    
+    # Get workplace details
+    workplace = await db.workplaces.find_one({
+        "workplace_id": request.workplace_id,
+        "employer_id": current_user['user_id']
+    }, {"_id": 0})
+    
+    if not workplace:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workplace not found or doesn't belong to you"
+        )
+    
+    # Get employer details
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": current_user['user_id']},
+        {"_id": 0, "company_name": 1}
+    )
+    employer_name = employer.get('company_name', 'Employer') if employer else 'Employer'
+    
+    successful_invites = []
+    failed_invites = []
+    
+    for invite_data in request.invites:
+        try:
+            # Validate - need either email or phone
+            if not invite_data.email and not invite_data.phone:
+                failed_invites.append({
+                    "name": f"{invite_data.first_name} {invite_data.last_name}",
+                    "reason": "Email or phone number is required"
+                })
+                continue
+            
+            # Check if invitation already exists
+            query_conditions = [
+                {"invited_by_user_id": current_user['user_id']},
+                {"role_id": request.role_id},
+                {"status": "sent"}
+            ]
+            
+            if invite_data.email:
+                existing_invite = await db.invite_tokens.find_one({
+                    "email": invite_data.email,
+                    "invited_by_user_id": current_user['user_id'],
+                    "role_id": request.role_id,
+                    "status": "sent"
+                })
+                if existing_invite:
+                    failed_invites.append({
+                        "email": invite_data.email,
+                        "name": f"{invite_data.first_name} {invite_data.last_name}",
+                        "reason": "Invitation already sent to this email for this role"
+                    })
+                    continue
+            
+            # Check if user already exists and is employed
+            if invite_data.email:
+                existing_user = await db.users.find_one({"email": invite_data.email})
+                if existing_user:
+                    relationship = await db.employment_relationships.find_one({
+                        "employer_id": current_user['user_id'],
+                        "workforce_id": existing_user['user_id'],
+                        "status": "active"
+                    })
+                    if relationship:
+                        failed_invites.append({
+                            "email": invite_data.email,
+                            "name": f"{invite_data.first_name} {invite_data.last_name}",
+                            "reason": "Worker already employed by you"
+                        })
+                        continue
+            
+            # Create invitation token
+            full_name = f"{invite_data.first_name} {invite_data.last_name}"
+            
+            invite_token = InviteToken(
+                invited_by_user_id=current_user['user_id'],
+                invited_by_user_type='employer',
+                email=invite_data.email,
+                full_name=full_name,
+                phone=invite_data.phone,
+                role_id=request.role_id,
+                role_name=role.get('role_name', role.get('title', 'Position')),
+                occupation_template=role.get('occupation_template', ''),
+                workplace_id=request.workplace_id,
+                expires_at=datetime.utcnow() + timedelta(days=7)
+            )
+            
+            await db.invite_tokens.insert_one(invite_token.model_dump())
+            
+            # Send notifications
+            await send_invitation_notifications(
+                invite_token=invite_token,
+                employer_name=employer_name,
+                db=db
+            )
+            
+            successful_invites.append({
+                "email": invite_data.email,
+                "phone": invite_data.phone,
+                "name": full_name,
+                "role": role.get('role_name', role.get('title', 'Position'))
+            })
+            
+            logger.info(f"Invitation sent successfully to {full_name}")
+            
+        except Exception as e:
+            logger.error(f"Failed to process invite: {e}", exc_info=True)
+            failed_invites.append({
+                "name": f"{invite_data.first_name} {invite_data.last_name}",
+                "reason": str(e)
+            })
+    
+    return {
+        "success": True,
+        "data": {
+            "successful": successful_invites,
+            "failed": failed_invites,
+            "total_sent": len(successful_invites),
+            "total_failed": len(failed_invites)
+        },
+        "message": f"Sent {len(successful_invites)} invitation(s)" + (f", {len(failed_invites)} failed" if failed_invites else "")
+    }
