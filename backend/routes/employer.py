@@ -244,47 +244,201 @@ async def update_employer_profile(
         "message": message
     }
 
-@router.delete("/workplaces/{workplace_id}", response_model=Dict)
-async def delete_workplace(
+@router.get("/workplaces/{workplace_id}/dependencies", response_model=Dict)
+async def get_workplace_dependencies(
     workplace_id: str,
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Delete a workplace (only if no active shifts)"""
+    """Get all dependencies for a workplace before deletion/deactivation"""
+    from datetime import datetime, timedelta
     
-    # Verify workplace belongs to employer
+    workplace = await db.workplaces.find_one({
+        "workplace_id": workplace_id,
+        "employer_id": current_user["user_id"]
+    }, {"_id": 0})
+    
+    if not workplace:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workplace not found")
+    
+    # Get active/upcoming shifts
+    active_shifts = await db.shifts.find({
+        "workplace_id": workplace_id,
+        "status": {"$in": ["open", "filled", "in_progress"]},
+        "date": {"$gte": datetime.utcnow().strftime("%Y-%m-%d")}
+    }, {"_id": 0, "shift_id": 1, "position_title": 1, "date": 1, "start_time": 1, "assigned_workers": 1}).to_list(100)
+    
+    # Get roles at this workplace
+    roles = await db.workplace_roles.find({
+        "workplace_id": workplace_id,
+        "employer_id": current_user["user_id"]
+    }, {"_id": 0, "role_id": 1, "role_name": 1, "title": 1}).to_list(50)
+    
+    # Get workers assigned to shifts at this workplace
+    worker_ids = set()
+    for shift in active_shifts:
+        for worker in shift.get("assigned_workers", []):
+            worker_ids.add(worker.get("user_id") or worker.get("workforce_id"))
+    
+    workers = []
+    if worker_ids:
+        workers = await db.users.find(
+            {"user_id": {"$in": list(worker_ids)}},
+            {"_id": 0, "user_id": 1, "email": 1, "first_name": 1, "last_name": 1}
+        ).to_list(100)
+    
+    has_dependencies = len(active_shifts) > 0 or len(workers) > 0
+    
+    return {
+        "success": True,
+        "data": {
+            "workplace_id": workplace_id,
+            "workplace_name": workplace.get("name", workplace.get("workplace_name")),
+            "status": workplace.get("status", "active"),
+            "has_dependencies": has_dependencies,
+            "active_shifts": active_shifts,
+            "active_shifts_count": len(active_shifts),
+            "roles": roles,
+            "roles_count": len(roles),
+            "assigned_workers": workers,
+            "assigned_workers_count": len(workers),
+            "can_delete": not has_dependencies,
+            "can_deactivate": True,  # Can always deactivate, but with warning
+            "warning": "Deactivating will prevent new shifts from being created. Existing shifts and worker assignments will remain." if has_dependencies else None
+        }
+    }
+
+
+@router.patch("/workplaces/{workplace_id}/status", response_model=Dict)
+async def update_workplace_status(
+    workplace_id: str,
+    status_data: dict,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Activate or deactivate a workplace"""
+    from datetime import datetime
+    
+    new_status = status_data.get("status")  # "active" or "inactive"
+    
+    if new_status not in ["active", "inactive"]:
+        raise HTTPException(status_code=400, detail="Status must be 'active' or 'inactive'")
+    
     workplace = await db.workplaces.find_one({
         "workplace_id": workplace_id,
         "employer_id": current_user["user_id"]
     })
     
     if not workplace:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Workplace not found"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workplace not found")
+    
+    # Update status
+    await db.workplaces.update_one(
+        {"workplace_id": workplace_id},
+        {"$set": {
+            "status": new_status,
+            "status_updated_at": datetime.utcnow(),
+            "status_updated_by": current_user["user_id"]
+        }}
+    )
+    
+    # If deactivating, also deactivate roles at this workplace
+    if new_status == "inactive":
+        await db.workplace_roles.update_many(
+            {"workplace_id": workplace_id},
+            {"$set": {"status": "inactive"}}
         )
+    
+    return {
+        "success": True,
+        "data": {"workplace_id": workplace_id, "status": new_status},
+        "message": f"Workplace {'activated' if new_status == 'active' else 'deactivated'} successfully"
+    }
+
+
+@router.delete("/workplaces/{workplace_id}", response_model=Dict)
+async def delete_workplace(
+    workplace_id: str,
+    force: bool = False,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Delete a workplace. Use force=true to unassign all workers first."""
+    from datetime import datetime, timedelta
+    
+    workplace = await db.workplaces.find_one({
+        "workplace_id": workplace_id,
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not workplace:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workplace not found")
     
     # Check for active shifts
     active_shifts = await db.shifts.count_documents({
         "workplace_id": workplace_id,
-        "status": {"$in": ["open", "filled"]}
+        "status": {"$in": ["open", "filled", "in_progress"]},
+        "date": {"$gte": datetime.utcnow().strftime("%Y-%m-%d")}
     })
     
-    if active_shifts > 0:
+    if active_shifts > 0 and not force:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot delete workplace with {active_shifts} active shift(s). Please complete or cancel shifts first."
+            detail=f"Cannot delete workplace with {active_shifts} active/upcoming shift(s). Cancel shifts first or use force=true to unassign all workers."
         )
     
-    # Delete workplace
+    # If force delete, handle dependencies
+    unassigned_workers = []
+    if force:
+        # Get all workers assigned to shifts at this workplace
+        shifts_with_workers = await db.shifts.find({
+            "workplace_id": workplace_id,
+            "assigned_workers": {"$exists": True, "$ne": []}
+        }).to_list(500)
+        
+        for shift in shifts_with_workers:
+            for worker in shift.get("assigned_workers", []):
+                worker_id = worker.get("user_id") or worker.get("workforce_id")
+                if worker_id and worker_id not in unassigned_workers:
+                    unassigned_workers.append(worker_id)
+                    # Mark worker as unassigned in inventory
+                    await db.workforce_inventory.update_one(
+                        {"employer_id": current_user["user_id"], "workforce_id": worker_id},
+                        {"$set": {
+                            "status": "unassigned",
+                            "last_shift_date": datetime.utcnow(),
+                            "unassigned_date": datetime.utcnow(),
+                            "auto_terminate_date": datetime.utcnow() + timedelta(days=14)
+                        }},
+                        upsert=True
+                    )
+        
+        # Cancel all shifts at this workplace
+        await db.shifts.update_many(
+            {"workplace_id": workplace_id},
+            {"$set": {"status": "cancelled", "cancelled_at": datetime.utcnow()}}
+        )
+    
+    # Delete roles at this workplace
+    await db.workplace_roles.delete_many({"workplace_id": workplace_id})
+    
+    # Delete the workplace
     await db.workplaces.delete_one({"workplace_id": workplace_id})
     
-    # Delete all completed shifts for this workplace
-    await db.shifts.delete_many({"workplace_id": workplace_id})
+    # Delete old completed/cancelled shifts
+    await db.shifts.delete_many({
+        "workplace_id": workplace_id,
+        "status": {"$in": ["completed", "cancelled"]}
+    })
     
     return {
         "success": True,
-        "message": "Workplace deleted successfully"
+        "data": {
+            "workplace_id": workplace_id,
+            "unassigned_workers_count": len(unassigned_workers),
+            "unassigned_workers": unassigned_workers
+        },
+        "message": f"Workplace deleted successfully. {len(unassigned_workers)} worker(s) moved to unassigned inventory."
     }
 
 @router.patch("/workplaces/{workplace_id}", response_model=Dict)
