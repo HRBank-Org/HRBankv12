@@ -269,32 +269,12 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                 )}
               </div>
 
-              {/* Occupation Template - Alternative to Role */}
-              {!selectedRole && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiUsers className="inline w-4 h-4 mr-1" />
-                    Or use Occupation Template
-                  </label>
-                  <select
-                    value={formData.occupation_template_id}
-                    onChange={(e) => handleTemplateSelect(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">-- Select from template or enter manually --</option>
-                    {occupationTemplates.map(template => (
-                      <option key={template.template_id} value={template.template_id}>
-                        {template.occupation_title} ({template.occupation_category})
-                        {template.suggested_rates?.[workplaceProvince] ? 
-                          ` - Suggested: $${template.suggested_rates[workplaceProvince]}/hr` : ''}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedTemplate && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      ✓ Auto-filled: Position, Rate, Skills
-                    </p>
-                  )}
+              {/* Note: Occupation templates removed - shifts should inherit from roles */}
+              {!selectedRole && !formData.role_id && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-700">
+                    💡 <strong>Tip:</strong> Select a role above to auto-fill position details, hourly rate, and required certifications from your compliance settings.
+                  </p>
                 </div>
               )}
 
