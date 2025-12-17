@@ -31,10 +31,35 @@ const RoleForm = () => {
 
   const [newSkill, setNewSkill] = useState('');
   const [newCert, setNewCert] = useState('');
+  const [minimumRate, setMinimumRate] = useState(null);
+  const [rateError, setRateError] = useState('');
 
   useEffect(() => {
     loadInitialData();
   }, []);
+  
+  // Fetch minimum rate when occupation is selected
+  const fetchMinimumRate = async (occupationTitle) => {
+    if (!occupationTitle) {
+      setMinimumRate(null);
+      return;
+    }
+    try {
+      const response = await api.get(`/api/admin/occupations/minimum-rate/${encodeURIComponent(occupationTitle)}?province_code=ON`);
+      const rateData = response.data.data;
+      setMinimumRate(rateData);
+      
+      // Auto-set hourly rate if not already set or if current rate is lower
+      if (!formData.hourly_rate || parseFloat(formData.hourly_rate) < rateData.effective_minimum_rate) {
+        setFormData(prev => ({
+          ...prev,
+          hourly_rate: rateData.effective_minimum_rate.toFixed(2)
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch minimum rate:', error);
+    }
+  };
 
   const loadInitialData = async () => {
     try {
