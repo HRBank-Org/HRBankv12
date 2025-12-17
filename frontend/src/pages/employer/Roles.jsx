@@ -38,14 +38,16 @@ const Roles = () => {
   };
 
   const handleDeleteRole = async (roleId) => {
-    if (!window.confirm('Are you sure you want to delete this role?')) return;
+    if (!window.confirm('Are you sure you want to delete this role? This cannot be undone.')) return;
     
     try {
       await api.delete(`/api/employer/workplace-roles/${roleId}/delete`);
       await loadData();
+      alert('Role deleted successfully!');
     } catch (error) {
       console.error('Failed to delete role:', error);
-      alert('Failed to delete role. It may have active assignments.');
+      const errorMessage = error.response?.data?.detail || 'Failed to delete role. It may have active assignments or pending invitations.';
+      alert(errorMessage);
     }
   };
 
