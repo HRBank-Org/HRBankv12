@@ -375,19 +375,39 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FiDollarSign className="inline w-4 h-4 mr-1" />
-                    Hourly Rate
+                    Shift Rate {selectedRole ? '(Incentive Override)' : ''}
                   </label>
                   <input
                     type="number"
                     value={formData.hourly_rate}
-                    onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
+                    onChange={(e) => {
+                      const newRate = e.target.value;
+                      const roleRate = parseFloat(selectedRole?.hourly_rate || selectedRole?.pay_rate || 0);
+                      // Only allow rates >= role rate
+                      if (newRate && roleRate && parseFloat(newRate) < roleRate) {
+                        return; // Don't allow decrease below role rate
+                      }
+                      setFormData({ ...formData, hourly_rate: newRate });
+                    }}
                     step="0.01"
-                    placeholder="Optional"
+                    min={selectedRole?.hourly_rate || selectedRole?.pay_rate || 0}
+                    placeholder={selectedRole ? `${selectedRole.hourly_rate || selectedRole.pay_rate}` : "Select role first"}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  {selectedRole && selectedRole.hourly_rate && (
-                    <p className="text-xs text-blue-600 mt-1">
-                      ✓ Rate from role: ${selectedRole.hourly_rate}/hr
+                  {selectedRole && (selectedRole.hourly_rate || selectedRole.pay_rate) ? (
+                    <div className="mt-1">
+                      <p className="text-xs text-gray-600">
+                        Base rate: <span className="font-semibold">${selectedRole.hourly_rate || selectedRole.pay_rate}/hr</span>
+                      </p>
+                      {formData.hourly_rate && parseFloat(formData.hourly_rate) > parseFloat(selectedRole.hourly_rate || selectedRole.pay_rate) && (
+                        <p className="text-xs text-green-600 mt-0.5">
+                          💰 +${(parseFloat(formData.hourly_rate) - parseFloat(selectedRole.hourly_rate || selectedRole.pay_rate)).toFixed(2)}/hr incentive premium
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-1">
+                      💡 Rate will be inherited from the selected role
                     </p>
                   )}
                 </div>
