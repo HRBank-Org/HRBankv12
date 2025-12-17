@@ -567,3 +567,58 @@ async def get_occupation_required_certifications(
         }
     }
 
+
+
+@router.get("/minimum-rate/{occupation_title}")
+async def get_occupation_minimum_rate(
+    occupation_title: str,
+    province_code: str = "ON",
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get minimum hourly rate for an occupation, considering both:
+    1. Occupation-specific minimum rate (from occupation templates)
+    2. Provincial minimum wage
+    Returns the HIGHER of the two to ensure compliance
+    """
+    
+    # Get provincial minimum wage
+    province_wage = await db.minimum_wages.find_one(
+        {"province_code": province_code},
+        {"_id": 0}
+    )
+    provincial_min = province_wage.get("general_rate", 15.00) if province_wage else 15.00
+    
+    # Get occupation template rate from database
+    template = await db.occupation_templates.find_one(
+        {"title": {"$regex": f"^{occupation_title}$", "$options": "i"}},
+        {"_id": 0}
+    )
+    occupation_min = template.get("minimum_rate", provincial_min) if template else provincial_min
+    
+    # Also check the file-based categories for backward compatibility
+    categories = read_categories_file()
+    for category_name, category_data in categories.items():
+        for occ in category_data.get("occupations", []):
+            if isinstance(occ, dict):
+                if occ.get("title", "").lower() == occupation_title.lower():
+                    file_rate = occ.get("minimum_hourly_rate", 0)
+                    if file_rate > occupation_min:
+                        occupation_min = file_rate
+                    break
+    
+    # Return the higher of occupation minimum and provincial minimum
+    effective_min = max(occupation_min, provincial_min)
+    
+    return {
+        "success": True,
+        "data": {
+            "occupation_title": occupation_title,
+            "province_code": province_code,
+            "occupation_minimum_rate": occupation_min,
+            "provincial_minimum_wage": provincial_min,
+            "effective_minimum_rate": effective_min,
+            "note": f"Rate must be at least ${effective_min:.2f}/hr to comply with {province_code} law"
+        }
+    }
