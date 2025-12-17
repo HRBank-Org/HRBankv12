@@ -491,15 +491,54 @@ const RoleForm = () => {
               </div>
             </div>
 
-            {/* Additional Certifications */}
+            {/* Required Certifications (Provincial Compliance) */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <FiAward size={24} />
-                Additional Certifications
+                Certifications & Compliance
               </h2>
               
+              {/* Provincial Requirements Notice */}
+              {requiredCertifications.length > 0 && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h3 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                    📋 Required for {selectedWorkplaceProvince} Compliance
+                  </h3>
+                  <p className="text-sm text-blue-700 mb-3">
+                    These certifications are legally required for this occupation in {selectedWorkplaceProvince}. Workers must have these to be assigned to this role.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {requiredCertifications.map((cert, idx) => (
+                      <span
+                        key={idx}
+                        className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 ${
+                          cert.required 
+                            ? 'bg-blue-100 text-blue-800 border border-blue-300' 
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                        title={cert.description || ''}
+                      >
+                        {cert.required && <span className="text-red-500">*</span>}
+                        {cert.name}
+                        <span className="text-xs opacity-70">
+                          ({cert.source === 'provincial' ? selectedWorkplaceProvince : 'occupation'})
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {!formData.occupation_template && (
+                <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    💡 Select an occupation and workplace to see provincial certification requirements
+                  </p>
+                </div>
+              )}
+              
               <p className="text-sm text-gray-600 mb-4">
-                Occupation-required certifications will be added automatically. Add any extra certifications needed for this specific role.
+                Add any additional certifications beyond the provincial requirements:
               </p>
 
               <div className="space-y-4">
@@ -509,7 +548,7 @@ const RoleForm = () => {
                     value={newCert}
                     onChange={(e) => setNewCert(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCertification())}
-                    placeholder="Add certification (e.g., Smart Serve, First Aid)"
+                    placeholder="Add extra certification"
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
                   />
                   <button
@@ -523,22 +562,35 @@ const RoleForm = () => {
                 </div>
 
                 {formData.additional_certifications.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {formData.additional_certifications.map((cert, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-2 bg-green-100 text-green-700 rounded-lg flex items-center gap-2"
-                      >
-                        {cert}
-                        <button
-                          type="button"
-                          onClick={() => removeCertification(cert)}
-                          className="text-green-700 hover:text-green-900"
-                        >
-                          <FiX size={16} />
-                        </button>
-                      </span>
-                    ))}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Role certifications:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.additional_certifications.map((cert, idx) => {
+                        const isRequired = requiredCertifications.some(rc => rc.name === cert && rc.required);
+                        return (
+                          <span
+                            key={idx}
+                            className={`px-3 py-2 rounded-lg flex items-center gap-2 ${
+                              isRequired 
+                                ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                                : 'bg-green-100 text-green-700'
+                            }`}
+                          >
+                            {isRequired && <span className="text-xs">🔒</span>}
+                            {cert}
+                            {!isRequired && (
+                              <button
+                                type="button"
+                                onClick={() => removeCertification(cert)}
+                                className="text-green-700 hover:text-green-900"
+                              >
+                                <FiX size={16} />
+                              </button>
+                            )}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
