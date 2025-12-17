@@ -338,12 +338,13 @@ const Roles = () => {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteRole(role.role_id)}
-                          className="px-4 py-2 border-2 border-red-600 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors flex items-center gap-2"
+                          onClick={() => handleDeleteRole(role.role_id, role.role_name || role.title || 'this role')}
+                          disabled={deleting === role.role_id}
+                          className={`px-4 py-2 border-2 border-red-600 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors flex items-center gap-2 ${deleting === role.role_id ? 'opacity-50 cursor-wait' : ''}`}
                           title="Delete Role"
                         >
                           <FiTrash2 size={18} />
-                          Delete
+                          {deleting === role.role_id ? 'Deleting...' : 'Delete'}
                         </button>
                       </div>
                       {(() => {
