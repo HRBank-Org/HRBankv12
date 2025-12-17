@@ -352,6 +352,26 @@ const ManageOccupations = () => {
                   placeholder="e.g., Software Developer"
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Minimum Hourly Rate * <span className="text-gray-500 font-normal">(must be ≥ provincial minimum wage)</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={occupationForm.minimum_hourly_rate}
+                    onChange={(e) => setOccupationForm({...occupationForm, minimum_hourly_rate: e.target.value})}
+                    className="w-full pl-7 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="17.20"
+                  />
+                  <span className="absolute right-3 top-2 text-gray-500">/hr</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">This rate will be enforced as minimum when employers create roles</p>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
