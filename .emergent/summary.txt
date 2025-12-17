@@ -1,162 +1,120 @@
 <analysis>**original_problem_statement:**
-The user initially provided a strategic plan to fix a critical shift deletion bug, remove the mobile app, clean the database, and redesign the workforce UI.
-
-However, the user pivoted to a more comprehensive, end-to-end workflow build and test plan. The new goal is to build and test the entire application lifecycle, from recruitment to termination, using realistic data and scenarios. This includes:
-1.  **Recruitment & Onboarding:** Building flows for employers to invite workers and for workers to apply.
-2.  **Shift Management:** Creating, assigning, and managing shifts.
-3.  **Attendance:** Implementing a geofenced clock-in/out system that the user will physically test.
-4.  **Performance & KPIs:** Creating a two-way rating system.
-5.  **Payroll & Timesheets:** Generating timesheets from attendance data.
-6.  **Termination:** Implementing the employee offboarding workflow.
+The user's primary goal is to execute a comprehensive, end-to-end build and test plan for the entire application lifecycle. This plan, documented in , covers recruitment, shift management, attendance, performance, payroll, and termination. This directive replaced an earlier, smaller-scope bug fix. The agent has been working through this plan phase by phase.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The agent successfully pivoted to the user's new comprehensive plan. The mobile app has been deleted, and the database has been cleaned and re-seeded with realistic data for a real-world business (The Loose Goose), including real addresses in Windsor, ON.
+The application has undergone significant development. The worker invitation system (Phase 1) is complete and tested. A major redesign of the employer-facing Schedule/Roster page was completed to improve UX and provide contextual guidance for new users. A national compliance engine has been implemented, making minimum wages and certification requirements province-aware, manageable by a super-admin, and automatically enforced during role creation.
 
-A major UI overhaul for the workforce-facing part of the application is in progress. A new modern layout, featuring a  and , has been created. Several existing pages (, , , ) have been updated to use this new layout. Placeholder pages for future features (, , , ) have also been created.
-
-Critical compliance features were added, including a new admin page to manage minimum wages and updates to backend logic to enforce provincial and occupational wage laws. Numerous bugs related to the UI updates and a critical login loop have been resolved. A  file has been created with credentials for all test users.
+Numerous bugs have been fixed across the employer module, including issues with role deletion, invitation cancellation, and incorrect data mapping ( vs. ) in multiple forms and dropdowns. Legacy components have been removed to standardize the UI.
 
 **Last working item**:
--   **Last item agent was working:** The user requested that the logo's size in the sidebars (, ) remain fixed, whether the sidebar is expanded or contracted. The agent removed the conditional styling that made the logo smaller when the sidebar was collapsed.
--   **Status:** USER VERIFICATION PENDING
+-   **Last item agent was working:** Implementing a comprehensive workplace management feature as requested by the user. This includes the ability for employers to activate/deactivate workplaces, and to delete them with proper dependency checks. The feature also includes a long-term requirement for a system that automatically terminates workers from an employer's inventory if they remain unassigned for two weeks after their workplace is deactivated. The agent started creating the backend endpoints and modifying the frontend.
+-   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** Screenshot tool. The agent should take screenshots of the dashboard with the sidebar both expanded and collapsed to verify the logo size remains constant.
+-   **Which testing method agent to use?** Both. The backend agent should test the new API endpoints for activation, deactivation, and deletion (including dependency checks). The frontend agent should test the UI flow in the , including the new status toggle, the delete button, and the confirmation modal that should display dependencies.
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Logo size should be fixed on sidebar collapse/expand (P0)**
+-   **Issue 1: Complete Workplace Management Feature (P0)**
 
 **Issues Detail:**
 -   **Issue 1:**
-    -   **Attempted fixes:** The agent modified the CSS in  and , removing the logic that changed the logo's width based on the  state and setting a fixed size.
+    -   **Attempted fixes:**
+        -   Backend routes for activating, deactivating, and deleting workplaces with dependency checks were added to .
+        -   Endpoints for a workforce inventory and a placeholder for an auto-termination background task were created.
+        -   Frontend modifications were initiated in  to handle the new state and functions.
     -   **Next debug checklist:**
-        1.  Take a screenshot of the workforce dashboard with the sidebar expanded.
-        2.  Take a screenshot of the same page with the sidebar collapsed.
-        3.  Compare the logo size in both screenshots to confirm it is identical.
-        4.  If the size still changes, re-examine the CSS and Tailwind classes applied to the logo  and its container in both sidebar components.
-    -   **Why fix this issue and what will be achieved with the fix?** To meet the user's UI/UX requirement for a consistent brand presentation.
-    -   **Status:** USER VERIFICATION PENDING
+        1.  In , complete the UI implementation: add the activate/deactivate toggle and the delete button.
+        2.  Implement a new modal that appears on a deactivation or deletion attempt. This modal must fetch and display any dependencies (e.g., This workplace has 5 active shifts and 3 assigned workers. Deactivating it will move these workers to your general workforce inventory.).
+        3.  Implement the logic to handle the user's confirmation from the modal to proceed with the action.
+        4.  Create a background job/script to implement the auto-termination logic: query for workers in the inventory who have been unassigned for over 2 weeks and update their status.
+        5.  Thoroughly test the entire flow: activation, deactivation (with dependencies), deletion (with and without dependencies), and the background termination task.
+    -   **Why fix this issue and what will be achieved with the fix?** This will provide employers with crucial tools to manage their physical locations and automate workforce lifecycle management, a key part of the user's overall plan.
+    -   **Status:** IN PROGRESS
     -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Frontend.
+    -   **Should Test frontend/backend/both after fix?** Both.
     -   **Blocked on other issue:** None.
 
 **In progress Task List**:
 -   **Task 1: Comprehensive Application Build & Test (P0)**
-    -   **Where to resume:** After verifying the logo fix, the agent must continue with **Phase 1: Recruitment & Onboarding** as defined in . The immediate next step is to build out the worker invitation system, starting with the UI for  and its corresponding backend endpoint.
-    -   **What will be achieved with this?** This overarching task will result in a fully functional, end-to-end tested application covering the entire employee lifecycle.
+    -   **Where to resume:** Complete the Workplace Management Feature (Issue 1). Once verified, the agent should continue with the next phase of the user's plan.
+    -   **What will be achieved with this?** This is the overarching project to deliver a fully-featured and tested application.
     -   **Status:** IN PROGRESS
     -   **Should Test frontend/backend/both after fix?** Both.
-    -   **Blocked on something:** User verification of the logo fix.
+    -   **Blocked on something:** Completion of Issue 1.
 
 **Upcoming and Future Tasks**
--   **Upcoming Tasks (Phase 1: Recruitment & Onboarding):**
-    -   **P0: Build Worker Invitation System (Employer Side):** Implement the UI for  and create the backend endpoint () to send Email/SMS invitations.
-    -   **P1: Build Application Tracking System (Employer Side):** Create a new page for employers to view sent invitations and track applicant status.
-    -   **P2: Build Job Application Flow (Workforce Side):** Create the UI for external users to view and apply for jobs via an invitation link.
-    -   **P3: Update Remaining Workforce Pages:** Update the  and  pages to use the new modern layout.
+-   **Upcoming Tasks (Post-Workplace Management):**
+    -   **P0: Build Application Tracking System (Employer Side):** Create a new page for employers to view sent invitations and track applicant status from start to finish.
+    -   **P1: Build Job Application Flow (Workforce Side):** Create the UI for external users to view and apply for jobs via an invitation link.
+    -   **P2: Update Remaining Workforce Pages:** Update the  and  pages for workers to use the new modern layout.
 
 -   **Future Tasks (As per ):**
-    -   **Phase 2: Shift Management & Scheduling:** Implement full CRUD for shifts and test shift creation.
-    -   **Phase 3: Attendance & Geofencing:** Implement and coordinate the physical testing of the clock-in/out feature with the user.
+    -   **Phase 2: Shift Management & Scheduling:** Full testing of the redesigned shift creation and management flow.
+    -   **Phase 3: Attendance & Geofencing:** Implement and test the clock-in/out feature.
     -   **Phase 4: Performance & KPIs:** Build the two-way rating system.
-    -   **Phase 5: Payroll & Timesheets:** Ensure correct timesheet generation.
-    -   **Phase 6: Termination:** Implement the employee offboarding workflow.
+    -   **Phase 5: Payroll & Timesheets:** Ensure correct timesheet generation from attendance data.
 
 **Completed work in this session**
--   **Database Overhaul:** Cleaned the database and seeded it with realistic data for end-to-end testing.
--   **Workforce UI Redesign:** Created a new modern layout (, ) and applied it to , , , , and .
--   **Compliance Implementation:** Created an admin UI for managing minimum wages and updated backend validation to enforce wage laws.
--   **Critical Bug Fixes:** Resolved a major login loop, a  runtime error, and a frontend compilation error.
--   **UI Polish:** Fixed an issue where the sidebar logo was being cropped.
--   **Documentation:** Created , , and .
+-   **Worker Invitation System:** Fully implemented and tested the individual worker invitation flow from the Team Management page.
+-   **National Compliance Engine:** Implemented a system for province-aware minimum wages and required certifications, managed by a super-admin and enforced during role creation.
+-   **Schedule Page Redesign:** Revamped the employer's Roster/Schedule page to remove duplicate headers, reduce padding, and add a contextual banner to guide users through setup. The Create Shift button is now disabled if no roles exist.
+-   **Shift Creation Cleanup:** Removed the redundant Occupation Template dropdown from the shift creation modal and clarified the Hourly Rate field's purpose for incentive pay, with added backend validation (shift rate ≥ role rate).
+-   **Bug Fixes & Refactoring:**
+    -   Fixed numerous bugs where forms and dropdowns failed to display data due to an incorrect  vs.  field mapping (, , ).
+    -   Resolved a bug preventing role deletion by adding a confirmation modal that displays specific backend error messages (e.g., role has pending invitations).
+    -   Fixed invitation cancellation and updated the backend to fully delete the invitation record.
+    -   Consolidated workplace editing by deleting the legacy  and routing all edits to the modern .
 
 **Earlier issues found/mentioned but not fixed**
--   **Issue 1: Shift Deletion Bug:** The original P0 bug (infinite loop in the unassign worker modal) was bypassed when the user prioritized the database cleanup and UI redesign. It will likely need to be addressed during Phase 2 testing.
--   **Issue 2: KPI Counters and Sidebar Hover:** Minor UI bugs from a previous session remain unaddressed.
--   **Issue 3: Pending Schema/Integrations:** Data schema enhancements (SIN, Payroll Account Number) and full payroll integration are pending future tasks.
-
-**Known issue recurrence from previous fork**
--   The shift deletion/unassignment functionality has been a complex and recurring problem. The last bug was not fixed, only deprioritized. It is expected to be a blocker again when that workflow is developed and tested.
+-   **Issue 1: Shift Deletion/Unassignment Bug:** The original critical bug that caused an infinite loop in the unassign worker modal was deprioritized. It has not been fixed and is likely to reappear when Phase 2 (Shift Management) is tested.
+-   **Issue 2: Minor UI Bugs:** KPI counters on the dashboard and sidebar hover effects from a previous session remain unaddressed.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Workflow-Driven Development:** Shifting from isolated bug fixes to a structured, end-to-end feature development plan that mimics the user's entire operational flow.
--   **Realistic Data Seeding:** Using scripts to populate the database with real-world data (addresses, business names) to enable meaningful testing.
--   **Compliance as Code:** Embedding legal and business rules, such as minimum wage laws, directly into the backend validation logic.
--   **Layout Refactoring:** Systematically updating legacy pages to a new, consistent UI by creating and applying shared layout components.
-
-**key DB schema**
--   **users:** 
--   **workforce_profiles:** 
--   **workplaces:** 
--   **workplace_roles:** 
--   **minimum_wages:** 
+-   **Dependency-Aware Lifecycle Management:** Implementing backend checks to prevent actions (like deactivating a workplace) if dependent entities (active shifts, assigned workers) exist, and notifying the user.
+-   **Contextual Onboarding UI:** Dynamically rendering UI elements (banners, disabled buttons) to guide new users through required setup steps before they can access a feature.
+-   **National Compliance Engine:** A system where business rules (minimum wage, certifications) are dynamically applied based on geographical location (province), ensuring legal compliance across different regions.
+-   **Component Consolidation:** Improving code maintainability by removing legacy components () and unifying the UX around a single, modern component ().
 
 **All files of reference**
--   **/app/COMPREHENSIVE_TEST_PLAN.md**: The new source of truth for all development tasks.
--   **/app/TEST_ACCOUNTS.md**: Contains all credentials for test users.
--   **/app/frontend/src/components/layout/WorkforceSidebar.jsx**: Contains the new workforce sidebar and the logo being fixed.
--   **/app/frontend/src/components/layout/ModernSidebar.jsx**: Contains the employer sidebar and the logo being fixed.
--   **/app/backend/scripts/seed_realistic_data.py**: Script used to populate the database with new data.
+-   **/app/COMPREHENSIVE_TEST_PLAN.md**: The primary source of truth for all tasks.
+-   **/app/TEST_ACCOUNTS.md**: Credentials for all test users.
+-   **/app/frontend/src/pages/employer/WorkplaceForm.jsx**: The file for the current workplace management task.
+-   **/app/backend/routes/employer.py**: The backend file for the current task.
+-   **/app/frontend/src/pages/employer/Roster.jsx**: The recently redesigned schedule page.
+-   **/app/frontend/src/pages/employer/RoleForm.jsx**: Contains the frontend logic for the new compliance engine.
 
 **Critical Info for New Agent**
--   Your primary directive is to follow the user's new plan outlined in . This supersedes all previous priorities.
--   After verifying the logo fix, immediately begin **Phase 1: Recruitment**. This involves building the worker invitation modal, the backend invitation endpoint, and the associated UIs for both employer and worker.
--   The user wants to test the invitation flow with real contact information for three family members. You must ask the user for these details when you are ready to implement the sending logic.
--   Do **not** assign any of the existing test workers to the employer. The recruitment flow must be built and tested from a clean state.
--   Be aware that the old shift deletion bug was never solved, only deprioritized. It will likely reappear when you reach Phase 2 (Shift Management) of the new plan.
-
-**documents created in this job**
--   /app/COMPREHENSIVE_TEST_PLAN.md
--   /app/TEST_ACCOUNTS.md
--   /app/WAGE_COMPLIANCE_REPORT.md
--   /app/backend/scripts/cleanup_database.py
--   /app/backend/scripts/create_test_users.py
--   /app/backend/scripts/seed_realistic_data.py
--   /app/backend/scripts/setup_worker_profiles.py
+-   Your immediate priority is to complete the Workplace Management Feature (activate/deactivate/delete). This involves finishing the frontend UI in , implementing the dependency-check modal, and creating a background task for the auto-termination logic.
+-   The auto-termination feature (unassigned workers terminated after 2 weeks) is a new concept proposed by the user. It requires careful implementation, likely involving a scheduled background job that runs periodically.
+-   Be mindful that the original, unresolved shift deletion bug will likely reappear when you begin testing Phase 2 (Shift Management).
+-   The application now has a compliance engine. When working with roles or pay, ensure that provincial minimum wage and certification requirements are respected.
 
 **Last 10 User Messages and any pending user messages**
-1.  **User:**  - Request to update an address and start recruitment. **Status:** Completed.
-2.  **User:** Provided a URL with a JS error. **Status:** Resolved.
-3.  **User:**  - Provided a specific error message. **Status:** Resolved.
-4.  **User:**  - Reported that the fix broke the page layout. **Status:** Resolved.
-5.  **User:**  - Reported another page with the broken layout. **Status:** Resolved.
-6.  **User:**  - Reported more pages with the broken layout. **Status:** Resolved.
-7.  **User:**  - Reported that the logo was cropped. **Status:** Resolved.
-8.  **User:** Provided a compile error for . **Status:** Resolved.
-9.  **User:**  - Reported a new UI issue with the logo size. **Status:** In Progress (Last working item).
-10. **User:**  - Asked to verify and fix wage compliance. **Status:** Completed.
-11. **Pending User Message:** The user needs to approve the latest fix for the logo size.
+1.  **User:** Role deletion is not working. -> **Resolved.** Agent found it was blocked by pending invitations and improved the error messaging.
+2.  **User:** How do I cancel invitations to delete the role? -> **Answered.** Agent showed the existing feature.
+3.  **User:** The 'x' to cancel an invitation doesn't work. -> **Resolved.** Agent fixed the frontend handler.
+4.  **User:** When an invitation is cancelled, it should be completely removed. -> **Implemented.** Backend was changed to delete the record.
+5.  **User:** Workplace dropdowns are missing names. -> **Resolved.** Agent fixed the  vs.  data mapping issue.
+6.  **User:** Can we implement national compliance for wages and certifications? -> **Implemented.** Agent built the province-aware compliance engine.
+7.  **User:** The shift creator has a redundant occupation dropdown. -> **Resolved.** Agent removed it.
+8.  **User:** The shift creator rate field is confusing; can it be used for incentive pay? -> **Clarified & Implemented.** Agent updated the UI to clarify its purpose and added backend validation.
+9.  **User:** The schedule page is cluttered and confusing for new users. -> **Resolved.** Agent redesigned the page, removed duplicate titles, and added a setup guidance banner.
+10. **User:** I want to be able to activate/deactivate and delete workplaces with dependency checks. -> **In Progress.** This is the current task.
 
 **Project Health Check:**
 -   **Broken:**
-    -   The core shift unassign/delete functionality (original P0 bug) is unresolved and will likely resurface.
+    -   The original shift unassignment/deletion bug is unresolved and will resurface.
     -   Two workforce pages (, ) still use the old UI layout.
 -   **Mocked:**
-    -   The new placeholder pages (, , , ) are empty shells.
-    -   Dashboard chart data is likely still static.
+    -   Placeholder pages for the workforce (, , , ) are still empty.
 
 **3rd Party Integrations**
 -   : For data visualization.
--   : For transactional emails (will be required for the upcoming recruitment flow).
--   : For SMS (will be required for the upcoming recruitment flow).
--    / : Used for interactive maps.
-
-**Testing status**
--   **Testing agent used after significant changes:** NO (for the recent UI overhaul).
--   **Troubleshoot agent used after agent stuck in loop:** NO.
--   **Test files created:** None.
--   **Known regressions:** The shift unassignment bug is a known, unresolved issue that was bypassed.
-
-**Credentials to test flow:**
--   All credentials are listed in .
--   **Employer:**  / 
--   **Admin:**  / 
--   **Worker:**  /  (and 8 other test workers).
-
-**What agent forgot to execute**
--   The agent has not yet updated the  and  workforce pages to the new modern layout. This should be done after the recruitment flow work.</analysis>
+-   : For transactional emails (used in recruitment).
+-   : For SMS (used in recruitment).
+-    / : Used for interactive maps.</analysis>
