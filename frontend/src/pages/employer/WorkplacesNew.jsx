@@ -122,7 +122,7 @@ const WorkplacesNew = () => {
                 <FiMapPin size={20} className="text-gray-600" />
                 Active Locations Map
               </h2>
-              <WorkplaceMap 
+              <GoogleWorkplaceMap 
                 workplaces={workplaces} 
                 onMarkerClick={(workplace) => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
               />
