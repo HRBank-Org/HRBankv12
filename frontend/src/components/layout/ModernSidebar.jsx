@@ -135,10 +135,12 @@ const ModernSidebar = () => {
             <img 
               src={theme.logo}
               alt="HR Bank"
-              className="rounded-xl"
+              className="rounded-xl flex-shrink-0"
               style={{
                 width: '48px',
                 height: '48px',
+                minWidth: '48px',
+                minHeight: '48px',
                 objectFit: 'contain'
               }}
             />
