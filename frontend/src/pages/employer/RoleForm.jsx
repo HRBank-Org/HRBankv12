@@ -117,6 +117,20 @@ const RoleForm = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Fetch minimum rate when occupation changes
+    if (name === 'occupation_template') {
+      fetchMinimumRate(value);
+    }
+    
+    // Validate hourly rate against minimum
+    if (name === 'hourly_rate' && minimumRate) {
+      if (parseFloat(value) < minimumRate.effective_minimum_rate) {
+        setRateError(`Rate must be at least $${minimumRate.effective_minimum_rate.toFixed(2)}/hr (provincial minimum + occupation requirement)`);
+      } else {
+        setRateError('');
+      }
+    }
   };
 
   const addSkill = () => {
