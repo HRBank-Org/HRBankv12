@@ -152,9 +152,18 @@ const RoleForm = () => {
       [name]: value
     }));
     
-    // Fetch minimum rate when occupation changes
+    // When workplace changes, update province and re-fetch compliance data
+    if (name === 'workplace_id') {
+      const province = getWorkplaceProvince(value);
+      setSelectedWorkplaceProvince(province);
+      if (formData.occupation_template) {
+        fetchComplianceData(formData.occupation_template, province);
+      }
+    }
+    
+    // When occupation changes, fetch compliance data
     if (name === 'occupation_template') {
-      fetchMinimumRate(value);
+      fetchComplianceData(value, selectedWorkplaceProvince);
     }
     
     // Validate hourly rate against minimum
