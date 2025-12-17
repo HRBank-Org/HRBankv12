@@ -636,14 +636,29 @@ async def get_required_certifications(
     Returns both occupation-specific and province-mandated certifications.
     """
     
-    # Get occupation category from templates
+    # Get occupation category from templates (use partial match for flexibility)
     template = await db.occupation_templates.find_one(
-        {"title": {"$regex": f"^{occupation_title}$", "$options": "i"}},
+        {"title": {"$regex": occupation_title, "$options": "i"}},
         {"_id": 0}
     )
     
-    occupation_category = template.get("category", "General") if template else "General"
-    occupation_certs = template.get("required_certifications", []) if template else []
+    # Also try file-based categories if not found in database
+    occupation_category = "General"
+    occupation_certs = []
+    
+    if template:
+        occupation_category = template.get("category", "General")
+        occupation_certs = template.get("required_certifications", [])
+    else:
+        # Check file-based categories
+        categories = read_categories_file()
+        for cat_name, cat_data in categories.items():
+            for occ in cat_data.get("occupations", []):
+                occ_title = occ.get("title", occ) if isinstance(occ, dict) else occ
+                if occupation_title.lower() in occ_title.lower():
+                    occupation_category = cat_name
+                    occupation_certs = occ.get("required_certifications", []) if isinstance(occ, dict) else []
+                    break
     
     # Get provincial certifications for this category
     provincial_req = await db.provincial_certifications.find_one(
