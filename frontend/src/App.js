@@ -97,7 +97,6 @@ import JobPosting from './pages/employer/JobPosting';
 import WorkplacesNew from './pages/employer/WorkplacesNew';
 import WorkplaceDetail from './pages/employer/WorkplaceDetail';
 import WorkplaceForm from './pages/employer/WorkplaceForm';
-import EditWorkplace from './pages/employer/EditWorkplace';
 import PostJob from './pages/employer/PostJob';
 import JobsCandidates from './pages/employer/JobsCandidates';
 import RoleCandidates from './pages/employer/RoleCandidates';
