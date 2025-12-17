@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import WorkforceHeader from '../../components/layout/WorkforceHeader';
+import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
-import UserHeader from '../../components/common/UserHeader';
 
 const OccupationProfiles = () => {
   const [occupations, setOccupations] = useState([]);
