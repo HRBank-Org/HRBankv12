@@ -33,20 +33,25 @@ const RoleForm = () => {
   const [newCert, setNewCert] = useState('');
   const [minimumRate, setMinimumRate] = useState(null);
   const [rateError, setRateError] = useState('');
+  const [requiredCertifications, setRequiredCertifications] = useState([]);
+  const [selectedWorkplaceProvince, setSelectedWorkplaceProvince] = useState('ON');
 
   useEffect(() => {
     loadInitialData();
   }, []);
   
-  // Fetch minimum rate when occupation is selected
-  const fetchMinimumRate = async (occupationTitle) => {
+  // Fetch compliance data (minimum rate + required certifications) when occupation or workplace changes
+  const fetchComplianceData = async (occupationTitle, provinceCode = 'ON') => {
     if (!occupationTitle) {
       setMinimumRate(null);
+      setRequiredCertifications([]);
       return;
     }
+    
     try {
-      const response = await api.get(`/api/admin/occupations/minimum-rate/${encodeURIComponent(occupationTitle)}?province_code=ON`);
-      const rateData = response.data.data;
+      // Fetch minimum rate
+      const rateResponse = await api.get(`/api/admin/occupations/minimum-rate/${encodeURIComponent(occupationTitle)}?province_code=${provinceCode}`);
+      const rateData = rateResponse.data.data;
       setMinimumRate(rateData);
       
       // Auto-set hourly rate if not already set or if current rate is lower
@@ -59,6 +64,35 @@ const RoleForm = () => {
     } catch (error) {
       console.error('Failed to fetch minimum rate:', error);
     }
+    
+    try {
+      // Fetch required certifications
+      const certResponse = await api.get(`/api/admin/occupations/required-certifications/${encodeURIComponent(occupationTitle)}?province_code=${provinceCode}`);
+      const certData = certResponse.data.data;
+      setRequiredCertifications(certData.required_certifications || []);
+      
+      // Auto-add required certifications to the form
+      const requiredCertNames = certData.required_certifications
+        ?.filter(c => c.required)
+        .map(c => c.name) || [];
+      
+      if (requiredCertNames.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          additional_certifications: [
+            ...new Set([...prev.additional_certifications, ...requiredCertNames])
+          ]
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch required certifications:', error);
+    }
+  };
+  
+  // Get province from workplace
+  const getWorkplaceProvince = (workplaceId) => {
+    const workplace = workplaces.find(w => w.workplace_id === workplaceId);
+    return workplace?.province || 'ON';
   };
 
   const loadInitialData = async () => {
