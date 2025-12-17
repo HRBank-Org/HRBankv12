@@ -7645,8 +7645,8 @@ def main():
     else:
         results.add_fail("Mobile testing setup", "Failed to create workforce test user")
     
-    # NEW: Test employer invitation system (from review request)
-    test_employer_invitation_system(results)
+    # NEW: Test worker invitation system (from review request)
+    test_worker_invitation_system(results)
     
     # NEW: Test External Job Matching Engine Complete Flow (from review request)
     test_external_job_matching_engine_complete_flow(results)
