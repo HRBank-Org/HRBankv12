@@ -284,13 +284,28 @@ const CalendarView = ({ embedded = false, initialWorkplace = 'all', setupComplet
 
   const renderControls = () => {
     return (
-      <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          {/* Create Shift Button */}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            disabled={!setupComplete}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              setupComplete 
+                ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }`}
+            title={!setupComplete ? 'Create workplaces and roles first' : 'Create a new shift'}
+          >
+            <FiPlus className="w-4 h-4" />
+            Create Shift
+          </button>
+          
           {/* View mode toggle */}
           <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
             <button
               onClick={() => setViewMode('day')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === 'day'
                   ? 'bg-white shadow text-blue-600'
                   : 'text-gray-600 hover:text-gray-900'
