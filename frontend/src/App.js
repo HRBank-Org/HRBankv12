@@ -28,6 +28,7 @@ import AddCertification from './pages/workforce/AddCertification';
 import Availability from './pages/workforce/Availability';
 import AvailabilityCalendar from './pages/workforce/AvailabilityCalendar';
 import ClockInOut from './pages/workforce/ClockInOut';
+import ClockInOutNew from './pages/workforce/ClockInOutNew';
 import MyTimesheets from './pages/workforce/MyTimesheets';
 import ShiftCalendar from './pages/employer/ShiftCalendar';
 import ShiftScheduler from './pages/employer/ShiftScheduler';
