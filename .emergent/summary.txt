@@ -1,181 +1,162 @@
 <analysis>**original_problem_statement:**
-The initial request was to fix minor UI bugs and implement a task management system. This scope has since expanded to a full UI/UX overhaul of the employer-facing application, including: a standardized navigation system, a new data-driven dashboard, redesigned module pages, and a comprehensive roles management system.
+The user initially provided a strategic plan to fix a critical shift deletion bug, remove the mobile app, clean the database, and redesign the workforce UI.
 
-PRODUCT REQUIREMENTS:
-- **Task Management System:** Employers assign tasks via roles/shifts, and workers view/complete them. Task completion metrics should feed into a KPI dashboard.
-- **Modern UI/UX Overhaul:** A standardized layout with a fixed header () and a collapsible sidebar () must be used across all pages.
-- **Workplaces Page:** Must feature an interactive map (e.g., Leaflet) showing all workplace locations.
-- **Unified Forms:** Create, edit, and view functionality for modules like Workplaces and Roles should be handled by a single, unified component to improve UX and maintainability.
-- **Hierarchical Logic:** The application should enforce a clear data hierarchy: Workplaces contain Roles, which in turn define the templates for Shifts. Shifts should inherit properties like operating hours from the workplace and generic tasks from the role.
-- **Compliance Features:** The system must include logic to check for weekly hour compliance when assigning workers and alert employers about unstaffed shifts on their dashboard. It should also manage mandatory break requirements for shifts.
-- **Roles Module:** A full CRUD interface for managing roles, which are governed by occupational templates created by a super admin.
+However, the user pivoted to a more comprehensive, end-to-end workflow build and test plan. The new goal is to build and test the entire application lifecycle, from recruitment to termination, using realistic data and scenarios. This includes:
+1.  **Recruitment & Onboarding:** Building flows for employers to invite workers and for workers to apply.
+2.  **Shift Management:** Creating, assigning, and managing shifts.
+3.  **Attendance:** Implementing a geofenced clock-in/out system that the user will physically test.
+4.  **Performance & KPIs:** Creating a two-way rating system.
+5.  **Payroll & Timesheets:** Generating timesheets from attendance data.
+6.  **Termination:** Implementing the employee offboarding workflow.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application has undergone a significant UI/UX overhaul. A standardized header/sidebar layout is in place. The Workplaces page now features a functional Leaflet map that geocodes and displays workplace locations. The creation, editing, and viewing of Workplaces and Roles have been refactored into unified form components (, ), greatly simplifying the user flow. The backend and frontend models for Roles and Shifts have been updated to include , laying the groundwork for task inheritance. Foundational backend modules for compliance checks () have been created. However, the agent was in the middle of debugging user-reported navigation issues with the new Roles module.
+The agent successfully pivoted to the user's new comprehensive plan. The mobile app has been deleted, and the database has been cleaned and re-seeded with realistic data for a real-world business (The Loose Goose), including real addresses in Windsor, ON.
+
+A major UI overhaul for the workforce-facing part of the application is in progress. A new modern layout, featuring a  and , has been created. Several existing pages (, , , ) have been updated to use this new layout. Placeholder pages for future features (, , , ) have also been created.
+
+Critical compliance features were added, including a new admin page to manage minimum wages and updates to backend logic to enforce provincial and occupational wage laws. Numerous bugs related to the UI updates and a critical login loop have been resolved. A  file has been created with credentials for all test users.
 
 **Last working item**:
-- **Last item agent was working:** The agent was investigating a user report that role creation, editing, and deletion actions on the  page were incorrectly redirecting (bouncing) to the landing page. The agent had just successfully tested the creation flow but had not re-tested edit or delete.
-- **Status:** IN PROGRESS
-- **Agent Testing Done:** Y (for creation only)
-- **Which testing method agent to use?**  tool. A full CRUD test flow is required:
-    1. Navigate to .
-    2. Click Create Role, fill out the form, and save. Verify it returns to the roles list.
-    3. Click Edit on the newly created role. Verify the form is pre-populated.
-    4. Make a change and save. Verify it returns to the list with the updated information.
-    5. Click Delete on the role, confirm the action, and verify it is removed from the list.
-- **User Testing Done:** N
+-   **Last item agent was working:** The user requested that the logo's size in the sidebars (, ) remain fixed, whether the sidebar is expanded or contracted. The agent removed the conditional styling that made the logo smaller when the sidebar was collapsed.
+-   **Status:** USER VERIFICATION PENDING
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** Screenshot tool. The agent should take screenshots of the dashboard with the sidebar both expanded and collapsed to verify the logo size remains constant.
+-   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Role CRUD operations bounce to landing page (P0)**
-- **Issue 2: Unstaffed hours alert is not implemented or tested (P1)**
-- **Issue 3: Weekly hours compliance check is not implemented or tested (P2)**
-- **Issue 4: Worker break notification is not implemented (P3)**
+-   **Issue 1: Logo size should be fixed on sidebar collapse/expand (P0)**
 
 **Issues Detail:**
-- **Issue 1: Role CRUD operations bounce to landing page**
-    - **Attempted fixes:** The agent previously fixed several related issues: creating the  page when it was missing, correcting the sidebar navigation link, and fixing the backend API endpoints for edit/delete. After the latest user report, the agent tested the creation flow, which worked, but has not yet re-validated the edit and delete flows which are the likely culprits.
-    - **Next debug checklist:**
-        1. Perform a full manual CRUD test as described in the Last working item testing method.
-        2. Inspect the  handlers for the Edit and Delete buttons in .
-        3. Verify the  and the navigation logic for  are using the correct  and routing paths.
-        4. Check the browser console logs during the failed navigation for any specific errors.
-    - **Why fix this issue and what will be achieved with the fix?** This is a critical blocker preventing users from managing roles, a core function of the application.
-    - **Status:** IN PROGRESS
-    - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** Frontend.
-    - **Blocked on other issue:** None.
-
-- **Issue 2: Unstaffed hours alert is not implemented or tested**
-    - **Description:** An  component and a  endpoint were created, but the end-to-end flow has never been tested. It is not confirmed if the alert correctly appears on the employer dashboard () when there are unstaffed shifts.
-    - **Status:** NOT STARTED
-    - **Should Test frontend/backend/both after fix?** Both.
-
-- **Issue 3: Weekly hours compliance check is not implemented or tested**
-    - **Description:** The  was updated to call a new compliance endpoint () to prevent assigning workers who would exceed their weekly hour limits. This flow has never been tested.
-    - **Status:** NOT STARTED
-    - **Should Test frontend/backend/both after fix?** Both.
-
-- **Issue 4: Worker break notification is not implemented**
-    - **Description:** The agent created a backend endpoint to calculate break requirements and a placeholder component . However, the frontend logic to fetch this data and display the banner to a worker at the appropriate time (e.g., on their dashboard or during a shift) does not exist.
-    - **Status:** NOT STARTED
-    - **Should Test frontend/backend/both after fix?** Both.
+-   **Issue 1:**
+    -   **Attempted fixes:** The agent modified the CSS in  and , removing the logic that changed the logo's width based on the  state and setting a fixed size.
+    -   **Next debug checklist:**
+        1.  Take a screenshot of the workforce dashboard with the sidebar expanded.
+        2.  Take a screenshot of the same page with the sidebar collapsed.
+        3.  Compare the logo size in both screenshots to confirm it is identical.
+        4.  If the size still changes, re-examine the CSS and Tailwind classes applied to the logo  and its container in both sidebar components.
+    -   **Why fix this issue and what will be achieved with the fix?** To meet the user's UI/UX requirement for a consistent brand presentation.
+    -   **Status:** USER VERIFICATION PENDING
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend.
+    -   **Blocked on other issue:** None.
 
 **In progress Task List**:
-- **Task 1: Complete Role → Shift Task Inheritance (P1)**
-    - **Where to resume:** The data models (, ) and the Role creation form () have been updated to include a  field. The next step is to modify the backend shift creation logic (likely in ) to copy these  from the parent Role into the new Shift object upon creation.
-    - **What will be achieved with this?** This will complete a key business requirement, ensuring that standardized tasks defined at the role level are automatically propagated to all shifts created for that role.
-    - **Status:** IN PROGRESS
-    - **Should Test frontend/backend/both after fix?** Both.
-    - **Blocked on something:** None.
+-   **Task 1: Comprehensive Application Build & Test (P0)**
+    -   **Where to resume:** After verifying the logo fix, the agent must continue with **Phase 1: Recruitment & Onboarding** as defined in . The immediate next step is to build out the worker invitation system, starting with the UI for  and its corresponding backend endpoint.
+    -   **What will be achieved with this?** This overarching task will result in a fully functional, end-to-end tested application covering the entire employee lifecycle.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Both.
+    -   **Blocked on something:** User verification of the logo fix.
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks:**
-    - **P1: Implement Map Integration:** Replace the map placeholder on  with a functional map. *(Note: This was completed but listed in the original handoff as upcoming)*.
-    - **P2: Task Management - Phase 3 (KPI Integration):** Create backend endpoints and frontend UI to display task completion metrics.
-    - **P3: Relocate Rate Now Alert:** Move the worker rating alert from the old dashboard to the new  page.
-- **Future Tasks:**
-    - **Code Cleanup:** Delete deprecated files and components that were replaced by the new unified forms, including , , , , and .
-    - **Data Schema Enhancements:** Add UI for workers to enter SIN and for employers to add a Payroll Account Number.
-    - **Payroll Integration:** Integrate with a third-party payroll processor.
-    - **Worker Availability:** Build the UI for workers to set their availability schedule.
+-   **Upcoming Tasks (Phase 1: Recruitment & Onboarding):**
+    -   **P0: Build Worker Invitation System (Employer Side):** Implement the UI for  and create the backend endpoint () to send Email/SMS invitations.
+    -   **P1: Build Application Tracking System (Employer Side):** Create a new page for employers to view sent invitations and track applicant status.
+    -   **P2: Build Job Application Flow (Workforce Side):** Create the UI for external users to view and apply for jobs via an invitation link.
+    -   **P3: Update Remaining Workforce Pages:** Update the  and  pages to use the new modern layout.
+
+-   **Future Tasks (As per ):**
+    -   **Phase 2: Shift Management & Scheduling:** Implement full CRUD for shifts and test shift creation.
+    -   **Phase 3: Attendance & Geofencing:** Implement and coordinate the physical testing of the clock-in/out feature with the user.
+    -   **Phase 4: Performance & KPIs:** Build the two-way rating system.
+    -   **Phase 5: Payroll & Timesheets:** Ensure correct timesheet generation.
+    -   **Phase 6: Termination:** Implement the employee offboarding workflow.
 
 **Completed work in this session**
-- **Workplace Map Integration:** Successfully implemented a Leaflet map on  with markers for each location, including a fallback geocoding mechanism for addresses not found by the primary service.
-- **Unified Workplace Form:** Refactored workplace create, edit, and view functionality into a single, streamlined component ().
-- **Contextual Roster Navigation:** Enabled navigation from a workplace detail view to the roster page with the correct workplace automatically pre-selected.
-- **Shift Time Inheritance:** The shift creation modal now automatically inherits operating hours from the selected workplace and displays mandatory break requirements.
-- **Comprehensive Roles Module:**
-    - Built a full CRUD interface (, ) for managing roles.
-    - Implemented UI to detect and warn users about data inconsistencies (e.g., overfilled roles).
-    - Fixed data loading by creating a  file to ensure occupational templates from the super admin are available.
-- **Critical Authentication Fix:** Reworked  to use the central , resolving major authentication and session management conflicts.
-- **Role-Task Integration (Foundation):** Updated backend models and frontend forms to include a  field on roles, preparing for task inheritance.
+-   **Database Overhaul:** Cleaned the database and seeded it with realistic data for end-to-end testing.
+-   **Workforce UI Redesign:** Created a new modern layout (, ) and applied it to , , , , and .
+-   **Compliance Implementation:** Created an admin UI for managing minimum wages and updated backend validation to enforce wage laws.
+-   **Critical Bug Fixes:** Resolved a major login loop, a  runtime error, and a frontend compilation error.
+-   **UI Polish:** Fixed an issue where the sidebar logo was being cropped.
+-   **Documentation:** Created , , and .
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1: Deprecated Code:** Numerous files (, , etc.) are now obsolete after being replaced by unified components but have not been deleted.
-- **Issue 2: Unverified Original UI Bugs:** The initial KPI counter and sidebar hover bugs from the very first handoff have not been verified or addressed.
+-   **Issue 1: Shift Deletion Bug:** The original P0 bug (infinite loop in the unassign worker modal) was bypassed when the user prioritized the database cleanup and UI redesign. It will likely need to be addressed during Phase 2 testing.
+-   **Issue 2: KPI Counters and Sidebar Hover:** Minor UI bugs from a previous session remain unaddressed.
+-   **Issue 3: Pending Schema/Integrations:** Data schema enhancements (SIN, Payroll Account Number) and full payroll integration are pending future tasks.
 
 **Known issue recurrence from previous fork**
-- None in this session, though the bouncing to landing page issue on the Roles module is a recurring *type* of navigation bug.
+-   The shift deletion/unassignment functionality has been a complex and recurring problem. The last bug was not fixed, only deprioritized. It is expected to be a blocker again when that workflow is developed and tested.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Geocoding & Interactive Maps:** Using  and the  API to convert addresses to coordinates and display them on a map, with a fallback strategy.
-- **Unified Form Component:** Consolidating Create, Read, and Update logic into single React components (, ) driven by URL parameters for a streamlined UX.
-- **Hierarchical Data Inheritance:** Implementing logic where child entities inherit properties from parents (Shifts from Workplaces/Roles).
-- **Data-Driven UI Alerts:** Creating components that react to backend data inconsistencies (, overfilled role warnings) to provide actionable feedback.
-- **Auth Context Refactoring:** Fixing a critical bug by ensuring the Login component uses the centralized  for a single source of truth for authentication state.
+-   **Workflow-Driven Development:** Shifting from isolated bug fixes to a structured, end-to-end feature development plan that mimics the user's entire operational flow.
+-   **Realistic Data Seeding:** Using scripts to populate the database with real-world data (addresses, business names) to enable meaningful testing.
+-   **Compliance as Code:** Embedding legal and business rules, such as minimum wage laws, directly into the backend validation logic.
+-   **Layout Refactoring:** Systematically updating legacy pages to a new, consistent UI by creating and applying shared layout components.
 
 **key DB schema**
-- : Modified to include .
-- : Modified to include .
+-   **users:** 
+-   **workforce_profiles:** 
+-   **workplaces:** 
+-   **workplace_roles:** 
+-   **minimum_wages:** 
 
 **All files of reference**
-- **/app/frontend/src/pages/employer/Roles.jsx**: The main roles list page where edit/delete actions are failing.
-- **/app/frontend/src/pages/employer/RoleForm.jsx**: The create/edit form for roles.
-- **/app/backend/routes/workplace_roles.py**: Contains all the CRUD API endpoints for roles that need to be verified.
-- **/app/backend/routes/compliance.py**: New module for hours/break compliance that needs testing.
-- **/app/frontend/src/pages/employer/Home.jsx**: Where the unstaffed shifts alert needs to be implemented and tested.
-- **/app/backend/routes/calendar_scheduling.py**: Needs to be updated for task inheritance.
-
-**Areas that need refactoring**:
-- **File Deletion:** The following files are now obsolete and should be deleted to prevent confusion: , , . There may be others related to the old dashboard and workforce management pages.
-
-**key api endpoints**
-- : Fetches all roles.
-- : Creates a new role.
-- : Fetches a single role for editing.
-- : Updates an existing role.
-- : Deletes a role.
-- : (New, Untested) For the dashboard alert.
-- : (New, Untested) For the assign worker modal.
+-   **/app/COMPREHENSIVE_TEST_PLAN.md**: The new source of truth for all development tasks.
+-   **/app/TEST_ACCOUNTS.md**: Contains all credentials for test users.
+-   **/app/frontend/src/components/layout/WorkforceSidebar.jsx**: Contains the new workforce sidebar and the logo being fixed.
+-   **/app/frontend/src/components/layout/ModernSidebar.jsx**: Contains the employer sidebar and the logo being fixed.
+-   **/app/backend/scripts/seed_realistic_data.py**: Script used to populate the database with new data.
 
 **Critical Info for New Agent**
-- **Your first priority is to fix the user's reported issue with the Roles module.** The user states that create, edit, and delete actions bounce to the landing page. You must perform a full CRUD test to reproduce and fix this navigation bug. Do not assume any part of it is working until you have tested it yourself.
-- **Several new compliance features are untested.** The backend logic for unstaffed shift alerts and weekly hour limits was created, but the end-to-end functionality was never verified. These features need to be tested and confirmed working.
-- **The next major feature is task inheritance.** After fixing the Roles bug, you should proceed with implementing the logic that copies  from a Role to a new Shift upon creation.
-- **Code cleanup is pending.** A significant number of old components have been replaced but not deleted. This should be addressed to improve code hygiene.
+-   Your primary directive is to follow the user's new plan outlined in . This supersedes all previous priorities.
+-   After verifying the logo fix, immediately begin **Phase 1: Recruitment**. This involves building the worker invitation modal, the backend invitation endpoint, and the associated UIs for both employer and worker.
+-   The user wants to test the invitation flow with real contact information for three family members. You must ask the user for these details when you are ready to implement the sending logic.
+-   Do **not** assign any of the existing test workers to the employer. The recruitment flow must be built and tested from a clean state.
+-   Be aware that the old shift deletion bug was never solved, only deprioritized. It will likely reappear when you reach Phase 2 (Shift Management) of the new plan.
 
 **documents created in this job**
-- 
+-   /app/COMPREHENSIVE_TEST_PLAN.md
+-   /app/TEST_ACCOUNTS.md
+-   /app/WAGE_COMPLIANCE_REPORT.md
+-   /app/backend/scripts/cleanup_database.py
+-   /app/backend/scripts/create_test_users.py
+-   /app/backend/scripts/seed_realistic_data.py
+-   /app/backend/scripts/setup_worker_profiles.py
 
 **Last 10 User Messages and any pending user messages**
-1.  **Request:** Great. Lets move to the next module roles." - **Status: In Progress**
-2.  **Confirmation:** "Lets do some cleanup... make sure Workplace governs roles, roles govern shifts... - **Status: In Progress**
-3.  **Complaint:** On the current roles page I still see tabs, 😔 - **Status: Resolved**
-4.  **Complaint:** Role creation button bounced to landing page - **Status: Resolved**
-5.  **Complaint:** 10/7 positions? - **Status: Resolved**
-6.  **Complaint:** Role edit and delete doesnt work." - **Status: Partially Resolved**
-7.  **Complaint:** "Its broken. It doesnt inherit occupational templates... delete... create 2 sample roles... save and edit or delete doesnt work - **Status: Resolved**
-8.  **Clarification:** Did you consider... super admin... generic tasks in the roles which are inherited by shifts. - **Status: In Progress**
-9.  **Direction:** Option c. But please dont create new stuff unless they dont exist... - **Status: In Progress**
-10. **Complaint:** The edit and delete or role creation bounce to landing page - **Status: NOT RESOLVED (Current P0 Blocker)**
+1.  **User:**  - Request to update an address and start recruitment. **Status:** Completed.
+2.  **User:** Provided a URL with a JS error. **Status:** Resolved.
+3.  **User:**  - Provided a specific error message. **Status:** Resolved.
+4.  **User:**  - Reported that the fix broke the page layout. **Status:** Resolved.
+5.  **User:**  - Reported another page with the broken layout. **Status:** Resolved.
+6.  **User:**  - Reported more pages with the broken layout. **Status:** Resolved.
+7.  **User:**  - Reported that the logo was cropped. **Status:** Resolved.
+8.  **User:** Provided a compile error for . **Status:** Resolved.
+9.  **User:**  - Reported a new UI issue with the logo size. **Status:** In Progress (Last working item).
+10. **User:**  - Asked to verify and fix wage compliance. **Status:** Completed.
+11. **Pending User Message:** The user needs to approve the latest fix for the logo size.
 
 **Project Health Check:**
-- **Broken:** The Roles module's edit and delete functionality is reportedly non-functional, causing incorrect navigation.
-- **Mocked:** The chart data on the  dashboard is still static.
+-   **Broken:**
+    -   The core shift unassign/delete functionality (original P0 bug) is unresolved and will likely resurface.
+    -   Two workforce pages (, ) still use the old UI layout.
+-   **Mocked:**
+    -   The new placeholder pages (, , , ) are empty shells.
+    -   Dashboard chart data is likely still static.
 
 **3rd Party Integrations**
-- : For data visualization on the home page.
-- : For transactional emails.
-- : Configured but **blocked** pending user action (enabling for Canadian region).
--  / : (New) Used for the interactive map on the workplaces page, pulling tiles from OpenStreetMap.
+-   : For data visualization.
+-   : For transactional emails (will be required for the upcoming recruitment flow).
+-   : For SMS (will be required for the upcoming recruitment flow).
+-    / : Used for interactive maps.
 
 **Testing status**
-- **Testing agent used after significant changes:** NO (not since the latest fixes).
-- **Troubleshoot agent used after agent stuck in loop:** NO.
-- **Test files created:** None.
-- **Known regressions:** The user-reported navigation issue in the Roles module.
+-   **Testing agent used after significant changes:** NO (for the recent UI overhaul).
+-   **Troubleshoot agent used after agent stuck in loop:** NO.
+-   **Test files created:** None.
+-   **Known regressions:** The shift unassignment bug is a known, unresolved issue that was bypassed.
 
 **Credentials to test flow:**
-- **Employer:**  / 
-- **Worker:**  / 
+-   All credentials are listed in .
+-   **Employer:**  / 
+-   **Admin:**  / 
+-   **Worker:**  /  (and 8 other test workers).
 
 **What agent forgot to execute**
-- The agent did not delete the old, deprecated component files (, , etc.) after creating their unified replacements.
-- The agent did not fully test the new compliance features (unstaffed hours alert, weekly hours check) end-to-end after creating the backend modules.
-- The agent did not re-verify the full CRUD flow for the Roles module after the user's final bug report, only testing the creation part.</analysis>
+-   The agent has not yet updated the  and  workforce pages to the new modern layout. This should be done after the recruitment flow work.</analysis>
