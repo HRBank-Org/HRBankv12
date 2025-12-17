@@ -928,8 +928,8 @@ const CalendarScheduling = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {renderDateHeader()}
+    <div className="min-h-screen bg-gray-50 p-4">
+      {renderSetupBanner()}
       {renderControls()}
       
       {viewMode === 'week' && renderWeekView()}
