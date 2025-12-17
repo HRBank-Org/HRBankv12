@@ -289,39 +289,53 @@ const CalendarScheduling = () => {
     return colors[index % colors.length];
   };
 
-  const renderDateHeader = () => {
-    let dateText = '';
-    if (viewMode === 'day') {
-      dateText = currentDate.format('dddd, MMMM DD, YYYY');
-    } else if (viewMode === 'week') {
-      const weekStart = currentDate.clone().startOf('week');
-      const weekEnd = currentDate.clone().endOf('week');
-      dateText = `${weekStart.format('MMM DD')} - ${weekEnd.format('MMM DD, YYYY')}`;
-    } else {
-      dateText = currentDate.format('MMMM YYYY');
-    }
-
+  // Render setup guidance banner
+  const renderSetupBanner = () => {
+    if (setupComplete) return null;
+    
     return (
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/employer/dashboard')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <FiChevronLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Schedule Calendar</h1>
+      <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">⚠️</div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-amber-800 mb-1">Setup Required</h3>
+            <p className="text-sm text-amber-700 mb-3">
+              Before you can create shifts, you need to set up your workplaces and roles.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {!hasWorkplaces && (
+                <button
+                  onClick={() => navigate('/employer/workplaces')}
+                  className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium"
+                >
+                  <FiPlus className="w-4 h-4" />
+                  Create Workplace
+                </button>
+              )}
+              {hasWorkplaces && !hasRoles && (
+                <button
+                  onClick={() => navigate('/employer/roles/create')}
+                  className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium"
+                >
+                  <FiPlus className="w-4 h-4" />
+                  Create Role
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-amber-600 mt-2">
+              {!hasWorkplaces 
+                ? "Step 1: Add your business locations" 
+                : "Step 2: Define job roles with pay rates and requirements"}
+            </p>
+          </div>
         </div>
-
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <FiPlus className="w-5 h-5" />
-          Create Shift
-        </button>
       </div>
     );
+  };
+
+  const renderDateHeader = () => {
+    // Header removed - title is in the controls/GenericHeader
+    return null;
   };
 
   const renderControls = () => {
