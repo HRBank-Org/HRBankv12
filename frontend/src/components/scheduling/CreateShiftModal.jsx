@@ -109,38 +109,7 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
     }
   };
 
-  // Handle template selection
-  const handleTemplateSelect = async (templateId) => {
-    if (!templateId) {
-      setSelectedTemplate(null);
-      setFormData(prev => ({
-        ...prev,
-        occupation_template_id: '',
-        position_title: '',
-        hourly_rate: '',
-        required_skills: []
-      }));
-      return;
-    }
-
-    try {
-      const response = await api.get(`/api/occupation-templates/${templateId}?province=${workplaceProvince || 'ON'}`);
-      const template = response.data.data;
-      setSelectedTemplate(template);
-      setSelectedRole(null); // Clear role if template is selected
-
-      // Auto-populate fields from template (certifications stay at role level)
-      setFormData(prev => ({
-        ...prev,
-        occupation_template_id: templateId,
-        position_title: template.occupation_title,
-        hourly_rate: template.suggested_rate_for_province || template.suggested_rates?.ON || '',
-        required_skills: template.required_skills || []
-      }));
-    } catch (err) {
-      console.error('Failed to load template details:', err);
-    }
-  };
+  // Note: Template selection removed - shifts now inherit from roles only
 
   const handleSubmit = async (e) => {
     e.preventDefault();
