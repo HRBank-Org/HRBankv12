@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserHeader from '../../components/common/UserHeader';
+import { useTheme } from '../../contexts/ThemeContext';
+import WorkforceHeader from '../../components/layout/WorkforceHeader';
+import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
 
 const MyTimesheets = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const [timesheets, setTimesheets] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -48,63 +51,64 @@ const MyTimesheets = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <UserHeader 
-        title="My Timesheets"
-        onBackClick={() => navigate('/workforce/dashboard')}
-        showBack={true}
-      />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
-            <div className="text-sm text-gray-600 mb-1">Total Timesheets</div>
-            <div className="text-3xl font-bold text-gray-900">{stats.total || 0}</div>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
-            <div className="text-sm text-gray-600 mb-1">Total Hours</div>
-            <div className="text-3xl font-bold text-gray-900">{stats.hours?.toFixed(2) || '0.00'}</div>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-500">
-            <div className="text-sm text-gray-600 mb-1">Total Earnings</div>
-            <div className="text-3xl font-bold text-gray-900">${stats.earnings?.toFixed(2) || '0.00'}</div>
-          </div>
+      <WorkforceHeader />
+      <WorkforceSidebar />
+      
+      <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
+        <div className="bg-white border-b border-gray-200 px-8 py-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">My Timesheets</h1>
+          <p className="text-gray-600">View your work hours and earnings history</p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="bg-white rounded-xl shadow-sm p-2 mb-6 flex gap-2">
-          {['all', 'submitted', 'approved', 'paid'].map(status => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
-                filter === status 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {/* Timesheets List */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-bold text-gray-900">Timesheets</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              View your work hours and earnings history
-            </p>
+        <div className="p-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-blue-500">
+              <div className="text-sm text-gray-600 mb-1">Total Timesheets</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.total || 0}</div>
+            </div>
+            
+            <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-green-500">
+              <div className="text-sm text-gray-600 mb-1">Total Hours</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.hours?.toFixed(2) || '0.00'}</div>
+            </div>
+            
+            <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-purple-500">
+              <div className="text-sm text-gray-600 mb-1">Total Earnings</div>
+              <div className="text-3xl font-bold text-gray-900">${stats.earnings?.toFixed(2) || '0.00'}</div>
+            </div>
           </div>
+
+          {/* Filter Tabs */}
+          <div className="bg-white rounded-2xl shadow-sm p-2 mb-6 flex gap-2">
+            {['all', 'submitted', 'approved', 'paid'].map(status => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                  filter === status 
+                    ? 'text-white' 
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+                style={{ backgroundColor: filter === status ? theme.primaryColor : 'transparent' }}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Timesheets List */}
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-lg font-bold text-gray-900">Timesheets</h2>
+            </div>
 
           {filteredTimesheets.length === 0 ? (
             <div className="p-12 text-center">
