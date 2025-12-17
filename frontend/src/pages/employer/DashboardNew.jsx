@@ -730,7 +730,7 @@ const ScheduleTab = ({ theme, navigate, initialShowWorkplaces = false }) => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/employer/workplaces/${workplace.workplace_id}/edit`);
+                            navigate(`/employer/workplaces/${workplace.workplace_id}`);
                           }}
                           className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all"
                         >

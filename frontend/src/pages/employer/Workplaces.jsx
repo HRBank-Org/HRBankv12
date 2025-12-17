@@ -108,7 +108,7 @@ const Workplaces = () => {
                       <p className="text-sm text-gray-500">{workplace.postal_code}</p>
                     </div>
                     <button
-                      onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}/edit`)}
+                      onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
                       className="text-gray-400 hover:text-gray-600 transition-colors"
                       title="Edit workplace"
                     >
