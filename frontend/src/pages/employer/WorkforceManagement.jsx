@@ -113,29 +113,54 @@ const WorkforceManagement = () => {
         </div>
 
         <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-gray-200">
+        {/* Header Actions */}
+        <div className="flex items-center justify-between mb-6">
+          {/* Tabs */}
+          <div className="flex gap-2 border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'active'
+                  ? 'border-b-2 text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              style={{ borderColor: activeTab === 'active' ? theme.primaryColor : 'transparent' }}
+            >
+              Active Workers
+            </button>
+            <button
+              onClick={() => setActiveTab('invitations')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'invitations'
+                  ? 'border-b-2 text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              style={{ borderColor: activeTab === 'invitations' ? theme.primaryColor : 'transparent' }}
+            >
+              <FiMail className="inline mr-2" />
+              Invitations
+            </button>
+            <button
+              onClick={() => setActiveTab('inactive')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'inactive'
+                  ? 'border-b-2 text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              style={{ borderColor: activeTab === 'inactive' ? theme.primaryColor : 'transparent' }}
+            >
+              Past Workers
+            </button>
+          </div>
+          
+          {/* Invite Button */}
           <button
-            onClick={() => setActiveTab('active')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              activeTab === 'active'
-                ? 'border-b-2 text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-            style={{ borderColor: activeTab === 'active' ? theme.primaryColor : 'transparent' }}
+            onClick={() => setShowInviteModal(true)}
+            className="px-5 py-2.5 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+            style={{ backgroundColor: theme.primaryColor }}
           >
-            Active Workers
-          </button>
-          <button
-            onClick={() => setActiveTab('inactive')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              activeTab === 'inactive'
-                ? 'border-b-2 text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-            style={{ borderColor: activeTab === 'inactive' ? theme.primaryColor : 'transparent' }}
-          >
-            Past Workers
+            <FiUserPlus size={18} />
+            Invite Workers
           </button>
         </div>
 
