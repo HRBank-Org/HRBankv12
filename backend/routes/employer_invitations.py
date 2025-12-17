@@ -10,6 +10,9 @@ import io
 
 router = APIRouter(prefix="/api/employer/invitations", tags=["Employer Invitations"])
 
+# Create a separate router for the /api/employer/invite-workers endpoint
+invite_workers_router = APIRouter(prefix="/api/employer", tags=["Employer Worker Invitations"])
+
 def get_db():
     """Dependency to get database instance"""
     from server import db
@@ -26,6 +29,20 @@ class ManualInvite(BaseModel):
 class ManualInviteBatch(BaseModel):
     """Multiple manual invitations"""
     invites: List[ManualInvite]
+
+# Model for the WorkerInviteModal
+class SingleInvite(BaseModel):
+    """Single worker invitation from modal"""
+    email: str = None
+    phone: str = None
+    first_name: str
+    last_name: str
+
+class WorkerInviteRequest(BaseModel):
+    """Request body for /api/employer/invite-workers"""
+    role_id: str
+    workplace_id: str
+    invites: List[SingleInvite]
 
 @router.post("/send-manual", response_model=Dict)
 async def send_manual_invitations(
