@@ -622,3 +622,109 @@ async def get_occupation_minimum_rate(
             "note": f"Rate must be at least ${effective_min:.2f}/hr to comply with {province_code} law"
         }
     }
+
+
+@router.get("/required-certifications/{occupation_title}")
+async def get_required_certifications(
+    occupation_title: str,
+    province_code: str = "ON",
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get required certifications for an occupation based on province.
+    Returns both occupation-specific and province-mandated certifications.
+    """
+    
+    # Get occupation category from templates
+    template = await db.occupation_templates.find_one(
+        {"title": {"$regex": f"^{occupation_title}$", "$options": "i"}},
+        {"_id": 0}
+    )
+    
+    occupation_category = template.get("category", "General") if template else "General"
+    occupation_certs = template.get("required_certifications", []) if template else []
+    
+    # Get provincial certifications for this category
+    provincial_req = await db.provincial_certifications.find_one(
+        {"province_code": province_code, "occupation_category": occupation_category},
+        {"_id": 0}
+    )
+    
+    provincial_certs = provincial_req.get("certifications", []) if provincial_req else []
+    
+    # Merge certifications (provincial + occupation-specific)
+    all_certs = []
+    cert_names = set()
+    
+    # Add provincial certifications first (they are mandated by law)
+    for cert in provincial_certs:
+        if isinstance(cert, dict):
+            all_certs.append({
+                "name": cert.get("name"),
+                "required": cert.get("required", True),
+                "source": "provincial",
+                "description": cert.get("description", ""),
+                "province_code": province_code
+            })
+            cert_names.add(cert.get("name", "").lower())
+        else:
+            all_certs.append({
+                "name": cert,
+                "required": True,
+                "source": "provincial",
+                "province_code": province_code
+            })
+            cert_names.add(cert.lower())
+    
+    # Add occupation-specific certifications (not already in provincial)
+    for cert in occupation_certs:
+        cert_name = cert if isinstance(cert, str) else cert.get("name", cert)
+        if cert_name.lower() not in cert_names:
+            all_certs.append({
+                "name": cert_name,
+                "required": True,
+                "source": "occupation",
+                "description": f"Required for {occupation_title}"
+            })
+    
+    return {
+        "success": True,
+        "data": {
+            "occupation_title": occupation_title,
+            "occupation_category": occupation_category,
+            "province_code": province_code,
+            "required_certifications": all_certs,
+            "total_required": len([c for c in all_certs if c.get("required", True)]),
+            "note": f"Certifications required for {occupation_title} in {province_code}"
+        }
+    }
+
+
+@router.get("/provincial-certifications")
+async def list_provincial_certifications(
+    province_code: str = None,
+    category: str = None,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    List all provincial certification requirements.
+    Can filter by province_code and/or occupation category.
+    """
+    
+    query = {}
+    if province_code:
+        query["province_code"] = province_code
+    if category:
+        query["occupation_category"] = {"$regex": category, "$options": "i"}
+    
+    certs = await db.provincial_certifications.find(query, {"_id": 0}).to_list(100)
+    
+    return {
+        "success": True,
+        "data": {
+            "certifications": certs,
+            "total": len(certs)
+        }
+    }
