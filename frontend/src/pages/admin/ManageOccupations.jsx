@@ -17,6 +17,7 @@ const ManageOccupations = () => {
   
   const [occupationForm, setOccupationForm] = useState({
     title: '',
+    minimum_hourly_rate: '',
     certifications: []
   });
   
