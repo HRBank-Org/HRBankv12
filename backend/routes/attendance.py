@@ -1353,7 +1353,9 @@ async def get_my_attendance_today(
                 "status": attendance.get("status") if attendance else "not_started",
                 "clock_in_time": attendance.get("clock_in_time") if attendance else None,
                 "clock_out_time": attendance.get("clock_out_time") if attendance else None,
-                "is_late": attendance.get("is_late", False) if attendance else False
+                "duration_hours": attendance.get("duration_hours") if attendance else None,
+                "is_late": attendance.get("is_late", False) if attendance else False,
+                "minutes_late": attendance.get("minutes_late", 0) if attendance else 0
             } if attendance else None
         })
     
