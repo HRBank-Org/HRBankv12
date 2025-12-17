@@ -6,7 +6,7 @@ import moment from 'moment';
 const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, initialTime }) => {
   const [formData, setFormData] = useState({
     workplace_id: '',
-    occupation_template_id: '',
+    role_id: '',
     position_title: '',
     date: initialDate || moment().format('YYYY-MM-DD'),
     start_time: initialTime || '09:00',
@@ -26,9 +26,6 @@ const CreateShiftModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate,
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [occupationTemplates, setOccupationTemplates] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [workplaceProvince, setWorkplaceProvince] = useState(null);
   const [workplaceRoles, setWorkplaceRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState(null);
 
