@@ -17,6 +17,7 @@ const CalendarScheduling = () => {
   const [currentDate, setCurrentDate] = useState(moment());
   const [shifts, setShifts] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [selectedWorkplace, setSelectedWorkplace] = useState('all');
   const [loading, setLoading] = useState(true);
   
@@ -31,6 +32,11 @@ const CalendarScheduling = () => {
   // Drag and Drop
   const [draggingShift, setDraggingShift] = useState(null);
   const [dragOverSlot, setDragOverSlot] = useState(null);
+  
+  // Check if setup is complete
+  const hasWorkplaces = workplaces.length > 0;
+  const hasRoles = roles.length > 0;
+  const setupComplete = hasWorkplaces && hasRoles;
 
   useEffect(() => {
     loadData();
@@ -40,9 +46,13 @@ const CalendarScheduling = () => {
     try {
       setLoading(true);
       
-      // Load workplaces
-      const wpRes = await api.get('/api/employer/workplaces');
+      // Load workplaces and roles
+      const [wpRes, rolesRes] = await Promise.all([
+        api.get('/api/employer/workplaces'),
+        api.get('/api/employer/workplace-roles/list')
+      ]);
       setWorkplaces(wpRes.data.data?.workplaces || []);
+      setRoles(rolesRes.data.data?.roles || []);
 
       // Calculate date range based on view mode
       let startDate, endDate;
