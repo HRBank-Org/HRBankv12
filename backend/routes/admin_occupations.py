@@ -169,12 +169,19 @@ async def add_occupation_to_category(
     
     category = data.get('category')
     occupation_title = data.get('occupation')
+    minimum_hourly_rate = data.get('minimum_hourly_rate', 17.20)  # Default to Ontario minimum
     required_certifications = data.get('required_certifications', [])
     
     if not category or not occupation_title:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Category and occupation are required"
+        )
+    
+    if not minimum_hourly_rate or float(minimum_hourly_rate) <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Valid minimum hourly rate is required"
         )
     
     # Load existing categories
@@ -197,12 +204,30 @@ async def add_occupation_to_category(
                 detail="Occupation already exists in this category"
             )
     
-    # Add occupation as object with certifications
+    # Add occupation as object with rate and certifications
     occupation_obj = {
         "title": occupation_title,
+        "minimum_hourly_rate": float(minimum_hourly_rate),
         "required_certifications": required_certifications
     }
     categories[category]["occupations"].append(occupation_obj)
+    
+    # Also update occupation_templates collection in database
+    from datetime import datetime
+    from uuid import uuid4
+    await db.occupation_templates.update_one(
+        {"title": occupation_title},
+        {"$set": {
+            "template_id": f"occ_{str(uuid4())[:8]}",
+            "title": occupation_title,
+            "category": category,
+            "minimum_rate": float(minimum_hourly_rate),
+            "required_certifications": required_certifications,
+            "updated_at": datetime.utcnow(),
+            "is_active": True
+        }},
+        upsert=True
+    )
     
     # Write back to file
     write_categories_file(categories)
