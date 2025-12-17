@@ -241,7 +241,7 @@ const RoleForm = () => {
                       <option value="">General Role (All Workplaces)</option>
                       {workplaces.map(wp => (
                         <option key={wp.workplace_id} value={wp.workplace_id}>
-                          {wp.workplace_name}
+                          {wp.name || wp.workplace_name}
                         </option>
                       ))}
                     </select>
