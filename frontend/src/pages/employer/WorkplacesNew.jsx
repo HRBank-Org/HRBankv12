@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
-import WorkplaceMap from '../../components/maps/WorkplaceMap';
+import GoogleWorkplaceMap from '../../components/maps/GoogleWorkplaceMap';
 import api from '../../utils/api';
 import { FiMapPin, FiUsers, FiCalendar, FiPlus, FiGrid, FiList } from 'react-icons/fi';
 
