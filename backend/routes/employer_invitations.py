@@ -494,7 +494,7 @@ async def cancel_invitation(
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Cancel a pending invitation"""
+    """Cancel and delete a pending invitation - this also invalidates the token"""
     
     invite = await db.invite_tokens.find_one({
         "invite_id": invite_id,
@@ -513,14 +513,12 @@ async def cancel_invitation(
             detail="Can only cancel pending invitations"
         )
     
-    await db.invite_tokens.update_one(
-        {"invite_id": invite_id},
-        {"$set": {"status": "cancelled"}}
-    )
+    # Completely delete the invitation record - this invalidates the token
+    await db.invite_tokens.delete_one({"invite_id": invite_id})
     
     return {
         "success": True,
-        "message": "Invitation cancelled successfully"
+        "message": "Invitation cancelled and removed"
     }
 
 async def send_invitation_notifications(invite_token: InviteToken, employer_name: str, db):
