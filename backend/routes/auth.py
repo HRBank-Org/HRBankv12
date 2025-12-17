@@ -146,8 +146,12 @@ async def login(credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
     User login endpoint
     Returns JWT access and refresh tokens
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     # Find user by email
     user = await db.users.find_one({"email": credentials.email})
+    logger.info(f"Login attempt for {credentials.email}, user found: {user is not None}")
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -155,7 +159,9 @@ async def login(credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
         )
     
     # Verify password
-    if not verify_password(credentials.password, user["password_hash"]):
+    password_valid = verify_password(credentials.password, user["password_hash"])
+    logger.info(f"Password verification for {credentials.email}: {password_valid}")
+    if not password_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
