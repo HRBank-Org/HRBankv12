@@ -839,3 +839,530 @@ async def update_worker_location(
         }
     }
 
+
+
+# ==================== GPS-BASED CLOCK IN/OUT (NO QR REQUIRED) ====================
+
+GEOFENCE_RADIUS_METERS = 50  # 50 meters for clock-in
+
+@router.post("/gps-clock-in", response_model=Dict)
+async def gps_clock_in(
+    clock_in_data: dict,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Clock in to shift using GPS location only (no QR code required).
+    Worker must be within 50 meters of workplace.
+    """
+    from utils.google_geofencing import check_geofence, get_timezone, reverse_geocode
+    
+    shift_id = clock_in_data.get("shift_id")
+    location = clock_in_data.get("location")  # {lat, lng} or {latitude, longitude}
+    
+    if not shift_id:
+        raise HTTPException(status_code=400, detail="shift_id is required")
+    
+    if not location:
+        raise HTTPException(status_code=400, detail="GPS location is required")
+    
+    # Normalize location format
+    worker_lat = location.get("lat") or location.get("latitude")
+    worker_lng = location.get("lng") or location.get("longitude") or location.get("long")
+    
+    if not worker_lat or not worker_lng:
+        raise HTTPException(status_code=400, detail="Invalid location format. Provide lat/lng or latitude/longitude")
+    
+    worker_lat = float(worker_lat)
+    worker_lng = float(worker_lng)
+    
+    # Get shift details
+    shift = await db.shifts.find_one({"shift_id": shift_id}, {"_id": 0})
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Check if worker is assigned to this shift
+    assigned_workers = shift.get("assigned_workers", [])
+    worker_assigned = False
+    for w in assigned_workers:
+        if isinstance(w, dict):
+            if w.get("workforce_id") == current_user["user_id"] or w.get("user_id") == current_user["user_id"]:
+                worker_assigned = True
+                break
+        elif w == current_user["user_id"]:
+            worker_assigned = True
+            break
+    
+    if not worker_assigned:
+        raise HTTPException(status_code=403, detail="You are not assigned to this shift")
+    
+    # Get workplace
+    workplace = await db.workplaces.find_one(
+        {"workplace_id": shift.get("workplace_id")},
+        {"_id": 0}
+    )
+    if not workplace:
+        raise HTTPException(status_code=404, detail="Workplace not found")
+    
+    # Get workplace coordinates
+    workplace_lat = workplace.get("lat") or workplace.get("latitude")
+    workplace_lng = workplace.get("long") or workplace.get("longitude")
+    
+    if not workplace_lat or not workplace_lng:
+        # Try to geocode
+        from utils.google_geofencing import geocode_address
+        address = f"{workplace.get('address')}, {workplace.get('city')}, {workplace.get('province', 'Ontario')}, Canada"
+        coords = await geocode_address(address)
+        if coords:
+            workplace_lat, workplace_lng = coords
+            await db.workplaces.update_one(
+                {"workplace_id": workplace.get("workplace_id")},
+                {"$set": {"lat": workplace_lat, "long": workplace_lng}}
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Could not determine workplace location")
+    
+    workplace_lat = float(workplace_lat)
+    workplace_lng = float(workplace_lng)
+    
+    # Check geofence (50 meters)
+    geofence_result = await check_geofence(
+        worker_lat, worker_lng,
+        workplace_lat, workplace_lng,
+        radius_meters=GEOFENCE_RADIUS_METERS
+    )
+    
+    if not geofence_result["is_within_geofence"]:
+        distance = geofence_result["distance_meters"]
+        raise HTTPException(
+            status_code=400,
+            detail=f"You are {distance:.0f} meters from the workplace. Please move within {GEOFENCE_RADIUS_METERS} meters to clock in."
+        )
+    
+    # Check shift timing
+    from datetime import time as dt_time
+    current_time = datetime.utcnow()
+    
+    # Parse shift date and times
+    shift_date_str = shift.get("date") or shift.get("shift_date")
+    if isinstance(shift_date_str, str):
+        shift_date = datetime.fromisoformat(shift_date_str.replace('Z', '+00:00')).date()
+    else:
+        shift_date = shift_date_str.date() if hasattr(shift_date_str, 'date') else shift_date_str
+    
+    today = current_time.date()
+    
+    if shift_date != today:
+        raise HTTPException(
+            status_code=400,
+            detail=f"This shift is scheduled for {shift_date}. You can only clock in on the shift date."
+        )
+    
+    shift_start = dt_time.fromisoformat(shift.get("start_time"))
+    shift_end = dt_time.fromisoformat(shift.get("end_time"))
+    
+    # Allow clock-in 15 minutes before shift
+    early_allowed = (datetime.combine(today, shift_start) - timedelta(minutes=15)).time()
+    current_time_only = current_time.time()
+    
+    if current_time_only < early_allowed:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Too early to clock in. You can clock in starting at {early_allowed.strftime('%I:%M %p')}"
+        )
+    
+    if current_time_only > shift_end:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Shift has already ended at {shift_end.strftime('%I:%M %p')}"
+        )
+    
+    # Check if already clocked in
+    existing = await db.attendance.find_one({
+        "shift_id": shift_id,
+        "workforce_id": current_user["user_id"],
+        "status": {"$in": ["clocked_in", "clocked_out"]}
+    })
+    
+    if existing:
+        if existing.get("status") == "clocked_in":
+            raise HTTPException(status_code=409, detail="Already clocked in to this shift")
+        else:
+            raise HTTPException(status_code=409, detail="Already completed this shift")
+    
+    # Get timezone for workplace
+    tz_info = await get_timezone(workplace_lat, workplace_lng)
+    
+    # Get address from coordinates for record
+    worker_address = await reverse_geocode(worker_lat, worker_lng)
+    
+    # Create attendance record
+    attendance_id = f"att_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{current_user['user_id'][:8]}"
+    
+    # Calculate if late
+    is_late = current_time_only > shift_start
+    minutes_late = 0
+    if is_late:
+        late_delta = datetime.combine(today, current_time_only) - datetime.combine(today, shift_start)
+        minutes_late = int(late_delta.total_seconds() / 60)
+    
+    attendance_record = {
+        "attendance_id": attendance_id,
+        "shift_id": shift_id,
+        "workforce_id": current_user["user_id"],
+        "workplace_id": workplace.get("workplace_id"),
+        "employer_id": workplace.get("employer_id"),
+        "clock_in_time": current_time.isoformat(),
+        "clock_in_method": "gps",
+        "clock_in_location": {
+            "latitude": worker_lat,
+            "longitude": worker_lng,
+            "accuracy": location.get("accuracy"),
+            "address": worker_address
+        },
+        "workplace_location": {
+            "latitude": workplace_lat,
+            "longitude": workplace_lng
+        },
+        "distance_from_workplace_meters": geofence_result["distance_meters"],
+        "geofence_verified": True,
+        "geofence_radius_meters": GEOFENCE_RADIUS_METERS,
+        "timezone": tz_info,
+        "is_late": is_late,
+        "minutes_late": minutes_late,
+        "status": "clocked_in",
+        "created_at": current_time.isoformat()
+    }
+    
+    await db.attendance.insert_one(attendance_record)
+    
+    # Update shift status
+    await db.shifts.update_one(
+        {"shift_id": shift_id},
+        {"$set": {"status": "in_progress"}}
+    )
+    
+    # Get worker details for notification
+    worker = await db.users.find_one(
+        {"user_id": current_user["user_id"]},
+        {"_id": 0, "email": 1, "first_name": 1, "last_name": 1}
+    )
+    
+    worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() if worker else "Worker"
+    
+    # Send notification in background
+    background_tasks.add_task(
+        notify_clock_in,
+        worker_email=worker.get('email') if worker else None,
+        worker_phone=None,
+        worker_name=worker_name,
+        shift_details={
+            'position': shift.get('position_title') or shift.get('role_title', 'N/A'),
+            'workplace': workplace.get('workplace_name') or workplace.get('name', 'N/A'),
+            'clock_in_time': current_time.strftime('%I:%M %p'),
+            'scheduled_end': shift_end.strftime('%I:%M %p')
+        },
+        is_late=is_late,
+        minutes_late=minutes_late
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "attendance_id": attendance_id,
+            "clock_in_time": current_time.isoformat(),
+            "workplace_name": workplace.get('workplace_name') or workplace.get('name'),
+            "distance_meters": round(geofence_result["distance_meters"], 1),
+            "is_late": is_late,
+            "minutes_late": minutes_late,
+            "timezone": tz_info.get("timezone_name") if tz_info else None
+        },
+        "message": "Clocked in successfully!" + (f" (⚠️ {minutes_late} min late)" if is_late else "")
+    }
+
+
+@router.post("/gps-clock-out", response_model=Dict)
+async def gps_clock_out(
+    clock_out_data: dict,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Clock out from shift using GPS location.
+    Can clock out from anywhere (location is recorded for audit).
+    """
+    from utils.google_geofencing import reverse_geocode, check_geofence
+    
+    shift_id = clock_out_data.get("shift_id")
+    attendance_id = clock_out_data.get("attendance_id")
+    location = clock_out_data.get("location")
+    
+    if not shift_id and not attendance_id:
+        raise HTTPException(status_code=400, detail="shift_id or attendance_id is required")
+    
+    # Find active attendance
+    query = {"workforce_id": current_user["user_id"], "status": "clocked_in"}
+    if attendance_id:
+        query["attendance_id"] = attendance_id
+    if shift_id:
+        query["shift_id"] = shift_id
+    
+    attendance = await db.attendance.find_one(query, {"_id": 0})
+    
+    if not attendance:
+        raise HTTPException(status_code=404, detail="No active clock-in found for this shift")
+    
+    # Parse location
+    worker_lat = None
+    worker_lng = None
+    if location:
+        worker_lat = location.get("lat") or location.get("latitude")
+        worker_lng = location.get("lng") or location.get("longitude") or location.get("long")
+    
+    # Calculate duration
+    clock_in_time = attendance.get("clock_in_time")
+    if isinstance(clock_in_time, str):
+        clock_in_dt = datetime.fromisoformat(clock_in_time.replace('Z', '+00:00'))
+    else:
+        clock_in_dt = clock_in_time
+    
+    clock_out_dt = datetime.utcnow()
+    duration_seconds = (clock_out_dt - clock_in_dt).total_seconds()
+    duration_hours = duration_seconds / 3600
+    
+    # Get worker address
+    worker_address = None
+    distance_from_workplace = None
+    
+    if worker_lat and worker_lng:
+        worker_lat = float(worker_lat)
+        worker_lng = float(worker_lng)
+        worker_address = await reverse_geocode(worker_lat, worker_lng)
+        
+        # Calculate distance from workplace
+        workplace_loc = attendance.get("workplace_location", {})
+        if workplace_loc.get("latitude") and workplace_loc.get("longitude"):
+            geofence_result = await check_geofence(
+                worker_lat, worker_lng,
+                float(workplace_loc["latitude"]), float(workplace_loc["longitude"]),
+                radius_meters=GEOFENCE_RADIUS_METERS
+            )
+            distance_from_workplace = geofence_result["distance_meters"]
+    
+    # Update attendance record
+    update_data = {
+        "clock_out_time": clock_out_dt.isoformat(),
+        "clock_out_method": "gps",
+        "clock_out_location": {
+            "latitude": worker_lat,
+            "longitude": worker_lng,
+            "accuracy": location.get("accuracy") if location else None,
+            "address": worker_address
+        } if location else None,
+        "distance_from_workplace_at_clock_out": distance_from_workplace,
+        "duration_seconds": int(duration_seconds),
+        "duration_hours": round(duration_hours, 2),
+        "status": "clocked_out",
+        "updated_at": clock_out_dt.isoformat()
+    }
+    
+    await db.attendance.update_one(
+        {"attendance_id": attendance["attendance_id"]},
+        {"$set": update_data}
+    )
+    
+    # Get shift and workplace for timesheet
+    shift = await db.shifts.find_one({"shift_id": attendance["shift_id"]}, {"_id": 0})
+    workplace = await db.workplaces.find_one({"workplace_id": attendance["workplace_id"]}, {"_id": 0})
+    
+    # Calculate pay (simplified)
+    hourly_rate = shift.get("hourly_rate") or shift.get("rate") or 17.20  # Ontario min wage fallback
+    regular_pay = round(duration_hours * hourly_rate, 2)
+    
+    # Create/update timesheet
+    from datetime import date
+    today = date.today()
+    days_until_sunday = (6 - today.weekday()) % 7
+    week_ending = today + timedelta(days=days_until_sunday) if days_until_sunday > 0 else today
+    
+    timesheet_data = {
+        "timesheet_id": f"ts_{attendance['attendance_id']}",
+        "attendance_id": attendance["attendance_id"],
+        "shift_id": attendance["shift_id"],
+        "workforce_id": current_user["user_id"],
+        "employer_id": attendance.get("employer_id"),
+        "workplace_id": attendance.get("workplace_id"),
+        "week_ending_date": week_ending.isoformat(),
+        "shift_date": shift.get("date") or shift.get("shift_date"),
+        "clock_in_time": attendance["clock_in_time"],
+        "clock_out_time": clock_out_dt.isoformat(),
+        "regular_hours": round(duration_hours, 2),
+        "overtime_hours": 0,
+        "total_hours": round(duration_hours, 2),
+        "hourly_rate": hourly_rate,
+        "regular_pay": regular_pay,
+        "overtime_pay": 0,
+        "gross_pay": regular_pay,
+        "status": "pending_approval",
+        "created_at": clock_out_dt.isoformat()
+    }
+    
+    await db.timesheets.update_one(
+        {"attendance_id": attendance["attendance_id"]},
+        {"$set": timesheet_data},
+        upsert=True
+    )
+    
+    # Update shift status if all workers clocked out
+    await db.shifts.update_one(
+        {"shift_id": attendance["shift_id"]},
+        {"$set": {"status": "completed"}}
+    )
+    
+    # Send notification
+    worker = await db.users.find_one(
+        {"user_id": current_user["user_id"]},
+        {"_id": 0, "email": 1, "first_name": 1, "last_name": 1}
+    )
+    
+    worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() if worker else "Worker"
+    
+    background_tasks.add_task(
+        notify_clock_out,
+        worker_email=worker.get('email') if worker else None,
+        worker_phone=None,
+        worker_name=worker_name,
+        shift_summary={
+            'position': shift.get('position_title') or shift.get('role_title', 'N/A'),
+            'workplace': workplace.get('workplace_name') or workplace.get('name', 'N/A') if workplace else 'N/A',
+            'clock_in_time': clock_in_dt.strftime('%I:%M %p'),
+            'clock_out_time': clock_out_dt.strftime('%I:%M %p'),
+            'hours_worked': round(duration_hours, 2),
+            'estimated_pay': regular_pay
+        }
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "attendance_id": attendance["attendance_id"],
+            "clock_in_time": attendance["clock_in_time"],
+            "clock_out_time": clock_out_dt.isoformat(),
+            "duration_hours": round(duration_hours, 2),
+            "estimated_pay": regular_pay,
+            "timesheet_status": "pending_approval"
+        },
+        "message": f"Clocked out successfully! You worked {duration_hours:.1f} hours."
+    }
+
+
+@router.get("/shifts/{shift_id}/clock-status", response_model=Dict)
+async def get_shift_clock_status(
+    shift_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get clock-in status for a specific shift"""
+    
+    attendance = await db.attendance.find_one({
+        "shift_id": shift_id,
+        "workforce_id": current_user["user_id"]
+    }, {"_id": 0})
+    
+    if not attendance:
+        return {
+            "success": True,
+            "data": {
+                "status": "not_started",
+                "can_clock_in": True,
+                "can_clock_out": False
+            }
+        }
+    
+    status = attendance.get("status", "unknown")
+    
+    return {
+        "success": True,
+        "data": {
+            "attendance_id": attendance.get("attendance_id"),
+            "status": status,
+            "clock_in_time": attendance.get("clock_in_time"),
+            "clock_out_time": attendance.get("clock_out_time"),
+            "duration_hours": attendance.get("duration_hours"),
+            "is_late": attendance.get("is_late", False),
+            "minutes_late": attendance.get("minutes_late", 0),
+            "can_clock_in": status == "not_started",
+            "can_clock_out": status == "clocked_in"
+        }
+    }
+
+
+@router.get("/my-attendance/today", response_model=Dict)
+async def get_my_attendance_today(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get worker's attendance records for today"""
+    
+    today = datetime.utcnow().date().isoformat()
+    
+    # Find today's shifts for this worker
+    shifts = await db.shifts.find({
+        "date": {"$regex": f"^{today}"},
+        "assigned_workers": {"$elemMatch": {"workforce_id": current_user["user_id"]}}
+    }, {"_id": 0}).to_list(10)
+    
+    # Also check alternative format
+    if not shifts:
+        shifts = await db.shifts.find({
+            "shift_date": {"$regex": f"^{today}"},
+            "$or": [
+                {"assigned_workers": {"$elemMatch": {"workforce_id": current_user["user_id"]}}},
+                {"assigned_workers": {"$elemMatch": {"user_id": current_user["user_id"]}}},
+                {"assigned_workers": current_user["user_id"]}
+            ]
+        }, {"_id": 0}).to_list(10)
+    
+    result = []
+    for shift in shifts:
+        attendance = await db.attendance.find_one({
+            "shift_id": shift["shift_id"],
+            "workforce_id": current_user["user_id"]
+        }, {"_id": 0})
+        
+        workplace = await db.workplaces.find_one(
+            {"workplace_id": shift.get("workplace_id")},
+            {"_id": 0, "workplace_name": 1, "name": 1, "address": 1, "lat": 1, "long": 1}
+        )
+        
+        result.append({
+            "shift_id": shift["shift_id"],
+            "shift_date": shift.get("date") or shift.get("shift_date"),
+            "start_time": shift.get("start_time"),
+            "end_time": shift.get("end_time"),
+            "role_title": shift.get("position_title") or shift.get("role_title"),
+            "workplace": {
+                "name": workplace.get("workplace_name") or workplace.get("name") if workplace else "Unknown",
+                "address": workplace.get("address") if workplace else None,
+                "lat": workplace.get("lat") if workplace else None,
+                "lng": workplace.get("long") if workplace else None
+            },
+            "attendance": {
+                "status": attendance.get("status") if attendance else "not_started",
+                "clock_in_time": attendance.get("clock_in_time") if attendance else None,
+                "clock_out_time": attendance.get("clock_out_time") if attendance else None,
+                "is_late": attendance.get("is_late", False) if attendance else False
+            } if attendance else None
+        })
+    
+    return {
+        "success": True,
+        "data": {
+            "date": today,
+            "shifts": result,
+            "total_shifts": len(result)
+        }
+    }
+
