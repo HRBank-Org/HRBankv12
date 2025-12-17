@@ -976,3 +976,90 @@ async def invite_to_job(
         "message": f"Sent {len(successful_invites)} job invitation(s)"
     }
 
+
+
+@router.get("/workforce-inventory", response_model=Dict)
+async def get_workforce_inventory(
+    status_filter: str = None,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get workforce inventory - workers who are employed but not assigned to shifts"""
+    from datetime import datetime
+    
+    query = {"employer_id": current_user["user_id"]}
+    if status_filter:
+        query["status"] = status_filter
+    
+    inventory = await db.workforce_inventory.find(query, {"_id": 0}).to_list(200)
+    
+    # Enrich with worker details
+    for item in inventory:
+        worker = await db.users.find_one(
+            {"user_id": item.get("workforce_id")},
+            {"_id": 0, "user_id": 1, "email": 1, "first_name": 1, "last_name": 1}
+        )
+        if worker:
+            item["worker_details"] = worker
+        
+        # Calculate days until auto-terminate
+        if item.get("auto_terminate_date"):
+            days_left = (item["auto_terminate_date"] - datetime.utcnow()).days
+            item["days_until_auto_terminate"] = max(0, days_left)
+    
+    return {
+        "success": True,
+        "data": {
+            "inventory": inventory,
+            "total": len(inventory),
+            "unassigned_count": len([i for i in inventory if i.get("status") == "unassigned"])
+        }
+    }
+
+
+@router.post("/workforce-inventory/process-auto-terminations", response_model=Dict)
+async def process_auto_terminations(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Process workers who have been unassigned for 2+ weeks - terminate them"""
+    from datetime import datetime
+    
+    # Find workers past their auto-terminate date
+    expired = await db.workforce_inventory.find({
+        "employer_id": current_user["user_id"],
+        "status": "unassigned",
+        "auto_terminate_date": {"$lte": datetime.utcnow()}
+    }, {"_id": 0}).to_list(100)
+    
+    terminated_workers = []
+    for item in expired:
+        workforce_id = item.get("workforce_id")
+        
+        # Update employment relationship to terminated
+        await db.employment_relationships.update_one(
+            {"employer_id": current_user["user_id"], "workforce_id": workforce_id, "status": "active"},
+            {"$set": {
+                "status": "terminated",
+                "termination_date": datetime.utcnow(),
+                "termination_reason": "auto_terminated_unassigned_2_weeks",
+                "terminated_by": "system"
+            }}
+        )
+        
+        # Remove from inventory
+        await db.workforce_inventory.delete_one({
+            "employer_id": current_user["user_id"],
+            "workforce_id": workforce_id
+        })
+        
+        terminated_workers.append(workforce_id)
+    
+    return {
+        "success": True,
+        "data": {
+            "terminated_count": len(terminated_workers),
+            "terminated_workers": terminated_workers
+        },
+        "message": f"Auto-terminated {len(terminated_workers)} worker(s) who were unassigned for 2+ weeks"
+    }
