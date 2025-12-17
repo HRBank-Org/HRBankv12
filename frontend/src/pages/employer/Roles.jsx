@@ -4,7 +4,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
-import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiMapPin, FiDollarSign, FiAward, FiFilter, FiSearch, FiChevronRight, FiUserPlus } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiMapPin, FiDollarSign, FiAward, FiFilter, FiSearch, FiChevronRight, FiUserPlus, FiAlertTriangle } from 'react-icons/fi';
 
 const Roles = () => {
   const navigate = useNavigate();
@@ -16,6 +16,8 @@ const Roles = () => {
   const [selectedWorkplace, setSelectedWorkplace] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [deleteModal, setDeleteModal] = useState({ open: false, role: null });
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     loadData();
