@@ -353,7 +353,7 @@ const RoleForm = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Hourly Rate
+                      Hourly Rate *
                     </label>
                     <div className="relative">
                       <FiDollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -363,14 +363,26 @@ const RoleForm = () => {
                         value={formData.hourly_rate}
                         onChange={handleInputChange}
                         step="0.01"
-                        min="0"
-                        placeholder="16.55"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                        min={minimumRate?.effective_minimum_rate || 0}
+                        placeholder={minimumRate ? minimumRate.effective_minimum_rate.toFixed(2) : "17.20"}
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:outline-none ${rateError ? 'border-red-500' : 'border-gray-300'}`}
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Must meet provincial minimum wage
-                    </p>
+                    {minimumRate && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        💡 Minimum: ${minimumRate.effective_minimum_rate.toFixed(2)}/hr ({minimumRate.province_code} provincial + occupation)
+                      </p>
+                    )}
+                    {rateError && (
+                      <p className="text-xs text-red-600 mt-1">
+                        ⚠️ {rateError}
+                      </p>
+                    )}
+                    {!minimumRate && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Select an occupation to see minimum rate
+                      </p>
+                    )}
                   </div>
 
                   <div>
