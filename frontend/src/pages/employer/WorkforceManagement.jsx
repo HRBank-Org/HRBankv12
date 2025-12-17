@@ -478,7 +478,7 @@ const InviteModalWrapper = ({ isOpen, onClose, onSuccess, roles, workplaces, sel
                 <option value="">Select a workplace...</option>
                 {workplaces.map(wp => (
                   <option key={wp.workplace_id} value={wp.workplace_id}>
-                    {wp.workplace_name}
+                    {wp.name || wp.workplace_name}
                   </option>
                 ))}
               </select>
