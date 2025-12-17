@@ -120,10 +120,10 @@ const EditWorkplace = () => {
                 Workplace Name <span className="text-red-500">*</span>
               </label>
               <input
-                name="workplace_name"
+                name="name"
                 type="text"
                 required
-                value={formData.workplace_name}
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
                 placeholder="e.g., Main Location"
@@ -141,60 +141,132 @@ const EditWorkplace = () => {
                 value={formData.address}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                placeholder="123 Main St, Windsor, ON"
+                placeholder="123 Main St"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="city"
+                  type="text"
+                  required
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  placeholder="Windsor"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Province
+                </label>
+                <select
+                  name="province"
+                  value={formData.province}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                >
+                  <option value="ON">Ontario</option>
+                  <option value="BC">British Columbia</option>
+                  <option value="AB">Alberta</option>
+                  <option value="QC">Quebec</option>
+                  <option value="MB">Manitoba</option>
+                  <option value="SK">Saskatchewan</option>
+                  <option value="NS">Nova Scotia</option>
+                  <option value="NB">New Brunswick</option>
+                  <option value="NL">Newfoundland</option>
+                  <option value="PE">PEI</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Postal Code <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="postal_code"
+                  type="text"
+                  required
+                  value={formData.postal_code}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  placeholder="N9A 1A1"
+                  maxLength={7}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
+                  placeholder="(519) 555-1234"
+                />
+              </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Postal Code <span className="text-red-500">*</span>
+                Description
               </label>
-              <input
-                name="postal_code"
-                type="text"
-                required
-                value={formData.postal_code}
+              <textarea
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
+                rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                placeholder="N9A 1A1"
-                maxLength={7}
+                placeholder="Brief description of this workplace..."
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Job Matching Radius: {formData.job_matching_radius_km} km
+                Geofence Radius: {formData.geofence_radius}m
               </label>
               <input
-                name="job_matching_radius_km"
+                name="geofence_radius"
                 type="range"
-                min="5"
-                max="50"
-                value={formData.job_matching_radius_km}
+                min="50"
+                max="500"
+                step="25"
+                value={formData.geofence_radius}
                 onChange={handleChange}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>5 km</span>
-                <span>50 km</span>
+                <span>50m</span>
+                <span>500m</span>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Workers must be within this radius to clock in/out
+              </p>
             </div>
 
             <div className="flex gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => navigate('/employer/dashboard', { state: { activeTab: 'schedule', showWorkplaces: true } })}
+                onClick={() => navigate('/employer/workplaces')}
                 className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={saving}
-                className="flex-1 py-3 rounded-lg text-white font-semibold hover:opacity-90 disabled:opacity-50"
-                style={{ backgroundColor: theme.primaryColor }}
+                disabled={saving || !hasChanges}
+                className="flex-1 py-3 rounded-lg text-white font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: hasChanges ? theme.primaryColor : '#9CA3AF' }}
               >
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? 'Saving...' : hasChanges ? 'Save Changes' : 'No Changes'}
               </button>
             </div>
           </form>
