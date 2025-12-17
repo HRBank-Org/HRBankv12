@@ -70,7 +70,7 @@ async def validate_address(
         "postal_code": "N9A 1A1"  // optional
     }
     """
-    from utils.address_validation import validate_full_address, geocode_address
+    from utils.address_validation import validate_address, geocode_address
     
     street_address = address_data.get("street_address", "")
     city = address_data.get("city", "")
