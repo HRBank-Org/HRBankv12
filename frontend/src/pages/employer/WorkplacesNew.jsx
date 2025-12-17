@@ -206,9 +206,13 @@ const WorkplacesNew = () => {
                         </p>
                       </div>
                       <span 
-                        className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700"
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          workplace.status === 'inactive' 
+                            ? 'bg-gray-100 text-gray-600' 
+                            : 'bg-green-100 text-green-700'
+                        }`}
                       >
-                        Active
+                        {workplace.status === 'inactive' ? 'Inactive' : 'Active'}
                       </span>
                     </div>
                     
