@@ -24,27 +24,70 @@ const WorkforceManagement = () => {
   const theme = useTheme();
 
   useEffect(() => {
-    loadWorkers();
+    loadData();
   }, [activeTab]);
 
-  const loadWorkers = async () => {
+  const loadData = async () => {
     setLoading(true);
     try {
-      const endpoint = activeTab === 'active' 
-        ? '/api/employer/workforce-management/active'
-        : '/api/employer/workforce-management/inactive';
+      if (activeTab === 'invitations') {
+        // Load invitations
+        const invRes = await api.get('/api/employer/invitations/list');
+        setInvitations(invRes.data.data.invitations || []);
+      } else {
+        // Load workers
+        const endpoint = activeTab === 'active' 
+          ? '/api/employer/workforce-management/active'
+          : '/api/employer/workforce-management/inactive';
+        
+        const response = await api.get(endpoint);
+        const workersList = activeTab === 'active' 
+          ? response.data.data.active_workers 
+          : response.data.data.inactive_workers;
+        
+        setWorkers(workersList);
+      }
       
-      const response = await api.get(endpoint);
-      const workersList = activeTab === 'active' 
-        ? response.data.data.active_workers 
-        : response.data.data.inactive_workers;
+      // Load roles and workplaces for invite modal
+      const [rolesRes, workplacesRes] = await Promise.all([
+        api.get('/api/employer/workplace-roles/list'),
+        api.get('/api/employer/workplaces')
+      ]);
+      setRoles(rolesRes.data.data.roles || []);
+      setWorkplaces(workplacesRes.data.data.workplaces || []);
       
-      setWorkers(workersList);
     } catch (error) {
-      console.error('Failed to load workers:', error);
+      console.error('Failed to load data:', error);
     } finally {
       setLoading(false);
     }
+  };
+  
+  const handleResendInvite = async (inviteId) => {
+    try {
+      await api.post(`/api/employer/invitations/${inviteId}/resend`);
+      alert('Invitation resent successfully!');
+      loadData();
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to resend invitation');
+    }
+  };
+  
+  const handleCancelInvite = async (inviteId) => {
+    if (!window.confirm('Are you sure you want to cancel this invitation?')) return;
+    try {
+      await api.delete(`/api/employer/invitations/${inviteId}/cancel`);
+      alert('Invitation cancelled');
+      loadData();
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to cancel invitation');
+    }
+  };
+  
+  const openInviteModal = (role = null, workplace = null) => {
+    setSelectedRole(role);
+    setSelectedWorkplace(workplace);
+    setShowInviteModal(true);
   };
 
   const handleTerminate = (worker) => {
