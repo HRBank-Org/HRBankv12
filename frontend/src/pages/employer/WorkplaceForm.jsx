@@ -4,7 +4,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
-import { FiMapPin, FiUsers, FiClock, FiSave, FiX, FiChevronRight, FiCalendar } from 'react-icons/fi';
+import { FiMapPin, FiUsers, FiClock, FiSave, FiX, FiChevronRight, FiCalendar, FiTrash2, FiToggleLeft, FiToggleRight, FiAlertTriangle } from 'react-icons/fi';
 
 const WorkplaceForm = () => {
   const { workplaceId } = useParams();
@@ -16,6 +16,11 @@ const WorkplaceForm = () => {
   const [saving, setSaving] = useState(false);
   const [assignedWorkers, setAssignedWorkers] = useState([]);
   const [mode, setMode] = useState(isEditMode ? 'view' : 'edit'); // 'view', 'edit'
+  const [workplaceStatus, setWorkplaceStatus] = useState('active');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [dependencies, setDependencies] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
   
   const [formData, setFormData] = useState({
     workplace_name: '',
