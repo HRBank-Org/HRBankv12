@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 import secrets
 
-from models.tasks import Task, TaskStatus, TaskType, TaskAddress
+from models.tasks import Task, TaskStatus, TaskType, TaskAddress, ChecklistItem
 
 router = APIRouter(prefix="/external/bookings", tags=["external-bookings"])
 
