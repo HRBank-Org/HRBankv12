@@ -8786,6 +8786,9 @@ def main():
         test_job_matching_system(results, admin_token)
         test_occupation_certification_linking_endpoint(results, admin_token)
     
+    # NEW: Test Work Mode Configuration (Phase 1 of HR Bank Multi-Mode Refactor)
+    test_work_mode_configuration(results)
+    
     # NEW: Test Address Autocomplete Integration (from review request)
     test_address_autocomplete_integration(results)
     
