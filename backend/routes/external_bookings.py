@@ -65,8 +65,8 @@ class NeatifyBooking(BaseModel):
     Neatify Work Order / Booking structure
     Matches the exact schema from Neatify's bookings collection
     """
-    # Neatify IDs
-    _id: str = Field(..., description="Neatify booking ObjectId")
+    # Neatify IDs - use alias for _id since Pydantic doesn't allow leading underscores
+    id: str = Field(..., alias="_id", description="Neatify booking ObjectId")
     serviceId: str
     customerId: str
     
