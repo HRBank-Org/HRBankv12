@@ -187,15 +187,19 @@ const WorkforceSidebar = () => {
                   key={index}
                   onClick={() => handleNavigation(item)}
                   className={`
-                    w-full flex items-center px-3 py-3 rounded-xl
+                    w-full flex items-center py-3 rounded-xl
                     transition-colors duration-200 group relative
                     ${active 
                       ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' 
                       : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }
                   `}
+                  style={{
+                    paddingLeft: showExpanded ? '12px' : '22px',
+                    paddingRight: showExpanded ? '12px' : '22px',
+                  }}
                 >
-                  {/* Fixed-size icon container to prevent resize during transition */}
+                  {/* Fixed-size icon container */}
                   <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
                     <Icon 
                       size={20} 
@@ -204,7 +208,7 @@ const WorkforceSidebar = () => {
                     />
                   </div>
                   
-                  {/* Text container with overflow hidden for smooth transition */}
+                  {/* Text container with smooth transition */}
                   <div 
                     className={`flex items-center flex-1 overflow-hidden transition-all duration-300 ${showExpanded ? 'ml-3 opacity-100 max-w-[180px]' : 'ml-0 opacity-0 max-w-0'}`}
                   >
