@@ -610,6 +610,27 @@ The Address Autocomplete Integration is fully functional with all backend APIs w
 
 ---
 
+## Current Test Focus: Work Mode Configuration (Phase 1)
+
+### Features Implemented:
+1. **Backend Model Updates**: Added `work_mode`, `schedule_pattern`, `service_area_name` to Workplace model
+2. **WorkplaceForm UI**: New Work Mode selection card with On-Site and Field Service options
+3. **Schedule Pattern**: Standard, Continental, Flexible options
+4. **Workplace Cards**: Mode badges (On-Site / Field) displayed on workplace list
+
+### Test Accounts:
+- **Employer**: employer@hrbank.ca / Test123!
+
+### Flows to Test:
+1. Create new workplace with On-Site mode (default)
+2. Create new workplace with Field Service mode
+3. Verify Service Area Name field appears for Field Service
+4. Test schedule pattern selection
+5. Verify mode badges display on workplace list
+6. Edit existing workplace and change work mode
+
+---
+
 ## Current Test Focus: Address Autocomplete Integration
 
 ### Features Implemented:
