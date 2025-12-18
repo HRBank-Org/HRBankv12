@@ -56,12 +56,6 @@ const AddressAutocomplete = ({
   const inputRef = useRef(null);
   const suggestionsRef = useRef(null);
   const debounceTimer = useRef(null);
-  
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
-    libraries
-  });
 
   // Update parent when address changes
   useEffect(() => {
