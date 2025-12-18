@@ -9546,6 +9546,9 @@ def main():
     # NEW: Test Service Tasks API (Phase 2 of HR Bank Multi-Mode Refactor)
     test_service_tasks_api(results)
     
+    # NEW: Test Task Assignment and Worker Billing Privacy (from review request)
+    test_task_assignment_and_billing_privacy(results)
+    
     # Print final results
     success = results.summary()
     
