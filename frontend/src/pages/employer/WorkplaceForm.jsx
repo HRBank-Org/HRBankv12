@@ -51,6 +51,45 @@ const WorkplaceForm = () => {
     }
   });
   const [addressValid, setAddressValid] = useState(false);
+  const [newFsaInput, setNewFsaInput] = useState('');
+  const [fsaError, setFsaError] = useState('');
+
+  // Validate FSA format (Canadian: 3 alphanumeric, letter-number-letter)
+  const isValidFsa = (fsa) => {
+    const fsaRegex = /^[A-Za-z]\d[A-Za-z]$/;
+    return fsaRegex.test(fsa.trim());
+  };
+
+  // Add FSA to the list
+  const handleAddFsa = () => {
+    const fsa = newFsaInput.trim().toUpperCase();
+    if (!fsa) return;
+    
+    if (!isValidFsa(fsa)) {
+      setFsaError('Invalid FSA format. Use letter-number-letter (e.g., N9A)');
+      return;
+    }
+    
+    if (formData.service_fsas.includes(fsa)) {
+      setFsaError('FSA already added');
+      return;
+    }
+    
+    setFormData({
+      ...formData,
+      service_fsas: [...formData.service_fsas, fsa]
+    });
+    setNewFsaInput('');
+    setFsaError('');
+  };
+
+  // Remove FSA from the list
+  const handleRemoveFsa = (fsaToRemove) => {
+    setFormData({
+      ...formData,
+      service_fsas: formData.service_fsas.filter(fsa => fsa !== fsaToRemove)
+    });
+  };
 
   useEffect(() => {
     if (isEditMode) {
