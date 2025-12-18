@@ -38,7 +38,7 @@ const WorkplaceForm = () => {
     // Work Mode Configuration
     work_mode: 'on_site', // 'on_site' | 'field_service'
     schedule_pattern: 'standard', // 'standard' | 'continental' | 'flexible'
-    service_area_name: '', // For field_service mode
+    service_radius_km: 20, // For field_service mode - radius from base address
     operating_hours: {
       monday: { open: '09:00', close: '17:00', is_open: true },
       tuesday: { open: '09:00', close: '17:00', is_open: true },
