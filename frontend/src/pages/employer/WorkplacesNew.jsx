@@ -220,11 +220,18 @@ const WorkplacesNew = () => {
                           </div>
                           <p className="text-gray-600 text-sm flex items-center gap-2">
                             <FiMapPin size={16} />
-                            {isFieldService && workplace.service_area_name 
-                              ? workplace.service_area_name 
-                              : `${workplace.address}, ${workplace.city}, ${workplace.province} ${workplace.postal_code}`
-                            }
+                            {`${workplace.address}, ${workplace.city}, ${workplace.province} ${workplace.postal_code}`}
                           </p>
+                          {isFieldService && workplace.postal_code && (
+                            <div className="flex items-center gap-2 mt-1 text-xs">
+                              <span className="px-2 py-0.5 bg-blue-50 text-blue-700 font-mono rounded">
+                                FSA: {workplace.postal_code.substring(0, 3).toUpperCase()}
+                              </span>
+                              <span className="text-gray-500">
+                                • {workplace.service_radius_km || 20}km radius
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <span 
                           className={`px-3 py-1 rounded-full text-sm font-medium ${
