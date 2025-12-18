@@ -62,8 +62,12 @@ class Workplace(BaseModel):
     # flexible: No fixed pattern
     schedule_pattern: str = 'standard'  # 'standard' | 'continental' | 'flexible'
     
-    # Service radius in km (for field_service mode) - tasks within this radius from base address
-    service_radius_km: int = 20  # Default 20km radius for field service
+    # Service FSAs (for field_service mode) - list of Forward Sortation Areas this workplace serves
+    # e.g., ["N9A", "N9B", "N9C"] - used for routing jobs to correct franchisee
+    service_fsas: List[str] = Field(default_factory=list)
+    
+    # Service radius in km (informational/visual reference for approximate coverage)
+    service_radius_km: int = 20
     
     attendance_geofence_radius_m: int = 100  # Fixed 100m for attendance (on_site mode)
     job_matching_radius_km: int = 20  # 5-50km for job discovery
