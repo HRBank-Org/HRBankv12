@@ -1119,16 +1119,44 @@ async def get_employer_workers(
     db = Depends(get_db)
 ):
     """
-    Get all workers employed by this employer.
+    Get all workers for this employer.
     Used for task assignment in field service mode.
+    Pulls from: employment_relationships, shift assignments, and active workforce profiles.
     """
-    # Get active employment relationships
+    worker_ids = set()
+    
+    # Method 1: Get from employment relationships
     relationships = await db.employment_relationships.find({
         "employer_id": current_user["user_id"],
         "status": "active"
     }, {"_id": 0, "workforce_id": 1}).to_list(500)
     
-    worker_ids = [r["workforce_id"] for r in relationships]
+    for r in relationships:
+        if r.get("workforce_id"):
+            worker_ids.add(r["workforce_id"])
+    
+    # Method 2: Get from shift assignments (workers who have been assigned to employer's shifts)
+    shift_query = {"employer_id": current_user["user_id"], "assigned_workers": {"$exists": True, "$ne": []}}
+    if workplace_id:
+        shift_query["workplace_id"] = workplace_id
+    
+    shifts = await db.shifts.find(shift_query, {"_id": 0, "assigned_workers": 1}).to_list(500)
+    
+    for shift in shifts:
+        for worker in shift.get("assigned_workers", []):
+            wid = worker.get("workforce_id") or worker.get("user_id")
+            if wid:
+                worker_ids.add(wid)
+    
+    # Method 3: Get all active workforce profiles (fallback for field service)
+    profiles = await db.workforce_profiles.find(
+        {"profile_status": "active"},
+        {"_id": 0, "user_id": 1}
+    ).to_list(100)
+    
+    for p in profiles:
+        if p.get("user_id"):
+            worker_ids.add(p["user_id"])
     
     if not worker_ids:
         return {
@@ -1138,7 +1166,7 @@ async def get_employer_workers(
     
     # Get worker details
     workers = await db.users.find(
-        {"user_id": {"$in": worker_ids}},
+        {"user_id": {"$in": list(worker_ids)}, "user_type": "workforce"},
         {"_id": 0, "user_id": 1, "email": 1, "first_name": 1, "last_name": 1, "phone": 1}
     ).to_list(500)
     
