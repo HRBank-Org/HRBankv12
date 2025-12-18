@@ -541,7 +541,7 @@ const UnifiedSchedule = () => {
                 <FiCalendar className="text-gray-400" size={32} />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No work scheduled</h3>
-              <p className="text-gray-500">You don't have any shifts or tasks for this date.</p>
+              <p className="text-gray-500">You don&apos;t have any shifts or tasks for this date.</p>
             </div>
           ) : (
             /* Work Items Grouped by Employer */
