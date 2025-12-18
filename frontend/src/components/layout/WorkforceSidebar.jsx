@@ -165,7 +165,7 @@ const WorkforceSidebar = () => {
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 overflow-y-auto py-6 px-3">
+        <nav className={`flex-1 overflow-y-auto py-6 ${showExpanded ? 'px-3' : 'px-2'}`}>
           <div className="space-y-1">
             {menuItems.map((item, index) => {
               if (item.type === 'category') {
