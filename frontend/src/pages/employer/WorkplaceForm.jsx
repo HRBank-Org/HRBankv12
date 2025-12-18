@@ -29,6 +29,8 @@ const WorkplaceForm = () => {
     city: '',
     province: 'ON',
     postal_code: '',
+    latitude: null,
+    longitude: null,
     phone: '',
     email: '',
     job_matching_radius_km: 20,
@@ -43,6 +45,7 @@ const WorkplaceForm = () => {
       sunday: { open: '10:00', close: '16:00', is_open: false }
     }
   });
+  const [addressValid, setAddressValid] = useState(false);
 
   useEffect(() => {
     if (isEditMode) {
