@@ -595,3 +595,163 @@ async def cancel_task(
         "success": True,
         "message": "Task cancelled"
     }
+
+
+# ==================== Task Reporting Routes ====================
+
+@router.post("/{task_id}/photos", response_model=Dict)
+async def add_task_photo(
+    task_id: str,
+    photo_data: Dict,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """
+    Add a photo to a task (worker only).
+    Photo should be base64 encoded in photo_data.image field.
+    photo_data.type can be 'before' or 'after'.
+    """
+    task = await db.service_tasks.find_one(
+        {"task_id": task_id, "worker_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or not assigned to you")
+    
+    if task.get("status") not in [TaskStatus.ASSIGNED.value, TaskStatus.IN_PROGRESS.value]:
+        raise HTTPException(status_code=400, detail="Can only add photos to assigned or in-progress tasks")
+    
+    # Get existing photos
+    photos = task.get("photos", [])
+    
+    # Create photo entry with metadata
+    photo_entry = {
+        "id": f"photo_{len(photos) + 1}",
+        "image": photo_data.get("image"),  # base64 string
+        "type": photo_data.get("type", "during"),  # before, during, after
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "caption": photo_data.get("caption", "")
+    }
+    
+    photos.append(photo_entry)
+    
+    await db.service_tasks.update_one(
+        {"task_id": task_id},
+        {"$set": {
+            "photos": photos,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "data": {"photo_id": photo_entry["id"], "total_photos": len(photos)},
+        "message": "Photo added successfully"
+    }
+
+
+@router.delete("/{task_id}/photos/{photo_id}", response_model=Dict)
+async def remove_task_photo(
+    task_id: str,
+    photo_id: str,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """Remove a photo from a task"""
+    task = await db.service_tasks.find_one(
+        {"task_id": task_id, "worker_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or not assigned to you")
+    
+    photos = task.get("photos", [])
+    photos = [p for p in photos if p.get("id") != photo_id]
+    
+    await db.service_tasks.update_one(
+        {"task_id": task_id},
+        {"$set": {
+            "photos": photos,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Photo removed"
+    }
+
+
+@router.patch("/{task_id}/notes", response_model=Dict)
+async def update_task_notes(
+    task_id: str,
+    notes_data: Dict,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """Update notes for a task (worker only)"""
+    task = await db.service_tasks.find_one(
+        {"task_id": task_id, "worker_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or not assigned to you")
+    
+    await db.service_tasks.update_one(
+        {"task_id": task_id},
+        {"$set": {
+            "notes": notes_data.get("notes", ""),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Notes updated"
+    }
+
+
+@router.post("/{task_id}/signature", response_model=Dict)
+async def add_client_signature(
+    task_id: str,
+    signature_data: Dict,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """
+    Add client signature to a task (typically at check-out).
+    signature_data.signature should be base64 encoded image.
+    signature_data.client_name is optional for verification.
+    """
+    task = await db.service_tasks.find_one(
+        {"task_id": task_id, "worker_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or not assigned to you")
+    
+    if task.get("status") != TaskStatus.IN_PROGRESS.value:
+        raise HTTPException(status_code=400, detail="Can only add signature to in-progress tasks")
+    
+    signature_entry = {
+        "image": signature_data.get("signature"),  # base64 string
+        "client_name": signature_data.get("client_name", ""),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.service_tasks.update_one(
+        {"task_id": task_id},
+        {"$set": {
+            "client_signature": signature_entry,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Client signature captured"
+    }
