@@ -60,6 +60,27 @@ class NeatifyProperty(BaseModel):
     notes: Optional[str] = None
 
 
+class NeatifyTask(BaseModel):
+    """Individual task/checklist item from Neatify"""
+    id: Optional[str] = Field(None, alias="_id")
+    taskType: str = "room"          # room, addon, appliance
+    name: str                        # "Living Room", "Fridge Interior"
+    description: Optional[str] = None
+    isCompleted: bool = False
+
+
+class NeatifyResidentialDetails(BaseModel):
+    """Residential property breakdown for checklist generation"""
+    bedrooms: Optional[int] = 0
+    bathrooms: Optional[int] = 0
+    kitchen: Optional[bool] = False
+    living_rooms: Optional[int] = 0
+    dining_rooms: Optional[int] = 0
+    stairs: Optional[bool] = False
+    hallways: Optional[bool] = False
+    laundry_room: Optional[bool] = False
+
+
 class NeatifyBooking(BaseModel):
     """
     Neatify Work Order / Booking structure
@@ -98,6 +119,15 @@ class NeatifyBooking(BaseModel):
     
     # Property details (optional, for access notes)
     property: Optional[NeatifyProperty] = None
+    
+    # Task/checklist items from Neatify
+    tasks: Optional[List[NeatifyTask]] = None
+    
+    # Residential breakdown (for auto-generating checklist)
+    residential: Optional[NeatifyResidentialDetails] = None
+    
+    # Add-ons selected
+    addOns: Optional[List[str]] = None  # ["fridge_interior", "oven_interior"]
     
     createdAt: Optional[str] = None
 
