@@ -501,91 +501,56 @@ const WorkplaceForm = () => {
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Address <span className="text-red-500">*</span>
-                    </label>
-                    {mode === 'edit' ? (
-                      <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        placeholder="123 Main Street"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                        required
+                  {/* Address Section */}
+                  {mode === 'edit' ? (
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <FiMapPin size={16} />
+                        Location Address
+                      </h3>
+                      <AddressAutocomplete
+                        value={{
+                          street_address: formData.address,
+                          city: formData.city,
+                          province: formData.province,
+                          postal_code: formData.postal_code,
+                          latitude: formData.latitude,
+                          longitude: formData.longitude
+                        }}
+                        onChange={handleAddressChange}
+                        onValidationChange={setAddressValid}
+                        required={true}
+                        disabled={false}
                       />
-                    ) : (
-                      <p className="text-gray-900">{formData.address}</p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        City <span className="text-red-500">*</span>
-                      </label>
-                      {mode === 'edit' ? (
-                        <input
-                          type="text"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                          placeholder="Toronto"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                          required
-                        />
-                      ) : (
-                        <p className="text-gray-900">{formData.city}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                        <p className="text-gray-900">{formData.address}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                          <p className="text-gray-900">{formData.city}</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Province</label>
+                          <p className="text-gray-900">{formData.province}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                        <p className="text-gray-900">{formData.postal_code}</p>
+                      </div>
+                      {formData.latitude && formData.longitude && (
+                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                          <FiMapPin size={12} />
+                          Coordinates: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+                        </p>
                       )}
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Province <span className="text-red-500">*</span>
-                      </label>
-                      {mode === 'edit' ? (
-                        <select
-                          name="province"
-                          value={formData.province}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                          required
-                        >
-                          <option value="ON">Ontario</option>
-                          <option value="QC">Quebec</option>
-                          <option value="BC">British Columbia</option>
-                          <option value="AB">Alberta</option>
-                          <option value="MB">Manitoba</option>
-                          <option value="SK">Saskatchewan</option>
-                          <option value="NS">Nova Scotia</option>
-                          <option value="NB">New Brunswick</option>
-                          <option value="NL">Newfoundland and Labrador</option>
-                          <option value="PE">Prince Edward Island</option>
-                        </select>
-                      ) : (
-                        <p className="text-gray-900">{formData.province}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Postal Code <span className="text-red-500">*</span>
-                    </label>
-                    {mode === 'edit' ? (
-                      <input
-                        type="text"
-                        name="postal_code"
-                        value={formData.postal_code}
-                        onChange={handleInputChange}
-                        placeholder="A1A 1A1"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:outline-none"
-                        required
-                      />
-                    ) : (
-                      <p className="text-gray-900">{formData.postal_code}</p>
-                    )}
-                  </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
