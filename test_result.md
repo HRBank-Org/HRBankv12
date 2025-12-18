@@ -954,3 +954,28 @@ The Work Mode Configuration (Phase 1) is fully functional with all backend APIs 
 5. Test "Validate Address" button for manual entries
 6. Save workplace with verified address
 
+---
+
+## Current Test Focus: Task Assignment & Worker Billing Privacy (2025-12-18)
+
+### Features Implemented:
+1. **Worker Billing Privacy**: API excludes `billing_amount`, `billable`, `billing_rate_type` from worker responses
+2. **Employer Workers Endpoint**: `/api/employer/workers` returns available workers for task assignment
+3. **Task Assignment API**: `/api/service-tasks/{task_id}/assign?worker_id={worker_id}`
+
+### Test Accounts:
+- **Employer**: employer@hrbank.ca / Test123!
+- **Worker**: worker@hrbank.ca / Test123!
+
+### API Endpoints to Test:
+1. `GET /api/employer/workers` - Get workers for assignment (employer only)
+2. `GET /api/service-tasks` as worker - Verify NO billing fields returned
+3. `GET /api/service-tasks/{task_id}` as worker - Verify NO billing fields returned
+4. `GET /api/service-tasks/route/{date}` as worker - Verify NO billing fields returned
+5. `POST /api/service-tasks/{task_id}/assign` - Assign worker to task (employer only)
+
+### Key Validations:
+- Worker API responses must NOT contain: billing_amount, billable, billing_rate_type
+- Employer API responses MUST contain: billing_amount, billable, billing_rate_type
+- Task assignment should update task status to "assigned"
+
