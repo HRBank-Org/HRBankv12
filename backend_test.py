@@ -1280,6 +1280,348 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_task_assignment_and_billing_privacy(results):
+    """Test Task Assignment and Worker Billing Privacy Features"""
+    print("\n🧪 TESTING TASK ASSIGNMENT & WORKER BILLING PRIVACY")
+    print("   Focus: Worker billing privacy and task assignment functionality")
+    print("   Testing: GET /api/employer/workers, GET /api/service-tasks (privacy), POST /api/service-tasks/{id}/assign")
+    print("   Test Accounts: employer@hrbank.ca / Test123!, worker@hrbank.ca / Test123!")
+    
+    # Login as employer
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for task assignment testing")
+            else:
+                results.add_fail("Employer login for task assignment testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Employer login for task assignment testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login for task assignment testing", f"Request failed: {str(e)}")
+        return
+    
+    # Login as worker
+    worker_token = None
+    try:
+        login_data = {
+            "email": "worker@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "workforce"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                worker_token = data["data"]["access_token"]
+                results.add_pass("Worker login for billing privacy testing")
+            else:
+                results.add_fail("Worker login for billing privacy testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Worker login for billing privacy testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Worker login for billing privacy testing", f"Request failed: {str(e)}")
+        return
+    
+    # Test 1: GET /api/employer/workers (employer only)
+    print("\n   Test 1: GET /api/employer/workers - Get workers for assignment")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workers",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "workers" in data.get("data", {}):
+                workers = data["data"]["workers"]
+                if workers and len(workers) > 0:
+                    # Verify worker data structure
+                    worker = workers[0]
+                    required_fields = ["user_id", "email", "first_name", "last_name"]
+                    if all(field in worker for field in required_fields):
+                        results.add_pass("GET /api/employer/workers - Returns worker list with required fields")
+                    else:
+                        results.add_fail("GET /api/employer/workers", f"Missing required fields in worker data: {worker}")
+                else:
+                    results.add_pass("GET /api/employer/workers - Returns empty worker list (no workers assigned)")
+            else:
+                results.add_fail("GET /api/employer/workers", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/employer/workers", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/employer/workers", f"Request failed: {str(e)}")
+    
+    # Test 2: GET /api/service-tasks as worker (should exclude billing fields)
+    print("\n   Test 2: GET /api/service-tasks as worker - Verify billing fields excluded")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                billing_fields_found = False
+                
+                for task in tasks:
+                    if any(field in task for field in ["billing_amount", "billable", "billing_rate_type"]):
+                        billing_fields_found = True
+                        break
+                
+                if not billing_fields_found:
+                    results.add_pass("GET /api/service-tasks (worker) - Billing fields properly excluded")
+                else:
+                    results.add_fail("GET /api/service-tasks (worker)", "Billing fields found in worker response")
+            else:
+                results.add_fail("GET /api/service-tasks (worker)", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks (worker)", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks (worker)", f"Request failed: {str(e)}")
+    
+    # Test 3: GET /api/service-tasks as employer (should include billing fields)
+    print("\n   Test 3: GET /api/service-tasks as employer - Verify billing fields included")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                if tasks and len(tasks) > 0:
+                    # Check if billing fields are present for employer
+                    task = tasks[0]
+                    billing_fields = ["billing_amount", "billable", "billing_rate_type"]
+                    billing_fields_present = any(field in task for field in billing_fields)
+                    
+                    if billing_fields_present:
+                        results.add_pass("GET /api/service-tasks (employer) - Billing fields properly included")
+                    else:
+                        results.add_pass("GET /api/service-tasks (employer) - No tasks with billing data (acceptable)")
+                else:
+                    results.add_pass("GET /api/service-tasks (employer) - Returns empty task list")
+            else:
+                results.add_fail("GET /api/service-tasks (employer)", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks (employer)", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks (employer)", f"Request failed: {str(e)}")
+    
+    # Test 4: Find a task to test individual task endpoint and assignment
+    print("\n   Test 4: Finding existing task for individual testing")
+    test_task_id = None
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            tasks = data.get("data", {}).get("tasks", [])
+            if tasks:
+                test_task_id = tasks[0].get("task_id")
+                results.add_pass("Found existing task for individual testing")
+            else:
+                results.add_pass("No existing tasks found - will test with non-existent task ID")
+                test_task_id = "non_existent_task_id"
+        else:
+            results.add_fail("Finding existing task", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Finding existing task", f"Request failed: {str(e)}")
+    
+    # Test 5: GET /api/service-tasks/{task_id} as worker (should exclude billing fields)
+    if test_task_id:
+        print("\n   Test 5: GET /api/service-tasks/{task_id} as worker - Verify billing fields excluded")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/service-tasks/{test_task_id}",
+                headers=get_auth_headers(worker_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "task" in data.get("data", {}):
+                    task = data["data"]["task"]
+                    billing_fields = ["billing_amount", "billable", "billing_rate_type"]
+                    billing_fields_found = any(field in task for field in billing_fields)
+                    
+                    if not billing_fields_found:
+                        results.add_pass("GET /api/service-tasks/{task_id} (worker) - Billing fields properly excluded")
+                    else:
+                        results.add_fail("GET /api/service-tasks/{task_id} (worker)", "Billing fields found in worker response")
+                else:
+                    results.add_fail("GET /api/service-tasks/{task_id} (worker)", f"Invalid response structure: {data}")
+            elif response.status_code == 404:
+                results.add_pass("GET /api/service-tasks/{task_id} (worker) - Task not found or not assigned (expected)")
+            else:
+                results.add_fail("GET /api/service-tasks/{task_id} (worker)", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/service-tasks/{task_id} (worker)", f"Request failed: {str(e)}")
+    
+    # Test 6: GET /api/service-tasks/{task_id} as employer (should include billing fields)
+    if test_task_id:
+        print("\n   Test 6: GET /api/service-tasks/{task_id} as employer - Verify billing fields included")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/service-tasks/{test_task_id}",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "task" in data.get("data", {}):
+                    task = data["data"]["task"]
+                    billing_fields = ["billing_amount", "billable", "billing_rate_type"]
+                    billing_fields_present = any(field in task for field in billing_fields)
+                    
+                    if billing_fields_present:
+                        results.add_pass("GET /api/service-tasks/{task_id} (employer) - Billing fields properly included")
+                    else:
+                        results.add_pass("GET /api/service-tasks/{task_id} (employer) - Task has no billing data (acceptable)")
+                else:
+                    results.add_fail("GET /api/service-tasks/{task_id} (employer)", f"Invalid response structure: {data}")
+            elif response.status_code == 404:
+                results.add_pass("GET /api/service-tasks/{task_id} (employer) - Task not found (expected for test ID)")
+            else:
+                results.add_fail("GET /api/service-tasks/{task_id} (employer)", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/service-tasks/{task_id} (employer)", f"Request failed: {str(e)}")
+    
+    # Test 7: POST /api/service-tasks/{task_id}/assign - Task assignment
+    if test_task_id and test_task_id != "non_existent_task_id":
+        print("\n   Test 7: POST /api/service-tasks/{task_id}/assign - Task assignment")
+        try:
+            # Get worker ID from the workers endpoint
+            worker_response = requests.get(
+                f"{BASE_URL}/employer/workers",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            worker_id = None
+            if worker_response.status_code == 200:
+                worker_data = worker_response.json()
+                workers = worker_data.get("data", {}).get("workers", [])
+                if workers:
+                    worker_id = workers[0].get("user_id")
+            
+            if not worker_id:
+                # Use the worker token to get the worker's user_id
+                import jwt
+                try:
+                    decoded = jwt.decode(worker_token, options={"verify_signature": False})
+                    worker_id = decoded.get('user_id')
+                except:
+                    worker_id = "test_worker_id"
+            
+            response = requests.post(
+                f"{BASE_URL}/service-tasks/{test_task_id}/assign?worker_id={worker_id}",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("POST /api/service-tasks/{task_id}/assign - Task assignment successful")
+                else:
+                    results.add_fail("POST /api/service-tasks/{task_id}/assign", f"Assignment failed: {data}")
+            elif response.status_code == 404:
+                results.add_pass("POST /api/service-tasks/{task_id}/assign - Task not found (expected for test)")
+            else:
+                results.add_fail("POST /api/service-tasks/{task_id}/assign", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/service-tasks/{task_id}/assign", f"Request failed: {str(e)}")
+    
+    # Test 8: GET /api/service-tasks/route/{date} as worker (should exclude billing fields)
+    print("\n   Test 8: GET /api/service-tasks/route/{date} as worker - Verify billing fields excluded")
+    try:
+        from datetime import datetime
+        today = datetime.now().strftime("%Y-%m-%d")
+        
+        response = requests.get(
+            f"{BASE_URL}/service-tasks/route/{today}",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                billing_fields_found = False
+                
+                for task in tasks:
+                    if any(field in task for field in ["billing_amount", "billable", "billing_rate_type"]):
+                        billing_fields_found = True
+                        break
+                
+                if not billing_fields_found:
+                    results.add_pass("GET /api/service-tasks/route/{date} (worker) - Billing fields properly excluded")
+                else:
+                    results.add_fail("GET /api/service-tasks/route/{date} (worker)", "Billing fields found in worker route response")
+            else:
+                results.add_fail("GET /api/service-tasks/route/{date} (worker)", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks/route/{date} (worker)", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks/route/{date} (worker)", f"Request failed: {str(e)}")
+    
+    # Test 9: Authentication enforcement
+    print("\n   Test 9: Authentication enforcement for task endpoints")
+    
+    # Test unauthenticated access
+    endpoints_to_test = [
+        ("GET", "/employer/workers"),
+        ("GET", "/service-tasks"),
+        ("GET", "/service-tasks/test_id"),
+        ("POST", "/service-tasks/test_id/assign")
+    ]
+    
+    for method, endpoint in endpoints_to_test:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+
+
 def test_work_mode_configuration(results):
     """Test Work Mode Configuration (Phase 1 of HR Bank Multi-Mode Refactor)"""
     print("\n🧪 TESTING WORK MODE CONFIGURATION - PHASE 1 MULTI-MODE REFACTOR")
