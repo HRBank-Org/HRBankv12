@@ -78,6 +78,10 @@ const WorkplaceForm = () => {
           email: wp.email || '',
           job_matching_radius_km: wp.job_matching_radius_km || wp.geofence_radius || 20,
           timezone: wp.timezone || 'America/Toronto',
+          // Work Mode Configuration
+          work_mode: wp.work_mode || 'on_site',
+          schedule_pattern: wp.schedule_pattern || 'standard',
+          service_area_name: wp.service_area_name || '',
           operating_hours: wp.operating_hours || formData.operating_hours
         });
         setWorkplaceStatus(wp.status || 'active');
