@@ -50,7 +50,22 @@ class Workplace(BaseModel):
     postal_code: str
     lat: Optional[float] = None
     long: Optional[float] = None
-    attendance_geofence_radius_m: int = 100  # Fixed 100m for attendance
+    
+    # Work Mode Configuration
+    # on_site: Traditional single-location shifts with GPS attendance
+    # field_service: Multi-location task-based work within a work block
+    work_mode: str = 'on_site'  # 'on_site' | 'field_service'
+    
+    # Schedule Pattern
+    # standard: Regular shifts (4-8 hours)
+    # continental: 12-hour rotating schedules (day/night rotation)
+    # flexible: No fixed pattern
+    schedule_pattern: str = 'standard'  # 'standard' | 'continental' | 'flexible'
+    
+    # Service area name (for field_service mode) - e.g., "Downtown Windsor", "Essex County"
+    service_area_name: Optional[str] = None
+    
+    attendance_geofence_radius_m: int = 100  # Fixed 100m for attendance (on_site mode)
     job_matching_radius_km: int = 20  # 5-50km for job discovery
     timezone: str = 'America/Toronto'
     break_rules: Dict = Field(
@@ -63,6 +78,7 @@ class Workplace(BaseModel):
     max_hours_per_day: int = 8
     auto_scheduling_enabled: bool = False
     notification_preferences: Dict = Field(default_factory=dict)
+    status: str = 'active'  # 'active' | 'inactive'
     created_date: datetime = Field(default_factory=datetime.utcnow)
     updated_date: datetime = Field(default_factory=datetime.utcnow)
 
