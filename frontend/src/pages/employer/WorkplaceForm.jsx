@@ -772,10 +772,21 @@ const WorkplaceForm = () => {
                         </p>
                       </div>
                     </div>
-                    {formData.service_area_name && formData.work_mode === 'field_service' && (
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Service Area:</span> {formData.service_area_name}
-                      </p>
+                    {formData.work_mode === 'field_service' && (
+                      <div className="flex flex-wrap items-center gap-3 text-sm">
+                        {formData.postal_code && (
+                          <span className="inline-flex items-center gap-1">
+                            <span className="text-gray-500">FSA:</span>
+                            <span className="px-2 py-0.5 bg-blue-100 text-blue-800 font-mono font-semibold rounded">
+                              {formData.postal_code.substring(0, 3).toUpperCase()}
+                            </span>
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1">
+                          <span className="text-gray-500">Radius:</span>
+                          <span className="font-semibold text-gray-700">{formData.service_radius_km || 20} km</span>
+                        </span>
+                      </div>
                     )}
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-sm text-gray-500">Schedule:</span>
