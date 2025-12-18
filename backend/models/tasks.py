@@ -61,6 +61,30 @@ class TaskCheckIn(BaseModel):
     verification_method: str = "gps"  # gps, manual, qr_code
 
 
+class ChecklistItem(BaseModel):
+    """
+    Individual checklist item for task completion tracking.
+    Used for rooms, add-ons, care tasks, patrol points, etc.
+    """
+    id: str = Field(default_factory=lambda: f"item_{uuid.uuid4().hex[:8]}")
+    name: str                               # "Living Room", "Fridge Interior", "Medication Check"
+    item_type: str = "task"                 # room, addon, appliance, care_task, patrol_point
+    description: Optional[str] = None       # Additional details
+    required: bool = True                   # Must complete to finish task
+    
+    # Completion tracking
+    completed: bool = False
+    completed_by: Optional[str] = None      # Worker user_id
+    completed_at: Optional[datetime] = None
+    
+    # Proof of work
+    photo_url: Optional[str] = None         # Base64 or URL to photo
+    notes: Optional[str] = None             # Worker notes for this item
+    
+    # External reference (from Neatify/CleanGrid)
+    external_id: Optional[str] = None       # Original task ID from source system
+
+
 class Task(BaseModel):
     """
     Service Task / Visit
