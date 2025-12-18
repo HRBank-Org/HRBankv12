@@ -157,7 +157,7 @@ async def receive_neatify_booking(
     if not workplace:
         return NeatifyBookingResponse(
             success=False,
-            neatify_booking_id=booking._id,
+            neatify_booking_id=booking.id,
             fsa=fsa,
             message=f"No HR Bank franchisee serves FSA {fsa}. Area not covered."
         )
@@ -188,7 +188,7 @@ async def receive_neatify_booking(
     except Exception as e:
         return NeatifyBookingResponse(
             success=False,
-            neatify_booking_id=booking._id,
+            neatify_booking_id=booking.id,
             fsa=fsa,
             message=f"Invalid date format: {booking.scheduledDate}. Error: {str(e)}"
         )
@@ -235,7 +235,7 @@ async def receive_neatify_booking(
     
     # Check if this booking already exists (update vs create)
     existing_task = await db.service_tasks.find_one(
-        {"external_ref": booking._id},
+        {"external_ref": booking.id},
         {"_id": 0}
     )
     
@@ -263,13 +263,13 @@ async def receive_neatify_booking(
             update_data["status"] = status_map[booking.status]
         
         await db.service_tasks.update_one(
-            {"external_ref": booking._id},
+            {"external_ref": booking.id},
             {"$set": update_data}
         )
         
         return NeatifyBookingResponse(
             success=True,
-            neatify_booking_id=booking._id,
+            neatify_booking_id=booking.id,
             hrbank_task_id=existing_task.get("task_id"),
             routed_to_workplace=workplace.get("workplace_name"),
             routed_to_franchisee_id=workplace.get("employer_id"),
@@ -281,7 +281,7 @@ async def receive_neatify_booking(
     task = Task(
         employer_id=workplace["employer_id"],
         workplace_id=workplace["workplace_id"],
-        external_ref=booking._id,
+        external_ref=booking.id,
         external_source="neatify",
         task_type=task_type,
         title=title,
@@ -300,7 +300,7 @@ async def receive_neatify_booking(
     
     return NeatifyBookingResponse(
         success=True,
-        neatify_booking_id=booking._id,
+        neatify_booking_id=booking.id,
         hrbank_task_id=task.task_id,
         routed_to_workplace=workplace.get("workplace_name"),
         routed_to_franchisee_id=workplace.get("employer_id"),
