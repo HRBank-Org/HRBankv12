@@ -1034,6 +1034,35 @@ The Work Mode Configuration (Phase 1) is fully functional with all backend APIs 
 
 ---
 
+## Checklist Feature (2025-12-18)
+
+### Backend API Endpoints:
+1. `GET /api/service-tasks/{task_id}/checklist` - Get checklist items with progress
+2. `PATCH /api/service-tasks/{task_id}/checklist/{item_id}` - Update item (completed, photo_url, notes)
+3. `POST /api/service-tasks/{task_id}/checklist` - Add new checklist item
+4. `DELETE /api/service-tasks/{task_id}/checklist/{item_id}` - Remove checklist item
+
+### Data Model (ChecklistItem):
+- id, name, item_type (room/addon/appliance/care_task/patrol_point)
+- completed, completed_by, completed_at
+- photo_url, notes
+- external_id (for Neatify integration)
+
+### Integration with Neatify/CleanGrid:
+- Accepts `tasks` array from booking webhook
+- Auto-generates checklist from `residential` breakdown
+- Supports `addOns` array (fridge_interior, oven_interior, etc.)
+
+### Test Checklist Items (on task_739225a3419c):
+- Living Room (room) ✓ completed
+- Kitchen (room)
+- Bathroom 1 (room)
+- Bedroom (room)
+- Fridge Interior (addon)
+- Oven Interior (addon)
+
+---
+
 ## BACKEND TEST RESULTS - TASK ASSIGNMENT & WORKER BILLING PRIVACY
 
 ### Test Execution Date: 2025-12-18 14:23:51
