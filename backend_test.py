@@ -8511,6 +8511,9 @@ def main():
         test_job_matching_system(results, admin_token)
         test_occupation_certification_linking_endpoint(results, admin_token)
     
+    # NEW: Test Address Autocomplete Integration (from review request)
+    test_address_autocomplete_integration(results)
+    
     # Print final results
     success = results.summary()
     
