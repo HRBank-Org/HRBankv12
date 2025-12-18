@@ -139,7 +139,7 @@ async def receive_neatify_booking(
     if not fsa or len(fsa) != 3:
         return NeatifyBookingResponse(
             success=False,
-            neatify_booking_id=booking._id,
+            neatify_booking_id=booking.id,
             fsa=fsa or "UNKNOWN",
             message=f"Invalid postal code format: {booking.postalCode}"
         )
