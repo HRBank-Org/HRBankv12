@@ -81,7 +81,7 @@ const WorkplaceForm = () => {
           // Work Mode Configuration
           work_mode: wp.work_mode || 'on_site',
           schedule_pattern: wp.schedule_pattern || 'standard',
-          service_area_name: wp.service_area_name || '',
+          service_radius_km: wp.service_radius_km || 20,
           operating_hours: wp.operating_hours || formData.operating_hours
         });
         setWorkplaceStatus(wp.status || 'active');
