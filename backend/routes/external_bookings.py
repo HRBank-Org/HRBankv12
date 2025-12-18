@@ -392,6 +392,9 @@ async def receive_neatify_booking(
             message="Booking updated in HR Bank"
         )
     
+    # Generate checklist from booking data
+    checklist_items = generate_checklist_from_booking(booking)
+    
     # Create new task
     task = Task(
         employer_id=workplace["employer_id"],
@@ -408,7 +411,8 @@ async def receive_neatify_booking(
         estimated_duration_minutes=estimated_minutes,
         priority=5,
         billing_amount=booking.totalPrice,
-        status=TaskStatus.PENDING
+        status=TaskStatus.PENDING,
+        checklist=[item.model_dump() for item in checklist_items]
     )
     
     await db.service_tasks.insert_one(task.model_dump())
