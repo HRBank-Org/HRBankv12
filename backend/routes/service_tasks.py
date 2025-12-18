@@ -708,6 +708,224 @@ async def update_task_notes(
         }}
     )
     
+
+
+
+# ==================== Checklist Routes ====================
+
+@router.get("/{task_id}/checklist", response_model=Dict)
+async def get_task_checklist(
+    task_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get checklist items for a task"""
+    query = {"task_id": task_id}
+    
+    if current_user.get("user_type") != "employer":
+        query["worker_id"] = current_user["user_id"]
+    else:
+        query["employer_id"] = current_user["user_id"]
+    
+    task = await db.service_tasks.find_one(query, {"_id": 0, "checklist": 1, "task_id": 1})
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    checklist = task.get("checklist", [])
+    completed_count = sum(1 for item in checklist if item.get("completed"))
+    
+    return {
+        "success": True,
+        "data": {
+            "checklist": checklist,
+            "total_items": len(checklist),
+            "completed_items": completed_count,
+            "progress_percent": round((completed_count / len(checklist) * 100) if checklist else 0, 1)
+        }
+    }
+
+
+@router.patch("/{task_id}/checklist/{item_id}", response_model=Dict)
+async def update_checklist_item(
+    task_id: str,
+    item_id: str,
+    item_data: Dict,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """
+    Update a checklist item (mark complete, add photo, add notes).
+    item_data can contain: completed, photo_url, notes
+    """
+    task = await db.service_tasks.find_one(
+        {"task_id": task_id, "worker_id": current_user["user_id"]},
+        {"_id": 0}
+    )
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or not assigned to you")
+    
+    if task.get("status") not in [TaskStatus.ASSIGNED.value, TaskStatus.IN_PROGRESS.value]:
+        raise HTTPException(status_code=400, detail="Can only update checklist for assigned or in-progress tasks")
+    
+    # Find and update the checklist item
+    checklist = task.get("checklist", [])
+    item_found = False
+    
+    for item in checklist:
+        if item.get("id") == item_id:
+            item_found = True
+            
+            # Update fields
+            if "completed" in item_data:
+                item["completed"] = item_data["completed"]
+                if item_data["completed"]:
+                    item["completed_by"] = current_user["user_id"]
+                    item["completed_at"] = datetime.now(timezone.utc).isoformat()
+                else:
+                    item["completed_by"] = None
+                    item["completed_at"] = None
+            
+            if "photo_url" in item_data:
+                item["photo_url"] = item_data["photo_url"]
+            
+            if "notes" in item_data:
+                item["notes"] = item_data["notes"]
+            
+            break
+    
+    if not item_found:
+        raise HTTPException(status_code=404, detail="Checklist item not found")
+    
+    # Save updated checklist
+    await db.service_tasks.update_one(
+        {"task_id": task_id},
+        {"$set": {
+            "checklist": checklist,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    completed_count = sum(1 for item in checklist if item.get("completed"))
+    
+    return {
+        "success": True,
+        "data": {
+            "item": next((i for i in checklist if i.get("id") == item_id), None),
+            "progress": {
+                "completed": completed_count,
+                "total": len(checklist),
+                "percent": round((completed_count / len(checklist) * 100) if checklist else 0, 1)
+            }
+        },
+        "message": "Checklist item updated"
+    }
+
+
+@router.post("/{task_id}/checklist", response_model=Dict)
+async def add_checklist_item(
+    task_id: str,
+    item_data: Dict,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Add a new checklist item to a task.
+    Employers and workers can add items.
+    item_data should contain: name, item_type (optional), description (optional)
+    """
+    # Determine query based on user type
+    if current_user.get("user_type") == "employer":
+        query = {"task_id": task_id, "employer_id": current_user["user_id"]}
+    else:
+        query = {"task_id": task_id, "worker_id": current_user["user_id"]}
+    
+    task = await db.service_tasks.find_one(query, {"_id": 0})
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    if task.get("status") in [TaskStatus.COMPLETED.value, TaskStatus.CANCELLED.value]:
+        raise HTTPException(status_code=400, detail="Cannot modify completed or cancelled tasks")
+    
+    # Create new checklist item
+    import uuid
+    new_item = {
+        "id": f"item_{uuid.uuid4().hex[:8]}",
+        "name": item_data.get("name"),
+        "item_type": item_data.get("item_type", "task"),
+        "description": item_data.get("description"),
+        "required": item_data.get("required", False),  # Manually added items are optional by default
+        "completed": False,
+        "completed_by": None,
+        "completed_at": None,
+        "photo_url": None,
+        "notes": None,
+        "external_id": None
+    }
+    
+    if not new_item["name"]:
+        raise HTTPException(status_code=400, detail="Item name is required")
+    
+    # Add to checklist
+    await db.service_tasks.update_one(
+        {"task_id": task_id},
+        {
+            "$push": {"checklist": new_item},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    return {
+        "success": True,
+        "data": {"item": new_item},
+        "message": "Checklist item added"
+    }
+
+
+@router.delete("/{task_id}/checklist/{item_id}", response_model=Dict)
+async def remove_checklist_item(
+    task_id: str,
+    item_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Remove a checklist item from a task (employers and workers)"""
+    # Determine query based on user type
+    if current_user.get("user_type") == "employer":
+        query = {"task_id": task_id, "employer_id": current_user["user_id"]}
+    else:
+        query = {"task_id": task_id, "worker_id": current_user["user_id"]}
+    
+    task = await db.service_tasks.find_one(query, {"_id": 0})
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    if task.get("status") in [TaskStatus.COMPLETED.value, TaskStatus.CANCELLED.value]:
+        raise HTTPException(status_code=400, detail="Cannot modify completed or cancelled tasks")
+    
+    # Remove item from checklist
+    checklist = task.get("checklist", [])
+    original_len = len(checklist)
+    checklist = [item for item in checklist if item.get("id") != item_id]
+    
+    if len(checklist) == original_len:
+        raise HTTPException(status_code=404, detail="Checklist item not found")
+    
+    await db.service_tasks.update_one(
+        {"task_id": task_id},
+        {"$set": {
+            "checklist": checklist,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Checklist item removed"
+    }
     return {
         "success": True,
         "message": "Notes updated"
