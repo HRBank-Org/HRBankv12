@@ -299,11 +299,13 @@ const WorkplacesNew = () => {
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-gray-600 text-sm">
-                              {isFieldService && workplace.service_area_name 
-                                ? workplace.service_area_name 
-                                : `${workplace.address}, ${workplace.city}`
-                              }
+                              {`${workplace.address}, ${workplace.city}`}
                             </div>
+                            {isFieldService && workplace.postal_code && (
+                              <div className="text-xs text-blue-600 mt-0.5">
+                                FSA: {workplace.postal_code.substring(0, 3).toUpperCase()} • {workplace.service_radius_km || 20}km
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2 text-gray-600">
