@@ -289,7 +289,7 @@ async def receive_neatify_booking(
             try:
                 est_part = booking.notes.split("Est.")[1].split("h")[0].strip()
                 estimated_hours = float(est_part)
-            except:
+            except (ValueError, IndexError):
                 pass
         
         estimated_minutes = int(estimated_hours * 60)
