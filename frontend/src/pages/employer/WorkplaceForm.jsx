@@ -595,6 +595,167 @@ const WorkplaceForm = () => {
                 </div>
               </div>
 
+              {/* Work Mode Card */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <FiNavigation size={24} />
+                  Work Mode
+                </h2>
+                <p className="text-sm text-gray-500 mb-6">
+                  Choose how workers operate at this location
+                </p>
+                
+                {mode === 'edit' ? (
+                  <div className="space-y-4">
+                    {/* Work Mode Selection */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* On-Site Option */}
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, work_mode: 'on_site' })}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          formData.work_mode === 'on_site'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-lg ${formData.work_mode === 'on_site' ? 'bg-orange-100' : 'bg-gray-100'}`}>
+                            <FiHome size={24} className={formData.work_mode === 'on_site' ? 'text-orange-600' : 'text-gray-500'} />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className={`font-semibold ${formData.work_mode === 'on_site' ? 'text-orange-700' : 'text-gray-900'}`}>
+                              On-Site
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Workers come to this location for their entire shift. GPS validates attendance at one address.
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">Restaurant</span>
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">Office</span>
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">Warehouse</span>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                      
+                      {/* Field Service Option */}
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, work_mode: 'field_service' })}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          formData.work_mode === 'field_service'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-lg ${formData.work_mode === 'field_service' ? 'bg-orange-100' : 'bg-gray-100'}`}>
+                            <FiNavigation size={24} className={formData.work_mode === 'field_service' ? 'text-orange-600' : 'text-gray-500'} />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className={`font-semibold ${formData.work_mode === 'field_service' ? 'text-orange-700' : 'text-gray-900'}`}>
+                              Field Service
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Workers visit multiple client locations during their shift. Check-in at each task address.
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">Cleaning</span>
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">Home Care</span>
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">Field Tech</span>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                    
+                    {/* Service Area Name (for field service) */}
+                    {formData.work_mode === 'field_service' && (
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                        <label className="block text-sm font-medium text-blue-800 mb-2">
+                          Service Area Name
+                        </label>
+                        <input
+                          type="text"
+                          name="service_area_name"
+                          value={formData.service_area_name}
+                          onChange={handleInputChange}
+                          placeholder="e.g., Downtown Windsor, Essex County"
+                          className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+                        />
+                        <p className="text-xs text-blue-600 mt-2">
+                          This helps identify the service territory for task assignments
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Schedule Pattern */}
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                      <label className="block text-sm font-medium text-gray-700 mb-3">Schedule Pattern</label>
+                      <div className="flex flex-wrap gap-3">
+                        {[
+                          { value: 'standard', label: 'Standard', desc: '4-8 hour shifts' },
+                          { value: 'continental', label: 'Continental', desc: '12-hour rotating' },
+                          { value: 'flexible', label: 'Flexible', desc: 'Variable hours' }
+                        ].map(pattern => (
+                          <button
+                            key={pattern.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, schedule_pattern: pattern.value })}
+                            className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                              formData.schedule_pattern === pattern.value
+                                ? 'border-orange-500 bg-orange-50 text-orange-700'
+                                : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                            }`}
+                          >
+                            <span className="font-medium">{pattern.label}</span>
+                            <span className="text-xs text-gray-500 ml-1">({pattern.desc})</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${formData.work_mode === 'field_service' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                        {formData.work_mode === 'field_service' ? (
+                          <FiNavigation size={20} className="text-blue-600" />
+                        ) : (
+                          <FiHome size={20} className="text-green-600" />
+                        )}
+                      </div>
+                      <div>
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                          formData.work_mode === 'field_service'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-green-100 text-green-700'
+                        }`}>
+                          {formData.work_mode === 'field_service' ? '🚗 Field Service' : '📍 On-Site'}
+                        </span>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {formData.work_mode === 'field_service'
+                            ? 'Multi-location task-based work'
+                            : 'Single location shift work'}
+                        </p>
+                      </div>
+                    </div>
+                    {formData.service_area_name && formData.work_mode === 'field_service' && (
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Service Area:</span> {formData.service_area_name}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-sm text-gray-500">Schedule:</span>
+                      <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-sm capitalize">
+                        {formData.schedule_pattern}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Operating Hours Card */}
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
