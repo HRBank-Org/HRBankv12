@@ -765,7 +765,7 @@ const WorkplaceForm = () => {
                 <div className="bg-blue-50 rounded-xl p-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Quick Tip</h3>
                   <p className="text-sm text-gray-600">
-                    Set your operating hours now to help workers know when you're open. You can always edit these later.
+                    Set your operating hours now to help workers know when you&apos;re open. You can always edit these later.
                   </p>
                 </div>
               )}
