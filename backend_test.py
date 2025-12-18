@@ -1280,6 +1280,281 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_work_mode_configuration(results):
+    """Test Work Mode Configuration (Phase 1 of HR Bank Multi-Mode Refactor)"""
+    print("\n🧪 TESTING WORK MODE CONFIGURATION - PHASE 1 MULTI-MODE REFACTOR")
+    print("   Focus: Work Mode selection (On-Site vs Field Service) and Schedule Patterns")
+    print("   Testing: POST/GET/PATCH /api/employer/workplaces with work_mode and schedule_pattern")
+    print("   Test Account: employer@hrbank.ca / Test123!")
+    
+    # First, login as employer to get authentication token
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for work mode testing")
+            else:
+                results.add_fail("Employer login for work mode testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Employer login for work mode testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login for work mode testing", f"Request failed: {str(e)}")
+        return
+    
+    # Test 1: POST /api/employer/workplaces - Create workplace with default work_mode (should be "on_site")
+    print("\n   Test 1: Create workplace with default work_mode (should be 'on_site')")
+    workplace_id_default = None
+    try:
+        workplace_data_default = {
+            "workplace_name": "Test On-Site Location",
+            "address": "123 Main Street, Windsor, ON",
+            "postal_code": "N9A 1A1",
+            # Not specifying work_mode - should default to 'on_site'
+            # Not specifying schedule_pattern - should default to 'standard'
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/workplaces",
+            json=workplace_data_default,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 201:
+            data = response.json()
+            if data.get("success") and "workplace_id" in data.get("data", {}):
+                workplace_id_default = data["data"]["workplace_id"]
+                results.add_pass("POST /api/employer/workplaces - Create workplace with default work_mode")
+            else:
+                results.add_fail("POST /api/employer/workplaces - Create workplace with default work_mode", f"Invalid response: {data}")
+        else:
+            results.add_fail("POST /api/employer/workplaces - Create workplace with default work_mode", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/employer/workplaces - Create workplace with default work_mode", f"Request failed: {str(e)}")
+    
+    # Test 2: POST /api/employer/workplaces - Create workplace with work_mode="field_service" and service_area_name
+    print("\n   Test 2: Create workplace with work_mode='field_service' and service_area_name")
+    workplace_id_field_service = None
+    try:
+        workplace_data_field_service = {
+            "workplace_name": "Test Field Service Location",
+            "address": "456 Service Road, Windsor, ON",
+            "postal_code": "N9B 2B2",
+            "work_mode": "field_service",
+            "service_area_name": "Downtown Windsor",
+            "schedule_pattern": "continental"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/workplaces",
+            json=workplace_data_field_service,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 201:
+            data = response.json()
+            if data.get("success") and "workplace_id" in data.get("data", {}):
+                workplace_id_field_service = data["data"]["workplace_id"]
+                results.add_pass("POST /api/employer/workplaces - Create workplace with field_service mode")
+            else:
+                results.add_fail("POST /api/employer/workplaces - Create workplace with field_service mode", f"Invalid response: {data}")
+        else:
+            results.add_fail("POST /api/employer/workplaces - Create workplace with field_service mode", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/employer/workplaces - Create workplace with field_service mode", f"Request failed: {str(e)}")
+    
+    # Test 3: GET /api/employer/workplaces - Verify work_mode and schedule_pattern fields are returned
+    print("\n   Test 3: GET workplaces - Verify work_mode and schedule_pattern fields")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplaces",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "workplaces" in data.get("data", {}):
+                workplaces = data["data"]["workplaces"]
+                
+                # Find our test workplaces and verify their properties
+                default_workplace = None
+                field_service_workplace = None
+                
+                for wp in workplaces:
+                    if wp.get("workplace_id") == workplace_id_default:
+                        default_workplace = wp
+                    elif wp.get("workplace_id") == workplace_id_field_service:
+                        field_service_workplace = wp
+                
+                # Verify default workplace has correct defaults
+                if default_workplace:
+                    if (default_workplace.get("work_mode") == "on_site" and 
+                        default_workplace.get("schedule_pattern") == "standard"):
+                        results.add_pass("GET /api/employer/workplaces - Default workplace has correct work_mode and schedule_pattern")
+                    else:
+                        results.add_fail("GET /api/employer/workplaces - Default workplace defaults", 
+                                       f"Expected work_mode='on_site', schedule_pattern='standard', got work_mode='{default_workplace.get('work_mode')}', schedule_pattern='{default_workplace.get('schedule_pattern')}'")
+                
+                # Verify field service workplace has correct values
+                if field_service_workplace:
+                    if (field_service_workplace.get("work_mode") == "field_service" and 
+                        field_service_workplace.get("schedule_pattern") == "continental" and
+                        field_service_workplace.get("service_area_name") == "Downtown Windsor"):
+                        results.add_pass("GET /api/employer/workplaces - Field service workplace has correct properties")
+                    else:
+                        results.add_fail("GET /api/employer/workplaces - Field service workplace properties", 
+                                       f"Expected work_mode='field_service', schedule_pattern='continental', service_area_name='Downtown Windsor', got work_mode='{field_service_workplace.get('work_mode')}', schedule_pattern='{field_service_workplace.get('schedule_pattern')}', service_area_name='{field_service_workplace.get('service_area_name')}'")
+                
+                # Verify all workplaces have work_mode and schedule_pattern fields
+                all_have_fields = True
+                for wp in workplaces:
+                    if "work_mode" not in wp or "schedule_pattern" not in wp:
+                        all_have_fields = False
+                        break
+                
+                if all_have_fields:
+                    results.add_pass("GET /api/employer/workplaces - All workplaces have work_mode and schedule_pattern fields")
+                else:
+                    results.add_fail("GET /api/employer/workplaces - Missing fields", "Some workplaces missing work_mode or schedule_pattern fields")
+                    
+            else:
+                results.add_fail("GET /api/employer/workplaces - Response structure", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/employer/workplaces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/employer/workplaces", f"Request failed: {str(e)}")
+    
+    # Test 4: PATCH /api/employer/workplaces/{id} - Update work_mode from on_site to field_service
+    print("\n   Test 4: PATCH workplace - Update work_mode from on_site to field_service")
+    if workplace_id_default:
+        try:
+            update_data = {
+                "work_mode": "field_service",
+                "service_area_name": "Essex County",
+                "schedule_pattern": "flexible"
+            }
+            
+            response = requests.patch(
+                f"{BASE_URL}/employer/workplaces/{workplace_id_default}",
+                json=update_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("PATCH /api/employer/workplaces/{id} - Update work_mode successful")
+                    
+                    # Verify the update by fetching the workplace again
+                    verify_response = requests.get(
+                        f"{BASE_URL}/employer/workplaces",
+                        headers=get_auth_headers(employer_token),
+                        timeout=10
+                    )
+                    
+                    if verify_response.status_code == 200:
+                        verify_data = verify_response.json()
+                        workplaces = verify_data.get("data", {}).get("workplaces", [])
+                        updated_workplace = None
+                        
+                        for wp in workplaces:
+                            if wp.get("workplace_id") == workplace_id_default:
+                                updated_workplace = wp
+                                break
+                        
+                        if updated_workplace:
+                            if (updated_workplace.get("work_mode") == "field_service" and 
+                                updated_workplace.get("service_area_name") == "Essex County" and
+                                updated_workplace.get("schedule_pattern") == "flexible"):
+                                results.add_pass("PATCH /api/employer/workplaces/{id} - Update verified successfully")
+                            else:
+                                results.add_fail("PATCH /api/employer/workplaces/{id} - Update verification", 
+                                               f"Update not reflected correctly: work_mode='{updated_workplace.get('work_mode')}', service_area_name='{updated_workplace.get('service_area_name')}', schedule_pattern='{updated_workplace.get('schedule_pattern')}'")
+                        else:
+                            results.add_fail("PATCH /api/employer/workplaces/{id} - Update verification", "Updated workplace not found")
+                    else:
+                        results.add_fail("PATCH /api/employer/workplaces/{id} - Update verification", f"Verification request failed: {verify_response.status_code}")
+                        
+                else:
+                    results.add_fail("PATCH /api/employer/workplaces/{id} - Update work_mode", f"Invalid response: {data}")
+            else:
+                results.add_fail("PATCH /api/employer/workplaces/{id} - Update work_mode", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("PATCH /api/employer/workplaces/{id} - Update work_mode", f"Request failed: {str(e)}")
+    else:
+        results.add_fail("PATCH /api/employer/workplaces/{id} - Update work_mode", "No workplace_id available for testing")
+    
+    # Test 5: Validate schedule_pattern options
+    print("\n   Test 5: Validate schedule_pattern options (standard, continental, flexible)")
+    try:
+        test_patterns = ["standard", "continental", "flexible"]
+        for pattern in test_patterns:
+            workplace_data = {
+                "workplace_name": f"Test {pattern.title()} Schedule",
+                "address": f"789 {pattern.title()} Ave, Windsor, ON",
+                "postal_code": "N9C 3C3",
+                "work_mode": "on_site",
+                "schedule_pattern": pattern
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/employer/workplaces",
+                json=workplace_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 201:
+                results.add_pass(f"POST /api/employer/workplaces - schedule_pattern '{pattern}' accepted")
+            else:
+                results.add_fail(f"POST /api/employer/workplaces - schedule_pattern '{pattern}'", f"HTTP {response.status_code}: {response.text}")
+                
+    except Exception as e:
+        results.add_fail("Validate schedule_pattern options", f"Request failed: {str(e)}")
+    
+    # Test 6: Test invalid work_mode value
+    print("\n   Test 6: Test invalid work_mode value")
+    try:
+        invalid_workplace_data = {
+            "workplace_name": "Test Invalid Mode",
+            "address": "999 Invalid St, Windsor, ON",
+            "postal_code": "N9D 4D4",
+            "work_mode": "invalid_mode",  # Invalid value
+            "schedule_pattern": "standard"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/employer/workplaces",
+            json=invalid_workplace_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        # The API might accept it and store it, or it might validate it
+        # Either way is acceptable for this test - we're just checking the API doesn't crash
+        if response.status_code in [201, 400, 422]:
+            results.add_pass("POST /api/employer/workplaces - Invalid work_mode handled gracefully")
+        else:
+            results.add_fail("POST /api/employer/workplaces - Invalid work_mode", f"Unexpected response: {response.status_code}")
+            
+    except Exception as e:
+        results.add_fail("POST /api/employer/workplaces - Invalid work_mode", f"Request failed: {str(e)}")
+
 def test_address_autocomplete_integration(results):
     """Test Address Autocomplete Integration - Complete Flow from review request"""
     print("\n🧪 TESTING ADDRESS AUTOCOMPLETE INTEGRATION - COMPLETE FLOW")
