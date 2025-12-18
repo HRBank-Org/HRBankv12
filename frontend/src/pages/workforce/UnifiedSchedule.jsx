@@ -16,12 +16,53 @@ const UnifiedSchedule = () => {
   const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
   const [shifts, setShifts] = useState([]);
   const [serviceTasks, setServiceTasks] = useState([]);
+  const [weekWorkDays, setWeekWorkDays] = useState({}); // Track which days have work
   const [loading, setLoading] = useState(true);
   const [expandedCard, setExpandedCard] = useState(null);
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [completionNotes, setCompletionNotes] = useState('');
+
+  // Get the week dates for the week strip
+  const getWeekDates = useCallback(() => {
+    const startOfWeek = moment(selectedDate).startOf('week');
+    return Array.from({ length: 7 }, (_, i) => 
+      startOfWeek.clone().add(i, 'days').format('YYYY-MM-DD')
+    );
+  }, [selectedDate]);
+
+  // Fetch work indicators for the entire week
+  const fetchWeekIndicators = useCallback(async () => {
+    const weekDates = getWeekDates();
+    const startDate = weekDates[0];
+    const endDate = weekDates[6];
+    
+    try {
+      // Fetch week summary - we'll check each day
+      const workDays = {};
+      
+      // For now, just mark the selected date if it has work
+      // In production, you'd have a batch API endpoint
+      for (const date of weekDates) {
+        const [shiftsRes, tasksRes] = await Promise.all([
+          api.get(`/api/workforce/my-shifts?date=${date}`).catch(() => ({ data: { data: { shifts: [] } } })),
+          api.get(`/api/service-tasks?date=${date}`).catch(() => ({ data: { data: { tasks: [] } } }))
+        ]);
+        
+        const shiftCount = shiftsRes.data.data?.shifts?.length || 0;
+        const taskCount = tasksRes.data.data?.tasks?.length || 0;
+        
+        if (shiftCount > 0 || taskCount > 0) {
+          workDays[date] = { shifts: shiftCount, tasks: taskCount };
+        }
+      }
+      
+      setWeekWorkDays(workDays);
+    } catch (error) {
+      console.error('Error fetching week indicators:', error);
+    }
+  }, [getWeekDates]);
 
   // Fetch all work for selected date
   const fetchSchedule = useCallback(async () => {
@@ -45,6 +86,11 @@ const UnifiedSchedule = () => {
   useEffect(() => {
     fetchSchedule();
   }, [fetchSchedule]);
+
+  // Fetch week indicators when week changes
+  useEffect(() => {
+    fetchWeekIndicators();
+  }, [fetchWeekIndicators]);
 
   // Date navigation
   const goToPrevDay = () => setSelectedDate(moment(selectedDate).subtract(1, 'day').format('YYYY-MM-DD'));
