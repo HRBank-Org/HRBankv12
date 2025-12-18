@@ -143,7 +143,7 @@ app.include_router(workforce_profile_update.router, tags=["workforce_profile_upd
 
 app.include_router(interviews.router, tags=["interviews"])
 app.include_router(address.router, tags=["address"])
-app.include_router(service_tasks.router, tags=["service_tasks"])
+app.include_router(service_tasks.router, prefix="/api", tags=["service_tasks"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
