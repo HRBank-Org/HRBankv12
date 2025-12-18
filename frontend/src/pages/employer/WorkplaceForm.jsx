@@ -38,7 +38,8 @@ const WorkplaceForm = () => {
     // Work Mode Configuration
     work_mode: 'on_site', // 'on_site' | 'field_service'
     schedule_pattern: 'standard', // 'standard' | 'continental' | 'flexible'
-    service_radius_km: 20, // For field_service mode - radius from base address
+    service_fsas: [], // For field_service mode - FSAs this workplace serves
+    service_radius_km: 20, // Informational - approximate coverage radius
     operating_hours: {
       monday: { open: '09:00', close: '17:00', is_open: true },
       tuesday: { open: '09:00', close: '17:00', is_open: true },
