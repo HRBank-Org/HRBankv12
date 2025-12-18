@@ -144,6 +144,65 @@ const UnifiedSchedule = () => {
     }
   };
 
+  // Handle photo upload
+  const handlePhotoUpload = async (taskId, file, type = 'during') => {
+    if (!file) return;
+    
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result;
+      
+      try {
+        await api.post(`/api/service-tasks/${taskId}/photos`, {
+          image: base64,
+          type: type,
+          caption: ''
+        });
+        
+        // Update local state
+        setTaskPhotos(prev => ({
+          ...prev,
+          [taskId]: [...(prev[taskId] || []), { image: base64, type }]
+        }));
+      } catch (error) {
+        console.error('Photo upload failed:', error);
+        setLocationError('Failed to upload photo');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle notes save
+  const handleSaveNotes = async (taskId) => {
+    setSavingNotes(true);
+    try {
+      await api.patch(`/api/service-tasks/${taskId}/notes`, {
+        notes: completionNotes
+      });
+    } catch (error) {
+      console.error('Failed to save notes:', error);
+    } finally {
+      setSavingNotes(false);
+    }
+  };
+
+  // Handle signature save
+  const handleSignatureSave = async (taskId, signatureData, clientName) => {
+    try {
+      await api.post(`/api/service-tasks/${taskId}/signature`, {
+        signature: signatureData,
+        client_name: clientName
+      });
+      setShowSignaturePad(null);
+      // Refresh to show signature captured
+      await fetchSchedule();
+    } catch (error) {
+      console.error('Failed to save signature:', error);
+      setLocationError('Failed to capture signature');
+    }
+  };
+
   // Handle service task check-out
   const handleTaskCheckOut = async (taskId) => {
     setActionLoading(true);
@@ -159,6 +218,7 @@ const UnifiedSchedule = () => {
       });
       
       setCompletionNotes('');
+      setTaskPhotos(prev => ({ ...prev, [taskId]: [] }));
       setExpandedCard(null);
       await fetchSchedule();
     } catch (error) {
