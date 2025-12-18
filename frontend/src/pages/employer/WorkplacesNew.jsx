@@ -306,9 +306,18 @@ const WorkplacesNew = () => {
                             <div className="text-gray-600 text-sm">
                               {`${workplace.address}, ${workplace.city}`}
                             </div>
-                            {isFieldService && workplace.postal_code && (
-                              <div className="text-xs text-blue-600 mt-0.5">
-                                FSA: {workplace.postal_code.substring(0, 3).toUpperCase()} • {workplace.service_radius_km || 20}km
+                            {isFieldService && (
+                              <div className="flex flex-wrap gap-1 mt-0.5">
+                                {workplace.service_fsas && workplace.service_fsas.length > 0 ? (
+                                  workplace.service_fsas.slice(0, 3).map(fsa => (
+                                    <span key={fsa} className="text-xs text-blue-600 font-mono">{fsa}</span>
+                                  ))
+                                ) : workplace.postal_code ? (
+                                  <span className="text-xs text-blue-600 font-mono">{workplace.postal_code.substring(0, 3).toUpperCase()}</span>
+                                ) : null}
+                                {workplace.service_fsas && workplace.service_fsas.length > 3 && (
+                                  <span className="text-xs text-gray-400">+{workplace.service_fsas.length - 3} more</span>
+                                )}
                               </div>
                             )}
                           </td>
