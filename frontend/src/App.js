@@ -240,6 +240,7 @@ function AppRoutes() {
         <Route path="/employer/live-attendance" element={<ProtectedRoute allowedUserTypes={['employer']}><LiveAttendance /></ProtectedRoute>} />
         <Route path="/employer/workplace-setup" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceForm /></ProtectedRoute>} />
         <Route path="/employer/workplaces" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplacesNew /></ProtectedRoute>} />
+        <Route path="/employer/workplaces/new" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceForm /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceForm /></ProtectedRoute>} />
         <Route path="/employer/workplaces/:workplaceId/shifts" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkplaceDetail /></ProtectedRoute>} />
         {/* Redirect old /edit route to new WorkplaceForm */}
