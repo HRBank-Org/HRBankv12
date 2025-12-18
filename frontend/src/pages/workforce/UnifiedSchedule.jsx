@@ -509,41 +509,97 @@ const UnifiedSchedule = () => {
         />
         
         <main className="p-4 md:p-6 max-w-4xl mx-auto">
-          {/* Date Navigation */}
+          {/* Week Strip Navigation */}
           <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-            <div className="flex items-center justify-between">
+            {/* Month/Year Header with Week Navigation */}
+            <div className="flex items-center justify-between mb-4">
               <button 
-                onClick={goToPrevDay}
+                onClick={() => setSelectedDate(moment(selectedDate).subtract(7, 'days').format('YYYY-MM-DD'))}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Previous week"
               >
                 <FiChevronLeft size={20} />
               </button>
               
               <div className="text-center">
                 <h2 className="text-lg font-bold text-gray-900">
-                  {moment(selectedDate).format('dddd')}
+                  {moment(selectedDate).format('MMMM YYYY')}
                 </h2>
-                <p className="text-sm text-gray-500">
-                  {moment(selectedDate).format('MMMM D, YYYY')}
-                </p>
               </div>
               
               <button 
-                onClick={goToNextDay}
+                onClick={() => setSelectedDate(moment(selectedDate).add(7, 'days').format('YYYY-MM-DD'))}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Next week"
               >
                 <FiChevronRight size={20} />
               </button>
             </div>
-            
+
+            {/* Week Strip */}
+            <div className="grid grid-cols-7 gap-1">
+              {getWeekDates().map((date) => {
+                const dayMoment = moment(date);
+                const isSelected = date === selectedDate;
+                const isCurrentDay = date === moment().format('YYYY-MM-DD');
+                const hasWork = weekWorkDays[date];
+                const workCount = hasWork ? (hasWork.shifts + hasWork.tasks) : 0;
+                
+                return (
+                  <button
+                    key={date}
+                    onClick={() => setSelectedDate(date)}
+                    className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all ${
+                      isSelected 
+                        ? 'bg-blue-500 text-white shadow-md' 
+                        : isCurrentDay
+                          ? 'bg-blue-50 text-blue-700 border-2 border-blue-200'
+                          : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    <span className={`text-xs font-medium ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
+                      {dayMoment.format('ddd')}
+                    </span>
+                    <span className={`text-lg font-bold ${isSelected ? 'text-white' : ''}`}>
+                      {dayMoment.format('D')}
+                    </span>
+                    {/* Work indicator dots */}
+                    <div className="flex gap-0.5 mt-1 h-2">
+                      {hasWork && (
+                        <>
+                          {hasWork.shifts > 0 && (
+                            <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-blue-500'}`} />
+                          )}
+                          {hasWork.tasks > 0 && (
+                            <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-orange-500'}`} />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Today Button */}
             {!isToday && (
               <button
                 onClick={goToToday}
-                className="w-full mt-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="w-full mt-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
               >
-                Back to Today
+                Go to Today
               </button>
             )}
+          </div>
+
+          {/* Selected Day Header */}
+          <div className="mb-4">
+            <h3 className="text-xl font-bold text-gray-900">
+              {isToday ? 'Today' : moment(selectedDate).format('dddd')}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {moment(selectedDate).format('MMMM D, YYYY')}
+            </p>
           </div>
 
           {/* Stats Summary */}
