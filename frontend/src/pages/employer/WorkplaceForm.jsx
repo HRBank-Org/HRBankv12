@@ -82,6 +82,7 @@ const WorkplaceForm = () => {
           // Work Mode Configuration
           work_mode: wp.work_mode || 'on_site',
           schedule_pattern: wp.schedule_pattern || 'standard',
+          service_fsas: wp.service_fsas || [],
           service_radius_km: wp.service_radius_km || 20,
           operating_hours: wp.operating_hours || formData.operating_hours
         });
