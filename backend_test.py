@@ -9051,8 +9051,7 @@ def test_service_tasks_api(results):
         print(f"\n   Test 10: POST /api/service-tasks/{task_id_valid}/cancel - Cancel task")
         try:
             response = requests.post(
-                f"{BASE_URL}/service-tasks/{task_id_valid}/cancel",
-                json={"reason": "Client cancelled appointment"},
+                f"{BASE_URL}/service-tasks/{task_id_valid}/cancel?reason=Client cancelled appointment",
                 headers=get_auth_headers(employer_token),
                 timeout=10
             )
