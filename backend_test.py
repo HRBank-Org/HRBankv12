@@ -5592,6 +5592,9 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
+    # Priority: CRITICAL - Checklist API for HR Bank Field Service (NEW TEST FROM REVIEW REQUEST)
+    test_checklist_api_for_hr_bank_field_service(results)
+    
     # Priority: CRITICAL - Address Validation API (NEW TEST FROM REVIEW REQUEST)
     test_address_validation_api(results)
     
