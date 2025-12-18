@@ -9203,6 +9203,9 @@ def main():
     # NEW: Test Address Autocomplete Integration (from review request)
     test_address_autocomplete_integration(results)
     
+    # NEW: Test Service Tasks API (Phase 2 of HR Bank Multi-Mode Refactor)
+    test_service_tasks_api(results)
+    
     # Print final results
     success = results.summary()
     
