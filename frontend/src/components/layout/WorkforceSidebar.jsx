@@ -30,20 +30,20 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
+      label: 'My Schedule',
+      icon: FiCalendar,
+      path: '/workforce/schedule'
+    },
+    {
+      type: 'item',
       label: 'Tasks',
       icon: FiCheckSquare,
       path: '/workforce/tasks'
     },
     {
       type: 'item',
-      label: 'Service Tasks',
-      icon: FiNavigation,
-      path: '/workforce/service-tasks'
-    },
-    {
-      type: 'item',
       label: 'My Shifts',
-      icon: FiCalendar,
+      icon: FiNavigation,
       path: '/workforce/my-shifts'
     },
     {
