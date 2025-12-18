@@ -216,7 +216,7 @@ const WorkplaceForm = () => {
   };
 
   const isFormValid = () => {
-    return formData.workplace_name && formData.address && formData.city && formData.postal_code;
+    return formData.workplace_name && formData.address && formData.city && formData.province;
   };
 
   if (loading) {
