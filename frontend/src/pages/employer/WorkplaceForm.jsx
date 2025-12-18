@@ -156,6 +156,19 @@ const WorkplaceForm = () => {
     });
   };
 
+  // Handle address autocomplete change
+  const handleAddressChange = (addressData) => {
+    setFormData(prev => ({
+      ...prev,
+      address: addressData.street_address || '',
+      city: addressData.city || '',
+      province: addressData.province || 'ON',
+      postal_code: addressData.postal_code || '',
+      latitude: addressData.latitude || null,
+      longitude: addressData.longitude || null
+    }));
+  };
+
   const handleHoursChange = (day, field, value) => {
     setFormData({
       ...formData,
