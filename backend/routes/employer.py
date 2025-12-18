@@ -1110,3 +1110,61 @@ async def run_workforce_cleanup(
         "data": result,
         "message": "Dry run completed" if dry_run else f"Terminated {result['terminated_count']} worker(s)"
     }
+
+
+@router.get("/workers", response_model=Dict)
+async def get_employer_workers(
+    workplace_id: str = None,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get all workers employed by this employer.
+    Used for task assignment in field service mode.
+    """
+    # Get active employment relationships
+    relationships = await db.employment_relationships.find({
+        "employer_id": current_user["user_id"],
+        "status": "active"
+    }, {"_id": 0, "workforce_id": 1}).to_list(500)
+    
+    worker_ids = [r["workforce_id"] for r in relationships]
+    
+    if not worker_ids:
+        return {
+            "success": True,
+            "data": {"workers": [], "count": 0}
+        }
+    
+    # Get worker details
+    workers = await db.users.find(
+        {"user_id": {"$in": worker_ids}},
+        {"_id": 0, "user_id": 1, "email": 1, "first_name": 1, "last_name": 1, "phone": 1}
+    ).to_list(500)
+    
+    # Enrich with profile info
+    enriched_workers = []
+    for worker in workers:
+        profile = await db.workforce_profiles.find_one(
+            {"user_id": worker["user_id"]},
+            {"_id": 0, "profile_photo_url": 1, "profile_status": 1}
+        )
+        
+        enriched_workers.append({
+            "user_id": worker["user_id"],
+            "worker_id": worker["user_id"],
+            "email": worker.get("email", ""),
+            "first_name": worker.get("first_name", ""),
+            "last_name": worker.get("last_name", ""),
+            "phone": worker.get("phone"),
+            "profile_photo_url": profile.get("profile_photo_url") if profile else None,
+            "status": profile.get("profile_status", "active") if profile else "active"
+        })
+    
+    return {
+        "success": True,
+        "data": {
+            "workers": enriched_workers,
+            "count": len(enriched_workers)
+        }
+    }
