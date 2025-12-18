@@ -905,19 +905,25 @@ const WorkplaceForm = () => {
                       </div>
                     </div>
                     {formData.work_mode === 'field_service' && (
-                      <div className="flex flex-wrap items-center gap-3 text-sm">
-                        {formData.postal_code && (
-                          <span className="inline-flex items-center gap-1">
-                            <span className="text-gray-500">FSA:</span>
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-800 font-mono font-semibold rounded">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-gray-500">Service Territory:</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {formData.service_fsas && formData.service_fsas.length > 0 ? (
+                            formData.service_fsas.map(fsa => (
+                              <span key={fsa} className="px-2 py-0.5 bg-blue-100 text-blue-800 font-mono font-semibold rounded text-sm">
+                                {fsa}
+                              </span>
+                            ))
+                          ) : formData.postal_code ? (
+                            <span className="px-2 py-0.5 bg-blue-100 text-blue-800 font-mono font-semibold rounded text-sm">
                               {formData.postal_code.substring(0, 3).toUpperCase()}
                             </span>
-                          </span>
-                        )}
-                        <span className="inline-flex items-center gap-1">
-                          <span className="text-gray-500">Radius:</span>
-                          <span className="font-semibold text-gray-700">{formData.service_radius_km || 20} km</span>
-                        </span>
+                          ) : (
+                            <span className="text-sm text-gray-400">No FSAs configured</span>
+                          )}
+                        </div>
                       </div>
                     )}
                     <div className="flex items-center gap-2 mt-2">
