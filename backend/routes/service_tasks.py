@@ -12,7 +12,7 @@ from math import radians, sin, cos, sqrt, atan2
 from auth.dependencies import get_current_user, require_role
 from models.tasks import (
     Task, TaskStatus, TaskType, TaskAddress, TaskCheckIn,
-    WorkBlock, CreateTaskRequest, TaskCheckInRequest
+    WorkBlock, CreateTaskRequest, TaskCheckInRequest, ChecklistItem
 )
 
 router = APIRouter(prefix="/service-tasks", tags=["service-tasks"])
