@@ -184,14 +184,16 @@ async def get_worker_route(
     """
     Get worker's task route for a specific date.
     Returns tasks in route order with estimated travel times.
+    Billing info is excluded for workers.
     """
+    # Exclude billing fields for workers
     tasks = await db.service_tasks.find(
         {
             "worker_id": current_user["user_id"],
             "scheduled_date": date_str,
             "status": {"$nin": [TaskStatus.CANCELLED.value]}
         },
-        {"_id": 0}
+        {"_id": 0, "billing_amount": 0, "billable": 0, "billing_rate_type": 0}
     ).sort("route_order", 1).to_list(50)
     
     # Calculate totals
