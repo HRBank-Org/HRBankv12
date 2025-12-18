@@ -6,7 +6,7 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import GoogleWorkplaceMap from '../../components/maps/GoogleWorkplaceMap';
 import api from '../../utils/api';
-import { FiMapPin, FiUsers, FiCalendar, FiPlus, FiGrid, FiList } from 'react-icons/fi';
+import { FiMapPin, FiUsers, FiCalendar, FiPlus, FiGrid, FiList, FiNavigation, FiHome } from 'react-icons/fi';
 
 const WorkplacesNew = () => {
   const navigate = useNavigate();
