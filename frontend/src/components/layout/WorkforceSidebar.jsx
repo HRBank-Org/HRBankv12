@@ -36,6 +36,12 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
+      label: 'Service Tasks',
+      icon: FiNavigation,
+      path: '/workforce/service-tasks'
+    },
+    {
+      type: 'item',
       label: 'My Shifts',
       icon: FiCalendar,
       path: '/workforce/my-shifts'
