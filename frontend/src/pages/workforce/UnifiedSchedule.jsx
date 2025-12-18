@@ -485,6 +485,117 @@ const UnifiedSchedule = () => {
                   Started at {item.check_in ? moment(item.check_in.timestamp).format('h:mm A') : 'N/A'}
                 </p>
 
+                {/* Checklist Items */}
+                {item.checklist && item.checklist.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                        <FiCheck className="inline" /> Checklist
+                      </label>
+                      <span className="text-xs text-gray-500">
+                        {item.checklist.filter(c => c.completed).length}/{item.checklist.length} completed
+                      </span>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="h-2 bg-gray-200 rounded-full mb-3 overflow-hidden">
+                      <div 
+                        className="h-full bg-green-500 transition-all duration-300"
+                        style={{ 
+                          width: `${(item.checklist.filter(c => c.completed).length / item.checklist.length) * 100}%` 
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Checklist Items */}
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {item.checklist.map((checkItem) => (
+                        <div 
+                          key={checkItem.id}
+                          className={`flex items-center gap-3 p-2.5 rounded-lg border transition-colors ${
+                            checkItem.completed 
+                              ? 'bg-green-50 border-green-200' 
+                              : 'bg-white border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {/* Checkbox */}
+                          <button
+                            onClick={async () => {
+                              try {
+                                await api.patch(`/api/service-tasks/${item.id}/checklist/${checkItem.id}`, {
+                                  completed: !checkItem.completed
+                                });
+                                await fetchSchedule();
+                              } catch (error) {
+                                console.error('Failed to update checklist item:', error);
+                              }
+                            }}
+                            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                              checkItem.completed 
+                                ? 'bg-green-500 border-green-500 text-white' 
+                                : 'border-gray-300 hover:border-green-400'
+                            }`}
+                          >
+                            {checkItem.completed && <FiCheck size={14} />}
+                          </button>
+                          
+                          {/* Item Name & Type */}
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium ${checkItem.completed ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                              {checkItem.name}
+                            </p>
+                            {checkItem.item_type && checkItem.item_type !== 'task' && (
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                checkItem.item_type === 'addon' 
+                                  ? 'bg-purple-100 text-purple-700' 
+                                  : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {checkItem.item_type}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Photo Button */}
+                          <button
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.capture = 'environment';
+                              input.onchange = async (ev) => {
+                                if (ev.target.files[0]) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = async () => {
+                                    try {
+                                      await api.patch(`/api/service-tasks/${item.id}/checklist/${checkItem.id}`, {
+                                        photo_url: reader.result
+                                      });
+                                      await fetchSchedule();
+                                    } catch (error) {
+                                      console.error('Failed to upload photo:', error);
+                                    }
+                                  };
+                                  reader.readAsDataURL(ev.target.files[0]);
+                                }
+                              };
+                              input.click();
+                            }}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              checkItem.photo_url 
+                                ? 'bg-green-100 text-green-600' 
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            }`}
+                            title={checkItem.photo_url ? 'Photo added' : 'Add photo'}
+                          >
+                            <FiCamera size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Photo Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
