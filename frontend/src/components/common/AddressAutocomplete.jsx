@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useJsApiLoader } from '@react-google-maps/api';
-import { FiMapPin, FiX, FiCheck, FiAlertCircle } from 'react-icons/fi';
+import { FiMapPin, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import api from '../../utils/api';
-
-const libraries = ['places'];
 
 const CANADIAN_PROVINCES = [
   { code: 'AB', name: 'Alberta' },
