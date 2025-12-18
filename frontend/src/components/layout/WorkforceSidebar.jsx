@@ -187,29 +187,34 @@ const WorkforceSidebar = () => {
                   key={index}
                   onClick={() => handleNavigation(item)}
                   className={`
-                    w-full flex items-center gap-3 px-3 py-3 rounded-xl
-                    transition-all duration-200 group relative
+                    w-full flex items-center px-3 py-3 rounded-xl
+                    transition-colors duration-200 group relative
                     ${active 
                       ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' 
                       : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }
                   `}
                 >
-                  <Icon 
-                    size={20} 
-                    className={active ? 'text-white' : 'text-gray-400 group-hover:text-white'}
-                  />
+                  {/* Fixed-size icon container to prevent resize during transition */}
+                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    <Icon 
+                      size={20} 
+                      className={`${active ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}
+                      style={{ width: '20px', height: '20px' }}
+                    />
+                  </div>
                   
-                  {showExpanded && (
-                    <>
-                      <span className="flex-1 text-left text-sm font-medium whitespace-nowrap">
-                        {item.label}
-                      </span>
-                      {active && (
-                        <FiChevronRight size={16} className="text-white" />
-                      )}
-                    </>
-                  )}
+                  {/* Text container with overflow hidden for smooth transition */}
+                  <div 
+                    className={`flex items-center flex-1 overflow-hidden transition-all duration-300 ${showExpanded ? 'ml-3 opacity-100 max-w-[180px]' : 'ml-0 opacity-0 max-w-0'}`}
+                  >
+                    <span className="text-left text-sm font-medium whitespace-nowrap">
+                      {item.label}
+                    </span>
+                    {active && showExpanded && (
+                      <FiChevronRight size={16} className="text-white ml-auto flex-shrink-0" />
+                    )}
+                  </div>
 
                   {/* Tooltip for collapsed state */}
                   {!showExpanded && (
