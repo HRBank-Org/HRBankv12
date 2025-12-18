@@ -9028,8 +9028,7 @@ def test_service_tasks_api(results):
             
             if worker_id:
                 response = requests.post(
-                    f"{BASE_URL}/service-tasks/{task_id_valid}/assign",
-                    json={"worker_id": worker_id},
+                    f"{BASE_URL}/service-tasks/{task_id_valid}/assign?worker_id={worker_id}",
                     headers=get_auth_headers(employer_token),
                     timeout=10
                 )
