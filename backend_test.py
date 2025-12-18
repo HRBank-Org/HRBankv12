@@ -9492,6 +9492,244 @@ def test_service_tasks_api(results):
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
 
+def test_task_reporting_apis(results):
+    """Test Task Reporting APIs for HR Bank field service"""
+    print("\n🧪 TESTING TASK REPORTING APIS FOR HR BANK FIELD SERVICE")
+    print("   Focus: Photo upload, notes update, signature capture, check-out flow")
+    print("   Testing: POST /api/service-tasks/{task_id}/photos, PATCH /api/service-tasks/{task_id}/notes")
+    print("   Testing: POST /api/service-tasks/{task_id}/signature, POST /api/service-tasks/{task_id}/check-out")
+    print("   Test Account: worker@hrbank.ca / Test123!")
+    print("   Pre-condition: Task task_739225a3419c should be in 'in_progress' status")
+    
+    # Login as worker
+    worker_token = None
+    try:
+        login_data = {
+            "email": "worker@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "workforce"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                worker_token = data["data"]["access_token"]
+                results.add_pass("Worker login for task reporting testing")
+            else:
+                results.add_fail("Worker login for task reporting testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Worker login for task reporting testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Worker login for task reporting testing", f"Request failed: {str(e)}")
+        return
+    
+    # Test task ID from review request
+    task_id = "task_739225a3419c"
+    
+    # Test 1: POST /api/service-tasks/{task_id}/photos - Add photo with base64 data
+    print(f"\n   Test 1: POST /api/service-tasks/{task_id}/photos - Add photo")
+    try:
+        # Sample base64 image data (small PNG)
+        base64_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        
+        photo_data = {
+            "image": base64_image,
+            "type": "during",
+            "caption": "test"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/service-tasks/{task_id}/photos",
+            json=photo_data,
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "photo_id" in data.get("data", {}):
+                photo_id = data["data"]["photo_id"]
+                results.add_pass("POST /api/service-tasks/{task_id}/photos - Photo added successfully")
+                print(f"      Photo ID: {photo_id}")
+            else:
+                results.add_fail("POST /api/service-tasks/{task_id}/photos", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/service-tasks/{task_id}/photos", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/service-tasks/{task_id}/photos", f"Request failed: {str(e)}")
+    
+    # Test 2: PATCH /api/service-tasks/{task_id}/notes - Update notes
+    print(f"\n   Test 2: PATCH /api/service-tasks/{task_id}/notes - Update notes")
+    try:
+        notes_data = {
+            "notes": "Cleaned all rooms, client satisfied"
+        }
+        
+        response = requests.patch(
+            f"{BASE_URL}/service-tasks/{task_id}/notes",
+            json=notes_data,
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                results.add_pass("PATCH /api/service-tasks/{task_id}/notes - Notes updated successfully")
+            else:
+                results.add_fail("PATCH /api/service-tasks/{task_id}/notes", f"Invalid response: {data}")
+        else:
+            results.add_fail("PATCH /api/service-tasks/{task_id}/notes", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("PATCH /api/service-tasks/{task_id}/notes", f"Request failed: {str(e)}")
+    
+    # Test 3: POST /api/service-tasks/{task_id}/signature - Capture client signature
+    print(f"\n   Test 3: POST /api/service-tasks/{task_id}/signature - Capture signature")
+    try:
+        # Sample base64 signature data (small PNG)
+        base64_signature = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        
+        signature_data = {
+            "signature": base64_signature,
+            "client_name": "Michael Chen"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/service-tasks/{task_id}/signature",
+            json=signature_data,
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                results.add_pass("POST /api/service-tasks/{task_id}/signature - Signature captured successfully")
+            else:
+                results.add_fail("POST /api/service-tasks/{task_id}/signature", f"Invalid response: {data}")
+        else:
+            results.add_fail("POST /api/service-tasks/{task_id}/signature", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/service-tasks/{task_id}/signature", f"Request failed: {str(e)}")
+    
+    # Test 4: POST /api/service-tasks/{task_id}/check-out - Complete the task
+    print(f"\n   Test 4: POST /api/service-tasks/{task_id}/check-out - Complete task")
+    try:
+        check_out_data = {
+            "latitude": 42.3149,
+            "longitude": -83.0364,
+            "accuracy_m": 10,
+            "notes": "Task complete"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/service-tasks/{task_id}/check-out",
+            json=check_out_data,
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "actual_duration_minutes" in data.get("data", {}):
+                duration = data["data"]["actual_duration_minutes"]
+                results.add_pass("POST /api/service-tasks/{task_id}/check-out - Task completed successfully")
+                print(f"      Actual duration: {duration} minutes")
+            else:
+                results.add_fail("POST /api/service-tasks/{task_id}/check-out", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST /api/service-tasks/{task_id}/check-out", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/service-tasks/{task_id}/check-out", f"Request failed: {str(e)}")
+    
+    # Test 5: GET /api/service-tasks - Verify task status is "completed" and data is saved
+    print(f"\n   Test 5: GET /api/service-tasks - Verify task completion and data persistence")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                target_task = None
+                
+                # Find our test task
+                for task in tasks:
+                    if task.get("task_id") == task_id:
+                        target_task = task
+                        break
+                
+                if target_task:
+                    # Verify task status is completed
+                    if target_task.get("status") == "completed":
+                        results.add_pass("GET /api/service-tasks - Task status is 'completed'")
+                    else:
+                        results.add_fail("GET /api/service-tasks - Task status", f"Expected 'completed', got '{target_task.get('status')}'")
+                    
+                    # Verify photos are saved
+                    if target_task.get("photos") and len(target_task["photos"]) > 0:
+                        results.add_pass("GET /api/service-tasks - Photos are saved")
+                    else:
+                        results.add_fail("GET /api/service-tasks - Photos", "No photos found in task")
+                    
+                    # Verify notes are saved
+                    if target_task.get("notes") == "Task complete":
+                        results.add_pass("GET /api/service-tasks - Notes are saved")
+                    else:
+                        results.add_fail("GET /api/service-tasks - Notes", f"Expected 'Task complete', got '{target_task.get('notes')}'")
+                    
+                    # Verify client signature is saved
+                    if target_task.get("client_signature"):
+                        signature = target_task["client_signature"]
+                        if signature.get("client_name") == "Michael Chen":
+                            results.add_pass("GET /api/service-tasks - Client signature is saved")
+                        else:
+                            results.add_fail("GET /api/service-tasks - Client signature", f"Client name mismatch: {signature.get('client_name')}")
+                    else:
+                        results.add_fail("GET /api/service-tasks - Client signature", "No client signature found")
+                else:
+                    results.add_fail("GET /api/service-tasks - Find task", f"Task {task_id} not found in response")
+            else:
+                results.add_fail("GET /api/service-tasks - Verify completion", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks - Verify completion", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks - Verify completion", f"Request failed: {str(e)}")
+    
+    # Test Authentication Enforcement
+    print(f"\n   Test 6: Authentication enforcement for task reporting endpoints")
+    
+    # Test endpoints without authentication
+    endpoints_to_test = [
+        ("POST", f"/service-tasks/{task_id}/photos"),
+        ("PATCH", f"/service-tasks/{task_id}/notes"),
+        ("POST", f"/service-tasks/{task_id}/signature"),
+        ("POST", f"/service-tasks/{task_id}/check-out")
+    ]
+    
+    for method, endpoint in endpoints_to_test:
+        try:
+            if method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            elif method == "PATCH":
+                response = requests.patch(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+
+
 def main():
     """Run comprehensive backend tests focused on mobile app occupation-certification integration"""
     print("🚀 MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION TESTING")
