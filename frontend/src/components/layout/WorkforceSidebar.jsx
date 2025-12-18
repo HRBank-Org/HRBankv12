@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiCalendar, FiBriefcase, FiSearch, FiClock, FiFileText, FiSettings, FiCheckSquare, FiChevronRight, FiAward } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiBriefcase, FiSearch, FiClock, FiFileText, FiSettings, FiCheckSquare, FiChevronRight, FiAward, FiDollarSign } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const WorkforceSidebar = () => {
