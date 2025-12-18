@@ -8741,6 +8741,417 @@ def test_workplace_management_system(results):
         results.add_fail("PATCH status (invalid value)", f"Request failed: {str(e)}")
 
 
+def test_service_tasks_api(results):
+    """Test Service Tasks API for Field Service Work Mode (Phase 2)"""
+    print("\n🧪 TESTING SERVICE TASKS API - PHASE 2 FIELD SERVICE WORK MODE")
+    print("   Focus: Service task CRUD, FSA routing, GPS check-in/out, work blocks")
+    print("   Test Accounts: employer@hrbank.ca / Test123!, worker@hrbank.ca / Test123!")
+    print("   Field Service Workplace: wp_a647e99228e0 (Windsor Downtown Franchise)")
+    print("   Valid FSAs: N9A, N9B, N9C, N8R | Invalid FSA: N8X")
+    
+    # Login as employer
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for service tasks testing")
+            else:
+                results.add_fail("Employer login for service tasks testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Employer login for service tasks testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login for service tasks testing", f"Request failed: {str(e)}")
+        return
+    
+    # Login as worker (if needed)
+    worker_token = None
+    try:
+        login_data = {
+            "email": "worker@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "workforce"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                worker_token = data["data"]["access_token"]
+                results.add_pass("Worker login for service tasks testing")
+            else:
+                results.add_fail("Worker login for service tasks testing", f"Invalid response: {data}")
+        else:
+            results.add_fail("Worker login for service tasks testing", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Worker login for service tasks testing", f"Request failed: {str(e)}")
+    
+    # Test 1: POST /api/service-tasks - Create service task with valid FSA
+    print("\n   Test 1: Create service task with valid FSA (N9A)")
+    task_id_valid = None
+    try:
+        task_data = {
+            "workplace_id": "wp_a647e99228e0",
+            "task_type": "cleaning",
+            "title": "Clean Downtown Office",
+            "description": "Regular office cleaning service",
+            "street_address": "123 Ouellette Avenue",
+            "unit_number": "Suite 200",
+            "city": "Windsor",
+            "province": "ON",
+            "postal_code": "N9A 1B2",  # Valid FSA: N9A
+            "client_name": "Downtown Business Corp",
+            "client_phone": "+1-519-555-0123",
+            "access_notes": "Ring buzzer 200, key under mat",
+            "scheduled_date": "2025-01-15",
+            "scheduled_start_time": "09:00",
+            "scheduled_end_time": "11:00",
+            "estimated_duration_minutes": 120,
+            "priority": 7,
+            "billing_amount": 150.00
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/service-tasks",
+            json=task_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "task_id" in data.get("data", {}):
+                task_id_valid = data["data"]["task_id"]
+                results.add_pass("POST /api/service-tasks - Create task with valid FSA (N9A)")
+            else:
+                results.add_fail("POST /api/service-tasks - Create task with valid FSA", f"Invalid response: {data}")
+        else:
+            results.add_fail("POST /api/service-tasks - Create task with valid FSA", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/service-tasks - Create task with valid FSA", f"Request failed: {str(e)}")
+    
+    # Test 2: POST /api/service-tasks - Create service task with invalid FSA (should be rejected)
+    print("\n   Test 2: Create service task with invalid FSA (N8X) - should be rejected")
+    try:
+        task_data_invalid = {
+            "workplace_id": "wp_a647e99228e0",
+            "task_type": "cleaning",
+            "title": "Clean Outside Territory",
+            "description": "This should be rejected",
+            "street_address": "456 Invalid Street",
+            "city": "Windsor",
+            "province": "ON",
+            "postal_code": "N8X 1C3",  # Invalid FSA: N8X
+            "scheduled_date": "2025-01-15",
+            "scheduled_start_time": "14:00",
+            "scheduled_end_time": "16:00",
+            "estimated_duration_minutes": 120
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/service-tasks",
+            json=task_data_invalid,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 400:
+            data = response.json()
+            if "not in this workplace's service territory" in data.get("detail", "").lower():
+                results.add_pass("POST /api/service-tasks - Invalid FSA rejection (N8X)")
+            else:
+                results.add_fail("POST /api/service-tasks - Invalid FSA rejection", f"Wrong error message: {data}")
+        else:
+            results.add_fail("POST /api/service-tasks - Invalid FSA rejection", f"Expected 400, got {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/service-tasks - Invalid FSA rejection", f"Request failed: {str(e)}")
+    
+    # Test 3: GET /api/service-tasks - List all tasks
+    print("\n   Test 3: GET /api/service-tasks - List all tasks")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                results.add_pass(f"GET /api/service-tasks - List tasks (found {len(tasks)} tasks)")
+            else:
+                results.add_fail("GET /api/service-tasks - List tasks", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks - List tasks", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks - List tasks", f"Request failed: {str(e)}")
+    
+    # Test 4: GET /api/service-tasks with workplace filter
+    print("\n   Test 4: GET /api/service-tasks with workplace_id filter")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks?workplace_id=wp_a647e99228e0",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                results.add_pass(f"GET /api/service-tasks - Filter by workplace (found {len(tasks)} tasks)")
+            else:
+                results.add_fail("GET /api/service-tasks - Filter by workplace", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks - Filter by workplace", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks - Filter by workplace", f"Request failed: {str(e)}")
+    
+    # Test 5: GET /api/service-tasks with status filter
+    print("\n   Test 5: GET /api/service-tasks with status filter")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks?status=pending",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                results.add_pass(f"GET /api/service-tasks - Filter by status (found {len(tasks)} pending tasks)")
+            else:
+                results.add_fail("GET /api/service-tasks - Filter by status", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks - Filter by status", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks - Filter by status", f"Request failed: {str(e)}")
+    
+    # Test 6: GET /api/service-tasks with date filter
+    print("\n   Test 6: GET /api/service-tasks with date filter")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks?date=2025-01-15",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "tasks" in data.get("data", {}):
+                tasks = data["data"]["tasks"]
+                results.add_pass(f"GET /api/service-tasks - Filter by date (found {len(tasks)} tasks for 2025-01-15)")
+            else:
+                results.add_fail("GET /api/service-tasks - Filter by date", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks - Filter by date", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks - Filter by date", f"Request failed: {str(e)}")
+    
+    # Test 7: GET /api/service-tasks/{task_id} - Get single task
+    if task_id_valid:
+        print(f"\n   Test 7: GET /api/service-tasks/{task_id_valid} - Get single task")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/service-tasks/{task_id_valid}",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "task" in data.get("data", {}):
+                    task = data["data"]["task"]
+                    if task.get("task_id") == task_id_valid:
+                        results.add_pass("GET /api/service-tasks/{task_id} - Get single task")
+                    else:
+                        results.add_fail("GET /api/service-tasks/{task_id} - Get single task", f"Task ID mismatch: {task}")
+                else:
+                    results.add_fail("GET /api/service-tasks/{task_id} - Get single task", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/service-tasks/{task_id} - Get single task", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/service-tasks/{task_id} - Get single task", f"Request failed: {str(e)}")
+    
+    # Test 8: PATCH /api/service-tasks/{task_id} - Update task
+    if task_id_valid:
+        print(f"\n   Test 8: PATCH /api/service-tasks/{task_id_valid} - Update task")
+        try:
+            update_data = {
+                "title": "Updated Clean Downtown Office",
+                "description": "Updated description for office cleaning",
+                "priority": 9,
+                "scheduled_start_time": "10:00",
+                "scheduled_end_time": "12:00"
+            }
+            
+            response = requests.patch(
+                f"{BASE_URL}/service-tasks/{task_id_valid}",
+                json=update_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("PATCH /api/service-tasks/{task_id} - Update task")
+                else:
+                    results.add_fail("PATCH /api/service-tasks/{task_id} - Update task", f"Invalid response: {data}")
+            else:
+                results.add_fail("PATCH /api/service-tasks/{task_id} - Update task", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("PATCH /api/service-tasks/{task_id} - Update task", f"Request failed: {str(e)}")
+    
+    # Test 9: POST /api/service-tasks/{task_id}/assign - Assign task to worker
+    if task_id_valid and worker_token:
+        print(f"\n   Test 9: POST /api/service-tasks/{task_id_valid}/assign - Assign to worker")
+        try:
+            # Get worker ID from token
+            import jwt
+            decoded = jwt.decode(worker_token, options={"verify_signature": False})
+            worker_id = decoded.get('user_id')
+            
+            if worker_id:
+                response = requests.post(
+                    f"{BASE_URL}/service-tasks/{task_id_valid}/assign",
+                    json={"worker_id": worker_id},
+                    headers=get_auth_headers(employer_token),
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success"):
+                        results.add_pass("POST /api/service-tasks/{task_id}/assign - Assign to worker")
+                    else:
+                        results.add_fail("POST /api/service-tasks/{task_id}/assign - Assign to worker", f"Invalid response: {data}")
+                else:
+                    results.add_fail("POST /api/service-tasks/{task_id}/assign - Assign to worker", f"HTTP {response.status_code}: {response.text}")
+            else:
+                results.add_fail("POST /api/service-tasks/{task_id}/assign - Assign to worker", "Could not extract worker_id from token")
+        except Exception as e:
+            results.add_fail("POST /api/service-tasks/{task_id}/assign - Assign to worker", f"Request failed: {str(e)}")
+    
+    # Test 10: POST /api/service-tasks/{task_id}/cancel - Cancel task
+    if task_id_valid:
+        print(f"\n   Test 10: POST /api/service-tasks/{task_id_valid}/cancel - Cancel task")
+        try:
+            response = requests.post(
+                f"{BASE_URL}/service-tasks/{task_id_valid}/cancel",
+                json={"reason": "Client cancelled appointment"},
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("POST /api/service-tasks/{task_id}/cancel - Cancel task")
+                else:
+                    results.add_fail("POST /api/service-tasks/{task_id}/cancel - Cancel task", f"Invalid response: {data}")
+            else:
+                results.add_fail("POST /api/service-tasks/{task_id}/cancel - Cancel task", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/service-tasks/{task_id}/cancel - Cancel task", f"Request failed: {str(e)}")
+    
+    # Test 11: POST /api/service-tasks/work-blocks - Create work block
+    print("\n   Test 11: POST /api/service-tasks/work-blocks - Create work block")
+    work_block_id = None
+    try:
+        work_block_data = {
+            "workplace_id": "wp_a647e99228e0",
+            "date": "2025-01-16",
+            "scheduled_start_time": "08:00",
+            "scheduled_end_time": "17:00"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/service-tasks/work-blocks",
+            params=work_block_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "work_block_id" in data.get("data", {}):
+                work_block_id = data["data"]["work_block_id"]
+                results.add_pass("POST /api/service-tasks/work-blocks - Create work block")
+            else:
+                results.add_fail("POST /api/service-tasks/work-blocks - Create work block", f"Invalid response: {data}")
+        else:
+            results.add_fail("POST /api/service-tasks/work-blocks - Create work block", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/service-tasks/work-blocks - Create work block", f"Request failed: {str(e)}")
+    
+    # Test 12: GET /api/service-tasks/work-blocks - List work blocks
+    print("\n   Test 12: GET /api/service-tasks/work-blocks - List work blocks")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks/work-blocks",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "work_blocks" in data.get("data", {}):
+                work_blocks = data["data"]["work_blocks"]
+                results.add_pass(f"GET /api/service-tasks/work-blocks - List work blocks (found {len(work_blocks)} blocks)")
+            else:
+                results.add_fail("GET /api/service-tasks/work-blocks - List work blocks", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/service-tasks/work-blocks - List work blocks", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/service-tasks/work-blocks - List work blocks", f"Request failed: {str(e)}")
+    
+    # Test Authentication Enforcement
+    print("\n   Testing Authentication Enforcement for Service Tasks API")
+    
+    # Test unauthenticated access
+    service_task_endpoints = [
+        ("GET", "/service-tasks"),
+        ("POST", "/service-tasks"),
+        ("GET", "/service-tasks/test-id"),
+        ("PATCH", "/service-tasks/test-id"),
+        ("POST", "/service-tasks/test-id/assign"),
+        ("POST", "/service-tasks/test-id/cancel"),
+        ("GET", "/service-tasks/work-blocks"),
+        ("POST", "/service-tasks/work-blocks")
+    ]
+    
+    for method, endpoint in service_task_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            elif method == "PATCH":
+                response = requests.patch(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+
+
 def main():
     """Run comprehensive backend tests focused on mobile app occupation-certification integration"""
     print("🚀 MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION TESTING")
