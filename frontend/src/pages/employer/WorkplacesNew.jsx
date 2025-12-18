@@ -300,27 +300,28 @@ const WorkplacesNew = () => {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2 text-gray-600">
-                            <FiUsers size={16} />
-                            <span className="text-sm">{workplace.assigned_workers || 0}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <FiCalendar size={16} />
-                            <span className="text-sm">{workplace.active_shifts || 0}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            workplace.status === 'inactive' 
-                              ? 'bg-gray-100 text-gray-600' 
-                              : 'bg-green-100 text-green-700'
-                          }`}>
-                            {workplace.status === 'inactive' ? 'Inactive' : 'Active'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                              <FiUsers size={16} />
+                              <span className="text-sm">{workplace.assigned_workers || 0}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <FiCalendar size={16} />
+                              <span className="text-sm">{workplace.active_shifts || 0}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              workplace.status === 'inactive' 
+                                ? 'bg-gray-100 text-gray-600' 
+                                : 'bg-green-100 text-green-700'
+                            }`}>
+                              {workplace.status === 'inactive' ? 'Inactive' : 'Active'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
