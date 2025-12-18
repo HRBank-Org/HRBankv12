@@ -294,15 +294,25 @@ async def get_service_task(
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
-    """Get a single service task by ID"""
+    """Get a single service task by ID. Workers don't see billing info."""
     query = {"task_id": task_id}
+    is_worker = current_user.get("user_type") != "employer"
     
-    if current_user.get("user_type") == "employer":
+    if not is_worker:
         query["employer_id"] = current_user["user_id"]
     else:
         query["worker_id"] = current_user["user_id"]
     
-    task = await db.service_tasks.find_one(query, {"_id": 0})
+    # Exclude billing fields for workers
+    projection = {"_id": 0}
+    if is_worker:
+        projection.update({
+            "billing_amount": 0,
+            "billable": 0,
+            "billing_rate_type": 0
+        })
+    
+    task = await db.service_tasks.find_one(query, projection)
     
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
