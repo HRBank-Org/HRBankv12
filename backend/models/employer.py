@@ -62,8 +62,8 @@ class Workplace(BaseModel):
     # flexible: No fixed pattern
     schedule_pattern: str = 'standard'  # 'standard' | 'continental' | 'flexible'
     
-    # Service area name (for field_service mode) - e.g., "Downtown Windsor", "Essex County"
-    service_area_name: Optional[str] = None
+    # Service radius in km (for field_service mode) - tasks within this radius from base address
+    service_radius_km: int = 20  # Default 20km radius for field service
     
     attendance_geofence_radius_m: int = 100  # Fixed 100m for attendance (on_site mode)
     job_matching_radius_km: int = 20  # 5-50km for job discovery
