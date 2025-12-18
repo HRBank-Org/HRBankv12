@@ -670,22 +670,53 @@ const WorkplaceForm = () => {
                       </button>
                     </div>
                     
-                    {/* Service Area Name (for field service) */}
+                    {/* Service Territory (for field service) */}
                     {formData.work_mode === 'field_service' && (
                       <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <label className="block text-sm font-medium text-blue-800 mb-2">
-                          Service Area Name
-                        </label>
-                        <input
-                          type="text"
-                          name="service_area_name"
-                          value={formData.service_area_name}
-                          onChange={handleInputChange}
-                          placeholder="e.g., Downtown Windsor, Essex County"
-                          className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
-                        />
-                        <p className="text-xs text-blue-600 mt-2">
-                          This helps identify the service territory for task assignments
+                        <h4 className="text-sm font-semibold text-blue-800 mb-3">Service Territory</h4>
+                        
+                        {/* FSA Display - extracted from postal code */}
+                        {formData.postal_code && (
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="text-sm text-blue-700">Primary FSA:</span>
+                            <span className="px-3 py-1 bg-blue-100 text-blue-800 font-mono font-semibold rounded-lg">
+                              {formData.postal_code.substring(0, 3).toUpperCase()}
+                            </span>
+                            <span className="text-xs text-blue-600">
+                              (from workplace address)
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Service Radius Slider */}
+                        <div>
+                          <label className="block text-sm font-medium text-blue-800 mb-2">
+                            Service Radius
+                          </label>
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="range"
+                              name="service_radius_km"
+                              min="5"
+                              max="50"
+                              step="5"
+                              value={formData.service_radius_km || 20}
+                              onChange={(e) => setFormData({ ...formData, service_radius_km: parseInt(e.target.value) })}
+                              className="flex-1 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                            <span className="w-20 text-center px-3 py-1 bg-white border border-blue-200 rounded-lg font-semibold text-blue-800">
+                              {formData.service_radius_km || 20} km
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-xs text-blue-500 mt-1 px-1">
+                            <span>5 km</span>
+                            <span>25 km</span>
+                            <span>50 km</span>
+                          </div>
+                        </div>
+                        
+                        <p className="text-xs text-blue-600 mt-3">
+                          Tasks within this radius from the base address can be assigned to workers
                         </p>
                       </div>
                     )}
