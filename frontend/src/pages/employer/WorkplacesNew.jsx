@@ -222,14 +222,19 @@ const WorkplacesNew = () => {
                             <FiMapPin size={16} />
                             {`${workplace.address}, ${workplace.city}, ${workplace.province} ${workplace.postal_code}`}
                           </p>
-                          {isFieldService && workplace.postal_code && (
-                            <div className="flex items-center gap-2 mt-1 text-xs">
-                              <span className="px-2 py-0.5 bg-blue-50 text-blue-700 font-mono rounded">
-                                FSA: {workplace.postal_code.substring(0, 3).toUpperCase()}
-                              </span>
-                              <span className="text-gray-500">
-                                • {workplace.service_radius_km || 20}km radius
-                              </span>
+                          {isFieldService && (
+                            <div className="flex flex-wrap items-center gap-1 mt-1">
+                              {workplace.service_fsas && workplace.service_fsas.length > 0 ? (
+                                workplace.service_fsas.map(fsa => (
+                                  <span key={fsa} className="px-1.5 py-0.5 bg-blue-50 text-blue-700 font-mono text-xs rounded">
+                                    {fsa}
+                                  </span>
+                                ))
+                              ) : workplace.postal_code ? (
+                                <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 font-mono text-xs rounded">
+                                  {workplace.postal_code.substring(0, 3).toUpperCase()}
+                                </span>
+                              ) : null}
                             </div>
                           )}
                         </div>
