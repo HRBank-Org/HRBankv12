@@ -88,6 +88,7 @@ import ManageCertifications from './pages/admin/ManageCertifications';
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
 import EmployerHome from './pages/employer/Home';
+import ServiceTasksManagement from './pages/employer/ServiceTasksManagement';
 import EmployerRoster from './pages/employer/Roster';
 import EmployerNotifications from './pages/employer/Notifications';
 import EmployerMessages from './pages/employer/Messages';
