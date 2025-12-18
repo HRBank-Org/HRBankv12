@@ -131,11 +131,12 @@ async def get_service_tasks(
     """
     Get service tasks with optional filters.
     Employers see all tasks for their workplaces.
-    Workers see only their assigned tasks.
+    Workers see only their assigned tasks (without billing info).
     """
     query = {}
+    is_worker = current_user.get("user_type") != "employer"
     
-    if current_user.get("user_type") == "employer":
+    if not is_worker:
         query["employer_id"] = current_user["user_id"]
         if workplace_id:
             query["workplace_id"] = workplace_id
@@ -154,7 +155,16 @@ async def get_service_tasks(
     if fsa:
         query["address.fsa"] = fsa.upper()
     
-    tasks = await db.service_tasks.find(query, {"_id": 0}).sort("scheduled_start_time", 1).to_list(100)
+    # Exclude billing fields for workers
+    projection = {"_id": 0}
+    if is_worker:
+        projection.update({
+            "billing_amount": 0,
+            "billable": 0,
+            "billing_rate_type": 0
+        })
+    
+    tasks = await db.service_tasks.find(query, projection).sort("scheduled_start_time", 1).to_list(100)
     
     return {
         "success": True,
