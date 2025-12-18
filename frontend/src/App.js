@@ -215,6 +215,7 @@ function AppRoutes() {
         <Route path="/workforce/clock-in" element={<ProtectedRoute allowedUserTypes={['workforce']}><ClockInOutNew /></ProtectedRoute>} />
         <Route path="/workforce/clock-in/:shiftId" element={<ProtectedRoute allowedUserTypes={['workforce']}><ClockInOutNew /></ProtectedRoute>} />
         <Route path="/workforce/service-tasks" element={<ProtectedRoute allowedUserTypes={['workforce']}><ServiceTasks /></ProtectedRoute>} />
+        <Route path="/workforce/schedule" element={<ProtectedRoute allowedUserTypes={['workforce']}><UnifiedSchedule /></ProtectedRoute>} />
         <Route path="/workforce/tasks" element={<ProtectedRoute allowedUserTypes={['workforce']}><Tasks /></ProtectedRoute>} />
         <Route path="/workforce/performance" element={<ProtectedRoute allowedUserTypes={['workforce']}><Performance /></ProtectedRoute>} />
         <Route path="/workforce/attendance" element={<ProtectedRoute allowedUserTypes={['workforce']}><Attendance /></ProtectedRoute>} />
