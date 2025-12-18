@@ -36,18 +36,6 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
-      label: 'Tasks',
-      icon: FiCheckSquare,
-      path: '/workforce/tasks'
-    },
-    {
-      type: 'item',
-      label: 'My Shifts',
-      icon: FiNavigation,
-      path: '/workforce/my-shifts'
-    },
-    {
-      type: 'item',
       label: 'Performance',
       icon: FiAward,
       path: '/workforce/performance'
