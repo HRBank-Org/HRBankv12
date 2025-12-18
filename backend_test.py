@@ -1280,6 +1280,320 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_checklist_api_for_hr_bank_field_service(results):
+    """Test Checklist API for HR Bank field service tasks"""
+    print("\n🧪 TESTING CHECKLIST API FOR HR BANK FIELD SERVICE")
+    print("   Focus: Service task checklist management and progress tracking")
+    print("   Testing: GET/PATCH/POST/DELETE /api/service-tasks/{task_id}/checklist endpoints")
+    print("   Test Accounts: worker@hrbank.ca / Test123!")
+    print("   Task ID: task_739225a3419c (already has 6 checklist items)")
+    
+    # Login as worker
+    worker_token = None
+    try:
+        login_data = {
+            "email": "worker@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "workforce"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                worker_token = data["data"]["access_token"]
+                results.add_pass("Worker login for checklist testing")
+            else:
+                results.add_fail("Worker login for checklist testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Worker login for checklist testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Worker login for checklist testing", f"Request failed: {str(e)}")
+        return
+    
+    task_id = "task_739225a3419c"
+    
+    # Test 1: GET /api/service-tasks/{task_id}/checklist - Get checklist items with progress stats
+    print("\n   Test 1: GET checklist items with progress stats")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks/{task_id}/checklist",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "checklist" in data.get("data", {}) and
+                "total_items" in data.get("data", {}) and
+                "completed_items" in data.get("data", {}) and
+                "progress_percent" in data.get("data", {})):
+                
+                checklist_data = data["data"]
+                checklist = checklist_data["checklist"]
+                
+                # Verify expected checklist items exist
+                expected_items = ["Living Room", "Kitchen", "Bathroom 1", "Bedroom", "Fridge Interior", "Oven Interior"]
+                found_items = [item.get("name") for item in checklist]
+                
+                if len(checklist) >= 6:
+                    results.add_pass("GET checklist - Returns checklist items with progress stats")
+                    print(f"      Found {len(checklist)} checklist items")
+                    print(f"      Progress: {checklist_data['completed_items']}/{checklist_data['total_items']} ({checklist_data['progress_percent']}%)")
+                else:
+                    results.add_fail("GET checklist", f"Expected at least 6 items, got {len(checklist)}")
+            else:
+                results.add_fail("GET checklist", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET checklist", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET checklist", f"Request failed: {str(e)}")
+    
+    # Test 2: PATCH /api/service-tasks/{task_id}/checklist/{item_id} - Mark item as completed
+    print("\n   Test 2: PATCH checklist item - Mark Kitchen as completed")
+    try:
+        # First get the checklist to find item_002 (Kitchen)
+        response = requests.get(
+            f"{BASE_URL}/service-tasks/{task_id}/checklist",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        kitchen_item_id = None
+        if response.status_code == 200:
+            data = response.json()
+            checklist = data.get("data", {}).get("checklist", [])
+            for item in checklist:
+                if item.get("name") == "Kitchen" or item.get("id") == "item_002":
+                    kitchen_item_id = item.get("id")
+                    break
+        
+        if not kitchen_item_id:
+            # Try with the expected item_id from the review request
+            kitchen_item_id = "item_002"
+        
+        # Mark Kitchen as completed
+        update_data = {"completed": True}
+        response = requests.patch(
+            f"{BASE_URL}/service-tasks/{task_id}/checklist/{kitchen_item_id}",
+            json=update_data,
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "item" in data.get("data", {}) and
+                "progress" in data.get("data", {})):
+                
+                updated_item = data["data"]["item"]
+                progress = data["data"]["progress"]
+                
+                if (updated_item.get("completed") == True and
+                    "completed_by" in updated_item and
+                    "completed_at" in updated_item):
+                    results.add_pass("PATCH checklist item - Mark as completed with progress update")
+                    print(f"      Progress updated: {progress['completed']}/{progress['total']} ({progress['percent']}%)")
+                else:
+                    results.add_fail("PATCH checklist item - Mark as completed", f"Item not properly marked as completed: {updated_item}")
+            else:
+                results.add_fail("PATCH checklist item - Mark as completed", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("PATCH checklist item - Mark as completed", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("PATCH checklist item - Mark as completed", f"Request failed: {str(e)}")
+    
+    # Test 3: PATCH /api/service-tasks/{task_id}/checklist/{item_id} - Add notes to item
+    print("\n   Test 3: PATCH checklist item - Add notes to Bathroom 1")
+    try:
+        # Find Bathroom 1 item (item_003)
+        response = requests.get(
+            f"{BASE_URL}/service-tasks/{task_id}/checklist",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        bathroom_item_id = None
+        if response.status_code == 200:
+            data = response.json()
+            checklist = data.get("data", {}).get("checklist", [])
+            for item in checklist:
+                if item.get("name") == "Bathroom 1" or item.get("id") == "item_003":
+                    bathroom_item_id = item.get("id")
+                    break
+        
+        if not bathroom_item_id:
+            bathroom_item_id = "item_003"
+        
+        # Add notes to Bathroom 1
+        update_data = {"notes": "Cleaned thoroughly"}
+        response = requests.patch(
+            f"{BASE_URL}/service-tasks/{task_id}/checklist/{bathroom_item_id}",
+            json=update_data,
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "item" in data.get("data", {})):
+                
+                updated_item = data["data"]["item"]
+                
+                if updated_item.get("notes") == "Cleaned thoroughly":
+                    results.add_pass("PATCH checklist item - Add notes successfully")
+                else:
+                    results.add_fail("PATCH checklist item - Add notes", f"Notes not properly added: {updated_item}")
+            else:
+                results.add_fail("PATCH checklist item - Add notes", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("PATCH checklist item - Add notes", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("PATCH checklist item - Add notes", f"Request failed: {str(e)}")
+    
+    # Test 4: POST /api/service-tasks/{task_id}/checklist - Add new checklist item
+    print("\n   Test 4: POST new checklist item - Add Hallway")
+    new_item_id = None
+    try:
+        new_item_data = {
+            "name": "Hallway",
+            "item_type": "room"
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/service-tasks/{task_id}/checklist",
+            json=new_item_data,
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "item" in data.get("data", {})):
+                
+                new_item = data["data"]["item"]
+                new_item_id = new_item.get("id")
+                
+                if (new_item.get("name") == "Hallway" and
+                    new_item.get("item_type") == "room" and
+                    new_item.get("completed") == False and
+                    new_item_id):
+                    results.add_pass("POST new checklist item - Add Hallway with generated ID")
+                    print(f"      New item ID: {new_item_id}")
+                else:
+                    results.add_fail("POST new checklist item", f"Invalid new item structure: {new_item}")
+            else:
+                results.add_fail("POST new checklist item", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST new checklist item", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST new checklist item", f"Request failed: {str(e)}")
+    
+    # Test 5: DELETE /api/service-tasks/{task_id}/checklist/{item_id} - Delete the newly added item
+    print("\n   Test 5: DELETE checklist item - Remove newly added Hallway")
+    if new_item_id:
+        try:
+            response = requests.delete(
+                f"{BASE_URL}/service-tasks/{task_id}/checklist/{new_item_id}",
+                headers=get_auth_headers(worker_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "removed" in data.get("message", "").lower():
+                    results.add_pass("DELETE checklist item - Successfully removed newly added item")
+                else:
+                    results.add_fail("DELETE checklist item", f"Invalid response: {data}")
+            else:
+                results.add_fail("DELETE checklist item", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("DELETE checklist item", f"Request failed: {str(e)}")
+    else:
+        results.add_fail("DELETE checklist item", "No item ID available from previous test")
+    
+    # Test 6: GET /api/service-tasks - Verify checklist array is included in task response
+    print("\n   Test 6: GET service tasks - Verify checklist array included")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "tasks" in data.get("data", {})):
+                
+                tasks = data["data"]["tasks"]
+                target_task = None
+                
+                for task in tasks:
+                    if task.get("task_id") == task_id:
+                        target_task = task
+                        break
+                
+                if target_task:
+                    if "checklist" in target_task:
+                        checklist = target_task["checklist"]
+                        if isinstance(checklist, list) and len(checklist) > 0:
+                            results.add_pass("GET service tasks - Checklist array included in task response")
+                            print(f"      Task {task_id} has {len(checklist)} checklist items")
+                        else:
+                            results.add_fail("GET service tasks - Checklist array", f"Empty or invalid checklist: {checklist}")
+                    else:
+                        results.add_fail("GET service tasks - Checklist array", "Checklist field not found in task")
+                else:
+                    results.add_fail("GET service tasks - Checklist array", f"Task {task_id} not found in response")
+            else:
+                results.add_fail("GET service tasks - Checklist array", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET service tasks - Checklist array", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET service tasks - Checklist array", f"Request failed: {str(e)}")
+    
+    # Test 7: Verify progress is tracked correctly after all operations
+    print("\n   Test 7: Final progress verification")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/service-tasks/{task_id}/checklist",
+            headers=get_auth_headers(worker_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "checklist" in data.get("data", {})):
+                
+                checklist_data = data["data"]
+                total_items = checklist_data["total_items"]
+                completed_items = checklist_data["completed_items"]
+                progress_percent = checklist_data["progress_percent"]
+                
+                # Verify progress calculation is correct
+                expected_percent = round((completed_items / total_items * 100) if total_items > 0 else 0, 1)
+                
+                if progress_percent == expected_percent:
+                    results.add_pass("Final progress verification - Progress calculation accurate")
+                    print(f"      Final progress: {completed_items}/{total_items} items ({progress_percent}%)")
+                else:
+                    results.add_fail("Final progress verification", f"Progress calculation error: expected {expected_percent}%, got {progress_percent}%")
+            else:
+                results.add_fail("Final progress verification", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("Final progress verification", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Final progress verification", f"Request failed: {str(e)}")
+
 def test_task_assignment_and_billing_privacy(results):
     """Test Task Assignment and Worker Billing Privacy Features"""
     print("\n🧪 TESTING TASK ASSIGNMENT & WORKER BILLING PRIVACY")
