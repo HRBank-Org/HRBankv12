@@ -62,6 +62,15 @@ async def get_my_workplaces(
         {"_id": 0}
     ).to_list(100)
     
+    # Ensure work_mode and schedule_pattern have defaults for existing data
+    for wp in workplaces:
+        if 'work_mode' not in wp:
+            wp['work_mode'] = 'on_site'
+        if 'schedule_pattern' not in wp:
+            wp['schedule_pattern'] = 'standard'
+        if 'status' not in wp:
+            wp['status'] = 'active'
+    
     return {
         "success": True,
         "data": {"workplaces": workplaces}
