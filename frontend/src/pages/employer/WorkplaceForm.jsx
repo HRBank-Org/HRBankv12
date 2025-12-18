@@ -711,54 +711,145 @@ const WorkplaceForm = () => {
                       </button>
                     </div>
                     
-                    {/* Service Territory (for field service) */}
+                    {/* Service Territory - FSA Selector (for field service) */}
                     {formData.work_mode === 'field_service' && (
                       <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h4 className="text-sm font-semibold text-blue-800 mb-3">Service Territory</h4>
+                        <h4 className="text-sm font-semibold text-blue-800 mb-1">Service Territory (FSAs)</h4>
+                        <p className="text-xs text-blue-600 mb-4">
+                          Select the Forward Sortation Areas this location serves. Jobs in these FSAs will be routed here.
+                        </p>
                         
-                        {/* FSA Display - extracted from postal code */}
+                        {/* Primary FSA from address */}
                         {formData.postal_code && (
-                          <div className="flex items-center gap-2 mb-4">
-                            <span className="text-sm text-blue-700">Primary FSA:</span>
-                            <span className="px-3 py-1 bg-blue-100 text-blue-800 font-mono font-semibold rounded-lg">
-                              {formData.postal_code.substring(0, 3).toUpperCase()}
-                            </span>
-                            <span className="text-xs text-blue-600">
-                              (from workplace address)
-                            </span>
+                          <div className="mb-4 p-3 bg-white rounded-lg border border-blue-200">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600">Primary FSA:</span>
+                                <span className="px-3 py-1 bg-blue-600 text-white font-mono font-semibold rounded-lg">
+                                  {formData.postal_code.substring(0, 3).toUpperCase()}
+                                </span>
+                                <span className="text-xs text-gray-500">(from address)</span>
+                              </div>
+                              {!formData.service_fsas.includes(formData.postal_code.substring(0, 3).toUpperCase()) && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const primaryFsa = formData.postal_code.substring(0, 3).toUpperCase();
+                                    if (!formData.service_fsas.includes(primaryFsa)) {
+                                      setFormData({
+                                        ...formData,
+                                        service_fsas: [primaryFsa, ...formData.service_fsas]
+                                      });
+                                    }
+                                  }}
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                                >
+                                  + Add to territory
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
                         
-                        {/* Service Radius Slider */}
-                        <div>
+                        {/* Selected FSAs */}
+                        <div className="mb-4">
                           <label className="block text-sm font-medium text-blue-800 mb-2">
-                            Service Radius
+                            Service FSAs ({formData.service_fsas.length} selected)
                           </label>
-                          <div className="flex items-center gap-4">
-                            <input
-                              type="range"
-                              name="service_radius_km"
-                              min="5"
-                              max="50"
-                              step="5"
-                              value={formData.service_radius_km || 20}
-                              onChange={(e) => setFormData({ ...formData, service_radius_km: parseInt(e.target.value) })}
-                              className="flex-1 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                            />
-                            <span className="w-20 text-center px-3 py-1 bg-white border border-blue-200 rounded-lg font-semibold text-blue-800">
-                              {formData.service_radius_km || 20} km
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-xs text-blue-500 mt-1 px-1">
-                            <span>5 km</span>
-                            <span>25 km</span>
-                            <span>50 km</span>
+                          <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-white rounded-lg border border-blue-200">
+                            {formData.service_fsas.length === 0 ? (
+                              <span className="text-sm text-gray-400 italic">No FSAs selected yet</span>
+                            ) : (
+                              formData.service_fsas.map(fsa => (
+                                <span
+                                  key={fsa}
+                                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 font-mono font-semibold rounded-lg"
+                                >
+                                  {fsa}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveFsa(fsa)}
+                                    className="ml-1 text-blue-500 hover:text-red-500 transition-colors"
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              ))
+                            )}
                           </div>
                         </div>
                         
-                        <p className="text-xs text-blue-600 mt-3">
-                          Tasks within this radius from the base address can be assigned to workers
-                        </p>
+                        {/* Add FSA Input */}
+                        <div>
+                          <label className="block text-sm font-medium text-blue-800 mb-2">
+                            Add Adjacent FSA
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={newFsaInput}
+                              onChange={(e) => {
+                                setNewFsaInput(e.target.value.toUpperCase());
+                                setFsaError('');
+                              }}
+                              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddFsa())}
+                              placeholder="e.g., N9B"
+                              maxLength={3}
+                              className="w-24 px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-mono text-center uppercase"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAddFsa}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            >
+                              Add FSA
+                            </button>
+                          </div>
+                          {fsaError && (
+                            <p className="text-xs text-red-500 mt-1">{fsaError}</p>
+                          )}
+                          <p className="text-xs text-blue-500 mt-2">
+                            FSA format: Letter-Number-Letter (e.g., N9A, N9B, N8R)
+                          </p>
+                        </div>
+
+                        {/* Common adjacent FSAs hint */}
+                        {formData.postal_code && (
+                          <div className="mt-4 pt-4 border-t border-blue-200">
+                            <p className="text-xs text-blue-600 mb-2">💡 Common adjacent FSAs to consider:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {(() => {
+                                const baseFsa = formData.postal_code.substring(0, 3).toUpperCase();
+                                const baseNum = parseInt(baseFsa[1]);
+                                const suggestions = [];
+                                // Generate nearby FSA suggestions
+                                for (let i = Math.max(0, baseNum - 2); i <= Math.min(9, baseNum + 2); i++) {
+                                  const suggestedFsa = baseFsa[0] + i + baseFsa[2];
+                                  if (suggestedFsa !== baseFsa && !formData.service_fsas.includes(suggestedFsa)) {
+                                    suggestions.push(suggestedFsa);
+                                  }
+                                }
+                                return suggestions.slice(0, 4).map(fsa => (
+                                  <button
+                                    key={fsa}
+                                    type="button"
+                                    onClick={() => {
+                                      if (!formData.service_fsas.includes(fsa)) {
+                                        setFormData({
+                                          ...formData,
+                                          service_fsas: [...formData.service_fsas, fsa]
+                                        });
+                                      }
+                                    }}
+                                    className="px-2 py-1 text-xs font-mono bg-white border border-blue-200 rounded hover:bg-blue-100 transition-colors"
+                                  >
+                                    + {fsa}
+                                  </button>
+                                ));
+                              })()}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
