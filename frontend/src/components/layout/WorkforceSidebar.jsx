@@ -65,7 +65,7 @@ const WorkforceSidebar = () => {
     {
       type: 'item',
       label: 'Wallet',
-      icon: FiFileText,
+      icon: FiDollarSign,
       path: '/workforce/wallet'
     },
     {
