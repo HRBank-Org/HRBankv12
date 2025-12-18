@@ -139,6 +139,9 @@ class Task(BaseModel):
     notes: Optional[str] = None
     client_signature: Optional[str] = None  # Base64 signature image
     
+    # Checklist items (rooms, add-ons, care tasks, etc.)
+    checklist: List[ChecklistItem] = Field(default_factory=list)
+    
     # Billing
     billable: bool = True
     billing_rate_type: str = "hourly"  # hourly, flat, per_task
