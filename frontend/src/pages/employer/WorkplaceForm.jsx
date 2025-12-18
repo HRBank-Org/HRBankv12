@@ -68,6 +68,8 @@ const WorkplaceForm = () => {
           city: wp.city || '',
           province: wp.province || 'ON',
           postal_code: wp.postal_code || '',
+          latitude: wp.latitude || wp.lat || null,
+          longitude: wp.longitude || wp.lng || null,
           phone: wp.phone || '',
           email: wp.email || '',
           job_matching_radius_km: wp.job_matching_radius_km || wp.geofence_radius || 20,
@@ -75,6 +77,7 @@ const WorkplaceForm = () => {
           operating_hours: wp.operating_hours || formData.operating_hours
         });
         setWorkplaceStatus(wp.status || 'active');
+        setAddressValid(true); // Existing data is assumed valid
       }
 
       const workers = workersRes.data.data || [];
