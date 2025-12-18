@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import GenericHeader from '../../components/layout/GenericHeader';
+import SignaturePad from '../../components/common/SignaturePad';
 import api from '../../utils/api';
 import moment from 'moment';
 import { 
   FiMapPin, FiClock, FiPhone, FiUser, FiCheck, FiPlay, 
   FiNavigation, FiCalendar, FiChevronLeft, FiChevronRight,
   FiHome, FiKey, FiCheckCircle, FiCamera, FiFileText,
-  FiBriefcase, FiTruck, FiAlertCircle
+  FiBriefcase, FiTruck, FiAlertCircle, FiX, FiEdit3, FiImage
 } from 'react-icons/fi';
 
 const UnifiedSchedule = () => {
@@ -23,6 +24,10 @@ const UnifiedSchedule = () => {
   const [locationError, setLocationError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [completionNotes, setCompletionNotes] = useState('');
+  const [taskPhotos, setTaskPhotos] = useState({});  // {taskId: [photos]}
+  const [showSignaturePad, setShowSignaturePad] = useState(null);  // taskId or null
+  const [savingNotes, setSavingNotes] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Get the week dates for the week strip
   const getWeekDates = useCallback(() => {
