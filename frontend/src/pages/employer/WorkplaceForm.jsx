@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
+import AddressAutocomplete from '../../components/common/AddressAutocomplete';
 import api from '../../utils/api';
 import { FiMapPin, FiUsers, FiClock, FiSave, FiX, FiChevronRight, FiCalendar, FiTrash2, FiToggleLeft, FiToggleRight, FiAlertTriangle } from 'react-icons/fi';
 
