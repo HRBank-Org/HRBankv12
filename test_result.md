@@ -1013,6 +1013,27 @@ The Work Mode Configuration (Phase 1) is fully functional with all backend APIs 
 
 ---
 
+## Phase 2: Task Reporting APIs (2025-12-18)
+
+### New Endpoints:
+1. `POST /api/service-tasks/{task_id}/photos` - Add photo to task (base64)
+2. `DELETE /api/service-tasks/{task_id}/photos/{photo_id}` - Remove photo
+3. `PATCH /api/service-tasks/{task_id}/notes` - Update task notes
+4. `POST /api/service-tasks/{task_id}/signature` - Capture client signature
+
+### Frontend Components:
+- SignaturePad component at `/app/frontend/src/components/common/SignaturePad.jsx`
+- Unified Schedule with progressive reporting UI
+
+### Test Flow:
+1. Check in to task → status becomes "in_progress"
+2. Add photos via "Take Photo" or "Gallery"
+3. Add notes (auto-saves on blur)
+4. Capture client signature (optional)
+5. Complete & Check Out
+
+---
+
 ## BACKEND TEST RESULTS - TASK ASSIGNMENT & WORKER BILLING PRIVACY
 
 ### Test Execution Date: 2025-12-18 14:23:51
