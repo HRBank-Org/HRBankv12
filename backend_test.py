@@ -9787,6 +9787,9 @@ def main():
     # NEW: Test Task Assignment and Worker Billing Privacy (from review request)
     test_task_assignment_and_billing_privacy(results)
     
+    # NEW: Test Task Reporting APIs for HR Bank field service (from review request)
+    test_task_reporting_apis(results)
+    
     # Print final results
     success = results.summary()
     
