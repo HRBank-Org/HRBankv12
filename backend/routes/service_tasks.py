@@ -9,9 +9,9 @@ from typing import Dict, Optional, List
 from datetime import datetime, timezone
 from math import radians, sin, cos, sqrt, atan2
 
-from ..config.database import get_db
-from ..middleware.auth import get_current_user, require_role
-from ..models.tasks import (
+from config.database import get_db
+from middleware.auth import get_current_user, require_role
+from models.tasks import (
     Task, TaskStatus, TaskType, TaskAddress, TaskCheckIn,
     WorkBlock, CreateTaskRequest, TaskCheckInRequest
 )
