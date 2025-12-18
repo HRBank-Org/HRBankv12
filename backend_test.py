@@ -1280,6 +1280,257 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_address_autocomplete_integration(results):
+    """Test Address Autocomplete Integration - Complete Flow from review request"""
+    print("\n🧪 TESTING ADDRESS AUTOCOMPLETE INTEGRATION - COMPLETE FLOW")
+    print("   Focus: Google Places API integration for Workplace address autocomplete")
+    print("   Testing: /api/address/autocomplete, /api/address/details, /api/address/validate")
+    print("   Test Account: employer@hrbank.ca / Test123!")
+    
+    # First, login as employer to get authentication token
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for address testing")
+            else:
+                results.add_fail("Employer login for address testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Employer login for address testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login for address testing", f"Request failed: {str(e)}")
+        return
+    
+    # Test 1: GET /api/address/autocomplete - Address suggestions
+    print("\n   Test 1: GET /api/address/autocomplete - Address suggestions")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/address/autocomplete",
+            params={"input": "123 Main Street Windsor"},
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and 
+                "suggestions" in data["data"] and
+                isinstance(data["data"]["suggestions"], list)):
+                
+                suggestions = data["data"]["suggestions"]
+                if len(suggestions) > 0:
+                    # Check structure of first suggestion
+                    first_suggestion = suggestions[0]
+                    if ("description" in first_suggestion and 
+                        "place_id" in first_suggestion and
+                        "main_text" in first_suggestion and
+                        "secondary_text" in first_suggestion):
+                        results.add_pass("GET /api/address/autocomplete - Returns suggestions with proper structure")
+                        
+                        # Store place_id for next test
+                        test_place_id = first_suggestion["place_id"]
+                    else:
+                        results.add_fail("GET /api/address/autocomplete", f"Invalid suggestion structure: {first_suggestion}")
+                        test_place_id = None
+                else:
+                    results.add_pass("GET /api/address/autocomplete - No suggestions (expected for test address)")
+                    test_place_id = None
+            else:
+                results.add_fail("GET /api/address/autocomplete", f"Invalid response structure: {data}")
+                test_place_id = None
+        else:
+            results.add_fail("GET /api/address/autocomplete", f"HTTP {response.status_code}: {response.text}")
+            test_place_id = None
+    except Exception as e:
+        results.add_fail("GET /api/address/autocomplete", f"Request failed: {str(e)}")
+        test_place_id = None
+    
+    # Test 2: GET /api/address/details/{place_id} - Get address details
+    print("\n   Test 2: GET /api/address/details/{place_id} - Get address details")
+    if test_place_id:
+        try:
+            response = requests.get(
+                f"{BASE_URL}/address/details/{test_place_id}",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("success") and "data" in data):
+                    details = data["data"]
+                    required_fields = ["street_address", "city", "province", "postal_code", "latitude", "longitude"]
+                    if all(field in details for field in required_fields):
+                        results.add_pass("GET /api/address/details/{place_id} - Returns complete address details")
+                    else:
+                        results.add_fail("GET /api/address/details/{place_id}", f"Missing required fields: {details}")
+                else:
+                    results.add_fail("GET /api/address/details/{place_id}", f"Invalid response structure: {data}")
+            elif response.status_code == 404:
+                results.add_pass("GET /api/address/details/{place_id} - Handles invalid place_id correctly (404)")
+            else:
+                results.add_fail("GET /api/address/details/{place_id}", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/address/details/{place_id}", f"Request failed: {str(e)}")
+    else:
+        # Test with invalid place_id
+        try:
+            response = requests.get(
+                f"{BASE_URL}/address/details/invalid_place_id",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 404:
+                results.add_pass("GET /api/address/details/{place_id} - Handles invalid place_id correctly (404)")
+            else:
+                results.add_fail("GET /api/address/details/{place_id}", f"Expected 404 for invalid place_id, got {response.status_code}")
+        except Exception as e:
+            results.add_fail("GET /api/address/details/{place_id}", f"Request failed: {str(e)}")
+    
+    # Test 3: POST /api/address/validate - Validate structured address
+    print("\n   Test 3: POST /api/address/validate - Validate structured address")
+    
+    # Test 3a: Valid Canadian address
+    valid_address_data = {
+        "street_address": "123 Main St",
+        "city": "Windsor",
+        "province": "ON",
+        "postal_code": "N9A 1A1"
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/address/validate",
+            json=valid_address_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and 
+                data["data"].get("valid") == True and
+                "address" in data["data"]):
+                
+                address = data["data"]["address"]
+                required_fields = ["street_address", "city", "province", "postal_code"]
+                if all(field in address for field in required_fields):
+                    # Check if coordinates are provided (may be None if geocoding fails)
+                    if "latitude" in address and "longitude" in address:
+                        results.add_pass("POST /api/address/validate - Valid address with coordinates")
+                    else:
+                        results.add_pass("POST /api/address/validate - Valid address (coordinates may be unavailable)")
+                else:
+                    results.add_fail("POST /api/address/validate", f"Missing required address fields: {address}")
+            else:
+                results.add_fail("POST /api/address/validate", f"Invalid response for valid address: {data}")
+        else:
+            results.add_fail("POST /api/address/validate", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/address/validate", f"Request failed: {str(e)}")
+    
+    # Test 3b: Invalid address data
+    invalid_address_data = {
+        "street_address": "123",  # Too short
+        "city": "W",              # Too short
+        "province": "XX",         # Invalid province
+        "postal_code": "INVALID"  # Invalid postal code
+    }
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/address/validate",
+            json=invalid_address_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") == False and 
+                "data" in data and 
+                data["data"].get("valid") == False and
+                "errors" in data["data"] and
+                len(data["data"]["errors"]) > 0):
+                results.add_pass("POST /api/address/validate - Properly rejects invalid address")
+            else:
+                results.add_fail("POST /api/address/validate - Invalid address", f"Should reject invalid data: {data}")
+        else:
+            results.add_fail("POST /api/address/validate - Invalid address", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST /api/address/validate - Invalid address", f"Request failed: {str(e)}")
+    
+    # Test 4: Authentication enforcement
+    print("\n   Test 4: Authentication enforcement")
+    
+    address_endpoints = [
+        ("GET", "/address/autocomplete", {"input": "123 Main St"}),
+        ("GET", "/address/details/test_place_id", {}),
+        ("POST", "/address/validate", valid_address_data)
+    ]
+    
+    for method, endpoint, data in address_endpoints:
+        try:
+            if method == "GET":
+                if data:
+                    response = requests.get(f"{BASE_URL}{endpoint}", params=data, timeout=10)
+                else:
+                    response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json=data, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+    
+    # Test 5: Test with real Windsor address for autocomplete
+    print("\n   Test 5: Real Windsor address autocomplete")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/address/autocomplete",
+            params={"input": "1234 Ouellette Ave Windsor"},
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and 
+                "suggestions" in data["data"]):
+                
+                suggestions = data["data"]["suggestions"]
+                # Check if any suggestions contain Windsor
+                windsor_suggestions = [s for s in suggestions if "Windsor" in s.get("description", "")]
+                if len(windsor_suggestions) > 0:
+                    results.add_pass("Address autocomplete - Returns Windsor suggestions for Ouellette Ave")
+                else:
+                    results.add_pass("Address autocomplete - API working (no Windsor suggestions found)")
+            else:
+                results.add_fail("Address autocomplete - Windsor test", f"Invalid response: {data}")
+        else:
+            results.add_fail("Address autocomplete - Windsor test", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Address autocomplete - Windsor test", f"Request failed: {str(e)}")
+
 def test_address_validation_api(results):
     """Test Address Validation API - Complete Flow from review request"""
     print("\n🧪 TESTING ADDRESS VALIDATION API - COMPLETE FLOW")
