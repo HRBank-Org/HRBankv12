@@ -479,23 +479,77 @@ const UnifiedSchedule = () => {
 
             {/* In Progress - Reporting Fields */}
             {isInProgress && (
-              <div className="space-y-3 pt-2 border-t border-gray-200">
+              <div className="space-y-4 pt-2 border-t border-gray-200">
                 <p className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <FiClock className="text-orange-500" />
                   Started at {item.check_in ? moment(item.check_in.timestamp).format('h:mm A') : 'N/A'}
                 </p>
 
-                {/* Photo Upload Placeholder */}
+                {/* Photo Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FiCamera className="inline mr-1" /> Photos
                   </label>
-                  <button 
-                    className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    + Add Photo
-                  </button>
+                  
+                  {/* Photo Grid */}
+                  {(taskPhotos[item.id]?.length > 0 || item.photos?.length > 0) && (
+                    <div className="grid grid-cols-3 gap-2 mb-2">
+                      {[...(item.photos || []), ...(taskPhotos[item.id] || [])].map((photo, idx) => (
+                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                          <img 
+                            src={photo.image || photo} 
+                            alt={`Task photo ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-black/50 text-white text-xs rounded">
+                            {photo.type || 'photo'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Upload Buttons */}
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      ref={fileInputRef}
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files[0]) {
+                          handlePhotoUpload(item.id, e.target.files[0], 'during');
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+                    <button 
+                      className="flex-1 py-2.5 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                    >
+                      <FiCamera size={16} />
+                      Take Photo
+                    </button>
+                    <button 
+                      className="flex-1 py-2.5 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = (ev) => {
+                          if (ev.target.files[0]) {
+                            handlePhotoUpload(item.id, ev.target.files[0], 'during');
+                          }
+                        };
+                        input.click();
+                      }}
+                    >
+                      <FiImage size={16} />
+                      Gallery
+                    </button>
+                  </div>
                 </div>
 
                 {/* Notes */}
@@ -503,20 +557,55 @@ const UnifiedSchedule = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FiFileText className="inline mr-1" /> Notes
                   </label>
-                  <textarea
-                    value={completionNotes}
-                    onChange={(e) => setCompletionNotes(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    placeholder="Add notes about this task..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none resize-none"
-                    rows={2}
-                  />
+                  <div className="relative">
+                    <textarea
+                      value={completionNotes}
+                      onChange={(e) => setCompletionNotes(e.target.value)}
+                      onBlur={() => handleSaveNotes(item.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="Add notes about this task..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none resize-none"
+                      rows={3}
+                    />
+                    {savingNotes && (
+                      <span className="absolute top-2 right-2 text-xs text-gray-400">Saving...</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Client Signature */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FiEdit3 className="inline mr-1" /> Client Signature (optional)
+                  </label>
+                  {showSignaturePad === item.id ? (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <SignaturePad 
+                        clientName={address?.client_name || ''}
+                        onSave={(sig, name) => handleSignatureSave(item.id, sig, name)}
+                        onCancel={() => setShowSignaturePad(null)}
+                      />
+                    </div>
+                  ) : item.client_signature ? (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                      <FiCheck className="text-green-600" />
+                      <span className="text-sm text-green-700">Signature captured</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setShowSignaturePad(item.id); }}
+                      className="w-full py-2.5 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                    >
+                      <FiEdit3 size={16} />
+                      Capture Signature
+                    </button>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="pt-2">
+            <div className="pt-3">
               {canCheckIn && (
                 <button
                   onClick={(e) => { e.stopPropagation(); handleTaskCheckIn(item.id); }}
