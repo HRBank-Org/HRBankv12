@@ -145,6 +145,91 @@ class NeatifyBookingResponse(BaseModel):
 
 # ==================== API Endpoints ====================
 
+def generate_checklist_from_booking(booking: NeatifyBooking) -> List[ChecklistItem]:
+    """
+    Generate checklist items from Neatify booking data.
+    Sources: explicit tasks, residential breakdown, add-ons
+    """
+    checklist = []
+    
+    # 1. Use explicit tasks if provided
+    if booking.tasks:
+        for task in booking.tasks:
+            checklist.append(ChecklistItem(
+                name=task.name,
+                item_type=task.taskType,
+                description=task.description,
+                completed=task.isCompleted,
+                external_id=task.id
+            ))
+        return checklist
+    
+    # 2. Generate from residential breakdown
+    if booking.residential:
+        res = booking.residential
+        
+        # Bedrooms
+        for i in range(res.bedrooms or 0):
+            checklist.append(ChecklistItem(
+                name=f"Bedroom {i+1}" if (res.bedrooms or 0) > 1 else "Bedroom",
+                item_type="room"
+            ))
+        
+        # Bathrooms
+        for i in range(res.bathrooms or 0):
+            checklist.append(ChecklistItem(
+                name=f"Bathroom {i+1}" if (res.bathrooms or 0) > 1 else "Bathroom",
+                item_type="room"
+            ))
+        
+        # Kitchen
+        if res.kitchen:
+            checklist.append(ChecklistItem(name="Kitchen", item_type="room"))
+        
+        # Living rooms
+        for i in range(res.living_rooms or 0):
+            checklist.append(ChecklistItem(
+                name=f"Living Room {i+1}" if (res.living_rooms or 0) > 1 else "Living Room",
+                item_type="room"
+            ))
+        
+        # Dining rooms
+        for i in range(res.dining_rooms or 0):
+            checklist.append(ChecklistItem(
+                name=f"Dining Room {i+1}" if (res.dining_rooms or 0) > 1 else "Dining Room",
+                item_type="room"
+            ))
+        
+        # Stairs, hallways, laundry
+        if res.stairs:
+            checklist.append(ChecklistItem(name="Stairs", item_type="room"))
+        if res.hallways:
+            checklist.append(ChecklistItem(name="Hallways", item_type="room"))
+        if res.laundry_room:
+            checklist.append(ChecklistItem(name="Laundry Room", item_type="room"))
+    
+    # 3. Add add-ons
+    addon_names = {
+        "fridge_interior": "Fridge Interior",
+        "oven_interior": "Oven Interior", 
+        "interior_windows": "Interior Windows",
+        "baseboards_deep": "Deep Baseboards",
+        "carpet_spot": "Carpet Spot Treatment",
+        "haul_away": "Haul Away Service"
+    }
+    
+    if booking.addOns:
+        for addon_id in booking.addOns:
+            addon_name = addon_names.get(addon_id, addon_id.replace("_", " ").title())
+            checklist.append(ChecklistItem(
+                name=addon_name,
+                item_type="addon",
+                external_id=addon_id
+            ))
+    
+    return checklist
+
+
 @router.post("", response_model=NeatifyBookingResponse)
 async def receive_neatify_booking(
     booking: NeatifyBooking,
