@@ -517,6 +517,38 @@ I have successfully completed comprehensive testing of the Work Mode Configurati
 
 **System Status:** All Work Mode Configuration features are production-ready. The multi-mode refactor Phase 1 is complete and working correctly with proper defaults, validation, and update functionality.
 
+---
+
+## Current Test Focus: Service Tasks API (Phase 2)
+
+### Features Implemented:
+1. **Task Model**: `/app/backend/models/tasks.py` - Full task data model with GPS check-in/out
+2. **Service Tasks Routes**: `/app/backend/routes/service_tasks.py` - CRUD, check-in/out, FSA routing
+3. **Work Block Model**: For grouping tasks into payroll units
+
+### Key API Endpoints:
+- `POST /api/service-tasks` - Create service task (validates FSA against workplace territory)
+- `GET /api/service-tasks` - List tasks with filters
+- `POST /api/service-tasks/{id}/check-in` - GPS check-in at task location
+- `POST /api/service-tasks/{id}/check-out` - GPS check-out, completes task
+- `POST /api/service-tasks/{id}/assign` - Assign task to worker
+- `POST /api/service-tasks/{id}/cancel` - Cancel task
+
+### Test Accounts:
+- **Employer**: employer@hrbank.ca / Test123!
+- **Worker**: worker@hrbank.ca / Test123!
+
+### FSA Routing Logic:
+- Tasks are validated against workplace's service_fsas array
+- If task FSA not in territory, creation is rejected with clear error message
+
+### Flows to Test:
+1. Create task in valid FSA (should succeed)
+2. Create task in invalid FSA (should reject with error)
+3. Assign task to worker
+4. Worker check-in/check-out flow
+5. Task status transitions
+
 ### Testing Agent → Main Agent (2025-12-17 16:35:00)
 
 **GPS-Based Attendance & Geofencing (Phase 3) - COMPREHENSIVE TESTING COMPLETED ✅**
