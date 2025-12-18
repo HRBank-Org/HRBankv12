@@ -257,6 +257,7 @@ const WorkplacesNew = () => {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Workplace Name</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Mode</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Address</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Workers</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Shifts</th>
@@ -264,22 +265,41 @@ const WorkplacesNew = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {workplaces.map((workplace) => (
-                      <tr 
-                        key={workplace.workplace_id}
-                        className="hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
-                      >
-                        <td className="px-6 py-4">
-                          <div className="font-semibold text-gray-900">{workplace.workplace_name || workplace.name}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-gray-600 text-sm">
-                            {workplace.address}, {workplace.city}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2 text-gray-600">
+                    {workplaces.map((workplace) => {
+                      const workMode = workplace.work_mode || 'on_site';
+                      const isFieldService = workMode === 'field_service';
+                      
+                      return (
+                        <tr 
+                          key={workplace.workplace_id}
+                          className="hover:bg-gray-50 cursor-pointer transition-colors"
+                          onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
+                        >
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-gray-900">{workplace.workplace_name || workplace.name}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span 
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                                isFieldService 
+                                  ? 'bg-blue-100 text-blue-700' 
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {isFieldService ? <FiNavigation size={12} /> : <FiHome size={12} />}
+                              {isFieldService ? 'Field' : 'On-Site'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-gray-600 text-sm">
+                              {isFieldService && workplace.service_area_name 
+                                ? workplace.service_area_name 
+                                : `${workplace.address}, ${workplace.city}`
+                              }
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2 text-gray-600">
                             <FiUsers size={16} />
                             <span className="text-sm">{workplace.assigned_workers || 0}</span>
                           </div>
