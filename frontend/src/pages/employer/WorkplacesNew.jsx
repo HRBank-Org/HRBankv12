@@ -191,43 +191,65 @@ const WorkplacesNew = () => {
               </div>
             ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {workplaces.map((workplace) => (
-                  <div
-                    key={workplace.workplace_id}
-                    className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{workplace.workplace_name || workplace.name}</h3>
-                        <p className="text-gray-600 text-sm flex items-center gap-2">
-                          <FiMapPin size={16} />
-                          {workplace.address}, {workplace.city}, {workplace.province} {workplace.postal_code}
-                        </p>
+                {workplaces.map((workplace) => {
+                  const workMode = workplace.work_mode || 'on_site';
+                  const isFieldService = workMode === 'field_service';
+                  
+                  return (
+                    <div
+                      key={workplace.workplace_id}
+                      className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => navigate(`/employer/workplaces/${workplace.workplace_id}`)}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-xl font-bold text-gray-900">{workplace.workplace_name || workplace.name}</h3>
+                            {/* Work Mode Badge */}
+                            <span 
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                                isFieldService 
+                                  ? 'bg-blue-100 text-blue-700' 
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                              title={isFieldService ? 'Field Service Mode' : 'On-Site Mode'}
+                            >
+                              {isFieldService ? <FiNavigation size={10} /> : <FiHome size={10} />}
+                              {isFieldService ? 'Field' : 'On-Site'}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm flex items-center gap-2">
+                            <FiMapPin size={16} />
+                            {isFieldService && workplace.service_area_name 
+                              ? workplace.service_area_name 
+                              : `${workplace.address}, ${workplace.city}, ${workplace.province} ${workplace.postal_code}`
+                            }
+                          </p>
+                        </div>
+                        <span 
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            workplace.status === 'inactive' 
+                              ? 'bg-gray-100 text-gray-600' 
+                              : 'bg-green-100 text-green-700'
+                          }`}
+                        >
+                          {workplace.status === 'inactive' ? 'Inactive' : 'Active'}
+                        </span>
                       </div>
-                      <span 
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          workplace.status === 'inactive' 
-                            ? 'bg-gray-100 text-gray-600' 
-                            : 'bg-green-100 text-green-700'
-                        }`}
-                      >
-                        {workplace.status === 'inactive' ? 'Inactive' : 'Active'}
-                      </span>
+                      
+                      <div className="flex items-center gap-6 mt-4 pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <FiUsers size={18} />
+                          <span className="text-sm">{workplace.assigned_workers || 0} Workers</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <FiCalendar size={18} />
+                          <span className="text-sm">{workplace.active_shifts || 0} {isFieldService ? 'Work Blocks' : 'Shifts'}</span>
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="flex items-center gap-6 mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <FiUsers size={18} />
-                        <span className="text-sm">{workplace.assigned_workers || 0} Workers</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <FiCalendar size={18} />
-                        <span className="text-sm">{workplace.active_shifts || 0} Shifts</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
