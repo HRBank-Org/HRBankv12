@@ -177,36 +177,30 @@ const ModernSidebar = () => {
                   className={`
                     w-full flex items-center py-3 rounded-xl
                     transition-colors duration-200 group relative
+                    ${showExpanded ? 'px-3 justify-start' : 'justify-center'}
                     ${active 
                       ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg' 
                       : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }
                   `}
-                  style={{
-                    paddingLeft: showExpanded ? '12px' : '22px',
-                    paddingRight: showExpanded ? '12px' : '22px',
-                  }}
                 >
                   {/* Fixed-size icon container */}
-                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                    <Icon 
-                      size={20} 
-                      className={`${active ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}
-                      style={{ width: '20px', height: '20px' }}
-                    />
-                  </div>
+                  <Icon 
+                    size={20} 
+                    className={`flex-shrink-0 ${active ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}
+                  />
                   
-                  {/* Text container with smooth transition */}
-                  <div 
-                    className={`flex items-center flex-1 overflow-hidden transition-all duration-300 ${showExpanded ? 'ml-3 opacity-100 max-w-[180px]' : 'ml-0 opacity-0 max-w-0'}`}
-                  >
-                    <span className="text-left text-sm font-medium whitespace-nowrap">
+                  {/* Text - only render when expanded */}
+                  {showExpanded && (
+                    <span className="ml-3 text-sm font-medium whitespace-nowrap">
                       {item.label}
                     </span>
-                    {active && showExpanded && (
-                      <FiChevronRight size={16} className="text-white ml-auto flex-shrink-0" />
-                    )}
-                  </div>
+                  )}
+                  
+                  {/* Chevron for active state */}
+                  {active && showExpanded && (
+                    <FiChevronRight size={16} className="text-white ml-auto flex-shrink-0" />
+                  )}
 
                   {/* Tooltip for collapsed state */}
                   {!showExpanded && (
