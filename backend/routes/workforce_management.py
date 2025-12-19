@@ -249,6 +249,16 @@ async def get_worker_kpis(
             "clock_out_time": {"$exists": False}
         })
         
+        # Get workplace name
+        workplace_name = None
+        if rel.get("workplace_id"):
+            workplace = await db.workplaces.find_one(
+                {"workplace_id": rel["workplace_id"]},
+                {"_id": 0, "workplace_name": 1, "name": 1}
+            )
+            if workplace:
+                workplace_name = workplace.get("workplace_name") or workplace.get("name")
+        
         worker_kpis.append({
             "user_id": worker["user_id"],
             "full_name": worker.get("full_name"),
@@ -258,11 +268,16 @@ async def get_worker_kpis(
             "position_title": rel.get("position_title"),
             "employment_type": rel.get("employment_type"),
             "employment_start_date": rel.get("employment_start_date"),
+            "workplace_id": rel.get("workplace_id"),
+            "workplace_name": workplace_name,
             
             # Overall stats
             "total_shifts_completed": rel.get("total_shifts_completed", 0),
             "total_hours_worked": rel.get("total_hours_worked", 0.0),
             "average_rating": worker_profile.get("average_rating") if worker_profile else rel.get("average_rating"),
+            
+            # ESA Compliance tracking
+            "has_excess_hours_agreement": rel.get("has_excess_hours_agreement", False),
             
             # This week KPIs
             "week_kpis": {
