@@ -404,20 +404,81 @@ const RoleForm = () => {
 
                 {/* Shift Type Selector */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Work Type <span className="text-red-500">*</span>
                   </label>
+                  
+                  {/* Default Work Type Indicator */}
+                  {defaultWorkType && (
+                    <div className={`mb-3 p-3 rounded-lg border ${
+                      workTypeOverridden 
+                        ? 'bg-amber-50 border-amber-200' 
+                        : 'bg-green-50 border-green-200'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">
+                            {defaultWorkType.default_work_type === 'on_site' ? '🏢' : 
+                             defaultWorkType.default_work_type === 'route_based' ? '🚗' : '🔄'}
+                          </span>
+                          <div>
+                            <p className="text-sm font-medium text-gray-800">
+                              {workTypeOverridden ? (
+                                <>Overriding default: <span className="text-amber-700">{defaultWorkType.default_work_type.replace('_', '-')}</span></>
+                              ) : (
+                                <>Default for {formData.occupation_template}: <span className="text-green-700">{defaultWorkType.default_work_type.replace('_', '-')}</span></>
+                              )}
+                            </p>
+                            <p className="text-xs text-gray-500">{defaultWorkType.work_type_description}</p>
+                          </div>
+                        </div>
+                        {workTypeOverridden && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setWorkTypeOverridden(false);
+                              const newType = defaultWorkType.default_work_type;
+                              setFormData(prev => ({
+                                ...prev,
+                                shift_type: newType,
+                                continental_config: newType === 'continental' 
+                                  ? { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
+                                  : null,
+                                route_config: newType === 'route_based'
+                                  ? { default_duration_hours: 8, allow_recurring_routes: true }
+                                  : null
+                              }));
+                            }}
+                            className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
+                          >
+                            Reset to default
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="grid grid-cols-3 gap-3">
                     {/* On-Site */}
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, shift_type: 'on_site', continental_config: null, route_config: null }))}
-                      className={`p-4 rounded-xl border-2 text-left transition-all ${
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, shift_type: 'on_site', continental_config: null, route_config: null }));
+                        if (defaultWorkType && defaultWorkType.default_work_type !== 'on_site') {
+                          setWorkTypeOverridden(true);
+                        } else {
+                          setWorkTypeOverridden(false);
+                        }
+                      }}
+                      className={`p-4 rounded-xl border-2 text-left transition-all relative ${
                         formData.shift_type === 'on_site'
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
+                      {defaultWorkType?.default_work_type === 'on_site' && (
+                        <span className="absolute top-2 right-2 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Default</span>
+                      )}
                       <div className="text-2xl mb-2">🏢</div>
                       <h4 className="font-semibold text-gray-900">On-Site</h4>
                       <p className="text-xs text-gray-500 mt-1">Standard shifts at workplace location</p>
@@ -427,18 +488,28 @@ const RoleForm = () => {
                     {/* Route-Based */}
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ 
-                        ...prev, 
-                        shift_type: 'route_based', 
-                        continental_config: null,
-                        route_config: { default_duration_hours: 8, allow_recurring_routes: true }
-                      }))}
-                      className={`p-4 rounded-xl border-2 text-left transition-all ${
+                      onClick={() => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          shift_type: 'route_based', 
+                          continental_config: null,
+                          route_config: { default_duration_hours: 8, allow_recurring_routes: true }
+                        }));
+                        if (defaultWorkType && defaultWorkType.default_work_type !== 'route_based') {
+                          setWorkTypeOverridden(true);
+                        } else {
+                          setWorkTypeOverridden(false);
+                        }
+                      }}
+                      className={`p-4 rounded-xl border-2 text-left transition-all relative ${
                         formData.shift_type === 'route_based'
                           ? 'border-orange-500 bg-orange-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
+                      {defaultWorkType?.default_work_type === 'route_based' && (
+                        <span className="absolute top-2 right-2 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Default</span>
+                      )}
                       <div className="text-2xl mb-2">🚗</div>
                       <h4 className="font-semibold text-gray-900">Route-Based</h4>
                       <p className="text-xs text-gray-500 mt-1">Multi-stop tasks at different locations</p>
@@ -448,18 +519,28 @@ const RoleForm = () => {
                     {/* Continental */}
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ 
-                        ...prev, 
-                        shift_type: 'continental',
-                        route_config: null,
-                        continental_config: { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
-                      }))}
-                      className={`p-4 rounded-xl border-2 text-left transition-all ${
+                      onClick={() => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          shift_type: 'continental',
+                          route_config: null,
+                          continental_config: { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
+                        }));
+                        if (defaultWorkType && defaultWorkType.default_work_type !== 'continental') {
+                          setWorkTypeOverridden(true);
+                        } else {
+                          setWorkTypeOverridden(false);
+                        }
+                      }}
+                      className={`p-4 rounded-xl border-2 text-left transition-all relative ${
                         formData.shift_type === 'continental'
                           ? 'border-indigo-500 bg-indigo-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
+                      {defaultWorkType?.default_work_type === 'continental' && (
+                        <span className="absolute top-2 right-2 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Default</span>
+                      )}
                       <div className="text-2xl mb-2">🔄</div>
                       <h4 className="font-semibold text-gray-900">Continental</h4>
                       <p className="text-xs text-gray-500 mt-1">12-hour rotating shift patterns</p>
