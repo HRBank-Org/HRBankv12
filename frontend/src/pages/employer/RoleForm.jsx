@@ -45,11 +45,12 @@ const RoleForm = () => {
     loadInitialData();
   }, []);
   
-  // Fetch compliance data (minimum rate + required certifications) when occupation or workplace changes
+  // Fetch compliance data (minimum rate + required certifications + default work type) when occupation or workplace changes
   const fetchComplianceData = async (occupationTitle, provinceCode = 'ON') => {
     if (!occupationTitle) {
       setMinimumRate(null);
       setRequiredCertifications([]);
+      setDefaultWorkType(null);
       return;
     }
     
@@ -91,6 +92,30 @@ const RoleForm = () => {
       }
     } catch (error) {
       console.error('Failed to fetch required certifications:', error);
+    }
+    
+    // Fetch default work type from occupation template
+    try {
+      const workTypeResponse = await api.get(`/api/admin/occupations/default-work-type/${encodeURIComponent(occupationTitle)}`);
+      const workTypeData = workTypeResponse.data.data;
+      setDefaultWorkType(workTypeData);
+      
+      // Auto-set work type if not overridden by user
+      if (!workTypeOverridden && !isEditMode) {
+        const newWorkType = workTypeData.default_work_type;
+        setFormData(prev => ({
+          ...prev,
+          shift_type: newWorkType,
+          continental_config: newWorkType === 'continental' 
+            ? { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
+            : null,
+          route_config: newWorkType === 'route_based'
+            ? { default_duration_hours: 8, allow_recurring_routes: true }
+            : null
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch default work type:', error);
     }
   };
   
