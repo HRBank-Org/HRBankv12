@@ -10355,6 +10355,9 @@ def main():
     # NEW: Test Task Reporting APIs for HR Bank field service (from review request)
     test_task_reporting_apis(results)
     
+    # NEW: Test Continental Shift Pattern and Unified Payroll System (from review request)
+    test_continental_shift_pattern_and_unified_payroll(results)
+    
     # Print final results
     success = results.summary()
     
