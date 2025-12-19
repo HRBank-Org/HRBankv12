@@ -301,9 +301,25 @@ const Roles = () => {
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-bold text-gray-900">{role.role_name || role.title || 'Unnamed Role'}</h3>
                         {getStatusBadge(role)}
+                        {/* Shift Type Badge */}
+                        {role.shift_type === 'continental' && (
+                          <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium flex items-center gap-1">
+                            🔄 Continental
+                          </span>
+                        )}
+                        {role.shift_type === 'route_based' && (
+                          <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium flex items-center gap-1">
+                            🚗 Route-Based
+                          </span>
+                        )}
+                        {(!role.shift_type || role.shift_type === 'on_site') && (
+                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-1">
+                            🏢 On-Site
+                          </span>
+                        )}
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                         <div className="flex items-center gap-2 text-gray-600">
                           <FiMapPin size={16} />
                           <span className="text-sm">{role.workplace_name || 'General Role'}</span>
@@ -316,6 +332,12 @@ const Roles = () => {
                           <FiDollarSign size={16} />
                           <span className="text-sm font-medium">
                             ${role.hourly_rate ? role.hourly_rate.toFixed(2) : 'TBD'}/hr
+                          </span>
+                        </div>
+                        {/* Hours This Week (from KPIs) */}
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <span className="text-sm">
+                            📊 {role.hours_this_week || 0}h this week
                           </span>
                         </div>
                       </div>
