@@ -422,7 +422,7 @@ const Roles = () => {
               </div>
               
               <p className="text-gray-700 mb-4">
-                Are you sure you want to delete <strong>"{deleteModal.role.role_name || deleteModal.role.title}"</strong>?
+                Are you sure you want to delete <strong>&quot;{deleteModal.role.role_name || deleteModal.role.title}&quot;</strong>?
               </p>
               
               {deleteError && (
