@@ -270,22 +270,6 @@ const WorkforceManagement = () => {
               </table>
             </div>
           )
-        ) : workers.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <p className="text-gray-500">
-              {activeTab === 'active' ? 'No active workers. Start by inviting workers to join your team!' : 'No past workers'}
-            </p>
-            {activeTab === 'active' && (
-              <button
-                onClick={() => setShowInviteModal(true)}
-                className="mt-4 px-6 py-3 rounded-lg text-white font-medium hover:opacity-90"
-                style={{ backgroundColor: theme.primaryColor }}
-              >
-                <FiUserPlus className="inline mr-2" />
-                Invite Workers
-              </button>
-            )}
-          </div>
         ) : activeTab === 'active' ? (
           /* Active Workers with KPIs */
           workerKpis.length === 0 ? (
