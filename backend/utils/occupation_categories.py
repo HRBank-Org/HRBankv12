@@ -49,7 +49,6 @@ DEFAULT_WORK_TYPES = {
     "Home Care Aide": "route_based",
     "Caregiver": "route_based",
     "Personal Support Worker (PSW)": "route_based",
-    "Mobile Patrol Officer": "route_based",
     "Pest Control Technician": "route_based",
     "Pool Maintenance Technician": "route_based",
     "Snow Removal Operator": "route_based",
