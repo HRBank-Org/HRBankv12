@@ -229,17 +229,9 @@ async def generate_payroll_entries(db, period: PayrollPeriod, employer_id: str):
         overtime_pay = overtime_hours * hourly_rate * 1.5  # 1.5x for overtime
         gross_pay = regular_pay + overtime_pay
         
-        # Calculate deductions
-        cpp_result = calculate_cpp_deduction(0, gross_pay)  # Simplified - should track YTD
-        ei_result = calculate_ei_deduction(0, gross_pay)
-        
-        # Calculate tax (simplified)
-        taxable_income = gross_pay
+        # Calculate all deductions using unified payroll calculation service
         payroll_result = calculate_payroll_for_period(
-            gross_pay=gross_pay,
-            regular_hours=regular_hours,
-            overtime_hours=overtime_hours,
-            hourly_rate=hourly_rate
+            gross_pay=gross_pay
         )
         
         # Create entry
