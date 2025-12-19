@@ -21,6 +21,9 @@ const RoleForm = () => {
     workplace_id: '',
     role_name: '',
     occupation_template: '',
+    shift_type: 'on_site', // on_site, route_based, continental
+    continental_config: null,
+    route_config: null,
     required_skills: [],
     additional_certifications: [],
     generic_tasks: [],
