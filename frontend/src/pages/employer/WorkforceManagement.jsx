@@ -1291,6 +1291,7 @@ const WorkforceManagement = () => {
           </div>
           )
         )}
+          </div>
         </main>
       </div>
 
