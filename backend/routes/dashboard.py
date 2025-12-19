@@ -339,3 +339,170 @@ async def toggle_workplace_status(
             "is_active": new_status
         }
     }
+
+
+
+@router.get("/operational-kpis", response_model=Dict)
+async def get_operational_kpis(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get comprehensive operational KPIs for employer dashboard
+    Aggregates data from all three work modes: Standard, Field Service, Continental
+    """
+    employer_id = current_user["user_id"]
+    now = datetime.now(timezone.utc)
+    
+    # Time ranges
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=today_start.weekday())
+    
+    # === SHIFTS (Standard + Continental) ===
+    
+    # Today's shifts
+    today_shifts = await db.calendar_shifts.find({
+        "employer_id": employer_id,
+        "shift_date": today_start.strftime("%Y-%m-%d")
+    }, {"_id": 0}).to_list(500)
+    
+    # This week's shifts
+    week_shifts = await db.calendar_shifts.find({
+        "employer_id": employer_id,
+        "start_time": {
+            "$gte": week_start.isoformat(),
+            "$lte": now.isoformat()
+        }
+    }, {"_id": 0}).to_list(1000)
+    
+    # Separate standard and continental
+    standard_shifts_week = [s for s in week_shifts if s.get("shift_type") != "continental"]
+    continental_shifts_week = [s for s in week_shifts if s.get("shift_type") == "continental"]
+    
+    # === ATTENDANCE ===
+    
+    # Get attendance records for the week
+    attendance_records = await db.attendance.find({
+        "employer_id": employer_id,
+        "clock_in_time": {"$gte": week_start.isoformat()}
+    }, {"_id": 0}).to_list(1000)
+    
+    # Calculate total hours from attendance
+    total_shift_hours_week = 0
+    for record in attendance_records:
+        hours = record.get("hours_worked", 0)
+        if not hours and record.get("clock_in_time") and record.get("clock_out_time"):
+            try:
+                clock_in = datetime.fromisoformat(record["clock_in_time"].replace("Z", "+00:00"))
+                clock_out = datetime.fromisoformat(record["clock_out_time"].replace("Z", "+00:00"))
+                hours = (clock_out - clock_in).total_seconds() / 3600
+            except (ValueError, TypeError):
+                hours = 0
+        total_shift_hours_week += hours
+    
+    # === FIELD SERVICE TASKS ===
+    
+    # Get service tasks for the week
+    service_tasks = await db.service_tasks.find({
+        "employer_id": employer_id,
+        "scheduled_date": {
+            "$gte": week_start.strftime("%Y-%m-%d"),
+            "$lte": now.strftime("%Y-%m-%d")
+        }
+    }, {"_id": 0}).to_list(1000)
+    
+    completed_tasks = [t for t in service_tasks if t.get("status") == "completed"]
+    in_progress_tasks = [t for t in service_tasks if t.get("status") == "in_progress"]
+    pending_tasks = [t for t in service_tasks if t.get("status") in ["pending", "assigned"]]
+    
+    # Calculate task hours
+    total_task_hours_week = 0
+    for task in completed_tasks:
+        if task.get("actual_duration_minutes"):
+            total_task_hours_week += task["actual_duration_minutes"] / 60
+        elif task.get("check_in") and task.get("check_out"):
+            try:
+                check_in = datetime.fromisoformat(task["check_in"]["timestamp"].replace("Z", "+00:00"))
+                check_out = datetime.fromisoformat(task["check_out"]["timestamp"].replace("Z", "+00:00"))
+                total_task_hours_week += (check_out - check_in).total_seconds() / 3600
+            except (ValueError, TypeError, KeyError):
+                pass
+    
+    # === WORKERS ===
+    
+    # Active workers
+    active_relationships = await db.employment_relationships.count_documents({
+        "employer_id": employer_id,
+        "employment_status": "active"
+    })
+    
+    # Workers on duty today
+    workers_on_duty_today = set()
+    for shift in today_shifts:
+        for w in shift.get("assigned_workers", []):
+            worker_id = w.get("worker_id") if isinstance(w, dict) else w
+            if worker_id:
+                workers_on_duty_today.add(worker_id)
+    
+    # Add field service workers
+    today_tasks = [t for t in service_tasks if t.get("scheduled_date") == today_start.strftime("%Y-%m-%d")]
+    for task in today_tasks:
+        if task.get("worker_id"):
+            workers_on_duty_today.add(task["worker_id"])
+    
+    # === CONTINENTAL SHIFTS SPECIFIC ===
+    
+    continental_groups = {}
+    for shift in continental_shifts_week:
+        group = shift.get("rotation_group", "Unknown")
+        if group not in continental_groups:
+            continental_groups[group] = {"day": 0, "night": 0}
+        day_night = shift.get("day_night", "day")
+        continental_groups[group][day_night] = continental_groups[group].get(day_night, 0) + 1
+    
+    # === ATTENDANCE RATE ===
+    
+    expected_today = sum(len(s.get("assigned_workers", [])) for s in today_shifts)
+    actual_checkins = await db.attendance.count_documents({
+        "employer_id": employer_id,
+        "shift_date": today_start.strftime("%Y-%m-%d"),
+        "clock_in_time": {"$exists": True}
+    })
+    
+    attendance_rate = round((actual_checkins / expected_today * 100), 1) if expected_today > 0 else 100
+    
+    return {
+        "success": True,
+        "data": {
+            "summary": {
+                "total_hours_this_week": round(total_shift_hours_week + total_task_hours_week, 1),
+                "shift_hours_week": round(total_shift_hours_week, 1),
+                "task_hours_week": round(total_task_hours_week, 1),
+                "active_workers": active_relationships,
+                "workers_on_duty_today": len(workers_on_duty_today),
+                "attendance_rate_today": attendance_rate
+            },
+            "shifts": {
+                "today_count": len(today_shifts),
+                "week_total": len(week_shifts),
+                "standard_shifts_week": len(standard_shifts_week),
+                "continental_shifts_week": len(continental_shifts_week)
+            },
+            "field_service": {
+                "total_tasks_week": len(service_tasks),
+                "completed": len(completed_tasks),
+                "in_progress": len(in_progress_tasks),
+                "pending": len(pending_tasks),
+                "completion_rate": round(len(completed_tasks) / len(service_tasks) * 100, 1) if service_tasks else 0
+            },
+            "continental": {
+                "rotation_groups": continental_groups,
+                "total_shifts_week": len(continental_shifts_week)
+            },
+            "period": {
+                "today": today_start.strftime("%Y-%m-%d"),
+                "week_start": week_start.strftime("%Y-%m-%d"),
+                "generated_at": now.isoformat()
+            }
+        }
+    }
