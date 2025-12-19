@@ -129,7 +129,12 @@ const Roles = () => {
       return sum + Math.min(filled, available);
     }, 0),
     // Track overfilled positions (data issue warning)
-    overfilledRoles: roles.filter(r => (r.positions_filled || 0) > (r.positions_available || 1)).length
+    overfilledRoles: roles.filter(r => (r.positions_filled || 0) > (r.positions_available || 1)).length,
+    // By work type
+    onSiteRoles: roles.filter(r => !r.shift_type || r.shift_type === 'on_site').length,
+    routeBasedRoles: roles.filter(r => r.shift_type === 'route_based').length,
+    continentalRoles: roles.filter(r => r.shift_type === 'continental').length,
+    totalHoursWeek: roles.reduce((sum, r) => sum + (r.hours_this_week || 0), 0)
   };
 
   if (loading) {
