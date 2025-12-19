@@ -456,12 +456,22 @@ const WorkforceManagement = () => {
                       <span className="font-medium text-gray-700">{worker.total_shifts_completed || 0}</span> total shifts • 
                       <span className="font-medium text-gray-700 ml-1">{worker.total_hours_worked?.toFixed(0) || 0}h</span> total
                     </div>
-                    <button
-                      onClick={() => handleTerminate(worker)}
-                      className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      Terminate
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleLayOff(worker)}
+                        className="px-3 py-1.5 text-sm border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors"
+                        title="Lay off - Worker eligible for EI benefits"
+                      >
+                        Lay Off
+                      </button>
+                      <button
+                        onClick={() => handleTerminate(worker)}
+                        className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Terminate for cause - May affect EI eligibility"
+                      >
+                        Terminate
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
