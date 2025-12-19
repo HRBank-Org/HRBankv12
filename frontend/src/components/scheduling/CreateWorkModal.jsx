@@ -102,7 +102,7 @@ const CreateWorkModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, 
     if (isOpen) loadRoles();
   }, [isOpen]);
 
-  // Handle role selection
+  // Handle role selection - auto-detect work type from role's shift_type
   const handleRoleSelect = (roleId) => {
     if (!roleId) {
       setSelectedRole(null);
@@ -111,6 +111,28 @@ const CreateWorkModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, 
     const role = workplaceRoles.find(r => r.role_id === roleId);
     if (role) {
       setSelectedRole(role);
+      
+      // Auto-set work type based on role's shift_type
+      const roleShiftType = role.shift_type || 'on_site';
+      if (roleShiftType === 'route_based') {
+        setWorkType(WORK_TYPES.FIELD_SERVICE);
+      } else if (roleShiftType === 'continental') {
+        setWorkType(WORK_TYPES.CONTINENTAL);
+        // Pre-fill continental config from role if available
+        if (role.continental_config) {
+          setContinentalData(prev => ({
+            ...prev,
+            pattern: role.continental_config.pattern || 'dupont',
+            day_start: role.continental_config.day_shift?.start || '06:00',
+            day_end: role.continental_config.day_shift?.end || '18:00',
+            night_start: role.continental_config.night_shift?.start || '18:00',
+            night_end: role.continental_config.night_shift?.end || '06:00'
+          }));
+        }
+      } else {
+        setWorkType(WORK_TYPES.STANDARD);
+      }
+      
       setFormData(prev => ({
         ...prev,
         workplace_id: role.workplace_id,
