@@ -225,7 +225,7 @@ const WorkforceManagement = () => {
               }`}
               style={{ borderColor: activeTab === 'active' ? theme.primaryColor : 'transparent' }}
             >
-              Active Workers
+              Workforce
             </button>
             <button
               onClick={() => setActiveTab('invitations')}
