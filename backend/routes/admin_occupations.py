@@ -743,3 +743,124 @@ async def list_provincial_certifications(
             "total": len(certs)
         }
     }
+
+
+
+@router.get("/default-work-type/{occupation_title}")
+async def get_occupation_default_work_type(
+    occupation_title: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get the default work type for an occupation.
+    This is managed by super-admin at the template level.
+    Employers can override this when creating roles.
+    
+    Work Types:
+    - on_site: Standard GPS clock-in at workplace (Server, Chef, Cashier)
+    - route_based: Multi-stop tasks with GPS at each location (Delivery Driver, Cleaner)  
+    - continental: 12-hour rotating shifts (Security Guard, Factory Worker)
+    """
+    from utils.occupation_categories import get_default_work_type, DEFAULT_WORK_TYPES
+    
+    # First check if there's a template in the database with explicit work type
+    template = await db.occupation_templates.find_one(
+        {"occupation_title": {"$regex": f"^{occupation_title}$", "$options": "i"}},
+        {"_id": 0, "default_work_type": 1, "occupation_title": 1}
+    )
+    
+    if template and template.get("default_work_type"):
+        default_type = template["default_work_type"]
+        source = "database_template"
+    else:
+        # Fall back to the utility function
+        default_type = get_default_work_type(occupation_title)
+        source = "category_mapping"
+    
+    # Get description for the work type
+    work_type_descriptions = {
+        "on_site": "Standard shifts at workplace location with GPS clock-in",
+        "route_based": "Multi-stop tasks at different locations with GPS tracking at each stop",
+        "continental": "12-hour rotating shift patterns (DuPont/Panama/Pitman)"
+    }
+    
+    return {
+        "success": True,
+        "data": {
+            "occupation_title": occupation_title,
+            "default_work_type": default_type,
+            "work_type_description": work_type_descriptions.get(default_type, ""),
+            "source": source,
+            "can_override": True,
+            "available_work_types": [
+                {"value": "on_site", "label": "On-Site", "icon": "🏢", "description": work_type_descriptions["on_site"]},
+                {"value": "route_based", "label": "Route-Based", "icon": "🚗", "description": work_type_descriptions["route_based"]},
+                {"value": "continental", "label": "Continental", "icon": "🔄", "description": work_type_descriptions["continental"]}
+            ]
+        }
+    }
+
+
+@router.put("/default-work-type/{occupation_title}")
+async def update_occupation_default_work_type(
+    occupation_title: str,
+    data: dict,
+    current_user: dict = Depends(require_role("admin")),
+    db = Depends(get_db)
+):
+    """
+    Super-admin endpoint to update the default work type for an occupation template.
+    This affects all new roles created from this occupation.
+    """
+    
+    # Check if super admin
+    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+    if not admin or not admin.get("is_super_admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Super Admins can update default work types"
+        )
+    
+    new_work_type = data.get("default_work_type")
+    
+    valid_types = ["on_site", "route_based", "continental"]
+    if new_work_type not in valid_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid work type. Must be one of: {valid_types}"
+        )
+    
+    # Update the occupation template in database
+    from datetime import datetime
+    result = await db.occupation_templates.update_one(
+        {"occupation_title": {"$regex": f"^{occupation_title}$", "$options": "i"}},
+        {
+            "$set": {
+                "default_work_type": new_work_type,
+                "updated_at": datetime.utcnow().isoformat()
+            }
+        }
+    )
+    
+    if result.matched_count == 0:
+        # Create a new template entry if one doesn't exist
+        from uuid import uuid4
+        await db.occupation_templates.insert_one({
+            "template_id": f"occ_tpl_{uuid4().hex[:12]}",
+            "occupation_title": occupation_title,
+            "default_work_type": new_work_type,
+            "is_active": True,
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat(),
+            "created_by": current_user["user_id"]
+        })
+    
+    return {
+        "success": True,
+        "message": f"Default work type for '{occupation_title}' updated to '{new_work_type}'",
+        "data": {
+            "occupation_title": occupation_title,
+            "default_work_type": new_work_type
+        }
+    }
