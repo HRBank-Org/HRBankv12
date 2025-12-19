@@ -10,16 +10,16 @@ class PayrollPeriod(BaseModel):
     period_id: str = Field(default_factory=lambda: f"period_{uuid.uuid4().hex[:12]}")
     employer_id: str
     
-    # Period dates (always weekly)
-    start_date: date
-    end_date: date
+    # Period dates (always weekly) - stored as ISO strings for MongoDB
+    start_date: str  # YYYY-MM-DD format
+    end_date: str    # YYYY-MM-DD format
     week_number: int  # Week number in year (1-52)
     year: int
     
     # Status
     status: str = 'draft'  # draft, finalized, exported, paid
-    finalized_date: Optional[datetime] = None
-    exported_date: Optional[datetime] = None
+    finalized_date: Optional[str] = None  # ISO datetime string
+    exported_date: Optional[str] = None   # ISO datetime string
     
     # Totals
     total_gross_pay: float = 0
@@ -28,10 +28,12 @@ class PayrollPeriod(BaseModel):
     total_public_holiday_pay: float = 0
     total_hours: float = 0
     total_workers: int = 0
+    entries_count: int = 0
+    generated_at: Optional[str] = None  # ISO datetime string
     
     # Metadata
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    updated_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
 
 class PayrollEntry(BaseModel):
