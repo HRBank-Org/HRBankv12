@@ -275,6 +275,55 @@ const WorkforceManagement = () => {
           </button>
         </div>
 
+        {/* View Controls for Workforce Tab */}
+        {activeTab === 'active' && (
+          <div className="flex items-center justify-between mb-4 bg-white rounded-lg p-3 shadow-sm">
+            <div className="flex items-center gap-4">
+              {/* Sort By */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2"
+                  style={{ focusRingColor: theme.primaryColor }}
+                >
+                  <option value="workplace">Workplace / Department</option>
+                  <option value="name">Name</option>
+                  <option value="hours">Hours (High → Low)</option>
+                  <option value="status">Availability Status</option>
+                </select>
+              </div>
+              
+              {/* ESA Limits Legend */}
+              <div className="flex items-center gap-3 text-xs border-l border-gray-200 pl-4">
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> &lt;40h</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span> 40-44h</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500"></span> 44-48h OT</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> ≥48h Max</span>
+              </div>
+            </div>
+            
+            {/* View Toggle */}
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+                title="List View"
+              >
+                <FiList size={18} className={viewMode === 'list' ? 'text-gray-900' : 'text-gray-500'} />
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-2 rounded-md transition-colors ${viewMode === 'cards' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+                title="Card View"
+              >
+                <FiGrid size={18} className={viewMode === 'cards' ? 'text-gray-900' : 'text-gray-500'} />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Content */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
