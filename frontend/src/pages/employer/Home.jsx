@@ -6,57 +6,18 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import UnstaffedShiftsAlert from '../../components/dashboard/UnstaffedShiftsAlert';
 import api from '../../utils/api';
-import { FiCalendar, FiUsers, FiFileText, FiTrendingUp, FiClock, FiMapPin, FiAlertCircle, FiCheckCircle, FiDollarSign, FiAward, FiUserCheck } from 'react-icons/fi';
-import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  FiCalendar, FiUsers, FiClock, FiMapPin, FiAlertCircle, 
+  FiTruck, FiBriefcase, FiRefreshCw, FiChevronRight,
+  FiUserCheck, FiCheckCircle, FiActivity
+} from 'react-icons/fi';
 
 const Home = () => {
   const { user } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    activeEmployees: 0,
-    scheduledShifts: 0,
-    workplaces: 0,
-    hoursThisWeek: 0,
-    pendingTimesheets: 0,
-    openRoles: 0,
-    pendingRatings: 0,
-    attendanceToday: 0
-  });
+  const [operationalKpis, setOperationalKpis] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [attentionItems, setAttentionItems] = useState([]);
-
-  // Chart data
-  const attendanceData = [
-    { day: 'Mon', attendance: 22, scheduled: 25 },
-    { day: 'Tue', attendance: 24, scheduled: 25 },
-    { day: 'Wed', attendance: 23, scheduled: 26 },
-    { day: 'Thu', attendance: 25, scheduled: 27 },
-    { day: 'Fri', attendance: 26, scheduled: 28 },
-    { day: 'Sat', attendance: 18, scheduled: 20 },
-    { day: 'Sun', attendance: 15, scheduled: 18 }
-  ];
-
-  const hoursData = [
-    { week: 'Week 1', hours: 320 },
-    { week: 'Week 2', hours: 335 },
-    { week: 'Week 3', hours: 342 },
-    { week: 'Week 4', hours: 355 }
-  ];
-
-  const departmentData = [
-    { name: 'Kitchen', value: 8, color: '#3b82f6' },
-    { name: 'Service', value: 12, color: '#8b5cf6' },
-    { name: 'Bar', value: 4, color: '#10b981' },
-    { name: 'Management', value: 3, color: '#f59e0b' }
-  ];
-
-  const payrollData = [
-    { month: 'Sep', amount: 45000 },
-    { month: 'Oct', amount: 48000 },
-    { month: 'Nov', amount: 52000 },
-    { month: 'Dec', amount: 49000 }
-  ];
 
   useEffect(() => {
     loadDashboardData();
@@ -64,54 +25,10 @@ const Home = () => {
 
   const loadDashboardData = async () => {
     try {
-      // Load stats from various endpoints
-      const [workforceRes, shiftsRes, workplacesRes] = await Promise.all([
-        api.get('/api/employer/workforce/stats').catch(() => ({ data: { data: { active_count: 0 } } })),
-        api.get('/api/calendar/shifts/stats').catch(() => ({ data: { data: { upcoming_count: 0 } } })),
-        api.get('/api/employer/workplaces').catch(() => ({ data: { data: { workplaces: [] } } }))
-      ]);
-
-      setStats({
-        activeEmployees: workforceRes.data.data?.active_count || 24,
-        scheduledShifts: shiftsRes.data.data?.upcoming_count || 18,
-        workplaces: workplacesRes.data.data?.workplaces?.length || 3,
-        hoursThisWeek: 342,
-        pendingTimesheets: 5,
-        openRoles: 3,
-        pendingRatings: 10,
-        attendanceToday: 15
-      });
-
-      // Build attention items
-      const items = [];
-      if (stats.pendingRatings > 0) {
-        items.push({
-          title: `${stats.pendingRatings} shifts need ratings`,
-          description: 'Help your workers grow with feedback',
-          action: 'Rate Now',
-          path: '/employer/roster',
-          priority: 'high'
-        });
+      const response = await api.get('/api/employer/dashboard/operational-kpis');
+      if (response.data.success) {
+        setOperationalKpis(response.data.data);
       }
-      if (stats.pendingTimesheets > 0) {
-        items.push({
-          title: `${stats.pendingTimesheets} timesheets pending approval`,
-          description: 'Review and approve for payroll',
-          action: 'Review',
-          path: '/employer/timesheets',
-          priority: 'medium'
-        });
-      }
-      if (stats.openRoles > 0) {
-        items.push({
-          title: `${stats.openRoles} open positions to fill`,
-          description: 'Start recruiting to fill roles',
-          action: 'View Roles',
-          path: '/employer/roles',
-          priority: 'medium'
-        });
-      }
-      setAttentionItems(items);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -126,84 +43,6 @@ const Home = () => {
     return 'Good Evening';
   };
 
-  const getWeatherMessage = () => {
-    return "It's a beautiful day! ☀️ 22°C";
-  };
-
-  const moduleHighlights = [
-    {
-      title: 'Operations',
-      modules: [
-        {
-          name: 'Roster',
-          icon: FiCalendar,
-          stat: `${stats.scheduledShifts} shifts`,
-          description: 'Upcoming this week',
-          path: '/employer/roster',
-          color: '#3b82f6'
-        },
-        {
-          name: 'Workplaces',
-          icon: FiMapPin,
-          stat: `${stats.workplaces} locations`,
-          description: 'Active sites',
-          path: '/employer/workplaces',
-          color: '#06b6d4'
-        }
-      ]
-    },
-    {
-      title: 'HR Management',
-      modules: [
-        {
-          name: 'Roles',
-          icon: FiUsers,
-          stat: `${stats.openRoles} open`,
-          description: 'Positions to fill',
-          path: '/employer/roles',
-          color: '#8b5cf6'
-        },
-        {
-          name: 'Team',
-          icon: FiUserCheck,
-          stat: `${stats.activeEmployees} active`,
-          description: 'Employees',
-          path: '/employer/workforce-management',
-          color: '#10b981'
-        },
-        {
-          name: 'Live Attendance',
-          icon: FiClock,
-          stat: `${stats.attendanceToday} today`,
-          description: 'Workers clocked in',
-          path: '/employer/live-attendance',
-          color: '#f59e0b'
-        }
-      ]
-    },
-    {
-      title: 'Finances',
-      modules: [
-        {
-          name: 'Timesheets',
-          icon: FiFileText,
-          stat: `${stats.pendingTimesheets} pending`,
-          description: 'Need approval',
-          path: '/employer/timesheets',
-          color: '#14b8a6'
-        },
-        {
-          name: 'Payroll',
-          icon: FiDollarSign,
-          stat: `${stats.hoursThisWeek}hrs`,
-          description: 'This week',
-          path: '/employer/payroll',
-          color: '#10b981'
-        }
-      ]
-    }
-  ];
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -211,6 +50,13 @@ const Home = () => {
       </div>
     );
   }
+
+  const kpis = operationalKpis || {
+    summary: { total_hours_this_week: 0, shift_hours_week: 0, task_hours_week: 0, active_workers: 0, workers_on_duty_today: 0, attendance_rate_today: 100 },
+    shifts: { today_count: 0, week_total: 0, standard_shifts_week: 0, continental_shifts_week: 0 },
+    field_service: { total_tasks_week: 0, completed: 0, in_progress: 0, pending: 0, completion_rate: 0 },
+    continental: { rotation_groups: {}, total_shifts_week: 0 }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -221,12 +67,23 @@ const Home = () => {
       <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
         {/* Page Title Section */}
         <div className="bg-white border-b border-gray-200 px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">
-            {getGreeting()}, {user?.profile?.first_name || 'there'}! 👋
-          </h1>
-          <p className="text-gray-600">
-            Here's your workforce overview and insights
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                {getGreeting()}, {user?.profile?.first_name || 'there'}! 👋
+              </h1>
+              <p className="text-gray-600">
+                Here&apos;s your operational overview for today
+              </p>
+            </div>
+            <button 
+              onClick={loadDashboardData}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title="Refresh data"
+            >
+              <FiRefreshCw className="text-gray-500" size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -236,237 +93,199 @@ const Home = () => {
             <UnstaffedShiftsAlert theme={theme} />
           </div>
 
-          {/* Attention Needed Section */}
-          {attentionItems.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiAlertCircle className="text-orange-500" size={24} />
-                Needs Your Attention
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {attentionItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`rounded-2xl p-5 border-2 ${
-                      item.priority === 'high' 
-                        ? 'bg-red-50 border-red-200' 
-                        : 'bg-yellow-50 border-yellow-200'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className={`font-semibold mb-1 ${
-                          item.priority === 'high' ? 'text-red-900' : 'text-yellow-900'
-                        }`}>
-                          {item.title}
-                        </h3>
-                        <p className={`text-sm ${
-                          item.priority === 'high' ? 'text-red-700' : 'text-yellow-700'
-                        }`}>
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (item.state) {
-                          navigate(item.path, { state: item.state });
-                        } else {
-                          navigate(item.path);
-                        }
-                      }}
-                      className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                        item.priority === 'high'
-                          ? 'bg-red-600 hover:bg-red-700 text-white'
-                          : 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                      }`}
-                    >
-                      {item.action}
-                    </button>
-                  </div>
-                ))}
+          {/* Main KPI Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <FiClock size={18} className="text-blue-200" />
+                <span className="text-sm text-blue-100">Hours This Week</span>
+              </div>
+              <div className="text-3xl font-bold">{kpis.summary.total_hours_this_week}</div>
+              <div className="text-xs text-blue-200 mt-1">
+                {kpis.summary.shift_hours_week}h shifts + {kpis.summary.task_hours_week}h tasks
               </div>
             </div>
-          )}
 
-          {/* Charts & Analytics Section */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <FiTrendingUp size={24} className="text-blue-600" />
-              Analytics & Insights
-            </h2>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* Attendance Trend Chart */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-4">Weekly Attendance</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={attendanceData}>
-                    <defs>
-                      <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="day" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                    <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="attendance" 
-                      stroke="#3b82f6" 
-                      strokeWidth={2}
-                      fill="url(#colorAttendance)" 
-                      name="Present"
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="scheduled" 
-                      stroke="#94a3b8" 
-                      strokeWidth={2}
-                      fillOpacity={0.1}
-                      fill="#94a3b8" 
-                      name="Scheduled"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <FiUsers size={18} className="text-green-200" />
+                <span className="text-sm text-green-100">Workers Today</span>
               </div>
+              <div className="text-3xl font-bold">{kpis.summary.workers_on_duty_today}</div>
+              <div className="text-xs text-green-200 mt-1">of {kpis.summary.active_workers} active</div>
+            </div>
 
-              {/* Hours Worked Trend */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-4">Hours Worked (Monthly)</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={hoursData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="week" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                    <Bar dataKey="hours" fill="#10b981" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <FiUserCheck size={18} className="text-purple-200" />
+                <span className="text-sm text-purple-100">Attendance Rate</span>
               </div>
+              <div className="text-3xl font-bold">{kpis.summary.attendance_rate_today}%</div>
+              <div className="text-xs text-purple-200 mt-1">Today&apos;s check-ins</div>
+            </div>
 
-              {/* Team Distribution */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-4">Team by Department</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={departmentData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {departmentData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <FiCalendar size={18} className="text-orange-200" />
+                <span className="text-sm text-orange-100">Today&apos;s Shifts</span>
               </div>
+              <div className="text-3xl font-bold">{kpis.shifts.today_count}</div>
+              <div className="text-xs text-orange-200 mt-1">{kpis.shifts.week_total} this week</div>
+            </div>
 
-              {/* Payroll Trend */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-4">Payroll Expenses</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={payrollData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                      formatter={(value) => `$${value.toLocaleString()}`}
-                    />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="amount" 
-                      stroke="#f59e0b" 
-                      strokeWidth={3}
-                      dot={{ fill: '#f59e0b', r: 5 }}
-                      name="Amount ($)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+            <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-4 text-white shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <FiTruck size={18} className="text-teal-200" />
+                <span className="text-sm text-teal-100">Field Tasks</span>
               </div>
+              <div className="text-3xl font-bold">{kpis.field_service.completed}</div>
+              <div className="text-xs text-teal-200 mt-1">{kpis.field_service.completion_rate}% completion</div>
+            </div>
+
+            <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <FiRefreshCw size={18} className="text-indigo-200" />
+                <span className="text-sm text-indigo-100">Continental</span>
+              </div>
+              <div className="text-3xl font-bold">{kpis.continental.total_shifts_week}</div>
+              <div className="text-xs text-indigo-200 mt-1">12h shifts this week</div>
             </div>
           </div>
 
-          {/* Module Highlights */}
-          {moduleHighlights.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{section.title}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {section.modules.map((module, moduleIndex) => {
-                  const Icon = module.icon;
-                  return (
-                    <button
-                      key={moduleIndex}
-                      onClick={() => {
-                        if (module.state) {
-                          navigate(module.path, { state: module.state });
-                        } else {
-                          navigate(module.path);
-                        }
-                      }}
-                      className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 text-left group"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
-                          style={{ backgroundColor: `${module.color}15` }}
-                        >
-                          <Icon size={24} style={{ color: module.color }} />
-                        </div>
-                      </div>
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {module.name}
-                      </h3>
-                      <div className="text-2xl font-bold mb-1" style={{ color: module.color }}>
-                        {module.stat}
-                      </div>
-                      <p className="text-sm text-gray-600">
-                        {module.description}
-                      </p>
-                    </button>
-                  );
-                })}
+          {/* Work Mode Breakdown */}
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FiActivity size={22} className="text-gray-600" />
+            Work Mode Breakdown
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Standard Shifts Card */}
+            <div 
+              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-all cursor-pointer"
+              onClick={() => navigate('/employer/calendar-scheduling')}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <FiBriefcase className="text-blue-600" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Standard Shifts</h3>
+                    <p className="text-sm text-gray-500">On-site work</p>
+                  </div>
+                </div>
+                <FiChevronRight className="text-gray-400" size={20} />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {kpis.shifts.standard_shifts_week}
+              </div>
+              <div className="text-sm text-gray-500">shifts this week</div>
+            </div>
+
+            {/* Field Service Card */}
+            <div 
+              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-all cursor-pointer"
+              onClick={() => navigate('/employer/service-tasks')}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-orange-100 rounded-xl">
+                    <FiTruck className="text-orange-600" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Field Service</h3>
+                    <p className="text-sm text-gray-500">Route-based tasks</p>
+                  </div>
+                </div>
+                <FiChevronRight className="text-gray-400" size={20} />
+              </div>
+              <div className="flex items-center gap-4 mt-2">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{kpis.field_service.completed}</div>
+                  <div className="text-xs text-gray-500">completed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-yellow-600">{kpis.field_service.in_progress}</div>
+                  <div className="text-xs text-gray-500">in progress</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-400">{kpis.field_service.pending}</div>
+                  <div className="text-xs text-gray-500">pending</div>
+                </div>
               </div>
             </div>
-          ))}
+
+            {/* Continental Shifts Card */}
+            <div 
+              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-all cursor-pointer"
+              onClick={() => navigate('/employer/calendar-scheduling')}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-indigo-100 rounded-xl">
+                    <FiRefreshCw className="text-indigo-600" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Continental</h3>
+                    <p className="text-sm text-gray-500">12-hour rotating</p>
+                  </div>
+                </div>
+                <FiChevronRight className="text-gray-400" size={20} />
+              </div>
+              {kpis.continental.rotation_groups && Object.keys(kpis.continental.rotation_groups).length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {Object.entries(kpis.continental.rotation_groups).map(([group, counts]) => (
+                    <div key={group} className="px-3 py-1 bg-indigo-50 rounded-full text-sm">
+                      <span className="font-medium text-indigo-700">Group {group}:</span>
+                      <span className="ml-1 text-indigo-600">☀️{counts.day || 0} 🌙{counts.night || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500 mt-2">No continental shifts this week</div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button
+              onClick={() => navigate('/employer/calendar-scheduling')}
+              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-blue-300 transition-all text-left"
+            >
+              <FiCalendar className="text-blue-500 mb-2" size={24} />
+              <div className="font-medium text-gray-900">Create Shift</div>
+              <div className="text-sm text-gray-500">Schedule work</div>
+            </button>
+
+            <button
+              onClick={() => navigate('/employer/workplaces')}
+              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-blue-300 transition-all text-left"
+            >
+              <FiMapPin className="text-green-500 mb-2" size={24} />
+              <div className="font-medium text-gray-900">Workplaces</div>
+              <div className="text-sm text-gray-500">Manage locations</div>
+            </button>
+
+            <button
+              onClick={() => navigate('/employer/workforce-management')}
+              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-blue-300 transition-all text-left"
+            >
+              <FiUsers className="text-purple-500 mb-2" size={24} />
+              <div className="font-medium text-gray-900">Team</div>
+              <div className="text-sm text-gray-500">Manage workers</div>
+            </button>
+
+            <button
+              onClick={() => navigate('/employer/live-attendance')}
+              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-blue-300 transition-all text-left"
+            >
+              <FiCheckCircle className="text-orange-500 mb-2" size={24} />
+              <div className="font-medium text-gray-900">Live Attendance</div>
+              <div className="text-sm text-gray-500">Track check-ins</div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
