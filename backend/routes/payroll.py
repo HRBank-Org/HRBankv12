@@ -169,7 +169,7 @@ async def generate_payroll_entries(db, period: PayrollPeriod, employer_id: str):
                     check_in = datetime.fromisoformat(check_in_time.replace("Z", "+00:00"))
                     check_out = datetime.fromisoformat(check_out_time.replace("Z", "+00:00"))
                     task_hours = (check_out - check_in).total_seconds() / 3600
-            except:
+            except (ValueError, TypeError, KeyError, AttributeError):
                 task_hours = task.get("estimated_duration_minutes", 0) / 60
         
         if worker_id not in worker_hours:
