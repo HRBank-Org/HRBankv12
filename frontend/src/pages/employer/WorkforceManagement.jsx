@@ -698,6 +698,177 @@ const WorkforceManagement = () => {
               ))}
             </div>
           )
+        ) : activeTab === 'records' ? (
+          /* Employment Records Tab */
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Employment Records</h3>
+                  <p className="text-sm text-gray-500">Complete employment history for all workers</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleExportRecords('csv')}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <FiDownload size={16} />
+                    Export CSV
+                  </button>
+                  <button
+                    onClick={() => handleExportRecords('pdf')}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <FiDownload size={16} />
+                    Export PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Records Table */}
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role(s)</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Shifts</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Hours</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Total Pay</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {/* Active Workers Records */}
+                {workerKpis.map((worker) => (
+                  <tr key={worker.user_id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600">
+                          {worker.full_name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{worker.full_name}</p>
+                          <p className="text-xs text-gray-500">{worker.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900">{worker.position_title}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600">
+                        {worker.employment_start_date 
+                          ? new Date(worker.employment_start_date).toLocaleDateString() 
+                          : '-'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600">-</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm font-medium text-gray-900">{worker.total_shifts_completed || 0}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm font-medium text-gray-900">{worker.total_hours_worked?.toFixed(1) || 0}h</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm font-medium text-green-600">
+                        ${((worker.total_hours_worked || 0) * 18).toFixed(2)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        onClick={() => handleDownloadWorkerRecord(worker)}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                        title="Download individual record"
+                      >
+                        <FiDownload size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                
+                {/* Past Workers Records */}
+                {workers.filter(w => w.status === 'terminated' || w.status === 'laid_off').map((worker) => (
+                  <tr key={worker.user_id} className="hover:bg-gray-50 bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-600">
+                          {worker.full_name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">{worker.full_name}</p>
+                          <p className="text-xs text-gray-500">{worker.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-700">{worker.position_title}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600">
+                        {worker.employment_start_date 
+                          ? new Date(worker.employment_start_date).toLocaleDateString() 
+                          : '-'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600">
+                        {worker.employment_end_date 
+                          ? new Date(worker.employment_end_date).toLocaleDateString() 
+                          : '-'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm font-medium text-gray-700">{worker.total_shifts_completed || 0}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm font-medium text-gray-700">{worker.total_hours_worked?.toFixed(1) || 0}h</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm font-medium text-gray-600">
+                        ${((worker.total_hours_worked || 0) * 18).toFixed(2)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        worker.termination_reason?.includes('laid') 
+                          ? 'bg-amber-100 text-amber-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {worker.termination_reason?.includes('laid') ? 'Laid Off' : 'Terminated'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        onClick={() => handleDownloadWorkerRecord(worker)}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                        title="Download individual record"
+                      >
+                        <FiDownload size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {workerKpis.length === 0 && workers.length === 0 && (
+              <div className="p-12 text-center text-gray-500">
+                <FiFileText size={48} className="mx-auto mb-4 text-gray-300" />
+                <p>No employment records yet</p>
+              </div>
+            )}
+          </div>
         ) : (
           /* Inactive Workers Tab */
           workers.length === 0 ? (
