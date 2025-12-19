@@ -503,6 +503,191 @@ async def assign_worker(
         }
         
         worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() or assignment_data["worker_name"]
+
+
+
+# ============== CONTINENTAL SHIFT PATTERNS ==============
+
+CONTINENTAL_PATTERNS = {
+    "dupont": {
+        "name": "DuPont",
+        "cycle_days": 28,
+        "pattern": [
+            # Week 1: Day, Day, Night, Night, Off, Off, Off
+            {"day": 0, "shift": "day"}, {"day": 1, "shift": "day"},
+            {"day": 2, "shift": "night"}, {"day": 3, "shift": "night"},
+            {"day": 4, "shift": "off"}, {"day": 5, "shift": "off"}, {"day": 6, "shift": "off"},
+            # Week 2: Off, Off, Day, Day, Night, Night, Night
+            {"day": 7, "shift": "off"}, {"day": 8, "shift": "off"},
+            {"day": 9, "shift": "day"}, {"day": 10, "shift": "day"},
+            {"day": 11, "shift": "night"}, {"day": 12, "shift": "night"}, {"day": 13, "shift": "night"},
+            # Week 3: Off, Off, Off, Day, Day, Night, Night
+            {"day": 14, "shift": "off"}, {"day": 15, "shift": "off"}, {"day": 16, "shift": "off"},
+            {"day": 17, "shift": "day"}, {"day": 18, "shift": "day"},
+            {"day": 19, "shift": "night"}, {"day": 20, "shift": "night"},
+            # Week 4: Off, Off, Off, Off, Day, Day, Day
+            {"day": 21, "shift": "off"}, {"day": 22, "shift": "off"},
+            {"day": 23, "shift": "off"}, {"day": 24, "shift": "off"},
+            {"day": 25, "shift": "day"}, {"day": 26, "shift": "day"}, {"day": 27, "shift": "day"},
+        ]
+    },
+    "panama": {
+        "name": "Panama (2-2-3)",
+        "cycle_days": 14,
+        "pattern": [
+            # Week 1
+            {"day": 0, "shift": "day"}, {"day": 1, "shift": "day"},
+            {"day": 2, "shift": "off"}, {"day": 3, "shift": "off"},
+            {"day": 4, "shift": "day"}, {"day": 5, "shift": "day"}, {"day": 6, "shift": "day"},
+            # Week 2
+            {"day": 7, "shift": "off"}, {"day": 8, "shift": "off"},
+            {"day": 9, "shift": "night"}, {"day": 10, "shift": "night"},
+            {"day": 11, "shift": "off"}, {"day": 12, "shift": "off"}, {"day": 13, "shift": "off"},
+        ]
+    },
+    "pitman": {
+        "name": "Pitman (2-3-2)",
+        "cycle_days": 14,
+        "pattern": [
+            # Week 1: 2 on, 2 off, 3 on
+            {"day": 0, "shift": "day"}, {"day": 1, "shift": "day"},
+            {"day": 2, "shift": "off"}, {"day": 3, "shift": "off"},
+            {"day": 4, "shift": "day"}, {"day": 5, "shift": "day"}, {"day": 6, "shift": "day"},
+            # Week 2: 2 off, 2 on, 3 off
+            {"day": 7, "shift": "off"}, {"day": 8, "shift": "off"},
+            {"day": 9, "shift": "night"}, {"day": 10, "shift": "night"},
+            {"day": 11, "shift": "off"}, {"day": 12, "shift": "off"}, {"day": 13, "shift": "off"},
+        ]
+    }
+}
+
+
+@router.post("/continental-pattern")
+async def create_continental_pattern(
+    pattern_data: dict,
+    current_user: dict = Depends(require_role('employer'))
+):
+    """
+    Generate continental shift pattern for multiple weeks.
+    Creates 12-hour rotating shifts with proper coverage.
+    """
+    db = await get_database()
+    
+    # Validate workplace
+    workplace = await db.workplaces.find_one({
+        "workplace_id": pattern_data["workplace_id"],
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not workplace:
+        raise HTTPException(status_code=404, detail="Workplace not found")
+    
+    # Get pattern configuration
+    pattern_id = pattern_data.get("pattern", "dupont")
+    pattern_config = CONTINENTAL_PATTERNS.get(pattern_id)
+    
+    if not pattern_config:
+        raise HTTPException(status_code=400, detail=f"Unknown pattern: {pattern_id}")
+    
+    # Parse shift times
+    day_shift = pattern_data.get("day_shift", {"start": "06:00", "end": "18:00"})
+    night_shift = pattern_data.get("night_shift", {"start": "18:00", "end": "06:00"})
+    
+    # Parse start date
+    start_date = datetime.strptime(pattern_data["start_date"], "%Y-%m-%d")
+    generate_weeks = int(pattern_data.get("generate_weeks", 4))
+    rotation_groups = int(pattern_data.get("rotation_groups", 4))
+    positions_per_shift = int(pattern_data.get("positions_per_shift", 1))
+    
+    # Generate shifts
+    shifts_created = []
+    cycle_days = pattern_config["cycle_days"]
+    pattern = pattern_config["pattern"]
+    
+    total_days = generate_weeks * 7
+    
+    for group_num in range(rotation_groups):
+        # Each group starts at a different offset in the pattern
+        group_offset = (group_num * cycle_days) // rotation_groups
+        group_label = chr(65 + group_num)  # A, B, C, D
+        
+        for day_offset in range(total_days):
+            # Find which pattern day this corresponds to
+            pattern_day_index = (day_offset + group_offset) % cycle_days
+            
+            # Find the pattern entry for this day
+            pattern_entry = None
+            for p in pattern:
+                if p["day"] == pattern_day_index:
+                    pattern_entry = p
+                    break
+            
+            if not pattern_entry or pattern_entry["shift"] == "off":
+                continue
+            
+            # Calculate actual date
+            shift_date = start_date + timedelta(days=day_offset)
+            
+            # Determine shift times
+            if pattern_entry["shift"] == "day":
+                shift_start = f"{shift_date.strftime('%Y-%m-%d')}T{day_shift['start']}:00"
+                shift_end = f"{shift_date.strftime('%Y-%m-%d')}T{day_shift['end']}:00"
+                shift_type = "day"
+            else:  # night
+                shift_start = f"{shift_date.strftime('%Y-%m-%d')}T{night_shift['start']}:00"
+                # Night shift ends next day
+                next_day = shift_date + timedelta(days=1)
+                shift_end = f"{next_day.strftime('%Y-%m-%d')}T{night_shift['end']}:00"
+                shift_type = "night"
+            
+            # Create shift
+            shift = {
+                "shift_id": str(uuid.uuid4()),
+                "employer_id": current_user["user_id"],
+                "workplace_id": pattern_data["workplace_id"],
+                "workplace_name": workplace.get("workplace_name", ""),
+                "position_title": pattern_data.get("position_title", "Continental Shift"),
+                "start_time": shift_start,
+                "end_time": shift_end,
+                "duration_hours": 12,
+                "positions_needed": positions_per_shift,
+                "assigned_workers": [],
+                "hourly_rate": pattern_data.get("hourly_rate"),
+                "notes": pattern_data.get("notes", ""),
+                "shift_type": "continental",
+                "continental_pattern": pattern_id,
+                "rotation_group": group_label,
+                "day_night": shift_type,
+                "is_recurring": False,
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat(),
+                "created_by": current_user["user_id"],
+                "date": shift_date.strftime('%Y-%m-%d')
+            }
+            
+            shifts_created.append(shift)
+    
+    # Bulk insert all shifts
+    if shifts_created:
+        await db.calendar_shifts.insert_many(shifts_created)
+    
+    # Group summary for response
+    summary = {
+        "total_shifts": len(shifts_created),
+        "pattern": pattern_config["name"],
+        "start_date": start_date.strftime('%Y-%m-%d'),
+        "end_date": (start_date + timedelta(days=total_days - 1)).strftime('%Y-%m-%d'),
+        "weeks": generate_weeks,
+        "rotation_groups": rotation_groups,
+        "day_shifts": len([s for s in shifts_created if s["day_night"] == "day"]),
+        "night_shifts": len([s for s in shifts_created if s["day_night"] == "night"]),
+    }
+    
+    return {
+        "success": True,
+        "data": summary,
+        "message": f"Generated {len(shifts_created)} continental shifts using {pattern_config['name']} pattern"
+    }
         
         background_tasks.add_task(
             notify_shift_assigned,
