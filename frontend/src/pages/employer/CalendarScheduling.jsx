@@ -954,7 +954,7 @@ const CalendarScheduling = () => {
 
       {/* Modals */}
       {showCreateModal && (
-        <CreateShiftModal
+        <CreateWorkModal
           isOpen={showCreateModal}
           onClose={() => {
             setShowCreateModal(false);
