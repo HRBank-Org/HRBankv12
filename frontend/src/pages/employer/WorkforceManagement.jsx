@@ -66,11 +66,14 @@ const WorkforceManagement = () => {
         // Load invitations
         const invRes = await api.get('/api/employer/invitations/list');
         setInvitations(invRes.data.data.invitations || []);
-      } else if (activeTab === 'active') {
-        // Load worker KPIs for active tab
-        const kpisRes = await api.get('/api/employer/workforce-management/worker-kpis');
+      } else if (activeTab === 'active' || activeTab === 'records') {
+        // Load worker KPIs for active and records tabs
+        const [kpisRes, inactiveRes] = await Promise.all([
+          api.get('/api/employer/workforce-management/worker-kpis'),
+          api.get('/api/employer/workforce-management/inactive').catch(() => ({ data: { data: { inactive_workers: [] } } }))
+        ]);
         setWorkerKpis(kpisRes.data.data.workers || []);
-        setWorkers([]);
+        setWorkers(inactiveRes.data.data.inactive_workers || []);
       } else if (activeTab === 'assignments') {
         // Load workers, shifts, and tasks for drag-drop assignment
         const today = new Date().toISOString().split('T')[0];
