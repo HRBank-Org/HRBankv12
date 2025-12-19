@@ -88,6 +88,22 @@ const WorkforceManagement = () => {
         // Filter tasks that are pending or assigned (not completed)
         const allTasks = tasksRes.data.data?.tasks || [];
         setTasks(allTasks.filter(t => ['pending', 'assigned'].includes(t.status)));
+        
+        // Also load inactive workers for records tab
+        try {
+          const inactiveRes = await api.get('/api/employer/workforce-management/inactive');
+          setWorkers(inactiveRes.data.data.inactive_workers || []);
+        } catch (e) {
+          setWorkers([]);
+        }
+      } else if (activeTab === 'records') {
+        // Load both active and inactive workers for records
+        const [kpisRes, inactiveRes] = await Promise.all([
+          api.get('/api/employer/workforce-management/worker-kpis'),
+          api.get('/api/employer/workforce-management/inactive')
+        ]);
+        setWorkerKpis(kpisRes.data.data.workers || []);
+        setWorkers(inactiveRes.data.data.inactive_workers || []);
       } else {
         // Load inactive workers
         const response = await api.get('/api/employer/workforce-management/inactive');
