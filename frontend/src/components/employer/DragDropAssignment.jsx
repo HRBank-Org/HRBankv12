@@ -156,11 +156,71 @@ const DroppableShift = ({ shift, isOver, assignedWorkers = [], onRemoveWorker })
   );
 };
 
+// Workforce Sort Controls Component
+const WorkforceSortControls = ({ workers, onSortedWorkers }) => {
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  useEffect(() => {
+    const sorted = [...workers].sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortBy === 'name') {
+        comparison = (a.full_name || '').localeCompare(b.full_name || '');
+      } else if (sortBy === 'role') {
+        comparison = (a.position_title || '').localeCompare(b.position_title || '');
+      } else if (sortBy === 'hours') {
+        comparison = (a.week_kpis?.total_hours || 0) - (b.week_kpis?.total_hours || 0);
+      } else if (sortBy === 'status') {
+        // Sort by availability (available first)
+        const aHours = a.week_kpis?.total_hours || 0;
+        const bHours = b.week_kpis?.total_hours || 0;
+        comparison = aHours - bHours;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    onSortedWorkers(sorted);
+  }, [workers, sortBy, sortOrder, onSortedWorkers]);
+
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
+
+  return (
+    <div className="flex items-center gap-2 bg-white rounded-lg p-2 border border-gray-200">
+      <select
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value)}
+        className="text-xs border-0 bg-transparent focus:ring-0 text-gray-700 pr-6"
+      >
+        <option value="name">Sort by Name</option>
+        <option value="role">Sort by Role</option>
+        <option value="hours">Sort by Hours</option>
+        <option value="status">Sort by Availability</option>
+      </select>
+      <button
+        onClick={toggleSortOrder}
+        className="p-1 hover:bg-gray-100 rounded transition-colors"
+        title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+      >
+        {sortOrder === 'asc' ? (
+          <FiChevronUp size={14} className="text-gray-600" />
+        ) : (
+          <FiChevronDown size={14} className="text-gray-600" />
+        )}
+      </button>
+    </div>
+  );
+};
+
 // Main Drag & Drop Assignment Component
 const DragDropAssignment = ({ workers = [], shifts = [], tasks = [], onAssign, onUnassign, loading }) => {
   const theme = useTheme();
   const [activeWorker, setActiveWorker] = useState(null);
   const [overId, setOverId] = useState(null);
+  const [sortedWorkers, setSortedWorkers] = useState([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
