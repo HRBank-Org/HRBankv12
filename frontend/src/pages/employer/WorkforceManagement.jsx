@@ -143,6 +143,160 @@ const WorkforceManagement = () => {
     setShowInviteModal(true);
   };
 
+  // Export Records Functions
+  const handleExportRecords = (format) => {
+    const allRecords = [
+      ...workerKpis.map(w => ({
+        name: w.full_name,
+        email: w.email,
+        position: w.position_title,
+        start_date: w.employment_start_date ? new Date(w.employment_start_date).toLocaleDateString() : '',
+        end_date: '',
+        shifts: w.total_shifts_completed || 0,
+        hours: w.total_hours_worked?.toFixed(1) || 0,
+        total_pay: ((w.total_hours_worked || 0) * 18).toFixed(2),
+        status: 'Active'
+      })),
+      ...workers.filter(w => w.status === 'terminated' || w.status === 'laid_off').map(w => ({
+        name: w.full_name,
+        email: w.email,
+        position: w.position_title,
+        start_date: w.employment_start_date ? new Date(w.employment_start_date).toLocaleDateString() : '',
+        end_date: w.employment_end_date ? new Date(w.employment_end_date).toLocaleDateString() : '',
+        shifts: w.total_shifts_completed || 0,
+        hours: w.total_hours_worked?.toFixed(1) || 0,
+        total_pay: ((w.total_hours_worked || 0) * 18).toFixed(2),
+        status: w.termination_reason?.includes('laid') ? 'Laid Off' : 'Terminated'
+      }))
+    ];
+
+    if (format === 'csv') {
+      const headers = ['Name', 'Email', 'Position', 'Start Date', 'End Date', 'Shifts', 'Hours', 'Total Pay', 'Status'];
+      const csvContent = [
+        headers.join(','),
+        ...allRecords.map(r => [r.name, r.email, r.position, r.start_date, r.end_date, r.shifts, r.hours, `$${r.total_pay}`, r.status].join(','))
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `employment_records_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } else if (format === 'pdf') {
+      // For PDF, we'll create a printable HTML view
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Employment Records</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #333; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f5f5f5; }
+              .active { color: green; }
+              .terminated { color: red; }
+              .laid-off { color: orange; }
+            </style>
+          </head>
+          <body>
+            <h1>Employment Records</h1>
+            <p>Generated: ${new Date().toLocaleDateString()}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Position</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Shifts</th>
+                  <th>Hours</th>
+                  <th>Total Pay</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${allRecords.map(r => `
+                  <tr>
+                    <td>${r.name}</td>
+                    <td>${r.position}</td>
+                    <td>${r.start_date}</td>
+                    <td>${r.end_date || '-'}</td>
+                    <td>${r.shifts}</td>
+                    <td>${r.hours}h</td>
+                    <td>$${r.total_pay}</td>
+                    <td class="${r.status.toLowerCase().replace(' ', '-')}">${r.status}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  const handleDownloadWorkerRecord = (worker) => {
+    const record = {
+      name: worker.full_name,
+      email: worker.email,
+      position: worker.position_title,
+      workplace: worker.workplace_name || 'All Locations',
+      start_date: worker.employment_start_date ? new Date(worker.employment_start_date).toLocaleDateString() : '-',
+      end_date: worker.employment_end_date ? new Date(worker.employment_end_date).toLocaleDateString() : '-',
+      shifts: worker.total_shifts_completed || 0,
+      hours: worker.total_hours_worked?.toFixed(1) || 0,
+      total_pay: ((worker.total_hours_worked || 0) * 18).toFixed(2),
+      status: worker.status === 'active' ? 'Active' : (worker.termination_reason?.includes('laid') ? 'Laid Off' : 'Terminated'),
+      termination_reason: worker.termination_reason || '-'
+    };
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Employment Record - ${record.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+            h1 { color: #333; border-bottom: 2px solid #333; padding-bottom: 10px; }
+            .section { margin: 20px 0; }
+            .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+            .label { color: #666; }
+            .value { font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h1>Employment Record</h1>
+          <div class="section">
+            <div class="row"><span class="label">Employee Name:</span><span class="value">${record.name}</span></div>
+            <div class="row"><span class="label">Email:</span><span class="value">${record.email}</span></div>
+            <div class="row"><span class="label">Position:</span><span class="value">${record.position}</span></div>
+            <div class="row"><span class="label">Workplace:</span><span class="value">${record.workplace}</span></div>
+          </div>
+          <div class="section">
+            <div class="row"><span class="label">Employment Start:</span><span class="value">${record.start_date}</span></div>
+            <div class="row"><span class="label">Employment End:</span><span class="value">${record.end_date}</span></div>
+            <div class="row"><span class="label">Status:</span><span class="value">${record.status}</span></div>
+            ${record.termination_reason !== '-' ? `<div class="row"><span class="label">Reason:</span><span class="value">${record.termination_reason.replace(/_/g, ' ')}</span></div>` : ''}
+          </div>
+          <div class="section">
+            <div class="row"><span class="label">Total Shifts:</span><span class="value">${record.shifts}</span></div>
+            <div class="row"><span class="label">Total Hours:</span><span class="value">${record.hours}h</span></div>
+            <div class="row"><span class="label">Total Pay:</span><span class="value">$${record.total_pay}</span></div>
+          </div>
+          <p style="margin-top: 40px; color: #999; font-size: 12px;">Generated: ${new Date().toLocaleString()}</p>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   const handleTerminate = (worker) => {
     setSelectedWorker({...worker, actionType: 'terminate'});
     setShowTerminateModal(true);
