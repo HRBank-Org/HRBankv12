@@ -120,7 +120,7 @@ async def generate_payroll_entries(db, period: PayrollPeriod, employer_id: str):
                 clock_in = datetime.fromisoformat(record["clock_in_time"].replace("Z", "+00:00"))
                 clock_out = datetime.fromisoformat(record["clock_out_time"].replace("Z", "+00:00"))
                 hours_worked = (clock_out - clock_in).total_seconds() / 3600
-            except:
+            except (ValueError, TypeError, KeyError):
                 hours_worked = 0
         
         if worker_id not in worker_hours:
