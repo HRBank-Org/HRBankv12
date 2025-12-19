@@ -1,0 +1,156 @@
+<analysis>**original_problem_statement:**
+The user wants to enhance the Team Management page () with several UI/UX improvements and new features. The key requests are:
+1.  Make the page title and tab navigation sticky so they remain visible while the content area scrolls.
+2.  Add a new Recruitment tab to handle posting roles to the match engine.
+3.  Enhance the Records tab to show both active and past employees, with capabilities to sort by multiple columns simultaneously.
+4.  In the Assignments tab, rename Available workers to Workforce and add sorting options (by name, role, ascending/descending).
+5.  Implement a system to track worker hours against Employment Standards Act (ESA) limits (44-48 hours/week) and provide visual warnings.
+6.  Add a compact, sortable List View to the main Workforce tab as an alternative to the larger Card View.
+7.  Distinguish between Lay Off (no fault) and Terminate (for cause) when ending employment, with different UI modals and consequences for the worker.
+8.  Clean up all old test data and create a realistic, persistent demo scenario for a fictional company, Swan Pizza, with a full roster of workers, roles, and shifts.
+
+**User's preferred language**: English
+
+**what currently exists?**
+The application is built around a realistic Swan Pizza demo scenario, which includes an employer, 11 workers, 3 roles (Server, Line Cook, Delivery Driver), and pre-populated shifts for two weeks. All accounts are active, and initial setup like EULA acceptance is complete.
+
+The  page has been significantly enhanced:
+-   **KPI Dashboard:** The main Workforce tab now features a functional KPI dashboard that displays real data (from simulated attendance). It includes a toggle for a compact List View and the default Card View.
+-   **Hours Tracking:** The UI includes a visual legend and progress bars tracking weekly hours against ESA limits (<40h, 40-44h, 44-48h, >48h).
+-   **Lay Off vs. Terminate:** The UI provides distinct Lay Off and Terminate buttons, each launching a specific modal with contextual information about EI eligibility and reasons for separation.
+-   **Assignment UI:** The drag-and-drop Assignments tab now has sorting controls for the workforce panel.
+-   **Tab Reorganization:** The Invite Workers button has been moved exclusively to the Invitations tab. A new Records tab has been added to display employment history.
+
+**Last working item**:
+-   **Last item agent was working:** A major refactoring of the  page to implement a sticky header/tabs and add a new Recruitment tab. This involved adding large blocks of code for new sub-components (, ) directly within the main file and restructuring the layout.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** Frontend testing agent. The changes are extensive and affect the entire page's layout and functionality. A thorough test of all tabs, scrolling behavior, and sorting is required after stabilizing the code. A screenshot should be the first step to assess the visual state.
+-   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+-   **Issue 1: Incomplete  UI Refactor (P0)**
+-   **Issue 2: Implement Multi-Column Sorting in Records Tab (P1)**
+
+**Issues Detail:**
+-   **Issue 1: Incomplete  UI Refactor**
+    -   **Attempted fixes:** The agent performed several large  operations on  to introduce a new layout with a sticky header, add a Recruitment tab, and embed new  and  components directly into the file. The old tab structure was partially removed.
+    -   **Next debug checklist:**
+        1.  Review the entire  file to fix any syntax errors, unmatched tags, or structural problems introduced during the large-scale edits.
+        2.  Take a screenshot of the  page to assess the current visual state, as it is likely broken.
+        3.  Verify that the new layout correctly implements a sticky header/tab bar and a vertically scrollable content area.
+        4.  Test navigation between all tabs (Workforce, Invitations, Assignments, Records, Past Workers, Recruitment) to ensure the correct content panel is displayed for each.
+    -   **Why fix this issue and what will be achieved with the fix?** To deliver the user's requested UI improvement for a more usable and modern interface where context (page title, tabs) is not lost when scrolling through long lists of workers or records.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend.
+    -   **Blocked on other issue:** None.
+
+-   **Issue 2: Implement Multi-Column Sorting in Records Tab**
+    -   **Attempted fixes:** The agent added state management (, ) and a placeholder  component. The data loading logic was updated to fetch both active and inactive workers for this tab.
+    -   **Next debug checklist:**
+        1.  Implement the  function to correctly update the  state when a column header is clicked.
+        2.  Enhance the  memoized calculation to support sorting by a primary and secondary column (e.g., sort by Status, then by Start Date).
+        3.  Ensure the  component's headers are clickable and visually indicate the current sort order.
+    -   **Why fix this issue and what will be achieved with the fix?** To fulfill the user's request for a powerful data table in the Records tab that allows them to easily analyze workforce history.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend.
+    -   **Blocked on other issue:** Blocked on **Issue 1**, as the page needs to be functional first.
+
+**In progress Task List**:
+-   **Task 1: Complete UI Refactor of  (P0)**
+    -   **Where to resume:** Stabilizing the  file. The last action was embedding the  and  components. The next step should be to fix the component's overall structure and verify its rendering.
+    -   **What will be achieved with this?** A functional and improved Team Management page with sticky navigation and the foundational structure for the new Recruitment section.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Frontend.
+    -   **Blocked on something:** None.
+
+**Upcoming and Future Tasks**
+-   **Upcoming Tasks:**
+    -   **P0: Build out Recruitment Page:** Implement the UI and backend logic for the new Recruitment tab, allowing employers to post roles to the system's match engine.
+    -   **P1: Implement Pre-Assignment Hour Limit Checks:** Create a system that warns employers (on the assignment screen and calendar) when they try to assign a worker to a shift that would push them over ESA weekly hour limits.
+    -   **P2: Build End-of-Shift Reports:** Develop a mechanism where, at the end of a shift, a report is generated for the employer detailing tasks completed by each worker, which will then feed into the KPI calculations.
+-   **Future Tasks:**
+    -   ADP/Rippling Payroll Integration.
+    -   Two-Way Rating System (Worker-Client and Client-Worker).
+    -   Dedicated Employer Attendance Dashboard for live trends.
+
+**Completed work in this session**
+-   **Swan Pizza Demo Scenario Created:** Wiped all old data and built a complete, realistic test environment with an employer, 11 active workers, 3 roles, and 2 weeks of shifts. All associated login/activation issues (EULA, profile status) were resolved.
+-   **Worker KPIs UI Populated:** Successfully connected the frontend KPI components in  to the backend API, displaying real, simulated data for each worker, including weekly hours and shift counts.
+-   **Lay Off vs. Terminate Feature Implemented:** Created distinct UI flows for laying off and terminating employees, complete with separate modals, contextual warnings about EI, and different sets of reasons.
+-   **Workforce Management UI Enhancements:**
+    -   Added a toggleable, compact List View to the Workforce tab.
+    -   Implemented an ESA hours legend and progress bars to track weekly work hours.
+    -   Added sorting capabilities to the Assignments tab workforce panel.
+    -   Reorganized tabs, creating a new Records tab and restricting the Invite Workers button to the Invitations tab.
+-   **Role-Based Auto-Assignment Implemented:** Created and verified a backend feature where assigning a worker to a role automatically assigns them to all matching open shifts.
+-   **Shift Unassignment Bug Fixed:** Resolved a recurring frontend bug that caused an infinite loop in the  during worker unassignment.
+-   **Hybrid Work Type Architecture Implemented:** Created a system where occupations have a default  (On-Site, Route-Based, Continental) that is inherited by roles but can be overridden.
+-   **Test Data Cleanup:** Deleted 37 orphaned test workplaces from the database.
+
+**Earlier issues found/mentioned but not fixed**
+-   None. The previously mentioned frontend loop bug was fixed in this session.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Complex State Management:** The  component now manages a large amount of state, including the active tab, view mode (List/Card), multiple sorting configurations, and data for different worker lists (active, inactive, invited).
+-   **Component Co-location (Needs Refactor):** New components (, ) were added directly inside . This was a quick way to build, but they should be extracted into their own files under  for better maintainability.
+-   **Conditional Rendering:** The UI heavily relies on conditional rendering to show different content based on the , , and other state variables.
+-   **Realistic Data Seeding:** A comprehensive script () was created to programmatically generate a full, interconnected demo environment, including users, workplaces, roles, shifts, and employment relationships.
+
+**All files of reference**
+-   : The primary file for all ongoing and upcoming work. It is currently in a partially refactored, unstable state.
+-   : The backend route that supplies all data for the Workforce Management page.
+-   : The component for the Assignments tab, which was recently updated with sorting controls.
+-   : The script used to create the current demo data.
+
+**Areas that need refactoring**
+-   The  file is now excessively large and complex. The  and  components, which were added directly into the file, should be extracted into their own separate files within  to improve readability and maintainability.
+
+**key api endpoints**
+-   : Fetches all KPI data, including active and inactive workers, which powers most of the  page.
+-   : The endpoint used for both Lay Off and Terminate actions.
+-   : Assigns a worker to a role and triggers the auto-assignment of shifts.
+
+**Critical Info for New Agent**
+-   The immediate priority is to stabilize the  component. It has undergone massive changes and is likely in a broken state. Do not proceed with new features until this page is rendering correctly and all its tabs are functional.
+-   Consider refactoring the large components (, ) out of  into their own files to make the codebase more manageable.
+-   The user is highly focused on UI/UX. Pay close attention to requests for sticky elements, sorting, and clean layouts.
+
+**Last 10 User Messages and any pending HUMAN messages**
+-   Lock the Tab titles and Title of page from scrolling along with the data (cards or lists), only let the cards/lists area scroll so we don't loose where we are for UI improvement. this should simulate in Workforce, Invitations, Assignments, Records (should also show active and past employees sortable by each column and several columns at the same time) and add a recruitment page.
+-   Remove the invite Workers button from Workforce Tab, Assignments Tab, and Past Workers Tabs as we already have the Specialized tab for it (Invitations). Lets add another Tab between Assignments and Past Workers (Link to employment record of past workers from day of recruitment to the termination/layoff, pays, shifts, roles for download in PDF, CSV.
+-   lets sort the available workers (change to workforce) by their name, role, ascending, descending,
+-   Answers: 1. flag with warning 2. yes 3. yes 4. yes. its already displayed in the Tab: Active Workers (change to Workforce) in Team management page and implemented in Assignments Tab ((Available workers column). The Cards view are way too big for a larger team management. Lets add a list view sortable by workplace (workplace can alternatively be used as department).
+-   do we have a mechanism that tracks how many hours an employee has worked so it makes them unavailable for further shift assignment.
+-   yes please
+-   well wait. There is a difference between termination and getting laid off. In Canadian govt, you are eligible to receive EI benefits only if you aren't terminated by employer. Can you check the law and build a button for lay-off. BTW both laid off and terminated workforce end up with match engine to be matched with another job.
+-   Use Terminate instead of end employment
+-   At the end of every shift the employer gets a report on tasks completed by each team member, that calculates the KPI's for the workforce, and then on employer side the cumulative values are shown. That's is why attendance and KPIs are imperative to complete before testing
+-   What's next
+
+**Project Health Check:**
+-   **Broken:**
+    -   The  page is in an unstable, partially-refactored state due to large, unverified code changes. The layout is likely broken, and functionality across its multiple tabs may be impaired.
+-   **Mocked:**
+    -   None. The application is running on a fully-seeded, realistic demo environment.
+
+**3rd Party Integrations**
+-   **Google Maps Platform:** Used for geocoding and address validation.
+-   **Neatify/CleanGrid (Custom Webhook):** Incoming webhook for external job orders.
+-   **@dnd-kit/core:** Used for drag-and-drop functionality in the Assignments tab.
+-   **jspdf & jspdf-autotable:** Recently added to the frontend for PDF export functionality in the Records tab.
+
+**Testing status**
+-   **Testing agent used after significant changes:** YES (but not for the most recent, incomplete refactor).
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** None in this session.
+-   **Known regressions:** The entire  page may have regressed due to the ongoing refactor.
+
+**Credentials to test flow:**
+-   **Employer (Swan Pizza):**  / 
+-   **Worker Examples:** ,  /  (for all workers)</analysis>
