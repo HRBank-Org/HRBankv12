@@ -30,7 +30,7 @@ const OrangeHeader = () => {
       setOpen: setOperationsOpen,
       items: [
         { label: 'Roster', icon: FiCalendar, path: '/employer/roster' },
-        { label: 'Workplaces', icon: FiMapPin, path: '/employer/dashboard', state: { activeTab: 'schedule', showWorkplaces: true } }
+        { label: 'Workplaces', icon: FiMapPin, path: '/employer/workplaces' }
       ]
     },
     {
@@ -40,8 +40,8 @@ const OrangeHeader = () => {
       isOpen: hrOpen,
       setOpen: setHrOpen,
       items: [
-        { label: 'Roles', icon: FiUsers, path: '/employer/dashboard', state: { activeTab: 'workforce', showInvitations: true } },
-        { label: 'Team', icon: FiUserCheck, path: '/employer/dashboard', state: { activeTab: 'workforce' } },
+        { label: 'Roles', icon: FiUsers, path: '/employer/roles' },
+        { label: 'Team', icon: FiUserCheck, path: '/employer/workforce-management' },
         { label: 'Live Attendance', icon: FiClock, path: '/employer/live-attendance' }
       ]
     },
