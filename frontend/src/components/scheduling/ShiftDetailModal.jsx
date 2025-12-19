@@ -324,11 +324,17 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
                   className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Confirmation Dialogs */}
+      {/* Confirmation Dialogs - MUST be outside the main modal structure */}
       {confirmUnassign && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-2xl">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Remove Worker?</h3>
             <p className="text-gray-600 mb-4">Are you sure you want to remove this worker from the shift?</p>
             <div className="flex gap-3">
@@ -340,9 +346,10 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
               </button>
               <button
                 onClick={() => handleUnassignWorker(confirmUnassign)}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
-                Remove
+                {loading ? 'Removing...' : 'Remove'}
               </button>
             </div>
           </div>
@@ -350,8 +357,8 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
       )}
 
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-2xl">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Shift?</h3>
             <p className="text-gray-600 mb-4">
               Are you sure you want to delete this shift? This action cannot be undone.
@@ -365,21 +372,15 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
-                Delete
+                {loading ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>
         </div>
       )}
-
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
