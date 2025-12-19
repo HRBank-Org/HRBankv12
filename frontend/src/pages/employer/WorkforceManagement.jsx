@@ -286,7 +286,122 @@ const WorkforceManagement = () => {
               </button>
             )}
           </div>
+        ) : activeTab === 'active' ? (
+          /* Active Workers with KPIs */
+          workerKpis.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <FiActivity size={48} className="text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Active Workers</h3>
+              <p className="text-gray-500 mb-4">Start building your team by inviting workers</p>
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                <FiUserPlus className="inline mr-2" />
+                Invite Your First Worker
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {workerKpis.map((worker) => (
+                <div key={worker.user_id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                  {/* Worker Header */}
+                  <div className="p-5 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center relative">
+                          {worker.profile_picture ? (
+                            <img src={worker.profile_picture} alt={worker.full_name} className="w-14 h-14 rounded-full object-cover" />
+                          ) : (
+                            <span className="text-xl font-bold text-gray-600">
+                              {worker.full_name?.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          {/* Status indicator */}
+                          {worker.today_status?.is_clocked_in && (
+                            <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" title="Clocked In" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 text-lg">{worker.full_name}</h3>
+                          <p className="text-sm text-gray-500">{worker.position_title || worker.employment_type}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        {worker.today_status?.is_scheduled ? (
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            worker.today_status.is_clocked_in 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {worker.today_status.is_clocked_in ? '🟢 On Duty' : '📅 Scheduled'}
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                            Off Today
+                          </span>
+                        )}
+                        {worker.average_rating && (
+                          <div className="mt-1 text-sm text-gray-600">⭐ {worker.average_rating.toFixed(1)}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* This Week KPIs */}
+                  <div className="p-5 bg-gray-50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <FiTrendingUp className="text-blue-500" size={16} />
+                      <span className="text-sm font-medium text-gray-700">This Week</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-3">
+                      <div className="bg-white rounded-lg p-3 text-center">
+                        <div className="text-xl font-bold text-blue-600">{worker.week_kpis?.total_hours || 0}</div>
+                        <div className="text-xs text-gray-500">Hours</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 text-center">
+                        <div className="text-xl font-bold text-green-600">{worker.week_kpis?.shifts_completed || 0}</div>
+                        <div className="text-xs text-gray-500">Shifts</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 text-center">
+                        <div className="text-xl font-bold text-orange-600">{worker.week_kpis?.tasks_completed || 0}</div>
+                        <div className="text-xs text-gray-500">Tasks</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 text-center">
+                        <div className="text-xl font-bold text-purple-600">{worker.week_kpis?.attendance_rate || 100}%</div>
+                        <div className="text-xs text-gray-500">Attendance</div>
+                      </div>
+                    </div>
+                    
+                    {/* Hours breakdown */}
+                    {(worker.week_kpis?.shift_hours > 0 || worker.week_kpis?.task_hours > 0) && (
+                      <div className="mt-3 flex gap-2 text-xs text-gray-500">
+                        <span className="px-2 py-1 bg-blue-50 rounded">{worker.week_kpis?.shift_hours || 0}h shifts</span>
+                        <span className="px-2 py-1 bg-orange-50 rounded">{worker.week_kpis?.task_hours || 0}h tasks</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Overall Stats & Actions */}
+                  <div className="p-5 flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                      <span className="font-medium text-gray-700">{worker.total_shifts_completed || 0}</span> total shifts • 
+                      <span className="font-medium text-gray-700 ml-1">{worker.total_hours_worked?.toFixed(0) || 0}h</span> total
+                    </div>
+                    <button
+                      onClick={() => handleTerminate(worker)}
+                      className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                      End Employment
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
         ) : (
+          /* Inactive Workers Tab */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {workers.map((worker) => (
               <div key={worker.user_id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
@@ -306,15 +421,13 @@ const WorkforceManagement = () => {
                       <p className="text-sm text-gray-500">{worker.position_title || worker.employment_type}</p>
                     </div>
                   </div>
-                  {activeTab === 'inactive' && (
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      worker.eligible_for_rehire 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {worker.eligible_for_rehire ? 'Eligible' : 'Not Eligible'}
-                    </span>
-                  )}
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    worker.eligible_for_rehire 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {worker.eligible_for_rehire ? 'Eligible' : 'Not Eligible'}
+                  </span>
                 </div>
 
                 <div className="space-y-2 mb-4">
@@ -332,14 +445,8 @@ const WorkforceManagement = () => {
                       <span className="font-medium">⭐ {worker.average_rating.toFixed(1)}</span>
                     </div>
                   )}
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Since:</span>
-                    <span className="font-medium">
-                      {new Date(worker.employment_start_date).toLocaleDateString()}
-                    </span>
-                  </div>
                   
-                  {activeTab === 'inactive' && worker.termination_reason && (
+                  {worker.termination_reason && (
                     <div className="pt-2 mt-2 border-t border-gray-200">
                       <p className="text-xs text-gray-500">
                         <strong>Reason:</strong> {worker.termination_reason.replace(/_/g, ' ')}
@@ -353,23 +460,14 @@ const WorkforceManagement = () => {
                   )}
                 </div>
 
-                {activeTab === 'active' ? (
+                {worker.eligible_for_rehire && (
                   <button
-                    onClick={() => handleTerminate(worker)}
-                    className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                    onClick={() => handleRehire(worker)}
+                    className="w-full px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: theme.primaryColor }}
                   >
-                    End Employment
+                    Rehire
                   </button>
-                ) : (
-                  worker.eligible_for_rehire && (
-                    <button
-                      onClick={() => handleRehire(worker)}
-                      className="w-full px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: theme.primaryColor }}
-                    >
-                      Rehire
-                    </button>
-                  )
                 )}
               </div>
             ))}
