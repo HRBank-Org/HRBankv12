@@ -100,7 +100,7 @@ class PayrollEntry(BaseModel):
     shifts_included: List[str] = []  # shift_ids (standard + continental)
     shift_ids: List[str] = []        # Alias for shifts_included
     task_ids: List[str] = []         # service_task_ids (field service)
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
 
 class PayrollExport(BaseModel):
