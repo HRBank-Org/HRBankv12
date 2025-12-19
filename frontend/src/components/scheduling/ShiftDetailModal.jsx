@@ -39,10 +39,11 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
   const handleUnassignWorker = async (workerId) => {
     console.log('👤 UNASSIGN CLICKED - Worker ID:', workerId);
     
-    // Close dialog immediately to prevent loop
+    // Close dialog immediately to prevent re-trigger
     setConfirmUnassign(null);
     setLoading(true);
     setError('');
+    setSuccessMessage('');
     
     const unassignUrl = `/api/employer/shifts/${shift.shift_id}/unassign/${workerId}`;
     console.log('🔄 Calling UNASSIGN API:', unassignUrl);
@@ -51,16 +52,17 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
       const response = await api.delete(unassignUrl);
       console.log('✅ UNASSIGN SUCCESS:', response.data);
       setSuccessMessage('✅ Worker removed successfully!');
+      setLoading(false);
+      
+      // Close modal and refresh data after showing success message
       setTimeout(() => {
-        if (onUpdate) onUpdate();
-        setSuccessMessage('');
-      }, 2000);
+        onClose(); // Close the modal first
+        if (onUpdate) onUpdate(); // Then refresh the data
+      }, 1500);
     } catch (err) {
       console.error('❌ UNASSIGN FAILED:', err);
       console.error('Error details:', err.response?.data);
       setError(err.response?.data?.detail || 'Failed to unassign worker');
-      setLoading(false);
-    } finally {
       setLoading(false);
     }
   };
