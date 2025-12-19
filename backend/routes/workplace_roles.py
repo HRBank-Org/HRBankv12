@@ -1029,6 +1029,77 @@ async def auto_assign_worker_to_shifts(
 
 
 
+@router.post("/{role_id}/auto-assign-shifts", response_model=Dict)
+async def trigger_auto_assignment(
+    role_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Manually trigger auto-assignment for all workers currently assigned to this role.
+    
+    Use this to:
+    - Assign workers to newly created shifts
+    - Re-run auto-assignment after shift changes
+    """
+    
+    role = await db.workplace_roles.find_one(
+        {"role_id": role_id, "employer_id": current_user["user_id"]}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    assigned_workers = role.get("assigned_workers", [])
+    
+    if not assigned_workers:
+        return {
+            "success": True,
+            "message": "No workers assigned to this role",
+            "data": {"total_shifts_assigned": 0}
+        }
+    
+    total_shifts_assigned = 0
+    worker_results = []
+    
+    for worker in assigned_workers:
+        workforce_id = worker.get("workforce_id") if isinstance(worker, dict) else worker
+        worker_name = worker.get("worker_name", "Worker") if isinstance(worker, dict) else "Worker"
+        
+        # Get worker name if not available
+        if worker_name == "Worker":
+            user = await db.users.find_one(
+                {"user_id": workforce_id},
+                {"_id": 0, "first_name": 1, "last_name": 1, "full_name": 1}
+            )
+            if user:
+                worker_name = user.get("full_name") or f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+        
+        shifts_assigned = await auto_assign_worker_to_shifts(
+            db=db,
+            role=role,
+            workforce_id=workforce_id,
+            worker_name=worker_name,
+            employer_id=current_user["user_id"]
+        )
+        
+        total_shifts_assigned += shifts_assigned
+        worker_results.append({
+            "workforce_id": workforce_id,
+            "worker_name": worker_name,
+            "shifts_assigned": shifts_assigned
+        })
+    
+    return {
+        "success": True,
+        "message": f"Auto-assigned {total_shifts_assigned} shifts to {len(assigned_workers)} workers",
+        "data": {
+            "total_shifts_assigned": total_shifts_assigned,
+            "workers": worker_results
+        }
+    }
+
+
 @router.get("/{role_id}/kpis", response_model=Dict)
 async def get_role_kpis(
     role_id: str,
