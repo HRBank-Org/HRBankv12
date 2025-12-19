@@ -236,19 +236,22 @@ const DragDropAssignment = ({ workers = [], shifts = [], tasks = [], onAssign, o
       onDragCancel={handleDragCancel}
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Workers Panel */}
+        {/* Workforce Panel */}
         <div className="lg:col-span-1">
           <div className="bg-gray-50 rounded-xl p-4 sticky top-4">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
               <FiUser className="text-blue-500" />
-              Available Workers ({workers.length})
+              Workforce ({workers.length})
             </h3>
+            
+            {/* Sort Controls */}
+            <WorkforceSortControls workers={workers} onSortedWorkers={setSortedWorkers} />
             
             {workers.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-8">No workers available</p>
             ) : (
-              <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-                {workers.map((worker) => (
+              <div className="space-y-2 max-h-[550px] overflow-y-auto pr-2 mt-3">
+                {(sortedWorkers.length > 0 ? sortedWorkers : workers).map((worker) => (
                   <DraggableWorker key={worker.user_id} worker={worker} />
                 ))}
               </div>
