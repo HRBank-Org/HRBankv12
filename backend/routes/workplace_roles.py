@@ -943,7 +943,6 @@ async def get_all_roles_kpis(
     """
     Get summary KPIs for all roles - for the Roles page overview
     """
-    from datetime import timedelta, timezone
     
     now = datetime.now(timezone.utc)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
