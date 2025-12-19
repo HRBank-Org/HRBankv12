@@ -16,6 +16,18 @@ class WorkplaceRole(BaseModel):
     occupation_template: str  # Links to admin occupation template (e.g., "Chef")
     occupation_category: str  # e.g., "Hospitality", "Security"
     
+    # Shift Type - Defines how shifts are created and attendance is tracked
+    # on_site: Standard GPS clock-in at workplace location (Chef, Server, Manager)
+    # route_based: Multi-stop tasks with GPS at each location (Delivery Driver, Cleaner)
+    # continental: 12-hour rotating shifts with GPS at workplace (Security Guard)
+    shift_type: str = "on_site"  # on_site, route_based, continental
+    
+    # Continental Shift Config (only for shift_type=continental)
+    continental_config: Optional[Dict] = None  # {pattern, day_shift, night_shift, rotation_groups}
+    
+    # Route Config (only for shift_type=route_based)
+    route_config: Optional[Dict] = None  # {default_duration_hours, allow_recurring_routes}
+    
     # Requirements
     required_skills: List[str] = []
     required_certifications: List[str] = []  # Includes both occupation-linked and employer-added
@@ -32,6 +44,9 @@ class WorkplaceRole(BaseModel):
     filled_by_workforce_id: Optional[str] = None
     filled_date: Optional[datetime] = None
     posted_as_job_id: Optional[str] = None  # If posted to match engine
+    
+    # Assigned Workers (workers assigned to this role get all shifts automatically)
+    assigned_workers: List[str] = []  # List of worker_ids
     
     # Metadata
     description: Optional[str] = None
