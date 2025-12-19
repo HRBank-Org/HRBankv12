@@ -8,6 +8,11 @@ Pricing Structure:
 - Platform fees:
   * Minimum wage jobs: $1/hour fee to employer only
   * Above minimum wage: $1/hour fee to BOTH worker and employer
+
+Work Types:
+- on_site: Standard GPS clock-in at workplace (Server, Chef, Cashier)
+- route_based: Multi-stop tasks with GPS at each location (Delivery Driver, Cleaner)
+- continental: 12-hour rotating shifts (Security Guard, Factory Worker)
 """
 
 # Ontario minimum wage (effective October 1, 2025)
@@ -15,6 +20,70 @@ MINIMUM_WAGE = 17.60
 
 # Platform fee structure
 PLATFORM_FEE_PER_HOUR = 1.00
+
+# Default work type mappings by occupation title
+# Super-admin controlled - employers can override when creating roles
+DEFAULT_WORK_TYPES = {
+    # Continental (12-hour rotating shifts)
+    "Security Guard": "continental",
+    "Security Officer": "continental",
+    "Fire Watch": "continental",
+    "Concierge Security": "continental",
+    "Mobile Patrol Officer": "continental",
+    "CCTV Operator": "continental",
+    "Access Control Officer": "continental",
+    "Site Supervisor": "continental",
+    "Production Worker": "continental",
+    "Assembly Line Worker": "continental",
+    "Machine Operator": "continental",
+    
+    # Route-based (multi-stop GPS tracking)
+    "Delivery Driver": "route_based",
+    "Courier": "route_based",
+    "Food Delivery Driver": "route_based",
+    "Truck Driver": "route_based",
+    "Mover": "route_based",
+    "Shuttle Driver": "route_based",
+    "Residential Cleaner": "route_based",
+    "Airbnb Cleaner": "route_based",
+    "Home Care Aide": "route_based",
+    "Caregiver": "route_based",
+    "Personal Support Worker (PSW)": "route_based",
+    "Mobile Patrol Officer": "route_based",
+    "Pest Control Technician": "route_based",
+    "Pool Maintenance Technician": "route_based",
+    "Snow Removal Operator": "route_based",
+    "Christmas Light Installer": "route_based",
+    
+    # All others default to on_site
+}
+
+def get_default_work_type(occupation_title: str) -> str:
+    """
+    Get the default work type for an occupation.
+    Returns 'on_site' if no specific mapping exists.
+    """
+    # Exact match first
+    if occupation_title in DEFAULT_WORK_TYPES:
+        return DEFAULT_WORK_TYPES[occupation_title]
+    
+    # Partial match for variations
+    title_lower = occupation_title.lower()
+    
+    # Security roles -> continental
+    if any(kw in title_lower for kw in ["security", "guard", "patrol", "fire watch"]):
+        return "continental"
+    
+    # Delivery/driver roles -> route_based
+    if any(kw in title_lower for kw in ["delivery", "courier", "driver", "mover"]):
+        return "route_based"
+    
+    # Home service roles -> route_based
+    if any(kw in title_lower for kw in ["home care", "home aide", "residential clean", "airbnb"]):
+        return "route_based"
+    
+    # Default to on_site
+    return "on_site"
 
 OCCUPATION_CATEGORIES = {
     "Food & Hospitality": {
