@@ -25,12 +25,26 @@ const Roles = () => {
 
   const loadData = async () => {
     try {
-      const [rolesRes, workplacesRes] = await Promise.all([
+      const [rolesRes, workplacesRes, kpisRes] = await Promise.all([
         api.get(`/api/employer/workplace-roles/list${selectedWorkplace !== 'all' ? `?workplace_id=${selectedWorkplace}` : ''}`),
-        api.get('/api/employer/workplaces')
+        api.get('/api/employer/workplaces'),
+        api.get('/api/employer/workplace-roles/all/kpis')
       ]);
 
-      setRoles(rolesRes.data.data.roles || []);
+      // Merge KPIs into roles
+      const rolesData = rolesRes.data.data.roles || [];
+      const kpisData = kpisRes.data.data?.roles || [];
+      
+      const rolesWithKpis = rolesData.map(role => {
+        const kpi = kpisData.find(k => k.role_id === role.role_id);
+        return {
+          ...role,
+          hours_this_week: kpi?.hours_this_week || 0,
+          shift_type: kpi?.shift_type || role.shift_type || 'on_site'
+        };
+      });
+
+      setRoles(rolesWithKpis);
       setWorkplaces(workplacesRes.data.data.workplaces || []);
     } catch (error) {
       console.error('Failed to load roles:', error);
