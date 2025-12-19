@@ -35,18 +35,16 @@ const WorkforceManagement = () => {
         // Load invitations
         const invRes = await api.get('/api/employer/invitations/list');
         setInvitations(invRes.data.data.invitations || []);
+      } else if (activeTab === 'active') {
+        // Load worker KPIs for active tab
+        const kpisRes = await api.get('/api/employer/workforce-management/worker-kpis');
+        setWorkerKpis(kpisRes.data.data.workers || []);
+        setWorkers([]);
       } else {
-        // Load workers
-        const endpoint = activeTab === 'active' 
-          ? '/api/employer/workforce-management/active'
-          : '/api/employer/workforce-management/inactive';
-        
-        const response = await api.get(endpoint);
-        const workersList = activeTab === 'active' 
-          ? response.data.data.active_workers 
-          : response.data.data.inactive_workers;
-        
-        setWorkers(workersList);
+        // Load inactive workers
+        const response = await api.get('/api/employer/workforce-management/inactive');
+        setWorkers(response.data.data.inactive_workers || []);
+        setWorkerKpis([]);
       }
       
       // Load roles and workplaces for invite modal
