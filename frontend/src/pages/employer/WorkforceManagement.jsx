@@ -343,6 +343,16 @@ const WorkforceManagement = () => {
               </table>
             </div>
           )
+        ) : activeTab === 'assignments' ? (
+          /* Drag & Drop Assignments Tab */
+          <DragDropAssignment
+            workers={workerKpis}
+            shifts={shifts}
+            tasks={tasks}
+            onAssign={handleAssignWorker}
+            onUnassign={handleUnassignWorker}
+            loading={loading}
+          />
         ) : activeTab === 'active' ? (
           /* Active Workers with KPIs */
           workerKpis.length === 0 ? (
