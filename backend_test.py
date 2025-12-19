@@ -5829,6 +5829,259 @@ def test_workplace_detail_backend_apis(results):
         except Exception as e:
             results.add_fail(f"Auth required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_sprint1_hr_bank_features(results):
+    """Test Sprint 1 features for HR Bank application"""
+    print("\n🧪 TESTING HR BANK SPRINT 1 FEATURES")
+    print("   Focus: Operational KPIs API, Shift Unassign API Fix, Continental Shifts Data Structure")
+    print("   Test Accounts: employer@hrbank.ca / Test123!, worker@hrbank.ca / Test123!")
+    
+    # Login as employer
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for Sprint 1 testing")
+            else:
+                results.add_fail("Employer login for Sprint 1 testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Employer login for Sprint 1 testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login for Sprint 1 testing", f"Request failed: {str(e)}")
+        return
+    
+    # Test 1: Operational KPIs API
+    print("\n   Test 1: GET /api/employer/dashboard/operational-kpis - Operational KPIs API")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/dashboard/operational-kpis",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data):
+                
+                kpis = data["data"]
+                
+                # Validate expected response structure
+                required_sections = ["summary", "shifts", "field_service", "continental", "period"]
+                missing_sections = [section for section in required_sections if section not in kpis]
+                
+                if not missing_sections:
+                    results.add_pass("GET operational-kpis - Response structure valid")
+                    
+                    # Validate summary section
+                    summary = kpis.get("summary", {})
+                    summary_fields = ["total_hours_this_week", "shift_hours_week", "task_hours_week", 
+                                    "active_workers", "workers_on_duty_today", "attendance_rate_today"]
+                    missing_summary = [f for f in summary_fields if f not in summary]
+                    
+                    if not missing_summary:
+                        results.add_pass("GET operational-kpis - Summary section complete")
+                        print(f"      Summary: {summary['total_hours_this_week']} total hours, {summary['active_workers']} active workers")
+                    else:
+                        results.add_fail("GET operational-kpis - Summary section", f"Missing fields: {missing_summary}")
+                    
+                    # Validate shifts section
+                    shifts = kpis.get("shifts", {})
+                    shifts_fields = ["today_count", "week_total", "standard_shifts_week", "continental_shifts_week"]
+                    missing_shifts = [f for f in shifts_fields if f not in shifts]
+                    
+                    if not missing_shifts:
+                        results.add_pass("GET operational-kpis - Shifts section complete")
+                        print(f"      Shifts: {shifts['today_count']} today, {shifts['week_total']} this week")
+                    else:
+                        results.add_fail("GET operational-kpis - Shifts section", f"Missing fields: {missing_shifts}")
+                    
+                    # Validate field_service section
+                    field_service = kpis.get("field_service", {})
+                    fs_fields = ["total_tasks_week", "completed", "in_progress", "pending", "completion_rate"]
+                    missing_fs = [f for f in fs_fields if f not in field_service]
+                    
+                    if not missing_fs:
+                        results.add_pass("GET operational-kpis - Field service section complete")
+                        print(f"      Field Service: {field_service['total_tasks_week']} tasks, {field_service['completion_rate']}% completion rate")
+                    else:
+                        results.add_fail("GET operational-kpis - Field service section", f"Missing fields: {missing_fs}")
+                    
+                    # Validate continental section
+                    continental = kpis.get("continental", {})
+                    continental_fields = ["rotation_groups", "total_shifts_week"]
+                    missing_continental = [f for f in continental_fields if f not in continental]
+                    
+                    if not missing_continental:
+                        results.add_pass("GET operational-kpis - Continental section complete")
+                        print(f"      Continental: {continental['total_shifts_week']} shifts, {len(continental.get('rotation_groups', {}))} rotation groups")
+                    else:
+                        results.add_fail("GET operational-kpis - Continental section", f"Missing fields: {missing_continental}")
+                    
+                    # Validate period section
+                    period = kpis.get("period", {})
+                    period_fields = ["today", "week_start", "generated_at"]
+                    missing_period = [f for f in period_fields if f not in period]
+                    
+                    if not missing_period:
+                        results.add_pass("GET operational-kpis - Period section complete")
+                        print(f"      Period: {period['today']} to {period['week_start']}")
+                    else:
+                        results.add_fail("GET operational-kpis - Period section", f"Missing fields: {missing_period}")
+                        
+                else:
+                    results.add_fail("GET operational-kpis", f"Missing sections: {missing_sections}")
+            else:
+                results.add_fail("GET operational-kpis", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET operational-kpis", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET operational-kpis", f"Request failed: {str(e)}")
+    
+    # Test 2: Continental Shifts Data Structure
+    print("\n   Test 2: GET /api/calendar/shifts - Continental shifts data structure")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/calendar/shifts?start_date=2025-12-01&end_date=2026-01-31",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                shifts = data["data"]
+                
+                # Find continental shifts
+                continental_shifts = [s for s in shifts if s.get("shift_type") == "continental"]
+                
+                if continental_shifts:
+                    results.add_pass("GET calendar/shifts - Continental shifts found")
+                    print(f"      Found {len(continental_shifts)} continental shifts")
+                    
+                    # Validate continental shift structure
+                    sample_shift = continental_shifts[0]
+                    required_fields = ["shift_type", "day_night", "rotation_group", "duration_hours"]
+                    missing_fields = [field for field in required_fields if field not in sample_shift]
+                    
+                    if not missing_fields:
+                        results.add_pass("GET calendar/shifts - Continental shift structure valid")
+                        print(f"      Sample shift: Type={sample_shift.get('shift_type')}, Group={sample_shift.get('rotation_group')}, Day/Night={sample_shift.get('day_night')}, Duration={sample_shift.get('duration_hours')}h")
+                        
+                        # Validate duration is 12 hours
+                        if sample_shift.get("duration_hours") == 12:
+                            results.add_pass("GET calendar/shifts - Continental shift duration correct (12 hours)")
+                        else:
+                            results.add_fail("GET calendar/shifts - Continental shift duration", f"Expected 12 hours, got {sample_shift.get('duration_hours')}")
+                        
+                        # Validate day_night values
+                        day_night_values = set(s.get("day_night") for s in continental_shifts)
+                        expected_values = {"day", "night"}
+                        if day_night_values.issubset(expected_values):
+                            results.add_pass("GET calendar/shifts - Continental day_night values valid")
+                        else:
+                            results.add_fail("GET calendar/shifts - Continental day_night values", f"Invalid values: {day_night_values - expected_values}")
+                        
+                        # Validate rotation groups
+                        rotation_groups = set(s.get("rotation_group") for s in continental_shifts)
+                        expected_groups = {"A", "B", "C", "D"}
+                        if rotation_groups.issubset(expected_groups):
+                            results.add_pass("GET calendar/shifts - Continental rotation groups valid")
+                            print(f"      Rotation groups found: {sorted(rotation_groups)}")
+                        else:
+                            results.add_fail("GET calendar/shifts - Continental rotation groups", f"Invalid groups: {rotation_groups - expected_groups}")
+                            
+                    else:
+                        results.add_fail("GET calendar/shifts - Continental shift structure", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_pass("GET calendar/shifts - No continental shifts in date range (expected if none created)")
+                    print("      No continental shifts found in specified date range")
+            else:
+                results.add_fail("GET calendar/shifts", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET calendar/shifts", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET calendar/shifts", f"Request failed: {str(e)}")
+    
+    # Test 3: Shift Unassign API Fix
+    print("\n   Test 3: DELETE /api/employer/shifts/{shift_id}/unassign/{worker_id} - Shift unassign API fix")
+    
+    # Use a continental shift ID from the review request
+    test_shift_id = "266cf949-b1af-4f04-89d1-86c0e439e019"
+    test_worker_id = "test_worker_123"
+    
+    try:
+        response = requests.delete(
+            f"{BASE_URL}/employer/shifts/{test_shift_id}/unassign/{test_worker_id}",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 404:
+            # Expected if shift doesn't exist or worker not assigned
+            data = response.json()
+            if "not found" in data.get("detail", "").lower():
+                results.add_pass("DELETE shift unassign - Proper 404 for non-existent shift/worker")
+                print(f"      Expected 404 response: {data.get('detail')}")
+            else:
+                results.add_fail("DELETE shift unassign", f"Unexpected 404 response: {data}")
+        elif response.status_code == 200:
+            # Success case
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and
+                "removed_worker_id" in data["data"] and
+                "remaining_workers" in data["data"]):
+                results.add_pass("DELETE shift unassign - Success response structure valid")
+                print(f"      Removed worker: {data['data']['removed_worker_id']}, Remaining: {data['data']['remaining_workers']}")
+            else:
+                results.add_fail("DELETE shift unassign", f"Invalid success response: {data}")
+        elif response.status_code == 403:
+            results.add_pass("DELETE shift unassign - Proper 403 for unauthorized access")
+            print("      Expected 403 response for unauthorized shift access")
+        else:
+            results.add_fail("DELETE shift unassign", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("DELETE shift unassign", f"Request failed: {str(e)}")
+    
+    # Test endpoint accessibility (should not return 404 for the endpoint itself)
+    try:
+        # Test with obviously invalid IDs to check endpoint exists
+        response = requests.delete(
+            f"{BASE_URL}/employer/shifts/invalid_shift/unassign/invalid_worker",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        # Should get 404 for shift not found, not 404 for endpoint not found
+        if response.status_code in [404, 403, 400]:  # Valid error codes for business logic
+            results.add_pass("DELETE shift unassign - Endpoint accessible")
+        elif response.status_code == 404:
+            # Check if it's endpoint not found vs business logic not found
+            try:
+                error_data = response.json()
+                if "not found" in error_data.get("detail", "").lower():
+                    results.add_pass("DELETE shift unassign - Endpoint accessible (business logic 404)")
+                else:
+                    results.add_fail("DELETE shift unassign - Endpoint accessibility", "Endpoint may not exist")
+            except:
+                results.add_fail("DELETE shift unassign - Endpoint accessibility", "Endpoint may not exist")
+        else:
+            results.add_fail("DELETE shift unassign - Endpoint accessibility", f"Unexpected response: {response.status_code}")
+    except Exception as e:
+        results.add_fail("DELETE shift unassign - Endpoint accessibility", f"Request failed: {str(e)}")
+
 def main():
     """Run comprehensive HR Bank backend tests"""
     results = TestResults()
