@@ -766,6 +766,7 @@ const ScheduleTab = ({ theme, navigate, initialShowWorkplaces = false }) => {
 const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
   const [pendingShifts, setPendingShifts] = useState([]);
   const [analytics, setAnalytics] = useState(null);
+  const [operationalKpis, setOperationalKpis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedShift, setSelectedShift] = useState(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
@@ -776,13 +777,15 @@ const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
 
   const loadKPIData = async () => {
     try {
-      const [pendingRes, analyticsRes] = await Promise.all([
+      const [pendingRes, analyticsRes, opsRes] = await Promise.all([
         api.get('/api/employer/ratings/pending'),
-        api.get('/api/employer/ratings/analytics')
+        api.get('/api/employer/ratings/analytics'),
+        api.get('/api/employer/dashboard/operational-kpis')
       ]);
       
       setPendingShifts(pendingRes.data.data.pending_ratings || []);
       setAnalytics(analyticsRes.data.data);
+      setOperationalKpis(opsRes.data.data);
     } catch (error) {
       console.error('Failed to load KPI data:', error);
     } finally {
