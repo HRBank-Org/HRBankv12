@@ -994,6 +994,8 @@ const UnifiedSchedule = () => {
                   <div className="flex items-center gap-2 mb-3">
                     {group.workMode === 'field_service' ? (
                       <FiTruck className="text-orange-500" size={18} />
+                    ) : group.items.some(i => i.shift_type === 'continental') ? (
+                      <span className="text-lg">🔄</span>
                     ) : (
                       <FiBriefcase className="text-blue-500" size={18} />
                     )}
@@ -1001,9 +1003,15 @@ const UnifiedSchedule = () => {
                     <span className={`px-2 py-0.5 text-xs rounded ${
                       group.workMode === 'field_service' 
                         ? 'bg-orange-100 text-orange-700' 
-                        : 'bg-blue-100 text-blue-700'
+                        : group.items.some(i => i.shift_type === 'continental')
+                          ? 'bg-indigo-100 text-indigo-700'
+                          : 'bg-blue-100 text-blue-700'
                     }`}>
-                      {group.workMode === 'field_service' ? 'Field Service' : 'On-Site'}
+                      {group.workMode === 'field_service' 
+                        ? 'Field Service' 
+                        : group.items.some(i => i.shift_type === 'continental')
+                          ? 'Continental (12h)'
+                          : 'On-Site'}
                     </span>
                   </div>
 
