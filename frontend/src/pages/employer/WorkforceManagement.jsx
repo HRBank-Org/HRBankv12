@@ -436,7 +436,7 @@ const WorkforceManagement = () => {
             loading={loading}
           />
         ) : activeTab === 'active' ? (
-          /* Active Workers with KPIs */
+          /* Workforce with KPIs */
           workerKpis.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm p-12 text-center">
               <FiActivity size={48} className="text-gray-300 mx-auto mb-4" />
@@ -451,9 +451,134 @@ const WorkforceManagement = () => {
                 Invite Your First Worker
               </button>
             </div>
+          ) : viewMode === 'list' ? (
+            /* LIST VIEW */
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">This Week</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Attendance</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Total</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {[...workerKpis]
+                    .sort((a, b) => {
+                      if (sortBy === 'workplace') return (a.workplace_name || '').localeCompare(b.workplace_name || '');
+                      if (sortBy === 'name') return a.full_name.localeCompare(b.full_name);
+                      if (sortBy === 'hours') return (b.week_kpis?.total_hours || 0) - (a.week_kpis?.total_hours || 0);
+                      if (sortBy === 'status') {
+                        const statusOrder = { unavailable: 0, overtime: 1, approaching: 2, available: 3 };
+                        const aStatus = getAvailabilityStatus(a.week_kpis?.total_hours || 0).status;
+                        const bStatus = getAvailabilityStatus(b.week_kpis?.total_hours || 0).status;
+                        return statusOrder[aStatus] - statusOrder[bStatus];
+                      }
+                      return 0;
+                    })
+                    .map((worker) => {
+                      const weekHours = worker.week_kpis?.total_hours || 0;
+                      const availability = getAvailabilityStatus(weekHours);
+                      
+                      return (
+                        <tr key={worker.user_id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600">
+                                {worker.full_name?.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{worker.full_name}</p>
+                                <p className="text-xs text-gray-500">{worker.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="text-sm text-gray-700">{worker.workplace_name || 'All Locations'}</span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="text-sm text-gray-900">{worker.position_title}</span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-center">
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${
+                              availability.color === 'green' ? 'bg-green-100 text-green-800' :
+                              availability.color === 'amber' ? 'bg-amber-100 text-amber-800' :
+                              availability.color === 'orange' ? 'bg-orange-100 text-orange-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {availability.icon} {availability.label}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-center">
+                            <div className="text-sm">
+                              <span className={`font-semibold ${
+                                weekHours >= ESA_LIMITS.WEEKLY_MAX ? 'text-red-600' :
+                                weekHours >= ESA_LIMITS.WEEKLY_OVERTIME ? 'text-orange-600' :
+                                weekHours >= 40 ? 'text-amber-600' : 'text-gray-900'
+                              }`}>{weekHours}h</span>
+                              <span className="text-gray-400"> / {ESA_LIMITS.WEEKLY_MAX}h</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                              <div
+                                className={`h-1.5 rounded-full ${
+                                  weekHours >= ESA_LIMITS.WEEKLY_MAX ? 'bg-red-500' :
+                                  weekHours >= ESA_LIMITS.WEEKLY_OVERTIME ? 'bg-orange-500' :
+                                  weekHours >= 40 ? 'bg-amber-500' : 'bg-green-500'
+                                }`}
+                                style={{ width: `${Math.min((weekHours / ESA_LIMITS.WEEKLY_MAX) * 100, 100)}%` }}
+                              />
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-center">
+                            <span className="text-sm font-medium text-gray-900">{worker.week_kpis?.attendance_rate || 100}%</span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-center">
+                            <div className="text-sm text-gray-600">
+                              {worker.total_shifts_completed || 0} shifts
+                              <br />
+                              <span className="text-xs text-gray-400">{worker.total_hours_worked?.toFixed(0) || 0}h total</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-right">
+                            <div className="flex justify-end gap-1">
+                              <button
+                                onClick={() => handleLayOff(worker)}
+                                className="px-2 py-1 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50"
+                                title="Lay off - Worker eligible for EI"
+                              >
+                                Lay Off
+                              </button>
+                              <button
+                                onClick={() => handleTerminate(worker)}
+                                className="px-2 py-1 text-xs border border-red-300 text-red-700 rounded hover:bg-red-50"
+                                title="Terminate for cause"
+                              >
+                                Terminate
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
           ) : (
+            /* CARD VIEW (existing) */
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {workerKpis.map((worker) => (
+              {[...workerKpis]
+                .sort((a, b) => {
+                  if (sortBy === 'workplace') return (a.workplace_name || '').localeCompare(b.workplace_name || '');
+                  if (sortBy === 'name') return a.full_name.localeCompare(b.full_name);
+                  if (sortBy === 'hours') return (b.week_kpis?.total_hours || 0) - (a.week_kpis?.total_hours || 0);
+                  return 0;
+                })
+                .map((worker) => (
                 <div key={worker.user_id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                   {/* Worker Header */}
                   <div className="p-5 border-b border-gray-100">
