@@ -1280,6 +1280,254 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_continental_shift_pattern_and_unified_payroll(results):
+    """Test Continental Shift Pattern Creation and Unified Payroll System"""
+    print("\n🧪 TESTING HR BANK UNIFIED PAYROLL SYSTEM AND CONTINENTAL SHIFT PATTERN GENERATION")
+    print("   Focus: Continental shift pattern creation and unified payroll aggregation")
+    print("   Testing: POST /api/calendar/continental-pattern, GET /api/calendar/shifts, POST /api/payroll/periods/generate")
+    print("   Test Accounts: employer@hrbank.ca / Test123!, worker@hrbank.ca / Test123!")
+    
+    # Login as employer
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for continental shift and payroll testing")
+            else:
+                results.add_fail("Employer login for continental shift and payroll testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Employer login for continental shift and payroll testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login for continental shift and payroll testing", f"Request failed: {str(e)}")
+        return
+    
+    # Test 1: Continental Shift Pattern Creation
+    print("\n   Test 1: POST /api/calendar/continental-pattern - Create continental shift pattern")
+    try:
+        continental_pattern_data = {
+            "workplace_id": "wp_2c753a6c8ae9",
+            "position_title": "Night Security",
+            "pattern": "panama",
+            "day_shift": {"start": "07:00", "end": "19:00"},
+            "night_shift": {"start": "19:00", "end": "07:00"},
+            "start_date": "2025-12-30",
+            "generate_weeks": 2,
+            "rotation_groups": 2,
+            "positions_per_shift": 1,
+            "hourly_rate": 24.00
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/calendar/continental-pattern",
+            json=continental_pattern_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and
+                "total_shifts" in data["data"] and
+                "day_shifts" in data["data"] and
+                "night_shifts" in data["data"]):
+                
+                pattern_summary = data["data"]
+                total_shifts = pattern_summary["total_shifts"]
+                day_shifts = pattern_summary["day_shifts"]
+                night_shifts = pattern_summary["night_shifts"]
+                
+                results.add_pass("POST continental-pattern - Pattern generation successful")
+                print(f"      Generated {total_shifts} shifts: {day_shifts} day shifts, {night_shifts} night shifts")
+                print(f"      Pattern: {pattern_summary.get('pattern', 'panama')}")
+                print(f"      Rotation groups: {pattern_summary.get('rotation_groups', 2)}")
+            else:
+                results.add_fail("POST continental-pattern", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST continental-pattern", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST continental-pattern", f"Request failed: {str(e)}")
+    
+    # Test 2: Verify Continental Shifts in Calendar
+    print("\n   Test 2: GET /api/calendar/shifts - Verify continental shifts in calendar")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/calendar/shifts?start_date=2025-12-30&end_date=2026-01-12",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                shifts = data["data"]
+                continental_shifts = [s for s in shifts if s.get("shift_type") == "continental"]
+                
+                if continental_shifts:
+                    results.add_pass("GET calendar/shifts - Continental shifts found in calendar")
+                    print(f"      Found {len(continental_shifts)} continental shifts")
+                    
+                    # Verify shift properties
+                    sample_shift = continental_shifts[0]
+                    required_fields = ["shift_type", "rotation_group", "day_night", "continental_pattern"]
+                    missing_fields = [field for field in required_fields if field not in sample_shift]
+                    
+                    if not missing_fields:
+                        results.add_pass("GET calendar/shifts - Continental shift fields validation")
+                        print(f"      Sample shift: Group {sample_shift.get('rotation_group')}, {sample_shift.get('day_night')} shift")
+                    else:
+                        results.add_fail("GET calendar/shifts - Continental shift fields", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_fail("GET calendar/shifts", "No continental shifts found in specified date range")
+            else:
+                results.add_fail("GET calendar/shifts", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET calendar/shifts", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET calendar/shifts", f"Request failed: {str(e)}")
+    
+    # Test 3: Unified Payroll Period Generation
+    print("\n   Test 3: POST /api/payroll/periods/generate - Generate unified payroll period")
+    period_id = None
+    try:
+        payroll_data = {"start_date": "2025-12-08"}
+        
+        response = requests.post(
+            f"{BASE_URL}/payroll/periods/generate",
+            json=payroll_data,
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and
+                "period_id" in data["data"]):
+                
+                period_id = data["data"]["period_id"]
+                results.add_pass("POST payroll/periods/generate - Payroll period created")
+                print(f"      Period ID: {period_id}")
+                print(f"      System aggregating: attendance records + service tasks")
+            else:
+                results.add_fail("POST payroll/periods/generate", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("POST payroll/periods/generate", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("POST payroll/periods/generate", f"Request failed: {str(e)}")
+    
+    # Test 4: Get Payroll Period Details
+    if period_id:
+        print("\n   Test 4: GET /api/payroll/periods/{period_id} - Get payroll period details")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/payroll/periods/{period_id}",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("success") and 
+                    "data" in data and
+                    "period" in data["data"] and
+                    "entries" in data["data"]):
+                    
+                    period_data = data["data"]["period"]
+                    entries = data["data"]["entries"]
+                    
+                    results.add_pass("GET payroll/periods/{period_id} - Period details retrieved")
+                    print(f"      Period: {period_data.get('start_date')} to {period_data.get('end_date')}")
+                    print(f"      Entries count: {len(entries)}")
+                    
+                    # Validate entry structure
+                    if entries:
+                        sample_entry = entries[0]
+                        required_fields = ["shift_hours", "task_hours", "regular_hours", "overtime_hours", 
+                                         "gross_pay", "net_pay", "shift_ids", "task_ids"]
+                        missing_fields = [field for field in required_fields if field not in sample_entry]
+                        
+                        if not missing_fields:
+                            results.add_pass("GET payroll/periods/{period_id} - Entry structure validation")
+                            print(f"      Sample entry: {sample_entry.get('shift_hours', 0)} shift hours, {sample_entry.get('task_hours', 0)} task hours")
+                            print(f"      Gross pay: ${sample_entry.get('gross_pay', 0)}, Net pay: ${sample_entry.get('net_pay', 0)}")
+                        else:
+                            results.add_fail("GET payroll/periods/{period_id} - Entry structure", f"Missing fields: {missing_fields}")
+                    else:
+                        print("      No payroll entries found (expected if no completed work in period)")
+                else:
+                    results.add_fail("GET payroll/periods/{period_id}", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET payroll/periods/{period_id}", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET payroll/periods/{period_id}", f"Request failed: {str(e)}")
+    
+    # Test 5: Payroll Periods List
+    print("\n   Test 5: GET /api/payroll/periods - List all payroll periods")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/payroll/periods",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and
+                "periods" in data["data"]):
+                
+                periods = data["data"]["periods"]
+                results.add_pass("GET payroll/periods - Periods list retrieved")
+                print(f"      Total periods: {len(periods)}")
+                
+                if periods:
+                    recent_period = periods[0]
+                    print(f"      Most recent: {recent_period.get('start_date')} to {recent_period.get('end_date')}")
+            else:
+                results.add_fail("GET payroll/periods", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET payroll/periods", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET payroll/periods", f"Request failed: {str(e)}")
+    
+    # Test Authentication Enforcement
+    print("\n   Testing Authentication Enforcement for Continental Shift and Payroll APIs")
+    
+    continental_payroll_endpoints = [
+        ("POST", "/calendar/continental-pattern"),
+        ("GET", "/calendar/shifts"),
+        ("POST", "/payroll/periods/generate"),
+        ("GET", "/payroll/periods")
+    ]
+    
+    for method, endpoint in continental_payroll_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+
+
 def test_checklist_api_for_hr_bank_field_service(results):
     """Test Checklist API for HR Bank field service tasks"""
     print("\n🧪 TESTING CHECKLIST API FOR HR BANK FIELD SERVICE")
