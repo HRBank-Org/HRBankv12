@@ -244,7 +244,7 @@ const EmployerSettings = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
       <UserHeader
-        onBackClick={() => navigate('/employer/dashboard')}
+        onBackClick={() => navigate('/employer/home')}
         showBack={true}
         title="Settings"
       />

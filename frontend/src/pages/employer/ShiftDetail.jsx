@@ -140,7 +140,7 @@ const ShiftDetail = () => {
                 ✉️ Invite Workers
               </button>
               <button
-                onClick={() => navigate('/employer/dashboard')}
+                onClick={() => navigate('/employer/home')}
                 className="px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
               >
                 Back to Dashboard
