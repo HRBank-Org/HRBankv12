@@ -635,45 +635,69 @@ async def unassign_worker_from_shift(
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Remove a worker from a shift"""
+    """Remove a worker from a shift - checks both shifts and calendar_shifts collections"""
     
-    # Find shift
+    # Find shift - check both collections (legacy shifts and calendar_shifts)
     shift = await db.shifts.find_one({"shift_id": shift_id})
+    collection_name = "shifts"
+    
+    if not shift:
+        # Try calendar_shifts collection
+        shift = await db.calendar_shifts.find_one({"shift_id": shift_id})
+        collection_name = "calendar_shifts"
     
     if not shift:
         raise HTTPException(status_code=404, detail="Shift not found")
     
-    # Verify employer owns the workplace
-    workplace = await db.workplaces.find_one({
-        "workplace_id": shift.get("workplace_id"),
-        "employer_id": current_user["user_id"]
-    })
+    # Verify employer owns the shift
+    if shift.get("employer_id") != current_user["user_id"]:
+        # Also check via workplace
+        workplace = await db.workplaces.find_one({
+            "workplace_id": shift.get("workplace_id"),
+            "employer_id": current_user["user_id"]
+        })
+        if not workplace:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this shift")
     
-    if not workplace:
-        raise HTTPException(status_code=403, detail="Not authorized to modify this shift")
-    
-    # Remove worker from assigned list
+    # Remove worker from assigned list - handle various formats
     assigned_workers = shift.get("assigned_workers", [])
+    original_count = len(assigned_workers)
     
-    # Handle both list of strings and list of dicts
-    if assigned_workers and isinstance(assigned_workers[0], str):
-        assigned_workers = [w for w in assigned_workers if w != workforce_id]
-    else:
-        assigned_workers = [w for w in assigned_workers if w.get("workforce_id") != workforce_id]
+    # Handle different worker ID formats in the list
+    new_assigned_workers = []
+    for w in assigned_workers:
+        if isinstance(w, str):
+            if w != workforce_id:
+                new_assigned_workers.append(w)
+        elif isinstance(w, dict):
+            # Check all possible ID fields
+            worker_id = w.get("worker_id") or w.get("workforce_id") or w.get("user_id")
+            if worker_id != workforce_id:
+                new_assigned_workers.append(w)
     
-    # Update shift
-    await db.shifts.update_one(
+    # Check if worker was actually removed
+    if len(new_assigned_workers) == original_count:
+        raise HTTPException(status_code=404, detail="Worker not found in shift")
+    
+    # Update the correct collection
+    collection = db.shifts if collection_name == "shifts" else db.calendar_shifts
+    await collection.update_one(
         {"shift_id": shift_id},
         {"$set": {
-            "assigned_workers": assigned_workers,
-            "assigned_worker_count": len(assigned_workers),
+            "assigned_workers": new_assigned_workers,
+            "assigned_worker_count": len(new_assigned_workers),
             "updated_at": datetime.utcnow().isoformat()
         }}
     )
     
     return {
         "success": True,
-        "message": "Worker unassigned successfully"
+        "message": "Worker unassigned successfully",
+        "data": {
+            "shift_id": shift_id,
+            "removed_worker_id": workforce_id,
+            "remaining_workers": len(new_assigned_workers)
+        }
     }
 
 # ==================== INVITATION ENDPOINTS ====================
