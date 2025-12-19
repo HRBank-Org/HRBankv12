@@ -317,11 +317,18 @@ const CreateWorkModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, 
 
           {/* Work Type Selector */}
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <label className="block text-sm font-medium text-gray-700 mb-3">Work Type</label>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-medium text-gray-700">Work Type</label>
+              {selectedRole && (
+                <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  ✓ Auto-set from role
+                </span>
+              )}
+            </div>
             <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
-                onClick={() => setWorkType(WORK_TYPES.STANDARD)}
+                onClick={() => { setWorkType(WORK_TYPES.STANDARD); setSelectedRole(null); }}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   workType === WORK_TYPES.STANDARD 
                     ? 'border-blue-500 bg-blue-50 text-blue-700' 
@@ -335,7 +342,7 @@ const CreateWorkModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, 
               
               <button
                 type="button"
-                onClick={() => setWorkType(WORK_TYPES.FIELD_SERVICE)}
+                onClick={() => { setWorkType(WORK_TYPES.FIELD_SERVICE); setSelectedRole(null); }}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   workType === WORK_TYPES.FIELD_SERVICE 
                     ? 'border-orange-500 bg-orange-50 text-orange-700' 
@@ -349,7 +356,7 @@ const CreateWorkModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, 
               
               <button
                 type="button"
-                onClick={() => setWorkType(WORK_TYPES.CONTINENTAL)}
+                onClick={() => { setWorkType(WORK_TYPES.CONTINENTAL); setSelectedRole(null); }}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   workType === WORK_TYPES.CONTINENTAL 
                     ? 'border-purple-500 bg-purple-50 text-purple-700' 
