@@ -252,6 +252,18 @@ const WorkforceManagement = () => {
               Assignments
             </button>
             <button
+              onClick={() => setActiveTab('records')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'records'
+                  ? 'border-b-2 text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              style={{ borderColor: activeTab === 'records' ? theme.primaryColor : 'transparent' }}
+            >
+              <FiFileText className="inline mr-2" />
+              Records
+            </button>
+            <button
               onClick={() => setActiveTab('inactive')}
               className={`px-6 py-3 font-medium transition-colors ${
                 activeTab === 'inactive'
@@ -264,15 +276,17 @@ const WorkforceManagement = () => {
             </button>
           </div>
           
-          {/* Invite Button */}
-          <button
-            onClick={() => setShowInviteModal(true)}
-            className="px-5 py-2.5 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
-            style={{ backgroundColor: theme.primaryColor }}
-          >
-            <FiUserPlus size={18} />
-            Invite Workers
-          </button>
+          {/* Invite Button - Only show on Invitations tab */}
+          {activeTab === 'invitations' && (
+            <button
+              onClick={() => setShowInviteModal(true)}
+              className="px-5 py-2.5 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              <FiUserPlus size={18} />
+              Invite Workers
+            </button>
+          )}
         </div>
 
         {/* View Controls for Workforce Tab */}
