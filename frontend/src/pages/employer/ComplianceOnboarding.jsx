@@ -500,7 +500,7 @@ const ComplianceOnboarding = () => {
             </div>
 
             <button
-              onClick={() => navigate('/employer/dashboard')}
+              onClick={() => navigate('/employer/home')}
               className="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-all"
             >
               Go to Dashboard

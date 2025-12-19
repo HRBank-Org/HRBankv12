@@ -109,7 +109,7 @@ const EmployerSettings = () => {
       await api.patch('/api/employer/me/profile', profile);
 
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
-      setTimeout(() => navigate('/employer/dashboard'), 1500);
+      setTimeout(() => navigate('/employer/home'), 1500);
     } catch (error) {
       console.error('Failed to save profile:', error);
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to save profile' });
@@ -176,7 +176,7 @@ const EmployerSettings = () => {
       setShowPhotoUpload(false);
       setSelectedImage(null);
 
-      setTimeout(() => navigate('/employer/dashboard'), 1500);
+      setTimeout(() => navigate('/employer/home'), 1500);
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to upload logo' });
     } finally {
@@ -191,7 +191,7 @@ const EmployerSettings = () => {
       await api.delete('/api/delete-profile-photo');
       setProfile({ ...profile, company_logo_url: '' });
       setMessage({ type: 'success', text: 'Logo deleted successfully!' });
-      setTimeout(() => navigate('/employer/dashboard'), 1500);
+      setTimeout(() => navigate('/employer/home'), 1500);
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to delete logo' });
     }
