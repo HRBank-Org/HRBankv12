@@ -6093,6 +6093,9 @@ def main():
     # Test backend connectivity first
     test_backend_connectivity(results)
     
+    # Priority: CRITICAL - Sprint 1 HR Bank Features (NEW TEST FROM REVIEW REQUEST)
+    test_sprint1_hr_bank_features(results)
+    
     # Priority: CRITICAL - Checklist API for HR Bank Field Service (NEW TEST FROM REVIEW REQUEST)
     test_checklist_api_for_hr_bank_field_service(results)
     
