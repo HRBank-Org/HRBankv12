@@ -113,6 +113,187 @@ async def get_inactive_workforce(
     }
 
 
+@router.get("/worker-kpis", response_model=Dict)
+async def get_worker_kpis(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get detailed KPIs for all active workers
+    Includes this week's performance, attendance rate, and work type breakdown
+    """
+    employer_id = current_user["user_id"]
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=today_start.weekday())
+    
+    # Get active workers
+    relationships = await db.employment_relationships.find({
+        "employer_id": employer_id,
+        "status": "active"
+    }).to_list(1000)
+    
+    worker_kpis = []
+    
+    for rel in relationships:
+        worker_id = rel["workforce_id"]
+        
+        # Get worker basic info
+        worker = await db.users.find_one(
+            {"user_id": worker_id},
+            {"_id": 0, "user_id": 1, "email": 1, "full_name": 1, "phone": 1}
+        )
+        
+        if not worker:
+            continue
+            
+        worker_profile = await db.workforce_profiles.find_one(
+            {"workforce_id": worker_id},
+            {"_id": 0, "profile_picture": 1, "average_rating": 1}
+        )
+        
+        # Get this week's attendance (shifts)
+        week_attendance = await db.attendance.find({
+            "worker_id": worker_id,
+            "employer_id": employer_id,
+            "clock_in_time": {"$gte": week_start.isoformat()}
+        }, {"_id": 0}).to_list(100)
+        
+        # Calculate shift hours this week
+        shift_hours_week = 0
+        shifts_this_week = len(week_attendance)
+        for record in week_attendance:
+            hours = record.get("hours_worked", 0)
+            if not hours and record.get("clock_in_time") and record.get("clock_out_time"):
+                try:
+                    clock_in = datetime.fromisoformat(record["clock_in_time"].replace("Z", "+00:00"))
+                    clock_out = datetime.fromisoformat(record["clock_out_time"].replace("Z", "+00:00"))
+                    hours = (clock_out - clock_in).total_seconds() / 3600
+                except (ValueError, TypeError):
+                    hours = 0
+            shift_hours_week += hours
+        
+        # Get this week's field service tasks
+        week_tasks = await db.service_tasks.find({
+            "worker_id": worker_id,
+            "employer_id": employer_id,
+            "scheduled_date": {"$gte": week_start.strftime("%Y-%m-%d")}
+        }, {"_id": 0}).to_list(100)
+        
+        completed_tasks = [t for t in week_tasks if t.get("status") == "completed"]
+        in_progress_tasks = [t for t in week_tasks if t.get("status") == "in_progress"]
+        
+        # Calculate task hours this week
+        task_hours_week = 0
+        for task in completed_tasks:
+            if task.get("actual_duration_minutes"):
+                task_hours_week += task["actual_duration_minutes"] / 60
+            elif task.get("check_in") and task.get("check_out"):
+                try:
+                    check_in = datetime.fromisoformat(task["check_in"]["timestamp"].replace("Z", "+00:00"))
+                    check_out = datetime.fromisoformat(task["check_out"]["timestamp"].replace("Z", "+00:00"))
+                    task_hours_week += (check_out - check_in).total_seconds() / 3600
+                except (ValueError, TypeError, KeyError):
+                    pass
+        
+        # Get assigned shifts this week for attendance rate
+        assigned_shifts_week = await db.calendar_shifts.count_documents({
+            "employer_id": employer_id,
+            "assigned_workers": {"$elemMatch": {"worker_id": worker_id}},
+            "start_time": {"$gte": week_start.isoformat(), "$lte": now.isoformat()}
+        })
+        
+        # Also check string format assigned_workers
+        if assigned_shifts_week == 0:
+            assigned_shifts_week = await db.calendar_shifts.count_documents({
+                "employer_id": employer_id,
+                "assigned_workers": worker_id,
+                "start_time": {"$gte": week_start.isoformat(), "$lte": now.isoformat()}
+            })
+        
+        # Calculate attendance rate
+        attendance_rate = 100.0
+        if assigned_shifts_week > 0:
+            attendance_rate = min(100, round((shifts_this_week / assigned_shifts_week) * 100, 1))
+        
+        # Check if worker is on duty today
+        today_shifts = await db.calendar_shifts.count_documents({
+            "employer_id": employer_id,
+            "$or": [
+                {"assigned_workers": {"$elemMatch": {"worker_id": worker_id}}},
+                {"assigned_workers": worker_id}
+            ],
+            "shift_date": today_start.strftime("%Y-%m-%d")
+        })
+        
+        today_tasks = await db.service_tasks.count_documents({
+            "worker_id": worker_id,
+            "employer_id": employer_id,
+            "scheduled_date": today_start.strftime("%Y-%m-%d")
+        })
+        
+        is_on_duty_today = today_shifts > 0 or today_tasks > 0
+        
+        # Check if clocked in today
+        clocked_in_today = await db.attendance.find_one({
+            "worker_id": worker_id,
+            "employer_id": employer_id,
+            "shift_date": today_start.strftime("%Y-%m-%d"),
+            "clock_in_time": {"$exists": True},
+            "clock_out_time": {"$exists": False}
+        })
+        
+        worker_kpis.append({
+            "user_id": worker["user_id"],
+            "full_name": worker.get("full_name"),
+            "email": worker.get("email"),
+            "phone": worker.get("phone"),
+            "profile_picture": worker_profile.get("profile_picture") if worker_profile else None,
+            "position_title": rel.get("position_title"),
+            "employment_type": rel.get("employment_type"),
+            "employment_start_date": rel.get("employment_start_date"),
+            
+            # Overall stats
+            "total_shifts_completed": rel.get("total_shifts_completed", 0),
+            "total_hours_worked": rel.get("total_hours_worked", 0.0),
+            "average_rating": worker_profile.get("average_rating") if worker_profile else rel.get("average_rating"),
+            
+            # This week KPIs
+            "week_kpis": {
+                "total_hours": round(shift_hours_week + task_hours_week, 1),
+                "shift_hours": round(shift_hours_week, 1),
+                "task_hours": round(task_hours_week, 1),
+                "shifts_completed": shifts_this_week,
+                "tasks_completed": len(completed_tasks),
+                "tasks_in_progress": len(in_progress_tasks),
+                "attendance_rate": attendance_rate
+            },
+            
+            # Today status
+            "today_status": {
+                "is_scheduled": is_on_duty_today,
+                "is_clocked_in": clocked_in_today is not None,
+                "scheduled_shifts": today_shifts,
+                "scheduled_tasks": today_tasks
+            }
+        })
+    
+    # Sort by hours worked this week (most active first)
+    worker_kpis.sort(key=lambda x: x["week_kpis"]["total_hours"], reverse=True)
+    
+    return {
+        "success": True,
+        "data": {
+            "workers": worker_kpis,
+            "total_count": len(worker_kpis),
+            "period": {
+                "week_start": week_start.strftime("%Y-%m-%d"),
+                "today": today_start.strftime("%Y-%m-%d")
+            }
+        }
+    }
+
+
 @router.post("/{workforce_id}/terminate", response_model=Dict)
 async def terminate_employment(
     workforce_id: str,
