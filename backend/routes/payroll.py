@@ -83,22 +83,196 @@ async def generate_payroll_period(
 
 async def generate_payroll_entries(db, period: PayrollPeriod, employer_id: str):
     """
-    Generate payroll entries for all workers in the period
-    Calculates hours, pay, deductions automatically
+    Generate payroll entries for all workers in the period.
+    Aggregates hours from:
+    1. Standard shifts (attendance clock-in/out)
+    2. Field service tasks (check-in/check-out)
+    3. Continental shifts (attendance clock-in/out)
     """
-    # TODO: Query shifts collection for completed shifts in this week
-    # For now, this is a placeholder that would integrate with your shifts system
+    start_date = period.start_date.isoformat() if hasattr(period.start_date, 'isoformat') else str(period.start_date)
+    end_date = period.end_date.isoformat() if hasattr(period.end_date, 'isoformat') else str(period.end_date)
     
-    # Example structure (you'll need to adapt based on your shifts schema):
-    # shifts = await db.shifts.find({
-    #     "employer_id": employer_id,
-    #     "shift_date": {"$gte": period.start_date.isoformat(), "$lte": period.end_date.isoformat()},
-    #     "status": "completed"
-    # }).to_list(1000)
+    # Dictionary to accumulate hours by worker
+    worker_hours = {}
     
-    # Group by worker and calculate totals
-    # For each worker, create a PayrollEntry
-    pass
+    # ========== 1. Get hours from attendance records (standard + continental shifts) ==========
+    attendance_records = await db.attendance.find({
+        "employer_id": employer_id,
+        "shift_date": {"$gte": start_date, "$lte": end_date},
+        "clock_out_time": {"$exists": True, "$ne": None}
+    }, {"_id": 0}).to_list(5000)
+    
+    for record in attendance_records:
+        worker_id = record.get("workforce_id") or record.get("user_id")
+        if not worker_id:
+            continue
+        
+        # Calculate hours from attendance
+        hours_worked = record.get("hours_worked", 0)
+        if not hours_worked and record.get("clock_in_time") and record.get("clock_out_time"):
+            try:
+                clock_in = datetime.fromisoformat(record["clock_in_time"].replace("Z", "+00:00"))
+                clock_out = datetime.fromisoformat(record["clock_out_time"].replace("Z", "+00:00"))
+                hours_worked = (clock_out - clock_in).total_seconds() / 3600
+            except:
+                hours_worked = 0
+        
+        if worker_id not in worker_hours:
+            worker_hours[worker_id] = {
+                "shift_hours": 0,
+                "task_hours": 0,
+                "hourly_rate": record.get("hourly_rate", 0),
+                "shift_ids": [],
+                "task_ids": [],
+                "dates": set()
+            }
+        
+        worker_hours[worker_id]["shift_hours"] += hours_worked
+        worker_hours[worker_id]["dates"].add(record.get("shift_date"))
+        if record.get("shift_id"):
+            worker_hours[worker_id]["shift_ids"].append(record["shift_id"])
+        if record.get("hourly_rate"):
+            worker_hours[worker_id]["hourly_rate"] = max(
+                worker_hours[worker_id]["hourly_rate"], 
+                record.get("hourly_rate", 0)
+            )
+    
+    # ========== 2. Get hours from service tasks (field service) ==========
+    service_tasks = await db.service_tasks.find({
+        "employer_id": employer_id,
+        "scheduled_date": {"$gte": start_date, "$lte": end_date},
+        "status": "completed",
+        "check_in": {"$exists": True},
+        "check_out": {"$exists": True}
+    }, {"_id": 0}).to_list(5000)
+    
+    for task in service_tasks:
+        worker_id = task.get("worker_id")
+        if not worker_id:
+            continue
+        
+        # Calculate task duration from check-in to check-out
+        task_hours = 0
+        if task.get("actual_duration_minutes"):
+            task_hours = task["actual_duration_minutes"] / 60
+        elif task.get("check_in") and task.get("check_out"):
+            try:
+                check_in_time = task["check_in"].get("timestamp")
+                check_out_time = task["check_out"].get("timestamp")
+                if check_in_time and check_out_time:
+                    check_in = datetime.fromisoformat(check_in_time.replace("Z", "+00:00"))
+                    check_out = datetime.fromisoformat(check_out_time.replace("Z", "+00:00"))
+                    task_hours = (check_out - check_in).total_seconds() / 3600
+            except:
+                task_hours = task.get("estimated_duration_minutes", 0) / 60
+        
+        if worker_id not in worker_hours:
+            worker_hours[worker_id] = {
+                "shift_hours": 0,
+                "task_hours": 0,
+                "hourly_rate": 0,
+                "shift_ids": [],
+                "task_ids": [],
+                "dates": set()
+            }
+        
+        worker_hours[worker_id]["task_hours"] += task_hours
+        worker_hours[worker_id]["dates"].add(task.get("scheduled_date"))
+        if task.get("task_id"):
+            worker_hours[worker_id]["task_ids"].append(task["task_id"])
+    
+    # ========== 3. Create payroll entries for each worker ==========
+    entries_created = 0
+    
+    for worker_id, hours_data in worker_hours.items():
+        total_hours = hours_data["shift_hours"] + hours_data["task_hours"]
+        
+        if total_hours <= 0:
+            continue
+        
+        # Get worker details
+        worker = await db.users.find_one(
+            {"user_id": worker_id},
+            {"_id": 0, "first_name": 1, "last_name": 1, "email": 1}
+        )
+        
+        worker_name = "Unknown"
+        if worker:
+            worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip()
+        
+        # Get hourly rate (from shifts, tasks, or employment relationship)
+        hourly_rate = hours_data.get("hourly_rate", 0)
+        if not hourly_rate:
+            # Try to get from employment relationship
+            relationship = await db.employment_relationships.find_one(
+                {"workforce_id": worker_id, "employer_id": employer_id},
+                {"_id": 0, "hourly_rate": 1}
+            )
+            if relationship:
+                hourly_rate = relationship.get("hourly_rate", ONTARIO_MINIMUM_WAGE)
+            else:
+                hourly_rate = ONTARIO_MINIMUM_WAGE
+        
+        # Calculate regular vs overtime (over 44 hours/week in Ontario)
+        OVERTIME_THRESHOLD = 44
+        regular_hours = min(total_hours, OVERTIME_THRESHOLD)
+        overtime_hours = max(0, total_hours - OVERTIME_THRESHOLD)
+        
+        # Calculate pay
+        regular_pay = regular_hours * hourly_rate
+        overtime_pay = overtime_hours * hourly_rate * 1.5  # 1.5x for overtime
+        gross_pay = regular_pay + overtime_pay
+        
+        # Calculate deductions
+        cpp_result = calculate_cpp_deduction(0, gross_pay)  # Simplified - should track YTD
+        ei_result = calculate_ei_deduction(0, gross_pay)
+        
+        # Calculate tax (simplified)
+        taxable_income = gross_pay
+        payroll_result = calculate_payroll_for_period(
+            gross_pay=gross_pay,
+            regular_hours=regular_hours,
+            overtime_hours=overtime_hours,
+            hourly_rate=hourly_rate
+        )
+        
+        # Create entry
+        entry = PayrollEntry(
+            period_id=period.period_id,
+            worker_id=worker_id,
+            worker_name=worker_name,
+            regular_hours=round(regular_hours, 2),
+            overtime_hours=round(overtime_hours, 2),
+            shift_hours=round(hours_data["shift_hours"], 2),
+            task_hours=round(hours_data["task_hours"], 2),
+            hourly_rate=hourly_rate,
+            regular_pay=round(regular_pay, 2),
+            overtime_pay=round(overtime_pay, 2),
+            gross_pay=round(gross_pay, 2),
+            cpp_deduction=payroll_result.get("cpp_employee", 0),
+            ei_deduction=payroll_result.get("ei_employee", 0),
+            federal_tax=payroll_result.get("federal_tax", 0),
+            provincial_tax=payroll_result.get("provincial_tax", 0),
+            total_deductions=payroll_result.get("total_deductions", 0),
+            net_pay=payroll_result.get("net_pay", gross_pay),
+            days_worked=len(hours_data["dates"]),
+            shift_ids=hours_data["shift_ids"],
+            task_ids=hours_data["task_ids"]
+        )
+        
+        await db.payroll_entries.insert_one(entry.model_dump())
+        entries_created += 1
+    
+    # Update period with summary
+    await db.payroll_periods.update_one(
+        {"period_id": period.period_id},
+        {"$set": {
+            "entries_count": entries_created,
+            "generated_at": datetime.utcnow().isoformat()
+        }}
+    )
+    
+    return entries_created
 
 
 @router.get("/periods")
