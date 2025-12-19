@@ -503,7 +503,33 @@ async def assign_worker(
         }
         
         worker_name = f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() or assignment_data["worker_name"]
-
+        
+        background_tasks.add_task(
+            notify_shift_assigned,
+            worker_email=worker.get('email'),
+            worker_phone=worker.get('phone_number'),
+            worker_name=worker_name,
+            shift_details=shift_details,
+            employer_name=employer.get('company_name', 'Employer') if employer else 'Employer',
+            worker_id=assignment_data["worker_id"]
+        )
+        
+        # Notify employer if shift is now full
+        if len(confirmed) + 1 >= shift.get("positions_needed", 0):
+            background_tasks.add_task(
+                notify_employer_shift_update,
+                employer_email=employer.get('email') if employer else None,
+                employer_phone=employer.get('phone_number') if employer else None,
+                employer_name=employer.get('company_name', 'Employer') if employer else 'Employer',
+                update_type="shift_full",
+                shift_details=shift_details
+            )
+    
+    return {
+        "success": True,
+        "data": assignment,
+        "message": "Worker assigned successfully"
+    }
 
 
 # ============== CONTINENTAL SHIFT PATTERNS ==============
