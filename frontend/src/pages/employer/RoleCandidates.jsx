@@ -192,7 +192,7 @@ const RoleCandidates = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Back Button */}
         <button
-          onClick={() => navigate('/employer/dashboard', { state: { activeTab: 'workforce', showInvitations: true } })}
+          onClick={() => navigate('/employer/workforce-management')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <FiArrowLeft />
