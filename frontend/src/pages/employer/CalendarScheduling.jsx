@@ -6,7 +6,7 @@ import {
   FiCalendar, FiClock, FiUsers, FiPlus, FiChevronLeft, 
   FiChevronRight, FiFilter, FiUser 
 } from 'react-icons/fi';
-import CreateShiftModal from '../../components/scheduling/CreateShiftModal';
+import CreateWorkModal from '../../components/scheduling/CreateWorkModal';
 import ShiftDetailModal from '../../components/scheduling/ShiftDetailModal';
 import AssignWorkerModal from '../../components/scheduling/AssignWorkerModal';
 import CopyShiftModal from '../../components/scheduling/CopyShiftModal';
