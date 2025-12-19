@@ -3,7 +3,13 @@ from typing import Dict, List
 from datetime import datetime, timedelta, date
 from auth.dependencies import get_current_user, require_role, get_db
 from models.payroll import PayrollPeriod, PayrollEntry, PayrollExport, WorkerTD1
-from services.payroll_calculations import calculate_payroll_for_period, validate_minimum_wage
+from services.payroll_calculations import (
+    calculate_payroll_for_period, 
+    validate_minimum_wage,
+    calculate_cpp_deduction,
+    calculate_ei_deduction,
+    ONTARIO_MINIMUM_WAGE
+)
 import csv
 import io
 import logging
