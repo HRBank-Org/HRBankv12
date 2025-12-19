@@ -34,6 +34,310 @@ const getAvailabilityStatus = (weeklyHours, dailyHours = 0, hasExcessAgreement =
   return { status: 'available', color: 'green', icon: '✅', label: 'Available', description: `${weeklyHours}h this week` };
 };
 
+// Sortable Table Header Component
+const SortableHeader = ({ label, sortKey, currentSort, onSort, align = 'left' }) => {
+  const isActive = currentSort.key === sortKey;
+  const direction = isActive ? currentSort.direction : null;
+  
+  return (
+    <th 
+      className={`px-4 py-3 text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none ${
+        align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left'
+      }`}
+      onClick={() => onSort(sortKey)}
+    >
+      <div className={`flex items-center gap-1 ${align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : ''}`}>
+        {label}
+        <span className="text-gray-400">
+          {isActive ? (direction === 'asc' ? '↑' : '↓') : '↕'}
+        </span>
+      </div>
+    </th>
+  );
+};
+
+// Records Table Component with Sortable Columns
+const RecordsTable = ({ activeWorkers, pastWorkers, sortConfig, setSortConfig, onExport, onDownloadWorker, theme }) => {
+  // Merge active and past workers
+  const allRecords = [
+    ...activeWorkers.map(w => ({ ...w, recordStatus: 'active' })),
+    ...pastWorkers.map(w => ({ ...w, recordStatus: w.termination_reason?.includes('laid') ? 'laid_off' : 'terminated' }))
+  ];
+
+  // Sort function
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  // Apply sorting
+  const sortedRecords = [...allRecords].sort((a, b) => {
+    const { key, direction } = sortConfig;
+    let comparison = 0;
+    
+    switch (key) {
+      case 'full_name':
+        comparison = (a.full_name || '').localeCompare(b.full_name || '');
+        break;
+      case 'position_title':
+        comparison = (a.position_title || '').localeCompare(b.position_title || '');
+        break;
+      case 'employment_start_date':
+        comparison = new Date(a.employment_start_date || 0) - new Date(b.employment_start_date || 0);
+        break;
+      case 'employment_end_date':
+        comparison = new Date(a.employment_end_date || 0) - new Date(b.employment_end_date || 0);
+        break;
+      case 'total_shifts_completed':
+        comparison = (a.total_shifts_completed || 0) - (b.total_shifts_completed || 0);
+        break;
+      case 'total_hours_worked':
+        comparison = (a.total_hours_worked || 0) - (b.total_hours_worked || 0);
+        break;
+      case 'total_pay':
+        comparison = ((a.total_hours_worked || 0) * 18) - ((b.total_hours_worked || 0) * 18);
+        break;
+      case 'recordStatus':
+        const statusOrder = { active: 0, laid_off: 1, terminated: 2 };
+        comparison = statusOrder[a.recordStatus] - statusOrder[b.recordStatus];
+        break;
+      default:
+        comparison = 0;
+    }
+    
+    return direction === 'asc' ? comparison : -comparison;
+  });
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      {/* Header with Export */}
+      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900">Employment Records</h3>
+          <p className="text-xs text-gray-500">{allRecords.length} total records (click column headers to sort)</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => onExport('csv')}
+            className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1"
+          >
+            <FiDownload size={14} /> CSV
+          </button>
+          <button
+            onClick={() => onExport('pdf')}
+            className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1"
+          >
+            <FiDownload size={14} /> PDF
+          </button>
+        </div>
+      </div>
+      
+      {/* Table with fixed header */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50 sticky top-0">
+            <tr>
+              <SortableHeader label="Worker" sortKey="full_name" currentSort={sortConfig} onSort={handleSort} />
+              <SortableHeader label="Role" sortKey="position_title" currentSort={sortConfig} onSort={handleSort} />
+              <SortableHeader label="Start Date" sortKey="employment_start_date" currentSort={sortConfig} onSort={handleSort} />
+              <SortableHeader label="End Date" sortKey="employment_end_date" currentSort={sortConfig} onSort={handleSort} />
+              <SortableHeader label="Shifts" sortKey="total_shifts_completed" currentSort={sortConfig} onSort={handleSort} align="center" />
+              <SortableHeader label="Hours" sortKey="total_hours_worked" currentSort={sortConfig} onSort={handleSort} align="center" />
+              <SortableHeader label="Total Pay" sortKey="total_pay" currentSort={sortConfig} onSort={handleSort} align="center" />
+              <SortableHeader label="Status" sortKey="recordStatus" currentSort={sortConfig} onSort={handleSort} />
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {sortedRecords.map((record) => (
+              <tr key={record.user_id} className={`hover:bg-gray-50 ${record.recordStatus !== 'active' ? 'bg-gray-50/50' : ''}`}>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
+                      record.recordStatus === 'active' ? 'bg-gray-200 text-gray-600' : 'bg-gray-300 text-gray-500'
+                    }`}>
+                      {record.full_name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{record.full_name}</p>
+                      <p className="text-xs text-gray-500">{record.email}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{record.position_title}</td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                  {record.employment_start_date ? new Date(record.employment_start_date).toLocaleDateString() : '-'}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                  {record.employment_end_date ? new Date(record.employment_end_date).toLocaleDateString() : '-'}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                  {record.total_shifts_completed || 0}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                  {record.total_hours_worked?.toFixed(1) || 0}h
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-center" style={{ color: theme.primaryColor }}>
+                  ${((record.total_hours_worked || 0) * 18).toFixed(2)}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    record.recordStatus === 'active' ? 'bg-green-100 text-green-800' :
+                    record.recordStatus === 'laid_off' ? 'bg-amber-100 text-amber-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {record.recordStatus === 'active' ? 'Active' : 
+                     record.recordStatus === 'laid_off' ? 'Laid Off' : 'Terminated'}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-right">
+                  <button
+                    onClick={() => onDownloadWorker(record)}
+                    className="text-blue-600 hover:text-blue-800"
+                    title="Download record"
+                  >
+                    <FiDownload size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
+      {allRecords.length === 0 && (
+        <div className="p-12 text-center text-gray-500">
+          <FiFileText size={48} className="mx-auto mb-4 text-gray-300" />
+          <p>No employment records yet</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Recruitment Panel Component
+const RecruitmentPanel = ({ roles, workplaces, theme, onInvite }) => {
+  const [jobPostings, setJobPostings] = useState([]);
+  const [candidates, setCandidates] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="text-2xl font-bold" style={{ color: theme.primaryColor }}>{roles.length}</div>
+          <div className="text-sm text-gray-500">Open Roles</div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="text-2xl font-bold text-amber-600">{candidates.length}</div>
+          <div className="text-sm text-gray-500">Candidates</div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="text-2xl font-bold text-green-600">0</div>
+          <div className="text-sm text-gray-500">Interviews Scheduled</div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="text-2xl font-bold text-blue-600">0</div>
+          <div className="text-sm text-gray-500">Offers Pending</div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            onClick={onInvite}
+            className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors"
+          >
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <FiUserPlus size={24} className="text-blue-600" />
+            </div>
+            <div className="text-left">
+              <div className="font-medium text-gray-900">Invite Worker</div>
+              <div className="text-sm text-gray-500">Send direct invitation</div>
+            </div>
+          </button>
+          
+          <button className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <FiFileText size={24} className="text-green-600" />
+            </div>
+            <div className="text-left">
+              <div className="font-medium text-gray-900">Post Job</div>
+              <div className="text-sm text-gray-500">Publish to job board</div>
+            </div>
+          </button>
+          
+          <button className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <FiTrendingUp size={24} className="text-purple-600" />
+            </div>
+            <div className="text-left">
+              <div className="font-medium text-gray-900">Match Engine</div>
+              <div className="text-sm text-gray-500">Find matching candidates</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Open Positions */}
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="font-semibold text-gray-900">Open Positions</h3>
+        </div>
+        <div className="divide-y divide-gray-200">
+          {roles.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <p>No roles created yet. Create roles to start recruiting.</p>
+            </div>
+          ) : (
+            roles.map((role) => (
+              <div key={role.role_id} className="p-4 hover:bg-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    role.shift_type === 'continental' ? 'bg-indigo-100' :
+                    role.shift_type === 'route_based' ? 'bg-orange-100' : 'bg-blue-100'
+                  }`}>
+                    <span className="text-lg">
+                      {role.shift_type === 'continental' ? '🔄' :
+                       role.shift_type === 'route_based' ? '🚗' : '🏢'}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">{role.role_name}</div>
+                    <div className="text-sm text-gray-500">
+                      {role.positions_filled || 0} / {role.positions_available} filled • ${role.hourly_rate}/hr
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    (role.positions_filled || 0) >= role.positions_available 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {(role.positions_filled || 0) >= role.positions_available ? 'Filled' : 'Hiring'}
+                  </span>
+                  <button 
+                    className="px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-gray-100"
+                    style={{ color: theme.primaryColor }}
+                  >
+                    View Applicants
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const WorkforceManagement = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [viewMode, setViewMode] = useState('list'); // 'cards' or 'list'
