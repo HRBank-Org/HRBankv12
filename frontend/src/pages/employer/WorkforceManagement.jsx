@@ -728,13 +728,15 @@ const InviteModalWrapper = ({ isOpen, onClose, onSuccess, roles, workplaces, sel
   );
 };
 
-// Terminate Modal Component
+// Terminate/Lay Off Modal Component
 const TerminateModal = ({ worker, onClose, onSuccess, theme }) => {
+  const isLayoff = worker.actionType === 'layoff';
+  
   const [formData, setFormData] = useState({
-    termination_reason: 'contract_ended',
+    termination_reason: isLayoff ? 'laid_off' : 'terminated_cause',
     termination_notes: '',
     last_working_day: new Date().toISOString().split('T')[0],
-    eligible_for_rehire: true,
+    eligible_for_rehire: isLayoff ? true : false,
     cancel_future_shifts: true,
     notify_worker: true
   });
@@ -750,7 +752,7 @@ const TerminateModal = ({ worker, onClose, onSuccess, theme }) => {
       await api.post(`/api/employer/workforce-management/${worker.user_id}/terminate`, formData);
       onSuccess();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to terminate employment');
+      setError(err.response?.data?.detail || 'Failed to process request');
     } finally {
       setLoading(false);
     }
@@ -759,7 +761,26 @@ const TerminateModal = ({ worker, onClose, onSuccess, theme }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">End Employment - {worker.full_name}</h3>
+        <h3 className={`text-lg font-semibold mb-2 ${isLayoff ? 'text-amber-700' : 'text-red-700'}`}>
+          {isLayoff ? '📋 Lay Off' : '⚠️ Terminate'} - {worker.full_name}
+        </h3>
+        
+        {/* EI Eligibility Notice */}
+        <div className={`p-3 rounded-lg mb-4 text-sm ${isLayoff ? 'bg-amber-50 border border-amber-200' : 'bg-red-50 border border-red-200'}`}>
+          {isLayoff ? (
+            <div className="text-amber-800">
+              <strong>Lay Off (No Fault)</strong>
+              <p className="mt-1">Worker will be eligible for Employment Insurance (EI) benefits. ROE will show "Shortage of work" as separation reason.</p>
+              <p className="mt-1 text-xs">Worker will be added to the match engine for new job opportunities.</p>
+            </div>
+          ) : (
+            <div className="text-red-800">
+              <strong>Termination for Cause</strong>
+              <p className="mt-1">Worker may NOT be eligible for EI benefits. ROE will show "Dismissed" as separation reason. Service Canada may investigate.</p>
+              <p className="mt-1 text-xs">Worker will be added to the match engine for new job opportunities.</p>
+            </div>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -770,11 +791,21 @@ const TerminateModal = ({ worker, onClose, onSuccess, theme }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
               style={{ focusRingColor: theme.primaryColor }}
             >
-              <option value="contract_ended">Contract Ended</option>
-              <option value="laid_off">Laid Off</option>
-              <option value="terminated_cause">Terminated (Cause)</option>
-              <option value="resigned">Resigned</option>
-              <option value="mutual_agreement">Mutual Agreement</option>
+              {isLayoff ? (
+                <>
+                  <option value="laid_off">Laid Off - Shortage of Work</option>
+                  <option value="contract_ended">Contract Ended</option>
+                  <option value="business_closure">Business Closure</option>
+                  <option value="seasonal_end">Seasonal Position Ended</option>
+                </>
+              ) : (
+                <>
+                  <option value="terminated_cause">Terminated - Misconduct</option>
+                  <option value="terminated_performance">Terminated - Poor Performance</option>
+                  <option value="policy_violation">Policy Violation</option>
+                  <option value="no_show">Job Abandonment / No Show</option>
+                </>
+              )}
             </select>
           </div>
 
@@ -789,13 +820,19 @@ const TerminateModal = ({ worker, onClose, onSuccess, theme }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Notes {isLayoff ? '(Optional)' : '(Required for documentation)'}
+            </label>
             <textarea
               value={formData.termination_notes}
               onChange={(e) => setFormData({ ...formData, termination_notes: e.target.value })}
               rows={3}
+              required={!isLayoff}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
-              placeholder="Additional details..."
+              placeholder={isLayoff 
+                ? "Optional: Reason for layoff..." 
+                : "Document the reason for termination (required for ROE and potential disputes)..."
+              }
             />
           </div>
 
@@ -827,7 +864,7 @@ const TerminateModal = ({ worker, onClose, onSuccess, theme }) => {
                 onChange={(e) => setFormData({ ...formData, notify_worker: e.target.checked })}
                 className="rounded"
               />
-              <span className="text-sm text-gray-700">Notify worker</span>
+              <span className="text-sm text-gray-700">Notify worker via email</span>
             </label>
           </div>
 
@@ -848,9 +885,13 @@ const TerminateModal = ({ worker, onClose, onSuccess, theme }) => {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              className={`flex-1 px-4 py-2 text-white rounded-lg disabled:opacity-50 ${
+                isLayoff 
+                  ? 'bg-amber-600 hover:bg-amber-700' 
+                  : 'bg-red-600 hover:bg-red-700'
+              }`}
             >
-              {loading ? 'Processing...' : 'End Employment'}
+              {loading ? 'Processing...' : (isLayoff ? 'Confirm Lay Off' : 'Confirm Termination')}
             </button>
           </div>
         </form>
