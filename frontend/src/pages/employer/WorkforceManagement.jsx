@@ -460,7 +460,7 @@ const WorkforceManagement = () => {
                       onClick={() => handleTerminate(worker)}
                       className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
                     >
-                      End Employment
+                      Terminate
                     </button>
                   </div>
                 </div>
