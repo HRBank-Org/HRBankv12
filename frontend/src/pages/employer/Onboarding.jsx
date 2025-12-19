@@ -151,7 +151,7 @@ const EmployerOnboarding = () => {
       });
       
       // Navigate to dashboard
-      navigate('/employer/dashboard');
+      navigate('/employer/home');
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Failed to complete setup');
     } finally {

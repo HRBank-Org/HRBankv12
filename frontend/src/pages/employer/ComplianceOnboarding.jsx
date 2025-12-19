@@ -52,7 +52,7 @@ const ComplianceOnboarding = () => {
       // Determine which step to show based on completion
       if (status.classification_confirmed && status.wsib_verified && status.terms_acknowledged) {
         // All complete, redirect to dashboard
-        navigate('/employer/dashboard');
+        navigate('/employer/home');
       } else if (status.classification_confirmed && status.wsib_account_number && !status.wsib_verified) {
         // Waiting for WSIB verification
         setStep(4);
