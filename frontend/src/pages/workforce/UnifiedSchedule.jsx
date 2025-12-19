@@ -302,15 +302,40 @@ const UnifiedSchedule = () => {
     const startTime = item.start_time ? moment(item.start_time).format('h:mm A') : item.scheduled_start_time;
     const endTime = item.end_time ? moment(item.end_time).format('h:mm A') : item.scheduled_end_time;
     
+    // Continental shift detection
+    const isContinental = item.shift_type === 'continental';
+    const isNightShift = item.day_night === 'night';
+    const rotationGroup = item.rotation_group;
+    
     return (
       <div 
         key={item.id}
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+        className={`bg-white rounded-xl border overflow-hidden hover:shadow-md transition-shadow ${
+          isContinental 
+            ? isNightShift 
+              ? 'border-indigo-200 bg-indigo-50/30' 
+              : 'border-amber-200 bg-amber-50/30'
+            : 'border-gray-200'
+        }`}
       >
         <div className="p-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <FiBriefcase className="text-blue-600" size={20} />
+            <div className={`p-2 rounded-lg ${
+              isContinental
+                ? isNightShift 
+                  ? 'bg-indigo-100' 
+                  : 'bg-amber-100'
+                : 'bg-blue-100'
+            }`}>
+              {isContinental ? (
+                isNightShift ? (
+                  <span className="text-xl">🌙</span>
+                ) : (
+                  <span className="text-xl">☀️</span>
+                )
+              ) : (
+                <FiBriefcase className="text-blue-600" size={20} />
+              )}
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900">{item.position_title || item.role_name || 'Shift'}</h3>
@@ -321,11 +346,31 @@ const UnifiedSchedule = () => {
               <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                 <FiClock size={12} />
                 {startTime} - {endTime}
+                {isContinental && <span className="text-gray-400 ml-1">(12h)</span>}
               </p>
             </div>
-            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-              On-Site
-            </span>
+            <div className="flex flex-col items-end gap-1">
+              {isContinental ? (
+                <>
+                  <span className={`px-2 py-1 text-xs font-medium rounded ${
+                    isNightShift 
+                      ? 'bg-indigo-100 text-indigo-700' 
+                      : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {isNightShift ? '🌙 Night' : '☀️ Day'}
+                  </span>
+                  {rotationGroup && (
+                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                      Group {rotationGroup}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                  On-Site
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
