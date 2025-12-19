@@ -125,6 +125,47 @@ const WorkforceManagement = () => {
     setShowRehireModal(true);
   };
 
+  // Drag & Drop Assignment Handlers
+  const handleAssignWorker = async (worker, target) => {
+    try {
+      if (target.task_id) {
+        // Assign to service task
+        await api.post(`/api/service-tasks/${target.task_id}/assign`, {
+          worker_id: worker.user_id
+        });
+      } else if (target.shift_id) {
+        // Assign to shift
+        await api.post(`/api/calendar/shifts/${target.shift_id}/assign`, {
+          worker_id: worker.user_id,
+          worker_name: worker.full_name
+        });
+      }
+      // Reload data to reflect changes
+      loadData();
+    } catch (error) {
+      console.error('Assignment failed:', error);
+      alert(error.response?.data?.detail || 'Failed to assign worker');
+    }
+  };
+
+  const handleUnassignWorker = async (target, worker) => {
+    try {
+      if (target.task_id) {
+        // Unassign from service task
+        await api.post(`/api/service-tasks/${target.task_id}/unassign`);
+      } else if (target.shift_id) {
+        // Unassign from shift
+        const workerId = worker.worker_id || worker.user_id;
+        await api.delete(`/api/employer/shifts/${target.shift_id}/unassign/${workerId}`);
+      }
+      // Reload data to reflect changes
+      loadData();
+    } catch (error) {
+      console.error('Unassignment failed:', error);
+      alert(error.response?.data?.detail || 'Failed to unassign worker');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <GenericHeader />
