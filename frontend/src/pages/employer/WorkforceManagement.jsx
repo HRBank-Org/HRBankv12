@@ -5,13 +5,16 @@ import api from '../../utils/api';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import WorkerInviteModal from '../../components/employer/WorkerInviteModal';
-import { FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw, FiTrendingUp, FiActivity } from 'react-icons/fi';
+import DragDropAssignment from '../../components/employer/DragDropAssignment';
+import { FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw, FiTrendingUp, FiActivity, FiGrid } from 'react-icons/fi';
 
 const WorkforceManagement = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [workers, setWorkers] = useState([]);
   const [workerKpis, setWorkerKpis] = useState([]);
   const [invitations, setInvitations] = useState([]);
+  const [shifts, setShifts] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showTerminateModal, setShowTerminateModal] = useState(false);
   const [showRehireModal, setShowRehireModal] = useState(false);
