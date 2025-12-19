@@ -130,7 +130,7 @@ class PayrollExport(BaseModel):
     
     # Metadata
     exported_by: str  # user_id
-    exported_date: datetime = Field(default_factory=datetime.utcnow)
+    exported_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
 
 class WorkerTD1(BaseModel):
@@ -156,8 +156,8 @@ class WorkerTD1(BaseModel):
     
     # Metadata
     form_year: int = 2024
-    submitted_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    submitted_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    updated_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
 
 # Payroll export formats
