@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
-import { FiUser, FiCalendar, FiTruck, FiClock, FiCheck, FiX, FiRefreshCw } from 'react-icons/fi';
+import { FiUser, FiCalendar, FiTruck, FiClock, FiCheck, FiX, FiRefreshCw, FiChevronUp, FiChevronDown } from 'react-icons/fi';
 
 // Draggable Worker Card
 const DraggableWorker = ({ worker, isOverlay = false }) => {
