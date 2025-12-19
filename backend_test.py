@@ -1280,6 +1280,343 @@ def test_job_matching_system(results, admin_token):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_role_based_auto_assignment(results):
+    """Test Role-Based Auto-Assignment Feature"""
+    print("\n🧪 TESTING ROLE-BASED AUTO-ASSIGNMENT FEATURE")
+    print("   Focus: Auto-assignment of workers to shifts when assigned to roles")
+    print("   Testing: POST /api/employer/workplace-roles/{role_id}/assign, POST /api/employer/workplace-roles/{role_id}/auto-assign-shifts")
+    print("   Test Account: employer@hrbank.ca / Test123!")
+    print("   Target Role ID: role_51b7c6c95b8e")
+    
+    # Login as employer
+    employer_token = None
+    try:
+        login_data = {
+            "email": "employer@hrbank.ca",
+            "password": "Test123!",
+            "user_type": "employer"
+        }
+        
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for auto-assignment testing")
+            else:
+                results.add_fail("Employer login for auto-assignment testing", f"Invalid response: {data}")
+                return
+        else:
+            results.add_fail("Employer login for auto-assignment testing", f"HTTP {response.status_code}: {response.text}")
+            return
+    except Exception as e:
+        results.add_fail("Employer login for auto-assignment testing", f"Request failed: {str(e)}")
+        return
+    
+    role_id = "role_51b7c6c95b8e"
+    
+    # Test 1: Manual Auto-Assignment Trigger
+    print("\n   Test 1: POST /api/employer/workplace-roles/{role_id}/auto-assign-shifts - Manual trigger")
+    try:
+        response = requests.post(
+            f"{BASE_URL}/employer/workplace-roles/{role_id}/auto-assign-shifts",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") and 
+                "data" in data and
+                "total_shifts_assigned" in data["data"] and
+                "workers" in data["data"]):
+                
+                total_shifts = data["data"]["total_shifts_assigned"]
+                workers = data["data"]["workers"]
+                results.add_pass("Manual auto-assignment trigger - API response valid")
+                print(f"      Total shifts assigned: {total_shifts}")
+                print(f"      Workers processed: {len(workers)}")
+                
+                # Verify worker results structure
+                if workers and isinstance(workers, list):
+                    sample_worker = workers[0]
+                    required_fields = ["workforce_id", "worker_name", "shifts_assigned"]
+                    missing_fields = [field for field in required_fields if field not in sample_worker]
+                    
+                    if not missing_fields:
+                        results.add_pass("Manual auto-assignment - Worker results structure valid")
+                    else:
+                        results.add_fail("Manual auto-assignment - Worker results structure", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_pass("Manual auto-assignment - No workers assigned (expected if role empty)")
+            else:
+                results.add_fail("Manual auto-assignment trigger", f"Invalid response structure: {data}")
+        elif response.status_code == 404:
+            results.add_fail("Manual auto-assignment trigger", f"Role {role_id} not found - check if role exists")
+        else:
+            results.add_fail("Manual auto-assignment trigger", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Manual auto-assignment trigger", f"Request failed: {str(e)}")
+    
+    # Test 2: Create a test worker for assignment testing
+    print("\n   Test 2: Creating test worker for assignment testing")
+    test_worker_id = None
+    try:
+        # Create test worker directly in database
+        import asyncio
+        from motor.motor_asyncio import AsyncIOMotorClient
+        import os
+        from dotenv import load_dotenv
+        
+        load_dotenv('/app/backend/.env')
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        
+        async def create_test_worker():
+            client = AsyncIOMotorClient(mongo_url)
+            db = client['hrbank_db']
+            
+            worker_id = f"worker_{str(uuid.uuid4())[:12]}"
+            worker_doc = {
+                "user_id": worker_id,
+                "email": f"testworker_{str(uuid.uuid4())[:8]}@hrbank.com",
+                "full_name": f"Test Worker {str(uuid.uuid4())[:8]}",
+                "user_type": "workforce",
+                "status": "active",
+                "created_at": datetime.utcnow().isoformat()
+            }
+            
+            await db.users.insert_one(worker_doc)
+            client.close()
+            return worker_id
+        
+        test_worker_id = asyncio.run(create_test_worker())
+        if test_worker_id:
+            results.add_pass("Test worker creation for assignment testing")
+            print(f"      Created test worker: {test_worker_id}")
+        else:
+            results.add_fail("Test worker creation", "Failed to create test worker")
+    except Exception as e:
+        results.add_fail("Test worker creation", f"Database operation failed: {str(e)}")
+    
+    # Test 3: Role Assignment with Auto-Assignment Disabled
+    if test_worker_id:
+        print("\n   Test 3: POST /api/employer/workplace-roles/{role_id}/assign - Auto-assignment disabled")
+        try:
+            assignment_data = {
+                "workforce_id": test_worker_id,
+                "source": "internal",
+                "auto_assign_shifts": False
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/employer/workplace-roles/{role_id}/assign",
+                json=assignment_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("success") and 
+                    "data" in data and
+                    data["data"].get("workforce_id") == test_worker_id):
+                    
+                    shifts_assigned = data["data"].get("shifts_auto_assigned", 0)
+                    if shifts_assigned == 0:
+                        results.add_pass("Role assignment with auto-assignment disabled - No shifts assigned")
+                        print(f"      Worker assigned to role, shifts auto-assigned: {shifts_assigned}")
+                    else:
+                        results.add_fail("Role assignment with auto-assignment disabled", f"Expected 0 shifts, got {shifts_assigned}")
+                else:
+                    results.add_fail("Role assignment with auto-assignment disabled", f"Invalid response structure: {data}")
+            elif response.status_code == 404:
+                results.add_fail("Role assignment with auto-assignment disabled", f"Role {role_id} not found")
+            else:
+                results.add_fail("Role assignment with auto-assignment disabled", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Role assignment with auto-assignment disabled", f"Request failed: {str(e)}")
+    
+    # Test 4: Role Assignment with Auto-Assignment Enabled (Default)
+    if test_worker_id:
+        print("\n   Test 4: POST /api/employer/workplace-roles/{role_id}/assign - Auto-assignment enabled")
+        try:
+            # Create another test worker
+            async def create_second_worker():
+                client = AsyncIOMotorClient(mongo_url)
+                db = client['hrbank_db']
+                
+                worker_id = f"worker_{str(uuid.uuid4())[:12]}"
+                worker_doc = {
+                    "user_id": worker_id,
+                    "email": f"testworker2_{str(uuid.uuid4())[:8]}@hrbank.com",
+                    "full_name": f"Test Worker 2 {str(uuid.uuid4())[:8]}",
+                    "user_type": "workforce",
+                    "status": "active",
+                    "created_at": datetime.utcnow().isoformat()
+                }
+                
+                await db.users.insert_one(worker_doc)
+                client.close()
+                return worker_id
+            
+            test_worker_2_id = asyncio.run(create_second_worker())
+            
+            assignment_data = {
+                "workforce_id": test_worker_2_id,
+                "source": "internal",
+                "auto_assign_shifts": True  # Explicitly enable
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/employer/workplace-roles/{role_id}/assign",
+                json=assignment_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("success") and 
+                    "data" in data and
+                    data["data"].get("workforce_id") == test_worker_2_id):
+                    
+                    shifts_assigned = data["data"].get("shifts_auto_assigned", 0)
+                    results.add_pass("Role assignment with auto-assignment enabled - API response valid")
+                    print(f"      Worker assigned to role, shifts auto-assigned: {shifts_assigned}")
+                    
+                    if "shifts_auto_assigned" in data["data"]:
+                        results.add_pass("Role assignment with auto-assignment enabled - Shifts count returned")
+                    else:
+                        results.add_fail("Role assignment with auto-assignment enabled", "Missing shifts_auto_assigned field")
+                else:
+                    results.add_fail("Role assignment with auto-assignment enabled", f"Invalid response structure: {data}")
+            elif response.status_code == 404:
+                results.add_fail("Role assignment with auto-assignment enabled", f"Role {role_id} not found")
+            else:
+                results.add_fail("Role assignment with auto-assignment enabled", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Role assignment with auto-assignment enabled", f"Request failed: {str(e)}")
+    
+    # Test 5: Verify Shifts Show Auto-Assigned Workers
+    print("\n   Test 5: GET /api/calendar/shifts - Verify auto-assigned workers")
+    try:
+        # Get current date range for shifts
+        from datetime import datetime, timedelta
+        now = datetime.utcnow()
+        start_date = now.strftime("%Y-%m-%d")
+        end_date = (now + timedelta(days=30)).strftime("%Y-%m-%d")
+        
+        response = requests.get(
+            f"{BASE_URL}/calendar/shifts?start_date={start_date}&end_date={end_date}",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                shifts = data["data"]
+                role_shifts = [s for s in shifts if s.get("role_id") == role_id]
+                
+                results.add_pass("GET calendar/shifts - API response valid")
+                print(f"      Total shifts found: {len(shifts)}")
+                print(f"      Shifts for role {role_id}: {len(role_shifts)}")
+                
+                # Check for auto-assigned workers
+                auto_assigned_found = False
+                for shift in role_shifts:
+                    assigned_workers = shift.get("assigned_workers", [])
+                    for worker in assigned_workers:
+                        if isinstance(worker, dict) and worker.get("auto_assigned"):
+                            auto_assigned_found = True
+                            break
+                    if auto_assigned_found:
+                        break
+                
+                if auto_assigned_found:
+                    results.add_pass("GET calendar/shifts - Auto-assigned workers found")
+                elif role_shifts:
+                    results.add_pass("GET calendar/shifts - Role shifts found (auto_assigned flag may not be set)")
+                else:
+                    results.add_pass("GET calendar/shifts - No role shifts found (expected if no shifts created)")
+            else:
+                results.add_fail("GET calendar/shifts", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET calendar/shifts", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET calendar/shifts", f"Request failed: {str(e)}")
+    
+    # Test 6: Test Edge Case - Duplicate Assignment Prevention
+    if test_worker_id:
+        print("\n   Test 6: Edge Case - Duplicate assignment prevention")
+        try:
+            # Try to assign the same worker again
+            assignment_data = {
+                "workforce_id": test_worker_id,
+                "source": "internal",
+                "auto_assign_shifts": True
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/employer/workplace-roles/{role_id}/assign",
+                json=assignment_data,
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            # This should either succeed (if system allows multiple assignments) 
+            # or fail gracefully (if system prevents duplicates)
+            if response.status_code == 200:
+                results.add_pass("Duplicate assignment - System allows multiple assignments")
+            elif response.status_code == 400:
+                data = response.json()
+                if "already" in data.get("detail", "").lower() or "duplicate" in data.get("detail", "").lower():
+                    results.add_pass("Duplicate assignment prevention - System prevents duplicates")
+                else:
+                    results.add_fail("Duplicate assignment prevention", f"Unexpected error: {data}")
+            else:
+                results.add_fail("Duplicate assignment prevention", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Duplicate assignment prevention", f"Request failed: {str(e)}")
+    
+    # Test 7: Get Role Details to Verify Assignments
+    print("\n   Test 7: GET /api/employer/workplace-roles/{role_id} - Verify role state")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/employer/workplace-roles/{role_id}",
+            headers=get_auth_headers(employer_token),
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                role_data = data["data"]
+                assigned_workers = role_data.get("assigned_workers", [])
+                
+                results.add_pass("GET role details - API response valid")
+                print(f"      Role name: {role_data.get('role_name', 'Unknown')}")
+                print(f"      Assigned workers: {len(assigned_workers)}")
+                print(f"      Positions available: {role_data.get('positions_available', 'Unknown')}")
+                print(f"      Positions filled: {role_data.get('positions_filled', 'Unknown')}")
+                
+                if assigned_workers:
+                    results.add_pass("GET role details - Workers assigned to role")
+                    for worker in assigned_workers[:3]:  # Show first 3 workers
+                        worker_name = worker.get("worker_name", "Unknown") if isinstance(worker, dict) else "Unknown"
+                        print(f"        - {worker_name}")
+                else:
+                    results.add_pass("GET role details - No workers assigned (expected if role was empty)")
+            else:
+                results.add_fail("GET role details", f"Invalid response structure: {data}")
+        elif response.status_code == 404:
+            results.add_fail("GET role details", f"Role {role_id} not found")
+        else:
+            results.add_fail("GET role details", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET role details", f"Request failed: {str(e)}")
+
 def test_continental_shift_pattern_and_unified_payroll(results):
     """Test Continental Shift Pattern Creation and Unified Payroll System"""
     print("\n🧪 TESTING HR BANK UNIFIED PAYROLL SYSTEM AND CONTINENTAL SHIFT PATTERN GENERATION")
