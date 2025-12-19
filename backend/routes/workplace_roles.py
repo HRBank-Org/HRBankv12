@@ -835,7 +835,12 @@ async def assign_worker_to_role(
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Assign a worker to a role (hire them)"""
+    """
+    Assign a worker to a role (hire them).
+    
+    This triggers AUTO-ASSIGNMENT: The worker will automatically be assigned
+    to all open/unassigned shifts that match this role's criteria.
+    """
     
     role = await db.workplace_roles.find_one(
         {"role_id": role_id, "employer_id": current_user["user_id"]}
@@ -846,8 +851,16 @@ async def assign_worker_to_role(
     
     workforce_id = assignment_data.get("workforce_id")
     source = assignment_data.get("source", "internal")  # internal or external
+    auto_assign_shifts = assignment_data.get("auto_assign_shifts", True)  # Default: auto-assign
     
-    # Update role
+    # Get worker details
+    worker = await db.users.find_one(
+        {"user_id": workforce_id},
+        {"_id": 0, "first_name": 1, "last_name": 1, "full_name": 1}
+    )
+    worker_name = worker.get("full_name") or f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip() if worker else "Worker"
+    
+    # Update role with new assigned worker
     positions_filled = role.get("positions_filled", 0) + 1
     status = "filled" if positions_filled >= role.get("positions_available", 1) else "partially_filled"
     
@@ -862,6 +875,7 @@ async def assign_worker_to_role(
             "$push": {
                 "assigned_workers": {
                     "workforce_id": workforce_id,
+                    "worker_name": worker_name,
                     "assigned_at": datetime.utcnow(),
                     "source": source
                 }
@@ -882,10 +896,136 @@ async def assign_worker_to_role(
             }
         )
     
+    # AUTO-ASSIGNMENT: Assign worker to matching open shifts
+    shifts_assigned = 0
+    if auto_assign_shifts:
+        shifts_assigned = await auto_assign_worker_to_shifts(
+            db=db,
+            role=role,
+            workforce_id=workforce_id,
+            worker_name=worker_name,
+            employer_id=current_user["user_id"]
+        )
+    
     return {
         "success": True,
-        "message": f"Worker assigned to {role['role_name']} successfully"
+        "message": f"Worker assigned to {role['role_name']} successfully",
+        "data": {
+            "role_id": role_id,
+            "workforce_id": workforce_id,
+            "shifts_auto_assigned": shifts_assigned
+        }
     }
+
+
+async def auto_assign_worker_to_shifts(
+    db,
+    role: dict,
+    workforce_id: str,
+    worker_name: str,
+    employer_id: str,
+    max_shifts: int = 50
+) -> int:
+    """
+    Auto-assign a worker to all open shifts matching the role criteria.
+    
+    Matching criteria:
+    - Same role_id (if shift has one)
+    - OR same workplace_id AND shift_type
+    - Shift must have open positions
+    - Shift must be in the future
+    
+    Returns: Number of shifts assigned
+    """
+    from datetime import datetime
+    
+    now = datetime.utcnow()
+    role_id = role.get("role_id")
+    workplace_id = role.get("workplace_id")
+    shift_type = role.get("shift_type", "on_site")
+    position_title = role.get("role_name") or role.get("occupation_template")
+    
+    # Build query to find matching open shifts
+    # Shifts can be in either 'shifts' or 'calendar_shifts' collection
+    shift_query = {
+        "employer_id": employer_id,
+        "start_time": {"$gte": now.isoformat()},  # Future shifts only
+        "$expr": {"$lt": [{"$size": {"$ifNull": ["$assigned_workers", []]}}, "$positions_needed"]}  # Has open positions
+    }
+    
+    # Match by role_id if the shift has one, OR by workplace + shift characteristics
+    if workplace_id:
+        shift_query["$or"] = [
+            {"role_id": role_id},  # Exact role match
+            {
+                "workplace_id": workplace_id,
+                "position_title": {"$regex": position_title, "$options": "i"}
+            }
+        ]
+    else:
+        # General role (all workplaces)
+        shift_query["$or"] = [
+            {"role_id": role_id},
+            {"position_title": {"$regex": position_title, "$options": "i"}}
+        ]
+    
+    shifts_assigned = 0
+    
+    # Check both collections
+    for collection_name in ["calendar_shifts", "shifts"]:
+        collection = db[collection_name]
+        
+        # Find matching shifts
+        matching_shifts = await collection.find(
+            shift_query,
+            {"_id": 0, "shift_id": 1, "assigned_workers": 1, "positions_needed": 1}
+        ).limit(max_shifts).to_list(max_shifts)
+        
+        for shift in matching_shifts:
+            shift_id = shift.get("shift_id")
+            assigned_workers = shift.get("assigned_workers", [])
+            positions_needed = shift.get("positions_needed", 1)
+            
+            # Check if already at capacity
+            if len(assigned_workers) >= positions_needed:
+                continue
+            
+            # Check if worker already assigned to this shift
+            already_assigned = any(
+                (w.get("worker_id") == workforce_id if isinstance(w, dict) else w == workforce_id)
+                for w in assigned_workers
+            )
+            
+            if already_assigned:
+                continue
+            
+            # Assign the worker
+            new_assignment = {
+                "worker_id": workforce_id,
+                "worker_name": worker_name,
+                "status": "confirmed",
+                "assigned_at": now.isoformat(),
+                "auto_assigned": True,
+                "from_role_id": role_id
+            }
+            
+            await collection.update_one(
+                {"shift_id": shift_id},
+                {
+                    "$push": {"assigned_workers": new_assignment},
+                    "$inc": {"positions_filled": 1}
+                }
+            )
+            
+            shifts_assigned += 1
+            
+            if shifts_assigned >= max_shifts:
+                break
+        
+        if shifts_assigned >= max_shifts:
+            break
+    
+    return shifts_assigned
 
 
 
