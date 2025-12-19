@@ -377,57 +377,107 @@ const WorkforceManagement = () => {
       <GenericHeader />
       <ModernSidebar />
       
-      <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
-        {/* Page Title */}
-        <div className="bg-white border-b border-gray-200 px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Team Management</h1>
-          <p className="text-gray-600 mt-1">Manage your workforce and view worker details</p>
+      <div className="transition-all duration-300 pt-[64px] h-screen flex flex-col" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
+        {/* Sticky Header Section */}
+        <div className="flex-shrink-0 bg-white border-b border-gray-200 sticky top-0 z-10">
+          {/* Page Title */}
+          <div className="px-8 py-4 border-b border-gray-100">
+            <h1 className="text-2xl font-bold text-gray-900">Team Management</h1>
+            <p className="text-sm text-gray-600">Manage your workforce and view worker details</p>
+          </div>
+
+          {/* Tabs */}
+          <div className="px-8 flex items-center justify-between">
+            <div className="flex gap-1">
+              <button
+                onClick={() => setActiveTab('active')}
+                className={`px-5 py-3 font-medium transition-colors border-b-2 ${
+                  activeTab === 'active'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 border-transparent'
+                }`}
+                style={{ borderColor: activeTab === 'active' ? theme.primaryColor : 'transparent' }}
+              >
+                Workforce
+              </button>
+              <button
+                onClick={() => setActiveTab('invitations')}
+                className={`px-5 py-3 font-medium transition-colors border-b-2 ${
+                  activeTab === 'invitations'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 border-transparent'
+                }`}
+                style={{ borderColor: activeTab === 'invitations' ? theme.primaryColor : 'transparent' }}
+              >
+                <FiMail className="inline mr-2" />
+                Invitations
+              </button>
+              <button
+                onClick={() => setActiveTab('assignments')}
+                className={`px-5 py-3 font-medium transition-colors border-b-2 ${
+                  activeTab === 'assignments'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 border-transparent'
+                }`}
+                style={{ borderColor: activeTab === 'assignments' ? theme.primaryColor : 'transparent' }}
+              >
+                <FiGrid className="inline mr-2" />
+                Assignments
+              </button>
+              <button
+                onClick={() => setActiveTab('records')}
+                className={`px-5 py-3 font-medium transition-colors border-b-2 ${
+                  activeTab === 'records'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 border-transparent'
+                }`}
+                style={{ borderColor: activeTab === 'records' ? theme.primaryColor : 'transparent' }}
+              >
+                <FiFileText className="inline mr-2" />
+                Records
+              </button>
+              <button
+                onClick={() => setActiveTab('recruitment')}
+                className={`px-5 py-3 font-medium transition-colors border-b-2 ${
+                  activeTab === 'recruitment'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 border-transparent'
+                }`}
+                style={{ borderColor: activeTab === 'recruitment' ? theme.primaryColor : 'transparent' }}
+              >
+                <FiUserPlus className="inline mr-2" />
+                Recruitment
+              </button>
+              <button
+                onClick={() => setActiveTab('inactive')}
+                className={`px-5 py-3 font-medium transition-colors border-b-2 ${
+                  activeTab === 'inactive'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 border-transparent'
+                }`}
+                style={{ borderColor: activeTab === 'inactive' ? theme.primaryColor : 'transparent' }}
+              >
+                Past Workers
+              </button>
+            </div>
+            
+            {/* Invite Button - Only show on Invitations tab */}
+            {activeTab === 'invitations' && (
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2 text-sm"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                <FiUserPlus size={16} />
+                Invite Workers
+              </button>
+            )}
+          </div>
         </div>
 
-        <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header Actions */}
-        <div className="flex items-center justify-between mb-6">
-          {/* Tabs */}
-          <div className="flex gap-2 border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('active')}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === 'active'
-                  ? 'border-b-2 text-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-              style={{ borderColor: activeTab === 'active' ? theme.primaryColor : 'transparent' }}
-            >
-              Workforce
-            </button>
-            <button
-              onClick={() => setActiveTab('invitations')}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === 'invitations'
-                  ? 'border-b-2 text-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-              style={{ borderColor: activeTab === 'invitations' ? theme.primaryColor : 'transparent' }}
-            >
-              <FiMail className="inline mr-2" />
-              Invitations
-            </button>
-            <button
-              onClick={() => setActiveTab('assignments')}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === 'assignments'
-                  ? 'border-b-2 text-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-              style={{ borderColor: activeTab === 'assignments' ? theme.primaryColor : 'transparent' }}
-            >
-              <FiGrid className="inline mr-2" />
-              Assignments
-            </button>
-            <button
-              onClick={() => setActiveTab('records')}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === 'records'
+        {/* Scrollable Content Area */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto px-6 py-6">
                   ? 'border-b-2 text-gray-900'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
