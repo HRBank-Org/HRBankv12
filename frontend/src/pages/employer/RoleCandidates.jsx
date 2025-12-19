@@ -74,7 +74,7 @@ const RoleCandidates = () => {
       });
       
       alert('Worker assigned to role successfully!');
-      navigate('/employer/dashboard');
+      navigate('/employer/home');
     } catch (error) {
       console.error('Failed to assign worker:', error);
       alert('Failed to assign worker. Please try again.');
