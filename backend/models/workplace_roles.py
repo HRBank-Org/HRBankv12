@@ -61,6 +61,9 @@ class WorkplaceRoleCreate(BaseModel):
     workplace_id: Optional[str] = None
     role_name: str
     occupation_template: str
+    shift_type: str = "on_site"  # on_site, route_based, continental
+    continental_config: Optional[Dict] = None  # For continental roles
+    route_config: Optional[Dict] = None  # For route_based roles
     required_skills: List[str] = []
     additional_certifications: List[str] = []  # Employer can add extra certs
     generic_tasks: List[Dict] = []  # [{task_name, estimated_minutes, is_mandatory}]
@@ -71,9 +74,16 @@ class WorkplaceRoleCreate(BaseModel):
 class WorkplaceRoleUpdate(BaseModel):
     """Request model for updating a workplace role"""
     role_name: Optional[str] = None
+    shift_type: Optional[str] = None
+    continental_config: Optional[Dict] = None
+    route_config: Optional[Dict] = None
     required_skills: Optional[List[str]] = None
     additional_certifications: Optional[List[str]] = None
     generic_tasks: Optional[List[Dict]] = None
     hourly_rate: Optional[float] = None
     description: Optional[str] = None
     positions_available: Optional[int] = None
+
+class RoleWorkerAssignment(BaseModel):
+    """Request model for assigning/unassigning workers to roles"""
+    worker_ids: List[str]  # Workers to assign/unassign
