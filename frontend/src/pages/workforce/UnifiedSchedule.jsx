@@ -838,18 +838,90 @@ const UnifiedSchedule = () => {
                 <>
                   <div className="bg-white rounded-xl shadow-sm p-4 text-center">
                     <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
-                    <p className="text-xs text-gray-500">Tasks</p>
+                    <p className="text-xs text-gray-500">Stops</p>
                   </div>
                   <div className="bg-white rounded-xl shadow-sm p-4 text-center">
                     <p className="text-2xl font-bold text-green-600">{stats.completedTasks}</p>
-                    <p className="text-xs text-gray-500">Completed</p>
+                    <p className="text-xs text-gray-500">Done</p>
                   </div>
                   <div className="bg-white rounded-xl shadow-sm p-4 text-center">
                     <p className="text-2xl font-bold text-orange-600">{stats.inProgressTasks}</p>
-                    <p className="text-xs text-gray-500">In Progress</p>
+                    <p className="text-xs text-gray-500">Current</p>
                   </div>
                 </>
               )}
+            </div>
+          )}
+
+          {/* Route Overview - Show for field service with multiple tasks */}
+          {serviceTasks.length > 1 && (
+            <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <FiTruck className="text-orange-500" />
+                  Today's Route
+                </h3>
+                <span className="text-xs text-gray-500">
+                  {stats.completedTasks}/{stats.totalTasks} stops • Max 12h shift
+                </span>
+              </div>
+              
+              {/* Route Timeline */}
+              <div className="flex items-center gap-1 overflow-x-auto pb-2">
+                {serviceTasks
+                  .sort((a, b) => (a.route_order || 0) - (b.route_order || 0))
+                  .map((task, idx) => {
+                    const isCompleted = task.status === 'completed';
+                    const isInProgress = task.status === 'in_progress';
+                    const isPending = !isCompleted && !isInProgress;
+                    
+                    return (
+                      <React.Fragment key={task.task_id}>
+                        {/* Stop Marker */}
+                        <div 
+                          className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                            isCompleted 
+                              ? 'bg-green-500 text-white' 
+                              : isInProgress 
+                                ? 'bg-orange-500 text-white animate-pulse' 
+                                : 'bg-gray-200 text-gray-500'
+                          }`}
+                          title={task.title}
+                        >
+                          {isCompleted ? <FiCheck size={14} /> : idx + 1}
+                        </div>
+                        
+                        {/* Connector Line */}
+                        {idx < serviceTasks.length - 1 && (
+                          <div className={`flex-shrink-0 w-8 h-1 rounded ${
+                            isCompleted ? 'bg-green-300' : 'bg-gray-200'
+                          }`} />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+              </div>
+              
+              {/* Current/Next Stop Info */}
+              {(() => {
+                const currentTask = serviceTasks.find(t => t.status === 'in_progress');
+                const nextTask = serviceTasks.find(t => t.status !== 'completed' && t.status !== 'in_progress' && t.status !== 'cancelled');
+                const taskToShow = currentTask || nextTask;
+                
+                if (taskToShow && taskToShow.address) {
+                  const addr = taskToShow.address;
+                  return (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <p className="text-xs text-gray-500 mb-1">
+                        {currentTask ? 'Current stop:' : 'Next stop:'}
+                      </p>
+                      <p className="text-sm font-medium text-gray-900">{taskToShow.title}</p>
+                      <p className="text-xs text-gray-500">{addr.street_address}, {addr.city}</p>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
           )}
 
