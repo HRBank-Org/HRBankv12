@@ -52,6 +52,9 @@ const WorkforceManagement = () => {
   const [selectedWorkplace, setSelectedWorkplace] = useState(null);
   const [roles, setRoles] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
+  const [cancellingInvite, setCancellingInvite] = useState(null);
+  // Records Tab sorting state
+  const [recordsSortConfig, setRecordsSortConfig] = useState({ key: 'full_name', direction: 'asc' });
   const navigate = useNavigate();
   const theme = useTheme();
 
