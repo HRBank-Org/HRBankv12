@@ -192,55 +192,37 @@ const Roles = () => {
           )}
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Roles</p>
-                  <h3 className="text-3xl font-bold text-gray-900">{stats.totalRoles}</h3>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <FiUsers size={24} className="text-blue-600" />
-                </div>
-              </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+            <div className="bg-white rounded-xl shadow-sm p-4">
+              <p className="text-xs text-gray-500 mb-1">Total Roles</p>
+              <h3 className="text-2xl font-bold text-gray-900">{stats.totalRoles}</h3>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Filled Roles</p>
-                  <h3 className="text-3xl font-bold text-green-600">{stats.filledRoles}</h3>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <FiUsers size={24} className="text-green-600" />
-                </div>
-              </div>
+            <div className="bg-white rounded-xl shadow-sm p-4">
+              <p className="text-xs text-gray-500 mb-1">Filled</p>
+              <h3 className="text-2xl font-bold text-green-600">{stats.filledRoles}</h3>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Unfilled Roles</p>
-                  <h3 className="text-3xl font-bold text-red-600">{stats.unfilledRoles}</h3>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                  <FiUsers size={24} className="text-red-600" />
-                </div>
-              </div>
+            <div className="bg-white rounded-xl shadow-sm p-4">
+              <p className="text-xs text-gray-500 mb-1">Unfilled</p>
+              <h3 className="text-2xl font-bold text-red-600">{stats.unfilledRoles}</h3>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Positions</p>
-                  <h3 className="text-3xl font-bold" style={{ color: theme.primaryColor }}>
-                    {stats.filledPositions}/{stats.totalPositions}
-                  </h3>
-                </div>
-                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}20` }}>
-                  <FiAward size={24} style={{ color: theme.primaryColor }} />
-                </div>
-              </div>
+            <div className="bg-white rounded-xl shadow-sm p-4">
+              <p className="text-xs text-gray-500 mb-1">Positions</p>
+              <h3 className="text-2xl font-bold" style={{ color: theme.primaryColor }}>
+                {stats.filledPositions}/{stats.totalPositions}
+              </h3>
+            </div>
+            {/* Work Type Breakdown */}
+            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+              <p className="text-xs text-blue-600 mb-1">🏢 On-Site</p>
+              <h3 className="text-2xl font-bold text-blue-700">{stats.onSiteRoles}</h3>
+            </div>
+            <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+              <p className="text-xs text-orange-600 mb-1">🚗 Route-Based</p>
+              <h3 className="text-2xl font-bold text-orange-700">{stats.routeBasedRoles}</h3>
+            </div>
+            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+              <p className="text-xs text-indigo-600 mb-1">🔄 Continental</p>
+              <h3 className="text-2xl font-bold text-indigo-700">{stats.continentalRoles}</h3>
             </div>
           </div>
 
