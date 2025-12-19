@@ -713,9 +713,36 @@ const UnifiedSchedule = () => {
               )}
 
               {isCompleted && (
-                <div className="text-center py-2 text-green-600 font-medium flex items-center justify-center gap-2">
-                  <FiCheckCircle />
-                  Completed
+                <div className="space-y-2">
+                  <div className="text-center py-2 text-green-600 font-medium flex items-center justify-center gap-2">
+                    <FiCheckCircle />
+                    Completed {item.check_out && `• ${moment(item.check_out.timestamp).format('h:mm A')}`}
+                  </div>
+                  
+                  {/* Navigate to Next Job - show if there's another task after this one */}
+                  {(() => {
+                    const allTasks = serviceTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled');
+                    const nextTask = allTasks.find(t => (t.route_order || 0) > (item.route_order || 0));
+                    
+                    if (nextTask && nextTask.address) {
+                      const addr = nextTask.address;
+                      const mapsUrl = `https://maps.google.com/?daddr=${encodeURIComponent(`${addr.street_address}, ${addr.city}, ${addr.province}`)}`;
+                      
+                      return (
+                        <a
+                          href={mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <FiNavigation size={18} />
+                          Navigate to Next Job
+                        </a>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               )}
             </div>
