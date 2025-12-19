@@ -824,6 +824,108 @@ const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
 
   return (
     <div>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Operational KPIs</h2>
+
+      {/* Operational KPIs Overview */}
+      {operationalKpis && (
+        <div className="mb-8">
+          {/* Main Summary Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+              <div className="text-sm text-blue-100 mb-1">Hours This Week</div>
+              <div className="text-3xl font-bold">{operationalKpis.summary?.total_hours_this_week || 0}</div>
+              <div className="text-xs text-blue-200 mt-1">
+                {operationalKpis.summary?.shift_hours_week || 0}h shifts + {operationalKpis.summary?.task_hours_week || 0}h tasks
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white">
+              <div className="text-sm text-green-100 mb-1">Workers Today</div>
+              <div className="text-3xl font-bold">{operationalKpis.summary?.workers_on_duty_today || 0}</div>
+              <div className="text-xs text-green-200 mt-1">of {operationalKpis.summary?.active_workers || 0} active</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+              <div className="text-sm text-purple-100 mb-1">Attendance Rate</div>
+              <div className="text-3xl font-bold">{operationalKpis.summary?.attendance_rate_today || 100}%</div>
+              <div className="text-xs text-purple-200 mt-1">Today's check-ins</div>
+            </div>
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+              <div className="text-sm text-orange-100 mb-1">Today's Shifts</div>
+              <div className="text-3xl font-bold">{operationalKpis.shifts?.today_count || 0}</div>
+              <div className="text-xs text-orange-200 mt-1">{operationalKpis.shifts?.week_total || 0} this week</div>
+            </div>
+            <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-4 text-white">
+              <div className="text-sm text-teal-100 mb-1">Field Tasks</div>
+              <div className="text-3xl font-bold">{operationalKpis.field_service?.completed || 0}</div>
+              <div className="text-xs text-teal-200 mt-1">
+                {operationalKpis.field_service?.completion_rate || 0}% completion
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-4 text-white">
+              <div className="text-sm text-indigo-100 mb-1">Continental</div>
+              <div className="text-3xl font-bold">{operationalKpis.continental?.total_shifts_week || 0}</div>
+              <div className="text-xs text-indigo-200 mt-1">12h shifts this week</div>
+            </div>
+          </div>
+
+          {/* Work Mode Breakdown */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {/* Standard Shifts */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">🏢</span>
+                <h3 className="font-semibold text-gray-900">Standard Shifts</h3>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {operationalKpis.shifts?.standard_shifts_week || 0}
+              </div>
+              <div className="text-sm text-gray-500">shifts this week</div>
+            </div>
+
+            {/* Field Service */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">🚗</span>
+                <h3 className="font-semibold text-gray-900">Field Service</h3>
+              </div>
+              <div className="flex items-center gap-4">
+                <div>
+                  <div className="text-2xl font-bold text-green-600">{operationalKpis.field_service?.completed || 0}</div>
+                  <div className="text-xs text-gray-500">completed</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-yellow-600">{operationalKpis.field_service?.in_progress || 0}</div>
+                  <div className="text-xs text-gray-500">in progress</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-400">{operationalKpis.field_service?.pending || 0}</div>
+                  <div className="text-xs text-gray-500">pending</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Continental Shifts */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">🔄</span>
+                <h3 className="font-semibold text-gray-900">Continental (12h)</h3>
+              </div>
+              {operationalKpis.continental?.rotation_groups && Object.keys(operationalKpis.continental.rotation_groups).length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(operationalKpis.continental.rotation_groups).map(([group, counts]) => (
+                    <div key={group} className="px-3 py-1 bg-indigo-50 rounded-full text-sm">
+                      <span className="font-medium text-indigo-700">Group {group}:</span>
+                      <span className="ml-1 text-indigo-600">☀️{counts.day || 0} 🌙{counts.night || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500">No continental shifts this week</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <h2 className="text-xl font-bold text-gray-900 mb-6">Performance & Ratings</h2>
 
       {/* Stats Overview */}
