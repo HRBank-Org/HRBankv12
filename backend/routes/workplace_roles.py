@@ -810,7 +810,6 @@ async def get_role_kpis(
     - Shifts/tasks completed
     - Performance metrics per assigned worker
     """
-    from datetime import timedelta, timezone
     
     # Verify role belongs to employer
     role = await db.workplace_roles.find_one({
