@@ -2,7 +2,7 @@
 
 ## Last Updated: 2024-12-17
 
-## Current Test Focus: Worker Invitation System (Phase 1: Recruitment)
+## Current Test Focus: Continental Shift Pattern & Unified Payroll System Testing
 
 ### Features Implemented:
 1. **Backend Endpoint**: `/api/employer/invite-workers` - Accepts workplace_id, role_id, and array of invites
