@@ -207,6 +207,18 @@ const WorkforceManagement = () => {
               Invitations
             </button>
             <button
+              onClick={() => setActiveTab('assignments')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'assignments'
+                  ? 'border-b-2 text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              style={{ borderColor: activeTab === 'assignments' ? theme.primaryColor : 'transparent' }}
+            >
+              <FiGrid className="inline mr-2" />
+              Assignments
+            </button>
+            <button
               onClick={() => setActiveTab('inactive')}
               className={`px-6 py-3 font-medium transition-colors ${
                 activeTab === 'inactive'
