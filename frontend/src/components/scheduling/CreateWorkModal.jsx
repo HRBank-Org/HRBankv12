@@ -403,28 +403,40 @@ const CreateWorkModal = ({ isOpen, onClose, onSuccess, workplaces, initialDate, 
                 )}
               </div>
 
-              {/* Role Selection (Standard & Continental) */}
-              {workType !== WORK_TYPES.FIELD_SERVICE && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <label className="block text-sm font-medium text-blue-900 mb-2">
-                    🎯 Inherit from Role (Recommended)
-                  </label>
-                  <select
-                    value={selectedRole?.role_id || ''}
-                    onChange={(e) => handleRoleSelect(e.target.value)}
-                    className="w-full px-4 py-2 border border-blue-300 rounded-lg bg-white"
-                  >
-                    <option value="">-- Select a role --</option>
-                    {workplaceRoles
-                      .filter(role => !formData.workplace_id || role.workplace_id === formData.workplace_id)
-                      .map(role => (
-                        <option key={role.role_id} value={role.role_id}>
-                          {role.role_name} - ${role.pay_rate || role.hourly_rate}/hr
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              )}
+              {/* Role Selection - Auto-detects shift type */}
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-blue-200 rounded-lg p-4">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  🎯 Select Role <span className="text-gray-500 font-normal">(auto-sets work type)</span>
+                </label>
+                <select
+                  value={selectedRole?.role_id || ''}
+                  onChange={(e) => handleRoleSelect(e.target.value)}
+                  className="w-full px-4 py-2 border border-blue-300 rounded-lg bg-white text-sm"
+                >
+                  <option value="">-- Select a role --</option>
+                  {workplaceRoles.map(role => {
+                    const shiftType = role.shift_type || 'on_site';
+                    const typeEmoji = shiftType === 'continental' ? '🔄' : shiftType === 'route_based' ? '🚗' : '🏢';
+                    const typeLabel = shiftType === 'continental' ? 'Continental' : shiftType === 'route_based' ? 'Route' : 'On-Site';
+                    return (
+                      <option key={role.role_id} value={role.role_id}>
+                        {typeEmoji} {role.role_name} ({typeLabel}) - ${role.pay_rate || role.hourly_rate || 'TBD'}/hr
+                      </option>
+                    );
+                  })}
+                </select>
+                {selectedRole && (
+                  <div className="mt-2 text-xs text-gray-600">
+                    Work type auto-set to: <span className={`font-medium ${
+                      selectedRole.shift_type === 'continental' ? 'text-indigo-600' :
+                      selectedRole.shift_type === 'route_based' ? 'text-orange-600' : 'text-blue-600'
+                    }`}>
+                      {selectedRole.shift_type === 'continental' ? '🔄 Continental (12h)' :
+                       selectedRole.shift_type === 'route_based' ? '🚗 Route-Based' : '🏢 On-Site'}
+                    </span>
+                  </div>
+                )}
+              </div>
 
               {/* Position/Title */}
               <div>
