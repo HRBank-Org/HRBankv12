@@ -154,7 +154,10 @@ async def get_worker_kpis(
         
         # Get this week's attendance (shifts)
         week_attendance = await db.attendance.find({
-            "worker_id": worker_id,
+            "$or": [
+                {"worker_id": worker_id},
+                {"workforce_id": worker_id}
+            ],
             "employer_id": employer_id,
             "clock_in_time": {"$gte": week_start.isoformat()}
         }, {"_id": 0}).to_list(100)
