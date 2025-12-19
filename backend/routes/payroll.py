@@ -66,11 +66,11 @@ async def generate_payroll_period(
             detail="Payroll period already exists for this week"
         )
     
-    # Create new period
+    # Create new period (convert dates to ISO strings for MongoDB)
     period = PayrollPeriod(
         employer_id=current_user["user_id"],
-        start_date=start_date,
-        end_date=end_date,
+        start_date=start_date.isoformat(),
+        end_date=end_date.isoformat(),
         week_number=week_number,
         year=year
     )
