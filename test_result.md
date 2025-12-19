@@ -4,30 +4,25 @@
 
 ## Current Test Focus: Sprint 1 HR Bank Features Testing
 
-### Features Implemented:
-1. **Continental Shift Pattern Generation**: `/api/calendar/continental-pattern` - Creates rotating 12-hour shifts
-2. **Calendar Shift Verification**: `/api/calendar/shifts` - Returns continental shifts with rotation groups
-3. **Unified Payroll Period Generation**: `/api/payroll/periods/generate` - Aggregates all work types
-4. **Payroll Period Details**: `/api/payroll/periods/{period_id}` - Shows entries with shift/task hours
-5. **Payroll Periods List**: `/api/payroll/periods` - Lists all employer payroll periods
+### Sprint 1 Features Tested:
+1. **Operational KPIs API**: `/api/employer/dashboard/operational-kpis` - Comprehensive dashboard metrics
+2. **Shift Unassign API Fix**: `/api/employer/shifts/{shift_id}/unassign/{worker_id}` - Worker removal from shifts
+3. **Continental Shifts Data Structure**: `/api/calendar/shifts` - Continental shift metadata validation
 
 ### Test Accounts:
 - **Employer**: employer@hrbank.ca / Test123!
 - **Worker**: worker@hrbank.ca / Test123!
 
-### API Endpoints to Test:
-1. POST /api/calendar/continental-pattern - Create continental shift pattern
-2. GET /api/calendar/shifts - Verify continental shifts in calendar
-3. POST /api/payroll/periods/generate - Generate unified payroll period
-4. GET /api/payroll/periods/{period_id} - Get payroll period details
-5. GET /api/payroll/periods - List all payroll periods
+### API Endpoints Tested:
+1. GET /api/employer/dashboard/operational-kpis - Operational KPIs aggregation
+2. GET /api/calendar/shifts - Continental shifts data structure
+3. DELETE /api/employer/shifts/{shift_id}/unassign/{worker_id} - Shift unassign functionality
 
 ### Key Validations:
-1. Continental shift patterns generate correct number of shifts
-2. Each rotation group (A, B, C, D) gets properly offset shifts
-3. Payroll correctly aggregates hours from ALL work types
-4. PayrollEntry includes shift_ids and task_ids arrays
-5. Proper tax calculations (CPP, EI, federal/provincial)
+1. Operational KPIs aggregate data from shifts, tasks, and attendance
+2. Continental shifts have proper metadata (shift_type, rotation_group, day_night, duration_hours)
+3. Shift unassign API handles various worker ID formats and collections
+4. All APIs return proper success/error responses with expected structure
 
 ---
 
