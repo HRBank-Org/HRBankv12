@@ -446,8 +446,6 @@ const WorkforceManagement = () => {
     }
   };
   
-  const [cancellingInvite, setCancellingInvite] = useState(null);
-  
   const handleCancelInvite = async (inviteId, inviteName) => {
     console.log('Cancel clicked for:', inviteId, inviteName);
     setCancellingInvite(inviteId);
