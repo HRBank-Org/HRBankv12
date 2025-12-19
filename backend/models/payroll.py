@@ -40,20 +40,23 @@ class PayrollEntry(BaseModel):
     
     entry_id: str = Field(default_factory=lambda: f"entry_{uuid.uuid4().hex[:12]}")
     period_id: str
-    employer_id: str
+    employer_id: Optional[str] = None
     worker_id: str
     
     # Worker info
     worker_name: str
     worker_sin: Optional[str] = None
-    worker_email: str
+    worker_email: Optional[str] = None
     worker_phone: Optional[str] = None
     
-    # Hours and pay
+    # Hours breakdown by work type (unified payroll)
     regular_hours: float = 0
     overtime_hours: float = 0
     total_hours: float = 0
-    hourly_rate: float
+    shift_hours: float = 0      # Hours from on-site + continental shifts
+    task_hours: float = 0       # Hours from field service tasks
+    days_worked: int = 0        # Number of days with work
+    hourly_rate: float = 0
     
     # Pay breakdown
     regular_pay: float = 0
@@ -68,7 +71,9 @@ class PayrollEntry(BaseModel):
     
     # Tax deductions (calculated)
     employee_cpp: float = 0
+    cpp_deduction: float = 0  # Alias for employee_cpp
     employee_ei: float = 0
+    ei_deduction: float = 0   # Alias for employee_ei
     federal_tax: float = 0
     provincial_tax: float = 0
     total_deductions: float = 0
@@ -89,8 +94,10 @@ class PayrollEntry(BaseModel):
     calculate_federal_tax: bool = True
     calculate_provincial_tax: bool = True
     
-    # Metadata
-    shifts_included: List[str] = []  # shift_ids
+    # Metadata - work references
+    shifts_included: List[str] = []  # shift_ids (standard + continental)
+    shift_ids: List[str] = []        # Alias for shifts_included
+    task_ids: List[str] = []         # service_task_ids (field service)
     created_date: datetime = Field(default_factory=datetime.utcnow)
 
 
