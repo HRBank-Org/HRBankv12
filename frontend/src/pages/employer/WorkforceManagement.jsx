@@ -386,6 +386,11 @@ const WorkforceManagement = () => {
           )
         ) : (
           /* Inactive Workers Tab */
+          workers.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <p className="text-gray-500">No past workers</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {workers.map((worker) => (
               <div key={worker.user_id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
