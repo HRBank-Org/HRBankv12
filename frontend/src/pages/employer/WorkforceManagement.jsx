@@ -43,6 +43,23 @@ const WorkforceManagement = () => {
         const kpisRes = await api.get('/api/employer/workforce-management/worker-kpis');
         setWorkerKpis(kpisRes.data.data.workers || []);
         setWorkers([]);
+      } else if (activeTab === 'assignments') {
+        // Load workers, shifts, and tasks for drag-drop assignment
+        const today = new Date().toISOString().split('T')[0];
+        const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        
+        const [kpisRes, shiftsRes, tasksRes] = await Promise.all([
+          api.get('/api/employer/workforce-management/worker-kpis'),
+          api.get(`/api/calendar/shifts?start_date=${today}&end_date=${nextWeek}`),
+          api.get('/api/service-tasks')
+        ]);
+        
+        setWorkerKpis(kpisRes.data.data.workers || []);
+        setShifts(shiftsRes.data.data || shiftsRes.data || []);
+        
+        // Filter tasks that are pending or assigned (not completed)
+        const allTasks = tasksRes.data.data?.tasks || [];
+        setTasks(allTasks.filter(t => ['pending', 'assigned'].includes(t.status)));
       } else {
         // Load inactive workers
         const response = await api.get('/api/employer/workforce-management/inactive');
