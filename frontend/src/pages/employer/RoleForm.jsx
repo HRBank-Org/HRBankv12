@@ -38,6 +38,8 @@ const RoleForm = () => {
   const [rateError, setRateError] = useState('');
   const [requiredCertifications, setRequiredCertifications] = useState([]);
   const [selectedWorkplaceProvince, setSelectedWorkplaceProvince] = useState('ON');
+  const [defaultWorkType, setDefaultWorkType] = useState(null); // Inherited from occupation template
+  const [workTypeOverridden, setWorkTypeOverridden] = useState(false);
 
   useEffect(() => {
     loadInitialData();
