@@ -239,9 +239,12 @@ async def get_worker_kpis(
         
         # Check if clocked in today
         clocked_in_today = await db.attendance.find_one({
-            "worker_id": worker_id,
+            "$or": [
+                {"worker_id": worker_id},
+                {"workforce_id": worker_id}
+            ],
             "employer_id": employer_id,
-            "shift_date": today_start.strftime("%Y-%m-%d"),
+            "date": today_start.strftime("%Y-%m-%d"),
             "clock_in_time": {"$exists": True},
             "clock_out_time": {"$exists": False}
         })
