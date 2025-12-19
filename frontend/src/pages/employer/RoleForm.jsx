@@ -372,6 +372,153 @@ const RoleForm = () => {
                   </p>
                 </div>
 
+                {/* Shift Type Selector */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Work Type <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {/* On-Site */}
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, shift_type: 'on_site', continental_config: null, route_config: null }))}
+                      className={`p-4 rounded-xl border-2 text-left transition-all ${
+                        formData.shift_type === 'on_site'
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">🏢</div>
+                      <h4 className="font-semibold text-gray-900">On-Site</h4>
+                      <p className="text-xs text-gray-500 mt-1">Standard shifts at workplace location</p>
+                      <p className="text-xs text-blue-600 mt-2">GPS clock-in at workplace</p>
+                    </button>
+
+                    {/* Route-Based */}
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ 
+                        ...prev, 
+                        shift_type: 'route_based', 
+                        continental_config: null,
+                        route_config: { default_duration_hours: 8, allow_recurring_routes: true }
+                      }))}
+                      className={`p-4 rounded-xl border-2 text-left transition-all ${
+                        formData.shift_type === 'route_based'
+                          ? 'border-orange-500 bg-orange-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">🚗</div>
+                      <h4 className="font-semibold text-gray-900">Route-Based</h4>
+                      <p className="text-xs text-gray-500 mt-1">Multi-stop tasks at different locations</p>
+                      <p className="text-xs text-orange-600 mt-2">GPS at each stop</p>
+                    </button>
+
+                    {/* Continental */}
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ 
+                        ...prev, 
+                        shift_type: 'continental',
+                        route_config: null,
+                        continental_config: { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
+                      }))}
+                      className={`p-4 rounded-xl border-2 text-left transition-all ${
+                        formData.shift_type === 'continental'
+                          ? 'border-indigo-500 bg-indigo-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">🔄</div>
+                      <h4 className="font-semibold text-gray-900">Continental</h4>
+                      <p className="text-xs text-gray-500 mt-1">12-hour rotating shift patterns</p>
+                      <p className="text-xs text-indigo-600 mt-2">DuPont/Panama/Pitman</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Continental Config (when continental is selected) */}
+                {formData.shift_type === 'continental' && (
+                  <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+                    <h4 className="font-medium text-indigo-900 mb-3">Continental Shift Configuration</h4>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-indigo-700 mb-1">Pattern</label>
+                        <select
+                          value={formData.continental_config?.pattern || 'dupont'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            continental_config: { ...prev.continental_config, pattern: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 text-sm border border-indigo-300 rounded-lg"
+                        >
+                          <option value="dupont">DuPont (2D-2N-4Off)</option>
+                          <option value="panama">Panama (2-2-3)</option>
+                          <option value="pitman">Pitman (2-3-2)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-indigo-700 mb-1">Day Shift</label>
+                        <input
+                          type="text"
+                          value={formData.continental_config?.day_shift?.start || '06:00'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            continental_config: { 
+                              ...prev.continental_config, 
+                              day_shift: { ...prev.continental_config?.day_shift, start: e.target.value, end: '18:00' }
+                            }
+                          }))}
+                          placeholder="06:00"
+                          className="w-full px-3 py-2 text-sm border border-indigo-300 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-indigo-700 mb-1">Night Shift</label>
+                        <input
+                          type="text"
+                          value={formData.continental_config?.night_shift?.start || '18:00'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            continental_config: { 
+                              ...prev.continental_config, 
+                              night_shift: { ...prev.continental_config?.night_shift, start: e.target.value, end: '06:00' }
+                            }
+                          }))}
+                          placeholder="18:00"
+                          className="w-full px-3 py-2 text-sm border border-indigo-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Route Config (when route_based is selected) */}
+                {formData.shift_type === 'route_based' && (
+                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                    <h4 className="font-medium text-orange-900 mb-3">Route Configuration</h4>
+                    <p className="text-sm text-orange-700 mb-3">
+                      Workers will complete tasks at multiple locations. You can create recurring routes or ad-hoc daily routes.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="allow_recurring"
+                        checked={formData.route_config?.allow_recurring_routes !== false}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          route_config: { ...prev.route_config, allow_recurring_routes: e.target.checked }
+                        }))}
+                        className="rounded border-orange-300"
+                      />
+                      <label htmlFor="allow_recurring" className="text-sm text-orange-800">
+                        Allow recurring routes (same stops daily)
+                      </label>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Generic Tasks (One per line)
