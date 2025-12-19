@@ -557,71 +557,41 @@ const UnifiedSchedule = () => {
                   </div>
                 )}
 
-                {/* Photo Upload */}
+                {/* Report Issue - Optional photo for exceptions only */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiCamera className="inline mr-1" /> Photos
-                  </label>
+                  <button 
+                    className="w-full py-2 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.capture = 'environment';
+                      input.onchange = (ev) => {
+                        if (ev.target.files[0]) {
+                          handlePhotoUpload(item.id, ev.target.files[0], 'issue');
+                        }
+                      };
+                      input.click();
+                    }}
+                  >
+                    <FiAlertCircle size={16} />
+                    Report Issue (with photo)
+                  </button>
                   
-                  {/* Photo Grid */}
-                  {(taskPhotos[item.id]?.length > 0 || item.photos?.length > 0) && (
-                    <div className="grid grid-cols-3 gap-2 mb-2">
-                      {[...(item.photos || []), ...(taskPhotos[item.id] || [])].map((photo, idx) => (
-                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
-                          <img 
-                            src={photo.image || photo} 
-                            alt={`Task photo ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-black/50 text-white text-xs rounded">
-                            {photo.type || 'photo'}
-                          </span>
-                        </div>
-                      ))}
+                  {/* Show issue photos if any */}
+                  {(taskPhotos[item.id]?.length > 0 || item.photos?.filter(p => p.type === 'issue').length > 0) && (
+                    <div className="mt-2 p-2 bg-red-50 rounded-lg">
+                      <p className="text-xs text-red-600 mb-2">Issue reported:</p>
+                      <div className="flex gap-2 overflow-x-auto">
+                        {[...(item.photos?.filter(p => p.type === 'issue') || []), ...(taskPhotos[item.id] || [])].map((photo, idx) => (
+                          <div key={idx} className="w-16 h-16 flex-shrink-0 rounded overflow-hidden">
+                            <img src={photo.image || photo} alt="Issue" className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
-                  
-                  {/* Upload Buttons */}
-                  <div className="flex gap-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      ref={fileInputRef}
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files[0]) {
-                          handlePhotoUpload(item.id, e.target.files[0], 'during');
-                          e.target.value = '';
-                        }
-                      }}
-                    />
-                    <button 
-                      className="flex-1 py-2.5 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
-                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                    >
-                      <FiCamera size={16} />
-                      Take Photo
-                    </button>
-                    <button 
-                      className="flex-1 py-2.5 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.onchange = (ev) => {
-                          if (ev.target.files[0]) {
-                            handlePhotoUpload(item.id, ev.target.files[0], 'during');
-                          }
-                        };
-                        input.click();
-                      }}
-                    >
-                      <FiImage size={16} />
-                      Gallery
-                    </button>
-                  </div>
                 </div>
 
                 {/* Notes */}
