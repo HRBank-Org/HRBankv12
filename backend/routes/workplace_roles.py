@@ -832,3 +832,238 @@ async def assign_worker_to_role(
         "message": f"Worker assigned to {role['role_name']} successfully"
     }
 
+
+
+@router.get("/{role_id}/kpis", response_model=Dict)
+async def get_role_kpis(
+    role_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get KPIs for a specific role including:
+    - Hours worked this week/month
+    - Shifts/tasks completed
+    - Performance metrics per assigned worker
+    """
+    from datetime import timedelta, timezone
+    
+    # Verify role belongs to employer
+    role = await db.workplace_roles.find_one({
+        "role_id": role_id,
+        "employer_id": current_user['user_id']
+    }, {"_id": 0})
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=today_start.weekday())
+    month_start = today_start.replace(day=1)
+    
+    employer_id = current_user["user_id"]
+    shift_type = role.get("shift_type", "on_site")
+    
+    # Get assigned workers for this role
+    assigned_workers = role.get("assigned_workers", [])
+    worker_ids = [w.get("workforce_id") if isinstance(w, dict) else w for w in assigned_workers]
+    
+    # Initialize KPIs
+    role_kpis = {
+        "role_id": role_id,
+        "role_name": role.get("role_name"),
+        "shift_type": shift_type,
+        "positions_available": role.get("positions_available", 1),
+        "positions_filled": len(worker_ids),
+        "week": {"total_hours": 0, "shifts_completed": 0, "tasks_completed": 0},
+        "month": {"total_hours": 0, "shifts_completed": 0, "tasks_completed": 0},
+        "workers": []
+    }
+    
+    if not worker_ids:
+        return {"success": True, "data": role_kpis}
+    
+    # Get attendance/hours for each worker
+    for worker_id in worker_ids:
+        worker = await db.users.find_one(
+            {"user_id": worker_id},
+            {"_id": 0, "full_name": 1, "user_id": 1}
+        )
+        
+        worker_kpi = {
+            "worker_id": worker_id,
+            "full_name": worker.get("full_name") if worker else "Unknown",
+            "week": {"hours": 0, "shifts": 0, "tasks": 0, "attendance_rate": 100},
+            "month": {"hours": 0, "shifts": 0, "tasks": 0}
+        }
+        
+        if shift_type in ["on_site", "continental"]:
+            # Get attendance records
+            week_attendance = await db.attendance.find({
+                "worker_id": worker_id,
+                "employer_id": employer_id,
+                "clock_in_time": {"$gte": week_start.isoformat()}
+            }).to_list(100)
+            
+            month_attendance = await db.attendance.find({
+                "worker_id": worker_id,
+                "employer_id": employer_id,
+                "clock_in_time": {"$gte": month_start.isoformat()}
+            }).to_list(500)
+            
+            # Calculate hours
+            for record in week_attendance:
+                hours = record.get("hours_worked", 0)
+                if hours:
+                    worker_kpi["week"]["hours"] += hours
+                    worker_kpi["week"]["shifts"] += 1
+                    
+            for record in month_attendance:
+                hours = record.get("hours_worked", 0)
+                if hours:
+                    worker_kpi["month"]["hours"] += hours
+                    worker_kpi["month"]["shifts"] += 1
+                    
+        elif shift_type == "route_based":
+            # Get service tasks
+            week_tasks = await db.service_tasks.find({
+                "worker_id": worker_id,
+                "employer_id": employer_id,
+                "status": "completed",
+                "scheduled_date": {"$gte": week_start.strftime("%Y-%m-%d")}
+            }).to_list(100)
+            
+            month_tasks = await db.service_tasks.find({
+                "worker_id": worker_id,
+                "employer_id": employer_id,
+                "status": "completed",
+                "scheduled_date": {"$gte": month_start.strftime("%Y-%m-%d")}
+            }).to_list(500)
+            
+            for task in week_tasks:
+                if task.get("actual_duration_minutes"):
+                    worker_kpi["week"]["hours"] += task["actual_duration_minutes"] / 60
+                worker_kpi["week"]["tasks"] += 1
+                
+            for task in month_tasks:
+                if task.get("actual_duration_minutes"):
+                    worker_kpi["month"]["hours"] += task["actual_duration_minutes"] / 60
+                worker_kpi["month"]["tasks"] += 1
+        
+        # Round hours
+        worker_kpi["week"]["hours"] = round(worker_kpi["week"]["hours"], 1)
+        worker_kpi["month"]["hours"] = round(worker_kpi["month"]["hours"], 1)
+        
+        # Add to totals
+        role_kpis["week"]["total_hours"] += worker_kpi["week"]["hours"]
+        role_kpis["week"]["shifts_completed"] += worker_kpi["week"]["shifts"]
+        role_kpis["week"]["tasks_completed"] += worker_kpi["week"]["tasks"]
+        role_kpis["month"]["total_hours"] += worker_kpi["month"]["hours"]
+        role_kpis["month"]["shifts_completed"] += worker_kpi["month"]["shifts"]
+        role_kpis["month"]["tasks_completed"] += worker_kpi["month"]["tasks"]
+        
+        role_kpis["workers"].append(worker_kpi)
+    
+    # Round totals
+    role_kpis["week"]["total_hours"] = round(role_kpis["week"]["total_hours"], 1)
+    role_kpis["month"]["total_hours"] = round(role_kpis["month"]["total_hours"], 1)
+    
+    return {"success": True, "data": role_kpis}
+
+
+@router.get("/all/kpis", response_model=Dict)
+async def get_all_roles_kpis(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get summary KPIs for all roles - for the Roles page overview
+    """
+    from datetime import timedelta, timezone
+    
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=today_start.weekday())
+    
+    employer_id = current_user["user_id"]
+    
+    # Get all roles
+    roles = await db.workplace_roles.find(
+        {"employer_id": employer_id},
+        {"_id": 0}
+    ).to_list(100)
+    
+    roles_summary = []
+    total_hours_week = 0
+    total_workers = 0
+    
+    for role in roles:
+        shift_type = role.get("shift_type", "on_site")
+        assigned_workers = role.get("assigned_workers", [])
+        worker_count = len(assigned_workers)
+        total_workers += worker_count
+        
+        role_hours = 0
+        
+        # Quick calculation of hours for each role
+        worker_ids = [w.get("workforce_id") if isinstance(w, dict) else w for w in assigned_workers]
+        
+        if worker_ids:
+            if shift_type in ["on_site", "continental"]:
+                pipeline = [
+                    {"$match": {
+                        "worker_id": {"$in": worker_ids},
+                        "employer_id": employer_id,
+                        "clock_in_time": {"$gte": week_start.isoformat()}
+                    }},
+                    {"$group": {"_id": None, "total_hours": {"$sum": "$hours_worked"}}}
+                ]
+                result = await db.attendance.aggregate(pipeline).to_list(1)
+                if result:
+                    role_hours = result[0].get("total_hours", 0)
+            elif shift_type == "route_based":
+                pipeline = [
+                    {"$match": {
+                        "worker_id": {"$in": worker_ids},
+                        "employer_id": employer_id,
+                        "status": "completed",
+                        "scheduled_date": {"$gte": week_start.strftime("%Y-%m-%d")}
+                    }},
+                    {"$group": {"_id": None, "total_minutes": {"$sum": "$actual_duration_minutes"}}}
+                ]
+                result = await db.service_tasks.aggregate(pipeline).to_list(1)
+                if result:
+                    role_hours = (result[0].get("total_minutes", 0) or 0) / 60
+        
+        total_hours_week += role_hours
+        
+        roles_summary.append({
+            "role_id": role.get("role_id"),
+            "role_name": role.get("role_name"),
+            "shift_type": shift_type,
+            "workplace_id": role.get("workplace_id"),
+            "positions_available": role.get("positions_available", 1),
+            "positions_filled": worker_count,
+            "hourly_rate": role.get("hourly_rate"),
+            "hours_this_week": round(role_hours, 1),
+            "status": role.get("status", "unfilled")
+        })
+    
+    return {
+        "success": True,
+        "data": {
+            "roles": roles_summary,
+            "summary": {
+                "total_roles": len(roles),
+                "total_workers": total_workers,
+                "total_hours_week": round(total_hours_week, 1),
+                "by_type": {
+                    "on_site": len([r for r in roles if r.get("shift_type") == "on_site"]),
+                    "route_based": len([r for r in roles if r.get("shift_type") == "route_based"]),
+                    "continental": len([r for r in roles if r.get("shift_type") == "continental"])
+                }
+            }
+        }
+    }
+
