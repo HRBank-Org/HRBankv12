@@ -116,7 +116,12 @@ const WorkforceManagement = () => {
   };
 
   const handleTerminate = (worker) => {
-    setSelectedWorker(worker);
+    setSelectedWorker({...worker, actionType: 'terminate'});
+    setShowTerminateModal(true);
+  };
+
+  const handleLayOff = (worker) => {
+    setSelectedWorker({...worker, actionType: 'layoff'});
     setShowTerminateModal(true);
   };
 
