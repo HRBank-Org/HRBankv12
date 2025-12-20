@@ -169,13 +169,24 @@ const RecordsTable = ({ activeWorkers, pastWorkers, sortConfig, setSortConfig, o
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      {/* Header with Export */}
+      {/* Header with Export and Sort Info */}
       <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
         <div>
           <h3 className="text-sm font-semibold text-gray-900">Employment Records</h3>
-          <p className="text-xs text-gray-500">{allRecords.length} total records (click column headers to sort)</p>
+          <p className="text-xs text-gray-500">
+            {allRecords.length} total records • Click headers to sort • <span className="text-blue-600">Shift+Click</span> for multi-column sort
+          </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {sortArray.length > 1 && (
+            <button
+              onClick={handleClearSort}
+              className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded flex items-center gap-1"
+              title="Clear multi-column sort"
+            >
+              <FiX size={12} /> Clear Sort
+            </button>
+          )}
           <button
             onClick={() => onExport('csv')}
             className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1"
