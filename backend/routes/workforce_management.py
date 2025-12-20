@@ -768,3 +768,321 @@ async def get_my_employment_history(
             "past_employers": len([h for h in history if h["status"] in ["inactive", "terminated"]])
         }
     }
+
+
+# ==================== AUTO-ASSIGN WORKFORCE ====================
+
+@router.post("/auto-assign", response_model=Dict)
+async def auto_assign_workforce(
+    request: AutoAssignRequest,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Automatically propose worker assignments for unfilled roles.
+    Considers:
+    - Work type (On-Site, Route-Based, Continental)
+    - ESA compliance (weekly hours limit)
+    - Worker proximity to workplace
+    - Worker preferences and availability
+    - Workers currently on time-off
+    """
+    employer_id = current_user["user_id"]
+    
+    # Get all active employment relationships for this employer
+    relationships = await db.employment_relationships.find({
+        "employer_id": employer_id,
+        "status": "active"
+    }).to_list(1000)
+    
+    # Build worker data with hours and availability
+    available_workers = []
+    for rel in relationships:
+        worker = await db.users.find_one(
+            {"user_id": rel["workforce_id"]},
+            {"_id": 0, "user_id": 1, "full_name": 1, "email": 1}
+        )
+        if not worker:
+            continue
+            
+        # Get workforce profile for location and preferences
+        profile = await db.workforce_profiles.find_one(
+            {"workforce_id": rel["workforce_id"]},
+            {"_id": 0}
+        )
+        
+        # Calculate hours worked this week
+        week_start = datetime.now(timezone.utc) - timedelta(days=datetime.now(timezone.utc).weekday())
+        week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Get attendance records for this week
+        attendance_records = await db.attendance_records.find({
+            "worker_id": rel["workforce_id"],
+            "clock_in_time": {"$gte": week_start}
+        }).to_list(100)
+        
+        weekly_hours = sum(
+            (r.get("total_hours", 0) or 0) for r in attendance_records
+        )
+        
+        # Check if worker is on time-off
+        time_off = await db.time_off_requests.find_one({
+            "worker_id": rel["workforce_id"],
+            "status": "approved",
+            "start_date": {"$lte": datetime.now(timezone.utc)},
+            "end_date": {"$gte": datetime.now(timezone.utc)}
+        })
+        
+        if time_off:
+            continue  # Skip workers on time-off
+        
+        # Calculate remaining available hours
+        remaining_hours = ESA_WEEKLY_MAX - weekly_hours
+        
+        if remaining_hours <= 0:
+            continue  # Skip workers at ESA limit
+        
+        available_workers.append({
+            "user_id": worker["user_id"],
+            "full_name": worker["full_name"],
+            "email": worker["email"],
+            "position_title": rel.get("position_title"),
+            "workplace_id": rel.get("workplace_id"),
+            "weekly_hours": round(weekly_hours, 1),
+            "remaining_hours": round(remaining_hours, 1),
+            "work_type": rel.get("work_type", "on_site"),
+            "home_location": profile.get("home_location") if profile else None,
+            "preferred_hours": profile.get("preferred_hours") if profile else None,
+            "skills": profile.get("skills", []) if profile else [],
+            "vehicle_type": profile.get("vehicle_type") if profile else None,
+            "has_valid_license": profile.get("has_valid_license", False) if profile else False
+        })
+    
+    # Get all roles with unfilled positions
+    roles = await db.workplace_roles.find({
+        "employer_id": employer_id,
+        "status": "active"
+    }).to_list(100)
+    
+    proposed_assignments = []
+    unfilled_roles = []
+    
+    for role in roles:
+        # Get current assigned count
+        assigned_count = await db.employment_relationships.count_documents({
+            "employer_id": employer_id,
+            "role_id": role["role_id"],
+            "status": "active"
+        })
+        
+        positions_needed = role.get("positions_available", 1) - assigned_count
+        
+        if positions_needed <= 0:
+            continue  # Role is fully staffed
+        
+        # Get workplace for location
+        workplace = await db.workplaces.find_one(
+            {"workplace_id": role.get("workplace_id")},
+            {"_id": 0, "name": 1, "workplace_name": 1, "address": 1, "location": 1}
+        )
+        
+        work_type = role.get("work_type", role.get("shift_type", "on_site"))
+        
+        # Skip route-based or continental if not included
+        if work_type == "route_based" and not request.include_route_based:
+            continue
+        if work_type == "continental" and not request.include_continental:
+            continue
+        
+        # Find best matching workers for this role
+        matched_workers = []
+        
+        for worker in available_workers:
+            # Skip if worker already proposed for another role
+            if any(p["worker_id"] == worker["user_id"] for p in proposed_assignments):
+                continue
+            
+            score = 0
+            reasons = []
+            
+            # Check role match
+            if worker.get("position_title") == role.get("role_name"):
+                score += 50
+                reasons.append("Matching role")
+            
+            # Check workplace match
+            if worker.get("workplace_id") == role.get("workplace_id"):
+                score += 30
+                reasons.append("Same workplace")
+            
+            # Check hours availability
+            if worker["remaining_hours"] >= 8:
+                score += 20
+                reasons.append(f"{worker['remaining_hours']}h available")
+            
+            # Work type specific scoring
+            if work_type == "route_based":
+                if worker.get("vehicle_type") and worker.get("has_valid_license"):
+                    score += 25
+                    reasons.append("Has vehicle & license")
+                else:
+                    score -= 50  # Penalty for missing requirements
+                    
+            elif work_type == "continental":
+                # Continental shifts need workers who can do rotating schedules
+                if worker.get("preferred_hours", {}).get("flexible"):
+                    score += 20
+                    reasons.append("Flexible schedule")
+            
+            if score > 0:
+                matched_workers.append({
+                    "worker": worker,
+                    "score": score,
+                    "reasons": reasons
+                })
+        
+        # Sort by score and take top matches
+        matched_workers.sort(key=lambda x: x["score"], reverse=True)
+        
+        assigned_to_role = 0
+        for match in matched_workers[:positions_needed]:
+            proposed_assignments.append({
+                "worker_id": match["worker"]["user_id"],
+                "worker_name": match["worker"]["full_name"],
+                "worker_email": match["worker"]["email"],
+                "weekly_hours": match["worker"]["weekly_hours"],
+                "remaining_hours": match["worker"]["remaining_hours"],
+                "role_id": role["role_id"],
+                "role_name": role.get("role_name"),
+                "work_type": work_type,
+                "workplace_id": role.get("workplace_id"),
+                "workplace_name": workplace.get("name") or workplace.get("workplace_name") if workplace else "Unknown",
+                "hourly_rate": role.get("hourly_rate"),
+                "match_score": match["score"],
+                "match_reasons": match["reasons"]
+            })
+            assigned_to_role += 1
+        
+        # Track unfilled positions
+        still_needed = positions_needed - assigned_to_role
+        if still_needed > 0:
+            unfilled_roles.append({
+                "role_id": role["role_id"],
+                "role_name": role.get("role_name"),
+                "work_type": work_type,
+                "workplace_id": role.get("workplace_id"),
+                "workplace_name": workplace.get("name") or workplace.get("workplace_name") if workplace else "Unknown",
+                "positions_needed": still_needed,
+                "hourly_rate": role.get("hourly_rate"),
+                "reason": "Workforce shortage or ESA compliance limit",
+                "route_to_job_board": request.route_to_job_board
+            })
+    
+    return {
+        "success": True,
+        "data": {
+            "proposed_assignments": proposed_assignments,
+            "unfilled_roles": unfilled_roles,
+            "summary": {
+                "total_workers_available": len(available_workers),
+                "total_roles_checked": len(roles),
+                "assignments_proposed": len(proposed_assignments),
+                "roles_unfilled": len(unfilled_roles),
+                "positions_unfilled": sum(r["positions_needed"] for r in unfilled_roles)
+            }
+        }
+    }
+
+
+@router.post("/auto-assign/confirm", response_model=Dict)
+async def confirm_auto_assignments(
+    assignments: List[Dict],
+    route_unfilled_to_board: bool = False,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Confirm and execute the proposed auto-assignments.
+    Optionally route unfilled roles to job board.
+    """
+    employer_id = current_user["user_id"]
+    results = {
+        "assigned": [],
+        "failed": [],
+        "routed_to_board": []
+    }
+    
+    for assignment in assignments:
+        try:
+            # Update employment relationship with role assignment
+            result = await db.employment_relationships.update_one(
+                {
+                    "employer_id": employer_id,
+                    "workforce_id": assignment["worker_id"],
+                    "status": "active"
+                },
+                {
+                    "$set": {
+                        "role_id": assignment["role_id"],
+                        "position_title": assignment["role_name"],
+                        "workplace_id": assignment.get("workplace_id"),
+                        "hourly_rate": assignment.get("hourly_rate"),
+                        "last_assignment_date": datetime.now(timezone.utc).isoformat()
+                    }
+                }
+            )
+            
+            if result.modified_count > 0:
+                results["assigned"].append({
+                    "worker_id": assignment["worker_id"],
+                    "worker_name": assignment["worker_name"],
+                    "role_name": assignment["role_name"]
+                })
+            else:
+                results["failed"].append({
+                    "worker_id": assignment["worker_id"],
+                    "reason": "No matching employment relationship found"
+                })
+                
+        except Exception as e:
+            results["failed"].append({
+                "worker_id": assignment["worker_id"],
+                "reason": str(e)
+            })
+    
+    # Route unfilled roles to job board if requested
+    if route_unfilled_to_board and "unfilled_roles" in assignments:
+        for role in assignments.get("unfilled_roles", []):
+            try:
+                # Create job posting
+                job_posting = {
+                    "posting_id": f"job_{uuid.uuid4().hex[:12]}",
+                    "employer_id": employer_id,
+                    "role_id": role["role_id"],
+                    "role_name": role["role_name"],
+                    "workplace_id": role.get("workplace_id"),
+                    "work_type": role.get("work_type"),
+                    "hourly_rate": role.get("hourly_rate"),
+                    "positions_available": role["positions_needed"],
+                    "status": "active",
+                    "posted_date": datetime.now(timezone.utc).isoformat(),
+                    "source": "auto_assign_overflow"
+                }
+                
+                await db.job_postings.insert_one(job_posting)
+                results["routed_to_board"].append({
+                    "role_name": role["role_name"],
+                    "posting_id": job_posting["posting_id"]
+                })
+                
+            except Exception as e:
+                results["failed"].append({
+                    "role_id": role["role_id"],
+                    "reason": f"Failed to post to board: {str(e)}"
+                })
+    
+    return {
+        "success": True,
+        "data": results,
+        "message": f"Assigned {len(results['assigned'])} workers, {len(results['routed_to_board'])} roles posted to job board"
+    }
