@@ -218,7 +218,7 @@ const RecordsTable = ({ activeWorkers, pastWorkers, sortConfig, setSortConfig, o
 };
 
 // Recruitment Panel Component
-const RecruitmentPanel = ({ roles, workplaces, theme, onInvite }) => {
+const RecruitmentPanel = ({ roles, workplaces, theme }) => {
   const [jobPostings, setJobPostings] = useState([]);
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(false);
