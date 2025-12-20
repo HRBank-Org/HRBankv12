@@ -238,6 +238,9 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
   const [showPostJobModal, setShowPostJobModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [draggedCandidate, setDraggedCandidate] = useState(null);
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [interviews, setInterviews] = useState([]);
 
   // Fetch recruitment data
   useEffect(() => {
@@ -247,19 +250,41 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
   const fetchRecruitmentData = async () => {
     setLoading(true);
     try {
-      const [statsRes, postingsRes, candidatesRes] = await Promise.all([
+      const [statsRes, postingsRes, candidatesRes, interviewsRes] = await Promise.all([
         api.get('/api/employer/workforce-management/recruitment-stats'),
         api.get('/api/employer/workforce-management/job-postings'),
-        api.get('/api/employer/workforce-management/candidates')
+        api.get('/api/employer/workforce-management/candidates'),
+        api.get('/api/employer/workforce-management/interviews?upcoming_only=true')
       ]);
       
       setStats(statsRes.data.data);
       setJobPostings(postingsRes.data.data || []);
       setCandidates(candidatesRes.data.data || { all: [], pipeline: {}, total: 0 });
+      setInterviews(interviewsRes.data.data || { all: [], by_date: {}, total: 0 });
     } catch (error) {
       console.error('Failed to fetch recruitment data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleScheduleInterview = async (candidate, interviewData) => {
+    try {
+      await api.post('/api/employer/workforce-management/interviews/schedule', {
+        application_id: candidate.application_id,
+        interview_type: interviewData.type,
+        scheduled_date: interviewData.date,
+        duration_minutes: interviewData.duration || 30,
+        location: interviewData.location,
+        notes: interviewData.notes
+      });
+      
+      alert('Interview scheduled successfully!');
+      setShowInterviewModal(false);
+      setSelectedCandidate(null);
+      fetchRecruitmentData();
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to schedule interview');
     }
   };
 
