@@ -633,6 +633,335 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
     );
   };
 
+  // Send Offer Modal
+  const OfferModal = ({ candidate, onClose, onSend }) => {
+    const [salary, setSalary] = useState(candidate?.hourly_rate || 18);
+    const [salaryType, setSalaryType] = useState('hourly');
+    const [startDate, setStartDate] = useState('');
+    const [employmentType, setEmploymentType] = useState('full_time');
+    const [benefits, setBenefits] = useState([]);
+    const [customMessage, setCustomMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const benefitOptions = ['Health Insurance', 'Dental', 'Vision', 'RRSP Matching', 'Paid Time Off', 'Flexible Hours'];
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+      await onSend({
+        salary,
+        salary_type: salaryType,
+        start_date: startDate,
+        employment_type: employmentType,
+        benefits,
+        custom_message: customMessage
+      });
+      setIsSubmitting(false);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="px-6 py-4 border-b border-gray-200 bg-amber-500">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Send Offer Letter</h2>
+              <button onClick={onClose} className="text-white hover:bg-white/20 p-2 rounded-lg">
+                <FiX size={20} />
+              </button>
+            </div>
+            <p className="text-amber-100 text-sm mt-1">to {candidate?.applicant_name}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Position Info */}
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-sm text-gray-500">Position</p>
+              <p className="font-semibold text-gray-900">{candidate?.position_title}</p>
+            </div>
+
+            {/* Compensation */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Salary Rate ($)</label>
+                <input
+                  type="number"
+                  value={salary}
+                  onChange={(e) => setSalary(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select
+                  value={salaryType}
+                  onChange={(e) => setSalaryType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="hourly">Per Hour</option>
+                  <option value="annual">Per Year</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Employment Type & Start Date */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Employment Type</label>
+                <select
+                  value={employmentType}
+                  onChange={(e) => setEmploymentType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="full_time">Full-Time</option>
+                  <option value="part_time">Part-Time</option>
+                  <option value="contract">Contract</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Benefits */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Benefits Offered</label>
+              <div className="flex flex-wrap gap-2">
+                {benefitOptions.map((benefit) => (
+                  <label key={benefit} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={benefits.includes(benefit)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setBenefits([...benefits, benefit]);
+                        } else {
+                          setBenefits(benefits.filter(b => b !== benefit));
+                        }
+                      }}
+                      className="rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+                    />
+                    <span className="text-gray-700">{benefit}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Message */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Personal Message (Optional)</label>
+              <textarea
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                placeholder="Add a personal message to the offer..."
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <FiMail size={16} />
+                {isSubmitting ? 'Sending...' : 'Send Offer'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Generate Contract Modal
+  const ContractModal = ({ candidate, onClose, onGenerate }) => {
+    const [contractType, setContractType] = useState('standard');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [probationPeriod, setProbationPeriod] = useState('90');
+    const [hourlyRate, setHourlyRate] = useState(candidate?.hourly_rate || 18);
+    const [workSchedule, setWorkSchedule] = useState('');
+    const [additionalTerms, setAdditionalTerms] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+      await onGenerate({
+        contract_type: contractType,
+        start_date: startDate,
+        end_date: contractType === 'fixed_term' ? endDate : null,
+        probation_days: parseInt(probationPeriod),
+        hourly_rate: parseFloat(hourlyRate),
+        work_schedule: workSchedule,
+        additional_terms: additionalTerms
+      });
+      setIsSubmitting(false);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="px-6 py-4 border-b border-gray-200 bg-blue-600">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Generate Employment Contract</h2>
+              <button onClick={onClose} className="text-white hover:bg-white/20 p-2 rounded-lg">
+                <FiX size={20} />
+              </button>
+            </div>
+            <p className="text-blue-100 text-sm mt-1">for {candidate?.applicant_name}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Position Info */}
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-sm text-gray-500">Position</p>
+              <p className="font-semibold text-gray-900">{candidate?.position_title}</p>
+            </div>
+
+            {/* Contract Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contract Type</label>
+              <select
+                value={contractType}
+                onChange={(e) => setContractType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="standard">Standard Employment</option>
+                <option value="fixed_term">Fixed Term Contract</option>
+                <option value="part_time">Part-Time Employment</option>
+                <option value="casual">Casual Employment</option>
+              </select>
+            </div>
+
+            {/* Dates */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              {contractType === 'fixed_term' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    min={startDate || new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              )}
+              {contractType !== 'fixed_term' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Probation Period</label>
+                  <select
+                    value={probationPeriod}
+                    onChange={(e) => setProbationPeriod(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="0">No Probation</option>
+                    <option value="30">30 Days</option>
+                    <option value="60">60 Days</option>
+                    <option value="90">90 Days</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Compensation */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate ($)</label>
+              <input
+                type="number"
+                value={hourlyRate}
+                onChange={(e) => setHourlyRate(e.target.value)}
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            {/* Work Schedule */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Work Schedule</label>
+              <input
+                type="text"
+                value={workSchedule}
+                onChange={(e) => setWorkSchedule(e.target.value)}
+                placeholder="e.g., Monday-Friday, 9am-5pm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Additional Terms */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Additional Terms (Optional)</label>
+              <textarea
+                value={additionalTerms}
+                onChange={(e) => setAdditionalTerms(e.target.value)}
+                placeholder="Any specific clauses or terms..."
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* ESA Compliance Notice */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+              <p className="font-medium">📋 Ontario ESA Compliant</p>
+              <p className="text-blue-600 text-xs mt-1">This contract template adheres to Ontario Employment Standards Act requirements.</p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <FiFileText size={16} />
+                {isSubmitting ? 'Generating...' : 'Generate & Download'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   // Kanban stage configuration
   const stages = [
     { id: 'applied', label: 'Applied', color: 'bg-gray-100', textColor: 'text-gray-700', icon: '📥' },
