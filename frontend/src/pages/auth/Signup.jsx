@@ -9,7 +9,7 @@ const USER_TYPES = [
   { value: 'institution', label: 'Institution' }
 ];
 
-const SignupForm = ({ selectedUserType, setSelectedUserType }) => {
+const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -46,6 +46,13 @@ const SignupForm = ({ selectedUserType, setSelectedUserType }) => {
     };
     checkGoogleOAuth();
   }, []);
+
+  // Store apply_job in localStorage so it persists through email verification
+  React.useEffect(() => {
+    if (applyJobId) {
+      localStorage.setItem('pending_job_application', applyJobId);
+    }
+  }, [applyJobId]);
 
   const handleChange = (e) => {
     setFormData({
@@ -88,7 +95,9 @@ const SignupForm = ({ selectedUserType, setSelectedUserType }) => {
   const handleGoogleSignup = () => {
     // Redirect to backend OAuth endpoint with selected user type
     const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-    window.location.href = `${backendUrl}/api/auth/google/login?user_type=${selectedUserType}`;
+    // Include apply_job in Google OAuth flow
+    const applyJobParam = applyJobId ? `&apply_job=${applyJobId}` : '';
+    window.location.href = `${backendUrl}/api/auth/google/login?user_type=${selectedUserType}${applyJobParam}`;
   };
 
   if (success) {
@@ -102,10 +111,17 @@ const SignupForm = ({ selectedUserType, setSelectedUserType }) => {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email!</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4">
               We sent a verification link to <strong>{formData.email}</strong>. 
               Please check your inbox and click the link to activate your account.
             </p>
+            {applyJobId && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-orange-800">
+                  📋 Your job application will be submitted automatically after you verify your email and complete your profile.
+                </p>
+              </div>
+            )}
             <Link
               to="/login"
               className="inline-block py-3 px-6 rounded-lg text-white font-medium"
