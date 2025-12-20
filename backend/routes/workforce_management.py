@@ -1742,7 +1742,9 @@ def calculate_match_score(candidate_profile: dict, role: dict) -> dict:
         "score": score,
         "max_score": max_score,
         "percentage": int((score / max_score) * 100) if max_score > 0 else 0,
-        "breakdown": breakdown
+        "breakdown": breakdown,
+        "is_qualified": is_qualified,
+        "disqualification_reasons": disqualification_reasons
     }
 
 
