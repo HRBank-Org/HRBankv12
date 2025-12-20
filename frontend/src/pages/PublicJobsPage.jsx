@@ -320,7 +320,7 @@ const PublicJobsPage = () => {
                       <p className="text-lg text-gray-600">{selectedJob.company_name}</p>
                     </div>
                     <Button
-                      onClick={() => navigate('/signup?type=workforce')}
+                      onClick={() => navigate(`/signup?type=workforce&apply_job=${selectedJob.posting_id}`)}
                       className="bg-[#ff5f00] hover:bg-[#e55500] text-white"
                     >
                       Apply Now
