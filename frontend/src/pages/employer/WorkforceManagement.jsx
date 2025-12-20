@@ -941,6 +941,8 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
                         key={candidate.application_id} 
                         candidate={candidate}
                         onStageChange={onStageChange}
+                        onSendOffer={onSendOffer}
+                        onGenerateContract={onGenerateContract}
                       />
                     ))}
                   </div>
