@@ -1198,6 +1198,83 @@ async def create_job_posting(
     }
 
 
+class JobPostingUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    hourly_rate: Optional[float] = None
+    positions_available: Optional[int] = None
+    requirements: Optional[List[str]] = None
+    work_type: Optional[str] = None
+
+@router.put("/job-postings/{posting_id}", response_model=Dict)
+async def update_job_posting(
+    posting_id: str,
+    update_data: JobPostingUpdate,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Update an existing job posting"""
+    employer_id = current_user["user_id"]
+    
+    # Build update dict with only non-None values
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    
+    if not update_dict:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    result = await db.job_postings.update_one(
+        {"posting_id": posting_id, "employer_id": employer_id},
+        {"$set": update_dict}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Job posting not found")
+    
+    updated = await db.job_postings.find_one({"posting_id": posting_id}, {"_id": 0})
+    
+    return {
+        "success": True,
+        "data": updated,
+        "message": "Job posting updated successfully"
+    }
+
+
+@router.post("/job-postings/{posting_id}/toggle-status", response_model=Dict)
+async def toggle_job_posting_status(
+    posting_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Toggle job posting between active and paused status"""
+    employer_id = current_user["user_id"]
+    
+    posting = await db.job_postings.find_one(
+        {"posting_id": posting_id, "employer_id": employer_id}
+    )
+    
+    if not posting:
+        raise HTTPException(status_code=404, detail="Job posting not found")
+    
+    current_status = posting.get("status", "active")
+    new_status = "paused" if current_status == "active" else "active"
+    
+    await db.job_postings.update_one(
+        {"posting_id": posting_id},
+        {"$set": {
+            "status": new_status,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "data": {"posting_id": posting_id, "status": new_status},
+        "message": f"Job posting {'paused' if new_status == 'paused' else 'activated'}"
+    }
+
+
 @router.delete("/job-postings/{posting_id}", response_model=Dict)
 async def remove_job_posting(
     posting_id: str,
