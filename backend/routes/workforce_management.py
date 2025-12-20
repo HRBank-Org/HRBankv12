@@ -5,6 +5,24 @@ from auth.dependencies import require_role, get_current_user
 from models.employment import EmploymentRelationship, TerminationRequest, RehireRequest
 from services.shift_notification_service import notify_employment_status_change
 import uuid
+from pydantic import BaseModel
+from typing import Optional
+import math
+
+# ESA Compliance Constants (Ontario)
+ESA_WEEKLY_MAX = 48  # Max hours without written agreement
+ESA_OVERTIME_THRESHOLD = 44  # Overtime threshold
+
+class AutoAssignRequest(BaseModel):
+    include_route_based: bool = True
+    include_continental: bool = True
+    route_to_job_board: bool = False
+
+class AutoAssignResult(BaseModel):
+    proposed_assignments: list
+    unfilled_roles: list
+    summary: dict
+
 
 router = APIRouter(prefix="/api/employer/workforce-management", tags=["Workforce Management"])
 
