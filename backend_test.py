@@ -6676,11 +6676,14 @@ def main():
     results = TestResults()
     
     print("🚀 Starting Comprehensive HR Bank Backend Testing...")
-    print("Focus Areas: Emma AI, Job Matching, Authentication, Payroll, Compliance, Analytics")
+    print("Focus Areas: Match Engine API, Emma AI, Job Matching, Authentication, Payroll, Compliance, Analytics")
     print("="*80)
     
     # Test backend connectivity first
     test_backend_connectivity(results)
+    
+    # Priority: CRITICAL - Match Engine API Testing (PRIMARY FOCUS FROM REVIEW REQUEST)
+    test_match_engine_api(results)
     
     # Priority: CRITICAL - Sprint 1 HR Bank Features (NEW TEST FROM REVIEW REQUEST)
     test_sprint1_hr_bank_features(results)
