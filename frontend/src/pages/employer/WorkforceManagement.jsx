@@ -1097,6 +1097,8 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
                 stage={stage}
                 candidates={candidates.pipeline?.[stage.id] || []}
                 onStageChange={handleStageChange}
+                onSendOffer={handleSendOffer}
+                onGenerateContract={handleGenerateContract}
               />
             ))}
           </div>
