@@ -1870,3 +1870,240 @@ async def get_enriched_candidates(
             "total": len(enriched_apps)
         }
     }
+
+
+
+# ==================== OFFER MANAGEMENT ====================
+
+class OfferRequest(BaseModel):
+    application_id: str
+    salary: float
+    salary_type: str = "hourly"  # hourly, annual
+    start_date: str
+    employment_type: str = "full_time"
+    benefits: Optional[List[str]] = []
+    custom_message: Optional[str] = None
+
+@router.post("/offers/send", response_model=Dict)
+async def send_offer(
+    request: OfferRequest,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Send an offer letter to a candidate"""
+    employer_id = current_user["user_id"]
+    
+    # Get application
+    application = await db.job_applications.find_one({
+        "application_id": request.application_id,
+        "employer_id": employer_id
+    })
+    
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    # Get applicant details
+    applicant = await db.users.find_one(
+        {"user_id": application["applicant_id"]},
+        {"_id": 0, "full_name": 1, "email": 1}
+    )
+    
+    # Get employer/company details
+    employer_profile = await db.employer_profiles.find_one(
+        {"employer_id": employer_id},
+        {"_id": 0, "company_name": 1}
+    )
+    
+    # Create offer record
+    offer = {
+        "offer_id": f"offer_{uuid.uuid4().hex[:12]}",
+        "application_id": request.application_id,
+        "employer_id": employer_id,
+        "candidate_id": application["applicant_id"],
+        "candidate_name": applicant.get("full_name") if applicant else None,
+        "candidate_email": applicant.get("email") if applicant else None,
+        "position_title": application.get("position_title"),
+        "company_name": employer_profile.get("company_name") if employer_profile else None,
+        "salary": request.salary,
+        "salary_type": request.salary_type,
+        "start_date": request.start_date,
+        "employment_type": request.employment_type,
+        "benefits": request.benefits,
+        "custom_message": request.custom_message,
+        "status": "sent",
+        "sent_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": employer_id
+    }
+    
+    await db.offers.insert_one(offer)
+    
+    # Create notification for candidate
+    notification = {
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": application["applicant_id"],
+        "type": "offer_received",
+        "title": "🎉 You received a job offer!",
+        "message": f"Congratulations! You have received an offer for {application.get('position_title')} position.",
+        "data": {
+            "offer_id": offer["offer_id"],
+            "position_title": application.get("position_title"),
+            "salary": request.salary,
+            "salary_type": request.salary_type
+        },
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    return {
+        "success": True,
+        "data": {k: v for k, v in offer.items() if k != "_id"},
+        "message": f"Offer sent to {applicant.get('full_name') if applicant else 'candidate'}"
+    }
+
+
+# ==================== CONTRACT GENERATION ====================
+
+class ContractRequest(BaseModel):
+    application_id: str
+    contract_type: str = "standard"  # standard, fixed_term, part_time, casual
+    start_date: str
+    end_date: Optional[str] = None
+    probation_days: int = 90
+    hourly_rate: float
+    work_schedule: Optional[str] = None
+    additional_terms: Optional[str] = None
+
+@router.post("/contracts/generate", response_model=Dict)
+async def generate_contract(
+    request: ContractRequest,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Generate an employment contract PDF"""
+    import base64
+    
+    employer_id = current_user["user_id"]
+    
+    # Get application
+    application = await db.job_applications.find_one({
+        "application_id": request.application_id,
+        "employer_id": employer_id
+    })
+    
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    # Get applicant details
+    applicant = await db.users.find_one(
+        {"user_id": application["applicant_id"]},
+        {"_id": 0, "full_name": 1, "email": 1, "phone": 1}
+    )
+    
+    # Get employer/company details
+    employer_profile = await db.employer_profiles.find_one(
+        {"employer_id": employer_id},
+        {"_id": 0, "company_name": 1, "business_address": 1}
+    )
+    
+    employer_user = await db.users.find_one(
+        {"user_id": employer_id},
+        {"_id": 0, "full_name": 1}
+    )
+    
+    # Generate contract content
+    company_name = employer_profile.get("company_name", "Company") if employer_profile else "Company"
+    employee_name = applicant.get("full_name", "Employee") if applicant else "Employee"
+    position = application.get("position_title", "Position")
+    
+    contract_types = {
+        "standard": "Full-Time Employment",
+        "fixed_term": "Fixed-Term Contract",
+        "part_time": "Part-Time Employment",
+        "casual": "Casual Employment"
+    }
+    
+    contract_text = f"""
+EMPLOYMENT CONTRACT
+
+This Employment Contract ("Agreement") is entered into on {datetime.now().strftime('%B %d, %Y')}
+
+BETWEEN:
+{company_name} ("Employer")
+AND
+{employee_name} ("Employee")
+
+1. POSITION AND DUTIES
+The Employee is hired for the position of {position}.
+Employment Type: {contract_types.get(request.contract_type, 'Employment')}
+Start Date: {request.start_date}
+{f'End Date: {request.end_date}' if request.end_date else ''}
+
+2. COMPENSATION
+Hourly Rate: ${request.hourly_rate:.2f} CAD
+Payment Schedule: Bi-weekly
+
+3. WORK SCHEDULE
+{request.work_schedule if request.work_schedule else 'As determined by Employer based on operational needs.'}
+
+4. PROBATIONARY PERIOD
+{f'The Employee will be subject to a {request.probation_days}-day probationary period.' if request.probation_days > 0 else 'No probationary period.'}
+
+5. EMPLOYMENT STANDARDS
+This agreement is subject to the Ontario Employment Standards Act, 2000 (ESA).
+- Maximum weekly hours: 48 (unless written agreement)
+- Overtime threshold: 44 hours per week
+- Minimum vacation: 2 weeks after 12 months
+
+6. TERMINATION
+Either party may terminate this agreement with proper notice as required by the ESA.
+
+{f'7. ADDITIONAL TERMS{chr(10)}{request.additional_terms}' if request.additional_terms else ''}
+
+SIGNATURES:
+
+_______________________          Date: _______________
+{company_name}
+Employer Representative
+
+_______________________          Date: _______________
+{employee_name}
+Employee
+"""
+
+    # Create contract record
+    contract = {
+        "contract_id": f"contract_{uuid.uuid4().hex[:12]}",
+        "application_id": request.application_id,
+        "employer_id": employer_id,
+        "employee_id": application["applicant_id"],
+        "employee_name": employee_name,
+        "position_title": position,
+        "contract_type": request.contract_type,
+        "start_date": request.start_date,
+        "end_date": request.end_date,
+        "probation_days": request.probation_days,
+        "hourly_rate": request.hourly_rate,
+        "work_schedule": request.work_schedule,
+        "additional_terms": request.additional_terms,
+        "status": "generated",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": employer_id
+    }
+    
+    await db.contracts.insert_one(contract)
+    
+    # Encode contract text as base64 (simulating PDF)
+    # In production, use a PDF library like ReportLab
+    pdf_content = contract_text.encode('utf-8')
+    pdf_base64 = base64.b64encode(pdf_content).decode('utf-8')
+    
+    return {
+        "success": True,
+        "data": {
+            "contract_id": contract["contract_id"],
+            "pdf_base64": pdf_base64,
+            "filename": f"employment_contract_{employee_name.replace(' ', '_')}.txt"
+        },
+        "message": "Contract generated successfully"
+    }
