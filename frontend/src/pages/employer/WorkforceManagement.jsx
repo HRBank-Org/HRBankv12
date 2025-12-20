@@ -562,9 +562,8 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
       {activeView === 'pipeline' && (
         <div className="bg-white rounded-xl shadow-sm p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Candidate Pipeline</h3>
-          {candidates.total === 0 ? (
-            <div className="text-center py-12">
-              <FiUsers size={48} className="text-gray-300 mx-auto mb-4" />
+          {candidates.total === 0 && (
+            <div className="text-center py-4 mb-4 bg-gray-50 rounded-lg">
               <p className="text-gray-500 font-medium">No candidates yet</p>
               <p className="text-sm text-gray-400 mt-1">Post jobs to the board to start receiving applications</p>
             </div>
