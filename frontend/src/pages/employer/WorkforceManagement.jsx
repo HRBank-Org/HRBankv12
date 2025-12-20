@@ -527,7 +527,61 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
     { id: 'hired', label: 'Hired', color: 'bg-green-100', textColor: 'text-green-700', icon: '✅' }
   ];
 
-  // Candidate Card Component
+  // Match Score Bar Component
+  const MatchScoreBar = ({ score, percentage }) => {
+    const getScoreColor = (pct) => {
+      if (pct >= 80) return 'bg-green-500';
+      if (pct >= 60) return 'bg-blue-500';
+      if (pct >= 40) return 'bg-amber-500';
+      return 'bg-red-400';
+    };
+    
+    return (
+      <div className="mt-2">
+        <div className="flex items-center justify-between text-xs mb-1">
+          <span className="text-gray-500">Match Score</span>
+          <span className={`font-semibold ${percentage >= 70 ? 'text-green-600' : percentage >= 50 ? 'text-amber-600' : 'text-gray-600'}`}>
+            {percentage}%
+          </span>
+        </div>
+        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className={`h-full ${getScoreColor(percentage)} transition-all duration-300`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // Star Rating Component
+  const StarRating = ({ rating, reviewCount }) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    return (
+      <div className="flex items-center gap-1">
+        <div className="flex">
+          {[...Array(5)].map((_, i) => (
+            <span 
+              key={i} 
+              className={`text-xs ${i < fullStars ? 'text-amber-400' : i === fullStars && hasHalfStar ? 'text-amber-300' : 'text-gray-300'}`}
+            >
+              ★
+            </span>
+          ))}
+        </div>
+        {rating > 0 && (
+          <span className="text-xs text-gray-500">
+            {rating.toFixed(1)} {reviewCount > 0 && `(${reviewCount})`}
+          </span>
+        )}
+        {rating === 0 && <span className="text-xs text-gray-400">No ratings</span>}
+      </div>
+    );
+  };
+
+  // Enhanced Candidate Card Component
   const CandidateCard = ({ candidate, onStageChange }) => (
     <div 
       className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
@@ -538,33 +592,83 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
       }}
       onDragEnd={() => setDraggedCandidate(null)}
     >
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg font-semibold text-gray-600">
+      {/* Header: Name & Rating */}
+      <div className="flex items-start gap-2">
+        <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 flex-shrink-0">
           {candidate.applicant_name?.charAt(0) || '?'}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-gray-900 truncate">{candidate.applicant_name || 'Unknown'}</div>
-          <div className="text-sm text-gray-500 truncate">{candidate.applicant_email}</div>
-          {candidate.position_title && (
-            <div className="text-xs text-gray-400 mt-1">Applied for: {candidate.position_title}</div>
-          )}
+          <div className="font-medium text-gray-900 text-sm truncate">{candidate.applicant_name || 'Unknown'}</div>
+          <StarRating rating={candidate.average_rating || 0} reviewCount={candidate.review_count || 0} />
         </div>
       </div>
+
+      {/* Experience */}
+      {candidate.experience_years > 0 && (
+        <div className="mt-2 flex items-center gap-1 text-xs text-gray-600">
+          <span>📅</span>
+          <span>{candidate.experience_years} yr{candidate.experience_years !== 1 ? 's' : ''} experience</span>
+        </div>
+      )}
+
+      {/* Match Score */}
+      {candidate.match_score && (
+        <MatchScoreBar 
+          score={candidate.match_score.score} 
+          percentage={candidate.match_score.percentage} 
+        />
+      )}
+
+      {/* Skills */}
       {candidate.skills?.length > 0 && (
+        <div className="mt-2">
+          <div className="flex flex-wrap gap-1">
+            {candidate.skills.slice(0, 4).map((skill, i) => (
+              <span 
+                key={i} 
+                className={`px-1.5 py-0.5 text-xs rounded ${
+                  candidate.match_score?.breakdown?.skills?.matched?.some(s => s.toLowerCase() === skill.toLowerCase())
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {skill}
+              </span>
+            ))}
+            {candidate.skills.length > 4 && (
+              <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">
+                +{candidate.skills.length - 4}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Certifications */}
+      {candidate.certifications?.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
-          {candidate.skills.slice(0, 3).map((skill, i) => (
-            <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-              {skill}
+          {candidate.certifications.slice(0, 3).map((cert, i) => (
+            <span 
+              key={i} 
+              className={`px-1.5 py-0.5 text-xs rounded flex items-center gap-0.5 ${
+                candidate.match_score?.breakdown?.certifications?.matched?.some(c => c.toLowerCase() === cert.toLowerCase())
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'bg-purple-50 text-purple-700'
+              }`}
+            >
+              📜 {cert}
             </span>
           ))}
-          {candidate.skills.length > 3 && (
-            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-              +{candidate.skills.length - 3}
+          {candidate.certifications.length > 3 && (
+            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">
+              +{candidate.certifications.length - 3}
             </span>
           )}
         </div>
       )}
-      <div className="mt-3 flex items-center justify-between">
+
+      {/* Footer: Date & Actions */}
+      <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
         <span className="text-xs text-gray-400">
           {candidate.applied_date ? new Date(candidate.applied_date).toLocaleDateString() : 'Recently'}
         </span>
