@@ -796,6 +796,40 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
               >
                 <FiX size={14} />
               </button>
+              {candidate.stage === 'offer' && (
+                <>
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      onSendOffer && onSendOffer(candidate);
+                    }}
+                    className="p-1 text-amber-500 hover:bg-amber-50 rounded"
+                    title="Send Offer Letter"
+                  >
+                    <FiMail size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      onGenerateContract && onGenerateContract(candidate);
+                    }}
+                    className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                    title="Generate Contract"
+                  >
+                    <FiFileText size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      onStageChange(candidate.application_id, 'hired');
+                    }}
+                    className="p-1 text-green-500 hover:bg-green-50 rounded"
+                    title="Mark as Hired"
+                  >
+                    <FiCheck size={14} />
+                  </button>
+                </>
+              )}
               {candidate.stage !== 'offer' && (
                 <button
                   onClick={(e) => { 
