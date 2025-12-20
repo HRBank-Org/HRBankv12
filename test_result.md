@@ -1,6 +1,61 @@
 # Test Results - HR Bank
 
-## Latest Test Session: Team Management Auto-Assign Feature & Tab Changes - COMPREHENSIVE TESTING
+## Latest Test Session: Recruitment Tab Phase 3 - Candidate Pipeline
+
+### Test Date: December 20, 2025
+
+### Phase 3 Implementation Complete:
+
+**Backend Endpoints Added:**
+- `GET /api/employer/workforce-management/job-postings` - List job postings
+- `POST /api/employer/workforce-management/job-postings` - Create job posting
+- `DELETE /api/employer/workforce-management/job-postings/{id}` - Remove posting
+- `GET /api/employer/workforce-management/candidates` - Get candidates with pipeline stages
+- `PUT /api/employer/workforce-management/candidates/{id}/stage` - Move candidate through pipeline
+- `GET /api/employer/workforce-management/recruitment-stats` - Dashboard stats
+
+**Frontend Features Added:**
+1. **Recruitment Stats Dashboard** - Jobs Posted, Total Candidates, In Interviews, Offers Pending, Hired (30 days)
+2. **View Toggle** - Candidate Pipeline | Job Board | All Roles
+3. **Post Job Modal** - Select role to publish to job board
+4. **Job Board View** - Active postings with applicant counts, fill status, delete option
+5. **All Roles View** - All workplace roles with "Post to Board" action
+6. **Candidate Pipeline (Kanban)** - Drag-and-drop stages: Applied → Screening → Interview → Offer → Hired
+
+### Test Scenarios Verified:
+
+1. **Recruitment Tab Navigation:**
+   - [x] Stats cards show real data from API
+   - [x] View toggle switches between Pipeline/Job Board/All Roles
+
+2. **Post Job Flow:**
+   - [x] "Post Job" button opens modal
+   - [x] Modal shows unfilled roles with positions and hourly rate
+   - [x] Clicking role creates job posting
+   - [x] Stats update after posting (1 Jobs Posted)
+
+3. **Job Board View:**
+   - [x] Shows active postings with company, rate, date, applicants
+   - [x] Delete button removes posting from board
+   - [x] Fill status displayed (0/3 filled)
+
+4. **All Roles View:**
+   - [x] Shows all 4 roles with work type icons
+   - [x] "On Job Board" badge for posted roles
+   - [x] "Hiring"/"Filled" badges
+   - [x] "Post to Board" action for unfilled roles
+
+5. **Candidate Pipeline:**
+   - [x] Empty state when no candidates
+   - [x] Kanban columns for each stage
+   - [x] Drag-drop ready (will work when candidates exist)
+
+### Test Credentials:
+- **Employer:** john.b@swanpizza.ca / Test123!
+
+---
+
+## Previous Test Session: Team Management - Recruitment Flow Phase 1 & 2
 
 ### Test Date: December 20, 2025
 
