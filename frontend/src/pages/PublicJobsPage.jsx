@@ -395,7 +395,7 @@ const PublicJobsPage = () => {
 
                 <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl">
                   <Button
-                    onClick={() => navigate('/signup?type=workforce')}
+                    onClick={() => navigate(`/signup?type=workforce&apply_job=${selectedJob.posting_id}`)}
                     className="w-full bg-[#ff5f00] hover:bg-[#e55500] text-white h-12 text-lg"
                   >
                     Apply for this Job
