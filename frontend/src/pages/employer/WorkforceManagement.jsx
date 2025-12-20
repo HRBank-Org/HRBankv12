@@ -1628,6 +1628,24 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
           onSchedule={handleScheduleInterview}
         />
       )}
+
+      {/* Send Offer Modal */}
+      {showOfferModal && offerCandidate && (
+        <OfferModal
+          candidate={offerCandidate}
+          onClose={() => { setShowOfferModal(false); setOfferCandidate(null); }}
+          onSend={handleSendOfferSubmit}
+        />
+      )}
+
+      {/* Generate Contract Modal */}
+      {showContractModal && offerCandidate && (
+        <ContractModal
+          candidate={offerCandidate}
+          onClose={() => { setShowContractModal(false); setOfferCandidate(null); }}
+          onGenerate={handleGenerateContractSubmit}
+        />
+      )}
     </div>
   );
 };
