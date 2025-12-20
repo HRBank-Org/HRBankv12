@@ -254,7 +254,7 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
       const [statsRes, postingsRes, candidatesRes, interviewsRes] = await Promise.all([
         api.get('/api/employer/workforce-management/recruitment-stats'),
         api.get('/api/employer/workforce-management/job-postings'),
-        api.get('/api/employer/workforce-management/candidates'),
+        api.get('/api/employer/workforce-management/candidates/enriched'),
         api.get('/api/employer/workforce-management/interviews?upcoming_only=true')
       ]);
       
