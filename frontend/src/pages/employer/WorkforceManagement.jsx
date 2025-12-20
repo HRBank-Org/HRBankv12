@@ -568,18 +568,18 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
               <p className="text-gray-500 font-medium">No candidates yet</p>
               <p className="text-sm text-gray-400 mt-1">Post jobs to the board to start receiving applications</p>
             </div>
-          ) : (
-            <div className="flex gap-4 overflow-x-auto pb-4">
-              {stages.map((stage) => (
-                <StageColumn
-                  key={stage.id}
-                  stage={stage}
-                  candidates={candidates.pipeline[stage.id] || []}
-                  onStageChange={handleStageChange}
-                />
-              ))}
-            </div>
           )}
+          {/* Always show pipeline columns */}
+          <div className="flex gap-4 overflow-x-auto pb-4">
+            {stages.map((stage) => (
+              <StageColumn
+                key={stage.id}
+                stage={stage}
+                candidates={candidates.pipeline?.[stage.id] || []}
+                onStageChange={handleStageChange}
+              />
+            ))}
+          </div>
         </div>
       )}
 
