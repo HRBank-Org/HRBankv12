@@ -72,7 +72,7 @@ const SortableHeader = ({ label, sortKey, currentSort, onSort, align = 'left' })
   );
 };
 
-// Records Table Component with Sortable Columns
+// Records Table Component with Multi-Column Sortable Columns
 const RecordsTable = ({ activeWorkers, pastWorkers, sortConfig, setSortConfig, onExport, onDownloadWorker, theme }) => {
   // Merge active and past workers
   const allRecords = [
@@ -80,50 +80,91 @@ const RecordsTable = ({ activeWorkers, pastWorkers, sortConfig, setSortConfig, o
     ...pastWorkers.map(w => ({ ...w, recordStatus: w.termination_reason?.includes('laid') ? 'laid_off' : 'terminated' }))
   ];
 
-  // Sort function
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
+  // Ensure sortConfig is always an array for multi-column sorting
+  const sortArray = Array.isArray(sortConfig) ? sortConfig : [sortConfig];
+
+  // Multi-column sort function - Shift+Click adds secondary sort
+  const handleSort = (key, isShiftKey) => {
+    setSortConfig(prev => {
+      const prevArray = Array.isArray(prev) ? prev : [prev];
+      const existingIndex = prevArray.findIndex(s => s.key === key);
+      
+      if (isShiftKey) {
+        // Shift+Click: Add to sort or toggle direction
+        if (existingIndex !== -1) {
+          // Toggle direction of existing sort
+          const updated = [...prevArray];
+          updated[existingIndex] = {
+            key,
+            direction: updated[existingIndex].direction === 'asc' ? 'desc' : 'asc'
+          };
+          return updated;
+        } else {
+          // Add new sort criteria (max 3 columns)
+          if (prevArray.length >= 3) {
+            return [...prevArray.slice(1), { key, direction: 'asc' }];
+          }
+          return [...prevArray, { key, direction: 'asc' }];
+        }
+      } else {
+        // Normal click: Replace all sorts with this one
+        if (existingIndex !== -1 && prevArray.length === 1) {
+          // Toggle direction if already the only sort
+          return [{ key, direction: prevArray[0].direction === 'asc' ? 'desc' : 'asc' }];
+        }
+        return [{ key, direction: 'asc' }];
+      }
+    });
   };
 
-  // Apply sorting
-  const sortedRecords = [...allRecords].sort((a, b) => {
-    const { key, direction } = sortConfig;
-    let comparison = 0;
-    
+  // Clear all sorts
+  const handleClearSort = () => {
+    setSortConfig([{ key: 'full_name', direction: 'asc' }]);
+  };
+
+  // Get comparison value for a key
+  const getCompareValue = (record, key) => {
     switch (key) {
       case 'full_name':
-        comparison = (a.full_name || '').localeCompare(b.full_name || '');
-        break;
+        return record.full_name || '';
       case 'position_title':
-        comparison = (a.position_title || '').localeCompare(b.position_title || '');
-        break;
+        return record.position_title || '';
       case 'employment_start_date':
-        comparison = new Date(a.employment_start_date || 0) - new Date(b.employment_start_date || 0);
-        break;
+        return new Date(record.employment_start_date || 0).getTime();
       case 'employment_end_date':
-        comparison = new Date(a.employment_end_date || 0) - new Date(b.employment_end_date || 0);
-        break;
+        return new Date(record.employment_end_date || 0).getTime();
       case 'total_shifts_completed':
-        comparison = (a.total_shifts_completed || 0) - (b.total_shifts_completed || 0);
-        break;
+        return record.total_shifts_completed || 0;
       case 'total_hours_worked':
-        comparison = (a.total_hours_worked || 0) - (b.total_hours_worked || 0);
-        break;
+        return record.total_hours_worked || 0;
       case 'total_pay':
-        comparison = ((a.total_hours_worked || 0) * 18) - ((b.total_hours_worked || 0) * 18);
-        break;
+        return (record.total_hours_worked || 0) * 18;
       case 'recordStatus':
         const statusOrder = { active: 0, laid_off: 1, terminated: 2 };
-        comparison = statusOrder[a.recordStatus] - statusOrder[b.recordStatus];
-        break;
+        return statusOrder[record.recordStatus] || 0;
       default:
-        comparison = 0;
+        return 0;
     }
-    
-    return direction === 'asc' ? comparison : -comparison;
+  };
+
+  // Apply multi-column sorting
+  const sortedRecords = [...allRecords].sort((a, b) => {
+    for (const { key, direction } of sortArray) {
+      const aVal = getCompareValue(a, key);
+      const bVal = getCompareValue(b, key);
+      
+      let comparison = 0;
+      if (typeof aVal === 'string') {
+        comparison = aVal.localeCompare(bVal);
+      } else {
+        comparison = aVal - bVal;
+      }
+      
+      if (comparison !== 0) {
+        return direction === 'asc' ? comparison : -comparison;
+      }
+    }
+    return 0;
   });
 
   return (
