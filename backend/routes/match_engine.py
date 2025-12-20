@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from typing import Dict, List, Optional
 from datetime import datetime, timezone, timedelta
-from database import get_db
-from auth import get_current_user, require_role
 import uuid
 
 router = APIRouter(prefix="/api/match-engine", tags=["Match Engine"])
+
+def get_db():
+    """Dependency to get database instance"""
+    from server import db
+    return db
 
 # ==================== MATCH ENGINE CORE ====================
 
