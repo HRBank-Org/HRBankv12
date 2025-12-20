@@ -10,7 +10,7 @@ import {
   FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw, FiTrendingUp, 
   FiActivity, FiGrid, FiList, FiAlertTriangle, FiFileText, FiDownload,
   FiUsers, FiBriefcase, FiPlus, FiTrash2, FiExternalLink, FiChevronRight,
-  FiCalendar, FiVideo, FiMapPin
+  FiCalendar, FiVideo, FiMapPin, FiChevronDown
 } from 'react-icons/fi';
 
 // ESA Compliance Constants (Ontario)
