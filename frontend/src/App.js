@@ -12,6 +12,7 @@ import PendingApproval from './pages/auth/PendingApproval';
 
 // Landing & Common
 import LandingPage from './pages/LandingPage';
+import PublicJobsPage from './pages/PublicJobsPage';
 import SubdomainPortal from './pages/SubdomainPortal';
 import ForgotPassword from './pages/ForgotPassword';
 import { isSubdomainPortal } from './utils/subdomainDetector';
