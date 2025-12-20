@@ -332,6 +332,191 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
     }
   };
 
+  // Interview Scheduling Modal
+  const InterviewModal = ({ candidate, onClose, onSchedule }) => {
+    const [interviewType, setInterviewType] = useState('video');
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('10:00');
+    const [duration, setDuration] = useState(30);
+    const [location, setLocation] = useState('');
+    const [notes, setNotes] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (!date || !time) {
+        alert('Please select date and time');
+        return;
+      }
+      
+      setIsSubmitting(true);
+      const scheduledDate = new Date(`${date}T${time}`).toISOString();
+      await onSchedule(candidate, {
+        type: interviewType,
+        date: scheduledDate,
+        duration,
+        location: interviewType === 'in_person' ? location : null,
+        notes
+      });
+      setIsSubmitting(false);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+          <div className="px-6 py-4 border-b border-gray-200" style={{ backgroundColor: theme.primaryColor }}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Schedule Interview</h2>
+              <button onClick={onClose} className="text-white hover:bg-white/20 p-2 rounded-lg">
+                <FiX size={20} />
+              </button>
+            </div>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Candidate Info */}
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-semibold">
+                {candidate?.applicant_name?.charAt(0) || '?'}
+              </div>
+              <div>
+                <div className="font-medium text-gray-900">{candidate?.applicant_name}</div>
+                <div className="text-sm text-gray-500">{candidate?.position_title}</div>
+              </div>
+            </div>
+
+            {/* Interview Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Interview Type</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setInterviewType('video')}
+                  className={`p-3 rounded-lg border-2 text-left transition-all ${
+                    interviewType === 'video' 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">📹</span>
+                    <div>
+                      <div className="font-medium">Video Call</div>
+                      <div className="text-xs text-gray-500">Google Meet</div>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInterviewType('in_person')}
+                  className={`p-3 rounded-lg border-2 text-left transition-all ${
+                    interviewType === 'in_person' 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🏢</span>
+                    <div>
+                      <div className="font-medium">In-Person</div>
+                      <div className="text-xs text-gray-500">At location</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Date & Time */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Duration */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+              <select
+                value={duration}
+                onChange={(e) => setDuration(Number(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value={15}>15 minutes</option>
+                <option value={30}>30 minutes</option>
+                <option value={45}>45 minutes</option>
+                <option value={60}>1 hour</option>
+                <option value={90}>1.5 hours</option>
+              </select>
+            </div>
+
+            {/* Location (for in-person) */}
+            {interviewType === 'in_person' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g., 123 Main St, Toronto"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            )}
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Any additional information for the candidate..."
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                {isSubmitting ? 'Scheduling...' : 'Schedule Interview'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   // Kanban stage configuration
   const stages = [
     { id: 'applied', label: 'Applied', color: 'bg-gray-100', textColor: 'text-gray-700', icon: '📥' },
