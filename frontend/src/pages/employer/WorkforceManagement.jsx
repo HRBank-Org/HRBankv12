@@ -612,9 +612,38 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
     </div>
   );
 
-  // Stage Column Component
+  // Stage Column Component with Grouped Kanban by Role
   const StageColumn = ({ stage, candidates, onStageChange }) => {
     const [isOver, setIsOver] = useState(false);
+    const [collapsedGroups, setCollapsedGroups] = useState({});
+    
+    // Group candidates by position/role
+    const groupedCandidates = (candidates || []).reduce((groups, candidate) => {
+      const role = candidate.position_title || 'Unknown Role';
+      if (!groups[role]) {
+        groups[role] = [];
+      }
+      groups[role].push(candidate);
+      return groups;
+    }, {});
+    
+    const toggleGroup = (role) => {
+      setCollapsedGroups(prev => ({
+        ...prev,
+        [role]: !prev[role]
+      }));
+    };
+    
+    // Role icon mapping
+    const getRoleIcon = (role) => {
+      const roleLower = role.toLowerCase();
+      if (roleLower.includes('server') || roleLower.includes('waiter')) return '🍽️';
+      if (roleLower.includes('cook') || roleLower.includes('chef')) return '👨‍🍳';
+      if (roleLower.includes('delivery') || roleLower.includes('driver')) return '🚗';
+      if (roleLower.includes('security') || roleLower.includes('guard')) return '🛡️';
+      if (roleLower.includes('manager')) return '👔';
+      return '👤';
+    };
     
     return (
       <div 
@@ -641,18 +670,45 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
             {candidates?.length || 0}
           </span>
         </div>
-        <div className="space-y-2 min-h-[200px]">
-          {(candidates || []).map((candidate) => (
-            <CandidateCard 
-              key={candidate.application_id} 
-              candidate={candidate}
-              onStageChange={onStageChange}
-            />
-          ))}
-          {(!candidates || candidates.length === 0) && (
+        
+        <div className="space-y-3 min-h-[200px]">
+          {Object.keys(groupedCandidates).length === 0 ? (
             <div className="text-center py-8 text-gray-400 text-sm">
               {isOver ? 'Drop here' : 'No candidates'}
             </div>
+          ) : (
+            Object.entries(groupedCandidates).map(([role, roleCandidates]) => (
+              <div key={role} className="bg-white/50 rounded-lg overflow-hidden">
+                {/* Role Header - Collapsible */}
+                <button
+                  onClick={() => toggleGroup(role)}
+                  className="w-full px-3 py-2 flex items-center justify-between hover:bg-white/80 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{getRoleIcon(role)}</span>
+                    <span className="font-medium text-gray-700 text-sm">{role}</span>
+                    <span className="text-xs text-gray-500">({roleCandidates.length})</span>
+                  </div>
+                  <FiChevronDown 
+                    size={16} 
+                    className={`text-gray-400 transition-transform ${collapsedGroups[role] ? '-rotate-90' : ''}`}
+                  />
+                </button>
+                
+                {/* Candidates List - Collapsible */}
+                {!collapsedGroups[role] && (
+                  <div className="px-2 pb-2 space-y-2">
+                    {roleCandidates.map((candidate) => (
+                      <CandidateCard 
+                        key={candidate.application_id} 
+                        candidate={candidate}
+                        onStageChange={onStageChange}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))
           )}
         </div>
       </div>
