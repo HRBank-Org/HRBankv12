@@ -67,7 +67,7 @@
 - Email: john.b@swanpizza.ca
 - Password: Test123!
 - User Type: Employer
-- Base URL: https://workforce-tabs-1.preview.emergentagent.com
+- Base URL: https://recruit-flow-23.preview.emergentagent.com
 
 ### Comprehensive Test Results:
 
@@ -227,7 +227,7 @@
 ### Test Credentials Used:
 - **Employer:** john.b@swanpizza.ca / Test123!
 - **Login Method:** Email/Password via Employer tab
-- **Test URL:** https://workforce-tabs-1.preview.emergentagent.com/employer/workforce-management
+- **Test URL:** https://recruit-flow-23.preview.emergentagent.com/employer/workforce-management
 
 ### Integration Testing Results:
 - **Frontend-Backend Integration:** ✅ Auto-Assign API calls working correctly
