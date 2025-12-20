@@ -181,6 +181,7 @@ function AppRoutes() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={isSubdomainPortal() ? <SubdomainPortal /> : <LandingPage />} />
+        <Route path="/jobs" element={<PublicJobsPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
