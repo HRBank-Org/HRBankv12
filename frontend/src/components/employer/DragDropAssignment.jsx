@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   DndContext, 
   DragOverlay, 
@@ -12,7 +12,294 @@ import {
 } from '@dnd-kit/core';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
-import { FiUser, FiCalendar, FiTruck, FiClock, FiCheck, FiX, FiRefreshCw, FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import { FiUser, FiCalendar, FiTruck, FiClock, FiCheck, FiX, FiRefreshCw, FiChevronUp, FiChevronDown, FiZap, FiAlertTriangle, FiMapPin, FiExternalLink } from 'react-icons/fi';
+
+// Work Type Icons
+const WorkTypeIcon = ({ type }) => {
+  switch (type) {
+    case 'route_based':
+      return <FiTruck className="text-orange-500" />;
+    case 'continental':
+      return <FiRefreshCw className="text-indigo-500" />;
+    default:
+      return <FiMapPin className="text-blue-500" />;
+  }
+};
+
+// Auto-Assign Modal Component
+const AutoAssignModal = ({ isOpen, onClose, onConfirm, theme }) => {
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState(null);
+  const [selectedAssignments, setSelectedAssignments] = useState([]);
+  const [routeToJobBoard, setRouteToJobBoard] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAutoAssignProposals();
+    }
+  }, [isOpen]);
+
+  const fetchAutoAssignProposals = async () => {
+    setLoading(true);
+    try {
+      const response = await api.post('/api/employer/workforce-management/auto-assign', {
+        include_route_based: true,
+        include_continental: true,
+        route_to_job_board: false
+      });
+      setResults(response.data.data);
+      // Select all assignments by default
+      setSelectedAssignments(response.data.data.proposed_assignments.map(a => a.worker_id));
+    } catch (error) {
+      console.error('Auto-assign failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleAssignment = (workerId) => {
+    setSelectedAssignments(prev => 
+      prev.includes(workerId) 
+        ? prev.filter(id => id !== workerId)
+        : [...prev, workerId]
+    );
+  };
+
+  const handleConfirm = async () => {
+    const assignmentsToConfirm = results.proposed_assignments.filter(
+      a => selectedAssignments.includes(a.worker_id)
+    );
+    
+    setLoading(true);
+    try {
+      await api.post('/api/employer/workforce-management/auto-assign/confirm', {
+        assignments: assignmentsToConfirm,
+        route_unfilled_to_board: routeToJobBoard,
+        unfilled_roles: routeToJobBoard ? results.unfilled_roles : []
+      });
+      onConfirm();
+      onClose();
+    } catch (error) {
+      console.error('Confirm failed:', error);
+      alert(error.response?.data?.detail || 'Failed to confirm assignments');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200" style={{ backgroundColor: theme.primaryColor }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <FiZap /> Auto-Assign Workforce
+              </h2>
+              <p className="text-white text-opacity-80 text-sm">Review and approve proposed assignments</p>
+            </div>
+            <button onClick={onClose} className="text-white hover:bg-white/20 p-2 rounded-lg">
+              <FiX size={20} />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+            </div>
+          ) : results ? (
+            <div className="space-y-6">
+              {/* Summary */}
+              <div className="grid grid-cols-4 gap-4">
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-gray-900">{results.summary.total_workers_available}</div>
+                  <div className="text-xs text-gray-500">Workers Available</div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-blue-600">{results.summary.assignments_proposed}</div>
+                  <div className="text-xs text-gray-500">Assignments</div>
+                </div>
+                <div className="bg-amber-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-amber-600">{results.summary.roles_unfilled}</div>
+                  <div className="text-xs text-gray-500">Unfilled Roles</div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-red-600">{results.summary.positions_unfilled}</div>
+                  <div className="text-xs text-gray-500">Positions Needed</div>
+                </div>
+              </div>
+
+              {/* Proposed Assignments */}
+              {results.proposed_assignments.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <FiCheck className="text-green-500" /> Proposed Assignments
+                  </h3>
+                  <div className="space-y-2">
+                    {results.proposed_assignments.map((assignment) => (
+                      <div 
+                        key={assignment.worker_id}
+                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                          selectedAssignments.includes(assignment.worker_id)
+                            ? 'border-green-400 bg-green-50'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                        onClick={() => toggleAssignment(assignment.worker_id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedAssignments.includes(assignment.worker_id)}
+                              onChange={() => toggleAssignment(assignment.worker_id)}
+                              className="w-5 h-5 rounded"
+                              style={{ accentColor: theme.primaryColor }}
+                            />
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
+                              {assignment.worker_name.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">{assignment.worker_name}</div>
+                              <div className="text-sm text-gray-500">{assignment.worker_email}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
+                                <WorkTypeIcon type={assignment.work_type} />
+                                {assignment.role_name}
+                              </div>
+                              <div className="text-xs text-gray-500">{assignment.workplace_name}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium" style={{ color: theme.primaryColor }}>
+                                {assignment.weekly_hours}h / 48h
+                              </div>
+                              <div className="text-xs text-gray-500">{assignment.remaining_hours}h available</div>
+                            </div>
+                          </div>
+                        </div>
+                        {assignment.match_reasons.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {assignment.match_reasons.map((reason, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                {reason}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Unfilled Roles */}
+              {results.unfilled_roles.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <FiAlertTriangle className="text-amber-500" /> Unfilled Roles (Workforce Shortage)
+                  </h3>
+                  <div className="space-y-2">
+                    {results.unfilled_roles.map((role) => (
+                      <div key={role.role_id} className="border border-amber-200 bg-amber-50 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-amber-100 rounded-lg">
+                              <WorkTypeIcon type={role.work_type} />
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">{role.role_name}</div>
+                              <div className="text-sm text-gray-500">{role.workplace_name}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-medium text-amber-700">
+                              {role.positions_needed} position{role.positions_needed > 1 ? 's' : ''} needed
+                            </div>
+                            <div className="text-xs text-gray-500">${role.hourly_rate}/hr</div>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-sm text-amber-700">
+                          {role.reason}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Route to Job Board Option */}
+                  <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={routeToJobBoard}
+                        onChange={(e) => setRouteToJobBoard(e.target.checked)}
+                        className="w-5 h-5 rounded"
+                        style={{ accentColor: theme.primaryColor }}
+                      />
+                      <div>
+                        <div className="font-medium text-gray-900 flex items-center gap-2">
+                          <FiExternalLink /> Route unfilled roles to Job Board
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Post these positions publicly to attract new candidates
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {results.proposed_assignments.length === 0 && results.unfilled_roles.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <FiCheck size={48} className="mx-auto mb-4 text-green-500" />
+                  <p className="font-medium">All roles are fully staffed!</p>
+                  <p className="text-sm">No assignments needed at this time.</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              Failed to load assignment proposals
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+          >
+            Cancel
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedAssignments(results?.proposed_assignments.map(a => a.worker_id) || [])}
+              className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+            >
+              Select All
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={loading || selectedAssignments.length === 0}
+              className="px-5 py-2 rounded-lg text-white font-medium disabled:opacity-50"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              {loading ? 'Processing...' : `Approve ${selectedAssignments.length} Assignment${selectedAssignments.length !== 1 ? 's' : ''}`}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Draggable Worker Card
 const DraggableWorker = ({ worker, isOverlay = false }) => {
