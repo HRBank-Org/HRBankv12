@@ -749,7 +749,8 @@ const WorkforceManagement = () => {
                 }`}
                 style={{ borderColor: activeTab === 'inactive' ? theme.primaryColor : 'transparent' }}
               >
-                Past Workers
+                <FiClock className="inline mr-2" />
+                Time-Off
               </button>
             </div>
             
