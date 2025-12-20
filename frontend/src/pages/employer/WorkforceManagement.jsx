@@ -851,7 +851,7 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
   );
 
   // Stage Column Component with Grouped Kanban by Role
-  const StageColumn = ({ stage, candidates, onStageChange }) => {
+  const StageColumn = ({ stage, candidates, onStageChange, onSendOffer, onGenerateContract }) => {
     const [isOver, setIsOver] = useState(false);
     const [collapsedGroups, setCollapsedGroups] = useState({});
     
