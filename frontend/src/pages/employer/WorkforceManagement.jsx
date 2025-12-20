@@ -217,110 +217,501 @@ const RecordsTable = ({ activeWorkers, pastWorkers, sortConfig, setSortConfig, o
   );
 };
 
-// Recruitment Panel Component
+// Recruitment Panel Component with Candidate Pipeline
 const RecruitmentPanel = ({ roles, workplaces, theme }) => {
+  const [stats, setStats] = useState({
+    active_postings: 0,
+    total_candidates: 0,
+    interviews_scheduled: 0,
+    offers_pending: 0,
+    recent_hires: 0,
+    by_stage: {}
+  });
   const [jobPostings, setJobPostings] = useState([]);
-  const [candidates, setCandidates] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [candidates, setCandidates] = useState({ all: [], pipeline: {}, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState('pipeline'); // 'pipeline', 'postings', 'roles'
+  const [showPostJobModal, setShowPostJobModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [draggedCandidate, setDraggedCandidate] = useState(null);
+
+  // Fetch recruitment data
+  useEffect(() => {
+    fetchRecruitmentData();
+  }, []);
+
+  const fetchRecruitmentData = async () => {
+    setLoading(true);
+    try {
+      const [statsRes, postingsRes, candidatesRes] = await Promise.all([
+        api.get('/api/employer/workforce-management/recruitment-stats'),
+        api.get('/api/employer/workforce-management/job-postings'),
+        api.get('/api/employer/workforce-management/candidates')
+      ]);
+      
+      setStats(statsRes.data.data);
+      setJobPostings(postingsRes.data.data || []);
+      setCandidates(candidatesRes.data.data || { all: [], pipeline: {}, total: 0 });
+    } catch (error) {
+      console.error('Failed to fetch recruitment data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePostJob = async (roleId) => {
+    const role = roles.find(r => r.role_id === roleId);
+    if (!role) return;
+    
+    try {
+      await api.post('/api/employer/workforce-management/job-postings', {
+        role_id: roleId,
+        title: role.role_name,
+        hourly_rate: role.hourly_rate,
+        positions_available: role.positions_available - (role.positions_filled || 0),
+        work_type: role.work_type || role.shift_type || 'on_site',
+        workplace_id: role.workplace_id
+      });
+      
+      alert('Job posted successfully!');
+      fetchRecruitmentData();
+      setShowPostJobModal(false);
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to post job');
+    }
+  };
+
+  const handleRemovePosting = async (postingId) => {
+    if (!confirm('Remove this job posting from the board?')) return;
+    
+    try {
+      await api.delete(`/api/employer/workforce-management/job-postings/${postingId}`);
+      fetchRecruitmentData();
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to remove posting');
+    }
+  };
+
+  const handleStageChange = async (applicationId, newStage) => {
+    try {
+      await api.put(`/api/employer/workforce-management/candidates/${applicationId}/stage`, {
+        stage: newStage
+      });
+      fetchRecruitmentData();
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to update stage');
+    }
+  };
+
+  // Kanban stage configuration
+  const stages = [
+    { id: 'applied', label: 'Applied', color: 'bg-gray-100', textColor: 'text-gray-700', icon: '📥' },
+    { id: 'screening', label: 'Screening', color: 'bg-blue-100', textColor: 'text-blue-700', icon: '🔍' },
+    { id: 'interview', label: 'Interview', color: 'bg-purple-100', textColor: 'text-purple-700', icon: '🎤' },
+    { id: 'offer', label: 'Offer', color: 'bg-amber-100', textColor: 'text-amber-700', icon: '📄' },
+    { id: 'hired', label: 'Hired', color: 'bg-green-100', textColor: 'text-green-700', icon: '✅' }
+  ];
+
+  // Candidate Card Component
+  const CandidateCard = ({ candidate, onStageChange }) => (
+    <div 
+      className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData('applicationId', candidate.application_id);
+        setDraggedCandidate(candidate);
+      }}
+      onDragEnd={() => setDraggedCandidate(null)}
+    >
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg font-semibold text-gray-600">
+          {candidate.applicant_name?.charAt(0) || '?'}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-gray-900 truncate">{candidate.applicant_name || 'Unknown'}</div>
+          <div className="text-sm text-gray-500 truncate">{candidate.applicant_email}</div>
+          {candidate.position_title && (
+            <div className="text-xs text-gray-400 mt-1">Applied for: {candidate.position_title}</div>
+          )}
+        </div>
+      </div>
+      {candidate.skills?.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {candidate.skills.slice(0, 3).map((skill, i) => (
+            <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+              {skill}
+            </span>
+          ))}
+          {candidate.skills.length > 3 && (
+            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+              +{candidate.skills.length - 3}
+            </span>
+          )}
+        </div>
+      )}
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-xs text-gray-400">
+          {candidate.applied_date ? new Date(candidate.applied_date).toLocaleDateString() : 'Recently'}
+        </span>
+        <div className="flex gap-1">
+          {candidate.stage !== 'hired' && candidate.stage !== 'rejected' && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); onStageChange(candidate.application_id, 'rejected'); }}
+                className="p-1 text-red-500 hover:bg-red-50 rounded"
+                title="Reject"
+              >
+                <FiX size={14} />
+              </button>
+              {candidate.stage !== 'offer' && (
+                <button
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    const nextStage = stages[stages.findIndex(s => s.id === candidate.stage) + 1]?.id;
+                    if (nextStage) onStageChange(candidate.application_id, nextStage);
+                  }}
+                  className="p-1 text-green-500 hover:bg-green-50 rounded"
+                  title="Advance"
+                >
+                  <FiChevronRight size={14} />
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Stage Column Component
+  const StageColumn = ({ stage, candidates, onStageChange }) => {
+    const [isOver, setIsOver] = useState(false);
+    
+    return (
+      <div 
+        className={`flex-1 min-w-[250px] max-w-[300px] rounded-xl p-3 transition-colors ${
+          isOver ? 'bg-blue-50 ring-2 ring-blue-300' : stage.color
+        }`}
+        onDragOver={(e) => { e.preventDefault(); setIsOver(true); }}
+        onDragLeave={() => setIsOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsOver(false);
+          const applicationId = e.dataTransfer.getData('applicationId');
+          if (applicationId && draggedCandidate?.stage !== stage.id) {
+            onStageChange(applicationId, stage.id);
+          }
+        }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span>{stage.icon}</span>
+            <span className={`font-semibold ${stage.textColor}`}>{stage.label}</span>
+          </div>
+          <span className={`px-2 py-0.5 rounded-full text-sm font-medium ${stage.color} ${stage.textColor}`}>
+            {candidates?.length || 0}
+          </span>
+        </div>
+        <div className="space-y-2 min-h-[200px]">
+          {(candidates || []).map((candidate) => (
+            <CandidateCard 
+              key={candidate.application_id} 
+              candidate={candidate}
+              onStageChange={onStageChange}
+            />
+          ))}
+          {(!candidates || candidates.length === 0) && (
+            <div className="text-center py-8 text-gray-400 text-sm">
+              {isOver ? 'Drop here' : 'No candidates'}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Post Job Modal
+  const PostJobModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200" style={{ backgroundColor: theme.primaryColor }}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white">Post Job to Board</h2>
+            <button onClick={() => setShowPostJobModal(false)} className="text-white hover:bg-white/20 p-2 rounded-lg">
+              <FiX size={20} />
+            </button>
+          </div>
+        </div>
+        <div className="p-6 overflow-y-auto max-h-[60vh]">
+          <p className="text-gray-600 mb-4">Select a role to post to the public job board:</p>
+          <div className="space-y-2">
+            {roles.filter(r => (r.positions_filled || 0) < r.positions_available).map((role) => (
+              <div 
+                key={role.role_id}
+                className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
+                onClick={() => handlePostJob(role.role_id)}
+              >
+                <div>
+                  <div className="font-medium text-gray-900">{role.role_name}</div>
+                  <div className="text-sm text-gray-500">
+                    {role.positions_available - (role.positions_filled || 0)} position(s) • ${role.hourly_rate}/hr
+                  </div>
+                </div>
+                <FiExternalLink className="text-gray-400" />
+              </div>
+            ))}
+            {roles.filter(r => (r.positions_filled || 0) < r.positions_available).length === 0 && (
+              <p className="text-center py-8 text-gray-500">All roles are fully staffed</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="text-2xl font-bold" style={{ color: theme.primaryColor }}>{roles.length}</div>
-          <div className="text-sm text-gray-500">Open Roles</div>
+          <div className="text-2xl font-bold" style={{ color: theme.primaryColor }}>{stats.active_postings}</div>
+          <div className="text-sm text-gray-500">Jobs Posted</div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="text-2xl font-bold text-amber-600">{candidates.length}</div>
-          <div className="text-sm text-gray-500">Candidates</div>
+          <div className="text-2xl font-bold text-gray-700">{stats.total_candidates}</div>
+          <div className="text-sm text-gray-500">Total Candidates</div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="text-2xl font-bold text-green-600">0</div>
-          <div className="text-sm text-gray-500">Interviews Scheduled</div>
+          <div className="text-2xl font-bold text-purple-600">{stats.interviews_scheduled}</div>
+          <div className="text-sm text-gray-500">In Interviews</div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="text-2xl font-bold text-blue-600">0</div>
+          <div className="text-2xl font-bold text-amber-600">{stats.offers_pending}</div>
           <div className="text-sm text-gray-500">Offers Pending</div>
         </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="text-2xl font-bold text-green-600">{stats.recent_hires}</div>
+          <div className="text-sm text-gray-500">Hired (30 days)</div>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <FiFileText size={24} className="text-green-600" />
-            </div>
-            <div className="text-left">
-              <div className="font-medium text-gray-900">Post Job</div>
-              <div className="text-sm text-gray-500">Publish to job board</div>
-            </div>
+      {/* View Toggle & Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setActiveView('pipeline')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeView === 'pipeline' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <FiUsers className="inline mr-2" />
+            Candidate Pipeline
           </button>
-          
-          <button className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <FiTrendingUp size={24} className="text-purple-600" />
-            </div>
-            <div className="text-left">
-              <div className="font-medium text-gray-900">Match Engine</div>
-              <div className="text-sm text-gray-500">Find matching candidates</div>
-            </div>
+          <button
+            onClick={() => setActiveView('postings')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeView === 'postings' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <FiBriefcase className="inline mr-2" />
+            Job Board ({jobPostings.length})
+          </button>
+          <button
+            onClick={() => setActiveView('roles')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeView === 'roles' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <FiList className="inline mr-2" />
+            All Roles
+          </button>
+        </div>
+        
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowPostJobModal(true)}
+            className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+            style={{ backgroundColor: theme.primaryColor }}
+          >
+            <FiPlus size={18} />
+            Post Job
+          </button>
+          <button
+            onClick={fetchRecruitmentData}
+            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+          >
+            <FiRefreshCw size={18} />
+            Refresh
           </button>
         </div>
       </div>
 
-      {/* Open Positions */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="font-semibold text-gray-900">Open Positions</h3>
-        </div>
-        <div className="divide-y divide-gray-200">
-          {roles.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <p>No roles created yet. Create roles to start recruiting.</p>
+      {/* Pipeline View */}
+      {activeView === 'pipeline' && (
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <h3 className="font-semibold text-gray-900 mb-4">Candidate Pipeline</h3>
+          {candidates.total === 0 ? (
+            <div className="text-center py-12">
+              <FiUsers size={48} className="text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 font-medium">No candidates yet</p>
+              <p className="text-sm text-gray-400 mt-1">Post jobs to the board to start receiving applications</p>
             </div>
           ) : (
-            roles.map((role) => (
-              <div key={role.role_id} className="p-4 hover:bg-gray-50 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    role.shift_type === 'continental' ? 'bg-indigo-100' :
-                    role.shift_type === 'route_based' ? 'bg-orange-100' : 'bg-blue-100'
-                  }`}>
-                    <span className="text-lg">
-                      {role.shift_type === 'continental' ? '🔄' :
-                       role.shift_type === 'route_based' ? '🚗' : '🏢'}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{role.role_name}</div>
-                    <div className="text-sm text-gray-500">
-                      {role.positions_filled || 0} / {role.positions_available} filled • ${role.hourly_rate}/hr
+            <div className="flex gap-4 overflow-x-auto pb-4">
+              {stages.map((stage) => (
+                <StageColumn
+                  key={stage.id}
+                  stage={stage}
+                  candidates={candidates.pipeline[stage.id] || []}
+                  onStageChange={handleStageChange}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Job Postings View */}
+      {activeView === 'postings' && (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-900">Active Job Postings</h3>
+          </div>
+          {jobPostings.length === 0 ? (
+            <div className="p-12 text-center">
+              <FiBriefcase size={48} className="text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 font-medium">No jobs posted yet</p>
+              <p className="text-sm text-gray-400 mt-1">Click "Post Job" to publish roles to the public job board</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {jobPostings.map((posting) => (
+                <div key={posting.posting_id} className="p-4 hover:bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                        posting.work_type === 'continental' ? 'bg-indigo-100' :
+                        posting.work_type === 'route_based' ? 'bg-orange-100' : 'bg-blue-100'
+                      }`}>
+                        <span className="text-xl">
+                          {posting.work_type === 'continental' ? '🔄' :
+                           posting.work_type === 'route_based' ? '🚗' : '🏢'}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">{posting.title}</div>
+                        <div className="text-sm text-gray-500">
+                          {posting.workplace_name || posting.company_name} • ${posting.hourly_rate}/hr
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1">
+                          Posted {new Date(posting.posted_date).toLocaleDateString()} • {posting.candidate_count || 0} applicants
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-900">
+                          {posting.positions_filled || 0} / {posting.positions_available} filled
+                        </div>
+                        <div className="flex gap-1 mt-1">
+                          {Object.entries(posting.stage_counts || {}).map(([stage, count]) => (
+                            <span key={stage} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                              {stage}: {count}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleRemovePosting(posting.posting_id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                        title="Remove from board"
+                      >
+                        <FiTrash2 size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    (role.positions_filled || 0) >= role.positions_available 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-amber-100 text-amber-800'
-                  }`}>
-                    {(role.positions_filled || 0) >= role.positions_available ? 'Filled' : 'Hiring'}
-                  </span>
-                  <button 
-                    className="px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-gray-100"
-                    style={{ color: theme.primaryColor }}
-                  >
-                    View Applicants
-                  </button>
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
-      </div>
+      )}
+
+      {/* All Roles View */}
+      {activeView === 'roles' && (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-900">All Roles</h3>
+          </div>
+          <div className="divide-y divide-gray-200">
+            {roles.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">
+                <p>No roles created yet. Create roles to start recruiting.</p>
+              </div>
+            ) : (
+              roles.map((role) => {
+                const isPosted = jobPostings.some(p => p.role_id === role.role_id && p.status === 'active');
+                const isFilled = (role.positions_filled || 0) >= role.positions_available;
+                
+                return (
+                  <div key={role.role_id} className="p-4 hover:bg-gray-50 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        role.shift_type === 'continental' ? 'bg-indigo-100' :
+                        role.shift_type === 'route_based' ? 'bg-orange-100' : 'bg-blue-100'
+                      }`}>
+                        <span className="text-lg">
+                          {role.shift_type === 'continental' ? '🔄' :
+                           role.shift_type === 'route_based' ? '🚗' : '🏢'}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">{role.role_name}</div>
+                        <div className="text-sm text-gray-500">
+                          {role.positions_filled || 0} / {role.positions_available} filled • ${role.hourly_rate}/hr
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {isPosted && (
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                          On Job Board
+                        </span>
+                      )}
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        isFilled ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {isFilled ? 'Filled' : 'Hiring'}
+                      </span>
+                      {!isFilled && !isPosted && (
+                        <button 
+                          onClick={() => handlePostJob(role.role_id)}
+                          className="px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-gray-100 flex items-center gap-1"
+                          style={{ color: theme.primaryColor }}
+                        >
+                          <FiExternalLink size={14} />
+                          Post to Board
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Post Job Modal */}
+      {showPostJobModal && <PostJobModal />}
     </div>
   );
 };
