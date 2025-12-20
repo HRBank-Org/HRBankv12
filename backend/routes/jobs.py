@@ -1,17 +1,99 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from utils.matching_engine import calculate_match_score
 from utils.calculations import haversine_distance
-from typing import Dict, List
+from typing import Dict, List, Optional
 from datetime import datetime
 
-router = APIRouter(prefix="/jobs", tags=["Jobs"])
+router = APIRouter(prefix="/api/jobs", tags=["Jobs"])
 
 def get_db():
     """Dependency to get database instance"""
     from server import db
     return db
+
+
+# ==================== PUBLIC ENDPOINTS ====================
+
+@router.get("/public", response_model=Dict)
+async def get_public_jobs(
+    limit: int = Query(default=20, le=100),
+    offset: int = Query(default=0),
+    search: Optional[str] = None,
+    location: Optional[str] = None,
+    work_type: Optional[str] = None,
+    min_rate: Optional[float] = None,
+    db = Depends(get_db)
+):
+    """
+    Get public job listings - no authentication required.
+    Used for the public job board.
+    """
+    # Build query for active job postings
+    query = {"status": "active"}
+    
+    if search:
+        query["$or"] = [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}},
+        ]
+    
+    if location:
+        query["$or"] = query.get("$or", []) + [
+            {"workplace_city": {"$regex": location, "$options": "i"}},
+            {"workplace_address": {"$regex": location, "$options": "i"}},
+        ]
+    
+    if work_type:
+        query["work_type"] = work_type
+    
+    if min_rate:
+        query["hourly_rate"] = {"$gte": min_rate}
+    
+    # Fetch job postings
+    postings = await db.job_postings.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Enrich with employer info
+    enriched_jobs = []
+    for posting in postings:
+        # Get employer profile for company name
+        employer_profile = await db.employer_profiles.find_one(
+            {"employer_id": posting.get("employer_id")},
+            {"_id": 0, "company_name": 1, "business_address": 1}
+        )
+        
+        # Get role requirements
+        role = await db.workplace_roles.find_one(
+            {"role_id": posting.get("role_id")},
+            {"_id": 0, "required_certifications": 1, "skills_required": 1}
+        )
+        
+        enriched_jobs.append({
+            **posting,
+            "company_name": employer_profile.get("company_name") if employer_profile else "Company",
+            "requirements": role.get("required_certifications", []) if role else [],
+            "skills": role.get("skills_required", []) if role else [],
+        })
+    
+    # Get total count
+    total_count = await db.job_postings.count_documents(query)
+    
+    return {
+        "success": True,
+        "data": enriched_jobs,
+        "meta": {
+            "total": total_count,
+            "limit": limit,
+            "offset": offset
+        }
+    }
+
+
+# ==================== AUTHENTICATED ENDPOINTS ====================
 
 @router.get("/offers", response_model=Dict)
 async def get_job_offers(
