@@ -664,6 +664,15 @@ const DragDropAssignment = ({ workers = [], shifts = [], tasks = [], onAssign, o
         {activeWorker ? <DraggableWorker worker={activeWorker} isOverlay /> : null}
       </DragOverlay>
     </DndContext>
+
+    {/* Auto-Assign Modal */}
+    <AutoAssignModal
+      isOpen={showAutoAssignModal}
+      onClose={() => setShowAutoAssignModal(false)}
+      onConfirm={handleAutoAssignComplete}
+      theme={theme}
+    />
+    </>
   );
 };
 
