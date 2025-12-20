@@ -560,55 +560,96 @@ async def apply_to_job(
     """Apply to a matched job"""
     db = await get_database()
     
-    # Verify job exists and is active
+    # Verify job exists and is active (check both job_id and posting_id for compatibility)
     job = await db.job_postings.find_one({
-        'job_id': job_id,
-        'status': 'active'
+        '$or': [
+            {'job_id': job_id, 'status': 'active'},
+            {'posting_id': job_id, 'status': 'active'}
+        ]
     })
     
     if not job:
         raise HTTPException(status_code=404, detail="Job not found or no longer available")
     
+    # Use the correct identifier
+    actual_job_id = job.get('job_id') or job.get('posting_id')
+    
     # Check if already applied
     existing_app = await db.job_applications.find_one({
-        'job_id': job_id,
-        'workforce_id': current_user['user_id']
+        '$or': [
+            {'job_id': actual_job_id, 'applicant_id': current_user['user_id']},
+            {'posting_id': actual_job_id, 'applicant_id': current_user['user_id']}
+        ]
     })
     
     if existing_app:
-        raise HTTPException(status_code=400, detail="Already applied to this job")
+        raise HTTPException(status_code=409, detail="Already applied to this job")
     
     # Get match_id if exists
     match = await db.job_matches.find_one({
-        'job_id': job_id,
+        'job_id': actual_job_id,
         'workforce_id': current_user['user_id']
     })
     
-    # Create application
-    if application_data:
-        app_data = application_data.model_dump()
-    else:
-        app_data = {'job_id': job_id}
-    
-    application = JobApplication(
-        **app_data,
-        workforce_id=current_user['user_id'],
-        match_id=match.get('match_id') if match else None
+    # Get worker profile info
+    worker_profile = await db.workforce_profiles.find_one(
+        {'workforce_id': current_user['user_id']},
+        {'_id': 0}
     )
     
-    await db.job_applications.insert_one(application.model_dump())
+    worker_user = await db.users.find_one(
+        {'user_id': current_user['user_id']},
+        {'_id': 0, 'full_name': 1, 'email': 1}
+    )
     
-    # Update match status
+    # Create application in the standard format
+    import uuid
+    application = {
+        'application_id': f"app_{uuid.uuid4().hex[:12]}",
+        'posting_id': job.get('posting_id'),
+        'job_id': actual_job_id,
+        'applicant_id': current_user['user_id'],
+        'applicant_name': worker_user.get('full_name') if worker_user else None,
+        'employer_id': job.get('employer_id'),
+        'position_title': job.get('title'),
+        'role_id': job.get('role_id'),
+        'stage': 'applied',
+        'match_source': 'direct_apply',
+        'match_id': match.get('match_id') if match else None,
+        'applied_date': datetime.now(timezone.utc).isoformat(),
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.job_applications.insert_one(application)
+    
+    # Update match status if exists
     if match:
         await db.job_matches.update_one(
             {'match_id': match['match_id']},
             {'$set': {'workforce_applied': True, 'status': 'applied', 'applied_date': datetime.now(timezone.utc)}}
         )
     
+    # Create notification for employer
+    notification = {
+        'notification_id': f"notif_{uuid.uuid4().hex[:12]}",
+        'user_id': job.get('employer_id'),
+        'type': 'new_application',
+        'title': 'New Job Application',
+        'message': f"{worker_user.get('full_name', 'A candidate')} applied for {job.get('title')}",
+        'data': {
+            'application_id': application['application_id'],
+            'posting_id': job.get('posting_id'),
+            'applicant_name': worker_user.get('full_name') if worker_user else None
+        },
+        'read': False,
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
     return {
         'success': True,
         'data': {
-            'application_id': application.application_id,
+            'application_id': application['application_id'],
             'message': 'Application submitted successfully'
         }
     }
