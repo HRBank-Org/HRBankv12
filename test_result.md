@@ -1,6 +1,55 @@
 # Test Results - HR Bank
 
-## Latest Test Session: Team Management Page Stabilization
+## Latest Test Session: Team Management - Recruitment Flow Phase 1 & 2
+
+### Test Date: December 20, 2025
+
+### Changes Implemented:
+
+**Phase 1 - Cleanup:**
+1. Removed "Invite Worker" button from Recruitment Actions (now only Post Job & Match Engine)
+2. Renamed "Past Workers" tab to "Time-Off" with clock icon
+
+**Phase 2 - Auto-Assign:**
+1. Added "Auto-Assign Workforce" button to Assignments tab
+2. Created Auto-Assign modal with:
+   - Summary stats (Workers Available, Assignments, Unfilled Roles, Positions Needed)
+   - Proposed assignments list with checkboxes for approval
+   - Work type indicators (On-Site, Route-Based, Continental)
+   - ESA hours compliance display (weekly hours / 48h max)
+   - Match reasons (Matching role, Same workplace, etc.)
+   - Unfilled roles section with "Route to Job Board" option
+3. Backend endpoints:
+   - POST /api/employer/workforce-management/auto-assign
+   - POST /api/employer/workforce-management/auto-assign/confirm
+
+### Test Scenarios (Verified via Screenshots):
+
+1. **Assignments Tab:**
+   - [x] "Auto-Assign Workforce" button visible
+   - [x] Helper text for drag-drop and auto-assign
+   - [x] Clicking button opens modal
+
+2. **Auto-Assign Modal:**
+   - [x] Shows worker stats (11 available)
+   - [x] Shows "All roles are fully staffed!" when no assignments needed
+   - [x] Cancel, Select All, and Approve buttons work
+
+3. **Time-Off Tab:**
+   - [x] Renamed from "Past Workers"
+   - [x] Clock icon visible
+   - [x] Empty state message shown
+
+4. **Recruitment Tab:**
+   - [x] "Invite Worker" button removed
+   - [x] Only "Post Job" and "Match Engine" actions remain
+
+### Test Credentials:
+- **Employer:** john.b@swanpizza.ca / Test123!
+
+---
+
+## Previous Test Session: Team Management Page Stabilization
 
 ### Test Date: December 19, 2025
 
