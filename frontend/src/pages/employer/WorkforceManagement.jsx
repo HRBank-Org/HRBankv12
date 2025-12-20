@@ -554,6 +554,33 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
     );
   };
 
+  // Qualification Badge Component
+  const QualificationBadge = ({ isQualified, reasons }) => {
+    if (isQualified) {
+      return (
+        <div className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+          <FiCheck size={10} />
+          <span>Qualified</span>
+        </div>
+      );
+    }
+    return (
+      <div className="group relative">
+        <div className="flex items-center gap-1 text-xs text-red-600 bg-red-50 px-2 py-0.5 rounded-full cursor-help">
+          <FiAlertTriangle size={10} />
+          <span>Missing Certs</span>
+        </div>
+        {reasons?.length > 0 && (
+          <div className="absolute bottom-full left-0 mb-1 hidden group-hover:block z-10 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg">
+            {reasons.map((r, i) => (
+              <div key={i}>{r}</div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Star Rating Component
   const StarRating = ({ rating, reviewCount }) => {
     const fullStars = Math.floor(rating);
