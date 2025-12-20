@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from typing import Dict, List, Optional
 from datetime import datetime, timezone, timedelta
+from auth.dependencies import require_role, get_current_user
 import uuid
 
 router = APIRouter(prefix="/api/match-engine", tags=["Match Engine"])
