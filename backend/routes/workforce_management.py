@@ -1421,3 +1421,214 @@ async def get_recruitment_stats(
             "by_stage": stages
         }
     }
+
+
+# ==================== INTERVIEW SCHEDULING ====================
+
+class InterviewScheduleRequest(BaseModel):
+    application_id: str
+    interview_type: str  # "video" or "in_person"
+    scheduled_date: str  # ISO datetime
+    duration_minutes: int = 30
+    location: Optional[str] = None  # For in-person
+    notes: Optional[str] = None
+    attendees: Optional[List[str]] = None  # Additional attendee emails
+
+@router.post("/interviews/schedule", response_model=Dict)
+async def schedule_interview(
+    request: InterviewScheduleRequest,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Schedule an interview for a candidate.
+    Supports video (Google Meet) or in-person interviews.
+    """
+    employer_id = current_user["user_id"]
+    
+    # Get application
+    application = await db.job_applications.find_one({
+        "application_id": request.application_id,
+        "employer_id": employer_id
+    })
+    
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    # Get applicant details
+    applicant = await db.users.find_one(
+        {"user_id": application["applicant_id"]},
+        {"_id": 0, "full_name": 1, "email": 1}
+    )
+    
+    # Get employer details
+    employer = await db.users.find_one(
+        {"user_id": employer_id},
+        {"_id": 0, "full_name": 1, "email": 1}
+    )
+    
+    # Get job posting
+    posting = await db.job_postings.find_one(
+        {"posting_id": application["posting_id"]},
+        {"_id": 0, "title": 1, "company_name": 1, "workplace_name": 1}
+    )
+    
+    # Generate meeting link for video interviews
+    meeting_link = None
+    if request.interview_type == "video":
+        # Generate a placeholder meeting link
+        # In production, this would integrate with Google Meet API
+        meeting_id = uuid.uuid4().hex[:10]
+        meeting_link = f"https://meet.google.com/placeholder-{meeting_id}"
+    
+    # Create interview record
+    interview = {
+        "interview_id": f"int_{uuid.uuid4().hex[:12]}",
+        "application_id": request.application_id,
+        "employer_id": employer_id,
+        "candidate_id": application["applicant_id"],
+        "candidate_name": applicant.get("full_name") if applicant else "Unknown",
+        "candidate_email": applicant.get("email") if applicant else None,
+        "employer_name": employer.get("full_name") if employer else "Unknown",
+        "employer_email": employer.get("email") if employer else None,
+        "position_title": application.get("position_title") or posting.get("title"),
+        "company_name": posting.get("company_name") if posting else None,
+        "interview_type": request.interview_type,
+        "scheduled_date": request.scheduled_date,
+        "duration_minutes": request.duration_minutes,
+        "location": request.location if request.interview_type == "in_person" else None,
+        "meeting_link": meeting_link,
+        "notes": request.notes,
+        "status": "scheduled",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": employer_id
+    }
+    
+    await db.interviews.insert_one(interview)
+    
+    # Update application stage to interview if not already
+    if application.get("stage") != "interview":
+        await db.job_applications.update_one(
+            {"application_id": request.application_id},
+            {
+                "$set": {
+                    "stage": "interview",
+                    "stage_updated_at": datetime.now(timezone.utc).isoformat()
+                },
+                "$push": {
+                    "stage_history": {
+                        "from_stage": application.get("stage"),
+                        "to_stage": "interview",
+                        "changed_at": datetime.now(timezone.utc).isoformat(),
+                        "changed_by": employer_id,
+                        "reason": "Interview scheduled"
+                    }
+                }
+            }
+        )
+    
+    return {
+        "success": True,
+        "data": {k: v for k, v in interview.items() if k != "_id"},
+        "message": f"Interview scheduled for {interview['scheduled_date']}"
+    }
+
+
+@router.get("/interviews", response_model=Dict)
+async def get_interviews(
+    status: Optional[str] = None,
+    upcoming_only: bool = False,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get all interviews for this employer"""
+    employer_id = current_user["user_id"]
+    
+    query = {"employer_id": employer_id}
+    
+    if status:
+        query["status"] = status
+    
+    if upcoming_only:
+        query["scheduled_date"] = {"$gte": datetime.now(timezone.utc).isoformat()}
+        query["status"] = {"$in": ["scheduled", "confirmed"]}
+    
+    interviews = await db.interviews.find(query, {"_id": 0}).sort("scheduled_date", 1).to_list(100)
+    
+    # Group by date for calendar view
+    by_date = {}
+    for interview in interviews:
+        date_key = interview["scheduled_date"][:10]  # YYYY-MM-DD
+        if date_key not in by_date:
+            by_date[date_key] = []
+        by_date[date_key].append(interview)
+    
+    return {
+        "success": True,
+        "data": {
+            "all": interviews,
+            "by_date": by_date,
+            "total": len(interviews),
+            "upcoming": len([i for i in interviews if i["scheduled_date"] >= datetime.now(timezone.utc).isoformat()])
+        }
+    }
+
+
+@router.put("/interviews/{interview_id}", response_model=Dict)
+async def update_interview(
+    interview_id: str,
+    status: Optional[str] = None,
+    scheduled_date: Optional[str] = None,
+    notes: Optional[str] = None,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Update an interview (reschedule, cancel, complete)"""
+    employer_id = current_user["user_id"]
+    
+    update_fields = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    
+    if status:
+        valid_statuses = ["scheduled", "confirmed", "completed", "cancelled", "no_show"]
+        if status not in valid_statuses:
+            raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+        update_fields["status"] = status
+    
+    if scheduled_date:
+        update_fields["scheduled_date"] = scheduled_date
+    
+    if notes:
+        update_fields["notes"] = notes
+    
+    result = await db.interviews.update_one(
+        {"interview_id": interview_id, "employer_id": employer_id},
+        {"$set": update_fields}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    return {
+        "success": True,
+        "message": f"Interview updated successfully"
+    }
+
+
+@router.delete("/interviews/{interview_id}", response_model=Dict)
+async def cancel_interview(
+    interview_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Cancel an interview"""
+    employer_id = current_user["user_id"]
+    
+    result = await db.interviews.update_one(
+        {"interview_id": interview_id, "employer_id": employer_id},
+        {"$set": {"status": "cancelled", "cancelled_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    return {"success": True, "message": "Interview cancelled"}
