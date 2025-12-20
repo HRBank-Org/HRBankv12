@@ -621,11 +621,21 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
     >
       {/* Header: Name & Rating */}
       <div className="flex items-start gap-2">
-        <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 flex-shrink-0">
+        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${
+          candidate.match_score?.is_qualified === false ? 'bg-red-100 text-red-600' : 'bg-gray-200 text-gray-600'
+        }`}>
           {candidate.applicant_name?.charAt(0) || '?'}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-gray-900 text-sm truncate">{candidate.applicant_name || 'Unknown'}</div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-900 text-sm truncate">{candidate.applicant_name || 'Unknown'}</span>
+            {candidate.match_score && (
+              <QualificationBadge 
+                isQualified={candidate.match_score.is_qualified} 
+                reasons={candidate.match_score.disqualification_reasons} 
+              />
+            )}
+          </div>
           <StarRating rating={candidate.average_rating || 0} reviewCount={candidate.review_count || 0} />
         </div>
       </div>
