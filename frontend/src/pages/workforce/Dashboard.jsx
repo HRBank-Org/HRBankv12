@@ -44,7 +44,28 @@ const WorkforceDashboard = () => {
 
   useEffect(() => {
     loadDashboard();
+    checkPendingJobApplication();
   }, []);
+
+  // Check and process pending job application from signup flow
+  const checkPendingJobApplication = async () => {
+    const pendingJobId = localStorage.getItem('pending_job_application');
+    if (pendingJobId) {
+      try {
+        // Apply to the job
+        await api.post(`/api/jobs/${pendingJobId}/apply`);
+        localStorage.removeItem('pending_job_application');
+        // Show success notification
+        alert('🎉 Your job application has been submitted successfully!');
+      } catch (error) {
+        console.error('Failed to submit pending job application:', error);
+        // Only remove if job doesn't exist or already applied
+        if (error.response?.status === 404 || error.response?.status === 409) {
+          localStorage.removeItem('pending_job_application');
+        }
+      }
+    }
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
