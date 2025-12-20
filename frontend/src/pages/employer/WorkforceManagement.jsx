@@ -305,6 +305,9 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [interviews, setInterviews] = useState([]);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [showContractModal, setShowContractModal] = useState(false);
+  const [offerCandidate, setOfferCandidate] = useState(null);
 
   // Fetch recruitment data
   useEffect(() => {
