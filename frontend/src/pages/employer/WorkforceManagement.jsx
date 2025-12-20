@@ -1232,8 +1232,8 @@ const WorkforceManagement = () => {
   const [roles, setRoles] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
   const [cancellingInvite, setCancellingInvite] = useState(null);
-  // Records Tab sorting state
-  const [recordsSortConfig, setRecordsSortConfig] = useState({ key: 'full_name', direction: 'asc' });
+  // Records Tab multi-column sorting state (array of { key, direction })
+  const [recordsSortConfig, setRecordsSortConfig] = useState([{ key: 'full_name', direction: 'asc' }]);
   const navigate = useNavigate();
   const theme = useTheme();
 
