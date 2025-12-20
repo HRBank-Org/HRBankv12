@@ -672,7 +672,7 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
   };
 
   // Enhanced Candidate Card Component
-  const CandidateCard = ({ candidate, onStageChange }) => (
+  const CandidateCard = ({ candidate, onStageChange, onSendOffer, onGenerateContract }) => (
     <div 
       className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
       draggable
