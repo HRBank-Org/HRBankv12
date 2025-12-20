@@ -582,52 +582,68 @@ const DragDropAssignment = ({ workers = [], shifts = [], tasks = [], onAssign, o
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Workforce Panel */}
-        <div className="lg:col-span-1">
-          <div className="bg-gray-50 rounded-xl p-4 sticky top-4">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <FiUser className="text-blue-500" />
-              Workforce ({workers.length})
+    <>
+      {/* Auto-Assign Button */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="text-sm text-gray-500">
+          Drag workers to shifts or use Auto-Assign for intelligent matching
+        </div>
+        <button
+          onClick={() => setShowAutoAssignModal(true)}
+          className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+          style={{ backgroundColor: theme.primaryColor }}
+        >
+          <FiZap size={18} />
+          Auto-Assign Workforce
+        </button>
+      </div>
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Workforce Panel */}
+          <div className="lg:col-span-1">
+            <div className="bg-gray-50 rounded-xl p-4 sticky top-4">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <FiUser className="text-blue-500" />
+                Workforce ({workers.length})
+              </h3>
+              
+              {/* Sort Controls */}
+              <WorkforceSortControls workers={workers} onSortedWorkers={setSortedWorkers} />
+              
+              {workers.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-8">No workers available</p>
+              ) : (
+                <div className="space-y-2 max-h-[550px] overflow-y-auto pr-2 mt-3">
+                  {(sortedWorkers.length > 0 ? sortedWorkers : workers).map((worker) => (
+                    <DraggableWorker key={worker.user_id} worker={worker} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Shifts & Tasks Panel */}
+          <div className="lg:col-span-2">
+            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <FiCalendar className="text-orange-500" />
+              Shifts & Tasks ({allWork.length})
             </h3>
             
-            {/* Sort Controls */}
-            <WorkforceSortControls workers={workers} onSortedWorkers={setSortedWorkers} />
-            
-            {workers.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-8">No workers available</p>
-            ) : (
-              <div className="space-y-2 max-h-[550px] overflow-y-auto pr-2 mt-3">
-                {(sortedWorkers.length > 0 ? sortedWorkers : workers).map((worker) => (
-                  <DraggableWorker key={worker.user_id} worker={worker} />
-                ))}
+            {allWork.length === 0 ? (
+              <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                <FiCalendar size={48} className="text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No shifts or tasks to assign</p>
+                <p className="text-sm text-gray-400 mt-1">Create shifts in Calendar Scheduling first</p>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Shifts & Tasks Panel */}
-        <div className="lg:col-span-2">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <FiCalendar className="text-orange-500" />
-            Shifts & Tasks ({allWork.length})
-          </h3>
-          
-          {allWork.length === 0 ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-              <FiCalendar size={48} className="text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">No shifts or tasks to assign</p>
-              <p className="text-sm text-gray-400 mt-1">Create shifts in Calendar Scheduling first</p>
-            </div>
-          ) : (
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {allWork.map((item) => (
                 <DroppableShift
