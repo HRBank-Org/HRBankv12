@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { Briefcase, Building2, GraduationCap, Users, TrendingUp, Shield, Clock, Award, ChevronRight } from 'lucide-react';
+import { 
+  Briefcase, Building2, GraduationCap, MapPin, Clock, DollarSign,
+  ChevronRight, Search, Zap, Shield, Globe, Star, CheckCircle2,
+  Smartphone, BarChart3, Users, Award, Play
+} from 'lucide-react';
 import { LOGOS, getLogoByUserType } from '../utils/logoUtils';
 import EmmaLandingChat from '../components/emma/EmmaLandingChat';
 
@@ -11,31 +15,24 @@ const API = `${BACKEND_URL}/api`;
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  
-  // Subdomain URLs for branded portals
-  const EMPLOYER_URL = process.env.REACT_APP_EMPLOYER_URL || 'https://employer.hrbank.ca';
-  const WORKFORCE_URL = process.env.REACT_APP_WORKFORCE_URL || 'https://workforce.hrbank.ca';
-  const INSTITUTION_URL = process.env.REACT_APP_INSTITUTION_URL || 'https://institution.hrbank.ca';
-  const ADMIN_URL = process.env.REACT_APP_ADMIN_URL || 'https://admin.hrbank.ca';
+  const [activeTab, setActiveTab] = useState('jobseekers');
+  const [featuredJobs, setFeaturedJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
   
   const [partnerLogos, setPartnerLogos] = useState([
-    // Default mock logos shown until real logos are loaded
     { id: 1, institution_name: 'Partner 1', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+1' },
     { id: 2, institution_name: 'Partner 2', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+2' },
     { id: 3, institution_name: 'Partner 3', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+3' },
     { id: 4, institution_name: 'Partner 4', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+4' },
-    { id: 5, institution_name: 'Partner 5', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+5' },
-    { id: 6, institution_name: 'Partner 6', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+6' },
   ]);
 
-  // Fetch partner logos from backend
+  // Fetch partner logos
   useEffect(() => {
     const fetchPartnerLogos = async () => {
       try {
         const response = await fetch(`${API}/partner-logos/`);
         const data = await response.json();
         if (data && data.length > 0) {
-          // Process logo URLs - prepend backend URL if they're relative paths
           const processedLogos = data.map(logo => ({
             ...logo,
             logo_url: logo.logo_url.startsWith('http') 
@@ -46,133 +43,81 @@ const LandingPage = () => {
         }
       } catch (error) {
         console.error('Error fetching partner logos:', error);
-        // Keep using mock logos if fetch fails
       }
     };
-    
     fetchPartnerLogos();
   }, []);
 
-  const userCategories = [
-    {
-      id: 'workforce',
-      title: 'Workforce',
-      icon: Briefcase,
-      description: 'Join a network of verified professionals and access quality job opportunities',
-      metrics: [
-        { label: 'Verified Workers', value: '10,000+' },
-        { label: 'Compliance Rate', value: '95%' },
-        { label: 'Active Jobs', value: '2,500+' },
-      ],
-      color: 'from-[#30496d] to-[#234058]',
-      bgColor: 'bg-blue-50',
-      buttonColor: 'bg-[#30496d] hover:bg-[#234058]',
-    },
-    {
-      id: 'employer',
-      title: 'Employers',
-      icon: Building2,
-      description: 'Access a trusted pool of vetted workers and streamline your hiring process',
-      metrics: [
-        { label: 'Active Employers', value: '500+' },
-        { label: 'Jobs Posted', value: '3,000+' },
-        { label: 'Avg. Time to Hire', value: '3 days' },
-      ],
-      color: 'from-[#ff5f00] to-[#e55500]',
-      bgColor: 'bg-orange-50',
-      buttonColor: 'bg-[#ff5f00] hover:bg-[#e55500]',
-    },
-    {
-      id: 'institution',
-      title: 'Institutions',
-      icon: GraduationCap,
-      description: 'Partner with us to provide certification and training for workforce development',
-      metrics: [
-        { label: 'Partner Institutions', value: '50+' },
-        { label: 'Certifications', value: '200+' },
-        { label: 'Trained Workers', value: '8,000+' },
-      ],
-      color: 'from-gray-800 to-gray-900',
-      bgColor: 'bg-gray-50',
-      buttonColor: 'bg-gray-900 hover:bg-gray-800',
-    },
-  ];
+  // Fetch featured jobs for preview
+  useEffect(() => {
+    const fetchFeaturedJobs = async () => {
+      try {
+        const response = await fetch(`${API}/jobs/public?limit=4`);
+        const data = await response.json();
+        if (data.success && data.data) {
+          setFeaturedJobs(data.data.slice(0, 4));
+        }
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        // Set mock data for preview
+        setFeaturedJobs([
+          { posting_id: '1', title: 'Server', company_name: 'Swan Pizza', workplace_city: 'Windsor, ON', hourly_rate: 17.60, work_type: 'on_site' },
+          { posting_id: '2', title: 'Line Cook', company_name: 'Swan Pizza', workplace_city: 'Windsor, ON', hourly_rate: 19.50, work_type: 'on_site' },
+          { posting_id: '3', title: 'Delivery Driver', company_name: 'Swan Pizza', workplace_city: 'Windsor, ON', hourly_rate: 18.00, work_type: 'route_based' },
+          { posting_id: '4', title: 'Night Security', company_name: 'Swan Pizza', workplace_city: 'Windsor, ON', hourly_rate: 20.00, work_type: 'on_site' },
+        ]);
+      } finally {
+        setLoadingJobs(false);
+      }
+    };
+    fetchFeaturedJobs();
+  }, []);
 
-  const platformFeatures = [
-    {
-      icon: Shield,
-      title: 'Blockchain Credentials',
-      description: 'Tamper-proof digital certificates secured on blockchain, portable and verifiable forever',
-    },
-    {
-      icon: Clock,
-      title: 'Real-Time Attendance',
-      description: 'QR + GPS geofenced clock-in/out prevents fraud across multiple locations',
-    },
-    {
-      icon: Award,
-      title: 'Smart Job Matching',
-      description: 'Tinder-style swipe interface matches skills, location, and availability instantly',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Dual Rating System',
-      description: 'Fair 5-star ratings build trust and reputation for both workers and employers',
-    },
-  ];
-
-  const workforceFeatures = [
-    { title: 'Smart Job Matching', description: 'Tinder-style swipe interface matches jobs to your skills, location & availability—no resume needed' },
-    { title: 'Verified Digital Credentials', description: 'Blockchain-secured certifications you own forever. Instantly verifiable via QR code' },
-    { title: 'Fair Ratings & Transparency', description: 'Dual 5-star system builds reputation. Rate employers, earn trust, unlock opportunities' },
-    { title: 'Effortless Attendance', description: 'QR + GPS clock-in/out. Automated timesheets, accurate pay, zero disputes' },
-    { title: 'Language Support', description: 'Real-time AI translation in 40+ languages—UI, messaging, jobs. No language barriers' },
-  ];
-
-  const employerFeatures = [
-    { title: 'Instant Verified Hiring', description: 'Access pre-vetted workers with blockchain credentials. No resume screening delays' },
-    { title: 'Complete Workforce Management', description: 'Drag-and-drop scheduling, multi-roster, QR attendance, automated timesheets—all in one' },
-    { title: 'Fraud-Proof Attendance', description: 'Geofenced QR clock-in/out prevents buddy punching. Know exactly who\'s working where' },
-    { title: 'Unbeatable Pricing', description: 'Flat $1/hour per party. 80-90% cheaper than staffing agencies. No hidden costs' },
-    { title: 'Performance Insights', description: 'Dual ratings, analytics dashboards, favorite workers. Build your dream team fast' },
-  ];
-
-  const institutionFeatures = [
-    { title: 'Digital Credential Issuance', description: 'Issue tamper-proof blockchain certificates (Polygon + IPFS). Students carry them for life' },
-    { title: 'Real-Time Demand Analytics', description: 'See which skills employers need most. Align curriculum with market demand' },
-    { title: 'Instant Verification', description: 'Employers verify via QR code—no calls, no delays. Reduce admin burden by 90%' },
-    { title: 'Graduate Employment Tracking', description: 'Monitor placements, track rates, demonstrate ROI to stakeholders' },
-    { title: 'Partnership Revenue', description: 'Become the trusted credential source. Strengthen relationships, create revenue' },
-  ];
+  const valueProps = {
+    jobseekers: [
+      { icon: Zap, title: 'AI Job Matching', desc: 'No more endless applications. AI finds jobs that match your skills automatically.' },
+      { icon: Shield, title: 'Portable Credentials', desc: 'Your certifications follow you forever. Blockchain-secured and instantly verifiable.' },
+      { icon: Star, title: 'Ratings That Travel', desc: 'Build your reputation. Great ratings from past jobs unlock better opportunities.' },
+      { icon: Globe, title: 'No Language Barriers', desc: '40+ languages supported. Work anywhere, communicate effortlessly.' },
+    ],
+    employers: [
+      { icon: Smartphone, title: 'Manage From Anywhere', desc: 'See who clocked in, track tasks, approve timesheets - all from your phone.' },
+      { icon: Shield, title: 'Fraud-Proof Attendance', desc: 'QR + GPS geofencing. Know exactly who is working where. No buddy punching.' },
+      { icon: CheckCircle2, title: 'Verified Workers', desc: 'Every credential blockchain-verified. Hire with confidence, not hope.' },
+      { icon: DollarSign, title: '$1/hr Flat Rate', desc: '80-90% cheaper than staffing agencies. No hidden fees, no surprises.' },
+    ],
+    institutions: [
+      { icon: Shield, title: 'Blockchain Credentials', desc: 'Issue tamper-proof certificates. Students carry them for life.' },
+      { icon: BarChart3, title: 'Graduate Tracking', desc: 'See where your graduates work. Prove your programs ROI.' },
+      { icon: Users, title: 'Industry Partnerships', desc: 'Connect directly with employers. Become the trusted talent source.' },
+      { icon: Award, title: 'Curriculum Insights', desc: 'Real-time data on what skills employers need most.' },
+    ],
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
+      {/* Clean Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <div className="w-auto h-10 flex items-center justify-center">
-                <img 
-                  src={LOGOS.master}
-                  alt="HR Bank Logo" 
-                  className="h-10 w-auto object-contain"
-                />
-              </div>
+              <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
             </div>
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/login')}
-                className="text-gray-700 hover:text-[#30496d]"
+            <div className="hidden md:flex items-center gap-6">
+              <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium flex items-center gap-1">
+                <Search size={16} />
+                Browse Jobs
+              </Link>
+              <button 
+                onClick={() => document.getElementById('employers').scrollIntoView({ behavior: 'smooth' })}
+                className="text-gray-600 hover:text-[#ff5f00] font-medium"
               >
+                For Employers
+              </button>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
                 Sign In
-              </Button>
-              <Button
-                onClick={() => navigate('/signup')}
-                className="bg-[#ff5f00] hover:bg-[#e55500] text-white"
-              >
-                Get Started
               </Button>
             </div>
           </div>
@@ -180,7 +125,7 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section with Video */}
-      <section className="relative pt-16 h-[600px] overflow-hidden">
+      <section className="relative pt-16 h-[650px] overflow-hidden">
         {/* Video Background */}
         <div className="absolute inset-0 z-0">
           <iframe
@@ -191,276 +136,375 @@ const LandingPage = () => {
             allow="autoplay; encrypted-media"
             allowFullScreen
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-black/60 via-black/20 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
         </div>
 
-        {/* Hero Content - Positioned Lower Right */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end justify-end pb-16">
-          <div className="max-w-xl text-right">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-              Your Workforce,
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="max-w-2xl">
+            {/* Problem Statement */}
+            <p className="text-orange-400 font-semibold text-lg mb-3">Job boards are broken.</p>
+            
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+              Tired of writing resumes
               <br />
-              <span className="text-blue-300">Simplified & Standardized</span>
+              <span className="text-blue-300">without results?</span>
             </h1>
-            <p className="text-base md:text-lg text-gray-200 mb-6">
-              Connecting verified workers, employers, and institutions for a better workforce marketplace
+            
+            <p className="text-xl text-gray-200 mb-8 leading-relaxed">
+              Let AI find you jobs automatically. Create an account, 
+              <br className="hidden md:block" />
+              and let verified opportunities come to you.
             </p>
-            <div className="flex flex-wrap gap-3 justify-end">
+
+            {/* Dual CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button
-                size="default"
-                onClick={() => document.getElementById('categories').scrollIntoView({ behavior: 'smooth' })}
-                className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-10 px-6"
+                size="lg"
+                onClick={() => navigate('/signup?type=workforce')}
+                className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-14 px-8 text-lg font-semibold"
               >
-                Get Started
-                <ChevronRight className="ml-1 w-4 h-4" />
+                Find My Jobs
+                <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
               <Button
-                size="default"
+                size="lg"
                 variant="outline"
-                onClick={() => document.getElementById('categories').scrollIntoView({ behavior: 'smooth' })}
-                className="bg-white/10 border-white text-white hover:bg-white/20 h-10 px-6 backdrop-blur-sm"
+                onClick={() => document.getElementById('employers').scrollIntoView({ behavior: 'smooth' })}
+                className="bg-white/10 border-white text-white hover:bg-white/20 h-14 px-8 text-lg backdrop-blur-sm"
               >
-                Learn More
+                I'm Hiring
               </Button>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Stats Bar */}
-      <section className="bg-[#30496d] py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-white mb-1">10,000+</div>
-              <div className="text-blue-100 text-sm">Verified Workers</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-white mb-1">500+</div>
-              <div className="text-blue-100 text-sm">Active Employers</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-white mb-1">50+</div>
-              <div className="text-blue-100 text-sm">Partner Institutions</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-white mb-1">95%</div>
-              <div className="text-blue-100 text-sm">Compliance Rate</div>
+            {/* Quick Stats */}
+            <div className="flex gap-8 mt-10 text-white/80">
+              <div>
+                <div className="text-2xl font-bold text-white">10,000+</div>
+                <div className="text-sm">Active Jobs</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">95%</div>
+                <div className="text-sm">Match Rate</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">3 Days</div>
+                <div className="text-sm">Avg. Time to Hire</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* User Categories Section */}
-      <section id="categories" className="py-20 bg-gray-50">
+      {/* Job Board Preview */}
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Path</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Whether you're seeking work, hiring talent, or providing training - we have the right solution for you
-            </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Latest Opportunities</h2>
+              <p className="text-gray-600">Jobs matched to your skills, updated in real-time</p>
+            </div>
+            <Link to="/jobs">
+              <Button variant="outline" className="mt-4 md:mt-0">
+                View All Jobs <ChevronRight className="ml-1 w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+
+          {/* Job Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {loadingJobs ? (
+              Array(4).fill(0).map((_, i) => (
+                <div key={i} className="bg-white rounded-xl p-5 shadow-sm animate-pulse">
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                </div>
+              ))
+            ) : (
+              featuredJobs.map((job) => (
+                <Card key={job.posting_id} className="hover:shadow-lg transition-shadow cursor-pointer group">
+                  <CardContent className="p-5">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-[#ff5f00] transition-colors mb-1">
+                      {job.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-3">{job.company_name}</p>
+                    <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
+                      <span className="flex items-center gap-1">
+                        <MapPin size={14} />
+                        {job.workplace_city || 'Remote'}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <DollarSign size={14} />
+                        ${job.hourly_rate}/hr
+                      </span>
+                    </div>
+                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                      job.work_type === 'on_site' ? 'bg-blue-100 text-blue-700' :
+                      job.work_type === 'route_based' ? 'bg-green-100 text-green-700' :
+                      'bg-purple-100 text-purple-700'
+                    }`}>
+                      {job.work_type === 'on_site' ? 'On-Site' : 
+                       job.work_type === 'route_based' ? 'Route-Based' : 'Flexible'}
+                    </span>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+
+          {/* Search Bar */}
+          <div className="mt-8 bg-white rounded-xl shadow-sm p-4 flex flex-col md:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Job title, skill, or keyword"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ff5f00] focus:border-transparent"
+              />
+            </div>
+            <div className="flex-1 relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="City or postal code"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ff5f00] focus:border-transparent"
+              />
+            </div>
+            <Button 
+              onClick={() => navigate('/jobs')}
+              className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-12 px-8"
+            >
+              Search Jobs
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">How It Works</h2>
+            <p className="text-gray-600">Get matched to jobs in 3 simple steps</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {userCategories.map((category) => {
-              return (
-                <Card key={category.id} className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                  <CardContent className="p-8">
-                    <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${category.color} flex items-center justify-center mb-6 p-3`}>
-                      <img 
-                        src={getLogoByUserType(category.id)}
-                        alt={`${category.title} Logo`}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{category.title}</h3>
-                    <p className="text-gray-600 mb-6">{category.description}</p>
-
-                    {/* Metrics */}
-                    <div className={`${category.bgColor} rounded-xl p-4 mb-6 space-y-3`}>
-                      {category.metrics.map((metric, index) => (
-                        <div key={index} className="flex justify-between items-center">
-                          <span className="text-sm text-gray-700">{metric.label}</span>
-                          <span className="text-lg font-bold text-gray-900">{metric.value}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
-                      <Button
-                        onClick={() => {
-                          const urls = {
-                            'workforce': WORKFORCE_URL,
-                            'employer': EMPLOYER_URL,
-                            'institution': INSTITUTION_URL
-                          };
-                          window.location.href = urls[category.id];
-                        }}
-                        className={`w-full ${category.buttonColor} text-white h-11`}
-                      >
-                        Sign Up
-                      </Button>
-                      <Button
-                        onClick={() => navigate(`/login?type=${category.id}`)}
-                        variant="outline"
-                        className="w-full h-11 hover:bg-gray-50"
-                      >
-                        Sign In
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Platform Features Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose HR Bank?</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Revolutionary technology meets workforce management—blockchain security, real-time tracking, and smart matching
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {platformFeatures.map((feature, index) => {
-              const IconComponent = feature.icon;
-              return (
-                <div key={index} className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
-                    <IconComponent className="w-8 h-8 text-[#30496d]" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+            {[
+              { step: '1', title: 'Create Your Profile', desc: 'Add your skills, certifications, and preferences. No resume needed.', icon: Users },
+              { step: '2', title: 'Get Matched by AI', desc: 'Our AI finds jobs that fit your profile. Opportunities come to you.', icon: Zap },
+              { step: '3', title: 'Build Your Career', desc: 'Earn ratings, collect credentials, unlock better opportunities.', icon: Award },
+            ].map((item, index) => (
+              <div key={index} className="text-center relative">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#ff5f00] text-white text-2xl font-bold mb-4">
+                  {item.step}
                 </div>
-              );
-            })}
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+                {index < 2 && (
+                  <ChevronRight className="hidden md:block absolute top-8 -right-4 text-gray-300" size={32} />
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Button
+              onClick={() => navigate('/signup?type=workforce')}
+              className="bg-[#30496d] hover:bg-[#234058] text-white h-12 px-8"
+            >
+              Create Free Account
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Detailed Features by User Type */}
+      {/* Employer Spotlight Section */}
+      <section id="employers" className="py-20 bg-gradient-to-br from-[#30496d] to-[#1a2d42]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="text-white">
+              <p className="text-orange-400 font-semibold text-lg mb-3">For Business Owners</p>
+              <h2 className="text-4xl font-bold mb-6 leading-tight">
+                You make good money.
+                <br />
+                <span className="text-blue-300">But are you an owner or operator?</span>
+              </h2>
+              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                Stop being tied to your business. See live attendance, manage schedules, 
+                and approve timesheets from anywhere in the world. Finally enjoy the money you make.
+              </p>
+              
+              <div className="space-y-4 mb-8">
+                {[
+                  'Live attendance tracking across all locations',
+                  'QR + GPS geofencing - no buddy punching',
+                  'Automated timesheets and payroll prep',
+                  'Verified workers with blockchain credentials',
+                  '$1/hr flat rate - 80% cheaper than agencies',
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <CheckCircle2 className="text-green-400 flex-shrink-0" size={20} />
+                    <span className="text-gray-200">{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                size="lg"
+                onClick={() => navigate('/signup?type=employer')}
+                className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-14 px-8 text-lg font-semibold"
+              >
+                Free My Time
+                <ChevronRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Visual */}
+            <div className="relative">
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                    <Smartphone className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">Live Dashboard</p>
+                    <p className="text-gray-400 text-sm">3 locations • 24 workers active</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { name: 'Main Street Location', workers: 8, status: 'All present' },
+                    { name: 'Downtown Branch', workers: 10, status: '1 late arrival' },
+                    { name: 'Airport Location', workers: 6, status: 'All present' },
+                  ].map((loc, i) => (
+                    <div key={i} className="bg-white/5 rounded-lg p-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-white text-sm font-medium">{loc.name}</p>
+                        <p className="text-gray-400 text-xs">{loc.workers} workers</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        loc.status === 'All present' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                      }`}>
+                        {loc.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Value Props Tabs */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Workforce Features */}
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-[#30496d] rounded-xl p-3 w-14 h-14 flex items-center justify-center">
-                  <img 
-                    src={getLogoByUserType('workforce')}
-                    alt="Workforce"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900">For Workers</h3>
-              </div>
-              <div className="space-y-4">
-                {workforceFeatures.map((feature, index) => (
-                  <div key={index} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
-                    <p className="text-sm text-gray-600">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Employer Features */}
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-[#ff5f00] rounded-xl p-3 w-14 h-14 flex items-center justify-center">
-                  <img 
-                    src={getLogoByUserType('employer')}
-                    alt="Employers"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900">For Employers</h3>
-              </div>
-              <div className="space-y-4">
-                {employerFeatures.map((feature, index) => (
-                  <div key={index} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
-                    <p className="text-sm text-gray-600">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Institution Features */}
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-gray-900 rounded-xl p-3 w-14 h-14 flex items-center justify-center">
-                  <img 
-                    src={getLogoByUserType('institution')}
-                    alt="Institutions"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900">For Institutions</h3>
-              </div>
-              <div className="space-y-4">
-                {institutionFeatures.map((feature, index) => (
-                  <div key={index} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
-                    <p className="text-sm text-gray-600">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partner Logos Carousel */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Trusted By Leading Institutions</h2>
-            <p className="text-gray-600">Partnering with top organizations for workforce excellence</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Built for Everyone</h2>
+            <p className="text-gray-600">One platform connecting the entire workforce ecosystem</p>
           </div>
 
-          {/* Logo Carousel */}
-          <div className="relative overflow-hidden">
-            <div className="flex items-center justify-center gap-12 animate-scroll">
-              {[...partnerLogos, ...partnerLogos].map((logo, index) => (
-                <div
-                  key={`${logo.id}-${index}`}
-                  className="flex-shrink-0 w-40 h-20 bg-white rounded-lg shadow-md flex items-center justify-center p-4 hover:shadow-lg transition-shadow"
+          {/* Tab Navigation */}
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex bg-white rounded-xl shadow-sm p-1">
+              {[
+                { id: 'jobseekers', label: 'Job Seekers', icon: Briefcase, color: '#30496d' },
+                { id: 'employers', label: 'Employers', icon: Building2, color: '#ff5f00' },
+                { id: 'institutions', label: 'Institutions', icon: GraduationCap, color: '#1a1a1a' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                    activeTab === tab.id 
+                      ? 'text-white shadow-md' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                  style={{ backgroundColor: activeTab === tab.id ? tab.color : 'transparent' }}
                 >
-                  <img
-                    src={logo.logo_url}
-                    alt={logo.institution_name}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
+                  <tab.icon size={18} />
+                  {tab.label}
+                </button>
               ))}
             </div>
           </div>
+
+          {/* Tab Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {valueProps[activeTab].map((prop, index) => (
+              <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
+                    activeTab === 'jobseekers' ? 'bg-blue-100' :
+                    activeTab === 'employers' ? 'bg-orange-100' : 'bg-gray-100'
+                  }`}>
+                    <prop.icon className={`${
+                      activeTab === 'jobseekers' ? 'text-[#30496d]' :
+                      activeTab === 'employers' ? 'text-[#ff5f00]' : 'text-gray-800'
+                    }`} size={24} />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">{prop.title}</h3>
+                  <p className="text-sm text-gray-600">{prop.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* CTA based on active tab */}
+          <div className="text-center mt-10">
+            <Button
+              onClick={() => navigate(`/signup?type=${activeTab === 'jobseekers' ? 'workforce' : activeTab === 'employers' ? 'employer' : 'institution'}`)}
+              className={`h-12 px-8 text-white ${
+                activeTab === 'jobseekers' ? 'bg-[#30496d] hover:bg-[#234058]' :
+                activeTab === 'employers' ? 'bg-[#ff5f00] hover:bg-[#e55500]' :
+                'bg-gray-900 hover:bg-gray-800'
+              }`}
+            >
+              {activeTab === 'jobseekers' ? 'Find Jobs' : 
+               activeTab === 'employers' ? 'Start Hiring' : 'Partner With Us'}
+              <ChevronRight className="ml-2 w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-[#30496d]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join thousands of professionals, employers, and institutions transforming the workforce
-          </p>
-          <Button
-            size="lg"
-            onClick={() => navigate('/signup')}
-            className="bg-white text-[#30496d] hover:bg-gray-100 h-14 px-10 text-lg font-semibold"
-          >
-            Create Your Account
-            <ChevronRight className="ml-2 w-5 h-5" />
-          </Button>
+      {/* Trust Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center mb-16">
+            {[
+              { value: '10,000+', label: 'Verified Workers' },
+              { value: '500+', label: 'Active Employers' },
+              { value: '50+', label: 'Partner Institutions' },
+              { value: '95%', label: 'Compliance Rate' },
+            ].map((stat, index) => (
+              <div key={index}>
+                <div className="text-3xl md:text-4xl font-bold text-[#30496d] mb-1">{stat.value}</div>
+                <div className="text-gray-600 text-sm">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Partner Logos */}
+          <div className="text-center mb-8">
+            <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Trusted By</p>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-8">
+            {partnerLogos.map((logo, index) => (
+              <div
+                key={`${logo.id}-${index}`}
+                className="w-32 h-16 bg-gray-50 rounded-lg flex items-center justify-center p-3 grayscale hover:grayscale-0 transition-all"
+              >
+                <img
+                  src={logo.logo_url}
+                  alt={logo.institution_name}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -469,28 +513,22 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center mb-4">
-                <img 
-                  src={LOGOS.master}
-                  alt="HR Bank Logo" 
-                  className="h-8 w-auto object-contain"
-                />
-              </div>
-              <p className="text-sm">Your trusted workforce marketplace</p>
+              <img src={LOGOS.master} alt="HR Bank" className="h-8 w-auto mb-4" />
+              <p className="text-sm">The workforce marketplace where experience travels with you.</p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">For Workers</h4>
+              <h4 className="text-white font-semibold mb-4">For Job Seekers</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Find Jobs</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Get Certified</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Training Programs</a></li>
+                <li><Link to="/jobs" className="hover:text-white transition-colors">Browse Jobs</Link></li>
+                <li><Link to="/signup?type=workforce" className="hover:text-white transition-colors">Create Profile</Link></li>
+                <li><a href="#" className="hover:text-white transition-colors">How It Works</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">For Employers</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Post Jobs</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Find Workers</a></li>
+                <li><Link to="/signup?type=employer" className="hover:text-white transition-colors">Post Jobs</Link></li>
+                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Workforce Management</a></li>
               </ul>
             </div>
@@ -509,7 +547,7 @@ const LandingPage = () => {
         </div>
       </footer>
 
-      {/* Emma Landing Chat */}
+      {/* Emma Chat */}
       <EmmaLandingChat />
     </div>
   );
