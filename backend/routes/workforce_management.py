@@ -1086,3 +1086,338 @@ async def confirm_auto_assignments(
         "data": results,
         "message": f"Assigned {len(results['assigned'])} workers, {len(results['routed_to_board'])} roles posted to job board"
     }
+
+
+# ==================== JOB BOARD & CANDIDATE PIPELINE ====================
+
+class JobPostingCreate(BaseModel):
+    role_id: str
+    title: str
+    description: Optional[str] = None
+    requirements: Optional[List[str]] = None
+    hourly_rate: Optional[float] = None
+    positions_available: int = 1
+    work_type: str = "on_site"
+    workplace_id: Optional[str] = None
+
+class CandidateStageUpdate(BaseModel):
+    stage: str  # applied, screening, interview, offer, hired, rejected
+
+@router.get("/job-postings", response_model=Dict)
+async def get_job_postings(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get all active job postings for this employer"""
+    employer_id = current_user["user_id"]
+    
+    postings = await db.job_postings.find({
+        "employer_id": employer_id,
+        "status": {"$in": ["active", "paused"]}
+    }, {"_id": 0}).to_list(100)
+    
+    # Enrich with candidate counts
+    for posting in postings:
+        candidate_count = await db.job_applications.count_documents({
+            "posting_id": posting["posting_id"]
+        })
+        posting["candidate_count"] = candidate_count
+        
+        # Get stage breakdown
+        stages = await db.job_applications.aggregate([
+            {"$match": {"posting_id": posting["posting_id"]}},
+            {"$group": {"_id": "$stage", "count": {"$sum": 1}}}
+        ]).to_list(10)
+        posting["stage_counts"] = {s["_id"]: s["count"] for s in stages}
+    
+    return {"success": True, "data": postings}
+
+
+@router.post("/job-postings", response_model=Dict)
+async def create_job_posting(
+    posting: JobPostingCreate,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Create a new job posting to the job board"""
+    employer_id = current_user["user_id"]
+    
+    # Get role details
+    role = await db.workplace_roles.find_one(
+        {"role_id": posting.role_id, "employer_id": employer_id},
+        {"_id": 0}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Get workplace details
+    workplace = None
+    if posting.workplace_id or role.get("workplace_id"):
+        workplace = await db.workplaces.find_one(
+            {"workplace_id": posting.workplace_id or role.get("workplace_id")},
+            {"_id": 0, "name": 1, "workplace_name": 1, "address": 1, "city": 1}
+        )
+    
+    # Get employer profile for company info
+    profile = await db.employer_profiles.find_one(
+        {"employer_id": employer_id},
+        {"_id": 0, "company_name": 1, "company_logo": 1, "industry": 1}
+    )
+    
+    job_posting = {
+        "posting_id": f"job_{uuid.uuid4().hex[:12]}",
+        "employer_id": employer_id,
+        "role_id": posting.role_id,
+        "title": posting.title or role.get("role_name"),
+        "description": posting.description or role.get("description", ""),
+        "requirements": posting.requirements or role.get("requirements", []),
+        "hourly_rate": posting.hourly_rate or role.get("hourly_rate"),
+        "positions_available": posting.positions_available,
+        "work_type": posting.work_type or role.get("work_type", "on_site"),
+        "workplace_id": posting.workplace_id or role.get("workplace_id"),
+        "workplace_name": workplace.get("name") or workplace.get("workplace_name") if workplace else None,
+        "workplace_address": workplace.get("address") if workplace else None,
+        "workplace_city": workplace.get("city") if workplace else None,
+        "company_name": profile.get("company_name") if profile else None,
+        "company_logo": profile.get("company_logo") if profile else None,
+        "industry": profile.get("industry") if profile else None,
+        "status": "active",
+        "posted_date": datetime.now(timezone.utc).isoformat(),
+        "expires_date": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
+        "views": 0,
+        "applications": 0
+    }
+    
+    await db.job_postings.insert_one(job_posting)
+    
+    return {
+        "success": True,
+        "data": {k: v for k, v in job_posting.items() if k != "_id"},
+        "message": "Job posted to board successfully"
+    }
+
+
+@router.delete("/job-postings/{posting_id}", response_model=Dict)
+async def remove_job_posting(
+    posting_id: str,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Remove a job posting from the board"""
+    employer_id = current_user["user_id"]
+    
+    result = await db.job_postings.update_one(
+        {"posting_id": posting_id, "employer_id": employer_id},
+        {"$set": {"status": "closed", "closed_date": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Job posting not found")
+    
+    return {"success": True, "message": "Job posting removed from board"}
+
+
+@router.get("/candidates", response_model=Dict)
+async def get_candidates(
+    posting_id: Optional[str] = None,
+    stage: Optional[str] = None,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get all candidates/applications for this employer"""
+    employer_id = current_user["user_id"]
+    
+    # Build query
+    query = {"employer_id": employer_id}
+    if posting_id:
+        query["posting_id"] = posting_id
+    if stage:
+        query["stage"] = stage
+    
+    applications = await db.job_applications.find(query, {"_id": 0}).to_list(500)
+    
+    # Enrich with applicant details
+    for app in applications:
+        applicant = await db.users.find_one(
+            {"user_id": app.get("applicant_id")},
+            {"_id": 0, "full_name": 1, "email": 1, "phone": 1}
+        )
+        if applicant:
+            app["applicant_name"] = applicant.get("full_name")
+            app["applicant_email"] = applicant.get("email")
+            app["applicant_phone"] = applicant.get("phone")
+        
+        # Get applicant profile
+        profile = await db.workforce_profiles.find_one(
+            {"workforce_id": app.get("applicant_id")},
+            {"_id": 0, "skills": 1, "experience_years": 1, "resume_url": 1, "profile_photo": 1}
+        )
+        if profile:
+            app["skills"] = profile.get("skills", [])
+            app["experience_years"] = profile.get("experience_years")
+            app["resume_url"] = profile.get("resume_url")
+            app["profile_photo"] = profile.get("profile_photo")
+    
+    # Group by stage for pipeline view
+    pipeline = {
+        "applied": [],
+        "screening": [],
+        "interview": [],
+        "offer": [],
+        "hired": [],
+        "rejected": []
+    }
+    
+    for app in applications:
+        stage = app.get("stage", "applied")
+        if stage in pipeline:
+            pipeline[stage].append(app)
+    
+    return {
+        "success": True,
+        "data": {
+            "all": applications,
+            "pipeline": pipeline,
+            "total": len(applications)
+        }
+    }
+
+
+@router.put("/candidates/{application_id}/stage", response_model=Dict)
+async def update_candidate_stage(
+    application_id: str,
+    update: CandidateStageUpdate,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Move a candidate to a different pipeline stage"""
+    employer_id = current_user["user_id"]
+    
+    valid_stages = ["applied", "screening", "interview", "offer", "hired", "rejected"]
+    if update.stage not in valid_stages:
+        raise HTTPException(status_code=400, detail=f"Invalid stage. Must be one of: {valid_stages}")
+    
+    application = await db.job_applications.find_one({
+        "application_id": application_id,
+        "employer_id": employer_id
+    })
+    
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    old_stage = application.get("stage", "applied")
+    
+    # Update stage
+    result = await db.job_applications.update_one(
+        {"application_id": application_id},
+        {
+            "$set": {
+                "stage": update.stage,
+                "stage_updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            "$push": {
+                "stage_history": {
+                    "from_stage": old_stage,
+                    "to_stage": update.stage,
+                    "changed_at": datetime.now(timezone.utc).isoformat(),
+                    "changed_by": employer_id
+                }
+            }
+        }
+    )
+    
+    # If hired, create employment relationship
+    if update.stage == "hired":
+        posting = await db.job_postings.find_one({"posting_id": application["posting_id"]})
+        if posting:
+            # Create employment relationship
+            employment = {
+                "relationship_id": f"rel_{uuid.uuid4().hex[:12]}",
+                "employer_id": employer_id,
+                "workforce_id": application["applicant_id"],
+                "role_id": posting.get("role_id"),
+                "workplace_id": posting.get("workplace_id"),
+                "position_title": posting.get("title"),
+                "hourly_rate": posting.get("hourly_rate"),
+                "work_type": posting.get("work_type"),
+                "status": "active",
+                "start_date": datetime.now(timezone.utc).isoformat(),
+                "source": "job_board",
+                "application_id": application_id
+            }
+            await db.employment_relationships.insert_one(employment)
+            
+            # Update posting positions
+            await db.job_postings.update_one(
+                {"posting_id": application["posting_id"]},
+                {"$inc": {"positions_filled": 1}}
+            )
+            
+            # Check if all positions filled
+            updated_posting = await db.job_postings.find_one({"posting_id": application["posting_id"]})
+            if updated_posting and updated_posting.get("positions_filled", 0) >= updated_posting.get("positions_available", 1):
+                await db.job_postings.update_one(
+                    {"posting_id": application["posting_id"]},
+                    {"$set": {"status": "filled"}}
+                )
+    
+    return {
+        "success": True,
+        "message": f"Candidate moved to {update.stage}",
+        "data": {"old_stage": old_stage, "new_stage": update.stage}
+    }
+
+
+@router.get("/recruitment-stats", response_model=Dict)
+async def get_recruitment_stats(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """Get recruitment statistics for dashboard"""
+    employer_id = current_user["user_id"]
+    
+    # Count active postings
+    active_postings = await db.job_postings.count_documents({
+        "employer_id": employer_id,
+        "status": "active"
+    })
+    
+    # Count total candidates
+    total_candidates = await db.job_applications.count_documents({
+        "employer_id": employer_id
+    })
+    
+    # Count by stage
+    stage_counts = await db.job_applications.aggregate([
+        {"$match": {"employer_id": employer_id}},
+        {"$group": {"_id": "$stage", "count": {"$sum": 1}}}
+    ]).to_list(10)
+    
+    stages = {s["_id"]: s["count"] for s in stage_counts}
+    
+    # Count scheduled interviews
+    interviews_scheduled = stages.get("interview", 0)
+    
+    # Count pending offers
+    offers_pending = stages.get("offer", 0)
+    
+    # Recent hires (last 30 days)
+    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    recent_hires = await db.job_applications.count_documents({
+        "employer_id": employer_id,
+        "stage": "hired",
+        "stage_updated_at": {"$gte": thirty_days_ago}
+    })
+    
+    return {
+        "success": True,
+        "data": {
+            "active_postings": active_postings,
+            "total_candidates": total_candidates,
+            "interviews_scheduled": interviews_scheduled,
+            "offers_pending": offers_pending,
+            "recent_hires": recent_hires,
+            "by_stage": stages
+        }
+    }
