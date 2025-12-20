@@ -11,7 +11,9 @@ if env_file.exists():
     for line in env_file.read_text().splitlines():
         if '=' in line and not line.startswith('#'):
             key, val = line.split('=', 1)
-            os.environ[key.strip()] = val.strip()
+            # Remove quotes from value
+            val = val.strip().strip('"').strip("'")
+            os.environ[key.strip()] = val
 
 async def setup_field_service():
     client = AsyncIOMotorClient(os.environ.get('MONGO_URL'))
