@@ -503,11 +503,12 @@ const WorkforceSortControls = ({ workers, onSortedWorkers }) => {
 };
 
 // Main Drag & Drop Assignment Component
-const DragDropAssignment = ({ workers = [], shifts = [], tasks = [], onAssign, onUnassign, loading }) => {
+const DragDropAssignment = ({ workers = [], shifts = [], tasks = [], onAssign, onUnassign, loading, onRefresh }) => {
   const theme = useTheme();
   const [activeWorker, setActiveWorker] = useState(null);
   const [overId, setOverId] = useState(null);
   const [sortedWorkers, setSortedWorkers] = useState([]);
+  const [showAutoAssignModal, setShowAutoAssignModal] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -549,6 +550,13 @@ const DragDropAssignment = ({ workers = [], shifts = [], tasks = [], onAssign, o
   const handleDragCancel = () => {
     setActiveWorker(null);
     setOverId(null);
+  };
+
+  const handleAutoAssignComplete = () => {
+    // Refresh the data after auto-assign
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   // Combine shifts and tasks
