@@ -940,6 +940,15 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
 
       {/* Post Job Modal */}
       {showPostJobModal && <PostJobModal />}
+
+      {/* Interview Scheduling Modal */}
+      {showInterviewModal && selectedCandidate && (
+        <InterviewModal
+          candidate={selectedCandidate}
+          onClose={() => { setShowInterviewModal(false); setSelectedCandidate(null); }}
+          onSchedule={handleScheduleInterview}
+        />
+      )}
     </div>
   );
 };
