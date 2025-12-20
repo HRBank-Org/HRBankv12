@@ -1639,16 +1639,21 @@ async def cancel_interview(
 def calculate_match_score(candidate_profile: dict, role: dict) -> dict:
     """
     Calculate how well a candidate matches a role's requirements.
+    Certifications are HARD REQUIREMENTS (compliance) - missing = not qualified.
     Returns score (0-100) and breakdown.
     """
     score = 0
     max_score = 0
     breakdown = {
         "skills": {"matched": [], "missing": [], "score": 0, "max": 40},
-        "certifications": {"matched": [], "missing": [], "score": 0, "max": 30},
+        "certifications": {"matched": [], "missing": [], "score": 0, "max": 30, "required": True},
         "experience": {"years": 0, "preferred": 0, "score": 0, "max": 20},
         "rating": {"value": 0, "score": 0, "max": 10}
     }
+    
+    # Track compliance (certifications are mandatory in Canada)
+    is_qualified = True
+    disqualification_reasons = []
     
     # Skills matching (40 points max)
     required_skills = role.get("required_skills", [])
@@ -1671,7 +1676,7 @@ def calculate_match_score(candidate_profile: dict, role: dict) -> dict:
     score += breakdown["skills"]["score"]
     max_score += 40
     
-    # Certifications matching (30 points max)
+    # Certifications matching - HARD REQUIREMENT FOR COMPLIANCE
     required_certs = role.get("required_certifications", [])
     candidate_certs = [c.lower() for c in candidate_profile.get("certifications", [])]
     
@@ -1682,9 +1687,13 @@ def calculate_match_score(candidate_profile: dict, role: dict) -> dict:
             else:
                 breakdown["certifications"]["missing"].append(cert)
         
-        if len(required_certs) > 0:
-            cert_ratio = len(breakdown["certifications"]["matched"]) / len(required_certs)
-            breakdown["certifications"]["score"] = int(cert_ratio * 30)
+        # COMPLIANCE CHECK: All required certifications must be present
+        if breakdown["certifications"]["missing"]:
+            is_qualified = False
+            disqualification_reasons.append(f"Missing required certification(s): {', '.join(breakdown['certifications']['missing'])}")
+            breakdown["certifications"]["score"] = 0  # No partial credit for compliance
+        else:
+            breakdown["certifications"]["score"] = 30  # Full points only if ALL certs present
     else:
         # No required certs = full points
         breakdown["certifications"]["score"] = 30
