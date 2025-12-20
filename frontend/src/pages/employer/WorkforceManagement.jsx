@@ -9,7 +9,8 @@ import DragDropAssignment from '../../components/employer/DragDropAssignment';
 import { 
   FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw, FiTrendingUp, 
   FiActivity, FiGrid, FiList, FiAlertTriangle, FiFileText, FiDownload,
-  FiUsers, FiBriefcase, FiPlus, FiTrash2, FiExternalLink, FiChevronRight
+  FiUsers, FiBriefcase, FiPlus, FiTrash2, FiExternalLink, FiChevronRight,
+  FiCalendar, FiVideo, FiMapPin
 } from 'react-icons/fi';
 
 // ESA Compliance Constants (Ontario)
