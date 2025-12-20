@@ -1632,3 +1632,230 @@ async def cancel_interview(
         raise HTTPException(status_code=404, detail="Interview not found")
     
     return {"success": True, "message": "Interview cancelled"}
+
+
+# ==================== CANDIDATE MATCHING & SCORING ====================
+
+def calculate_match_score(candidate_profile: dict, role: dict) -> dict:
+    """
+    Calculate how well a candidate matches a role's requirements.
+    Returns score (0-100) and breakdown.
+    """
+    score = 0
+    max_score = 0
+    breakdown = {
+        "skills": {"matched": [], "missing": [], "score": 0, "max": 40},
+        "certifications": {"matched": [], "missing": [], "score": 0, "max": 30},
+        "experience": {"years": 0, "preferred": 0, "score": 0, "max": 20},
+        "rating": {"value": 0, "score": 0, "max": 10}
+    }
+    
+    # Skills matching (40 points max)
+    required_skills = role.get("required_skills", [])
+    candidate_skills = [s.lower() for s in candidate_profile.get("skills", [])]
+    
+    if required_skills:
+        for skill in required_skills:
+            if skill.lower() in candidate_skills:
+                breakdown["skills"]["matched"].append(skill)
+            else:
+                breakdown["skills"]["missing"].append(skill)
+        
+        if len(required_skills) > 0:
+            skill_ratio = len(breakdown["skills"]["matched"]) / len(required_skills)
+            breakdown["skills"]["score"] = int(skill_ratio * 40)
+    else:
+        # No required skills = full points if candidate has any skills
+        breakdown["skills"]["score"] = 40 if candidate_skills else 20
+    
+    score += breakdown["skills"]["score"]
+    max_score += 40
+    
+    # Certifications matching (30 points max)
+    required_certs = role.get("required_certifications", [])
+    candidate_certs = [c.lower() for c in candidate_profile.get("certifications", [])]
+    
+    if required_certs:
+        for cert in required_certs:
+            if cert.lower() in candidate_certs:
+                breakdown["certifications"]["matched"].append(cert)
+            else:
+                breakdown["certifications"]["missing"].append(cert)
+        
+        if len(required_certs) > 0:
+            cert_ratio = len(breakdown["certifications"]["matched"]) / len(required_certs)
+            breakdown["certifications"]["score"] = int(cert_ratio * 30)
+    else:
+        # No required certs = full points
+        breakdown["certifications"]["score"] = 30
+    
+    score += breakdown["certifications"]["score"]
+    max_score += 30
+    
+    # Experience scoring (20 points max)
+    candidate_exp = candidate_profile.get("experience_years", 0) or 0
+    preferred_exp = role.get("preferred_experience_years", 2)
+    breakdown["experience"]["years"] = candidate_exp
+    breakdown["experience"]["preferred"] = preferred_exp
+    
+    if candidate_exp >= preferred_exp:
+        breakdown["experience"]["score"] = 20
+    elif candidate_exp > 0:
+        exp_ratio = candidate_exp / preferred_exp
+        breakdown["experience"]["score"] = int(exp_ratio * 20)
+    else:
+        breakdown["experience"]["score"] = 5  # Some points for being willing
+    
+    score += breakdown["experience"]["score"]
+    max_score += 20
+    
+    # Rating scoring (10 points max)
+    avg_rating = candidate_profile.get("average_rating", 0) or 0
+    breakdown["rating"]["value"] = avg_rating
+    
+    if avg_rating >= 4.5:
+        breakdown["rating"]["score"] = 10
+    elif avg_rating >= 4.0:
+        breakdown["rating"]["score"] = 8
+    elif avg_rating >= 3.5:
+        breakdown["rating"]["score"] = 6
+    elif avg_rating >= 3.0:
+        breakdown["rating"]["score"] = 4
+    elif avg_rating > 0:
+        breakdown["rating"]["score"] = 2
+    else:
+        breakdown["rating"]["score"] = 5  # No rating = neutral
+    
+    score += breakdown["rating"]["score"]
+    max_score += 10
+    
+    return {
+        "score": score,
+        "max_score": max_score,
+        "percentage": int((score / max_score) * 100) if max_score > 0 else 0,
+        "breakdown": breakdown
+    }
+
+
+@router.get("/candidates/enriched", response_model=Dict)
+async def get_enriched_candidates(
+    posting_id: Optional[str] = None,
+    stage: Optional[str] = None,
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get candidates with full profile data, ratings, and match scores.
+    Enhanced version of /candidates endpoint for comparison features.
+    """
+    employer_id = current_user["user_id"]
+    
+    # Build query
+    query = {"employer_id": employer_id}
+    if posting_id:
+        query["posting_id"] = posting_id
+    if stage:
+        query["stage"] = stage
+    
+    applications = await db.job_applications.find(query, {"_id": 0}).to_list(500)
+    
+    # Get all relevant job postings and roles for match scoring
+    posting_ids = list(set(app["posting_id"] for app in applications))
+    postings = {}
+    roles = {}
+    
+    for pid in posting_ids:
+        posting = await db.job_postings.find_one({"posting_id": pid}, {"_id": 0})
+        if posting:
+            postings[pid] = posting
+            if posting.get("role_id"):
+                role = await db.workplace_roles.find_one(
+                    {"role_id": posting["role_id"]},
+                    {"_id": 0}
+                )
+                if role:
+                    roles[posting["role_id"]] = role
+    
+    # Enrich each application
+    enriched_apps = []
+    for app in applications:
+        # Get applicant user data (no email/phone for privacy)
+        applicant = await db.users.find_one(
+            {"user_id": app.get("applicant_id")},
+            {"_id": 0, "full_name": 1, "user_id": 1}
+        )
+        
+        # Get full workforce profile
+        profile = await db.workforce_profiles.find_one(
+            {"workforce_id": app.get("applicant_id")},
+            {"_id": 0}
+        )
+        
+        # Get ratings for this candidate
+        ratings = await db.shift_ratings.find({
+            "rated_user_id": app.get("applicant_id"),
+            "rating_type": "employer_to_workforce"
+        }, {"_id": 0, "rating": 1, "review": 1}).to_list(100)
+        
+        avg_rating = 0
+        review_count = len(ratings)
+        if ratings:
+            avg_rating = sum(r.get("rating", 0) for r in ratings) / len(ratings)
+        
+        # Build enriched candidate object
+        enriched = {
+            **app,
+            "applicant_name": applicant.get("full_name") if applicant else "Unknown",
+            "skills": profile.get("skills", []) if profile else [],
+            "certifications": profile.get("certifications", []) if profile else [],
+            "experience_years": profile.get("experience_years", 0) if profile else 0,
+            "average_rating": round(avg_rating, 1),
+            "review_count": review_count,
+            "profile_photo": profile.get("profile_photo") if profile else None,
+            "availability": profile.get("availability") if profile else None,
+        }
+        
+        # Calculate match score if we have the role
+        posting = postings.get(app["posting_id"])
+        if posting and posting.get("role_id"):
+            role = roles.get(posting["role_id"], {})
+            match_result = calculate_match_score(
+                {**enriched, "average_rating": avg_rating},
+                role
+            )
+            enriched["match_score"] = match_result
+        else:
+            enriched["match_score"] = None
+        
+        enriched_apps.append(enriched)
+    
+    # Group by stage for pipeline view
+    pipeline = {
+        "applied": [],
+        "screening": [],
+        "interview": [],
+        "offer": [],
+        "hired": [],
+        "rejected": []
+    }
+    
+    for app in enriched_apps:
+        stage = app.get("stage", "applied")
+        if stage in pipeline:
+            pipeline[stage].append(app)
+    
+    # Sort each stage by match score (highest first)
+    for stage_name in pipeline:
+        pipeline[stage_name].sort(
+            key=lambda x: x.get("match_score", {}).get("percentage", 0) if x.get("match_score") else 0,
+            reverse=True
+        )
+    
+    return {
+        "success": True,
+        "data": {
+            "all": enriched_apps,
+            "pipeline": pipeline,
+            "total": len(enriched_apps)
+        }
+    }
