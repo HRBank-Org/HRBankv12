@@ -399,6 +399,55 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
     }
   };
 
+  // Offer Management Handlers
+  const handleSendOffer = (candidate) => {
+    setOfferCandidate(candidate);
+    setShowOfferModal(true);
+  };
+
+  const handleGenerateContract = (candidate) => {
+    setOfferCandidate(candidate);
+    setShowContractModal(true);
+  };
+
+  const handleSendOfferSubmit = async (offerData) => {
+    try {
+      await api.post('/api/employer/workforce-management/offers/send', {
+        application_id: offerCandidate.application_id,
+        ...offerData
+      });
+      alert('Offer sent successfully!');
+      setShowOfferModal(false);
+      setOfferCandidate(null);
+      fetchRecruitmentData();
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to send offer');
+    }
+  };
+
+  const handleGenerateContractSubmit = async (contractData) => {
+    try {
+      const response = await api.post('/api/employer/workforce-management/contracts/generate', {
+        application_id: offerCandidate.application_id,
+        ...contractData
+      });
+      // Download the generated contract PDF
+      const blob = new Blob([atob(response.data.data.pdf_base64)], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `employment_contract_${offerCandidate.applicant_name?.replace(/\s+/g, '_') || 'candidate'}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      setShowContractModal(false);
+      setOfferCandidate(null);
+      alert('Contract generated and downloaded!');
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to generate contract');
+    }
+  };
+
   // Interview Scheduling Modal
   const InterviewModal = ({ candidate, onClose, onSchedule }) => {
     const [interviewType, setInterviewType] = useState('video');
