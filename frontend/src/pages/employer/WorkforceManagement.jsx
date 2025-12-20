@@ -40,22 +40,33 @@ const getAvailabilityStatus = (weeklyHours, dailyHours = 0, hasExcessAgreement =
 };
 
 // Sortable Table Header Component
+// Multi-column sortable header - supports Shift+Click for secondary sorting
 const SortableHeader = ({ label, sortKey, currentSort, onSort, align = 'left' }) => {
-  const isActive = currentSort.key === sortKey;
-  const direction = isActive ? currentSort.direction : null;
+  // currentSort is now an array: [{ key, direction }, { key, direction }, ...]
+  const sortArray = Array.isArray(currentSort) ? currentSort : [currentSort];
+  const sortIndex = sortArray.findIndex(s => s.key === sortKey);
+  const isActive = sortIndex !== -1;
+  const direction = isActive ? sortArray[sortIndex].direction : null;
+  const sortPriority = isActive ? sortIndex + 1 : null;
   
   return (
     <th 
-      className={`px-4 py-3 text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none ${
+      className={`px-4 py-3 text-xs font-medium uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors ${
         align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left'
-      }`}
-      onClick={() => onSort(sortKey)}
+      } ${isActive ? 'text-blue-600 bg-blue-50' : 'text-gray-500'}`}
+      onClick={(e) => onSort(sortKey, e.shiftKey)}
+      title={isActive ? `Sort priority: ${sortPriority}. Shift+Click to add secondary sort` : 'Click to sort, Shift+Click to add to sort'}
     >
       <div className={`flex items-center gap-1 ${align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : ''}`}>
         {label}
-        <span className="text-gray-400">
+        <span className={isActive ? 'text-blue-500' : 'text-gray-400'}>
           {isActive ? (direction === 'asc' ? '↑' : '↓') : '↕'}
         </span>
+        {sortPriority && sortArray.length > 1 && (
+          <span className="ml-0.5 w-4 h-4 bg-blue-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+            {sortPriority}
+          </span>
+        )}
       </div>
     </th>
   );
