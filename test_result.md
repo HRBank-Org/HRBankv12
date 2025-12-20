@@ -1,5 +1,39 @@
 # Test Results - HR Bank
 
+## Current Test Session: Match Engine Implementation
+
+### Test Date: December 20, 2025
+
+### Feature Under Test: Match Engine API
+
+**Test Endpoints:**
+- `POST /api/match-engine/run/{posting_id}` - Run match engine for specific posting
+- `POST /api/match-engine/run-all` - Run match engine for all active postings
+- `GET /api/match-engine/matches` - Get worker's matched jobs
+- `POST /api/match-engine/matches/{id}/confirm` - Worker confirms a match
+- `POST /api/match-engine/matches/{id}/decline` - Worker declines a match
+- `PUT /api/match-engine/matching-status` - Toggle worker matching status
+- `GET /api/match-engine/notifications` - Get user notifications
+
+**Test Data:**
+- Employer: john.b@swanpizza.ca / Test123! (emp_80b6196b4d02)
+- Active Job Postings:
+  - job_20dc10bc5de2: Server - Requires: ServSafe
+  - job_385606d5fa24: Line Cook - Requires: ServSafe, Food Handler  
+  - job_412044e458e9: Delivery Driver - Requires: G License
+  - job_38323d5dc0e9: Night Security - Requires: First Aid
+- Workers with G License: wkr_f9dc6d4d14f2, wkr_513ee704c964
+- Workers with First Aid: wkr_551d3def4a5a (Tyler Johnson)
+
+**Expected Behavior:**
+1. Match engine finds workers with required certifications
+2. Creates auto-applications with stage='matched'
+3. Creates in-app notifications for matched workers
+4. Workers can confirm/decline matches
+5. Inactive profiles should NOT be matched
+
+---
+
 ## Latest Test Session: Recruitment Tab Phase 3 - Candidate Pipeline
 
 ### Test Date: December 20, 2025
