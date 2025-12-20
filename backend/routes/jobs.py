@@ -6,7 +6,7 @@ from utils.calculations import haversine_distance
 from typing import Dict, List, Optional
 from datetime import datetime
 
-router = APIRouter(prefix="/api/jobs", tags=["Jobs"])
+router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
 def get_db():
     """Dependency to get database instance"""
