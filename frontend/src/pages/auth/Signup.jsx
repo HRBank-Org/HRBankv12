@@ -341,18 +341,29 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
 const Signup = () => {
   const [selectedUserType, setSelectedUserType] = useState('workforce');
   const [searchParams] = useSearchParams();
+  const [applyJobId, setApplyJobId] = useState(null);
 
-  // Set initial user type from URL parameter
+  // Set initial user type from URL parameter and capture job application context
   React.useEffect(() => {
     const typeParam = searchParams.get('type');
     if (typeParam && ['workforce', 'employer', 'institution'].includes(typeParam)) {
       setSelectedUserType(typeParam);
     }
+    
+    // Capture job application context
+    const jobId = searchParams.get('apply_job');
+    if (jobId) {
+      setApplyJobId(jobId);
+    }
   }, [searchParams]);
 
   return (
     <ThemeProvider key={selectedUserType} userType={selectedUserType}>
-      <SignupForm selectedUserType={selectedUserType} setSelectedUserType={setSelectedUserType} />
+      <SignupForm 
+        selectedUserType={selectedUserType} 
+        setSelectedUserType={setSelectedUserType}
+        applyJobId={applyJobId}
+      />
     </ThemeProvider>
   );
 };
