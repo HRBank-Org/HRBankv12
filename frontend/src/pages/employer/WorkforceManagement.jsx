@@ -6,7 +6,11 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import WorkerInviteModal from '../../components/employer/WorkerInviteModal';
 import DragDropAssignment from '../../components/employer/DragDropAssignment';
-import { FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw, FiTrendingUp, FiActivity, FiGrid, FiList, FiAlertTriangle, FiFileText, FiDownload } from 'react-icons/fi';
+import { 
+  FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw, FiTrendingUp, 
+  FiActivity, FiGrid, FiList, FiAlertTriangle, FiFileText, FiDownload,
+  FiUsers, FiBriefcase, FiPlus, FiTrash2, FiExternalLink, FiChevronRight
+} from 'react-icons/fi';
 
 // ESA Compliance Constants (Ontario)
 const ESA_LIMITS = {
