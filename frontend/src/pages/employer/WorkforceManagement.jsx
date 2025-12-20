@@ -570,6 +570,20 @@ const RecruitmentPanel = ({ roles, workplaces, theme }) => {
         <div className="flex gap-1">
           {candidate.stage !== 'hired' && candidate.stage !== 'rejected' && (
             <>
+              {/* Schedule Interview button - show for screening/applied stages */}
+              {(candidate.stage === 'applied' || candidate.stage === 'screening') && (
+                <button
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    setSelectedCandidate(candidate);
+                    setShowInterviewModal(true);
+                  }}
+                  className="p-1 text-purple-500 hover:bg-purple-50 rounded"
+                  title="Schedule Interview"
+                >
+                  <FiCalendar size={14} />
+                </button>
+              )}
               <button
                 onClick={(e) => { e.stopPropagation(); onStageChange(candidate.application_id, 'rejected'); }}
                 className="p-1 text-red-500 hover:bg-red-50 rounded"
