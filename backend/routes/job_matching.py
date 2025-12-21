@@ -65,18 +65,40 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
     # Availability Score (35% weight) - HIGH PRIORITY
     # Check if worker is currently employed
     is_available = worker_profile.get('employment_status') != 'employed'
-    # Check availability hours (if we have this data)
-    availability_hours = worker_profile.get('availability_hours', {})
-    has_availability = len(availability_hours) > 0
     
-    if is_available and has_availability:
-        availability_score = 100
+    # Check availability - support both simple and legacy formats
+    availability_simple = worker_profile.get('availability_simple', {})
+    availability_hours = worker_profile.get('availability_hours', {})
+    
+    # Determine if worker has set availability
+    has_simple_availability = bool(availability_simple.get('days')) and bool(availability_simple.get('periods'))
+    has_legacy_availability = any(len(slots) > 0 for slots in availability_hours.values()) if availability_hours else False
+    has_availability = has_simple_availability or has_legacy_availability
+    
+    # Calculate availability score based on coverage
+    if has_simple_availability:
+        # New simple format - reward broader availability
+        days_count = len(availability_simple.get('days', []))
+        periods_count = len(availability_simple.get('periods', []))
+        coverage_score = (days_count / 7 * 50) + (periods_count / 4 * 50)  # Max 100
+        
+        if is_available:
+            availability_score = max(70, coverage_score)  # At least 70 if available
+        else:
+            availability_score = coverage_score * 0.6  # Reduce if employed
+    elif has_legacy_availability:
+        # Legacy format - count total available hours
+        total_hours = sum(len(slots) for slots in availability_hours.values())
+        coverage_ratio = min(total_hours / 40, 1.0)  # 40 hours = full coverage
+        
+        if is_available:
+            availability_score = 70 + (coverage_ratio * 30)
+        else:
+            availability_score = 50 + (coverage_ratio * 20)
     elif is_available:
-        availability_score = 80  # Available but no specific hours set
-    elif has_availability:
-        availability_score = 50  # Has some availability despite being employed
+        availability_score = 60  # Available but no hours set - still good
     else:
-        availability_score = 30  # Limited availability
+        availability_score = 30  # Employed with no availability set
     
     # Certification Matching (20% weight) - MEDIUM PRIORITY
     # NEW: Separate occupation-linked certs (PRIMARY) from employer-added certs (SECONDARY)
