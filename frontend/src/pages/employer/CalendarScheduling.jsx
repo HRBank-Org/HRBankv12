@@ -472,6 +472,28 @@ const CalendarScheduling = () => {
     );
   };
 
+  // Shift type legend
+  const renderLegend = () => (
+    <div className="flex items-center gap-6 mb-4 px-3 py-2 bg-gray-50 rounded-lg text-sm">
+      <span className="text-gray-600 font-medium">Shift Types:</span>
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-green-500 rounded"></div>
+        <span className="text-gray-700">🏢 On-Site</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-blue-500 rounded"></div>
+        <span className="text-gray-700">🚗 Route-Based</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-purple-500 rounded"></div>
+        <span className="text-gray-700">🔄 Continental</span>
+      </div>
+      <div className="ml-auto text-xs text-gray-500">
+        {shifts.length} shift{shifts.length !== 1 ? 's' : ''} total
+      </div>
+    </div>
+  );
+
   const renderWeekView = () => {
     const hours = Array.from({ length: 24 }, (_, i) => i);
     const days = Array.from({ length: 7 }, (_, i) => 
