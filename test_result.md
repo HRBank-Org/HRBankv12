@@ -1,12 +1,12 @@
 # Test Results - HR Bank
 
-## Latest Test Session: Two-Way Rating System Testing
+## Latest Test Session: Unified Calendar Shifts Endpoint Testing
 
 ### Test Date: December 21, 2025
 
 ### Testing Agent: Testing Agent (Backend API Testing)
 
-### Feature Under Test: Two-Way Rating System Implementation
+### Feature Under Test: Unified Calendar Shifts Endpoint Implementation
 
 **Base URL:** https://job-board-pro.preview.emergentagent.com
 **Test Credentials:** 
