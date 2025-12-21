@@ -446,6 +446,28 @@ const EmployerSettings = () => {
               </div>
             </div>
 
+            {/* Preferred Language */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Preferred Language
+              </label>
+              <select
+                value={profile.preferred_language}
+                onChange={(e) => setProfile({ ...profile, preferred_language: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                style={{ focusRing: theme.primaryColor }}
+              >
+                {EMPLOYER_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name} ({lang.native})
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Dashboard and communications will use this language
+              </p>
+            </div>
+
             {/* Save Button */}
             <div className="pt-4 border-t border-gray-200">
               <button
