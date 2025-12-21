@@ -257,13 +257,53 @@ const WorkforceDashboard = () => {
           </div>
 
           {/* Action Items / Alerts */}
-          {(stats.pendingTasks > 0 || stats.jobOffers > 0) && (
+          {(stats.pendingTasks > 0 || stats.jobOffers > 0 || pendingRatings.length > 0) && (
             <div className="mb-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <FiAlertCircle className="text-orange-500" size={24} />
                 Needs Your Attention
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Pending Ratings Alert */}
+                {pendingRatings.length > 0 && (
+                  <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5">
+                    <h3 className="font-semibold text-amber-900 mb-1 flex items-center gap-2">
+                      <FiStar className="text-amber-500" />
+                      {pendingRatings.length} Employer{pendingRatings.length > 1 ? 's' : ''} to Rate
+                    </h3>
+                    <p className="text-sm text-amber-700 mb-3">
+                      Share your experience from completed shifts
+                    </p>
+                    <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
+                      {pendingRatings.slice(0, 3).map((rating, index) => (
+                        <div 
+                          key={index}
+                          className="flex items-center justify-between bg-white rounded-lg p-2 text-sm"
+                        >
+                          <div>
+                            <span className="font-medium text-gray-800">{rating.employer_name || 'Employer'}</span>
+                            <span className="text-gray-500 ml-2">{rating.role_title}</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedBooking(rating);
+                              setShowRatingModal(true);
+                            }}
+                            className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition-colors"
+                          >
+                            Rate
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {pendingRatings.length > 3 && (
+                      <p className="text-xs text-amber-600 text-center">
+                        +{pendingRatings.length - 3} more to rate
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {stats.jobOffers > 0 && (
                   <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
                     <h3 className="font-semibold text-blue-900 mb-1">
