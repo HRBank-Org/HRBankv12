@@ -78,7 +78,7 @@ const LandingPage = () => {
       { icon: Zap, title: 'AI Job Matching', desc: 'No more endless applications. AI finds jobs that match your skills automatically.' },
       { icon: Shield, title: 'Portable Credentials', desc: 'Your certifications follow you forever. Blockchain-secured and instantly verifiable.' },
       { icon: Star, title: 'Ratings That Travel', desc: 'Build your reputation. Great ratings from past jobs unlock better opportunities.' },
-      { icon: Globe, title: 'No Language Barriers', desc: '40+ languages supported. Work anywhere, communicate effortlessly.' },
+      { icon: Globe, title: 'No Language Barriers', desc: '20+ languages supported. Work anywhere, communicate effortlessly.' },
     ],
     employers: [
       { icon: Smartphone, title: 'Manage From Anywhere', desc: 'See who clocked in, track tasks, approve timesheets - all from your phone.' },
