@@ -994,6 +994,7 @@ const CalendarScheduling = () => {
     <div className="min-h-screen bg-gray-50 p-4">
       {renderSetupBanner()}
       {renderControls()}
+      {renderLegend()}
       
       {viewMode === 'week' && renderWeekView()}
       {viewMode === 'day' && renderDayView()}
