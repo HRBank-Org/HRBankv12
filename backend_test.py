@@ -816,6 +816,224 @@ def test_role_based_access(results, workforce_token, employer_token):
         except Exception as e:
             results.add_fail(f"Employer blocked from {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_two_way_rating_system(results):
+    """Test the two-way rating system implementation"""
+    print("\n🧪 Testing Two-Way Rating System (Priority: HIGH)...")
+    print("   Testing endpoints: /api/jobs/public, /api/ratings/pending, /api/ratings/worker/{id}, /api/ratings/employer/{id}")
+    
+    # Test credentials from review request
+    employer_creds = {"email": "john.b@swanpizza.ca", "password": "Test123!", "user_type": "employer"}
+    workforce_creds = {"email": "emily.chen@email.com", "password": "Test123!", "user_type": "workforce"}
+    admin_creds = {"email": "qnizami@hrbank.ca", "password": "Test123!", "user_type": "admin"}
+    
+    # Test 1: Public Jobs with Employer Ratings
+    print("\n   Test 1: GET /api/jobs/public - Public jobs with employer ratings")
+    try:
+        response = requests.get(f"{BASE_URL}/jobs/public", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and isinstance(data.get("data"), list):
+                jobs = data["data"]
+                results.add_pass("GET /api/jobs/public - Endpoint accessible")
+                
+                # Check if jobs include employer rating fields
+                if jobs:
+                    job = jobs[0]
+                    required_fields = ["employer_rating", "employer_rating_count"]
+                    missing_fields = [field for field in required_fields if field not in job]
+                    
+                    if not missing_fields:
+                        results.add_pass("Public jobs include employer rating fields")
+                        print(f"      Sample job employer rating: {job.get('employer_rating', 0)}")
+                        print(f"      Sample job rating count: {job.get('employer_rating_count', 0)}")
+                    else:
+                        results.add_fail("Public jobs employer rating fields", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_pass("Public jobs endpoint - No jobs available (empty response is valid)")
+            else:
+                results.add_fail("GET /api/jobs/public", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/jobs/public", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/jobs/public", f"Request failed: {str(e)}")
+    
+    # Login as workforce user for pending ratings test
+    workforce_token = None
+    print("\n   Test 2: Workforce login for pending ratings test")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=workforce_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                workforce_token = data["data"]["access_token"]
+                results.add_pass("Workforce login for rating tests")
+            else:
+                results.add_fail("Workforce login for rating tests", f"Invalid response: {data}")
+        else:
+            results.add_fail("Workforce login for rating tests", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Workforce login for rating tests", f"Request failed: {str(e)}")
+    
+    # Test 3: Pending Ratings (Workforce)
+    if workforce_token:
+        print("\n   Test 3: GET /api/ratings/pending - Workforce pending ratings")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/ratings/pending",
+                headers=get_auth_headers(workforce_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    pending_data = data["data"]
+                    if "pending_ratings" in pending_data and "count" in pending_data:
+                        results.add_pass("GET /api/ratings/pending - Workforce endpoint working")
+                        print(f"      Workforce pending ratings count: {pending_data['count']}")
+                    else:
+                        results.add_fail("GET /api/ratings/pending - Workforce", f"Invalid response structure: {data}")
+                else:
+                    results.add_fail("GET /api/ratings/pending - Workforce", f"Invalid response: {data}")
+            else:
+                results.add_fail("GET /api/ratings/pending - Workforce", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/ratings/pending - Workforce", f"Request failed: {str(e)}")
+    
+    # Login as employer user for pending ratings test
+    employer_token = None
+    print("\n   Test 4: Employer login for pending ratings test")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=employer_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer login for rating tests")
+            else:
+                results.add_fail("Employer login for rating tests", f"Invalid response: {data}")
+        else:
+            results.add_fail("Employer login for rating tests", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Employer login for rating tests", f"Request failed: {str(e)}")
+    
+    # Test 5: Pending Ratings (Employer)
+    if employer_token:
+        print("\n   Test 5: GET /api/ratings/pending - Employer pending ratings")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/ratings/pending",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    pending_data = data["data"]
+                    if "pending_ratings" in pending_data and "count" in pending_data:
+                        results.add_pass("GET /api/ratings/pending - Employer endpoint working")
+                        print(f"      Employer pending ratings count: {pending_data['count']}")
+                    else:
+                        results.add_fail("GET /api/ratings/pending - Employer", f"Invalid response structure: {data}")
+                else:
+                    results.add_fail("GET /api/ratings/pending - Employer", f"Invalid response: {data}")
+            else:
+                results.add_fail("GET /api/ratings/pending - Employer", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/ratings/pending - Employer", f"Request failed: {str(e)}")
+    
+    # Test 6: Get Worker Ratings (for employers)
+    print("\n   Test 6: GET /api/ratings/worker/{workforce_id} - Worker ratings for employers")
+    test_workforce_id = "test_worker_id"
+    try:
+        response = requests.get(
+            f"{BASE_URL}/ratings/worker/{test_workforce_id}",
+            headers=get_auth_headers(employer_token) if employer_token else {},
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                worker_data = data["data"]
+                required_fields = ["worker_name", "overall_rating", "total_reviews", "ratings"]
+                missing_fields = [field for field in required_fields if field not in worker_data]
+                
+                if not missing_fields:
+                    results.add_pass("GET /api/ratings/worker/{id} - Response structure valid")
+                    print(f"      Worker overall rating: {worker_data.get('overall_rating', 0)}")
+                    print(f"      Worker total reviews: {worker_data.get('total_reviews', 0)}")
+                else:
+                    results.add_fail("GET /api/ratings/worker/{id}", f"Missing fields: {missing_fields}")
+            else:
+                results.add_fail("GET /api/ratings/worker/{id}", f"Invalid response: {data}")
+        elif response.status_code == 401:
+            results.add_pass("GET /api/ratings/worker/{id} - Authentication required (expected)")
+        else:
+            results.add_fail("GET /api/ratings/worker/{id}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/ratings/worker/{id}", f"Request failed: {str(e)}")
+    
+    # Test 7: Get Employer Ratings (public)
+    print("\n   Test 7: GET /api/ratings/employer/{employer_id} - Public employer ratings")
+    test_employer_id = "test_employer_id"
+    try:
+        response = requests.get(f"{BASE_URL}/ratings/employer/{test_employer_id}", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                employer_data = data["data"]
+                required_fields = ["company_name", "overall_rating", "total_reviews", "ratings"]
+                missing_fields = [field for field in required_fields if field not in employer_data]
+                
+                if not missing_fields:
+                    results.add_pass("GET /api/ratings/employer/{id} - Response structure valid")
+                    print(f"      Employer overall rating: {employer_data.get('overall_rating', 0)}")
+                    print(f"      Employer total reviews: {employer_data.get('total_reviews', 0)}")
+                    
+                    # Check if ratings are anonymized (no worker names)
+                    ratings = employer_data.get("ratings", [])
+                    if ratings:
+                        sample_rating = ratings[0]
+                        if "from_workforce_id" not in sample_rating and "worker_name" not in sample_rating:
+                            results.add_pass("Employer ratings properly anonymized")
+                        else:
+                            results.add_fail("Employer ratings anonymization", "Worker information exposed in ratings")
+                    else:
+                        results.add_pass("Employer ratings endpoint - No ratings available (valid)")
+                else:
+                    results.add_fail("GET /api/ratings/employer/{id}", f"Missing fields: {missing_fields}")
+            else:
+                results.add_fail("GET /api/ratings/employer/{id}", f"Invalid response: {data}")
+        else:
+            results.add_fail("GET /api/ratings/employer/{id}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/ratings/employer/{id}", f"Request failed: {str(e)}")
+    
+    # Test 8: Authentication enforcement for rating endpoints
+    print("\n   Test 8: Authentication enforcement for rating endpoints")
+    protected_endpoints = [
+        ("GET", "/ratings/pending"),
+        ("GET", "/ratings/worker/test_id"),
+    ]
+    
+    for method, endpoint in protected_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
+
 def test_admin_authentication_system(results):
     """Test the admin authentication system with specific credentials from review request"""
     print("\n🧪 Testing Admin Authentication System (Priority: HIGH)...")
@@ -823,7 +1041,7 @@ def test_admin_authentication_system(results):
     # Admin credentials from review request
     admin_credentials = {
         "email": "qnizami@hrbank.ca",
-        "password": "Tabaghnak@3891",
+        "password": "Test123!",
         "user_type": "admin"
     }
     
