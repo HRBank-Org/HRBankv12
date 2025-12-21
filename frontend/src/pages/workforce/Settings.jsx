@@ -364,7 +364,8 @@ const WorkforceSettings = () => {
         address: profile.address,
         city: profile.city,
         province: profile.province,
-        postal_code: profile.postal_code
+        postal_code: profile.postal_code,
+        preferred_language: profile.preferred_language
       });
       
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
