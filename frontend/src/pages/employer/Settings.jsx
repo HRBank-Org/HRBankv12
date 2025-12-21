@@ -26,8 +26,15 @@ const EmployerSettings = () => {
     city: '',
     province: '',
     postal_code: '',
-    industry: ''
+    industry: '',
+    preferred_language: 'en'
   });
+
+  // Supported languages for employers (English + French - bilingual Canada)
+  const EMPLOYER_LANGUAGES = [
+    { code: 'en', name: 'English', native: 'English' },
+    { code: 'fr', name: 'French', native: 'Français' },
+  ];
 
   // Photo upload states
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
