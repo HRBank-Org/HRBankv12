@@ -131,7 +131,7 @@ Help them understand how HR Bank ensures compliance with:
 """
 
 
-async def get_or_create_conversation(user_id: str, user_type: str, db):
+async def get_or_create_conversation(user_id: str, user_type: str, db, preferred_language: str = "en"):
     """Get existing conversation or create new one"""
     conversation = await db.emma_conversations.find_one(
         {"user_id": user_id, "is_active": True}
@@ -140,15 +140,32 @@ async def get_or_create_conversation(user_id: str, user_type: str, db):
     if conversation:
         return EmmaConversation(**conversation)
     
-    # Create new conversation with greeting
+    # Create new conversation with greeting in user's language
     greeting = get_time_based_greeting()
+    
+    # Greeting translations for common languages
+    greetings = {
+        'en': f"{greeting}! 👋 I'm Emma, your personal HR Bank assistant. I'm here to help you get set up and ensure everything is compliant with Canadian employment standards. How can I help you today?",
+        'fr': f"{greeting}! 👋 Je suis Emma, votre assistante personnelle HR Bank. Je suis là pour vous aider à vous installer et à vous assurer que tout est conforme aux normes canadiennes en matière d'emploi. Comment puis-je vous aider aujourd'hui?",
+        'es': f"¡{greeting}! 👋 Soy Emma, tu asistente personal de HR Bank. Estoy aquí para ayudarte a configurar todo y asegurarme de que cumples con las normas laborales canadienses. ¿Cómo puedo ayudarte hoy?",
+        'ar': f"{greeting}! 👋 أنا إيما، مساعدتك الشخصية في HR Bank. أنا هنا لمساعدتك في الإعداد وضمان الامتثال لمعايير العمل الكندية. كيف يمكنني مساعدتك اليوم؟",
+        'zh-CN': f"{greeting}！👋 我是Emma，您的HR Bank个人助理。我在这里帮助您完成设置，并确保符合加拿大就业标准。今天我能帮您什么？",
+        'hi': f"{greeting}! 👋 मैं Emma हूं, आपकी HR Bank की व्यक्तिगत सहायक। मैं यहां आपकी सेटअप में मदद करने और कनाडाई रोजगार मानकों का अनुपालन सुनिश्चित करने के लिए हूं। आज मैं आपकी कैसे मदद कर सकती हूं?",
+        'pa': f"{greeting}! 👋 ਮੈਂ Emma ਹਾਂ, ਤੁਹਾਡੀ HR Bank ਦੀ ਨਿੱਜੀ ਸਹਾਇਕ। ਮੈਂ ਇੱਥੇ ਤੁਹਾਡੀ ਸੈੱਟਅੱਪ ਵਿੱਚ ਮਦਦ ਕਰਨ ਅਤੇ ਕੈਨੇਡੀਅਨ ਰੁਜ਼ਗਾਰ ਮਾਪਦੰਡਾਂ ਦੀ ਪਾਲਣਾ ਯਕੀਨੀ ਬਣਾਉਣ ਲਈ ਹਾਂ। ਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦੀ ਹਾਂ?",
+        'ur': f"{greeting}! 👋 میں Emma ہوں، آپ کی HR Bank کی ذاتی معاون۔ میں یہاں آپ کی سیٹ اپ میں مدد کرنے اور کینیڈین روزگار کے معیارات کی تعمیل کو یقینی بنانے کے لیے ہوں۔ آج میں آپ کی کیسے مدد کر سکتی ہوں؟",
+        'ps': f"{greeting}! 👋 زه Emma یم، ستاسو د HR Bank شخصي مرستیال. زه دلته یم چې ستاسو سره د سیټ اپ کولو کې مرسته وکړم او ډاډ ترلاسه کړم چې هرڅه د کاناډا د کار معیارونو سره سم دي. نن ورځ زه څنګه ستاسو سره مرسته کولی شم؟",
+        'tl': f"{greeting}! 👋 Ako si Emma, ang iyong personal na HR Bank assistant. Nandito ako para tulungan kang mag-setup at tiyaking sumusunod ka sa mga pamantayan ng Canadian employment. Paano kita matutulungan ngayon?",
+    }
+    
+    welcome_message = greetings.get(preferred_language, greetings['en'])
+    
     new_conversation = EmmaConversation(
         user_id=user_id,
         user_type=user_type,
         messages=[
             EmmaMessage(
                 role="assistant",
-                content=f"{greeting}! 👋 I'm Emma, your personal HR Bank assistant. I'm here to help you get set up and ensure everything is compliant with Canadian employment standards. How can I help you today?"
+                content=welcome_message
             )
         ]
     )
@@ -157,18 +174,18 @@ async def get_or_create_conversation(user_id: str, user_type: str, db):
     return new_conversation
 
 
-async def get_emma_response(user_message: str, conversation: EmmaConversation, user_name: str = "") -> str:
+async def get_emma_response(user_message: str, conversation: EmmaConversation, user_name: str = "", preferred_language: str = "en") -> str:
     """Get Emma's AI-powered response with timeout handling"""
     if not EMMA_ENABLED or not EMERGENT_LLM_KEY:
         return "I'm here to help! However, my AI capabilities are currently unavailable. Please contact support for assistance."
     
     try:
-        # Initialize Emma chat with conversation history
+        # Initialize Emma chat with conversation history and language preference
         emma_chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=conversation.conversation_id,
-            system_message=get_emma_system_prompt(conversation.user_type, user_name)
-        ).with_model("openai", "gpt-5-mini")
+            system_message=get_emma_system_prompt(conversation.user_type, user_name, preferred_language)
+        ).with_model("openai", "gpt-4o-mini")
         
         # Create user message
         user_msg = UserMessage(text=user_message)
