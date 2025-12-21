@@ -24,16 +24,24 @@ const AdminLogin = () => {
         user_type: 'admin'
       });
 
+      console.log('Login response:', response);
+
       if (response.success) {
         // Verify it's an admin
         if (response.data.user_type === 'admin') {
-          navigate('/admin/dashboard');
+          // Small delay to ensure token is stored
+          setTimeout(() => {
+            navigate('/admin/dashboard');
+          }, 100);
         } else {
           setError('Access denied. Admin credentials required.');
           logout();
         }
+      } else {
+        setError(response.message || 'Login failed');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.detail || err.message || 'Invalid credentials');
     } finally {
       setLoading(false);
