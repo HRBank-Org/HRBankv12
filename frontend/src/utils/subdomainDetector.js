@@ -3,6 +3,11 @@
  * Returns the user type (admin, employer, workforce, institution) or null for main domain
  */
 export const getSubdomainUserType = () => {
+  // Guard against SSR/build environment where window is not available
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
   const hostname = window.location.hostname;
   
   // Check for subdomain
