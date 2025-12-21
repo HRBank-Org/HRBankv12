@@ -456,6 +456,23 @@ const WorkforceDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Rating Modal */}
+      {showRatingModal && selectedBooking && (
+        <RateEmployer
+          booking={selectedBooking}
+          onComplete={() => {
+            setShowRatingModal(false);
+            setSelectedBooking(null);
+            // Refresh pending ratings
+            setPendingRatings(prev => prev.filter(r => r.booking_id !== selectedBooking.booking_id));
+          }}
+          onCancel={() => {
+            setShowRatingModal(false);
+            setSelectedBooking(null);
+          }}
+        />
+      )}
     </div>
   );
 };
