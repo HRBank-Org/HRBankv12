@@ -286,7 +286,18 @@ const PublicJobsPage = () => {
                       <h3 className="font-semibold text-gray-900">{job.title}</h3>
                       {getWorkTypeBadge(job.work_type)}
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{job.company_name}</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-sm text-gray-600">{job.company_name}</p>
+                      {job.employer_rating > 0 && (
+                        <span className="flex items-center gap-1 text-xs text-amber-600">
+                          <Star size={12} className="fill-amber-400 text-amber-400" />
+                          {job.employer_rating.toFixed(1)}
+                          {job.employer_rating_count > 0 && (
+                            <span className="text-gray-400">({job.employer_rating_count})</span>
+                          )}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mb-2">
                       <span className="flex items-center gap-1">
                         <MapPin size={14} />
