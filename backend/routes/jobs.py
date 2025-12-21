@@ -72,6 +72,19 @@ async def get_public_jobs(
             {"_id": 0, "required_certifications": 1, "skills_required": 1}
         )
         
+        # Extract city from address if city is not set
+        city = posting.get("workplace_city")
+        if not city and posting.get("workplace_address"):
+            # Try to extract city from address (format: "Street, City, Province Postal")
+            address_parts = posting.get("workplace_address", "").split(",")
+            if len(address_parts) >= 2:
+                city = address_parts[1].strip()  # Second part is usually city
+                # Clean up - remove province/postal if attached
+                if " " in city:
+                    city_parts = city.split()
+                    # Keep only the first word(s) before province code
+                    city = " ".join([p for p in city_parts if not p.isupper() or len(p) > 2])
+        
         # Build job data - mask exact address for privacy (only show city)
         job_data = {
             **posting,
@@ -80,9 +93,10 @@ async def get_public_jobs(
             "employer_rating_count": employer_profile.get("rating_count", 0) if employer_profile else 0,
             "requirements": role.get("required_certifications", []) if role else [],
             "skills": role.get("skills_required", []) if role else [],
+            "workplace_city": city or "Location Available After Application"
         }
         
-        # Remove exact address from public listing - keep only city
+        # Remove exact address from public listing
         if "workplace_address" in job_data:
             del job_data["workplace_address"]
         
