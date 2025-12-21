@@ -103,7 +103,8 @@ const WorkforceSettings = () => {
         address: data.address || '',
         city: data.city || '',
         province: data.province || '',
-        postal_code: data.postal_code || ''
+        postal_code: data.postal_code || '',
+        preferred_language: data.preferred_language || 'en'
       });
       
       setVerificationStatus(verificationRes.data);
