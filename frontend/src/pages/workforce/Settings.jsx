@@ -23,8 +23,34 @@ const WorkforceSettings = () => {
     address: '',
     city: '',
     province: '',
-    postal_code: ''
+    postal_code: '',
+    preferred_language: 'en'
   });
+
+  // Supported languages for workforce (21 languages - top immigrant languages in Canada)
+  const WORKFORCE_LANGUAGES = [
+    { code: 'en', name: 'English', native: 'English' },
+    { code: 'fr', name: 'French', native: 'Français' },
+    { code: 'zh-CN', name: 'Mandarin', native: '普通话' },
+    { code: 'zh-HK', name: 'Cantonese', native: '廣東話' },
+    { code: 'pa', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+    { code: 'tl', name: 'Tagalog', native: 'Tagalog' },
+    { code: 'es', name: 'Spanish', native: 'Español' },
+    { code: 'ar', name: 'Arabic', native: 'العربية' },
+    { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+    { code: 'ur', name: 'Urdu', native: 'اردو' },
+    { code: 'fa', name: 'Persian (Farsi)', native: 'فارسی' },
+    { code: 'ps', name: 'Pashto', native: 'پښتو' },
+    { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
+    { code: 'pt', name: 'Portuguese', native: 'Português' },
+    { code: 'ko', name: 'Korean', native: '한국어' },
+    { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+    { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
+    { code: 'ru', name: 'Russian', native: 'Русский' },
+    { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+    { code: 'bn', name: 'Bengali', native: 'বাংলা' },
+    { code: 'pl', name: 'Polish', native: 'Polski' },
+  ];
   
   // OTP verification states
   const [verificationStatus, setVerificationStatus] = useState({
