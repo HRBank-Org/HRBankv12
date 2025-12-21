@@ -63,7 +63,7 @@ async def get_public_jobs(
         # Get employer profile for company name and ratings
         employer_profile = await db.employer_profiles.find_one(
             {"employer_id": posting.get("employer_id")},
-            {"_id": 0, "company_name": 1, "business_address": 1, "rating_avg": 1, "rating_count": 1}
+            {"_id": 0, "company_name": 1, "rating_avg": 1, "rating_count": 1}
         )
         
         # Get role requirements
@@ -72,14 +72,21 @@ async def get_public_jobs(
             {"_id": 0, "required_certifications": 1, "skills_required": 1}
         )
         
-        enriched_jobs.append({
+        # Build job data - mask exact address for privacy (only show city)
+        job_data = {
             **posting,
             "company_name": employer_profile.get("company_name") if employer_profile else "Company",
             "employer_rating": employer_profile.get("rating_avg", 0) if employer_profile else 0,
             "employer_rating_count": employer_profile.get("rating_count", 0) if employer_profile else 0,
             "requirements": role.get("required_certifications", []) if role else [],
             "skills": role.get("skills_required", []) if role else [],
-        })
+        }
+        
+        # Remove exact address from public listing - keep only city
+        if "workplace_address" in job_data:
+            del job_data["workplace_address"]
+        
+        enriched_jobs.append(job_data)
     
     # Get total count
     total_count = await db.job_postings.count_documents(query)
