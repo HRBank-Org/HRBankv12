@@ -270,12 +270,38 @@ const CalendarScheduling = () => {
   };
 
   const getShiftColor = (shift) => {
+    // Color by work type first
+    const workType = shift.work_type || shift.shift_type || 'on_site';
+    
+    if (workType === 'route_based' || shift.source === 'service_task') {
+      // Route-based (CleanGrid) - Blue theme
+      return 'bg-blue-100 border-l-4 border-blue-500 text-blue-900';
+    }
+    
+    if (workType === 'continental') {
+      // Continental shifts - Purple theme
+      return 'bg-purple-100 border-l-4 border-purple-500 text-purple-900';
+    }
+    
+    // On-site shifts - Color by fill status
     const filled = shift.positions_filled || 0;
     const needed = shift.positions_needed || 1;
     
     if (filled === 0) return 'bg-red-100 border-l-4 border-red-500 text-red-900';
     if (filled < needed) return 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-900';
     return 'bg-green-100 border-l-4 border-green-500 text-green-900';
+  };
+
+  const getShiftTypeLabel = (shift) => {
+    const workType = shift.work_type || shift.shift_type || 'on_site';
+    
+    if (workType === 'route_based' || shift.source === 'service_task') {
+      return { label: '🚗 Route', color: 'bg-blue-200 text-blue-800' };
+    }
+    if (workType === 'continental') {
+      return { label: '🔄 Continental', color: 'bg-purple-200 text-purple-800' };
+    }
+    return { label: '🏢 On-Site', color: 'bg-gray-200 text-gray-800' };
   };
 
   const getWorkplaceColor = (workplaceId) => {
