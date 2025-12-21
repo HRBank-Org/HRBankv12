@@ -120,12 +120,6 @@ const AdminLogin = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <a href="/" className="text-sm text-blue-600 hover:text-blue-800">
-              ← Back to main site
-            </a>
-          </div>
         </div>
 
         {/* Footer */}
@@ -134,6 +128,7 @@ const AdminLogin = () => {
           <p className="mt-1">© 2024 HR Bank Inc. All rights reserved.</p>
         </div>
       </div>
+    </div>
     </div>
   );
 };
