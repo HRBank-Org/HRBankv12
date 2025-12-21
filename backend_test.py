@@ -7090,6 +7090,9 @@ def main():
     # Priority: CRITICAL - Two-Way Rating System (NEW TEST FROM REVIEW REQUEST)
     test_two_way_rating_system(results)
     
+    # Priority: CRITICAL - Unified Calendar Shifts Endpoint (NEW TEST FROM REVIEW REQUEST)
+    test_unified_calendar_shifts_endpoint(results)
+    
     # Priority: HIGH - Authentication System
     admin_token = test_admin_authentication_system(results)
     
