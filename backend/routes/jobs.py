@@ -57,13 +57,13 @@ async def get_public_jobs(
         {"_id": 0}
     ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
     
-    # Enrich with employer info
+    # Enrich with employer info and ratings
     enriched_jobs = []
     for posting in postings:
-        # Get employer profile for company name
+        # Get employer profile for company name and ratings
         employer_profile = await db.employer_profiles.find_one(
             {"employer_id": posting.get("employer_id")},
-            {"_id": 0, "company_name": 1, "business_address": 1}
+            {"_id": 0, "company_name": 1, "business_address": 1, "rating_avg": 1, "rating_count": 1}
         )
         
         # Get role requirements
@@ -75,6 +75,8 @@ async def get_public_jobs(
         enriched_jobs.append({
             **posting,
             "company_name": employer_profile.get("company_name") if employer_profile else "Company",
+            "employer_rating": employer_profile.get("rating_avg", 0) if employer_profile else 0,
+            "employer_rating_count": employer_profile.get("rating_count", 0) if employer_profile else 0,
             "requirements": role.get("required_certifications", []) if role else [],
             "skills": role.get("skills_required", []) if role else [],
         })
