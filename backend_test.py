@@ -1620,7 +1620,7 @@ def test_role_based_auto_assignment(results):
 def test_match_engine_api(results):
     """Test Match Engine API endpoints as specified in review request"""
     print("\n🧪 Testing Match Engine API (HR Bank Application)...")
-    print("   Base URL: https://recruit-flow-23.preview.emergentagent.com")
+    print("   Base URL: https://job-board-pro.preview.emergentagent.com")
     print("   Auth: john.b@swanpizza.ca / Test123! (Employer)")
     print("   Target Posting: job_412044e458e9 (Delivery Driver - G License)")
     
