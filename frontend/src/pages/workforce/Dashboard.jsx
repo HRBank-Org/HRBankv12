@@ -14,6 +14,9 @@ const WorkforceDashboard = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
+  const [pendingRatings, setPendingRatings] = useState([]);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const [stats, setStats] = useState({
     upcomingShifts: [],
     thisWeekHours: 0,
