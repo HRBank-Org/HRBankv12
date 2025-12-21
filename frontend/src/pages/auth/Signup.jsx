@@ -137,18 +137,30 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ backgroundColor: theme.bgColor }}>
-      <div className="max-w-md w-full">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <img 
-            src={theme.logo}
-            alt="HR Bank Logo"
-            className="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-lg"
-          />
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 mt-2">Join HR Bank today</p>
-        </div>
+    <div className="min-h-screen flex flex-col px-4 py-8" style={{ backgroundColor: theme.bgColor }}>
+      {/* Back Button */}
+      <div className="max-w-md mx-auto w-full mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <FiArrowLeft size={20} />
+          <span>Back</span>
+        </button>
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center">
+        <div className="max-w-md w-full">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <img 
+              src={theme.logo}
+              alt="HR Bank Logo"
+              className="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-lg"
+            />
+            <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
+            <p className="text-gray-600 mt-2">Join HR Bank today</p>
+          </div>
 
         {/* User Type Selection - Tab Style */}
         <div className="mb-6">
