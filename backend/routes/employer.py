@@ -237,7 +237,7 @@ async def get_my_shifts(
             shift["source"] = "continental"
             shift["work_type"] = "continental"
             all_shifts.append(shift)
-    except:
+    except Exception:
         pass  # Collection may not exist
     
     return {
