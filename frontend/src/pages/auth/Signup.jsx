@@ -346,6 +346,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
             </p>
           </div>
         </div>
+        </div>
       </div>
     </div>
   );
