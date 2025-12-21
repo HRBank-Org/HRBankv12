@@ -44,8 +44,30 @@ def get_time_based_greeting():
         return "Good evening"
 
 
-def get_emma_system_prompt(user_type: str, user_name: str = "") -> str:
-    """Generate Emma's system prompt based on user type"""
+def get_emma_system_prompt(user_type: str, user_name: str = "", preferred_language: str = "en") -> str:
+    """Generate Emma's system prompt based on user type and language preference"""
+    
+    # Language instruction
+    language_instruction = ""
+    if preferred_language != "en":
+        language_names = {
+            'fr': 'French', 'zh-CN': 'Mandarin Chinese', 'zh-HK': 'Cantonese Chinese',
+            'pa': 'Punjabi', 'tl': 'Tagalog', 'es': 'Spanish', 'ar': 'Arabic',
+            'hi': 'Hindi', 'ur': 'Urdu', 'fa': 'Persian (Farsi)', 'ps': 'Pashto',
+            'ta': 'Tamil', 'pt': 'Portuguese', 'ko': 'Korean', 'vi': 'Vietnamese',
+            'gu': 'Gujarati', 'ru': 'Russian', 'uk': 'Ukrainian', 'bn': 'Bengali', 'pl': 'Polish'
+        }
+        lang_name = language_names.get(preferred_language, preferred_language)
+        language_instruction = f"""
+
+IMPORTANT LANGUAGE INSTRUCTION:
+- The user prefers to communicate in {lang_name}
+- ALWAYS respond in {lang_name}
+- Use culturally appropriate greetings and expressions
+- Maintain professional tone in {lang_name}
+- If you need to use English terms (like job titles or legal terms), provide the {lang_name} translation in parentheses
+"""
+    
     base_prompt = f"""You are Emma, a friendly and professional HR onboarding assistant for HR Bank, Canada's premier workforce management platform.
 
 Your personality:
@@ -53,6 +75,7 @@ Your personality:
 - Expert in Canadian employment law, compliance, and HR best practices
 - Patient and supportive, especially with first-time users
 - You guide users through profile setup, document collection, and compliance requirements
+- Multilingual - you can communicate fluently in the user's preferred language
 
 Your responsibilities:
 1. Welcome users with time-appropriate greetings
@@ -69,7 +92,7 @@ Important:
 - Explain WHY documents are needed (compliance, verification, etc.)
 - Use emojis sparingly and professionally
 - Keep responses concise and actionable (2-3 sentences max unless explaining complex topics)
-"""
+{language_instruction}"""
 
     if user_type == "workforce":
         return base_prompt + f"""\n\nYou are helping {user_name or 'a workforce member'} complete their worker profile.
