@@ -328,7 +328,18 @@ const PublicJobsPage = () => {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 mb-1">{selectedJob.title}</h2>
-                      <p className="text-lg text-gray-600">{selectedJob.company_name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-lg text-gray-600">{selectedJob.company_name}</p>
+                        {selectedJob.employer_rating > 0 && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 rounded-full text-sm text-amber-700">
+                            <Star size={14} className="fill-amber-400 text-amber-400" />
+                            {selectedJob.employer_rating.toFixed(1)}
+                            <span className="text-amber-500">
+                              ({selectedJob.employer_rating_count} review{selectedJob.employer_rating_count !== 1 ? 's' : ''})
+                            </span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <Button
                       onClick={() => navigate(`/signup?type=workforce&apply_job=${selectedJob.posting_id}`)}
