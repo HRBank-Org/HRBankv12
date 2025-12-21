@@ -237,11 +237,24 @@ async def chat_with_emma(
     """Send message to Emma and get response"""
     db = await get_database()
     
-    # Get or create conversation
+    # Get user's preferred language
+    preferred_language = "en"
+    profile_collection = f"{current_user['user_type']}_profiles"
+    id_field = "workforce_id" if current_user['user_type'] == "workforce" else "employer_id"
+    
+    user_profile = await db[profile_collection].find_one(
+        {id_field: current_user['user_id']}
+    )
+    
+    if user_profile:
+        preferred_language = user_profile.get("preferred_language", "en")
+    
+    # Get or create conversation with language preference
     conversation = await get_or_create_conversation(
         current_user['user_id'],
         current_user['user_type'],
-        db
+        db,
+        preferred_language
     )
     
     # Add user message to conversation
@@ -253,21 +266,19 @@ async def chat_with_emma(
     conversation.messages.append(user_message)
     
     # Get user's name for personalized responses
-    user_profile = await db[f"{current_user['user_type']}_profiles"].find_one(
-        {"user_id": current_user['user_id']}
-    )
     user_name = ""
     if user_profile:
         if current_user['user_type'] == "workforce":
-            user_name = user_profile.get("first_name", "")
+            user_name = user_profile.get("first_name", user_profile.get("full_name", ""))
         else:
             user_name = user_profile.get("contact_name", "")
     
-    # Get Emma's response
+    # Get Emma's response in user's preferred language
     emma_response_text = await get_emma_response(
         request.message,
         conversation,
-        user_name
+        user_name,
+        preferred_language
     )
     
     # Add Emma's response to conversation
