@@ -107,18 +107,30 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: theme.bgColor }}>
-      <div className="max-w-md w-full">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <img 
-            src={theme.logo}
-            alt="HR Bank Logo"
-            className="w-24 h-24 mx-auto mb-4 rounded-2xl shadow-lg"
-          />
-          <h1 className="text-3xl font-bold text-gray-900">Welcome to HR Bank</h1>
-          <p className="text-gray-600 mt-2">Sign in to continue</p>
-        </div>
+    <div className="min-h-screen flex flex-col px-4" style={{ backgroundColor: theme.bgColor }}>
+      {/* Back Button */}
+      <div className="pt-4 px-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <FiArrowLeft size={20} />
+          <span>Back</span>
+        </button>
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center">
+        <div className="max-w-md w-full">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <img 
+              src={theme.logo}
+              alt="HR Bank Logo"
+              className="w-24 h-24 mx-auto mb-4 rounded-2xl shadow-lg"
+            />
+            <h1 className="text-3xl font-bold text-gray-900">Welcome to HR Bank</h1>
+            <p className="text-gray-600 mt-2">Sign in to continue</p>
+          </div>
 
         {/* User Type Tabs - Color Coded */}
         <div className="mb-6">
