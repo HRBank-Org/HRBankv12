@@ -41,12 +41,6 @@ const ModernSidebar = () => {
       path: '/employer/workplaces'
     },
     {
-      type: 'item',
-      label: 'Service Tasks',
-      icon: FiNavigation,
-      path: '/employer/service-tasks'
-    },
-    {
       type: 'category',
       label: 'HR Management'
     },
