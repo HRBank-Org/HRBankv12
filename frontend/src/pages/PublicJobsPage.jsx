@@ -352,7 +352,7 @@ const PublicJobsPage = () => {
                   <div className="flex flex-wrap gap-4 text-sm">
                     <span className="flex items-center gap-1.5 text-gray-600">
                       <MapPin size={16} className="text-gray-400" />
-                      {selectedJob.workplace_address || selectedJob.workplace_city || 'Location TBD'}
+                      {selectedJob.workplace_city || 'Location TBD'}
                     </span>
                     <span className="flex items-center gap-1.5 text-green-600 font-semibold">
                       <DollarSign size={16} />
