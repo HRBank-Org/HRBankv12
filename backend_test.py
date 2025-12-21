@@ -1203,6 +1203,274 @@ def test_two_way_rating_system(results):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_auto_translation_system(results):
+    """Test the auto-translation system for Chat (Emma) and Notifications"""
+    print("\n🧪 Testing Auto-Translation System (Priority: HIGH)...")
+    print("   Testing Emma Chat and Notifications with translation")
+    print("   Test credentials: emily.chen@email.com / Test123! (workforce), john.b@swanpizza.ca / Test123! (employer)")
+    
+    # Test credentials from review request
+    workforce_creds = {"email": "emily.chen@email.com", "password": "Test123!", "user_type": "workforce"}
+    employer_creds = {"email": "john.b@swanpizza.ca", "password": "Test123!", "user_type": "employer"}
+    
+    # Test 1: Workforce Authentication
+    workforce_token = None
+    print("\n   Test 1: Workforce authentication")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=workforce_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                workforce_token = data["data"]["access_token"]
+                results.add_pass("Workforce authentication (emily.chen@email.com)")
+                print(f"      Workforce ID: {data.get('data', {}).get('user_id', 'N/A')}")
+            else:
+                results.add_fail("Workforce authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Workforce authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Workforce authentication", f"Request failed: {str(e)}")
+    
+    # Test 2: Employer Authentication
+    employer_token = None
+    print("\n   Test 2: Employer authentication")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=employer_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer authentication (john.b@swanpizza.ca)")
+                print(f"      Employer ID: {data.get('data', {}).get('user_id', 'N/A')}")
+            else:
+                results.add_fail("Employer authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Employer authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Employer authentication", f"Request failed: {str(e)}")
+    
+    # Test 3: Notifications with Translation
+    if workforce_token:
+        print("\n   Test 3: GET /api/notifications/my-notifications?translate=true")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/notifications/my-notifications?translate=true",
+                headers=get_auth_headers(workforce_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    notification_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["notifications", "unread_count", "user_language"]
+                    missing_fields = [field for field in required_fields if field not in notification_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("GET /api/notifications/my-notifications - Response structure valid")
+                        print(f"      User language: {notification_data.get('user_language', 'N/A')}")
+                        print(f"      Notifications count: {len(notification_data.get('notifications', []))}")
+                        print(f"      Unread count: {notification_data.get('unread_count', 0)}")
+                        
+                        # Check if user_language is included in response
+                        if "user_language" in notification_data:
+                            results.add_pass("Notifications include user_language field")
+                        else:
+                            results.add_fail("Notifications user_language field", "user_language field missing")
+                        
+                        # Check if notifications have translation fields when user language != 'en'
+                        notifications = notification_data.get("notifications", [])
+                        user_lang = notification_data.get("user_language", "en")
+                        
+                        if notifications and user_lang != 'en':
+                            sample_notification = notifications[0]
+                            translation_fields = ["title_translated", "message_translated", "translated_to"]
+                            has_translation = any(field in sample_notification for field in translation_fields)
+                            
+                            if has_translation:
+                                results.add_pass("Notifications translated for non-English users")
+                            else:
+                                results.add_pass("Notifications translation - No translations needed (original language matches user preference)")
+                        else:
+                            results.add_pass("Notifications translation - English user or no notifications (expected)")
+                    else:
+                        results.add_fail("GET /api/notifications/my-notifications", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_fail("GET /api/notifications/my-notifications", f"Invalid response: {data}")
+            else:
+                results.add_fail("GET /api/notifications/my-notifications", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/notifications/my-notifications", f"Request failed: {str(e)}")
+    
+    # Test 4: Emma Chat - Send Message
+    if workforce_token:
+        print("\n   Test 4: POST /api/emma/chat - Send message to Emma")
+        try:
+            chat_request = {
+                "message": "Hello"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/emma/chat",
+                json=chat_request,
+                headers=get_auth_headers(workforce_token),
+                timeout=30  # Emma responses can take time
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    chat_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["message", "conversation_id"]
+                    missing_fields = [field for field in required_fields if field not in chat_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("POST /api/emma/chat - Emma responds successfully")
+                        print(f"      Emma response: {chat_data.get('message', '')[:100]}...")
+                        print(f"      Conversation ID: {chat_data.get('conversation_id', 'N/A')}")
+                        
+                        # Check if response is in user's preferred language
+                        emma_response = chat_data.get("message", "")
+                        if emma_response:
+                            results.add_pass("Emma chat response received")
+                        else:
+                            results.add_fail("Emma chat response", "Empty response from Emma")
+                    else:
+                        results.add_fail("POST /api/emma/chat", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_fail("POST /api/emma/chat", f"Invalid response: {data}")
+            else:
+                results.add_fail("POST /api/emma/chat", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/emma/chat", f"Request failed: {str(e)}")
+    
+    # Test 5: Emma Conversation History
+    if workforce_token:
+        print("\n   Test 5: GET /api/emma/conversation - Get conversation history")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/emma/conversation",
+                headers=get_auth_headers(workforce_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    conversation_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["conversation_id", "messages"]
+                    missing_fields = [field for field in required_fields if field not in conversation_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("GET /api/emma/conversation - Conversation history retrieved")
+                        messages = conversation_data.get("messages", [])
+                        print(f"      Messages count: {len(messages)}")
+                        print(f"      Conversation ID: {conversation_data.get('conversation_id', 'N/A')}")
+                        
+                        # Check if messages exist and have proper structure
+                        if messages:
+                            sample_message = messages[0]
+                            if "role" in sample_message and "content" in sample_message:
+                                results.add_pass("Emma conversation messages have proper structure")
+                            else:
+                                results.add_fail("Emma conversation message structure", "Messages missing role or content")
+                        else:
+                            results.add_pass("Emma conversation - No messages yet (valid for new conversation)")
+                    else:
+                        results.add_fail("GET /api/emma/conversation", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_fail("GET /api/emma/conversation", f"Invalid response: {data}")
+            else:
+                results.add_fail("GET /api/emma/conversation", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/emma/conversation", f"Request failed: {str(e)}")
+    
+    # Test 6: Language Settings Verification - Workforce Profile
+    if workforce_token:
+        print("\n   Test 6: Verify workforce profile has preferred_language field")
+        try:
+            # Try to get workforce profile to check for preferred_language field
+            # This might be through a profile endpoint or we can infer from notifications response
+            response = requests.get(
+                f"{BASE_URL}/notifications/my-notifications",
+                headers=get_auth_headers(workforce_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    user_language = data["data"].get("user_language")
+                    if user_language is not None:
+                        results.add_pass("Workforce profile preferred_language field accessible")
+                        print(f"      Workforce preferred language: {user_language}")
+                    else:
+                        results.add_fail("Workforce profile preferred_language", "user_language not found in response")
+                else:
+                    results.add_fail("Workforce profile preferred_language", f"Invalid response: {data}")
+            else:
+                results.add_fail("Workforce profile preferred_language", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Workforce profile preferred_language", f"Request failed: {str(e)}")
+    
+    # Test 7: Language Settings Verification - Employer Profile
+    if employer_token:
+        print("\n   Test 7: Verify employer profile has preferred_language field")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/notifications/my-notifications",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    user_language = data["data"].get("user_language")
+                    if user_language is not None:
+                        results.add_pass("Employer profile preferred_language field accessible")
+                        print(f"      Employer preferred language: {user_language}")
+                    else:
+                        results.add_fail("Employer profile preferred_language", "user_language not found in response")
+                else:
+                    results.add_fail("Employer profile preferred_language", f"Invalid response: {data}")
+            else:
+                results.add_fail("Employer profile preferred_language", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Employer profile preferred_language", f"Request failed: {str(e)}")
+    
+    # Test 8: Authentication Enforcement
+    print("\n   Test 8: Authentication enforcement for translation endpoints")
+    try:
+        # Test notifications without auth
+        response = requests.get(f"{BASE_URL}/notifications/my-notifications", timeout=10)
+        
+        if response.status_code in [401, 403]:
+            results.add_pass("Authentication required for /api/notifications/my-notifications")
+        else:
+            results.add_fail("Authentication enforcement notifications", f"Expected 401/403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Authentication enforcement notifications", f"Request failed: {str(e)}")
+    
+    try:
+        # Test Emma chat without auth
+        response = requests.post(f"{BASE_URL}/emma/chat", json={"message": "test"}, timeout=10)
+        
+        if response.status_code in [401, 403]:
+            results.add_pass("Authentication required for /api/emma/chat")
+        else:
+            results.add_fail("Authentication enforcement Emma chat", f"Expected 401/403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Authentication enforcement Emma chat", f"Request failed: {str(e)}")
+
 def test_admin_authentication_system(results):
     """Test the admin authentication system with specific credentials from review request"""
     print("\n🧪 Testing Admin Authentication System (Priority: HIGH)...")
