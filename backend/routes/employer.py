@@ -164,25 +164,85 @@ async def get_my_shifts(
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Get all shifts for employer's workplaces"""
+    """Get all shifts for employer's workplaces - unified from all sources"""
     
     # Get employer's workplaces
     workplaces = await db.workplaces.find(
         {"employer_id": current_user["user_id"]},
-        {"workplace_id": 1}
+        {"workplace_id": 1, "workplace_name": 1}
     ).to_list(100)
     
     workplace_ids = [w["workplace_id"] for w in workplaces]
+    workplace_names = {w["workplace_id"]: w.get("workplace_name", "Workplace") for w in workplaces}
     
-    # Get shifts for these workplaces
-    shifts = await db.shifts.find(
+    all_shifts = []
+    
+    # 1. Get regular shifts from 'shifts' collection
+    regular_shifts = await db.shifts.find(
         {"workplace_id": {"$in": workplace_ids}},
         {"_id": 0}
     ).to_list(100)
     
+    for shift in regular_shifts:
+        shift["source"] = "regular"
+        shift["work_type"] = "on_site"
+        shift["workplace_name"] = workplace_names.get(shift.get("workplace_id"), "Workplace")
+        all_shifts.append(shift)
+    
+    # 2. Get calendar_shifts (newer scheduling system)
+    calendar_shifts = await db.calendar_shifts.find(
+        {"employer_id": current_user["user_id"]},
+        {"_id": 0}
+    ).to_list(100)
+    
+    for shift in calendar_shifts:
+        shift["source"] = "calendar"
+        shift["work_type"] = shift.get("work_type", "on_site")
+        all_shifts.append(shift)
+    
+    # 3. Get service_tasks (route-based/CleanGrid)
+    service_tasks = await db.service_tasks.find(
+        {"employer_id": current_user["user_id"]},
+        {"_id": 0}
+    ).to_list(100)
+    
+    for task in service_tasks:
+        # Convert service task to shift format for calendar display
+        all_shifts.append({
+            "shift_id": task.get("task_id"),
+            "workplace_id": task.get("workplace_id"),
+            "workplace_name": workplace_names.get(task.get("workplace_id"), task.get("address", "Field Service")),
+            "shift_date": task.get("scheduled_date"),
+            "start_time": task.get("scheduled_start_time"),
+            "end_time": task.get("scheduled_end_time"),
+            "shift_type": "route_based",
+            "work_type": "route_based",
+            "source": "service_task",
+            "status": task.get("status", "pending"),
+            "title": task.get("title", "Service Task"),
+            "address": task.get("address"),
+            "assigned_worker_id": task.get("worker_id"),
+            "external_ref": task.get("external_ref"),
+            "external_source": task.get("external_source")
+        })
+    
+    # 4. Get continental shifts (from continental_shifts collection if exists)
+    try:
+        continental_shifts = await db.continental_shifts.find(
+            {"employer_id": current_user["user_id"]},
+            {"_id": 0}
+        ).to_list(100)
+        
+        for shift in continental_shifts:
+            shift["source"] = "continental"
+            shift["work_type"] = "continental"
+            all_shifts.append(shift)
+    except:
+        pass  # Collection may not exist
+    
     return {
         "success": True,
-        "data": {"shifts": shifts}
+        "data": {"shifts": all_shifts}
     }
 
 @router.get("/me/profile", response_model=Dict)
