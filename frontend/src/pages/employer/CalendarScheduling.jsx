@@ -944,15 +944,20 @@ const CalendarScheduling = () => {
                                     onClick={() => handleShiftClick(shift)}
                                     className={`p-2 rounded cursor-pointer hover:shadow-md transition-all ${getShiftColor(shift)}`}
                                   >
-                                    <div className="text-xs font-semibold truncate">
-                                      {startTime.format('h:mm A')}
+                                    <div className="flex items-center justify-between">
+                                      <div className="text-xs font-semibold truncate">
+                                        {startTime.format('h:mm A')}
+                                      </div>
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${getShiftTypeLabel(shift).color}`}>
+                                        {getShiftTypeLabel(shift).label}
+                                      </span>
                                     </div>
                                     <div className="text-xs truncate text-gray-700">
                                       {shift.workplace_name}
                                     </div>
                                     <div className="text-xs flex items-center gap-1 mt-1">
                                       <FiUsers className="w-3 h-3" />
-                                      <span>{shift.positions_filled || 0}/{shift.positions_needed}</span>
+                                      <span>{shift.positions_filled || 0}/{shift.positions_needed || 1}</span>
                                     </div>
                                     {shift.assigned_workers && shift.assigned_workers.length > 0 && (
                                       <div className="text-xs mt-1 flex flex-wrap gap-1">
