@@ -3,6 +3,11 @@
  */
 
 export const getSubdomain = () => {
+  // Guard against SSR/build environment
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
   const hostname = window.location.hostname;
   
   // Extract subdomain
@@ -63,6 +68,11 @@ export const getSubdomainRedirectUrl = (userType) => {
 };
 
 export const redirectToCorrectSubdomain = (userType) => {
+  // Guard against SSR/build environment
+  if (typeof window === 'undefined') {
+    return;
+  }
+  
   const currentSubdomain = getUserTypeFromSubdomain();
   
   // If on correct subdomain, do nothing
