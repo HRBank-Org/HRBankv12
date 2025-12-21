@@ -1,12 +1,12 @@
 # Test Results - HR Bank
 
-## Latest Test Session: Job Posting Workflow Testing
+## Latest Test Session: Two-Way Rating System Testing
 
-### Test Date: December 20, 2025
+### Test Date: December 21, 2025
 
 ### Testing Agent: Testing Agent (Backend API Testing)
 
-### Feature Under Test: Complete Job Posting Workflow for HR Bank
+### Feature Under Test: Two-Way Rating System Implementation
 
 **Base URL:** https://job-board-pro.preview.emergentagent.com
 **Test Credentials:** john.b@swanpizza.ca / Test123! (Employer)
