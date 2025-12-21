@@ -159,9 +159,6 @@ async def login(credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
         )
     
     # Verify password
-    logger.info(f"Attempting password verification for {credentials.email}")
-    logger.info(f"Password hash from DB: {user['password_hash'][:30]}...")
-    logger.info(f"Password received: {credentials.password[:3]}***")
     password_valid = verify_password(credentials.password, user["password_hash"])
     logger.info(f"Password verification for {credentials.email}: {password_valid}")
     if not password_valid:
