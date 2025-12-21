@@ -167,7 +167,7 @@ const WorkforceDashboard = () => {
             {getGreeting()}, {getUserName()}! 👋
           </h1>
           <p className="text-gray-600">
-            Here's your work overview and earnings
+            Here&apos;s your work overview and earnings
           </p>
         </div>
 
