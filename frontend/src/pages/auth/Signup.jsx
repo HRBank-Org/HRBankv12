@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const USER_TYPES = [
   { value: 'workforce', label: 'Workforce' },
