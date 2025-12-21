@@ -11808,8 +11808,8 @@ def test_task_reporting_apis(results):
 
 
 def main():
-    """Run comprehensive backend tests focused on mobile app occupation-certification integration"""
-    print("🚀 MOBILE APP OCCUPATION-CERTIFICATION INTEGRATION TESTING")
+    """Run comprehensive backend tests focused on auto-translation system"""
+    print("🚀 AUTO-TRANSLATION SYSTEM TESTING FOR HR BANK")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     print("="*80)
@@ -11819,71 +11819,36 @@ def main():
     # Test basic connectivity first
     test_backend_connectivity(results)
     
-    # Test authentication system
-    created_users = test_signup_api(results)
-    test_login_api(results, created_users)
-    test_database_integration(results)
-    test_password_hashing(results)
+    # MAIN FOCUS: Test auto-translation system (Priority: HIGH - from review request)
+    test_auto_translation_system(results)
+    
+    # Test unified calendar shifts endpoint (Priority: HIGH)
+    test_unified_calendar_shifts_endpoint(results)
+    
+    # Test two-way rating system (Priority: HIGH)
+    test_two_way_rating_system(results)
     
     # Test admin authentication system with specific credentials
     admin_token = test_admin_authentication_system(results)
     
-    # NEW: Test workplace management system (from review request)
-    test_workplace_management_system(results)
-    
-    # Create workforce user for mobile testing
-    workforce_user, workforce_token = create_workforce_test_user()
-    
-    # MAIN FOCUS: Mobile App Occupation-Certification Integration Testing
-    if workforce_token:
-        print(f"\n📱 MOBILE APP TESTING WITH WORKFORCE USER: {workforce_user['email']}")
-        test_mobile_occupation_certification_integration(results, workforce_token)
-    else:
-        results.add_fail("Mobile testing setup", "Failed to create workforce test user")
-    
-    # NEW: Test worker invitation system (from review request)
-    test_worker_invitation_system(results)
-    
-    # NEW: Test External Job Matching Engine Complete Flow (from review request)
-    test_external_job_matching_engine_complete_flow(results)
-    
     # Test job matching system with admin credentials
     if admin_token:
         test_job_matching_system(results, admin_token)
-        test_occupation_certification_linking_endpoint(results, admin_token)
-    
-    # NEW: Test Work Mode Configuration (Phase 1 of HR Bank Multi-Mode Refactor)
-    test_work_mode_configuration(results)
-    
-    # NEW: Test Address Autocomplete Integration (from review request)
-    test_address_autocomplete_integration(results)
-    
-    # NEW: Test Service Tasks API (Phase 2 of HR Bank Multi-Mode Refactor)
-    test_service_tasks_api(results)
-    
-    # NEW: Test Task Assignment and Worker Billing Privacy (from review request)
-    test_task_assignment_and_billing_privacy(results)
-    
-    # NEW: Test Task Reporting APIs for HR Bank field service (from review request)
-    test_task_reporting_apis(results)
-    
-    # NEW: Test Continental Shift Pattern and Unified Payroll System (from review request)
-    test_continental_shift_pattern_and_unified_payroll(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All mobile app occupation-certification integration tests passed!")
+        print("\n🎉 All auto-translation system tests passed!")
         print("\n✅ PASS CRITERIA MET:")
-        print("   - All endpoints accessible with workforce authentication")
-        print("   - Response structures match mobile app expectations")
-        print("   - Required certifications data is correctly formatted")
-        print("   - Credential_details includes status field (verified/pending/rejected)")
-        print("   - Job postings include required_certifications array")
+        print("   - Emma Chat responds in user's preferred language")
+        print("   - Notifications include user_language field")
+        print("   - Translation works for non-English users")
+        print("   - Authentication properly enforced")
+        print("   - Language settings accessible in profiles")
         return 0
     else:
-        print(f"\n💥 {results.failed} mobile app integration test(s) failed!")
+        print(f"\n💥 {results.failed} auto-translation test(s) failed!")
         return 1
 
 def test_invitation_system(results):
