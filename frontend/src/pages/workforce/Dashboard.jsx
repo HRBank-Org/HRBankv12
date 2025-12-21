@@ -84,15 +84,19 @@ const WorkforceDashboard = () => {
 
   const loadDashboard = async () => {
     try {
-      const [shiftsRes, occupationsRes, offersRes] = await Promise.all([
+      const [shiftsRes, occupationsRes, offersRes, ratingsRes] = await Promise.all([
         api.get('/api/jobs/my-shifts').catch(() => ({ data: { data: { shifts: [] } } })),
         api.get('/api/occupations/me').catch(() => ({ data: { data: { occupations: [] } } })),
-        api.get('/api/jobs/offers').catch(() => ({ data: { data: { job_offers: [] } } }))
+        api.get('/api/jobs/offers').catch(() => ({ data: { data: { job_offers: [] } } })),
+        api.get('/api/ratings/pending').catch(() => ({ data: { data: { pending_ratings: [] } } }))
       ]);
 
       const shifts = shiftsRes.data.data?.shifts || [];
       const occupations = occupationsRes.data.data?.occupations || [];
       const offers = offersRes.data.data?.job_offers || [];
+      const pendingRatingsData = ratingsRes.data.data?.pending_ratings || [];
+      
+      setPendingRatings(pendingRatingsData);
 
       // Calculate stats
       const upcomingShifts = shifts.filter(s => s.status !== 'completed').slice(0, 3);
