@@ -74,7 +74,8 @@ const EmployerSettings = () => {
         city: data.city || '',
         province: data.province || '',
         postal_code: data.postal_code || '',
-        industry: data.industry || ''
+        industry: data.industry || '',
+        preferred_language: data.preferred_language || 'en'
       });
     } catch (error) {
       console.error('Failed to load profile:', error);
