@@ -4,9 +4,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
+import RateEmployer from '../../components/ratings/RateEmployer';
 import api from '../../utils/api';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { FiCalendar, FiClock, FiDollarSign, FiAward, FiTrendingUp, FiAlertCircle, FiBriefcase } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiDollarSign, FiAward, FiTrendingUp, FiAlertCircle, FiBriefcase, FiStar } from 'react-icons/fi';
 
 const WorkforceDashboard = () => {
   const { user } = useAuth();
