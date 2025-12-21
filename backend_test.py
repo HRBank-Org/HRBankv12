@@ -816,6 +816,175 @@ def test_role_based_access(results, workforce_token, employer_token):
         except Exception as e:
             results.add_fail(f"Employer blocked from {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_unified_calendar_shifts_endpoint(results):
+    """Test the unified calendar shifts endpoint that aggregates all shift types"""
+    print("\n🧪 Testing Unified Calendar Shifts Endpoint (Priority: HIGH)...")
+    print("   Testing endpoint: GET /api/employer/shifts")
+    print("   Expected aggregation from: shifts, calendar_shifts, service_tasks, continental_shifts")
+    
+    # Test credentials from review request
+    employer_creds = {"email": "john.b@swanpizza.ca", "password": "Test123!", "user_type": "employer"}
+    
+    # Test 1: Employer Authentication
+    employer_token = None
+    print("\n   Test 1: Employer authentication")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=employer_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                employer_token = data["data"]["access_token"]
+                results.add_pass("Employer authentication (john.b@swanpizza.ca)")
+                print(f"      Employer ID: {data.get('data', {}).get('user_id', 'N/A')}")
+            else:
+                results.add_fail("Employer authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Employer authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Employer authentication", f"Request failed: {str(e)}")
+    
+    # Test 2: GET /api/employer/shifts - Unified shifts endpoint
+    if employer_token:
+        print("\n   Test 2: GET /api/employer/shifts - Unified shifts aggregation")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/employer/shifts",
+                headers=get_auth_headers(employer_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "shifts" in data.get("data", {}):
+                    shifts = data["data"]["shifts"]
+                    results.add_pass("GET /api/employer/shifts - Endpoint accessible")
+                    print(f"      Total shifts found: {len(shifts)}")
+                    
+                    # Analyze shift sources and types
+                    sources = {}
+                    work_types = {}
+                    shifts_with_workplace_name = 0
+                    service_task_shifts = []
+                    
+                    for shift in shifts:
+                        # Count sources
+                        source = shift.get("source", "unknown")
+                        sources[source] = sources.get(source, 0) + 1
+                        
+                        # Count work types
+                        work_type = shift.get("work_type", "unknown")
+                        work_types[work_type] = work_types.get(work_type, 0) + 1
+                        
+                        # Check workplace_name field
+                        if shift.get("workplace_name"):
+                            shifts_with_workplace_name += 1
+                        
+                        # Collect service task shifts for specific validation
+                        if source == "service_task":
+                            service_task_shifts.append(shift)
+                    
+                    # Validate response structure
+                    print(f"      Sources found: {sources}")
+                    print(f"      Work types found: {work_types}")
+                    print(f"      Shifts with workplace_name: {shifts_with_workplace_name}/{len(shifts)}")
+                    
+                    # Test 3: Validate required fields are present
+                    required_fields_present = True
+                    missing_fields_count = 0
+                    
+                    for shift in shifts:
+                        required_fields = ["source", "work_type", "workplace_name"]
+                        for field in required_fields:
+                            if field not in shift or shift[field] is None:
+                                missing_fields_count += 1
+                                required_fields_present = False
+                    
+                    if required_fields_present:
+                        results.add_pass("All shifts have required fields (source, work_type, workplace_name)")
+                    else:
+                        results.add_fail("Required fields validation", f"{missing_fields_count} missing field instances found")
+                    
+                    # Test 4: Validate source values
+                    valid_sources = {"regular", "calendar", "service_task", "continental"}
+                    invalid_sources = set(sources.keys()) - valid_sources
+                    
+                    if not invalid_sources:
+                        results.add_pass("All shift sources are valid")
+                    else:
+                        results.add_fail("Shift source validation", f"Invalid sources found: {invalid_sources}")
+                    
+                    # Test 5: Validate work_type values
+                    valid_work_types = {"on_site", "route_based", "continental"}
+                    invalid_work_types = set(work_types.keys()) - valid_work_types
+                    
+                    if not invalid_work_types:
+                        results.add_pass("All work types are valid")
+                    else:
+                        results.add_fail("Work type validation", f"Invalid work types found: {invalid_work_types}")
+                    
+                    # Test 6: Validate known service task data (Dec 26 CleanGrid)
+                    print(f"\n   Test 6: Validate known service task data")
+                    print(f"      Service task shifts found: {len(service_task_shifts)}")
+                    
+                    if service_task_shifts:
+                        results.add_pass("Service tasks found in unified response")
+                        
+                        # Look for Dec 26 CleanGrid task
+                        dec_26_tasks = []
+                        for task in service_task_shifts:
+                            shift_date = task.get("shift_date", "")
+                            if "2024-12-26" in str(shift_date) or "12-26" in str(shift_date) or "26" in str(shift_date):
+                                dec_26_tasks.append(task)
+                        
+                        if dec_26_tasks:
+                            results.add_pass("Dec 26 service task found in response")
+                            task = dec_26_tasks[0]
+                            print(f"      Dec 26 task details:")
+                            print(f"        Work type: {task.get('work_type')}")
+                            print(f"        Source: {task.get('source')}")
+                            print(f"        Workplace name: {task.get('workplace_name')}")
+                            print(f"        Title: {task.get('title')}")
+                            
+                            # Validate it's route_based
+                            if task.get("work_type") == "route_based":
+                                results.add_pass("Dec 26 task has correct work_type (route_based)")
+                            else:
+                                results.add_fail("Dec 26 task work_type", f"Expected 'route_based', got '{task.get('work_type')}'")
+                        else:
+                            print(f"      No Dec 26 tasks found. Available dates in service tasks:")
+                            for task in service_task_shifts[:3]:  # Show first 3
+                                print(f"        - {task.get('shift_date')} ({task.get('title', 'No title')})")
+                    else:
+                        print(f"      No service tasks found in response")
+                    
+                    # Test 7: Validate aggregation from multiple sources
+                    if len(sources) > 1:
+                        results.add_pass(f"Multiple shift sources aggregated ({len(sources)} sources)")
+                    elif len(sources) == 1:
+                        results.add_pass(f"Single shift source found: {list(sources.keys())[0]}")
+                    else:
+                        results.add_fail("Shift source aggregation", "No shifts found from any source")
+                    
+                else:
+                    results.add_fail("GET /api/employer/shifts", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/employer/shifts", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/employer/shifts", f"Request failed: {str(e)}")
+    
+    # Test 8: Authentication enforcement
+    print("\n   Test 8: Authentication enforcement")
+    try:
+        response = requests.get(f"{BASE_URL}/employer/shifts", timeout=10)
+        
+        if response.status_code in [401, 403]:
+            results.add_pass("Authentication required for /api/employer/shifts")
+        else:
+            results.add_fail("Authentication enforcement", f"Expected 401/403, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Authentication enforcement", f"Request failed: {str(e)}")
+
 def test_two_way_rating_system(results):
     """Test the two-way rating system implementation"""
     print("\n🧪 Testing Two-Way Rating System (Priority: HIGH)...")
