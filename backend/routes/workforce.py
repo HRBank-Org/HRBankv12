@@ -164,52 +164,81 @@ async def update_availability(
 ):
     """
     Update availability (Step 3 of profile wizard)
-    Checks for conflicts with existing shift commitments
+    Supports both legacy format (availability_hours) and new simple format (availability_simple)
     """
     
     availability_hours = availability_data.get("availability_hours", {})
+    availability_simple = availability_data.get("availability_simple", None)
     blackout_dates = availability_data.get("blackout_dates", [])
     
-    # Check for conflicts with accepted/confirmed shifts
+    # Build update object
+    update_data = {
+        "availability_hours": availability_hours,
+        "blackout_dates": blackout_dates,
+        "updated_date": datetime.utcnow().isoformat()
+    }
+    
+    # Add simple format if provided
+    if availability_simple:
+        update_data["availability_simple"] = availability_simple
+    
+    # Check for conflicts with accepted/confirmed shifts (simplified check)
     conflicts = []
     accepted_bookings = await db.bookings.find({
         "workforce_id": current_user["user_id"],
         "status": {"$in": ["accepted", "confirmed", "in_progress"]}
     }).to_list(1000)
     
-    if accepted_bookings:
+    if accepted_bookings and availability_simple:
         from datetime import datetime as dt
+        available_days = availability_simple.get("days", [])
+        available_periods = availability_simple.get("periods", [])
+        
+        # Define period time ranges
+        period_ranges = {
+            "morning": (6, 12),
+            "afternoon": (12, 18),
+            "evening": (18, 24),
+            "overnight": (0, 6)
+        }
+        
         for booking in accepted_bookings:
             shift_date = booking.get("shift_date")
             shift_start = booking.get("start_time")
-            shift_end = booking.get("end_time")
             
-            if shift_date and shift_start and shift_end:
-                # Parse shift date to get day of week
+            if shift_date and shift_start:
                 try:
                     shift_datetime = dt.fromisoformat(shift_date.replace('Z', '+00:00'))
                     day_name = shift_datetime.strftime('%A').lower()
-                    
-                    # Check if the shift time conflicts with new availability
-                    shift_hours = []
                     start_hour = int(shift_start.split(':')[0])
-                    end_hour = int(shift_end.split(':')[0])
                     
-                    for hour in range(start_hour, end_hour):
-                        time_slot = f"{hour:02d}:00-{(hour+1):02d}:00"
-                        shift_hours.append(time_slot)
+                    # Check if day is available
+                    if day_name not in available_days:
+                        conflicts.append({
+                            "booking_id": booking.get("booking_id"),
+                            "shift_date": shift_date,
+                            "shift_time": shift_start,
+                            "workplace": booking.get("workplace_name", "Unknown"),
+                            "reason": f"{day_name.capitalize()} is no longer available"
+                        })
+                        continue
                     
-                    # Check if any of the shift hours are NOT in the new availability
-                    day_availability = availability_hours.get(day_name, [])
-                    for shift_hour in shift_hours:
-                        if shift_hour not in day_availability:
-                            conflicts.append({
-                                "booking_id": booking.get("booking_id"),
-                                "shift_date": shift_date,
-                                "shift_time": f"{shift_start} - {shift_end}",
-                                "workplace": booking.get("workplace_name", "Unknown")
-                            })
+                    # Check if time period is available
+                    shift_in_period = False
+                    for period_id in available_periods:
+                        period_start, period_end = period_ranges.get(period_id, (0, 24))
+                        if period_start <= start_hour < period_end:
+                            shift_in_period = True
                             break
+                    
+                    if not shift_in_period:
+                        conflicts.append({
+                            "booking_id": booking.get("booking_id"),
+                            "shift_date": shift_date,
+                            "shift_time": shift_start,
+                            "workplace": booking.get("workplace_name", "Unknown"),
+                            "reason": f"Shift at {shift_start} is outside your available time periods"
+                        })
                 except Exception as e:
                     print(f"Error checking conflict: {e}")
                     continue
@@ -226,19 +255,16 @@ async def update_availability(
     
     await db.workforce_profiles.update_one(
         {"workforce_id": current_user["user_id"]},
-        {"$set": {
-            "availability_hours": availability_hours,
-            "blackout_dates": blackout_dates,
-            "updated_date": datetime.utcnow().isoformat()
-        }}
+        {"$set": update_data}
     )
     
     # Recalculate completeness
     profile = await db.workforce_profiles.find_one({"workforce_id": current_user["user_id"]})
+    has_availability = bool(availability_hours) or bool(availability_simple)
     completeness = calculate_profile_completeness(
         has_personal_info=bool(profile.get("address")),
         has_skills=len(profile.get("skills", [])) >= 3,
-        has_availability=bool(availability_hours),
+        has_availability=has_availability,
         has_documents=len(profile.get("document_uploads", [])) > 0,
         has_credentials=False
     )
