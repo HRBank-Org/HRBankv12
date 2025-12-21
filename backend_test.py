@@ -6918,6 +6918,9 @@ def main():
     # Priority: CRITICAL - Role-Based Auto-Assignment Feature (NEW TEST FROM REVIEW REQUEST)
     test_role_based_auto_assignment(results)
     
+    # Priority: CRITICAL - Two-Way Rating System (NEW TEST FROM REVIEW REQUEST)
+    test_two_way_rating_system(results)
+    
     # Priority: HIGH - Authentication System
     admin_token = test_admin_authentication_system(results)
     
