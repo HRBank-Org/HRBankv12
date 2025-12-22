@@ -19,7 +19,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
       
       try {
         // Fetch unread notifications count
-        const notifResponse = await api.get('/notifications/my-notifications?unread_only=true&limit=100');
+        const notifResponse = await api.get('/api/notifications/my-notifications?unread_only=true&limit=100');
         if (notifResponse.data?.data?.notifications) {
           setNotificationCount(notifResponse.data.data.notifications.length);
         }
@@ -29,7 +29,7 @@ const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null
 
       try {
         // Fetch unread messages count
-        const msgResponse = await api.get('/messages/threads');
+        const msgResponse = await api.get('/api/messages/threads');
         if (msgResponse.data?.data?.total_unread !== undefined) {
           setMessageCount(msgResponse.data.data.total_unread);
         }
