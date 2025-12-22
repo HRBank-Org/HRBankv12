@@ -115,14 +115,15 @@ const Timesheets = () => {
               <div key={timesheet.timesheet_id} className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900">Worker Name</h3>
+                    <h3 className="font-semibold text-gray-900">{timesheet.worker_name || 'Worker'}</h3>
                     <p className="text-sm text-gray-600">
-                      Week Ending: {new Date(timesheet.week_ending_date).toLocaleDateString()}
+                      Week: {timesheet.week_start} to {timesheet.week_end || timesheet.week_ending_date}
                     </p>
                   </div>
                   <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                    timesheet.status === 'submitted' ? 'bg-yellow-100 text-yellow-800' :
+                    timesheet.status === 'submitted' || timesheet.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                     timesheet.status === 'approved' ? 'bg-green-100 text-green-800' :
+                    timesheet.status === 'processed' ? 'bg-blue-100 text-blue-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
                     {timesheet.status}
