@@ -208,7 +208,7 @@ const EmmaChat = () => {
   };
 
   // Don't show on landing page, login pages, OR for admin users
-  const currentPath = window.location.pathname;
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
   const isPublicPage = currentPath === '/' || currentPath.startsWith('/login') || currentPath.startsWith('/signup');
   const isAdminUser = user?.user_type === 'admin';
   
