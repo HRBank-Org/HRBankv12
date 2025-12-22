@@ -165,6 +165,7 @@ app.include_router(address.router, tags=["address"])
 app.include_router(service_tasks.router, prefix="/api", tags=["service_tasks"])
 app.include_router(external_bookings.router, prefix="/api", tags=["external_bookings"])
 app.include_router(match_engine.router, tags=["match_engine"])
+app.include_router(admin_seeding.router, prefix="/api", tags=["admin_seeding"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
