@@ -35,12 +35,25 @@ const Messages = () => {
   const loadTeamMembers = async () => {
     setLoadingTeam(true);
     try {
-      const response = await api.get('/employer/team');
-      if (response.data?.data?.team_members) {
-        setTeamMembers(response.data.data.team_members);
+      // Try workforce-management endpoint first
+      const response = await api.get('/employer/workforce-management/active');
+      if (response.data?.data?.workforce) {
+        setTeamMembers(response.data.data.workforce);
+      } else if (response.data?.data) {
+        // Handle if data is directly returned
+        setTeamMembers(Array.isArray(response.data.data) ? response.data.data : []);
       }
     } catch (error) {
       console.error('Failed to load team members:', error);
+      // Fallback: try to get from team_assignments
+      try {
+        const fallbackResponse = await api.get('/employer/workforce-management');
+        if (fallbackResponse.data?.data?.workforce) {
+          setTeamMembers(fallbackResponse.data.data.workforce);
+        }
+      } catch (e) {
+        console.error('Fallback also failed:', e);
+      }
     } finally {
       setLoadingTeam(false);
     }
