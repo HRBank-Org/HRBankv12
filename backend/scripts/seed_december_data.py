@@ -177,7 +177,7 @@ async def seed_december_data():
     # Clear existing December attendance
     await db.attendance_records.delete_many({
         "employer_id": employer_id,
-        "date": {"$regex": "^2024-12"}
+        "date": {"$regex": "^2025-12"}
     })
     
     # Get all completed shifts
