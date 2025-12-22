@@ -294,7 +294,7 @@ async def seed_december_data():
     # Clear existing December payroll
     await db.payroll_records.delete_many({
         "employer_id": employer_id,
-        "pay_period_start": {"$regex": "^2024-12"}
+        "pay_period_start": {"$regex": "^2025-12"}
     })
     
     # Week 1 payroll (processed and paid)
