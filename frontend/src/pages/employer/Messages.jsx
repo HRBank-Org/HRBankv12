@@ -56,7 +56,7 @@ const Messages = () => {
     
     setSending(true);
     try {
-      const response = await api.post('/messages/threads/create', {
+      const response = await api.post('/api/messages/threads/create', {
         target_user_id: selectedMember.workforce_id,
         message: newMessage.trim()
       });
