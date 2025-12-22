@@ -23,7 +23,7 @@ const Messages = () => {
 
   const loadThreads = async () => {
     try {
-      const response = await api.get('/messages/threads');
+      const response = await api.get('/api/messages/threads');
       setThreads(response.data.data.threads || []);
     } catch (error) {
       console.error('Failed to load messages:', error);
@@ -35,7 +35,7 @@ const Messages = () => {
   const loadTeamMembers = async () => {
     setLoadingTeam(true);
     try {
-      const response = await api.get('/messages/team-members');
+      const response = await api.get('/api/messages/team-members');
       if (response.data?.data?.members) {
         setTeamMembers(response.data.data.members);
       }
