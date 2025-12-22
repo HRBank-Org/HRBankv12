@@ -489,3 +489,23 @@ async def check_seed_status(
         }
     
     return {"seeded": False}
+
+
+
+@router.get("/seed-december-data")
+async def seed_december_data(
+    key: str = Query(..., description="Secret key to authorize seeding")
+):
+    """
+    Seed comprehensive December operations data for Swan Pizza.
+    Creates shifts, attendance, timesheets, payroll, notifications, and messages.
+    """
+    if key != SEED_SECRET_KEY:
+        raise HTTPException(status_code=403, detail="Invalid secret key")
+    
+    try:
+        from scripts.seed_december_data import seed_december_data as run_seeder
+        result = await run_seeder()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"December data seeding failed: {str(e)}")
