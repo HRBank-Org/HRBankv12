@@ -19,10 +19,8 @@ const Timesheets = () => {
 
   const loadTimesheets = async () => {
     try {
-      // TODO: Create endpoint to get employer's timesheets
-      // const response = await api.get('/api/employer/timesheets');
-      // setTimesheets(response.data.data.timesheets);
-      setTimesheets([]);
+      const response = await api.get('/api/attendance/employer/timesheets');
+      setTimesheets(response.data.data.timesheets || []);
     } catch (error) {
       console.error('Failed to load timesheets:', error);
     } finally {
@@ -32,11 +30,11 @@ const Timesheets = () => {
 
   const handleApprove = async (timesheetId, booking) => {
     try {
-      // TODO: Create approve endpoint
-      // await api.post(`/api/employer/timesheets/${timesheetId}/approve`);
+      await api.post(`/api/attendance/timesheets/${timesheetId}/approve`);
       
       // After approval, trigger rating
       setRatingBooking(booking);
+      loadTimesheets(); // Refresh
     } catch (error) {
       alert('Failed to approve timesheet');
     }
