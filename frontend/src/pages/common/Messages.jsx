@@ -181,7 +181,7 @@ const Messages = () => {
                     </div>
                   ) : (
                     messages.map((msg) => {
-                      const isCurrentUser = msg.sender_id === user.user_id;
+                      const isCurrentUser = msg.from_user_id === user.user_id;
                       return (
                         <div
                           key={msg.message_id}
