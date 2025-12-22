@@ -547,18 +547,24 @@ async def get_employer_timesheets(
     if status:
         query["status"] = status
     
-    timesheets = await db.timesheets.find(query, {"_id": 0}).sort("week_ending_date", -1).to_list(100)
+    timesheets = await db.timesheets.find(query, {"_id": 0}).sort("week_start", -1).to_list(100)
     
     # Enrich with worker info
     for ts in timesheets:
-        worker = await db.users.find_one({"user_id": ts["workforce_id"]})
+        worker = await db.users.find_one({"user_id": ts.get("workforce_id")})
         if worker:
-            ts["worker_name"] = worker.get("full_name")
+            ts["worker_name"] = ts.get("worker_name") or worker.get("full_name")
             ts["worker_email"] = worker.get("email")
         
-        shift = await db.shifts.find_one({"shift_id": ts["shift_id"]})
-        if shift:
-            ts["shift_date"] = shift.get("shift_date")
+        # Get shift info if shift_id exists
+        if ts.get("shift_id"):
+            shift = await db.shifts.find_one({"shift_id": ts["shift_id"]})
+            if shift:
+                ts["shift_date"] = shift.get("shift_date")
+        
+        # Set week_ending_date from week_end if not present
+        if not ts.get("week_ending_date") and ts.get("week_end"):
+            ts["week_ending_date"] = ts["week_end"]
     
     return {
         "success": True,
@@ -567,7 +573,7 @@ async def get_employer_timesheets(
             "total_timesheets": len(timesheets),
             "total_hours": sum(ts.get("total_hours", 0) for ts in timesheets),
             "total_cost": sum(ts.get("gross_pay", 0) for ts in timesheets),
-            "pending_approval": len([ts for ts in timesheets if ts.get("status") == "submitted"])
+            "pending_approval": len([ts for ts in timesheets if ts.get("status") in ["submitted", "pending"]])
         }
     }
 
