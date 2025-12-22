@@ -206,8 +206,8 @@ async def seed_december_data():
             start_hour, start_min = map(int, start_time.split(":"))
             end_hour, end_min = map(int, end_time.split(":"))
             
-            actual_start = datetime(2024, 12, int(shift_date.split("-")[2]), start_hour, start_min, tzinfo=timezone.utc) + timedelta(minutes=clock_in_variation)
-            actual_end = datetime(2024, 12, int(shift_date.split("-")[2]), end_hour, end_min, tzinfo=timezone.utc) + timedelta(minutes=clock_out_variation)
+            actual_start = datetime(2025, 12, int(shift_date.split("-")[2]), start_hour, start_min, tzinfo=timezone.utc) + timedelta(minutes=clock_in_variation)
+            actual_end = datetime(2025, 12, int(shift_date.split("-")[2]), end_hour, end_min, tzinfo=timezone.utc) + timedelta(minutes=clock_out_variation)
             
             hours_worked = (actual_end - actual_start).total_seconds() / 3600
             
