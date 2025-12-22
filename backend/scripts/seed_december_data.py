@@ -240,7 +240,7 @@ async def seed_december_data():
     # Clear existing December timesheets
     await db.timesheets.delete_many({
         "employer_id": employer_id,
-        "week_start": {"$regex": "^2024-12"}
+        "week_start": {"$regex": "^2025-12"}
     })
     
     # Generate weekly timesheets for December
