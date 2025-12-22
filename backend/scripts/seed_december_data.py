@@ -74,9 +74,9 @@ async def seed_december_data():
         "shift_date": {"$regex": "^2024-12"}
     })
     
-    # Generate shifts for December 1-22
+    # Generate shifts for December 1-22 (2025)
     for day in range(1, 23):
-        shift_date = datetime(2024, 12, day, tzinfo=timezone.utc)
+        shift_date = datetime(2025, 12, day, tzinfo=timezone.utc)
         date_str = shift_date.strftime("%Y-%m-%d")
         
         # Morning shift (On-Site)
