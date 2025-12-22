@@ -166,6 +166,77 @@ async def create_direct_thread(
     }
 
 
+@router.get("/team-members", response_model=Dict)
+async def get_team_members_for_chat(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get team members that the current user can chat with.
+    Employer gets their workforce, workforce gets their employers.
+    """
+    user_id = current_user["user_id"]
+    user_type = current_user["user_type"]
+    
+    members = []
+    
+    if user_type == "employer":
+        # Get all team assignments for this employer
+        assignments = await db.team_assignments.find({
+            "employer_id": user_id,
+            "status": "active"
+        }, {"_id": 0}).to_list(100)
+        
+        for assignment in assignments:
+            # Get workforce profile
+            profile = await db.workforce_profiles.find_one(
+                {"workforce_id": assignment.get("workforce_id")},
+                {"_id": 0}
+            )
+            if profile:
+                members.append({
+                    "workforce_id": assignment.get("workforce_id"),
+                    "full_name": profile.get("full_name", ""),
+                    "first_name": profile.get("first_name", ""),
+                    "last_name": profile.get("last_name", ""),
+                    "email": profile.get("email", ""),
+                    "position_title": assignment.get("position_title", "Team Member"),
+                    "role_title": assignment.get("role_title", ""),
+                    "profile_photo_url": profile.get("profile_photo_url")
+                })
+    
+    elif user_type == "workforce":
+        # Get all employers this worker is assigned to
+        assignments = await db.team_assignments.find({
+            "workforce_id": user_id,
+            "status": "active"
+        }, {"_id": 0}).to_list(100)
+        
+        for assignment in assignments:
+            # Get employer profile
+            profile = await db.employer_profiles.find_one(
+                {"employer_id": assignment.get("employer_id")},
+                {"_id": 0}
+            )
+            if profile:
+                members.append({
+                    "employer_id": assignment.get("employer_id"),
+                    "company_name": profile.get("company_name", ""),
+                    "contact_name": profile.get("contact_name", ""),
+                    "email": profile.get("email", ""),
+                    "position_title": assignment.get("position_title", ""),
+                    "logo_url": profile.get("logo_url")
+                })
+    
+    return {
+        "success": True,
+        "data": {
+            "members": members,
+            "total": len(members)
+        }
+    }
+
+
 @router.get("/threads", response_model=Dict)
 async def get_my_threads(
     current_user: dict = Depends(get_current_user),
