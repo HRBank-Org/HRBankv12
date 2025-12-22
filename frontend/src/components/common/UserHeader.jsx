@@ -1,16 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import api from '../../utils/api';
 
 const UserHeader = ({ onBackClick, showBack = true, title = null, actions = null, greeting = null, weather = null }) => {
   const { user, logout } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate ? useNavigate() : null;
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
+
+  // Fetch notification and message counts
+  useEffect(() => {
+    const fetchCounts = async () => {
+      if (!user) return;
+      
+      try {
+        // Fetch unread notifications count
+        const notifResponse = await api.get('/notifications/my-notifications?unread_only=true&limit=100');
+        if (notifResponse.data?.data?.notifications) {
+          setNotificationCount(notifResponse.data.data.notifications.length);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notification count:', error);
+      }
+
+      try {
+        // Fetch unread messages count
+        const msgResponse = await api.get('/messages/threads');
+        if (msgResponse.data?.data?.total_unread !== undefined) {
+          setMessageCount(msgResponse.data.data.total_unread);
+        }
+      } catch (error) {
+        console.error('Failed to fetch message count:', error);
+      }
+    };
+
+    fetchCounts();
+    // Refresh counts every 30 seconds
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   // Add/remove body class when sidebar opens to shift content
-  React.useEffect(() => {
+  useEffect(() => {
     if (menuOpen) {
       document.body.classList.add('sidebar-open');
     } else {
