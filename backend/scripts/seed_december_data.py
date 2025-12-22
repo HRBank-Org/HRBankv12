@@ -301,7 +301,7 @@ async def seed_december_data():
     for worker in workers:
         timesheet = await db.timesheets.find_one({
             "workforce_id": worker["workforce_id"],
-            "week_start": "2024-12-01",
+            "week_start": "2025-12-01",
             "status": "processed"
         })
         
@@ -311,8 +311,8 @@ async def seed_december_data():
                 "employer_id": employer_id,
                 "workforce_id": worker["workforce_id"],
                 "worker_name": worker["full_name"],
-                "pay_period_start": "2024-12-01",
-                "pay_period_end": "2024-12-07",
+                "pay_period_start": "2025-12-01",
+                "pay_period_end": "2025-12-07",
                 "timesheet_id": timesheet["timesheet_id"],
                 "regular_hours": timesheet["regular_hours"],
                 "overtime_hours": timesheet["overtime_hours"],
