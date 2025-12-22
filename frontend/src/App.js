@@ -148,7 +148,7 @@ const ProtectedRoute = ({ children, allowedUserTypes }) => {
 
   if (!user) {
     // Redirect to appropriate login page based on route
-    const isAdminRoute = window.location.pathname.startsWith('/admin');
+    const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
     return <Navigate to={isAdminRoute ? "/admin/login" : "/login"} replace />;
   }
 
