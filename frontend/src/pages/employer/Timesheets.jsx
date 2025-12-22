@@ -79,13 +79,16 @@ const Timesheets = () => {
           <div className="border-b border-gray-200 px-6 py-3">
             <nav className="flex gap-6">
               <button className="px-4 py-2 text-sm font-medium border-b-2" style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}>
-                Pending Approval ({timesheets.filter(t => t.status === 'submitted').length})
+                Pending Approval ({timesheets.filter(t => t.status === 'submitted' || t.status === 'pending').length})
               </button>
               <button className="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
                 Approved ({timesheets.filter(t => t.status === 'approved').length})
               </button>
               <button className="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-                All Timesheets
+                Processed ({timesheets.filter(t => t.status === 'processed').length})
+              </button>
+              <button className="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                All Timesheets ({timesheets.length})
               </button>
             </nav>
           </div>
