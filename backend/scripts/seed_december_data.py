@@ -249,9 +249,9 @@ async def seed_december_data():
     # Week 3: Dec 15-21 (Pending approval)
     
     weeks = [
-        {"start": "2024-12-01", "end": "2024-12-07", "status": "processed", "payroll_status": "paid"},
-        {"start": "2024-12-08", "end": "2024-12-14", "status": "approved", "payroll_status": "pending"},
-        {"start": "2024-12-15", "end": "2024-12-21", "status": "pending", "payroll_status": None},
+        {"start": "2025-12-01", "end": "2025-12-07", "status": "processed", "payroll_status": "paid"},
+        {"start": "2025-12-08", "end": "2025-12-14", "status": "approved", "payroll_status": "pending"},
+        {"start": "2025-12-15", "end": "2025-12-21", "status": "pending", "payroll_status": None},
     ]
     
     for worker in workers:
