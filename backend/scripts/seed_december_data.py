@@ -71,7 +71,7 @@ async def seed_december_data():
     # Clear existing December shifts
     await db.calendar_shifts.delete_many({
         "employer_id": employer_id,
-        "shift_date": {"$regex": "^2024-12"}
+        "shift_date": {"$regex": "^2025-12"}
     })
     
     # Generate shifts for December 1-22 (2025)
