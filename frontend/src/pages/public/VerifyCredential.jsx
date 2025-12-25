@@ -31,7 +31,7 @@ const VerifyCredential = () => {
     setError(null);
     
     try {
-      const response = await api.get(`/api/blockchain/verify/${id}`);
+      const response = await api.get(`/api/blockchain-credentials/verify/${id}`);
       if (response.data.success) {
         setCredential(response.data.data);
         setVerification(response.data.data.verification);
