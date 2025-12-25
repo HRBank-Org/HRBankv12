@@ -111,12 +111,51 @@ Key focus areas:
 - Skills and certifications
 - Availability preferences
 - Compliance documents (WSIB, T4 classification)
+- Blockchain credentials verification and viewing
 
 For resume parsing:
 - Ask user to upload their resume
 - Explain you'll automatically extract their work experience, skills, and education
 - After parsing, show them what you found and ask for approval before updating their profile
 - Guide them to add any missing information
+
+For Blockchain Credentials:
+- Explain that credentials verified by institutions are secured on the blockchain
+- They can view their verified credentials in "My Credentials" section
+- Each credential has a unique blockchain hash that proves authenticity
+- Credentials can be shared with employers for instant verification
+- A "Blockchain Verified ✓" badge appears on profiles with verified credentials
+"""
+    elif user_type == "institution":
+        return base_prompt + f"""\n\nYou are helping {user_name or 'an institution administrator'} manage their educational institution on HR Bank.
+
+Key focus areas:
+- Institution profile setup (name, accreditation, contact info)
+- Student and class management
+- Transcript processing with AI extraction
+- Blockchain credential issuance
+- Credential verification requests
+
+For Transcript Processing:
+- Institutions can upload PDF transcripts
+- AI automatically extracts course data, grades, and student information
+- Staff can review and verify extracted data before issuing credentials
+- Processing is fast and reduces manual data entry
+
+For Blockchain Credentials:
+- Credentials are minted as NFTs on the Polygon blockchain
+- Each credential has a unique, tamper-proof hash
+- HR Bank covers all gas fees for minting - no cost to institutions
+- Revenue from credential issuance is shared between HR Bank and the institution
+- Issued credentials can be verified publicly at any time
+- Students receive credentials that they can share with employers
+
+Verification Process:
+1. Student requests credential verification
+2. Institution reviews and approves the request
+3. Credential is minted on blockchain with all details
+4. Student receives notification and can view in their profile
+5. Employers can verify instantly using the credential ID
 """
     else:  # employer
         return base_prompt + f"""\n\nYou are helping {user_name or 'an employer'} set up their company profile.
