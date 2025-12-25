@@ -1203,10 +1203,10 @@ def test_two_way_rating_system(results):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
-def test_institution_blockchain_transcript_integration(results):
-    """Test the Institution Blockchain & Transcript Integration for HR Bank"""
-    print("\n🧪 Testing Institution Blockchain & Transcript Integration (Priority: HIGH)...")
-    print("   Testing Institution login, blockchain issuer status, transcript management, and credential verification")
+def test_credential_minting_flow(results):
+    """Test the Complete Credential Minting Flow for HR Bank Institution Portal"""
+    print("\n🧪 Testing Complete Credential Minting Flow (Priority: HIGH)...")
+    print("   Testing Institution login, credential issuance, verification, transcript flow, and analytics")
     print("   Test credentials: demo@stclairecollege.ca / Demo123!")
     print("   Base URL: https://credblock.preview.emergentagent.com")
     
