@@ -79,16 +79,21 @@ def test_health_check(results):
         response = requests.get(HEALTH_URL, timeout=10)
         
         if response.status_code == 200:
-            data = response.json()
-            
-            # Verify expected fields
-            if data.get("status") == "healthy" and data.get("database") == "connected":
-                results.add_pass("Health check - Returns status: healthy, database: connected")
-                print(f"      Status: {data.get('status')}")
-                print(f"      Database: {data.get('database')}")
-                print(f"      Service: {data.get('service', 'N/A')}")
-            else:
-                results.add_fail("Health check", f"Unexpected response: {data}")
+            # Check if it's JSON response
+            try:
+                data = response.json()
+                # Verify expected fields
+                if data.get("status") == "healthy" and data.get("database") == "connected":
+                    results.add_pass("Health check - Returns status: healthy, database: connected")
+                    print(f"      Status: {data.get('status')}")
+                    print(f"      Database: {data.get('database')}")
+                    print(f"      Service: {data.get('service', 'N/A')}")
+                else:
+                    results.add_fail("Health check", f"Unexpected response: {data}")
+            except json.JSONDecodeError:
+                # If it's HTML, it means the health endpoint is not properly configured
+                results.add_fail("Health check", "Health endpoint returns HTML instead of JSON (frontend routing issue)")
+                print("      Note: Health endpoint should return JSON, not HTML")
         else:
             results.add_fail("Health check", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
