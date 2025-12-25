@@ -6,6 +6,7 @@ from auth.jwt_handler import create_access_token, create_refresh_token
 from datetime import datetime, timedelta, timezone
 from typing import Dict
 import uuid
+import os
 from starlette.responses import RedirectResponse
 from utils.rate_limiter import limiter
 
