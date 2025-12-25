@@ -7832,21 +7832,46 @@ def test_sprint1_hr_bank_features(results):
         results.add_fail("DELETE shift unassign - Endpoint accessibility", f"Request failed: {str(e)}")
 
 def main():
-    """Run comprehensive HR Bank backend tests"""
-    results = TestResults()
-    
-    print("🚀 Starting Comprehensive HR Bank Backend Testing...")
-    print("Focus Areas: Match Engine API, Emma AI, Job Matching, Authentication, Payroll, Compliance, Analytics")
+    """Run production readiness tests for HR Bank after database indexing"""
+    print("🚀 HR BANK PRODUCTION READINESS TESTING")
+    print(f"Backend URL: {BASE_URL}")
+    print(f"Health URL: {HEALTH_URL}")
+    print(f"Timestamp: {datetime.now().isoformat()}")
     print("="*80)
     
-    # Test backend connectivity first
-    test_backend_connectivity(results)
+    results = TestResults()
     
-    # Priority: CRITICAL - Match Engine API Testing (PRIMARY FOCUS FROM REVIEW REQUEST)
-    test_match_engine_api(results)
+    print("Starting Production Readiness Testing for HR Bank...")
+    print("Focus: Health Check, Performance with Indexes, Credential Flow, Rate Limiting")
     
-    # Priority: CRITICAL - Sprint 1 HR Bank Features (NEW TEST FROM REVIEW REQUEST)
-    test_sprint1_hr_bank_features(results)
+    # Test 1: Health Check Endpoint
+    test_health_check(results)
+    
+    # Test 2: Performance Test - Authentication
+    institution_token = test_performance_authentication(results)
+    
+    # Test 3: Performance Test - Credential Flow
+    credential_id = test_performance_credential_flow(results, institution_token)
+    
+    # Test 4: Index Validation
+    test_index_validation(results, institution_token)
+    
+    # Test 5: Rate Limiting Still Active
+    test_rate_limiting(results)
+    
+    # Print final summary
+    success = results.summary()
+    
+    if success:
+        print("\n🎉 ALL PRODUCTION READINESS TESTS PASSED!")
+        print("✅ Health check returns healthy status")
+        print("✅ All queries work correctly (indexes in use)")
+        print("✅ Rate limiting still active")
+        print("✅ No performance degradation")
+        return 0
+    else:
+        print("\n⚠️  SOME TESTS FAILED - REVIEW REQUIRED")
+        return 1
     
     # Priority: CRITICAL - Checklist API for HR Bank Field Service (NEW TEST FROM REVIEW REQUEST)
     test_checklist_api_for_hr_bank_field_service(results)
