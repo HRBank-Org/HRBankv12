@@ -1215,6 +1215,7 @@ def test_credential_minting_flow(results):
     
     # Test 1: Institution Authentication
     institution_token = None
+    institution_id = None
     print("\n   Test 1: Institution Authentication - POST /api/auth/login")
     try:
         response = requests.post(f"{BASE_URL}/auth/login", json=institution_creds, timeout=10)
@@ -1224,11 +1225,12 @@ def test_credential_minting_flow(results):
             if data.get("success") and "access_token" in data.get("data", {}):
                 institution_token = data["data"]["access_token"]
                 user_data = data.get("data", {})
+                institution_id = user_data.get("user_id")
                 
                 # Verify user_type is "institution"
                 if user_data.get("user_type") == "institution":
                     results.add_pass("Institution authentication - user_type is 'institution'")
-                    print(f"      Institution ID: {user_data.get('user_id', 'N/A')}")
+                    print(f"      Institution ID: {institution_id}")
                     print(f"      User Type: {user_data.get('user_type', 'N/A')}")
                 else:
                     results.add_fail("Institution authentication", f"Expected user_type 'institution', got '{user_data.get('user_type')}'")
