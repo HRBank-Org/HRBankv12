@@ -12316,36 +12316,45 @@ def test_task_reporting_apis(results):
 
 
 def main():
-    """Run comprehensive backend tests focused on credential minting flow"""
-    print("🚀 CREDENTIAL MINTING FLOW TESTING FOR HR BANK")
+    """Run production readiness tests for HR Bank after database indexing"""
+    print("🚀 HR BANK PRODUCTION READINESS TESTING")
     print(f"Backend URL: {BASE_URL}")
+    print(f"Health URL: {HEALTH_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     print("="*80)
     
     results = TestResults()
     
-    # Test basic connectivity first
-    test_backend_connectivity(results)
+    print("Starting Production Readiness Testing for HR Bank...")
+    print("Focus: Health Check, Performance with Indexes, Credential Flow, Rate Limiting")
     
-    # MAIN FOCUS: Test credential minting flow (Priority: HIGH - from review request)
-    test_credential_minting_flow(results)
+    # Test 1: Health Check Endpoint
+    test_health_check(results)
     
-    # Print final results
+    # Test 2: Performance Test - Authentication
+    institution_token = test_performance_authentication(results)
+    
+    # Test 3: Performance Test - Credential Flow
+    credential_id = test_performance_credential_flow(results, institution_token)
+    
+    # Test 4: Index Validation
+    test_index_validation(results, institution_token)
+    
+    # Test 5: Rate Limiting Still Active
+    test_rate_limiting(results)
+    
+    # Print final summary
     success = results.summary()
     
     if success:
-        print("\n🎉 All credential minting flow tests passed!")
-        print("\n✅ PASS CRITERIA MET:")
-        print("   - Institution authentication successful")
-        print("   - Credential issued with blockchain transaction hash")
-        print("   - QR code generated as base64 image")
-        print("   - IPFS URL generated")
-        print("   - Public verification returns full credential with blockchain_verified status")
-        print("   - Institution analytics updated")
-        print("   - Transcript management accessible")
+        print("\n🎉 ALL PRODUCTION READINESS TESTS PASSED!")
+        print("✅ Health check returns healthy status")
+        print("✅ All queries work correctly (indexes in use)")
+        print("✅ Rate limiting still active")
+        print("✅ No performance degradation")
         return 0
     else:
-        print(f"\n💥 {results.failed} credential minting test(s) failed!")
+        print("\n⚠️  SOME TESTS FAILED - REVIEW REQUIRED")
         return 1
 
 def test_invitation_system(results):
