@@ -1,13 +1,127 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
-import { FiExternalLink, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiExternalLink, FiCheckCircle } from 'react-icons/fi';
+
+// Stat Card Component
+const StatCard = ({ icon, label, value, color, bgColor, onClick, primaryColor }) => (
+  <div 
+    onClick={onClick}
+    className={`bg-white rounded-xl shadow-sm p-6 border-2 ${onClick ? 'cursor-pointer hover:shadow-lg hover:scale-105 transition-all' : ''}`}
+    style={{ borderColor: color || primaryColor }}
+  >
+    <div className="flex items-center justify-between">
+      <div className="flex-1">
+        <p className="text-sm text-gray-600 mb-1 font-medium">{label}</p>
+        <p className="text-3xl font-bold" style={{ color: color || primaryColor }}>{value}</p>
+      </div>
+      <div 
+        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
+        style={{ backgroundColor: bgColor }}
+      >
+        {icon}
+      </div>
+    </div>
+  </div>
+);
+
+// Quick Action Card Component
+const QuickActionCard = ({ icon, title, description, onClick, color }) => (
+  <div 
+    onClick={onClick}
+    className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm p-6 border-2 border-gray-100 cursor-pointer hover:shadow-xl hover:border-indigo-200 transition-all group"
+  >
+    <div className="flex items-start gap-4">
+      <div 
+        className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl transition-all group-hover:scale-110 shadow-sm"
+        style={{ backgroundColor: color, color: 'white' }}
+      >
+        {icon}
+      </div>
+      <div className="flex-1">
+        <h3 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">{title}</h3>
+        <p className="text-sm text-gray-600">{description}</p>
+      </div>
+      <svg className="w-6 h-6 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    </div>
+  </div>
+);
+
+// Wallet Status Widget Component
+const WalletStatusWidget = ({ walletLoading, walletStatus }) => {
+  if (walletLoading) {
+    return (
+      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-200 animate-pulse">
+        <div className="h-6 bg-indigo-200 rounded w-48 mb-3"></div>
+        <div className="h-4 bg-indigo-100 rounded w-32"></div>
+      </div>
+    );
+  }
+
+  const network = walletStatus?.network_name || 'Polygon';
+
+  return (
+    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <FiCheckCircle className="w-5 h-5 text-green-600" />
+            <h3 className="font-bold text-gray-900">Blockchain Credential System</h3>
+          </div>
+          <p className="text-sm mb-3 text-green-700">
+            ✓ Ready to issue blockchain credentials
+          </p>
+          
+          <div className="bg-white/60 rounded-lg p-4 mb-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-600">Network</span>
+              <span className="font-semibold text-gray-900">{network}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Status</span>
+              <span className="text-sm font-semibold text-green-600">Active ✓</span>
+            </div>
+            {walletStatus?.issuer_address && (
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+                <span className="text-sm text-gray-600">Issuer Wallet</span>
+                <span className="font-mono text-xs text-gray-700">
+                  {walletStatus.issuer_address.slice(0, 6)}...{walletStatus.issuer_address.slice(-4)}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+            <p className="text-xs text-blue-700">
+              <strong>💡 Monetization Model:</strong> HR Bank covers all gas fees for credential minting. 
+              Revenue from credential issuance is shared between HR Bank and your institution.
+            </p>
+          </div>
+        </div>
+        
+        {walletStatus?.explorer_url && (
+          <a
+            href={walletStatus.explorer_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-4 p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+            title="View on Explorer"
+          >
+            <FiExternalLink className="w-5 h-5" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const InstitutionDashboard = () => {
-  const { user, updateUserProfile } = useAuth();
+  const { updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
@@ -16,12 +130,7 @@ const InstitutionDashboard = () => {
   const [walletStatus, setWalletStatus] = useState(null);
   const [walletLoading, setWalletLoading] = useState(true);
 
-  useEffect(() => {
-    loadDashboardData();
-    loadWalletStatus();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       const [analyticsRes, profileRes] = await Promise.all([
         api.get('/api/institution/analytics/dashboard'),
@@ -31,7 +140,6 @@ const InstitutionDashboard = () => {
       setAnalytics(analyticsRes.data.data);
       setProfile(profileRes.data.data);
       
-      // Update AuthContext with complete profile data so UserHeader can access it
       if (profileRes.data.data) {
         updateUserProfile(profileRes.data.data);
       }
@@ -40,9 +148,9 @@ const InstitutionDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [updateUserProfile]);
 
-  const loadWalletStatus = async () => {
+  const loadWalletStatus = useCallback(async () => {
     try {
       const response = await api.get('/api/blockchain-credentials/issuer-status?network=polygon');
       setWalletStatus(response.data.data);
@@ -52,132 +160,12 @@ const InstitutionDashboard = () => {
     } finally {
       setWalletLoading(false);
     }
-  };
+  }, []);
 
-  // Wallet Status Widget Component
-  const WalletStatusWidget = () => {
-    if (walletLoading) {
-      return (
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-200 animate-pulse">
-          <div className="h-6 bg-indigo-200 rounded w-48 mb-3"></div>
-          <div className="h-4 bg-indigo-100 rounded w-32"></div>
-        </div>
-      );
-    }
-
-    // Always show as ready since HR Bank covers gas fees
-    const isReady = walletStatus?.success !== false;
-    const balance = walletStatus?.balance?.balance;
-    const currency = walletStatus?.balance?.currency || 'MATIC';
-    const network = walletStatus?.network_name || 'Polygon';
-    const hasBalanceInfo = balance !== null && balance !== undefined;
-
-    return (
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <FiCheckCircle className="w-5 h-5 text-green-600" />
-              <h3 className="font-bold text-gray-900">Blockchain Credential System</h3>
-            </div>
-            <p className="text-sm mb-3 text-green-700">
-              ✓ Ready to issue blockchain credentials
-            </p>
-            
-            <div className="bg-white/60 rounded-lg p-4 mb-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600">Network</span>
-                <span className="font-semibold text-gray-900">{network}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Status</span>
-                <span className="text-sm font-semibold text-green-600">Active ✓</span>
-              </div>
-              {walletStatus?.issuer_address && (
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
-                  <span className="text-sm text-gray-600">Issuer Wallet</span>
-                  <span className="font-mono text-xs text-gray-700">
-                    {walletStatus.issuer_address.slice(0, 6)}...{walletStatus.issuer_address.slice(-4)}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <p className="text-xs text-blue-700">
-                <strong>💡 Monetization Model:</strong> HR Bank covers all gas fees for credential minting. 
-                Revenue from credential issuance is shared between HR Bank and your institution.
-              </p>
-            </div>
-          </div>
-          
-          {walletStatus?.explorer_url && (
-            <a
-              href={walletStatus.explorer_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-4 p-2 text-gray-400 hover:text-indigo-600 transition-colors"
-              title="View on Explorer"
-            >
-              <FiExternalLink className="w-5 h-5" />
-            </a>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
-    );
-  }
-
-  const StatCard = ({ icon, label, value, color, bgColor, onClick }) => (
-    <div 
-      onClick={onClick}
-      className={`bg-white rounded-xl shadow-sm p-6 border-2 ${onClick ? 'cursor-pointer hover:shadow-lg hover:scale-105 transition-all' : ''}`}
-      style={{ borderColor: color || theme.primaryColor }}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm text-gray-600 mb-1 font-medium">{label}</p>
-          <p className="text-3xl font-bold" style={{ color: color || theme.primaryColor }}>{value}</p>
-        </div>
-        <div 
-          className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
-          style={{ backgroundColor: bgColor }}
-        >
-          {icon}
-        </div>
-      </div>
-    </div>
-  );
-
-  const QuickActionCard = ({ icon, title, description, onClick, color }) => (
-    <div 
-      onClick={onClick}
-      className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm p-6 border-2 border-gray-100 cursor-pointer hover:shadow-xl hover:border-indigo-200 transition-all group"
-    >
-      <div className="flex items-start gap-4">
-        <div 
-          className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl transition-all group-hover:scale-110 shadow-sm"
-          style={{ backgroundColor: color, color: 'white' }}
-        >
-          {icon}
-        </div>
-        <div className="flex-1">
-          <h3 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">{title}</h3>
-          <p className="text-sm text-gray-600">{description}</p>
-        </div>
-        <svg className="w-6 h-6 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    loadDashboardData();
+    loadWalletStatus();
+  }, [loadDashboardData, loadWalletStatus]);
 
   // Get personalized greeting
   const getGreeting = () => {
@@ -196,6 +184,14 @@ const InstitutionDashboard = () => {
   const getInstitutionName = () => {
     return profile?.institution_name || 'Your Institution';
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
@@ -222,7 +218,7 @@ const InstitutionDashboard = () => {
 
         {/* Blockchain Status & Transcripts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <WalletStatusWidget />
+          <WalletStatusWidget walletLoading={walletLoading} walletStatus={walletStatus} />
           
           {/* Transcript Processing Card */}
           <div 
@@ -265,6 +261,7 @@ const InstitutionDashboard = () => {
             color="#1e3a8a"
             bgColor="#dbeafe"
             onClick={() => navigate('/institution/credentials')}
+            primaryColor={theme.primaryColor}
           />
           <StatCard
             icon="📚"
@@ -273,6 +270,7 @@ const InstitutionDashboard = () => {
             color="#1e40af"
             bgColor="#dbeafe"
             onClick={() => navigate('/institution/classes')}
+            primaryColor={theme.primaryColor}
           />
           <StatCard
             icon="⏰"
@@ -280,6 +278,7 @@ const InstitutionDashboard = () => {
             value={analytics?.upcoming_expirations || 0}
             color="#475569"
             bgColor="#e2e8f0"
+            primaryColor={theme.primaryColor}
           />
           <StatCard
             icon="👥"
@@ -287,6 +286,7 @@ const InstitutionDashboard = () => {
             value={analytics?.total_students_enrolled || 0}
             color="#334155"
             bgColor="#e2e8f0"
+            primaryColor={theme.primaryColor}
           />
           <StatCard
             icon="✅"
@@ -295,6 +295,7 @@ const InstitutionDashboard = () => {
             color="#1e293b"
             bgColor="#e2e8f0"
             onClick={() => navigate('/institution/verification-requests')}
+            primaryColor={theme.primaryColor}
           />
         </div>
 
