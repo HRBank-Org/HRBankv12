@@ -1,13 +1,13 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from models.user import UserCreate, UserLogin, TokenResponse, User, UserInDB, EmailVerification
 from auth.password import hash_password, verify_password
 from auth.jwt_handler import create_access_token, create_refresh_token
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict
 import uuid
-from starlette.requests import Request
 from starlette.responses import RedirectResponse
+from utils.rate_limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -17,7 +17,8 @@ def get_db():
     return db
 
 @router.post("/signup", response_model=Dict, status_code=status.HTTP_201_CREATED)
-async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
+@limiter.limit("3/minute")  # Rate limit: 3 signups per minute per IP
+async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     User signup endpoint
     Creates new user account and sends email verification
@@ -50,7 +51,7 @@ async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_d
         "profile_status": "pending",  # All new users start as pending
         "email_verified": False,
         "mfa_enabled": False,
-        "created_date": datetime.utcnow().isoformat(),
+        "created_date": datetime.now(timezone.utc).isoformat(),
         "last_login_date": None,
         "deleted_at": None
     }
