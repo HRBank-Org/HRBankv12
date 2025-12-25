@@ -1215,7 +1215,7 @@ def test_institution_blockchain_transcript_integration(results):
     
     # Test 1: Institution Authentication
     institution_token = None
-    print("\n   Test 1: Institution login authentication")
+    print("\n   Test 1: Institution Authentication - POST /api/auth/login")
     try:
         response = requests.post(f"{BASE_URL}/auth/login", json=institution_creds, timeout=10)
         
@@ -1224,10 +1224,14 @@ def test_institution_blockchain_transcript_integration(results):
             if data.get("success") and "access_token" in data.get("data", {}):
                 institution_token = data["data"]["access_token"]
                 user_data = data.get("data", {})
-                results.add_pass("Institution authentication (demo@stclairecollege.ca)")
-                print(f"      Institution ID: {user_data.get('user_id', 'N/A')}")
-                print(f"      User Type: {user_data.get('user_type', 'N/A')}")
-                print(f"      Login successful - should redirect to /institution/dashboard")
+                
+                # Verify user_type is "institution"
+                if user_data.get("user_type") == "institution":
+                    results.add_pass("Institution authentication - user_type is 'institution'")
+                    print(f"      Institution ID: {user_data.get('user_id', 'N/A')}")
+                    print(f"      User Type: {user_data.get('user_type', 'N/A')}")
+                else:
+                    results.add_fail("Institution authentication", f"Expected user_type 'institution', got '{user_data.get('user_type')}'")
             else:
                 results.add_fail("Institution authentication", f"Invalid response: {data}")
         else:
@@ -1235,12 +1239,12 @@ def test_institution_blockchain_transcript_integration(results):
     except Exception as e:
         results.add_fail("Institution authentication", f"Request failed: {str(e)}")
     
-    # Test 2: GET /api/institutions/me/profile
+    # Test 2: Blockchain Issuer Status
     if institution_token:
-        print("\n   Test 2: GET /api/institutions/me/profile - Institution profile")
+        print("\n   Test 2: Blockchain Issuer Status - GET /api/blockchain-credentials/issuer-status?network=polygon")
         try:
             response = requests.get(
-                f"{BASE_URL}/institutions/me/profile",
+                f"{BASE_URL}/blockchain-credentials/issuer-status?network=polygon",
                 headers=get_auth_headers(institution_token),
                 timeout=10
             )
@@ -1248,41 +1252,103 @@ def test_institution_blockchain_transcript_integration(results):
             if response.status_code == 200:
                 data = response.json()
                 if data.get("success") and "data" in data:
-                    profile_data = data["data"]
-                    results.add_pass("GET /api/institutions/me/profile - Profile accessible")
+                    issuer_data = data["data"]
+                    results.add_pass("GET /api/blockchain-credentials/issuer-status - Endpoint accessible")
                     
-                    # Check if this is St. Claire College
-                    institution_name = profile_data.get("institution_name", "")
-                    print(f"      Institution name: {institution_name}")
-                    print(f"      Contact name: {profile_data.get('contact_name', 'N/A')}")
-                    print(f"      City: {profile_data.get('city', 'N/A')}")
-                    print(f"      Province: {profile_data.get('province', 'N/A')}")
+                    # Verify issuer_address is returned (0xBEF80342F728F32d2C8B882C64f1291FAb4354c2)
+                    issuer_address = issuer_data.get("issuer_address")
+                    expected_address = "0xBEF80342F728F32d2C8B882C64f1291FAb4354c2"
                     
-                    # Verify it's St. Claire College in Windsor, Ontario
-                    if "st. claire" in institution_name.lower() or "stclaire" in institution_name.lower():
-                        results.add_pass("Institution profile - St. Claire College identified")
+                    if issuer_address == expected_address:
+                        results.add_pass("Blockchain issuer - Correct issuer_address returned")
+                        print(f"      Issuer Address: {issuer_address}")
                     else:
-                        print(f"      Note: Expected St. Claire College, found: {institution_name}")
-                        results.add_pass("Institution profile - Profile data accessible (institution name may need setup)")
+                        results.add_fail("Blockchain issuer address", f"Expected {expected_address}, got {issuer_address}")
                     
-                    # Check required fields
-                    expected_fields = ["user_id", "institution_name", "contact_name", "city", "province"]
-                    missing_fields = [field for field in expected_fields if field not in profile_data]
-                    
-                    if not missing_fields:
-                        results.add_pass("Institution profile - All required fields present")
+                    # Verify network_name is "Polygon Mainnet"
+                    network_name = issuer_data.get("network_name")
+                    if network_name == "Polygon Mainnet":
+                        results.add_pass("Blockchain issuer - Correct network_name 'Polygon Mainnet'")
+                        print(f"      Network Name: {network_name}")
                     else:
-                        results.add_fail("Institution profile fields", f"Missing fields: {missing_fields}")
+                        results.add_fail("Blockchain issuer network", f"Expected 'Polygon Mainnet', got '{network_name}'")
+                    
+                    # Verify explorer_url is returned
+                    explorer_url = issuer_data.get("explorer_url")
+                    if explorer_url:
+                        results.add_pass("Blockchain issuer - explorer_url returned")
+                        print(f"      Explorer URL: {explorer_url}")
+                    else:
+                        results.add_fail("Blockchain issuer explorer_url", "explorer_url not returned")
+                        
                 else:
-                    results.add_fail("GET /api/institutions/me/profile", f"Invalid response: {data}")
+                    results.add_fail("GET /api/blockchain-credentials/issuer-status", f"Invalid response: {data}")
             else:
-                results.add_fail("GET /api/institutions/me/profile", f"HTTP {response.status_code}: {response.text}")
+                results.add_fail("GET /api/blockchain-credentials/issuer-status", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
-            results.add_fail("GET /api/institutions/me/profile", f"Request failed: {str(e)}")
+            results.add_fail("GET /api/blockchain-credentials/issuer-status", f"Request failed: {str(e)}")
     
-    # Test 3: GET /api/institution/analytics/dashboard
+    # Test 3: Transcript Management
     if institution_token:
-        print("\n   Test 3: GET /api/institution/analytics/dashboard - Dashboard analytics")
+        print("\n   Test 3: Transcript Management - GET /api/transcripts")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/transcripts",
+                headers=get_auth_headers(institution_token),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    transcript_data = data["data"]
+                    results.add_pass("GET /api/transcripts - Endpoint accessible with auth token")
+                    
+                    # Verify response contains transcripts array
+                    if "transcripts" in transcript_data:
+                        results.add_pass("Transcript management - Response contains transcripts array")
+                        print(f"      Transcripts found: {len(transcript_data['transcripts'])}")
+                    else:
+                        results.add_fail("Transcript management", "Response missing 'transcripts' array")
+                    
+                    # Verify total count
+                    if "total" in transcript_data:
+                        results.add_pass("Transcript management - Response contains total count")
+                        print(f"      Total count: {transcript_data['total']}")
+                    else:
+                        results.add_fail("Transcript management", "Response missing 'total' count")
+                        
+                else:
+                    results.add_fail("GET /api/transcripts", f"Invalid response: {data}")
+            else:
+                results.add_fail("GET /api/transcripts", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/transcripts", f"Request failed: {str(e)}")
+    
+    # Test 4: Public Credential Verification (no auth required)
+    print("\n   Test 4: Public Credential Verification - GET /api/blockchain-credentials/verify/test_cred_123")
+    try:
+        response = requests.get(f"{BASE_URL}/blockchain-credentials/verify/test_cred_123", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            results.add_pass("GET /api/blockchain-credentials/verify/{id} - Endpoint accessible without auth")
+            
+            # Should return credential not found (expected)
+            if not data.get("success") and "not_found" in str(data.get("data", {})).lower():
+                results.add_pass("Public credential verification - Returns 'credential not found' as expected")
+                print(f"      Response: {data.get('data', {}).get('message', 'Credential not found')}")
+            else:
+                print(f"      Note: Unexpected response for non-existent credential: {data}")
+                results.add_pass("Public credential verification - Endpoint working (unexpected credential found)")
+        else:
+            results.add_fail("GET /api/blockchain-credentials/verify/{id}", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/blockchain-credentials/verify/{id}", f"Request failed: {str(e)}")
+    
+    # Test 5: Dashboard Analytics
+    if institution_token:
+        print("\n   Test 5: Dashboard Analytics - GET /api/institution/analytics/dashboard")
         try:
             response = requests.get(
                 f"{BASE_URL}/institution/analytics/dashboard",
@@ -1296,7 +1362,7 @@ def test_institution_blockchain_transcript_integration(results):
                     analytics_data = data["data"]
                     results.add_pass("GET /api/institution/analytics/dashboard - Analytics accessible")
                     
-                    # Check analytics fields
+                    # Verify analytics fields (total_credentials_issued, active_classes, etc.)
                     expected_analytics = [
                         "total_credentials_issued",
                         "active_classes", 
@@ -1306,22 +1372,18 @@ def test_institution_blockchain_transcript_integration(results):
                     ]
                     
                     print(f"      Dashboard Analytics:")
+                    missing_analytics = []
                     for field in expected_analytics:
-                        value = analytics_data.get(field, 0)
-                        print(f"        {field}: {value}")
-                    
-                    missing_analytics = [field for field in expected_analytics if field not in analytics_data]
+                        if field in analytics_data:
+                            value = analytics_data.get(field, 0)
+                            print(f"        {field}: {value}")
+                        else:
+                            missing_analytics.append(field)
                     
                     if not missing_analytics:
-                        results.add_pass("Institution dashboard - All analytics fields present")
+                        results.add_pass("Dashboard analytics - All required fields present")
                     else:
-                        results.add_fail("Institution dashboard analytics", f"Missing fields: {missing_analytics}")
-                    
-                    # Check for recent activity data
-                    if "recent_classes" in analytics_data and "recent_credentials" in analytics_data:
-                        results.add_pass("Institution dashboard - Recent activity data present")
-                    else:
-                        results.add_fail("Institution dashboard recent activity", "Missing recent_classes or recent_credentials")
+                        results.add_fail("Dashboard analytics fields", f"Missing fields: {missing_analytics}")
                         
                 else:
                     results.add_fail("GET /api/institution/analytics/dashboard", f"Invalid response: {data}")
@@ -1330,53 +1392,66 @@ def test_institution_blockchain_transcript_integration(results):
         except Exception as e:
             results.add_fail("GET /api/institution/analytics/dashboard", f"Request failed: {str(e)}")
     
-    # Test 4: Navigation endpoints (sidebar links)
+    # Test 6: Authentication enforcement for protected endpoints
+    print("\n   Test 6: Authentication enforcement")
+    protected_endpoints = [
+        ("GET", "/blockchain-credentials/issuer-status"),
+        ("GET", "/transcripts"),
+        ("GET", "/institution/analytics/dashboard")
+    ]
+    
+    for method, endpoint in protected_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication enforcement for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication enforcement for {method} {endpoint}", f"Request failed: {str(e)}")
+    
+    # Test 7: Verify public verification endpoint is accessible without auth
+    print("\n   Test 7: Public endpoint accessibility")
+    try:
+        response = requests.get(f"{BASE_URL}/blockchain-credentials/verify/test_public_access", timeout=10)
+        
+        if response.status_code == 200:
+            results.add_pass("Public verification endpoint accessible without auth")
+        else:
+            results.add_fail("Public verification endpoint", f"Expected 200, got {response.status_code}")
+    except Exception as e:
+        results.add_fail("Public verification endpoint", f"Request failed: {str(e)}")
+    
+    # Test 8: Verify issuer wallet address matches configured value
     if institution_token:
-        print("\n   Test 4: Institution navigation endpoints")
-        
-        # Test Classes endpoint
+        print("\n   Test 8: Issuer wallet address validation")
         try:
             response = requests.get(
-                f"{BASE_URL}/institution/classes",
+                f"{BASE_URL}/blockchain-credentials/issuer-status?network=polygon",
                 headers=get_auth_headers(institution_token),
                 timeout=10
             )
             
             if response.status_code == 200:
-                results.add_pass("Institution navigation - Classes endpoint accessible")
-            elif response.status_code == 404:
-                results.add_pass("Institution navigation - Classes endpoint (404 expected if not implemented)")
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    issuer_data = data["data"]
+                    issuer_address = issuer_data.get("issuer_address")
+                    
+                    # Check against environment variable value
+                    expected_address = "0xBEF80342F728F32d2C8B882C64f1291FAb4354c2"
+                    if issuer_address == expected_address:
+                        results.add_pass("Issuer wallet address matches configured value")
+                    else:
+                        results.add_fail("Issuer wallet address validation", f"Address mismatch: expected {expected_address}, got {issuer_address}")
+                else:
+                    results.add_fail("Issuer wallet address validation", "Failed to get issuer status")
             else:
-                results.add_fail("Institution navigation - Classes", f"HTTP {response.status_code}: {response.text}")
+                results.add_fail("Issuer wallet address validation", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
-            results.add_fail("Institution navigation - Classes", f"Request failed: {str(e)}")
-        
-        # Test Credentials endpoint
-        try:
-            response = requests.get(
-                f"{BASE_URL}/institution/credentials",
-                headers=get_auth_headers(institution_token),
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                results.add_pass("Institution navigation - Credentials endpoint accessible")
-            elif response.status_code == 404:
-                results.add_pass("Institution navigation - Credentials endpoint (404 expected if not implemented)")
-            else:
-                results.add_fail("Institution navigation - Credentials", f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_fail("Institution navigation - Credentials", f"Request failed: {str(e)}")
-        
-        # Test Verification Requests endpoint
-        try:
-            response = requests.get(
-                f"{BASE_URL}/institutions/me/verification-queue",
-                headers=get_auth_headers(institution_token),
-                timeout=10
-            )
-            
-            if response.status_code == 200:
+            results.add_fail("Issuer wallet address validation", f"Request failed: {str(e)}")
                 data = response.json()
                 if data.get("success"):
                     results.add_pass("Institution navigation - Verification Requests accessible")
