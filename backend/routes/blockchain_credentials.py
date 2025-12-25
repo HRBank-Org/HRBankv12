@@ -63,7 +63,7 @@ async def issue_blockchain_credential(
         "credential_name": credential.credential_name,
         "program_name": credential.program_name,
         "student_name": credential.student_name,
-        "issue_date": credential.issue_date.isoformat(),
+        "issue_date": credential.issue_date,
         "institution_id": credential.institution_id
     }
     
