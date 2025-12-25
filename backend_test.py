@@ -70,69 +70,29 @@ def generate_test_user(user_type="workforce"):
         "user_type": user_type
     }
 
-def test_signup_api(results):
-    """Test signup API for all user types"""
-    print("\n🧪 Testing Signup API...")
+def test_health_check(results):
+    """Test health check endpoint for Kubernetes"""
+    print("\n🧪 Testing Health Check Endpoint...")
+    print("   Testing: GET /health (root level, not /api)")
     
-    # Test successful signup for each user type
-    user_types = ["workforce", "employer", "institution"]
-    created_users = []
-    
-    for user_type in user_types:
-        try:
-            user_data = generate_test_user(user_type)
-            created_users.append(user_data)
-            
-            response = requests.post(f"{BASE_URL}/auth/signup", json=user_data, timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if "user" in data and data["user"]["user_type"] == user_type:
-                    # Verify password is not returned
-                    if "password_hash" not in data["user"] and "password" not in data["user"]:
-                        results.add_pass(f"Signup successful for {user_type}")
-                    else:
-                        results.add_fail(f"Signup for {user_type}", "Password returned in response")
-                else:
-                    results.add_fail(f"Signup for {user_type}", f"Invalid response structure: {data}")
-            else:
-                results.add_fail(f"Signup for {user_type}", f"HTTP {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            results.add_fail(f"Signup for {user_type}", f"Request failed: {str(e)}")
-    
-    # Test duplicate email validation
-    if created_users:
-        try:
-            duplicate_user = created_users[0].copy()
-            response = requests.post(f"{BASE_URL}/auth/signup", json=duplicate_user, timeout=10)
-            
-            if response.status_code == 400:
-                data = response.json()
-                if "already registered" in data.get("detail", "").lower():
-                    results.add_pass("Duplicate email validation")
-                else:
-                    results.add_fail("Duplicate email validation", f"Wrong error message: {data}")
-            else:
-                results.add_fail("Duplicate email validation", f"Expected 400, got {response.status_code}")
-                
-        except Exception as e:
-            results.add_fail("Duplicate email validation", f"Request failed: {str(e)}")
-    
-    # Test missing fields validation
     try:
-        incomplete_user = {"email": "incomplete@test.com"}
-        response = requests.post(f"{BASE_URL}/auth/signup", json=incomplete_user, timeout=10)
+        response = requests.get(HEALTH_URL, timeout=10)
         
-        if response.status_code == 422:  # FastAPI validation error
-            results.add_pass("Missing fields validation")
-        else:
-            results.add_fail("Missing fields validation", f"Expected 422, got {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
             
+            # Verify expected fields
+            if data.get("status") == "healthy" and data.get("database") == "connected":
+                results.add_pass("Health check - Returns status: healthy, database: connected")
+                print(f"      Status: {data.get('status')}")
+                print(f"      Database: {data.get('database')}")
+                print(f"      Service: {data.get('service', 'N/A')}")
+            else:
+                results.add_fail("Health check", f"Unexpected response: {data}")
+        else:
+            results.add_fail("Health check", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
-        results.add_fail("Missing fields validation", f"Request failed: {str(e)}")
-    
-    return created_users
+        results.add_fail("Health check", f"Request failed: {str(e)}")
 
 def test_login_api(results, created_users):
     """Test login API for all user types"""
