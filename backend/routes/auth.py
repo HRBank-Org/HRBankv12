@@ -142,7 +142,8 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
     }
 
 @router.post("/login", response_model=Dict)
-async def login(credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_db)):
+@limiter.limit("5/minute")  # Rate limit: 5 login attempts per minute per IP
+async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     User login endpoint
     Returns JWT access and refresh tokens
