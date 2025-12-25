@@ -99,7 +99,7 @@ const WorkforceProfile = () => {
             {profile?.trade && (
               <p className="text-gray-600 mb-2">{profile.trade}</p>
             )}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                 Active Member
               </span>
@@ -107,6 +107,13 @@ const WorkforceProfile = () => {
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                   ✓ Verified
                 </span>
+              )}
+              {blockchainCredentials.length > 0 && (
+                <BlockchainVerifiedBadge 
+                  count={blockchainCredentials.filter(c => c.status !== 'revoked' && !c.is_expired).length}
+                  size="md"
+                  onClick={() => navigate('/workforce/credentials')}
+                />
               )}
             </div>
           </div>
