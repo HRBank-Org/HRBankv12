@@ -54,15 +54,71 @@ const InstitutionDashboard = () => {
     }
   };
 
-  const loadAnalytics = async () => {
-    try {
-      const response = await api.get('/api/institution/analytics/dashboard');
-      setAnalytics(response.data.data);
-    } catch (error) {
-      console.error('Failed to load analytics:', error);
-    } finally {
-      setLoading(false);
+  // Wallet Status Widget Component
+  const WalletStatusWidget = () => {
+    if (walletLoading) {
+      return (
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-200 animate-pulse">
+          <div className="h-6 bg-indigo-200 rounded w-48 mb-3"></div>
+          <div className="h-4 bg-indigo-100 rounded w-32"></div>
+        </div>
+      );
     }
+
+    const isReady = walletStatus?.can_issue;
+    const balance = walletStatus?.balance?.balance || 0;
+    const currency = walletStatus?.balance?.currency || 'MATIC';
+    const network = walletStatus?.network_name || 'Polygon';
+
+    return (
+      <div className={`rounded-xl p-6 border-2 ${isReady ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'}`}>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              {isReady ? (
+                <FiCheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <FiAlertCircle className="w-5 h-5 text-yellow-600" />
+              )}
+              <h3 className="font-bold text-gray-900">Blockchain Credential System</h3>
+            </div>
+            <p className={`text-sm mb-3 ${isReady ? 'text-green-700' : 'text-yellow-700'}`}>
+              {isReady ? '✓ Ready to issue blockchain credentials' : '⚠ System status pending'}
+            </p>
+            
+            <div className="bg-white/60 rounded-lg p-4 mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600">Network</span>
+                <span className="font-semibold text-gray-900">{network}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Gas Available</span>
+                <span className="font-mono text-sm text-gray-900">{balance.toFixed(4)} {currency}</span>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+              <p className="text-xs text-blue-700">
+                <strong>💡 Monetization Note:</strong> HR Bank covers all gas fees for credential minting. 
+                Revenue from credential issuance is shared between HR Bank and your institution.
+              </p>
+            </div>
+          </div>
+          
+          {walletStatus?.explorer_url && (
+            <a
+              href={walletStatus.explorer_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-4 p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+              title="View on Explorer"
+            >
+              <FiExternalLink className="w-5 h-5" />
+            </a>
+          )}
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
