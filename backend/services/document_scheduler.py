@@ -3,7 +3,7 @@ Background scheduler for document expiry checks and reminders
 """
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from services.email_service import send_document_expiry_reminder, send_account_restricted_email
 import asyncio
 
