@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Comprehensive Backend API Tests
-COMPREHENSIVE PRE-DEPLOYMENT BACKEND TESTING FOR HR BANK
-Focus on critical areas: Authentication, Payroll, Compliance, Analytics, Core Business Logic
+HR Bank Production Readiness Testing - Database Indexing Validation
+FINAL PRODUCTION READINESS TEST FOR HR BANK AFTER DATABASE INDEXING
+Focus: Health Check, Performance, Credential Flow, Index Validation, Rate Limiting
 """
 
 import requests
@@ -19,10 +19,12 @@ load_dotenv('/app/frontend/.env')
 # Get backend URL from environment
 BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
+HEALTH_URL = f"{BACKEND_URL}/health"  # Root level health check
 
-print(f"🚀 COMPREHENSIVE HR BANK BACKEND TESTING")
+print(f"🚀 HR BANK PRODUCTION READINESS TESTING")
 print(f"Testing backend at: {BASE_URL}")
-print(f"Focus: Authentication, Payroll ($17.60 min wage), Compliance, Analytics, Core Logic")
+print(f"Health check at: {HEALTH_URL}")
+print(f"Focus: Health Check, Performance (with indexes), Credential Flow, Rate Limiting")
 print("="*80)
 
 class TestResults:
