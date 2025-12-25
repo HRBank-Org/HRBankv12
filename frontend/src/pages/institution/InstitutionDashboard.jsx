@@ -65,25 +65,23 @@ const InstitutionDashboard = () => {
       );
     }
 
-    const isReady = walletStatus?.can_issue;
-    const balance = walletStatus?.balance?.balance || 0;
+    // Always show as ready since HR Bank covers gas fees
+    const isReady = walletStatus?.success !== false;
+    const balance = walletStatus?.balance?.balance;
     const currency = walletStatus?.balance?.currency || 'MATIC';
     const network = walletStatus?.network_name || 'Polygon';
+    const hasBalanceInfo = balance !== null && balance !== undefined;
 
     return (
-      <div className={`rounded-xl p-6 border-2 ${isReady ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'}`}>
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              {isReady ? (
-                <FiCheckCircle className="w-5 h-5 text-green-600" />
-              ) : (
-                <FiAlertCircle className="w-5 h-5 text-yellow-600" />
-              )}
+              <FiCheckCircle className="w-5 h-5 text-green-600" />
               <h3 className="font-bold text-gray-900">Blockchain Credential System</h3>
             </div>
-            <p className={`text-sm mb-3 ${isReady ? 'text-green-700' : 'text-yellow-700'}`}>
-              {isReady ? '✓ Ready to issue blockchain credentials' : '⚠ System status pending'}
+            <p className="text-sm mb-3 text-green-700">
+              ✓ Ready to issue blockchain credentials
             </p>
             
             <div className="bg-white/60 rounded-lg p-4 mb-3">
@@ -92,14 +90,22 @@ const InstitutionDashboard = () => {
                 <span className="font-semibold text-gray-900">{network}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Gas Available</span>
-                <span className="font-mono text-sm text-gray-900">{balance.toFixed(4)} {currency}</span>
+                <span className="text-sm text-gray-600">Status</span>
+                <span className="text-sm font-semibold text-green-600">Active ✓</span>
               </div>
+              {walletStatus?.issuer_address && (
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+                  <span className="text-sm text-gray-600">Issuer Wallet</span>
+                  <span className="font-mono text-xs text-gray-700">
+                    {walletStatus.issuer_address.slice(0, 6)}...{walletStatus.issuer_address.slice(-4)}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
               <p className="text-xs text-blue-700">
-                <strong>💡 Monetization Note:</strong> HR Bank covers all gas fees for credential minting. 
+                <strong>💡 Monetization Model:</strong> HR Bank covers all gas fees for credential minting. 
                 Revenue from credential issuance is shared between HR Bank and your institution.
               </p>
             </div>
