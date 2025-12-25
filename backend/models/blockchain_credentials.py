@@ -49,7 +49,7 @@ class BlockchainCredential(BaseModel):
     additional_details: Dict = Field(default_factory=dict)
     
     # Blockchain data
-    credential_hash: str  # SHA-256 hash
+    credential_hash: str = ""  # SHA-256 hash - generated after creation
     blockchain_transaction_hash: Optional[str] = None
     blockchain_token_id: Optional[str] = None
     ipfs_url: Optional[str] = None
