@@ -12279,8 +12279,8 @@ def test_task_reporting_apis(results):
 
 
 def main():
-    """Run comprehensive backend tests focused on auto-translation system"""
-    print("🚀 AUTO-TRANSLATION SYSTEM TESTING FOR HR BANK")
+    """Run comprehensive backend tests focused on credential minting flow"""
+    print("🚀 CREDENTIAL MINTING FLOW TESTING FOR HR BANK")
     print(f"Backend URL: {BASE_URL}")
     print(f"Timestamp: {datetime.now().isoformat()}")
     print("="*80)
@@ -12290,36 +12290,25 @@ def main():
     # Test basic connectivity first
     test_backend_connectivity(results)
     
-    # MAIN FOCUS: Test auto-translation system (Priority: HIGH - from review request)
-    test_auto_translation_system(results)
-    
-    # Test unified calendar shifts endpoint (Priority: HIGH)
-    test_unified_calendar_shifts_endpoint(results)
-    
-    # Test two-way rating system (Priority: HIGH)
-    test_two_way_rating_system(results)
-    
-    # Test admin authentication system with specific credentials
-    admin_token = test_admin_authentication_system(results)
-    
-    # Test job matching system with admin credentials
-    if admin_token:
-        test_job_matching_system(results, admin_token)
+    # MAIN FOCUS: Test credential minting flow (Priority: HIGH - from review request)
+    test_credential_minting_flow(results)
     
     # Print final results
     success = results.summary()
     
     if success:
-        print("\n🎉 All auto-translation system tests passed!")
+        print("\n🎉 All credential minting flow tests passed!")
         print("\n✅ PASS CRITERIA MET:")
-        print("   - Emma Chat responds in user's preferred language")
-        print("   - Notifications include user_language field")
-        print("   - Translation works for non-English users")
-        print("   - Authentication properly enforced")
-        print("   - Language settings accessible in profiles")
+        print("   - Institution authentication successful")
+        print("   - Credential issued with blockchain transaction hash")
+        print("   - QR code generated as base64 image")
+        print("   - IPFS URL generated")
+        print("   - Public verification returns full credential with blockchain_verified status")
+        print("   - Institution analytics updated")
+        print("   - Transcript management accessible")
         return 0
     else:
-        print(f"\n💥 {results.failed} auto-translation test(s) failed!")
+        print(f"\n💥 {results.failed} credential minting test(s) failed!")
         return 1
 
 def test_invitation_system(results):
