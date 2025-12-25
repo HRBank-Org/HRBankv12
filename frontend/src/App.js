@@ -284,6 +284,7 @@ function AppRoutes() {
         <Route path="/institution/credentials" element={<ProtectedRoute allowedUserTypes={['institution']}><ManageCredentials /></ProtectedRoute>} />
         <Route path="/institution/credentials/issue" element={<ProtectedRoute allowedUserTypes={['institution']}><IssueCredential /></ProtectedRoute>} />
         <Route path="/institution/students/invite" element={<ProtectedRoute allowedUserTypes={['institution']}><BulkInvite /></ProtectedRoute>} />
+        <Route path="/institution/transcripts" element={<ProtectedRoute allowedUserTypes={['institution']}><TranscriptsManagement /></ProtectedRoute>} />
         <Route path="/institution/messages" element={<ProtectedRoute allowedUserTypes={['institution']}><Messages /></ProtectedRoute>} />
         <Route path="/institution/notifications" element={<ProtectedRoute allowedUserTypes={['institution']}><Notifications /></ProtectedRoute>} />
         <Route path="/institution/settings" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionSettings /></ProtectedRoute>} />
