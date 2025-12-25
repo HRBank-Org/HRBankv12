@@ -134,11 +134,11 @@ async def verify_credential(
     # Get institution info
     institution = await db.institution_profiles.find_one(
         {"institution_id": credential["institution_id"]},
-        {"_id": 0, "institution_name": 1, "verified_status": 1}
+        {"_id": 0, "institution_name": 1, "verified_status": 1, "city": 1, "province": 1}
     )
     
     # Verify on blockchain
-    blockchain_status = await blockchain_service.verify_credential(credential["credential_hash"])
+    blockchain_status = await blockchain_service.verify_credential(credential.get("credential_hash", ""))
     
     # Increment verification count
     await db.blockchain_credentials.update_one(
@@ -163,9 +163,24 @@ async def verify_credential(
         "success": True,
         "data": {
             "credential": credential,
+            "credential_data": credential.get("additional_details", {}),
             "institution": institution,
-            "blockchain_verified": blockchain_status["valid"],
-            "verification_count": credential.get("verification_count", 0) + 1
+            "issuer": institution,
+            "blockchain_verified": blockchain_status.get("is_valid", False),
+            "verification_count": credential.get("verification_count", 0) + 1,
+            "verification": {
+                "is_valid": blockchain_status.get("is_valid", False),
+                "is_registered": blockchain_status.get("is_registered", False),
+                "is_revoked": blockchain_status.get("is_revoked", False),
+                "is_expired": False,  # Would check expiry date
+                "credential_id": credential_id,
+                "credential_type": credential.get("credential_type", "academic"),
+                "issued_at": credential.get("issued_at"),
+                "valid_until": credential.get("expiry_date"),
+                "network": blockchain_status.get("network", "polygon"),
+                "verification_method": blockchain_status.get("verification_method", "demo"),
+                "timestamp": blockchain_status.get("timestamp")
+            }
         }
     }
 
