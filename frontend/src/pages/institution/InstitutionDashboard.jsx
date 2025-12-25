@@ -214,6 +214,42 @@ const InstitutionDashboard = () => {
           </div>
         </div>
 
+        {/* Blockchain Status & Transcripts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <WalletStatusWidget />
+          
+          {/* Transcript Processing Card */}
+          <div 
+            onClick={() => navigate('/institution/transcripts')}
+            className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border-2 border-purple-200 cursor-pointer hover:shadow-lg hover:border-purple-400 transition-all"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center text-2xl shadow-md">
+                📄
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 text-lg mb-1">AI Transcript Processing</h3>
+                <p className="text-gray-600 text-sm mb-3">
+                  Upload PDF transcripts and let AI extract course data automatically
+                </p>
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="flex items-center gap-1 text-purple-600">
+                    <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                    AI Extraction
+                  </span>
+                  <span className="flex items-center gap-1 text-indigo-600">
+                    <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                    Blockchain Verified
+                  </span>
+                </div>
+              </div>
+              <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
         {/* Analytics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <StatCard
