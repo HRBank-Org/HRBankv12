@@ -32,9 +32,9 @@ class BlockchainCredential(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     credential_id: str = Field(default_factory=lambda: f"HRBANK-{datetime.utcnow().year}-{uuid.uuid4().hex[:6].upper()}")
-    worker_id: str
+    worker_id: str = ""
     institution_id: str
-    credential_template_id: str
+    credential_template_id: str = ""  # Optional - not always from template
     
     # Credential info
     credential_name: str
