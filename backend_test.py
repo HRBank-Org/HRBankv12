@@ -7850,8 +7850,8 @@ def main():
     print("Focus: Health Check, Performance with Indexes, Credential Flow, Rate Limiting")
     
     # Wait for any existing rate limits to reset
-    print("\n⏳ Waiting 60 seconds for rate limits to reset...")
-    time.sleep(60)
+    print("\n⏳ Waiting 10 seconds for rate limits to reset...")
+    time.sleep(10)
     
     # Test 1: Health Check Endpoint
     test_health_check(results)
