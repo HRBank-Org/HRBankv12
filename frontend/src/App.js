@@ -72,6 +72,7 @@ import Analytics from './pages/admin/Analytics';
 import AdminSettings from './pages/admin/Settings';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
+import VerifyCredential from './pages/public/VerifyCredential';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import MyTasks from './pages/workforce/MyTasks';
