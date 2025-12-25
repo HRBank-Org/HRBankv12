@@ -77,8 +77,8 @@ class BlockchainCredential(BaseModel):
             "institution_id": self.institution_id,
             "credential_name": self.credential_name,
             "student_name": self.student_name,
-            "issue_date": self.issue_date.isoformat(),
-            "expiry_date": self.expiry_date.isoformat() if self.expiry_date else None
+            "issue_date": self.issue_date,
+            "expiry_date": self.expiry_date if self.expiry_date else None
         }
         data_str = json.dumps(data, sort_keys=True)
         return hashlib.sha256(data_str.encode()).hexdigest()
