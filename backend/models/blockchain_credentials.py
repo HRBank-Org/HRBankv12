@@ -39,8 +39,8 @@ class BlockchainCredential(BaseModel):
     # Credential info
     credential_name: str
     program_name: str
-    issue_date: date
-    expiry_date: Optional[date] = None
+    issue_date: str  # ISO format string for MongoDB compatibility
+    expiry_date: Optional[str] = None  # ISO format string
     
     # Student info
     student_name: str
