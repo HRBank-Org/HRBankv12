@@ -53,6 +53,7 @@ import AdminManageCredentials from './pages/admin/ManageCredentials';
 import ManageOccupationCertifications from './pages/admin/ManageOccupationCertifications';
 import IssueCredential from './pages/institution/IssueCredential';
 import BulkInvite from './pages/institution/BulkInvite';
+import TranscriptsManagement from './pages/institution/TranscriptsManagement';
 import CredentialVerification from './pages/workforce/CredentialVerification';
 import MyCredentials from './pages/workforce/MyCredentials';
 import Messages from './pages/common/Messages';
