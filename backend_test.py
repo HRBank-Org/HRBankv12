@@ -12340,48 +12340,6 @@ def test_task_reporting_apis(results):
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
 
-def main():
-    """Run production readiness tests for HR Bank after database indexing"""
-    print("🚀 HR BANK PRODUCTION READINESS TESTING")
-    print(f"Backend URL: {BASE_URL}")
-    print(f"Health URL: {HEALTH_URL}")
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    print("="*80)
-    
-    results = TestResults()
-    
-    print("Starting Production Readiness Testing for HR Bank...")
-    print("Focus: Health Check, Performance with Indexes, Credential Flow, Rate Limiting")
-    
-    # Test 1: Health Check Endpoint
-    test_health_check(results)
-    
-    # Test 2: Performance Test - Authentication
-    institution_token = test_performance_authentication(results)
-    
-    # Test 3: Performance Test - Credential Flow
-    credential_id = test_performance_credential_flow(results, institution_token)
-    
-    # Test 4: Index Validation
-    test_index_validation(results, institution_token)
-    
-    # Test 5: Rate Limiting Still Active
-    test_rate_limiting(results)
-    
-    # Print final summary
-    success = results.summary()
-    
-    if success:
-        print("\n🎉 ALL PRODUCTION READINESS TESTS PASSED!")
-        print("✅ Health check returns healthy status")
-        print("✅ All queries work correctly (indexes in use)")
-        print("✅ Rate limiting still active")
-        print("✅ No performance degradation")
-        return 0
-    else:
-        print("\n⚠️  SOME TESTS FAILED - REVIEW REQUIRED")
-        return 1
-
 def test_invitation_system(results):
     """Test the job and shift invitation system"""
     print("\n🧪 Testing Invitation System...")
