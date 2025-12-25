@@ -25,6 +25,17 @@ async def issue_blockchain_credential(
     Institution issues blockchain-verified credential
     """
     
+    # Parse dates as ISO strings
+    issue_date_str = credential_data.get("issue_date", datetime.utcnow().isoformat())
+    if isinstance(issue_date_str, str) and 'T' in issue_date_str:
+        issue_date_str = issue_date_str.split('T')[0]  # Extract just the date part
+    
+    expiry_date_str = None
+    if credential_data.get("expiry_date"):
+        expiry_date_str = credential_data.get("expiry_date")
+        if isinstance(expiry_date_str, str) and 'T' in expiry_date_str:
+            expiry_date_str = expiry_date_str.split('T')[0]
+    
     # Create credential
     credential = BlockchainCredential(
         worker_id=credential_data.get("worker_id", ""),
@@ -32,8 +43,8 @@ async def issue_blockchain_credential(
         credential_template_id=credential_data.get("credential_template_id", ""),
         credential_name=credential_data.get("credential_name"),
         program_name=credential_data.get("program_name"),
-        issue_date=datetime.fromisoformat(credential_data.get("issue_date")).date(),
-        expiry_date=datetime.fromisoformat(credential_data.get("expiry_date")).date() if credential_data.get("expiry_date") else None,
+        issue_date=issue_date_str,
+        expiry_date=expiry_date_str,
         student_name=credential_data.get("student_name"),
         student_id=credential_data.get("student_id"),
         grade_gpa=credential_data.get("grade_gpa"),
