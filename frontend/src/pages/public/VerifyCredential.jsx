@@ -31,9 +31,13 @@ const VerifyCredential = () => {
     setError(null);
     
     try {
-      const response = await api.get(`/api/credentials/verify/${id}`);
-      setCredential(response.data);
-      setVerification(response.data.verification);
+      const response = await api.get(`/api/blockchain/verify/${id}`);
+      if (response.data.success) {
+        setCredential(response.data.data);
+        setVerification(response.data.data.verification);
+      } else {
+        setError(response.data.data?.message || 'Credential not found');
+      }
     } catch (err) {
       console.error('Verification failed:', err);
       setError(err.response?.data?.detail || 'Failed to verify credential');
