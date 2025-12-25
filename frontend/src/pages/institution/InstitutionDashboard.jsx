@@ -300,6 +300,13 @@ const InstitutionDashboard = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <QuickActionCard
+              icon="📄"
+              title="Upload Transcripts"
+              description="Process transcripts with AI extraction"
+              onClick={() => navigate('/institution/transcripts')}
+              color="#7c3aed"
+            />
+            <QuickActionCard
               icon="➕"
               title="Create New Class"
               description="Start a new class and enroll students"
@@ -307,18 +314,18 @@ const InstitutionDashboard = () => {
               color="#1e40af"
             />
             <QuickActionCard
+              icon="🎓"
+              title="Issue Credentials"
+              description="Issue blockchain-verified credentials"
+              onClick={() => navigate('/institution/credentials/issue')}
+              color="#1e3a8a"
+            />
+            <QuickActionCard
               icon="📝"
               title="Manage Templates"
               description="Create and manage class templates"
               onClick={() => navigate('/institution/templates')}
               color="#334155"
-            />
-            <QuickActionCard
-              icon="🎓"
-              title="Issue Credentials"
-              description="Issue credentials to students"
-              onClick={() => navigate('/institution/credentials/issue')}
-              color="#1e3a8a"
             />
             <QuickActionCard
               icon="📧"
@@ -333,13 +340,6 @@ const InstitutionDashboard = () => {
               description="Review pending verification requests"
               onClick={() => navigate('/institution/verification-requests')}
               color="#1e293b"
-            />
-            <QuickActionCard
-              icon="📄"
-              title="View All Credentials"
-              description="See all issued credentials"
-              onClick={() => navigate('/institution/credentials')}
-              color="#0f172a"
             />
           </div>
         </div>
