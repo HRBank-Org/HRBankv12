@@ -213,7 +213,7 @@ async def add_occupation_to_category(
     categories[category]["occupations"].append(occupation_obj)
     
     # Also update occupation_templates collection in database
-    from datetime import datetime
+    from datetime import datetime, timezone
     from uuid import uuid4
     await db.occupation_templates.update_one(
         {"title": occupation_title},
@@ -223,7 +223,7 @@ async def add_occupation_to_category(
             "category": category,
             "minimum_rate": float(minimum_hourly_rate),
             "required_certifications": required_certifications,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.now(timezone.utc),
             "is_active": True
         }},
         upsert=True
@@ -832,13 +832,13 @@ async def update_occupation_default_work_type(
         )
     
     # Update the occupation template in database
-    from datetime import datetime
+    from datetime import datetime, timezone
     result = await db.occupation_templates.update_one(
         {"occupation_title": {"$regex": f"^{occupation_title}$", "$options": "i"}},
         {
             "$set": {
                 "default_work_type": new_work_type,
-                "updated_at": datetime.utcnow().isoformat()
+                "updated_at": datetime.now(timezone.utc).isoformat()
             }
         }
     )
@@ -851,8 +851,8 @@ async def update_occupation_default_work_type(
             "occupation_title": occupation_title,
             "default_work_type": new_work_type,
             "is_active": True,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
             "created_by": current_user["user_id"]
         })
     

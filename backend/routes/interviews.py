@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict
-from datetime import datetime
+from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import require_role
 
@@ -53,7 +53,7 @@ async def send_interview_invitation(
         "message": interview_data.get('message', ''),
         "source": interview_data.get('source', 'external'),  # internal or external
         "status": "pending",
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
     
     # Get candidate name

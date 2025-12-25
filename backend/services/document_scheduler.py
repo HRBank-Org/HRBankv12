@@ -15,7 +15,7 @@ async def check_and_send_expiry_reminders(db):
     Check for expiring documents and send email reminders
     This runs daily at 9 AM
     """
-    print(f"[{datetime.utcnow()}] Running document expiry check...")
+    print(f"[{datetime.now(timezone.utc)}] Running document expiry check...")
     
     try:
         # Get all documents with expiry dates that are verified
@@ -63,7 +63,7 @@ async def check_and_send_expiry_reminders(db):
                             full_name = profile.get("contact_name", full_name)
                     
                     # Check if reminder already sent today
-                    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+                    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
                     last_reminder = doc.get("last_reminder_sent")
                     
                     # Send reminder if not sent today
@@ -81,7 +81,7 @@ async def check_and_send_expiry_reminders(db):
                             # Update last reminder sent timestamp
                             await db.documents.update_one(
                                 {"document_id": doc["document_id"]},
-                                {"$set": {"last_reminder_sent": datetime.utcnow().isoformat()}}
+                                {"$set": {"last_reminder_sent": datetime.now(timezone.utc).isoformat()}}
                             )
                             emails_sent += 1
                             print(f"  ✓ Sent reminder to {user.get('email')} for {doc.get('document_name')} ({days_until} days)")
@@ -106,11 +106,11 @@ async def check_and_send_expiry_reminders(db):
                 print(f"  ✗ Error processing document {doc.get('document_id')}: {str(e)}")
                 continue
         
-        print(f"[{datetime.utcnow()}] Expiry check complete: {emails_sent} reminders sent, {accounts_restricted} accounts checked for restriction")
+        print(f"[{datetime.now(timezone.utc)}] Expiry check complete: {emails_sent} reminders sent, {accounts_restricted} accounts checked for restriction")
         return {"emails_sent": emails_sent, "accounts_checked": accounts_restricted}
         
     except Exception as e:
-        print(f"[{datetime.utcnow()}] ERROR in expiry check: {str(e)}")
+        print(f"[{datetime.now(timezone.utc)}] ERROR in expiry check: {str(e)}")
         return {"error": str(e)}
 
 
@@ -180,7 +180,7 @@ async def check_and_restrict_account(db, user_id: str, user_type: str):
                 {"$set": {
                     "account_status": new_status,
                     "restriction_reason": "expired_documents",
-                    "restricted_date": datetime.utcnow().isoformat()
+                    "restricted_date": datetime.now(timezone.utc).isoformat()
                 }}
             )
             
@@ -249,7 +249,7 @@ def start_scheduler(db):
     )
     
     scheduler.start()
-    print(f"[{datetime.utcnow()}] Document expiry scheduler started - will run daily at 9:00 AM UTC")
+    print(f"[{datetime.now(timezone.utc)}] Document expiry scheduler started - will run daily at 9:00 AM UTC")
     
     return scheduler
 

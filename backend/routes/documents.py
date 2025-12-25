@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import Dict, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import get_current_user
 from models.documents import Document, WORKFORCE_DOCUMENT_TYPES, EMPLOYER_DOCUMENT_TYPES, INSTITUTION_DOCUMENT_TYPES
 import base64
@@ -28,7 +28,7 @@ def calculate_expiry_status(expiry_date: str):
     
     try:
         expiry = datetime.fromisoformat(expiry_date.replace('Z', '+00:00'))
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         days_until = (expiry - now).days
         is_expired = days_until < 0
         return is_expired, days_until if not is_expired else 0
@@ -182,7 +182,7 @@ async def upload_document(
             os.makedirs(upload_dir, exist_ok=True)
             
             # Save file
-            file_name = f"{current_user['user_id']}_{document_type}_{datetime.utcnow().timestamp()}.{file_type}"
+            file_name = f"{current_user['user_id']}_{document_type}_{datetime.now(timezone.utc).timestamp()}.{file_type}"
             file_path = os.path.join(upload_dir, file_name)
             
             with open(file_path, 'wb') as f:
@@ -350,7 +350,7 @@ async def approve_document(
         {"$set": {
             "verification_status": "verified",
             "verified_by": current_user["user_id"],
-            "verified_date": datetime.utcnow().isoformat()
+            "verified_date": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -367,7 +367,7 @@ async def approve_document(
             "document_type": document["document_type"]
         },
         "read": False,
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     await db.notifications.insert_one(notification)
     
@@ -403,7 +403,7 @@ async def reject_document(
         {"$set": {
             "verification_status": "rejected",
             "verified_by": current_user["user_id"],
-            "verified_date": datetime.utcnow().isoformat(),
+            "verified_date": datetime.now(timezone.utc).isoformat(),
             "rejection_reason": rejection_reason
         }}
     )
@@ -422,7 +422,7 @@ async def reject_document(
             "rejection_reason": rejection_reason
         },
         "read": False,
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     await db.notifications.insert_one(notification)
     
@@ -530,12 +530,12 @@ async def send_expiry_notifications(db):
             
         try:
             expiry_date_obj = datetime.fromisoformat(doc["expiry_date"].replace('Z', '+00:00'))
-            days_until = (expiry_date_obj - datetime.utcnow()).days
+            days_until = (expiry_date_obj - datetime.now(timezone.utc)).days
             
             # Send notification if expiring in exactly 7 days
             if days_until == 7:
                 # Check if notification already sent today
-                today_start = datetime.utcnow().replace(hour=0, minute=0, second=0)
+                today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0)
                 existing_notif = await db.notifications.find_one({
                     "user_id": doc["user_id"],
                     "type": "document_expiring",
@@ -556,7 +556,7 @@ async def send_expiry_notifications(db):
                             "expiry_date": doc["expiry_date"]
                         },
                         "read": False,
-                        "created_date": datetime.utcnow().isoformat()
+                        "created_date": datetime.now(timezone.utc).isoformat()
                     }
                     await db.notifications.insert_one(notification)
                     notifications_sent += 1

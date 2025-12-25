@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import uuid
 
 class PayrollPeriod(BaseModel):
@@ -32,8 +32,8 @@ class PayrollPeriod(BaseModel):
     generated_at: Optional[str] = None  # ISO datetime string
     
     # Metadata
-    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
-    updated_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 class PayrollEntry(BaseModel):
@@ -100,7 +100,7 @@ class PayrollEntry(BaseModel):
     shifts_included: List[str] = []  # shift_ids (standard + continental)
     shift_ids: List[str] = []        # Alias for shifts_included
     task_ids: List[str] = []         # service_task_ids (field service)
-    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 class PayrollExport(BaseModel):
@@ -130,7 +130,7 @@ class PayrollExport(BaseModel):
     
     # Metadata
     exported_by: str  # user_id
-    exported_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    exported_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 class WorkerTD1(BaseModel):
@@ -156,8 +156,8 @@ class WorkerTD1(BaseModel):
     
     # Metadata
     form_year: int = 2024
-    submitted_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
-    updated_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    submitted_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 # Payroll export formats

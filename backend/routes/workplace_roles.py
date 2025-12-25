@@ -368,7 +368,7 @@ async def update_workplace_role(
         )
     
     # Build update dict
-    update_dict = {"updated_date": datetime.utcnow()}
+    update_dict = {"updated_date": datetime.now(timezone.utc)}
     
     if update_data.role_name:
         update_dict["role_name"] = update_data.role_name
@@ -526,8 +526,8 @@ async def post_role_to_match_engine(
         "posted_from_role_id": role_id,
         
         # Metadata
-        "created_date": datetime.utcnow().isoformat(),
-        "application_deadline": (datetime.utcnow() + timedelta(days=30)).isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat(),
+        "application_deadline": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
     }
     
     await db.jobs.insert_one(job_posting)
@@ -538,8 +538,8 @@ async def post_role_to_match_engine(
         {"$set": {
             "status": "posted_to_match",
             "posted_as_job_id": job_posting['job_id'],
-            "posted_date": datetime.utcnow(),
-            "updated_date": datetime.utcnow()
+            "posted_date": datetime.now(timezone.utc),
+            "updated_date": datetime.now(timezone.utc)
         }}
     )
     
@@ -870,13 +870,13 @@ async def assign_worker_to_role(
             "$set": {
                 "positions_filled": positions_filled,
                 "status": status,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             },
             "$push": {
                 "assigned_workers": {
                     "workforce_id": workforce_id,
                     "worker_name": worker_name,
-                    "assigned_at": datetime.utcnow(),
+                    "assigned_at": datetime.now(timezone.utc),
                     "source": source
                 }
             }
@@ -891,7 +891,7 @@ async def assign_worker_to_role(
                 "$set": {
                     "employer_id": current_user["user_id"],
                     "status": "active",
-                    "hired_at": datetime.utcnow()
+                    "hired_at": datetime.now(timezone.utc)
                 }
             }
         )
@@ -939,7 +939,7 @@ async def auto_assign_worker_to_shifts(
     """
     from datetime import datetime
     
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     role_id = role.get("role_id")
     workplace_id = role.get("workplace_id")
     shift_type = role.get("shift_type", "on_site")

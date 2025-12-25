@@ -4,7 +4,7 @@ Connecteam-style shift scheduling with worker assignments
 """
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class AssignedWorker(BaseModel):
@@ -14,7 +14,7 @@ class AssignedWorker(BaseModel):
     profile_photo_url: Optional[str] = None
     position_title: str
     status: str = "confirmed"  # confirmed, pending, declined, no_show
-    assigned_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    assigned_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     assigned_by: str  # employer_id who assigned
     notes: Optional[str] = None
 
@@ -45,7 +45,7 @@ class ShiftTemplate(BaseModel):
     recurring_days: List[str] = []  # ["monday", "friday"]
     
     # Metadata
-    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     last_used_date: Optional[str] = None
     use_count: int = 0
 
@@ -96,8 +96,8 @@ class EnhancedShift(BaseModel):
     template_name: Optional[str] = None
     
     # Metadata
-    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
-    updated_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     created_by: str  # employer_id
     
     # Color coding for UI

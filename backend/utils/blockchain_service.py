@@ -6,7 +6,7 @@ For Production: Replace with actual Web3.py integration
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class BlockchainService:
@@ -30,7 +30,7 @@ class BlockchainService:
         
         # Generate mock transaction hash
         mock_tx_hash = "0x" + hashlib.sha256(
-            f"{credential_data['credential_id']}{datetime.utcnow().timestamp()}".encode()
+            f"{credential_data['credential_id']}{datetime.now(timezone.utc).timestamp()}".encode()
         ).hexdigest()
         
         # Mock IPFS upload
@@ -48,7 +48,7 @@ class BlockchainService:
             "token_id": str(uuid.uuid4().int)[:10],
             "gas_fee": 0.01,  # Mock gas fee in USD
             "status": "confirmed",
-            "confirmation_time": datetime.utcnow().isoformat()
+            "confirmation_time": datetime.now(timezone.utc).isoformat()
         }
     
     async def verify_credential(self, credential_hash: str) -> dict:
@@ -71,7 +71,7 @@ class BlockchainService:
                 "on_chain": False,
                 "verification_method": "demo",
                 "network": "polygon",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         
         return {
@@ -82,7 +82,7 @@ class BlockchainService:
             "on_chain": True,
             "verification_method": "demo",
             "network": "polygon",
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     
     async def revoke_credential(self, credential_id: str, reason: str) -> dict:
@@ -96,12 +96,12 @@ class BlockchainService:
         """
         
         mock_tx_hash = "0x" + hashlib.sha256(
-            f"revoke_{credential_id}_{datetime.utcnow().timestamp()}".encode()
+            f"revoke_{credential_id}_{datetime.now(timezone.utc).timestamp()}".encode()
         ).hexdigest()
         
         return {
             "transaction_hash": mock_tx_hash,
-            "revoked_at": datetime.utcnow().isoformat(),
+            "revoked_at": datetime.now(timezone.utc).isoformat(),
             "reason": reason,
             "status": "revoked"
         }

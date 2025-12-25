@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from models.common import Task
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
@@ -91,7 +91,7 @@ async def update_task_status(
         {
             "$set": {
                 "status": new_status,
-                "updated_date": datetime.utcnow().isoformat()
+                "updated_date": datetime.now(timezone.utc).isoformat()
             }
         }
     )
@@ -101,7 +101,7 @@ async def update_task_status(
             {"task_id": task_id},
             {
                 "$set": {
-                    "completion_date": datetime.utcnow().isoformat(),
+                    "completion_date": datetime.now(timezone.utc).isoformat(),
                     "actual_duration_minutes": status_data.get("actual_duration_minutes")
                 }
             }

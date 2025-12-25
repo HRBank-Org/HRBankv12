@@ -11,7 +11,7 @@ from models.notification_preferences import (
     EMPLOYER_NOTIFICATION_TYPES
 )
 from database import get_database
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict
 
 router = APIRouter(prefix="/api/notification-preferences", tags=["Notification Preferences"])
@@ -99,7 +99,7 @@ async def update_preferences(
     # Prepare update
     update_data = {
         **preferences_update,
-        "updated_at": datetime.utcnow()
+        "updated_at": datetime.now(timezone.utc)
     }
     
     if existing:
@@ -111,7 +111,7 @@ async def update_preferences(
     else:
         # Create new
         update_data["user_id"] = user_id
-        update_data["created_at"] = datetime.utcnow()
+        update_data["created_at"] = datetime.now(timezone.utc)
         await db.notification_preferences.insert_one(update_data)
     
     return {
@@ -147,7 +147,7 @@ async def update_notification_type(
         {
             "$set": {
                 update_field: channel_settings,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             }
         },
         upsert=True

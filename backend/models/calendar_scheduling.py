@@ -4,7 +4,7 @@ Simple, intuitive scheduling system
 """
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class WorkerAssignment(BaseModel):
@@ -14,7 +14,7 @@ class WorkerAssignment(BaseModel):
     worker_photo: Optional[str] = None
     position: str
     status: str = "confirmed"  # confirmed, pending, declined
-    assigned_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    assigned_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class ScheduledShift(BaseModel):
     """A shift on the calendar"""
@@ -52,8 +52,8 @@ class ScheduledShift(BaseModel):
     parent_shift_id: Optional[str] = None
     
     # Metadata
-    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
-    updated_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     created_by: str
     
     # Display

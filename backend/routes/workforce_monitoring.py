@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from typing import Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import require_role
 import uuid
 
@@ -21,7 +21,7 @@ async def check_inactive_workers(
     Return them to workforce pool (deactivate employment relationship)
     """
     
-    fourteen_days_ago = datetime.utcnow() - timedelta(days=14)
+    fourteen_days_ago = datetime.now(timezone.utc) - timedelta(days=14)
     
     # Find all active employment relationships
     relationships = await db.employment_relationships.find({
@@ -65,11 +65,11 @@ async def check_inactive_workers(
                 else:
                     last_shift_date = start_date_str
             else:
-                last_shift_date = datetime.utcnow()
+                last_shift_date = datetime.now(timezone.utc)
         
         # Check if more than 14 days without shift
         if last_shift_date and last_shift_date < fourteen_days_ago:
-            days_without_shift = (datetime.utcnow() - last_shift_date).days
+            days_without_shift = (datetime.now(timezone.utc) - last_shift_date).days
             
             # Update relationship status
             await db.employment_relationships.update_one(
@@ -77,7 +77,7 @@ async def check_inactive_workers(
                 {"$set": {
                     "status": "inactive",
                     "termination_reason": "auto_return_to_pool",
-                    "employment_end_date": datetime.utcnow().isoformat(),
+                    "employment_end_date": datetime.now(timezone.utc).isoformat(),
                     "days_without_shift": days_without_shift,
                     "last_shift_date": last_shift_date.isoformat() if last_shift_date else None
                 }}
@@ -92,7 +92,7 @@ async def check_inactive_workers(
                 "message": f"You haven't received shifts from your employer in {days_without_shift} days. You've been returned to the workforce pool and can now accept opportunities from other employers.",
                 "priority": "medium",
                 "status": "pending",
-                "created_date": datetime.utcnow().isoformat()
+                "created_date": datetime.now(timezone.utc).isoformat()
             }
             
             await db.notifications.insert_one(emma_notification)
@@ -105,14 +105,14 @@ async def check_inactive_workers(
         
         # Send warning at 10 days (for workers approaching 14-day limit)
         elif last_shift_date:
-            days_without_shift = (datetime.utcnow() - last_shift_date).days
+            days_without_shift = (datetime.now(timezone.utc) - last_shift_date).days
             
             if days_without_shift >= 10 and days_without_shift < 14:
                 # Check if warning already sent
                 existing_warning = await db.notifications.find_one({
                     "user_id": workforce_id,
                     "notification_type": "shift_warning_10_days",
-                    "created_date": {"$gte": (datetime.utcnow() - timedelta(days=5)).isoformat()}
+                    "created_date": {"$gte": (datetime.now(timezone.utc) - timedelta(days=5)).isoformat()}
                 })
                 
                 if not existing_warning:
@@ -125,7 +125,7 @@ async def check_inactive_workers(
                         "message": f"You haven't received shifts in {days_without_shift} days. If you don't receive a shift within {14 - days_without_shift} more days, you'll be returned to the workforce pool.",
                         "priority": "medium",
                         "status": "pending",
-                        "created_date": datetime.utcnow().isoformat()
+                        "created_date": datetime.now(timezone.utc).isoformat()
                     }
                     
                     await db.notifications.insert_one(warning_notification)
@@ -157,7 +157,7 @@ async def check_incomplete_profiles(
     Send Emma reminders and stall accounts if deadline passed
     """
     
-    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
     
     # Find workers with incomplete profiles
     incomplete_profiles = await db.workforce_profiles.find({
@@ -180,7 +180,7 @@ async def check_incomplete_profiles(
         else:
             continue
         
-        days_since_creation = (datetime.utcnow() - created_date).days
+        days_since_creation = (datetime.now(timezone.utc) - created_date).days
         
         # Stall account if 7+ days with incomplete profile
         if days_since_creation >= 7:
@@ -202,7 +202,7 @@ async def check_incomplete_profiles(
                 "message": "Your account has been temporarily stalled due to incomplete profile. Please complete your profile and submit required documents to reactivate your account.",
                 "priority": "high",
                 "status": "pending",
-                "created_date": datetime.utcnow().isoformat()
+                "created_date": datetime.now(timezone.utc).isoformat()
             }
             
             await db.notifications.insert_one(stall_notification)
@@ -219,7 +219,7 @@ async def check_incomplete_profiles(
             existing_reminder = await db.notifications.find_one({
                 "user_id": user_id,
                 "notification_type": "profile_reminder",
-                "created_date": {"$gte": (datetime.utcnow() - timedelta(hours=24)).isoformat()}
+                "created_date": {"$gte": (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()}
             })
             
             if not existing_reminder:
@@ -231,7 +231,7 @@ async def check_incomplete_profiles(
                     "message": f"You have {7 - days_since_creation} days remaining to complete your profile. Your account will be stalled if not completed within the deadline.",
                     "priority": "high",
                     "status": "pending",
-                    "created_date": datetime.utcnow().isoformat()
+                    "created_date": datetime.now(timezone.utc).isoformat()
                 }
                 
                 await db.notifications.insert_one(reminder_notification)

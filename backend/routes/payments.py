@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from utils.stripe_service import stripe_service
 from typing import Dict
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
@@ -64,7 +64,7 @@ async def process_payment(
                 "$set": {
                     "status": "paid",
                     "payment_intent_id": payment_result["payment_intent_id"],
-                    "paid_date": datetime.utcnow().isoformat()
+                    "paid_date": datetime.now(timezone.utc).isoformat()
                 }
             }
         )

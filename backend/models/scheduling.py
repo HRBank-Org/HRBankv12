@@ -14,7 +14,7 @@ class UnavailableBlock(BaseModel):
     recurring: bool = False
     recurring_pattern: Optional[str] = None  # daily, weekly, weekdays, weekends
     recurring_days: Optional[List[str]] = None  # ["monday", "tuesday", ...]
-    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class AvailableSlot(BaseModel):
     """Calculated available time slot for worker"""
@@ -50,7 +50,7 @@ class ShiftRequest(BaseModel):
     selected_worker_id: Optional[str] = None
     
     # Metadata
-    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     expires_at: Optional[str] = None
 
 class WorkerMatch(BaseModel):

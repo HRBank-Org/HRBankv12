@@ -18,7 +18,7 @@ async def check_missed_clock_ins(db):
     Background task to check for missed clock-ins
     Should be run every 15-30 minutes
     """
-    current_time = datetime.utcnow()
+    current_time = datetime.now(timezone.utc)
     grace_period = timedelta(minutes=15)  # 15 minutes grace period
     
     # Find shifts that started more than 15 min ago and no clock-in
@@ -109,9 +109,9 @@ async def get_todays_attendance(
         try:
             target_date = datetime.fromisoformat(date)
         except:
-            target_date = datetime.utcnow()
+            target_date = datetime.now(timezone.utc)
     else:
-        target_date = datetime.utcnow()
+        target_date = datetime.now(timezone.utc)
     
     # Get date range for the target date (use date strings instead of datetime for better matching)
     today_start = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -142,7 +142,7 @@ async def get_todays_attendance(
     shifts = filtered_shifts
     
     attendance_records = []
-    current_time = datetime.utcnow().replace(tzinfo=None)  # Make naive for comparison
+    current_time = datetime.now(timezone.utc).replace(tzinfo=None)  # Make naive for comparison
     
     for shift in shifts:
         # Parse and make naive (remove timezone info) for consistent comparison

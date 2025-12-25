@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 from auth.dependencies import require_role
 from models.minimum_wage import ProvinceMinimumWage, MinimumWageUpdate
 
@@ -61,7 +61,7 @@ async def initialize_minimum_wages(
         if not existing:
             wage = ProvinceMinimumWage(
                 **wage_data,
-                effective_date=datetime.utcnow(),
+                effective_date=datetime.now(timezone.utc),
                 updated_by=current_user['user_id'],
                 notes="Initial system setup"
             )
@@ -148,7 +148,7 @@ async def update_minimum_wage(
         "minimum_wage": update_data.minimum_wage,
         "effective_date": update_data.effective_date,
         "updated_by": current_user['user_id'],
-        "updated_date": datetime.utcnow(),
+        "updated_date": datetime.now(timezone.utc),
         "notes": update_data.notes
     }
     
@@ -156,7 +156,7 @@ async def update_minimum_wage(
         # Store history
         history_record = {
             **existing,
-            "archived_date": datetime.utcnow(),
+            "archived_date": datetime.now(timezone.utc),
             "replaced_by": update_data.minimum_wage
         }
         await db.minimum_wage_history.insert_one(history_record)
@@ -180,7 +180,7 @@ async def update_minimum_wage(
         "new_wage": update_data.minimum_wage,
         "effective_date": update_data.effective_date.isoformat(),
         "updated_by": current_user['user_id'],
-        "updated_date": datetime.utcnow().isoformat(),
+        "updated_date": datetime.now(timezone.utc).isoformat(),
         "notes": update_data.notes
     }
     await db.audit_logs.insert_one(audit_log)

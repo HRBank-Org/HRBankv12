@@ -4,7 +4,7 @@ Handles the lifecycle: Timesheets → Payroll Tab → Processing
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from auth.dependencies import require_role
 from pydantic import BaseModel
 
@@ -131,7 +131,7 @@ async def move_timesheet_back_for_edit(
         {"$set": {
             "status": "pending_approval",
             "returned_for_edit": True,
-            "returned_at": datetime.utcnow().isoformat(),
+            "returned_at": datetime.now(timezone.utc).isoformat(),
             "returned_by": current_user['user_id']
         }}
     )
@@ -184,9 +184,9 @@ async def adjust_timesheet_hours(
             "adjusted_hours": edit_data.adjusted_hours,
             "adjusted_pay": new_pay,
             "adjustment_reason": edit_data.adjustment_reason,
-            "adjusted_at": datetime.utcnow().isoformat(),
+            "adjusted_at": datetime.now(timezone.utc).isoformat(),
             "adjusted_by": current_user['user_id'],
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -307,7 +307,7 @@ async def process_payroll_batch(
         )
     
     # Create batch ID
-    batch_id = f"batch_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{current_user['user_id'][:8]}"
+    batch_id = f"batch_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{current_user['user_id'][:8]}"
     
     # Create batch document
     batch = {
@@ -323,13 +323,13 @@ async def process_payroll_batch(
         },
         "timesheet_ids": batch_data.timesheet_ids,
         "payroll_items": payroll_items,
-        "batch_name": batch_data.batch_name or f"Payroll {datetime.utcnow().strftime('%Y-%m-%d')}",
+        "batch_name": batch_data.batch_name or f"Payroll {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
         "total_workers": len(payroll_items),
         "total_amount": round(total_amount, 2),
         "status": "ready_to_process",
         "notes": batch_data.notes,
         "workers_missing_sin": workers_missing_sin,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "created_by": current_user['user_id']
     }
     
@@ -342,8 +342,8 @@ async def process_payroll_batch(
         {"$set": {
             "payroll_batch_id": batch_id,
             "status": "processed",
-            "processed_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+            "processed_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import require_role
 from pydantic import BaseModel
 
@@ -214,8 +214,8 @@ async def approve_timesheet(
     # Prepare update
     update_data = {
         "approved_by": current_user['user_id'],
-        "approved_date": datetime.utcnow().isoformat(),
-        "updated_date": datetime.utcnow().isoformat()
+        "approved_date": datetime.now(timezone.utc).isoformat(),
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     if approval_data.approved:
@@ -258,7 +258,7 @@ async def approve_timesheet(
         ),
         "priority": "medium",
         "status": "pending",
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.notifications.insert_one(notification)
@@ -305,8 +305,8 @@ async def bulk_approve_timesheets(
             update_data = {
                 "status": "approved" if approval_data.approved else "rejected",
                 "approved_by": current_user['user_id'],
-                "approved_date": datetime.utcnow().isoformat(),
-                "updated_date": datetime.utcnow().isoformat()
+                "approved_date": datetime.now(timezone.utc).isoformat(),
+                "updated_date": datetime.now(timezone.utc).isoformat()
             }
             
             if not approval_data.approved:

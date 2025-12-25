@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import require_role
 from typing import Dict
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/admin/credentials", tags=["Admin Credentials"])
 
@@ -134,8 +134,8 @@ async def assign_credential_to_institution(
             "$set": {
                 "assigned_to_institution_id": institution_id,
                 "assigned_by_admin_id": current_user["user_id"],
-                "assigned_date": datetime.utcnow().isoformat(),
-                "updated_date": datetime.utcnow().isoformat()
+                "assigned_date": datetime.now(timezone.utc).isoformat(),
+                "updated_date": datetime.now(timezone.utc).isoformat()
             }
         }
     )
@@ -209,9 +209,9 @@ async def auto_assign_by_institution_name(
                 "$set": {
                     "assigned_to_institution_id": institution_id,
                     "assigned_by_admin_id": current_user["user_id"],
-                    "assigned_date": datetime.utcnow().isoformat(),
+                    "assigned_date": datetime.now(timezone.utc).isoformat(),
                     "auto_assigned": True,
-                    "updated_date": datetime.utcnow().isoformat()
+                    "updated_date": datetime.now(timezone.utc).isoformat()
                 }
             }
         )

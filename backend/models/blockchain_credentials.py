@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import uuid
 import hashlib
 import json
@@ -31,7 +31,7 @@ class BlockchainCredential(BaseModel):
     """Blockchain-verified credential issued to worker"""
     model_config = ConfigDict(extra="ignore")
     
-    credential_id: str = Field(default_factory=lambda: f"HRBANK-{datetime.utcnow().year}-{uuid.uuid4().hex[:6].upper()}")
+    credential_id: str = Field(default_factory=lambda: f"HRBANK-{datetime.now(timezone.utc).year}-{uuid.uuid4().hex[:6].upper()}")
     worker_id: str = ""
     institution_id: str
     credential_template_id: str = ""  # Optional - not always from template

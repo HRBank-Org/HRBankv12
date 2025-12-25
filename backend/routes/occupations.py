@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from models.occupation import OccupationProfile
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 router = APIRouter(prefix="/occupations", tags=["Occupations"])
@@ -253,7 +253,7 @@ async def update_occupation_profile(
             detail="Cannot change occupation title. Delete this profile and create a new one."
         )
     
-    update_data["updated_date"] = datetime.utcnow().isoformat()
+    update_data["updated_date"] = datetime.now(timezone.utc).isoformat()
     
     await db.occupation_profiles.update_one(
         {"occupation_id": occupation_id},

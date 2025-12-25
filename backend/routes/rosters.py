@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from database import get_database
 from auth.dependencies import get_current_user
 from models.roster import (
@@ -123,7 +123,7 @@ async def add_role_to_roster(
         {
             "$push": {"roles": role.dict()},
             "$inc": {"total_positions": request.positions_needed},
-            "$set": {"updated_date": datetime.utcnow()}
+            "$set": {"updated_date": datetime.now(timezone.utc)}
         }
     )
     
@@ -186,7 +186,7 @@ async def create_shifts(
             {"roster_id": roster_id},
             {
                 "$push": {"shifts": {"$each": shifts_to_create}},
-                "$set": {"updated_date": datetime.utcnow()}
+                "$set": {"updated_date": datetime.now(timezone.utc)}
             }
         )
     
@@ -224,7 +224,7 @@ async def assign_workforce_to_shift(
                 "shifts.$.workforce_name": workforce.get("full_name", "Unknown"),
                 "shifts.$.workforce_photo": photo_url,
                 "shifts.$.status": "assigned",
-                "updated_date": datetime.utcnow()
+                "updated_date": datetime.now(timezone.utc)
             }
         }
     )

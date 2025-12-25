@@ -3,7 +3,7 @@ Time-Off Request Models
 """
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from enum import Enum
 
 
@@ -25,7 +25,7 @@ class TimeOffStatus(str, Enum):
 
 
 class TimeOffRequest(BaseModel):
-    request_id: str = Field(default_factory=lambda: f"timeoff_{datetime.utcnow().timestamp()}")
+    request_id: str = Field(default_factory=lambda: f"timeoff_{datetime.now(timezone.utc).timestamp()}")
     worker_id: str
     employer_id: str
     

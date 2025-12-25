@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import get_current_user, require_role
 from models.scheduling import ShiftRequest, UnavailableBlock, AvailableSlot, WorkerMatch
 from utils.scheduling_algorithm import (
@@ -47,7 +47,7 @@ async def create_shift_request(
         max_distance_km=shift_data.get('max_distance_km', 10),
         positions_needed=shift_data.get('positions_needed', 1),
         hourly_rate=shift_data['hourly_rate'],
-        expires_at=(datetime.utcnow() + timedelta(hours=24)).isoformat()  # 24 hour expiry
+        expires_at=(datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()  # 24 hour expiry
     )
     
     # Find matching workers
@@ -155,7 +155,7 @@ async def select_worker_for_shift(
         }
     
     # Create shift with "pending" status (awaiting worker acceptance)
-    shift_id = f"shift_{datetime.utcnow().timestamp()}"
+    shift_id = f"shift_{datetime.now(timezone.utc).timestamp()}"
     shift = {
         "shift_id": shift_id,
         "shift_request_id": request_id,
@@ -169,7 +169,7 @@ async def select_worker_for_shift(
         "duration_hours": shift_request['duration_hours'],
         "hourly_rate": shift_request['hourly_rate'],
         "status": "pending",  # pending → accepted → active → completed
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.shifts.insert_one(shift)
@@ -185,14 +185,14 @@ async def select_worker_for_shift(
     
     # Send notification to worker
     await db.notifications.insert_one({
-        "notification_id": f"notif_{datetime.utcnow().timestamp()}",
+        "notification_id": f"notif_{datetime.now(timezone.utc).timestamp()}",
         "user_id": worker_id,
         "type": "shift_offer",
         "title": "New Shift Offer",
         "message": f"You have a new shift offer: {shift_request['title']}",
         "data": {"shift_id": shift_id},
         "read": False,
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     })
     
     return {
@@ -351,7 +351,7 @@ async def accept_shift_offer(
         {"shift_id": shift_id},
         {"$set": {
             "status": "accepted",
-            "accepted_date": datetime.utcnow().isoformat()
+            "accepted_date": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -363,14 +363,14 @@ async def accept_shift_offer(
     
     # Notify employer
     await db.notifications.insert_one({
-        "notification_id": f"notif_{datetime.utcnow().timestamp()}",
+        "notification_id": f"notif_{datetime.now(timezone.utc).timestamp()}",
         "user_id": shift['employer_id'],
         "type": "shift_accepted",
         "title": "Shift Accepted",
         "message": f"Worker accepted your shift: {shift['title']}",
         "data": {"shift_id": shift_id},
         "read": False,
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     })
     
     return {

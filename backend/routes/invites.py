@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from models.invites import InviteToken, BulkInviteBatch
 from typing import Dict, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import csv
 import io
 import uuid
@@ -74,7 +74,7 @@ async def bulk_upload_invites(
                 suggested_occupation=invite_data.get("program") if current_user["user_type"] == "institution" else None,
                 program=invite_data.get("program"),
                 graduation_year=invite_data.get("graduation_year"),
-                expires_at=datetime.utcnow() + timedelta(days=30)
+                expires_at=datetime.now(timezone.utc) + timedelta(days=30)
             )
             
             await db.invite_tokens.insert_one(invite.model_dump())
@@ -278,7 +278,7 @@ async def get_invite_details(
     if isinstance(expires_at, str):
         expires_at = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
     
-    if expires_at < datetime.utcnow():
+    if expires_at < datetime.now(timezone.utc):
         raise HTTPException(
             status_code=status.HTTP_410_GONE,
             detail="Invitation has expired"
@@ -383,7 +383,7 @@ async def accept_invitation(
         {"invite_token": invite_token},
         {"$set": {
             "status": "accepted",
-            "accepted_date": datetime.utcnow().isoformat(),
+            "accepted_date": datetime.now(timezone.utc).isoformat(),
             "created_user_id": current_user["user_id"]
         }}
     )
@@ -402,9 +402,9 @@ async def accept_invitation(
             "position_title": invite.get("role_name"),
             "occupation": invite.get("occupation_template"),
             "status": "active",
-            "employment_start_date": datetime.utcnow().isoformat(),
-            "created_date": datetime.utcnow().isoformat(),
-            "updated_date": datetime.utcnow().isoformat(),
+            "employment_start_date": datetime.now(timezone.utc).isoformat(),
+            "created_date": datetime.now(timezone.utc).isoformat(),
+            "updated_date": datetime.now(timezone.utc).isoformat(),
             "last_shift_date": None,
             "days_without_shift": 0
         }
@@ -417,9 +417,9 @@ async def accept_invitation(
             {"$set": {
                 "status": "filled",
                 "filled_by_workforce_id": current_user["user_id"],
-                "filled_date": datetime.utcnow(),
+                "filled_date": datetime.now(timezone.utc),
                 "positions_filled": 1,
-                "updated_date": datetime.utcnow()
+                "updated_date": datetime.now(timezone.utc)
             }}
         )
         
@@ -438,9 +438,9 @@ async def accept_invitation(
                 "message": "Please complete your profile and upload required documents within 7 days to continue working.",
                 "priority": "high",
                 "status": "pending",
-                "scheduled_date": datetime.utcnow() + timedelta(days=1),
-                "expiry_date": datetime.utcnow() + timedelta(days=7),
-                "created_date": datetime.utcnow().isoformat()
+                "scheduled_date": datetime.now(timezone.utc) + timedelta(days=1),
+                "expiry_date": datetime.now(timezone.utc) + timedelta(days=7),
+                "created_date": datetime.now(timezone.utc).isoformat()
             }
             
             await db.notifications.insert_one(emma_notification)
@@ -463,7 +463,7 @@ async def accept_invitation(
                 "hourly_rate": shift.get("hourly_rate"),
                 "status": "pending",
                 "invited": True,
-                "created_date": datetime.utcnow().isoformat()
+                "created_date": datetime.now(timezone.utc).isoformat()
             }
             
             await db.bookings.insert_one(booking)

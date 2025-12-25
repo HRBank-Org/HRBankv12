@@ -3,7 +3,7 @@ Workforce Credential Verification Request Routes
 """
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import get_current_user, require_role
 from models.institution_classes import VerificationRequest
 import base64
@@ -64,7 +64,7 @@ async def request_credential_verification(
             os.makedirs(upload_dir, exist_ok=True)
             
             # Save file
-            file_name = f"{current_user['user_id']}_credential_{datetime.utcnow().timestamp()}.{file_type}"
+            file_name = f"{current_user['user_id']}_credential_{datetime.now(timezone.utc).timestamp()}.{file_type}"
             file_path = os.path.join(upload_dir, file_name)
             
             with open(file_path, 'wb') as f:
@@ -113,8 +113,8 @@ async def request_credential_verification(
             "verification_request_id": request.request_id,
             "user_type": "institution",
             "status": "pending",
-            "created_date": datetime.utcnow().isoformat(),
-            "expires_date": (datetime.utcnow() + timedelta(days=90)).isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat(),
+            "expires_date": (datetime.now(timezone.utc) + timedelta(days=90)).isoformat()
         }
         
         await db.invitations.insert_one(invitation)
@@ -124,7 +124,7 @@ async def request_credential_verification(
             {"request_id": request.request_id},
             {"$set": {
                 "invitation_sent": True,
-                "invitation_sent_date": datetime.utcnow().isoformat()
+                "invitation_sent_date": datetime.now(timezone.utc).isoformat()
             }}
         )
         

@@ -109,7 +109,7 @@ async def get_dashboard_workforce(
                 else:
                     last_shift_date = last_shift_date_str
                 
-                days_without_shift = (datetime.utcnow() - last_shift_date).days
+                days_without_shift = (datetime.now(timezone.utc) - last_shift_date).days
                 
                 # Determine shift status
                 if days_without_shift >= 14:
@@ -127,7 +127,7 @@ async def get_dashboard_workforce(
                 else:
                     start_date = start_date_str
                 
-                days_without_shift = (datetime.utcnow() - start_date).days
+                days_without_shift = (datetime.now(timezone.utc) - start_date).days
                 
                 if days_without_shift >= 14:
                     shift_status = "no_shifts_given"
@@ -255,7 +255,7 @@ async def get_dashboard_stats(
     
     # Count upcoming shifts (next 7 days)
     from datetime import timedelta
-    today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     week_later = today + timedelta(days=7)
     
     upcoming_shifts = await db.calendar_shifts.count_documents({

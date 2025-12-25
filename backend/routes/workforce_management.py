@@ -364,9 +364,9 @@ async def terminate_employment(
         try:
             last_working_day = datetime.fromisoformat(termination_data.last_working_day)
         except:
-            last_working_day = datetime.utcnow()
+            last_working_day = datetime.now(timezone.utc)
     else:
-        last_working_day = datetime.utcnow()
+        last_working_day = datetime.now(timezone.utc)
     
     # Cancel future shifts if requested
     cancelled_shifts_count = 0
@@ -386,7 +386,7 @@ async def terminate_employment(
                     "status": "cancelled",
                     "cancellation_reason": "Employment terminated",
                     "cancelled_by": current_user["user_id"],
-                    "cancelled_date": datetime.utcnow().isoformat()
+                    "cancelled_date": datetime.now(timezone.utc).isoformat()
                 }}
             )
             cancelled_shifts_count += 1
@@ -416,7 +416,7 @@ async def terminate_employment(
         {"relationship_id": relationship["relationship_id"]},
         {"$set": {
             "status": "terminated",
-            "employment_end_date": datetime.utcnow().isoformat(),
+            "employment_end_date": datetime.now(timezone.utc).isoformat(),
             "last_worked_date": last_working_day.isoformat(),
             "termination_reason": termination_data.termination_reason,
             "termination_notes": termination_data.termination_notes,
@@ -425,7 +425,7 @@ async def terminate_employment(
             "total_shifts_completed": total_shifts,
             "total_hours_worked": total_hours,
             "average_rating": avg_rating,
-            "updated_date": datetime.utcnow().isoformat()
+            "updated_date": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -445,7 +445,7 @@ async def terminate_employment(
                 "eligible_for_rehire": termination_data.eligible_for_rehire
             },
             "read": False,
-            "created_date": datetime.utcnow().isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat()
         }
         await db.notifications.insert_one(notification)
         
@@ -565,7 +565,7 @@ async def rehire_worker(
             "position_title": rehire_data.position_title
         },
         "read": False,
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     await db.notifications.insert_one(notification)
     

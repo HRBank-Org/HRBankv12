@@ -4,7 +4,7 @@ Approve/reject worker ID documents and lock their address for match engine
 """
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from auth.dependencies import require_role
 from pydantic import BaseModel
 
@@ -101,7 +101,7 @@ async def verify_worker_id(
             detail="Worker profile not found"
         )
     
-    verification_timestamp = datetime.utcnow().isoformat()
+    verification_timestamp = datetime.now(timezone.utc).isoformat()
     
     if decision.approved:
         # APPROVE: Lock address and mark as verified
@@ -236,7 +236,7 @@ async def unlock_address_for_update(
             "address_verified": False,
             "id_verification_status": "pending",
             "address_verification_note": f"Address unlocked for update: {reason}",
-            "updated_date": datetime.utcnow().isoformat()
+            "updated_date": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -293,7 +293,7 @@ async def update_workforce_address(
             "lat": lat,
             "long": long,
             "address_verification_note": f"Address corrected by admin {current_user['user_id']}",
-            "updated_date": datetime.utcnow().isoformat()
+            "updated_date": datetime.now(timezone.utc).isoformat()
         }}
     )
     

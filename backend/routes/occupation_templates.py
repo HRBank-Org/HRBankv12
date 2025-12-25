@@ -5,7 +5,7 @@ Employers use these when creating shifts
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from auth.dependencies import require_role
 from models.occupation_template import (
     OccupationTemplate,
@@ -130,8 +130,8 @@ async def create_occupation_template(
         "template_id": template_id,
         **template_data.dict(),
         "is_active": True,
-        "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "created_by": current_user['user_id']
     }
     
@@ -167,7 +167,7 @@ async def update_occupation_template(
     
     # Build update dict (only include non-None fields)
     update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
-    update_dict["updated_at"] = datetime.utcnow().isoformat()
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
     
     await db.occupation_templates.update_one(
         {"template_id": template_id},
@@ -205,7 +205,7 @@ async def deactivate_occupation_template(
         {"template_id": template_id},
         {"$set": {
             "is_active": False,
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -394,8 +394,8 @@ async def seed_default_templates(
                 "template_id": template_id,
                 **template_data,
                 "is_active": True,
-                "created_at": datetime.utcnow().isoformat(),
-                "updated_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
                 "created_by": current_user['user_id']
             }
             

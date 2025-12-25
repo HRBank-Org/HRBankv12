@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import Dict, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import require_role, get_current_user
 from pydantic import BaseModel, EmailStr
 from models.invites import InviteToken
@@ -174,7 +174,7 @@ async def send_manual_invitations(
                 role_name=role['role_name'],
                 occupation_template=role['occupation_template'],
                 workplace_id=role.get('workplace_id'),
-                expires_at=datetime.utcnow() + timedelta(days=7)
+                expires_at=datetime.now(timezone.utc) + timedelta(days=7)
             )
             
             await db.invite_tokens.insert_one(invite_token.model_dump())
@@ -331,7 +331,7 @@ async def send_csv_bulk_invitations(
                 role_name=role['role_name'],
                 occupation_template=role['occupation_template'],
                 workplace_id=role.get('workplace_id'),
-                expires_at=datetime.utcnow() + timedelta(days=7)
+                expires_at=datetime.now(timezone.utc) + timedelta(days=7)
             )
             
             await db.invite_tokens.insert_one(invite_token.model_dump())
@@ -367,7 +367,7 @@ async def send_csv_bulk_invitations(
         "total_rows": row_number - 1,
         "successful_invites": len(successful_invites),
         "failed_invites": len(failed_invites),
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.bulk_invite_batches.insert_one(batch_record)
@@ -405,7 +405,7 @@ async def list_invitations(
     ).sort("created_date", -1).to_list(1000)
     
     # Mark expired invitations
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     for invite in invitations:
         if invite['status'] == 'sent' and invite.get('expires_at'):
             expires_at = invite['expires_at']
@@ -457,14 +457,14 @@ async def resend_invitation(
         )
     
     # Update expiry and reset status
-    new_expiry = datetime.utcnow() + timedelta(days=7)
+    new_expiry = datetime.now(timezone.utc) + timedelta(days=7)
     
     await db.invite_tokens.update_one(
         {"invite_id": invite_id},
         {"$set": {
             "status": "sent",
             "expires_at": new_expiry,
-            "updated_date": datetime.utcnow()
+            "updated_date": datetime.now(timezone.utc)
         }}
     )
     
@@ -706,7 +706,7 @@ async def invite_workers(
                 role_name=role.get('role_name', role.get('title', 'Position')),
                 occupation_template=role.get('occupation_template', ''),
                 workplace_id=request.workplace_id,
-                expires_at=datetime.utcnow() + timedelta(days=7)
+                expires_at=datetime.now(timezone.utc) + timedelta(days=7)
             )
             
             await db.invite_tokens.insert_one(invite_token.model_dump())

@@ -4,7 +4,7 @@ Connecteam-style shift scheduling with worker assignments
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List, Optional, Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import get_current_user, require_role
 from database import get_database
 from models.shift_management import (
@@ -112,8 +112,8 @@ async def create_shift(
         "recurring": shift_data.get("recurring", False),
         "recurring_pattern": shift_data.get("recurring_pattern"),
         "is_template": False,
-        "created_date": datetime.utcnow().isoformat(),
-        "updated_date": datetime.utcnow().isoformat(),
+        "created_date": datetime.now(timezone.utc).isoformat(),
+        "updated_date": datetime.now(timezone.utc).isoformat(),
         "created_by": current_user["user_id"]
     }
     
@@ -144,7 +144,7 @@ async def update_shift(
     
     # Update fields
     update_data = {
-        "updated_date": datetime.utcnow().isoformat()
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     allowed_fields = [
@@ -349,7 +349,7 @@ async def assign_worker_to_shift(
         "profile_photo_url": worker_data.get("profile_photo_url"),
         "position_title": shift.get("position_title", "Worker"),
         "status": "confirmed",
-        "assigned_date": datetime.utcnow().isoformat(),
+        "assigned_date": datetime.now(timezone.utc).isoformat(),
         "assigned_by": current_user["user_id"],
         "notes": worker_data.get("notes")
     }
@@ -362,7 +362,7 @@ async def assign_worker_to_shift(
         "assigned_workers": assigned,
         "positions_filled": new_confirmed_count,
         "open_positions": shift.get("positions_needed", 0) - new_confirmed_count,
-        "updated_date": datetime.utcnow().isoformat()
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     # Update status
@@ -418,7 +418,7 @@ async def unassign_worker_from_shift(
         "positions_filled": confirmed_count,
         "assigned_worker_count": confirmed_count,
         "open_positions": shift.get("positions_needed", 0) - confirmed_count,
-        "updated_date": datetime.utcnow().isoformat(),
+        "updated_date": datetime.now(timezone.utc).isoformat(),
         "status": "open" if confirmed_count == 0 else "scheduled"
     }
     
@@ -480,7 +480,7 @@ async def create_shift_template(
         "required_certifications": template_data.get("required_certifications", []),
         "recurring_pattern": template_data.get("recurring_pattern"),
         "recurring_days": template_data.get("recurring_days", []),
-        "created_date": datetime.utcnow().isoformat(),
+        "created_date": datetime.now(timezone.utc).isoformat(),
         "last_used_date": None,
         "use_count": 0
     }
@@ -538,8 +538,8 @@ async def clone_shift(
     new_shift["shift_id"] = str(uuid.uuid4())
     new_shift["start_time"] = clone_data["new_start_time"]
     new_shift["end_time"] = clone_data["new_end_time"]
-    new_shift["created_date"] = datetime.utcnow().isoformat()
-    new_shift["updated_date"] = datetime.utcnow().isoformat()
+    new_shift["created_date"] = datetime.now(timezone.utc).isoformat()
+    new_shift["updated_date"] = datetime.now(timezone.utc).isoformat()
     new_shift["parent_shift_id"] = shift_id
     
     # Handle worker assignments

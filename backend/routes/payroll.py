@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from typing import Dict, List
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from auth.dependencies import get_current_user, require_role, get_db
 from models.payroll import PayrollPeriod, PayrollEntry, PayrollExport, WorkerTD1
 from services.payroll_calculations import (
@@ -266,7 +266,7 @@ async def generate_payroll_entries(db, period: PayrollPeriod, employer_id: str):
         {"period_id": period.period_id},
         {"$set": {
             "entries_count": entries_created,
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     

@@ -5,7 +5,7 @@ Monitors worker locations during active shifts
 import asyncio
 import logging
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict
 from math import radians, sin, cos, sqrt, atan2
 from services.shift_notification_service import notify_geofence_alert
@@ -67,7 +67,7 @@ async def check_worker_geofence(db, attendance_id: str, worker_id: str,
         geofence_log = {
             "attendance_id": attendance_id,
             "worker_id": worker_id,
-            "check_time": datetime.utcnow().isoformat(),
+            "check_time": datetime.now(timezone.utc).isoformat(),
             "workplace_location": workplace_location,
             "worker_location": worker_current_location,
             "distance_meters": round(distance, 2),

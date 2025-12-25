@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 from auth.dependencies import get_current_user
 from models.admin import Admin, Zone
 from passlib.context import CryptContext
@@ -153,14 +153,14 @@ async def create_admin(
     
     # Create user account
     user = {
-        "user_id": f"user_{admin_data['email'].split('@')[0]}_{datetime.utcnow().timestamp()}",
+        "user_id": f"user_{admin_data['email'].split('@')[0]}_{datetime.now(timezone.utc).timestamp()}",
         "email": admin_data["email"],
         "password_hash": pwd_context.hash(admin_data["password"]),
         "full_name": admin_data["full_name"],
         "user_type": "admin",
         "phone": admin_data.get("phone"),
         "account_status": "active",
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.users.insert_one(user)
@@ -385,7 +385,7 @@ async def get_platform_analytics(
     
     # ===== GROWTH METRICS (Last 30 days) =====
     from datetime import timedelta
-    thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
+    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
     
     # ===== ZONE-BASED ANALYTICS =====
     zones = await db.zones.find({"active": True}, {"_id": 0}).to_list(100)

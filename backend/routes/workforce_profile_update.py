@@ -4,7 +4,7 @@ Workers cannot change address once it's verified and locked
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from auth.dependencies import require_role
 from pydantic import BaseModel
 
@@ -91,7 +91,7 @@ async def update_profile(
         }
     
     # Add timestamp
-    update_dict['updated_date'] = datetime.utcnow().isoformat()
+    update_dict['updated_date'] = datetime.now(timezone.utc).isoformat()
     
     # Update profile
     await db.workforce_profiles.update_one(

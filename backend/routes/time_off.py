@@ -156,8 +156,8 @@ async def approve_time_off(
             "$set": {
                 "status": "approved",
                 "reviewed_by": current_user['user_id'],
-                "reviewed_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow()
+                "reviewed_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc)
             }
         }
     )
@@ -227,9 +227,9 @@ async def reject_time_off(
             "$set": {
                 "status": "rejected",
                 "reviewed_by": current_user['user_id'],
-                "reviewed_at": datetime.utcnow(),
+                "reviewed_at": datetime.now(timezone.utc),
                 "rejection_reason": rejection_data.get('reason', ''),
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             }
         }
     )
@@ -272,7 +272,7 @@ async def cancel_time_off_request(
         {
             "$set": {
                 "status": "cancelled",
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             }
         }
     )

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
 from twilio.rest import Client
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import random
 import os
 from typing import Dict
@@ -47,7 +47,7 @@ async def send_otp(
     
     # Generate OTP
     otp_code = generate_otp()
-    expires_at = datetime.utcnow() + timedelta(minutes=10)
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     
     # Store OTP in database
     otp_record = {
@@ -58,7 +58,7 @@ async def send_otp(
         "expires_at": expires_at,
         "verified": False,
         "attempts": 0,
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
     
     await db.otp_verifications.insert_one(otp_record)
@@ -152,7 +152,7 @@ async def verify_otp(
         raise HTTPException(status_code=404, detail="No OTP request found for this contact")
     
     # Check if OTP has expired
-    if datetime.utcnow() > otp_record["expires_at"]:
+    if datetime.now(timezone.utc) > otp_record["expires_at"]:
         raise HTTPException(status_code=400, detail="OTP has expired. Please request a new one.")
     
     # Check attempts
@@ -174,7 +174,7 @@ async def verify_otp(
         {
             "$set": {
                 "verified": True,
-                "verified_at": datetime.utcnow()
+                "verified_at": datetime.now(timezone.utc)
             }
         }
     )
@@ -185,9 +185,9 @@ async def verify_otp(
     
     update_field = {}
     if request.type == "phone":
-        update_field = {"phone_verified": True, "phone_verified_at": datetime.utcnow()}
+        update_field = {"phone_verified": True, "phone_verified_at": datetime.now(timezone.utc)}
     elif request.type == "email":
-        update_field = {"email_verified": True, "email_verified_at": datetime.utcnow()}
+        update_field = {"email_verified": True, "email_verified_at": datetime.now(timezone.utc)}
     
     await db[collection_name].update_one(
         {f"{user_type}_id": current_user["user_id"]},

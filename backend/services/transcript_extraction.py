@@ -8,7 +8,7 @@ Extracts: courses, grades, GPA, program, graduation date, institution name.
 import os
 import json
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -138,7 +138,7 @@ Respond ONLY with the JSON object, no other text."""
                 cleaned_response = cleaned_response[:-3]
             
             extracted_data = json.loads(cleaned_response.strip())
-            extracted_data["extraction_timestamp"] = datetime.utcnow().isoformat()
+            extracted_data["extraction_timestamp"] = datetime.now(timezone.utc).isoformat()
             extracted_data["source_file"] = os.path.basename(pdf_path)
             
             return {
@@ -199,7 +199,7 @@ Respond ONLY with the JSON object."""
                     cleaned = cleaned[4:]
             
             extracted_data = json.loads(cleaned.strip())
-            extracted_data["extraction_timestamp"] = datetime.utcnow().isoformat()
+            extracted_data["extraction_timestamp"] = datetime.now(timezone.utc).isoformat()
             
             return {"success": True, "data": extracted_data}
         except json.JSONDecodeError as e:

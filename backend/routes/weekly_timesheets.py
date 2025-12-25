@@ -4,7 +4,7 @@ Aggregates shifts into weekly timesheets (Sun 12:00 AM - Sat 11:59 PM)
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import require_role
 from pydantic import BaseModel
 
@@ -116,7 +116,7 @@ async def generate_weekly_timesheets(db, employer_id: str, week_start: str, week
                     "total_pay": round(total_pay, 2),
                     "shift_ids": shift_ids,
                     "shift_count": len(shift_ids),
-                    "updated_at": datetime.utcnow().isoformat()
+                    "updated_at": datetime.now(timezone.utc).isoformat()
                 }}
             )
         else:
@@ -134,8 +134,8 @@ async def generate_weekly_timesheets(db, employer_id: str, week_start: str, week
                 "workplace_ids": list(workplace_ids),
                 "positions": list(positions),
                 "status": "pending_approval",
-                "created_at": datetime.utcnow().isoformat(),
-                "updated_at": datetime.utcnow().isoformat()
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
             }
             
             await db.weekly_timesheets.insert_one(timesheet)
@@ -259,9 +259,9 @@ async def adjust_weekly_timesheet(
             "adjusted_hours": adjustment.adjusted_hours,
             "adjusted_pay": new_pay,
             "adjustment_reason": adjustment.adjustment_reason,
-            "adjusted_at": datetime.utcnow().isoformat(),
+            "adjusted_at": datetime.now(timezone.utc).isoformat(),
             "adjusted_by": current_user['user_id'],
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -309,9 +309,9 @@ async def approve_weekly_timesheet(
         {"timesheet_id": timesheet_id},
         {"$set": {
             "status": "approved",
-            "approved_at": datetime.utcnow().isoformat(),
+            "approved_at": datetime.now(timezone.utc).isoformat(),
             "approved_by": current_user['user_id'],
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -404,9 +404,9 @@ async def move_back_to_pending(
         {"$set": {
             "status": "pending_approval",
             "returned_for_edit": True,
-            "returned_at": datetime.utcnow().isoformat(),
+            "returned_at": datetime.now(timezone.utc).isoformat(),
             "returned_by": current_user['user_id'],
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     

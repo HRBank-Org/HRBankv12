@@ -4,7 +4,7 @@ Simple, intuitive scheduling endpoints
 """
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import get_current_user, require_role
 from database import get_database
 import uuid
@@ -157,14 +157,14 @@ async def create_calendar_shift(
         "recurrence_rule": shift_data.get("recurrence_rule"),
         "recurrence_end_date": shift_data.get("recurrence_end_date"),
         "parent_shift_id": None,
-        "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "created_by": current_user["user_id"],
         "color": shift_data.get("color"),
         "standard_tasks": all_standard_tasks,  # Includes inherited + custom
         "custom_tasks": shift_data.get("custom_tasks", []),  # Additional shift-specific tasks
         "role_id": role_id,
-        "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.utcnow().strftime('%Y-%m-%d')
+        "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.now(timezone.utc).strftime('%Y-%m-%d')
     }
     
     await db.calendar_shifts.insert_one(shift)
@@ -248,7 +248,7 @@ async def update_calendar_shift(
     assigned_workers = shift.get("assigned_workers", [])
     
     # Update allowed fields
-    update_data = {"updated_at": datetime.utcnow().isoformat()}
+    update_data = {"updated_at": datetime.now(timezone.utc).isoformat()}
     
     allowed = ["start_time", "end_time", "position_title", "positions_needed", 
                "notes", "hourly_rate", "required_skills", "required_certifications"]
@@ -480,7 +480,7 @@ async def assign_worker(
         "worker_photo": assignment_data.get("worker_photo"),
         "position": shift["position_title"],
         "status": "confirmed",
-        "assigned_at": datetime.utcnow().isoformat()
+        "assigned_at": datetime.now(timezone.utc).isoformat()
     }
     
     # Update shift
@@ -488,7 +488,7 @@ async def assign_worker(
         {"shift_id": shift_id},
         {
             "$push": {"assigned_workers": assignment},
-            "$set": {"updated_at": datetime.utcnow().isoformat()}
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
         }
     )
     
@@ -685,8 +685,8 @@ async def create_continental_pattern(
                 "rotation_group": group_label,
                 "day_night": shift_type,
                 "is_recurring": False,
-                "created_at": datetime.utcnow().isoformat(),
-                "updated_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
                 "created_by": current_user["user_id"],
                 "date": shift_date.strftime('%Y-%m-%d')
             }
@@ -738,7 +738,7 @@ async def unassign_worker(
         {"shift_id": shift_id},
         {
             "$pull": {"assigned_workers": {"worker_id": worker_id}},
-            "$set": {"updated_at": datetime.utcnow().isoformat()}
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
         }
     )
     

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import require_role
 from motor.motor_asyncio import AsyncIOMotorDatabase
 import uuid
@@ -124,7 +124,7 @@ async def create_workforce_availability_event(
             "end": end_dt.isoformat(),
             "type": event_type,
             "recurring": False,
-            "created_date": datetime.utcnow().isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat()
         }
         
         await db.availability_events.insert_one(event)
@@ -289,7 +289,7 @@ async def create_employer_shift_event(
             "positions_filled": 0,
             "description": description,
             "status": "open",
-            "created_date": datetime.utcnow().isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat()
         }
         
         await db.shifts.insert_one(shift)
@@ -366,7 +366,7 @@ async def update_employer_shift_event(
             update_data["workplace_id"] = event_data["workplace_id"]
             update_data["workplace_name"] = workplace.get("workplace_name")
     
-    update_data["updated_date"] = datetime.utcnow().isoformat()
+    update_data["updated_date"] = datetime.now(timezone.utc).isoformat()
     
     await db.shifts.update_one(
         {"shift_id": shift_id},
@@ -521,7 +521,7 @@ def generate_recurring_events(
             "type": event_type,
             "recurring": True,
             "recurringPattern": pattern,
-            "created_date": datetime.utcnow().isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat()
         })
         
         current_date += increment
@@ -583,7 +583,7 @@ def generate_recurring_shifts(
             "status": "open",
             "recurring": True,
             "recurringPattern": pattern,
-            "created_date": datetime.utcnow().isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat()
         })
         
         current_date += increment

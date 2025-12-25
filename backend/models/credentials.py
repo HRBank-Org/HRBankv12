@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class CredentialRequest(BaseModel):
@@ -34,7 +34,7 @@ class CredentialRequest(BaseModel):
     rejection_reason: Optional[str] = None
     
     # Metadata
-    created_date: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     
 class VerifiedCredential(BaseModel):
     """Verified credential displayed on worker profile"""

@@ -90,7 +90,7 @@ async def update_class_template(
         "description": template_data.get("description", template.get("description")),
         "credential_type": template_data.get("credential_type", template["credential_type"]),
         "validity_period_months": template_data.get("validity_period_months", template.get("validity_period_months")),
-        "updated_date": datetime.utcnow().isoformat()
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.class_templates.update_one(
@@ -257,7 +257,7 @@ async def update_class(
         "end_date": class_data.get("end_date", existing_class["end_date"]),
         "validity_period_months": class_data.get("validity_period_months", existing_class.get("validity_period_months")),
         "status": class_data.get("status", existing_class["status"]),
-        "updated_date": datetime.utcnow().isoformat()
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.institution_classes.update_one(
@@ -367,8 +367,8 @@ async def invite_students(
                 "class_id": class_id,
                 "user_type": "workforce",
                 "status": "pending",
-                "created_date": datetime.utcnow().isoformat(),
-                "expires_date": (datetime.utcnow() + timedelta(days=30)).isoformat()
+                "created_date": datetime.now(timezone.utc).isoformat(),
+                "expires_date": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
             }
             
             await db.invitations.insert_one(invitation)
@@ -427,7 +427,7 @@ async def issue_credentials(
         )
     
     # Calculate expiry date
-    issue_date = datetime.utcnow()
+    issue_date = datetime.now(timezone.utc)
     expiry_date = None
     if institution_class.get("validity_period_months"):
         expiry_date = issue_date + timedelta(days=institution_class["validity_period_months"] * 30)
@@ -569,8 +569,8 @@ async def verify_credential_request(
     update_data = {
         "status": "verified",
         "verified_by": current_user["user_id"],
-        "verified_date": datetime.utcnow().isoformat(),
-        "updated_date": datetime.utcnow().isoformat()
+        "verified_date": datetime.now(timezone.utc).isoformat(),
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.verification_requests.update_one(
@@ -585,7 +585,7 @@ async def verify_credential_request(
         student_id=request["workforce_id"],
         credential_type=request["credential_type"],
         credential_name=request["credential_name"],
-        issue_date=request.get("issue_date", datetime.utcnow().isoformat()),
+        issue_date=request.get("issue_date", datetime.now(timezone.utc).isoformat()),
         expiry_date=request.get("expiry_date"),
         issued_by=current_user["user_id"]
     )
@@ -622,8 +622,8 @@ async def reject_credential_request(
         "status": "rejected",
         "rejection_reason": rejection_data.get("reason", "Credential could not be verified"),
         "verified_by": current_user["user_id"],
-        "verified_date": datetime.utcnow().isoformat(),
-        "updated_date": datetime.utcnow().isoformat()
+        "verified_date": datetime.now(timezone.utc).isoformat(),
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.verification_requests.update_one(
