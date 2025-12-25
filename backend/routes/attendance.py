@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from models.attendance import QRCode, Attendance, Timesheet
 from typing import Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from services.shift_notification_service import (
     notify_clock_in,
     notify_clock_out,
@@ -70,8 +70,8 @@ async def generate_qr_code(
     qr_code_model = QRCode(
         shift_id=shift_id,
         workplace_id=shift["workplace_id"],
-        valid_from=datetime.utcnow() - timedelta(minutes=15),
-        valid_until=datetime.utcnow() + timedelta(hours=24)
+        valid_from=datetime.now(timezone.utc) - timedelta(minutes=15),
+        valid_until=datetime.now(timezone.utc) + timedelta(hours=24)
     )
     
     await db.qr_codes.insert_one(qr_code_model.model_dump())
@@ -137,7 +137,7 @@ async def clock_in(
     
     # Check if clocking in within shift time window
     from datetime import time as dt_time
-    current_time = datetime.utcnow().time()
+    current_time = datetime.now(timezone.utc).time()
     
     # Parse shift times
     shift_start = dt_time.fromisoformat(shift["start_time"])
@@ -148,7 +148,7 @@ async def clock_in(
     
     # Check if shift date is today
     shift_date = datetime.fromisoformat(shift["shift_date"]) if isinstance(shift["shift_date"], str) else shift["shift_date"]
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
     
     if shift_date.date() != today:
         raise HTTPException(
@@ -175,7 +175,7 @@ async def clock_in(
         booking_id=booking_id,
         shift_id=qr_code["shift_id"],
         workforce_id=current_user["user_id"],
-        clock_in_time=datetime.utcnow(),
+        clock_in_time=datetime.now(timezone.utc),
         qr_code_scanned=True,
         qr_code_id=qr_code_id,
         geofence_verified=True,
@@ -267,7 +267,7 @@ async def clock_out(
     
     # Validate clock-out time (can clock out up to 1 hour after shift end)
     from datetime import time as dt_time
-    current_time = datetime.utcnow().time()
+    current_time = datetime.now(timezone.utc).time()
     
     shift_end = dt_time.fromisoformat(shift["end_time"])
     late_allowed = (datetime.combine(datetime.today(), shift_end) + timedelta(hours=1)).time()
@@ -288,7 +288,7 @@ async def clock_out(
     
     # Calculate duration
     clock_in = datetime.fromisoformat(attendance["clock_in_time"]) if isinstance(attendance["clock_in_time"], str) else attendance["clock_in_time"]
-    clock_out_time = datetime.utcnow()
+    clock_out_time = datetime.now(timezone.utc)
     duration = (clock_out_time - clock_in).total_seconds() / 3600
     
     # Update attendance
@@ -331,7 +331,7 @@ async def clock_out(
     
     today = date.today()
     days_until_sunday = (6 - today.weekday()) % 7  # Days until next Sunday
-    if days_until_sunday == 0 and datetime.utcnow().hour < 12:
+    if days_until_sunday == 0 and datetime.now(timezone.utc).hour < 12:
         # If it's Sunday before noon, use today
         week_ending = today
     else:
@@ -601,8 +601,8 @@ async def approve_timesheet(
             "$set": {
                 "status": "approved",
                 "approved_by": current_user["user_id"],
-                "approved_date": datetime.utcnow(),
-                "updated_date": datetime.utcnow()
+                "approved_date": datetime.now(timezone.utc),
+                "updated_date": datetime.now(timezone.utc)
             }
         }
     )
@@ -826,7 +826,7 @@ async def update_worker_location(
             {"attendance_id": result["attendance_id"]},
             {
                 "$set": {
-                    "last_location_update": datetime.utcnow().isoformat(),
+                    "last_location_update": datetime.now(timezone.utc).isoformat(),
                     "last_known_location": location
                 }
             }
@@ -948,7 +948,7 @@ async def gps_clock_in(
     
     # Check shift timing
     from datetime import time as dt_time
-    current_time = datetime.utcnow()
+    current_time = datetime.now(timezone.utc)
     
     # Parse shift date and times
     shift_date_str = shift.get("date") or shift.get("shift_date")
@@ -1004,7 +1004,7 @@ async def gps_clock_in(
     worker_address = await reverse_geocode(worker_lat, worker_lng)
     
     # Create attendance record
-    attendance_id = f"att_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{current_user['user_id'][:8]}"
+    attendance_id = f"att_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}_{current_user['user_id'][:8]}"
     
     # Calculate if late
     is_late = current_time_only > shift_start
@@ -1134,7 +1134,7 @@ async def gps_clock_out(
     else:
         clock_in_dt = clock_in_time
     
-    clock_out_dt = datetime.utcnow()
+    clock_out_dt = datetime.now(timezone.utc)
     duration_seconds = (clock_out_dt - clock_in_dt).total_seconds()
     duration_hours = duration_seconds / 3600
     
@@ -1312,7 +1312,7 @@ async def get_my_attendance_today(
 ):
     """Get worker's attendance records for today"""
     
-    today = datetime.utcnow().date().isoformat()
+    today = datetime.now(timezone.utc).date().isoformat()
     
     # Find today's shifts for this worker
     shifts = await db.shifts.find({

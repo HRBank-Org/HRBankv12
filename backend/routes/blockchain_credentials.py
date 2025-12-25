@@ -85,7 +85,7 @@ async def issue_blockchain_credential(
     credential.blockchain_transaction_hash = blockchain_result["transaction_hash"]
     credential.blockchain_token_id = blockchain_result["token_id"]
     credential.status = "issued"
-    credential.issued_at = datetime.utcnow()
+    credential.issued_at = datetime.now(timezone.utc)
     
     # Generate QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
@@ -159,7 +159,7 @@ async def verify_credential(
         {"credential_id": credential_id},
         {
             "$inc": {"verification_count": 1},
-            "$set": {"last_verified_at": datetime.utcnow().isoformat()}
+            "$set": {"last_verified_at": datetime.now(timezone.utc).isoformat()}
         }
     )
     
@@ -231,7 +231,7 @@ async def revoke_credential(
         {
             "$set": {
                 "status": "revoked",
-                "revoked_at": datetime.utcnow().isoformat(),
+                "revoked_at": datetime.now(timezone.utc).isoformat(),
                 "revocation_reason": reason
             }
         }

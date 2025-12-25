@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from models.messaging import ChatThread, Message
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 router = APIRouter(prefix="/messages", tags=["Messaging"])
@@ -90,7 +90,7 @@ async def create_direct_thread(
                 to_user_id=to_user_id,
                 message_text=initial_message,
                 delivered=True,
-                delivered_at=datetime.utcnow()
+                delivered_at=datetime.now(timezone.utc)
             )
             await db.messages.insert_one(message.model_dump())
             
@@ -101,7 +101,7 @@ async def create_direct_thread(
                 {
                     "$set": {
                         "last_message": initial_message[:100],
-                        "last_message_at": datetime.utcnow().isoformat(),
+                        "last_message_at": datetime.now(timezone.utc).isoformat(),
                         "last_message_from": user_id
                     },
                     "$inc": {update_field: 1}
@@ -135,9 +135,9 @@ async def create_direct_thread(
         "employer_name": employer_name,
         "workforce_name": workforce_name,
         "other_user_name": workforce_name if user_type == "employer" else employer_name,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "last_message": initial_message[:100] if initial_message else "",
-        "last_message_at": datetime.utcnow().isoformat(),
+        "last_message_at": datetime.now(timezone.utc).isoformat(),
         "last_message_from": user_id if initial_message else None,
         "employer_unread_count": 1 if user_type == "workforce" and initial_message else 0,
         "workforce_unread_count": 1 if user_type == "employer" and initial_message else 0
@@ -155,7 +155,7 @@ async def create_direct_thread(
             to_user_id=to_user_id,
             message_text=initial_message,
             delivered=True,
-            delivered_at=datetime.utcnow()
+            delivered_at=datetime.now(timezone.utc)
         )
         await db.messages.insert_one(message.model_dump())
     
@@ -322,7 +322,7 @@ async def get_thread_messages(
         {
             "$set": {
                 "read": True,
-                "read_at": datetime.utcnow().isoformat()
+                "read_at": datetime.now(timezone.utc).isoformat()
             }
         }
     )
@@ -387,7 +387,7 @@ async def send_message(
         to_user_id=to_user_id,
         message_text=message_data.get("message_text"),
         delivered=True,
-        delivered_at=datetime.utcnow()
+        delivered_at=datetime.now(timezone.utc)
     )
     
     await db.messages.insert_one(message.model_dump())
@@ -399,7 +399,7 @@ async def send_message(
             {
                 "$set": {
                     "last_message": message_data.get("message_text")[:100],
-                    "last_message_at": datetime.utcnow().isoformat(),
+                    "last_message_at": datetime.now(timezone.utc).isoformat(),
                     "last_message_from": user_id
                 },
                 "$inc": {"employer_unread_count": 1}
@@ -411,7 +411,7 @@ async def send_message(
             {
                 "$set": {
                     "last_message": message_data.get("message_text")[:100],
-                    "last_message_at": datetime.utcnow().isoformat(),
+                    "last_message_at": datetime.now(timezone.utc).isoformat(),
                     "last_message_from": user_id
                 },
                 "$inc": {"workforce_unread_count": 1}

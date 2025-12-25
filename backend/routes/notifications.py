@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from models.admin import Notification
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 from utils.ai_translation import ai_translation_service
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
@@ -126,7 +126,7 @@ async def mark_notification_read(
         {
             "$set": {
                 "read_status": True,
-                "read_at": datetime.utcnow().isoformat()
+                "read_at": datetime.now(timezone.utc).isoformat()
             }
         }
     )
@@ -153,7 +153,7 @@ async def mark_all_read(
         {
             "$set": {
                 "read_status": True,
-                "read_at": datetime.utcnow().isoformat()
+                "read_at": datetime.now(timezone.utc).isoformat()
             }
         }
     )

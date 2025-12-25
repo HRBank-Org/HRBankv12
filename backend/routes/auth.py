@@ -63,7 +63,7 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
         f"{user_data.user_type}_id": user_id,
         "full_name": user_data.full_name,
         "phone": user_data.phone,
-        "created_date": datetime.utcnow().isoformat(),
+        "created_date": datetime.now(timezone.utc).isoformat(),
         "onboarding_completed": False  # Track onboarding status
     }
     
@@ -95,8 +95,8 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
     verification_doc = {
         "user_id": user_id,
         "verification_token": verification_token,
-        "created_at": datetime.utcnow().isoformat(),
-        "expires_at": (datetime.utcnow() + timedelta(hours=24)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
         "verified": False
     }
     await db.email_verifications.insert_one(verification_doc)
@@ -215,7 +215,7 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
     # Update last login
     await db.users.update_one(
         {"user_id": user["user_id"]},
-        {"$set": {"last_login_date": datetime.utcnow().isoformat()}}
+        {"$set": {"last_login_date": datetime.now(timezone.utc).isoformat()}}
     )
     
     return {
@@ -253,7 +253,7 @@ async def verify_email(token: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     
     # Check if expired
     expires_at = datetime.fromisoformat(verification["expires_at"])
-    if datetime.utcnow() > expires_at:
+    if datetime.now(timezone.utc) > expires_at:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Verification token expired"
@@ -339,7 +339,7 @@ async def change_password(
         {
             "$set": {
                 "password_hash": new_password_hash,
-                "password_updated_at": datetime.utcnow()
+                "password_updated_at": datetime.now(timezone.utc)
             }
         }
     )
@@ -425,7 +425,7 @@ async def google_callback(
             # Update last login
             await db.users.update_one(
                 {"user_id": user_id},
-                {"$set": {"last_login_date": datetime.utcnow().isoformat()}}
+                {"$set": {"last_login_date": datetime.now(timezone.utc).isoformat()}}
             )
         else:
             # Create new user
@@ -441,8 +441,8 @@ async def google_callback(
                 "mfa_enabled": False,
                 "google_id": google_id,
                 "oauth_provider": "google",
-                "created_date": datetime.utcnow().isoformat(),
-                "last_login_date": datetime.utcnow().isoformat(),
+                "created_date": datetime.now(timezone.utc).isoformat(),
+                "last_login_date": datetime.now(timezone.utc).isoformat(),
                 "deleted_at": None
             }
             
@@ -453,7 +453,7 @@ async def google_callback(
                 f"{user_type}_id": user_id,
                 "full_name": full_name,
                 "phone": "",  # Will be filled later
-                "created_date": datetime.utcnow().isoformat()
+                "created_date": datetime.now(timezone.utc).isoformat()
             }
             
             if user_type == "workforce":
