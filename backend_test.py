@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Production Readiness Testing - Database Indexing Validation
-FINAL PRODUCTION READINESS TEST FOR HR BANK AFTER DATABASE INDEXING
-Focus: Health Check, Performance, Credential Flow, Index Validation, Rate Limiting
+HR Bank Blockchain Verified Badge and Emma System Prompt Testing
+Testing blockchain credentials endpoint and Emma system prompts for HR Bank
+Focus: Blockchain credentials for workforce, Emma prompts for institution/workforce
 """
 
 import requests
@@ -19,12 +19,11 @@ load_dotenv('/app/frontend/.env')
 # Get backend URL from environment
 BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
-HEALTH_URL = f"{BACKEND_URL}/health"  # Root level health check
 
-print(f"🚀 HR BANK PRODUCTION READINESS TESTING")
+print(f"🚀 HR BANK BLOCKCHAIN VERIFIED BADGE AND EMMA SYSTEM PROMPT TESTING")
 print(f"Testing backend at: {BASE_URL}")
-print(f"Health check at: {HEALTH_URL}")
-print(f"Focus: Health Check, Performance (with indexes), Credential Flow, Rate Limiting")
+print(f"Base URL: {BACKEND_URL}")
+print(f"Focus: Blockchain credentials endpoint, Emma system prompts, Frontend compilation")
 print("="*80)
 
 class TestResults:
