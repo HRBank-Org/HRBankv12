@@ -1203,12 +1203,12 @@ def test_two_way_rating_system(results):
         except Exception as e:
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
-def test_institution_user_flow(results):
-    """Test the Institution user flow for HR Bank"""
-    print("\n🧪 Testing Institution User Flow (Priority: HIGH)...")
-    print("   Testing Institution login, dashboard, and API endpoints")
+def test_institution_blockchain_transcript_integration(results):
+    """Test the Institution Blockchain & Transcript Integration for HR Bank"""
+    print("\n🧪 Testing Institution Blockchain & Transcript Integration (Priority: HIGH)...")
+    print("   Testing Institution login, blockchain issuer status, transcript management, and credential verification")
     print("   Test credentials: demo@stclairecollege.ca / Demo123!")
-    print("   Expected institution: St. Claire College in Windsor, Ontario")
+    print("   Base URL: https://credblock.preview.emergentagent.com")
     
     # Test credentials from review request
     institution_creds = {"email": "demo@stclairecollege.ca", "password": "Demo123!", "user_type": "institution"}
