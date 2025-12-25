@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from models.blockchain_credentials import BlockchainCredential, CredentialTemplate, CredentialVerification
 from utils.blockchain_service import blockchain_service
+from utils.rate_limiter import limiter
 from typing import Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import qrcode
 import io
 import base64
@@ -16,7 +17,9 @@ def get_db():
     return db
 
 @router.post("/issue", response_model=Dict, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")  # Rate limit: 30 credential issuances per minute
 async def issue_blockchain_credential(
+    request: Request,
     credential_data: dict,
     current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
@@ -26,7 +29,7 @@ async def issue_blockchain_credential(
     """
     
     # Parse dates as ISO strings
-    issue_date_str = credential_data.get("issue_date", datetime.utcnow().isoformat())
+    issue_date_str = credential_data.get("issue_date", datetime.now(timezone.utc).isoformat())
     if isinstance(issue_date_str, str) and 'T' in issue_date_str:
         issue_date_str = issue_date_str.split('T')[0]  # Extract just the date part
     
