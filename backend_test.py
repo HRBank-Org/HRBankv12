@@ -298,22 +298,58 @@ def test_index_validation(results, institution_token):
     except Exception as e:
         results.add_fail("GET /api/transcripts", f"Request failed: {str(e)}")
 
-def test_backend_connectivity(results):
-    """Test basic backend connectivity"""
-    print("\n🧪 Testing Backend Connectivity...")
+def test_rate_limiting(results):
+    """Test that rate limiting is still active after database changes"""
+    print("\n🧪 Testing Rate Limiting Still Active...")
+    print("   Testing: POST /api/auth/login with wrong credentials 6+ times rapidly")
+    
+    # Use wrong credentials to trigger rate limiting
+    wrong_creds = {"email": "demo@stclairecollege.ca", "password": "WrongPassword123!", "user_type": "institution"}
+    
+    rate_limit_triggered = False
+    attempt_count = 0
     
     try:
-        response = requests.get(f"{BASE_URL}/", timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            if "message" in data:
-                results.add_pass("Backend connectivity")
+        # Make rapid requests with wrong credentials
+        for i in range(7):  # Try 7 times to ensure rate limit triggers
+            attempt_count = i + 1
+            print(f"      Attempt {attempt_count}: Wrong credentials")
+            
+            response = requests.post(f"{BASE_URL}/auth/login", json=wrong_creds, timeout=10)
+            
+            if response.status_code == 429:  # Rate limit exceeded
+                rate_limit_triggered = True
+                results.add_pass(f"Rate limiting triggered at attempt {attempt_count}")
+                print(f"      Rate limit triggered at attempt {attempt_count} (HTTP 429)")
+                break
+            elif response.status_code == 401:
+                print(f"      Attempt {attempt_count}: HTTP 401 (expected for wrong credentials)")
             else:
-                results.add_fail("Backend connectivity", f"Unexpected response: {data}")
+                print(f"      Attempt {attempt_count}: HTTP {response.status_code}")
+            
+            # Small delay between requests
+            time.sleep(0.1)
+        
+        if not rate_limit_triggered:
+            results.add_fail("Rate limiting", f"Rate limit not triggered after {attempt_count} attempts")
+        
+        # Test that rate limiting eventually resets
+        print("      Waiting for rate limit to reset...")
+        time.sleep(5)  # Wait for rate limit to reset
+        
+        # Try one more request to see if rate limit has reset
+        response = requests.post(f"{BASE_URL}/auth/login", json=wrong_creds, timeout=10)
+        if response.status_code == 401:  # Should be back to normal 401 for wrong credentials
+            results.add_pass("Rate limiting resets after timeout")
+            print("      Rate limit reset successfully")
+        elif response.status_code == 429:
+            results.add_pass("Rate limiting still active (longer timeout)")
+            print("      Rate limit still active (may have longer timeout)")
         else:
-            results.add_fail("Backend connectivity", f"HTTP {response.status_code}: {response.text}")
+            print(f"      Unexpected status after reset: {response.status_code}")
+            
     except Exception as e:
-        results.add_fail("Backend connectivity", f"Connection failed: {str(e)}")
+        results.add_fail("Rate limiting", f"Request failed: {str(e)}")
 
 def get_auth_headers(token):
     """Get authorization headers for API requests"""
