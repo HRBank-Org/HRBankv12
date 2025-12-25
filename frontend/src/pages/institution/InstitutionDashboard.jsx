@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
+import { FiExternalLink, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 
 const InstitutionDashboard = () => {
   const { user, updateUserProfile } = useAuth();
@@ -12,9 +13,12 @@ const InstitutionDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [walletStatus, setWalletStatus] = useState(null);
+  const [walletLoading, setWalletLoading] = useState(true);
 
   useEffect(() => {
     loadDashboardData();
+    loadWalletStatus();
   }, []);
 
   const loadDashboardData = async () => {
@@ -35,6 +39,18 @@ const InstitutionDashboard = () => {
       console.error('Failed to load dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadWalletStatus = async () => {
+    try {
+      const response = await api.get('/api/blockchain/issuer-status?network=polygon');
+      setWalletStatus(response.data.data);
+    } catch (error) {
+      console.error('Failed to load wallet status:', error);
+      setWalletStatus({ success: false, error: 'Could not fetch wallet status' });
+    } finally {
+      setWalletLoading(false);
     }
   };
 
