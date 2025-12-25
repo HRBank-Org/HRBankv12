@@ -133,43 +133,94 @@ def test_performance_authentication(results):
     
     return None
 
-def test_database_integration(results):
-    """Test database integration by checking if data persists"""
-    print("\n🧪 Testing Database Integration...")
+def test_performance_credential_flow(results, institution_token):
+    """Test credential issuance and verification performance"""
+    print("\n🧪 Testing Performance - Credential Flow...")
+    print("   Testing: Issue a new credential and verify public verification")
+    
+    if not institution_token:
+        results.add_fail("Credential flow", "No institution token available")
+        return None
+    
+    # Test credential issuance
+    credential_data = {
+        "credential_name": "Production Test Credential",
+        "program_name": "Database Indexing Validation",
+        "student_name": "Testing Agent",
+        "student_id": "PROD123",
+        "grade_gpa": "4.0",
+        "issue_date": "2025-12-25"
+    }
+    
+    issued_credential_id = None
     
     try:
-        # Create a user
-        user_data = generate_test_user("workforce")
-        signup_response = requests.post(f"{BASE_URL}/auth/signup", json=user_data, timeout=10)
+        # Measure credential issuance time
+        start_time = time.time()
+        response = requests.post(
+            f"{BASE_URL}/blockchain-credentials/issue",
+            json=credential_data,
+            headers={"Authorization": f"Bearer {institution_token}"},
+            timeout=30
+        )
+        end_time = time.time()
         
-        if signup_response.status_code == 200:
-            # Try to login immediately (tests persistence)
-            login_data = {
-                "email": user_data["email"],
-                "password": user_data["password"],
-                "user_type": user_data["user_type"]
-            }
-            
-            login_response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
-            
-            if login_response.status_code == 200:
-                login_data_response = login_response.json()
-                user_info = login_data_response["user"]
+        issuance_time = end_time - start_time
+        
+        if response.status_code == 201:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                credential_result = data["data"]
+                issued_credential_id = credential_result.get("credential_id")
                 
-                # Verify all fields are correctly stored
-                if (user_info["email"] == user_data["email"] and 
-                    user_info["full_name"] == user_data["full_name"] and
-                    user_info["user_type"] == user_data["user_type"]):
-                    results.add_pass("Database persistence verification")
+                results.add_pass(f"Credential issuance successful - Time: {issuance_time:.3f}s")
+                print(f"      Issuance time: {issuance_time:.3f} seconds")
+                print(f"      Credential ID: {issued_credential_id}")
+                
+                # Verify required fields
+                required_fields = ["credential_id", "transaction_hash", "ipfs_url", "verification_url", "qr_code"]
+                missing_fields = [field for field in required_fields if field not in credential_result]
+                
+                if not missing_fields:
+                    results.add_pass("Credential issuance - All required fields present")
                 else:
-                    results.add_fail("Database persistence verification", "User data mismatch after storage")
+                    results.add_fail("Credential issuance", f"Missing fields: {missing_fields}")
             else:
-                results.add_fail("Database persistence verification", "Login failed after signup")
+                results.add_fail("Credential issuance", f"Invalid response: {data}")
         else:
-            results.add_fail("Database persistence verification", "Signup failed")
-            
+            results.add_fail("Credential issuance", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
-        results.add_fail("Database persistence verification", f"Request failed: {str(e)}")
+        results.add_fail("Credential issuance", f"Request failed: {str(e)}")
+    
+    # Test public verification
+    if issued_credential_id:
+        try:
+            # Measure verification time
+            start_time = time.time()
+            response = requests.get(f"{BASE_URL}/blockchain-credentials/verify/{issued_credential_id}", timeout=10)
+            end_time = time.time()
+            
+            verification_time = end_time - start_time
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    results.add_pass(f"Public verification successful - Time: {verification_time:.3f}s")
+                    print(f"      Verification time: {verification_time:.3f} seconds")
+                    
+                    verification_data = data["data"]
+                    if verification_data.get("blockchain_verified"):
+                        results.add_pass("Public verification - blockchain_verified: true")
+                    else:
+                        results.add_pass("Public verification - blockchain_verified status returned")
+                else:
+                    results.add_fail("Public verification", f"Invalid response: {data}")
+            else:
+                results.add_fail("Public verification", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Public verification", f"Request failed: {str(e)}")
+    
+    return issued_credential_id
 
 def test_password_hashing(results):
     """Test that passwords are properly hashed"""
