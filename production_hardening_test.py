@@ -331,6 +331,10 @@ def main():
     # Test 1: Rate Limiting
     test_rate_limiting(results)
     
+    # Wait for rate limit to reset before continuing
+    print("   Waiting 60 seconds for rate limit to reset before continuing...")
+    time.sleep(60)
+    
     # Test 2: Authentication
     auth_token = test_authentication(results)
     
