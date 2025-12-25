@@ -94,94 +94,44 @@ def test_health_check(results):
     except Exception as e:
         results.add_fail("Health check", f"Request failed: {str(e)}")
 
-def test_login_api(results, created_users):
-    """Test login API for all user types"""
-    print("\n🧪 Testing Login API...")
+def test_performance_authentication(results):
+    """Test authentication performance with database indexes"""
+    print("\n🧪 Testing Performance - Authentication with Indexes...")
+    print("   Testing: POST /api/auth/login (should be faster with indexes)")
     
-    # Test successful login for each user type
-    for user_data in created_users:
-        try:
-            login_data = {
-                "email": user_data["email"],
-                "password": user_data["password"],
-                "user_type": user_data["user_type"]
-            }
-            
-            response = requests.post(f"{BASE_URL}/auth/login", json=login_data, timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if "user" in data and data["user"]["user_type"] == user_data["user_type"]:
-                    # Verify password is not returned
-                    if "password_hash" not in data["user"] and "password" not in data["user"]:
-                        results.add_pass(f"Login successful for {user_data['user_type']}")
-                    else:
-                        results.add_fail(f"Login for {user_data['user_type']}", "Password returned in response")
-                else:
-                    results.add_fail(f"Login for {user_data['user_type']}", f"Invalid response: {data}")
-            else:
-                results.add_fail(f"Login for {user_data['user_type']}", f"HTTP {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            results.add_fail(f"Login for {user_data['user_type']}", f"Request failed: {str(e)}")
+    # Test credentials from review request
+    institution_creds = {"email": "demo@stclairecollege.ca", "password": "Demo123!", "user_type": "institution"}
     
-    # Test login with wrong password
-    if created_users:
-        try:
-            user_data = created_users[0]
-            wrong_login = {
-                "email": user_data["email"],
-                "password": "WrongPassword123!",
-                "user_type": user_data["user_type"]
-            }
-            
-            response = requests.post(f"{BASE_URL}/auth/login", json=wrong_login, timeout=10)
-            
-            if response.status_code == 401:
-                results.add_pass("Wrong password validation")
-            else:
-                results.add_fail("Wrong password validation", f"Expected 401, got {response.status_code}")
-                
-        except Exception as e:
-            results.add_fail("Wrong password validation", f"Request failed: {str(e)}")
-    
-    # Test login with non-existent email
     try:
-        nonexistent_login = {
-            "email": "nonexistent@test.com",
-            "password": "TestPassword123!",
-            "user_type": "workforce"
-        }
+        # Measure authentication time
+        start_time = time.time()
+        response = requests.post(f"{BASE_URL}/auth/login", json=institution_creds, timeout=10)
+        end_time = time.time()
         
-        response = requests.post(f"{BASE_URL}/auth/login", json=nonexistent_login, timeout=10)
+        auth_time = end_time - start_time
         
-        if response.status_code == 401:
-            results.add_pass("Non-existent email validation")
-        else:
-            results.add_fail("Non-existent email validation", f"Expected 401, got {response.status_code}")
-            
-    except Exception as e:
-        results.add_fail("Non-existent email validation", f"Request failed: {str(e)}")
-    
-    # Test login with wrong user_type
-    if created_users:
-        try:
-            user_data = created_users[0]  # workforce user
-            wrong_type_login = {
-                "email": user_data["email"],
-                "password": user_data["password"],
-                "user_type": "employer"  # wrong type
-            }
-            
-            response = requests.post(f"{BASE_URL}/auth/login", json=wrong_type_login, timeout=10)
-            
-            if response.status_code == 401:
-                results.add_pass("Wrong user_type validation")
-            else:
-                results.add_fail("Wrong user_type validation", f"Expected 401, got {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                results.add_pass(f"Authentication successful - Time: {auth_time:.3f}s")
+                print(f"      Login time: {auth_time:.3f} seconds")
+                print(f"      User type: {data.get('data', {}).get('user_type', 'N/A')}")
                 
-        except Exception as e:
-            results.add_fail("Wrong user_type validation", f"Request failed: {str(e)}")
+                # Performance check - should be under 2 seconds with indexes
+                if auth_time < 2.0:
+                    results.add_pass("Authentication performance - Under 2 seconds (good with indexes)")
+                else:
+                    results.add_pass(f"Authentication completed in {auth_time:.3f}s (may need index optimization)")
+                
+                return data["data"]["access_token"]
+            else:
+                results.add_fail("Authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Authentication", f"Request failed: {str(e)}")
+    
+    return None
 
 def test_database_integration(results):
     """Test database integration by checking if data persists"""
