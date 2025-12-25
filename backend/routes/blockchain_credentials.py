@@ -247,3 +247,87 @@ async def get_my_blockchain_credentials(
             "total": len(credentials)
         }
     }
+
+
+@router.get("/issuer-status")
+async def get_issuer_wallet_status(
+    network: str = "polygon",
+    current_user: dict = Depends(require_role("institution"))
+):
+    """
+    Get the status of the issuer wallet including balance and gas price.
+    Used to verify the institution can issue on-chain credentials.
+    """
+    try:
+        from services.etherscan_service import get_etherscan_service
+        
+        service = get_etherscan_service(network)
+        status = await service.get_issuer_status()
+        
+        return {
+            "success": True,
+            "data": status
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get issuer status: {str(e)}"
+        )
+
+
+@router.get("/wallet/{address}/balance")
+async def get_wallet_balance(
+    address: str,
+    network: str = "polygon",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get the balance of any wallet address.
+    """
+    try:
+        from services.etherscan_service import get_etherscan_service
+        
+        service = get_etherscan_service(network)
+        result = await service.get_balance(address)
+        
+        return {
+            "success": result.get("success", False),
+            "data": result
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get balance: {str(e)}"
+        )
+
+
+@router.get("/transaction/{tx_hash}")
+async def get_transaction_status(
+    tx_hash: str,
+    network: str = "polygon",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get the status and details of a blockchain transaction.
+    """
+    try:
+        from services.etherscan_service import get_etherscan_service
+        
+        service = get_etherscan_service(network)
+        tx_info = await service.get_transaction(tx_hash)
+        receipt = await service.get_transaction_receipt(tx_hash)
+        
+        return {
+            "success": True,
+            "data": {
+                "transaction": tx_info.get("transaction") if tx_info.get("success") else None,
+                "receipt": receipt if receipt.get("success") else None,
+                "explorer_url": tx_info.get("explorer_url")
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get transaction: {str(e)}"
+        )
+
