@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { User, Mail, Phone, MapPin, Calendar, Edit2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Edit2, Shield } from 'lucide-react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
+import BlockchainVerifiedBadge, { BlockchainCredentialsSection } from '../../components/common/BlockchainVerifiedBadge';
 
 const WorkforceProfile = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [blockchainCredentials, setBlockchainCredentials] = useState([]);
+  const [credentialsLoading, setCredentialsLoading] = useState(true);
 
   useEffect(() => {
     loadProfile();
+    loadBlockchainCredentials();
   }, []);
 
   const loadProfile = async () => {
@@ -32,6 +36,18 @@ const WorkforceProfile = () => {
       console.error('Failed to load profile:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadBlockchainCredentials = async () => {
+    try {
+      const response = await api.get('/api/blockchain-credentials/my-credentials');
+      setBlockchainCredentials(response.data.data?.credentials || []);
+    } catch (error) {
+      console.error('Failed to load blockchain credentials:', error);
+      setBlockchainCredentials([]);
+    } finally {
+      setCredentialsLoading(false);
     }
   };
 
