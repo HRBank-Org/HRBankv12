@@ -8,7 +8,7 @@
 
 ### Feature Under Test: Institution User Flow for HR Bank
 
-**Base URL:** https://hrprod-ready.preview.emergentagent.com
+**Base URL:** https://credblock.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -125,7 +125,7 @@
 
 ### Feature Under Test: Auto-Translation System for Chat (Emma) and Notifications
 
-**Base URL:** https://hrprod-ready.preview.emergentagent.com
+**Base URL:** https://credblock.preview.emergentagent.com
 **Test Credentials:** 
 - Workforce: emily.chen@email.com / Test123!
 - Employer: john.b@swanpizza.ca / Test123!
@@ -248,7 +248,7 @@
 
 ### Feature Under Test: Unified Calendar Shifts Endpoint Implementation
 
-**Base URL:** https://hrprod-ready.preview.emergentagent.com
+**Base URL:** https://credblock.preview.emergentagent.com
 **Test Credentials:** 
 - Employer: john.b@swanpizza.ca / Test123!
 
@@ -562,7 +562,7 @@
 
 ### Feature Under Test: Offer Management in Recruitment Tab
 
-**Test URL:** https://hrprod-ready.preview.emergentagent.com/employer/workforce-management
+**Test URL:** https://credblock.preview.emergentagent.com/employer/workforce-management
 **Test Credentials:** john.b@swanpizza.ca / Test123! (Employer)
 
 **Test Scope:**
@@ -857,7 +857,7 @@
 - Email: john.b@swanpizza.ca
 - Password: Test123!
 - User Type: Employer
-- Base URL: https://hrprod-ready.preview.emergentagent.com
+- Base URL: https://credblock.preview.emergentagent.com
 
 ### Comprehensive Test Results:
 
@@ -1017,7 +1017,7 @@
 ### Test Credentials Used:
 - **Employer:** john.b@swanpizza.ca / Test123!
 - **Login Method:** Email/Password via Employer tab
-- **Test URL:** https://hrprod-ready.preview.emergentagent.com/employer/workforce-management
+- **Test URL:** https://credblock.preview.emergentagent.com/employer/workforce-management
 
 ### Integration Testing Results:
 - **Frontend-Backend Integration:** ✅ Auto-Assign API calls working correctly
