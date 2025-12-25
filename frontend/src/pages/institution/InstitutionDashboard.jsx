@@ -44,7 +44,7 @@ const InstitutionDashboard = () => {
 
   const loadWalletStatus = async () => {
     try {
-      const response = await api.get('/api/blockchain/issuer-status?network=polygon');
+      const response = await api.get('/api/blockchain-credentials/issuer-status?network=polygon');
       setWalletStatus(response.data.data);
     } catch (error) {
       console.error('Failed to load wallet status:', error);
