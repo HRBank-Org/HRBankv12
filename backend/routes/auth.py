@@ -493,7 +493,7 @@ async def google_callback(
         
         return RedirectResponse(url=callback_url)
         
-    except Exception as e:
+    except Exception:
         # Redirect to login with error
         frontend_url = os.environ.get('FRONTEND_URL', 'https://credblock.preview.emergentagent.com')
         error_url = f"{frontend_url}/login?error=google_auth_failed"
