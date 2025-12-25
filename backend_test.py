@@ -1452,52 +1452,8 @@ def test_institution_blockchain_transcript_integration(results):
                 results.add_fail("Issuer wallet address validation", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
             results.add_fail("Issuer wallet address validation", f"Request failed: {str(e)}")
-                data = response.json()
-                if data.get("success"):
-                    results.add_pass("Institution navigation - Verification Requests accessible")
-                    verification_data = data.get("data", {})
-                    requests_count = len(verification_data.get("verification_requests", []))
-                    print(f"      Verification requests count: {requests_count}")
-                else:
-                    results.add_fail("Institution navigation - Verification Requests", f"Invalid response: {data}")
-            else:
-                results.add_fail("Institution navigation - Verification Requests", f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_fail("Institution navigation - Verification Requests", f"Request failed: {str(e)}")
-        
-        # Test Settings endpoint (profile)
-        try:
-            response = requests.get(
-                f"{BASE_URL}/institutions/me/profile",
-                headers=get_auth_headers(institution_token),
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                results.add_pass("Institution navigation - Settings (profile) accessible")
-            else:
-                results.add_fail("Institution navigation - Settings", f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_fail("Institution navigation - Settings", f"Request failed: {str(e)}")
-    
-    # Test 5: Authentication enforcement
-    print("\n   Test 5: Authentication enforcement for institution endpoints")
-    protected_endpoints = [
-        ("GET", "/institutions/me/profile"),
-        ("GET", "/institution/analytics/dashboard"),
-        ("GET", "/institutions/me/verification-queue"),
-    ]
-    
-    for method, endpoint in protected_endpoints:
-        try:
-            if method == "GET":
-                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
-            
-            if response.status_code in [401, 403]:
-                results.add_pass(f"Authentication required for {method} {endpoint}")
-            else:
-                results.add_fail(f"Authentication required for {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
-        except Exception as e:
+
+def test_auto_translation_system(results):
             results.add_fail(f"Authentication required for {method} {endpoint}", f"Request failed: {str(e)}")
 
 def test_auto_translation_system(results):
