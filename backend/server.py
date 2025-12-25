@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -11,6 +12,10 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 import uuid
 from datetime import datetime, timezone
+
+# Rate limiting
+from utils.rate_limiter import limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 # Import routes
 from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, blockchain_credentials, translation, partner_logos, calendar, workforce_management, eula, documents, admin_management, google_calendar, shift_scheduling, admin_occupations, admin_certifications, otp_verification, file_upload, validation, institution_classes, credential_verification, compliance, payroll, rosters, workforce_roster, emma, job_matching, admin_credentials, shift_management, calendar_scheduling, notification_preferences, time_off, live_attendance, dashboard, shift_ratings, qr_attendance, workplace_roles, employer_invitations, workforce_monitoring, fee_calculator_api, minimum_wage_admin, timesheets, payroll_management, weekly_timesheets, occupation_templates, admin_id_verification, workforce_profile_update, interviews, address, service_tasks, external_bookings, match_engine, admin_seeding, transcripts
