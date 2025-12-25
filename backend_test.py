@@ -231,18 +231,18 @@ def test_index_validation(results, institution_token):
     """Test queries that use database indexes"""
     print("\n🧪 Testing Index Validation...")
     print("   Testing queries that use indexes:")
-    print("   - GET /api/notifications/counts (uses user_id index)")
+    print("   - GET /api/notifications/my-notifications (uses user_id index)")
     print("   - GET /api/transcripts (uses institution_id index)")
     
     if not institution_token:
         results.add_fail("Index validation", "No institution token available")
         return
     
-    # Test 1: Notifications counts endpoint (uses user_id index)
+    # Test 1: Notifications endpoint (uses user_id index)
     try:
         start_time = time.time()
         response = requests.get(
-            f"{BASE_URL}/notifications/counts",
+            f"{BASE_URL}/notifications/my-notifications",
             headers={"Authorization": f"Bearer {institution_token}"},
             timeout=10
         )
@@ -252,7 +252,7 @@ def test_index_validation(results, institution_token):
         
         if response.status_code == 200:
             data = response.json()
-            results.add_pass(f"GET /api/notifications/counts - Time: {query_time:.3f}s")
+            results.add_pass(f"GET /api/notifications/my-notifications - Time: {query_time:.3f}s")
             print(f"      Notifications query time: {query_time:.3f} seconds")
             
             # Performance check - should be fast with user_id index
@@ -261,9 +261,9 @@ def test_index_validation(results, institution_token):
             else:
                 results.add_pass(f"Notifications query completed in {query_time:.3f}s")
         else:
-            results.add_fail("GET /api/notifications/counts", f"HTTP {response.status_code}: {response.text}")
+            results.add_fail("GET /api/notifications/my-notifications", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
-        results.add_fail("GET /api/notifications/counts", f"Request failed: {str(e)}")
+        results.add_fail("GET /api/notifications/my-notifications", f"Request failed: {str(e)}")
     
     # Test 2: Transcripts endpoint (uses institution_id index)
     try:
