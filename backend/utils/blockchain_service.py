@@ -122,7 +122,11 @@ class BlockchainService:
     
     def generate_verification_url(self, credential_id: str) -> str:
         """Generate public verification URL"""
-        frontend_url = os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')
+        # Use REACT_APP_BACKEND_URL for external access, fall back to hrbank.ca
+        frontend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://vault.hrbank.ca')
+        # Remove /api from backend URL to get base frontend URL
+        if '/api' in frontend_url:
+            frontend_url = frontend_url.replace('/api', '')
         return f"{frontend_url}/verify/{credential_id}"
     
     def get_polygonscan_url(self, tx_hash: str) -> str:
