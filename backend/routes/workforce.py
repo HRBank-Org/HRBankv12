@@ -77,7 +77,7 @@ async def update_personal_info(
     # Update or create profile
     data["workforce_id"] = current_user["user_id"]
     data["user_id"] = current_user["user_id"]
-    data["updated_date"] = datetime.utcnow().isoformat()
+    data["updated_date"] = datetime.now(timezone.utc).isoformat()
     
     # Check if profile exists
     existing_profile = await db.workforce_profiles.find_one({"workforce_id": current_user["user_id"]})
@@ -90,7 +90,7 @@ async def update_personal_info(
         )
     else:
         # Create new
-        data["created_date"] = datetime.utcnow().isoformat()
+        data["created_date"] = datetime.now(timezone.utc).isoformat()
         await db.workforce_profiles.insert_one(data)
     
     # Recalculate profile completeness
@@ -132,7 +132,7 @@ async def update_skills(
     
     await db.workforce_profiles.update_one(
         {"workforce_id": current_user["user_id"]},
-        {"$set": {"skills": skills, "updated_date": datetime.utcnow().isoformat()}}
+        {"$set": {"skills": skills, "updated_date": datetime.now(timezone.utc).isoformat()}}
     )
     
     # Recalculate completeness
@@ -175,7 +175,7 @@ async def update_availability(
     update_data = {
         "availability_hours": availability_hours,
         "blackout_dates": blackout_dates,
-        "updated_date": datetime.utcnow().isoformat()
+        "updated_date": datetime.now(timezone.utc).isoformat()
     }
     
     # Add simple format if provided

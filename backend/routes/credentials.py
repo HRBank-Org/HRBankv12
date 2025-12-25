@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from models.workforce import WorkforceCredential, CredentialType
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 router = APIRouter(prefix="/credentials", tags=["Credentials"])
@@ -55,7 +55,7 @@ async def submit_credential(
     
     # Insert credential
     credential_dict = credential_data.model_dump()
-    credential_dict["submitted_date"] = datetime.utcnow().isoformat()
+    credential_dict["submitted_date"] = datetime.now(timezone.utc).isoformat()
     credential_dict["issue_date"] = credential_dict["issue_date"].isoformat()
     if credential_dict.get("expiration_date"):
         credential_dict["expiration_date"] = credential_dict["expiration_date"].isoformat()
@@ -74,7 +74,7 @@ async def submit_credential(
         workforce_id=current_user["user_id"],
         credential_id=credential_data.credential_id,
         assigned_to_institution_id="",  # Will be assigned based on catchment area
-        requested_date=datetime.utcnow(),
+        requested_date=datetime.now(timezone.utc),
         status="pending"
     )
     
@@ -123,19 +123,19 @@ async def get_expiring_credentials(
     """
     from datetime import timedelta
     
-    expiry_threshold = (datetime.utcnow() + timedelta(days=days)).isoformat()
+    expiry_threshold = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
     
     credentials = await db.workforce_credentials.find({
         "workforce_id": current_user["user_id"],
         "final_status": "approved",
-        "expiration_date": {"$lte": expiry_threshold, "$gte": datetime.utcnow().isoformat()}
+        "expiration_date": {"$lte": expiry_threshold, "$gte": datetime.now(timezone.utc).isoformat()}
     }, {"_id": 0}).to_list(100)
     
     # Calculate days until expiration
     for cred in credentials:
         if cred.get("expiration_date"):
             exp_date = datetime.fromisoformat(cred["expiration_date"])
-            days_until = (exp_date - datetime.utcnow()).days
+            days_until = (exp_date - datetime.now(timezone.utc)).days
             cred["days_until_expiration"] = days_until
     
     return {

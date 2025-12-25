@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -74,7 +74,7 @@ async def update_user_status(
     
     result = await db.users.update_one(
         {"user_id": user_id},
-        {"$set": {"profile_status": new_status, "updated_date": datetime.utcnow().isoformat()}}
+        {"$set": {"profile_status": new_status, "updated_date": datetime.now(timezone.utc).isoformat()}}
     )
     
     if result.matched_count == 0:
@@ -156,7 +156,7 @@ async def verify_institution(
     
     result = await db.institution_profiles.update_one(
         {"institution_id": institution_id},
-        {"$set": {"verified_status": new_status, "updated_date": datetime.utcnow().isoformat()}}
+        {"$set": {"verified_status": new_status, "updated_date": datetime.now(timezone.utc).isoformat()}}
     )
     
     if result.matched_count == 0:
@@ -330,7 +330,7 @@ async def approve_credential(
             "$set": {
                 "admin_approval_status": "approved",
                 "approved_by_admin_id": current_user["user_id"],
-                "admin_approved_date": datetime.utcnow().isoformat(),
+                "admin_approved_date": datetime.now(timezone.utc).isoformat(),
                 "final_status": "approved"
             }
         }

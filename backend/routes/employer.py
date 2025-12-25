@@ -132,7 +132,7 @@ async def create_shift(
         "end_time": shift_data.get("end_time"),
         "shift_type": shift_type,
         "status": "open",
-        "created_date": datetime.utcnow().isoformat()
+        "created_date": datetime.now(timezone.utc).isoformat()
     }
     
     await db.shifts.insert_one(shift_doc)
@@ -149,7 +149,7 @@ async def create_shift(
             "required_certifications": role_data.get("required_certifications", []),
             "hourly_rate": role_data.get("hourly_rate"),
             "status": "open",
-            "created_date": datetime.utcnow().isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat()
         }
         await db.roles.insert_one(role_doc)
     
@@ -290,7 +290,7 @@ async def update_employer_profile(
     
     profile_data["employer_id"] = current_user["user_id"]
     profile_data["user_id"] = current_user["user_id"]
-    profile_data["updated_date"] = datetime.utcnow().isoformat()
+    profile_data["updated_date"] = datetime.now(timezone.utc).isoformat()
     
     # Check if profile exists
     existing_profile = await db.employer_profiles.find_one({"employer_id": current_user["user_id"]})
@@ -304,7 +304,7 @@ async def update_employer_profile(
         message = "Profile updated successfully"
     else:
         # Create new profile
-        profile_data["created_date"] = datetime.utcnow().isoformat()
+        profile_data["created_date"] = datetime.now(timezone.utc).isoformat()
         await db.employer_profiles.insert_one(profile_data)
         message = "Profile created successfully"
     
@@ -320,7 +320,7 @@ async def get_workplace_dependencies(
     db = Depends(get_db)
 ):
     """Get all dependencies for a workplace before deletion/deactivation"""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     
     workplace = await db.workplaces.find_one({
         "workplace_id": workplace_id,
@@ -334,7 +334,7 @@ async def get_workplace_dependencies(
     active_shifts = await db.shifts.find({
         "workplace_id": workplace_id,
         "status": {"$in": ["open", "filled", "in_progress"]},
-        "date": {"$gte": datetime.utcnow().strftime("%Y-%m-%d")}
+        "date": {"$gte": datetime.now(timezone.utc).strftime("%Y-%m-%d")}
     }, {"_id": 0, "shift_id": 1, "position_title": 1, "date": 1, "start_time": 1, "assigned_workers": 1}).to_list(100)
     
     # Get roles at this workplace
@@ -386,7 +386,7 @@ async def update_workplace_status(
     db = Depends(get_db)
 ):
     """Activate or deactivate a workplace"""
-    from datetime import datetime
+    from datetime import datetime, timezone
     
     new_status = status_data.get("status")  # "active" or "inactive"
     
@@ -406,7 +406,7 @@ async def update_workplace_status(
         {"workplace_id": workplace_id},
         {"$set": {
             "status": new_status,
-            "status_updated_at": datetime.utcnow(),
+            "status_updated_at": datetime.now(timezone.utc),
             "status_updated_by": current_user["user_id"]
         }}
     )
@@ -433,7 +433,7 @@ async def delete_workplace(
     db = Depends(get_db)
 ):
     """Delete a workplace. Use force=true to unassign all workers first."""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     
     workplace = await db.workplaces.find_one({
         "workplace_id": workplace_id,
@@ -447,7 +447,7 @@ async def delete_workplace(
     active_shifts = await db.shifts.count_documents({
         "workplace_id": workplace_id,
         "status": {"$in": ["open", "filled", "in_progress"]},
-        "date": {"$gte": datetime.utcnow().strftime("%Y-%m-%d")}
+        "date": {"$gte": datetime.now(timezone.utc).strftime("%Y-%m-%d")}
     })
     
     if active_shifts > 0 and not force:
@@ -475,9 +475,9 @@ async def delete_workplace(
                         {"employer_id": current_user["user_id"], "workforce_id": worker_id},
                         {"$set": {
                             "status": "unassigned",
-                            "last_shift_date": datetime.utcnow(),
-                            "unassigned_date": datetime.utcnow(),
-                            "auto_terminate_date": datetime.utcnow() + timedelta(days=14)
+                            "last_shift_date": datetime.now(timezone.utc),
+                            "unassigned_date": datetime.now(timezone.utc),
+                            "auto_terminate_date": datetime.now(timezone.utc) + timedelta(days=14)
                         }},
                         upsert=True
                     )
@@ -485,7 +485,7 @@ async def delete_workplace(
         # Cancel all shifts at this workplace
         await db.shifts.update_many(
             {"workplace_id": workplace_id},
-            {"$set": {"status": "cancelled", "cancelled_at": datetime.utcnow()}}
+            {"$set": {"status": "cancelled", "cancelled_at": datetime.now(timezone.utc)}}
         )
     
     # Delete roles at this workplace
@@ -538,7 +538,7 @@ async def update_workplace(
             workplace_data["lat"] = coordinates[0]
             workplace_data["long"] = coordinates[1]
     
-    workplace_data["updated_date"] = datetime.utcnow().isoformat()
+    workplace_data["updated_date"] = datetime.now(timezone.utc).isoformat()
     
     await db.workplaces.update_one(
         {"workplace_id": workplace_id},
@@ -618,7 +618,7 @@ async def duplicate_shift(
             "shift_id": new_shift_id,
             "shift_date": new_date,
             "status": "open",
-            "created_date": datetime.utcnow().isoformat()
+            "created_date": datetime.now(timezone.utc).isoformat()
         }
         del new_shift["_id"]
         
@@ -632,7 +632,7 @@ async def duplicate_shift(
                 "role_id": new_role_id,
                 "shift_id": new_shift_id,
                 "status": "open",
-                "created_date": datetime.utcnow().isoformat()
+                "created_date": datetime.now(timezone.utc).isoformat()
             }
             if "_id" in new_role:
                 del new_role["_id"]
@@ -746,7 +746,7 @@ async def unassign_worker_from_shift(
         {"$set": {
             "assigned_workers": new_assigned_workers,
             "assigned_worker_count": len(new_assigned_workers),
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     
@@ -832,7 +832,7 @@ async def invite_to_shift(
             full_name="",
             shift_id=shift_id,
             workplace_id=shift.get("workplace_id"),
-            expires_at=datetime.utcnow() + timedelta(days=14)
+            expires_at=datetime.now(timezone.utc) + timedelta(days=14)
         )
         
         await db.invite_tokens.insert_one(invite.model_dump())
@@ -987,7 +987,7 @@ async def invite_to_job(
             job_id=job_id,
             workplace_id=job.get("workplace_id"),
             suggested_occupation=job.get("job_title"),
-            expires_at=datetime.utcnow() + timedelta(days=30)
+            expires_at=datetime.now(timezone.utc) + timedelta(days=30)
         )
         
         await db.invite_tokens.insert_one(invite.model_dump())
@@ -1078,7 +1078,7 @@ async def get_workforce_inventory(
     db = Depends(get_db)
 ):
     """Get workforce inventory - workers who are employed but not assigned to shifts"""
-    from datetime import datetime
+    from datetime import datetime, timezone
     
     query = {"employer_id": current_user["user_id"]}
     if status_filter:
@@ -1097,7 +1097,7 @@ async def get_workforce_inventory(
         
         # Calculate days until auto-terminate
         if item.get("auto_terminate_date"):
-            days_left = (item["auto_terminate_date"] - datetime.utcnow()).days
+            days_left = (item["auto_terminate_date"] - datetime.now(timezone.utc)).days
             item["days_until_auto_terminate"] = max(0, days_left)
     
     return {
@@ -1116,13 +1116,13 @@ async def process_auto_terminations(
     db = Depends(get_db)
 ):
     """Process workers who have been unassigned for 2+ weeks - terminate them"""
-    from datetime import datetime
+    from datetime import datetime, timezone
     
     # Find workers past their auto-terminate date
     expired = await db.workforce_inventory.find({
         "employer_id": current_user["user_id"],
         "status": "unassigned",
-        "auto_terminate_date": {"$lte": datetime.utcnow()}
+        "auto_terminate_date": {"$lte": datetime.now(timezone.utc)}
     }, {"_id": 0}).to_list(100)
     
     terminated_workers = []
@@ -1134,7 +1134,7 @@ async def process_auto_terminations(
             {"employer_id": current_user["user_id"], "workforce_id": workforce_id, "status": "active"},
             {"$set": {
                 "status": "terminated",
-                "termination_date": datetime.utcnow(),
+                "termination_date": datetime.now(timezone.utc),
                 "termination_reason": "auto_terminated_unassigned_2_weeks",
                 "terminated_by": "system"
             }}

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from typing import Dict, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/institutions", tags=["Institutions"])
 
@@ -73,7 +73,7 @@ async def update_my_profile(
         "province": profile_data.get("province"),
         "postal_code": profile_data.get("postal_code"),
         "institution_type": profile_data.get("institution_type"),
-        "updated_at": datetime.utcnow().isoformat()
+        "updated_at": datetime.now(timezone.utc).isoformat()
     }
     
     # Remove None values except user_id and institution_id
@@ -97,7 +97,7 @@ async def update_my_profile(
         message = "Profile updated successfully"
     else:
         # Create new profile
-        update_data["created_at"] = datetime.utcnow().isoformat()
+        update_data["created_at"] = datetime.now(timezone.utc).isoformat()
         await db.institution_profiles.insert_one(update_data)
         message = "Profile created successfully"
     
@@ -188,7 +188,7 @@ async def approve_credential(
             "$set": {
                 "institution_verification_status": "verified",
                 "verified_by_institution_id": current_user["user_id"],
-                "institution_verified_date": datetime.utcnow().isoformat(),
+                "institution_verified_date": datetime.now(timezone.utc).isoformat(),
                 "final_status": "pending_admin"
             }
         }
@@ -201,7 +201,7 @@ async def approve_credential(
             "$set": {
                 "status": "verified",
                 "verified_by_institution_id": current_user["user_id"],
-                "verification_date": datetime.utcnow().isoformat()
+                "verification_date": datetime.now(timezone.utc).isoformat()
             }
         }
     )
