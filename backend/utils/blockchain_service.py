@@ -62,11 +62,27 @@ class BlockchainService:
         """
         
         # For MVP: Always return valid if hash exists
+        if not credential_hash:
+            return {
+                "is_valid": False,
+                "is_registered": False,
+                "is_revoked": False,
+                "status": "not_found",
+                "on_chain": False,
+                "verification_method": "demo",
+                "network": "polygon",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        
         return {
-            "valid": True,
+            "is_valid": True,
+            "is_registered": True,
+            "is_revoked": False,
             "status": "active",
             "on_chain": True,
-            "revoked": False
+            "verification_method": "demo",
+            "network": "polygon",
+            "timestamp": datetime.utcnow().isoformat()
         }
     
     async def revoke_credential(self, credential_id: str, reason: str) -> dict:
