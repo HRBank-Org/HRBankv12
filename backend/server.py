@@ -31,6 +31,10 @@ db = client[os.environ.get('DB_NAME', 'hrbank_db')]
 # Create the main app without a prefix
 app = FastAPI(title="HR Bank API", version="1.0.0")
 
+# Add rate limiter to the app
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Add session middleware for OAuth (must be added before routes)
 app.add_middleware(
     SessionMiddleware,
