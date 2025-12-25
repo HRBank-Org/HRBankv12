@@ -209,11 +209,12 @@ const WorkforceProfile = () => {
               View My Shifts
             </Button>
             <Button
-              onClick={() => navigate('/workforce/documents')}
+              onClick={() => navigate('/workforce/credentials')}
               variant="outline"
               className="w-full"
             >
-              Manage Documents
+              <Shield className="w-4 h-4 mr-2" />
+              My Credentials
             </Button>
             <Button
               onClick={() => navigate('/workforce/settings')}
@@ -224,6 +225,18 @@ const WorkforceProfile = () => {
             </Button>
           </div>
         </div>
+
+        {/* Blockchain Credentials Section */}
+        {(blockchainCredentials.length > 0 || credentialsLoading) && (
+          <div className="pt-6 mt-6 border-t">
+            <BlockchainCredentialsSection
+              credentials={blockchainCredentials}
+              loading={credentialsLoading}
+              onViewAll={() => navigate('/workforce/credentials')}
+              maxDisplay={2}
+            />
+          </div>
+        )}
       </Card>
     </div>
   );
