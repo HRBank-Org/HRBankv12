@@ -69,6 +69,12 @@ const WorkforceSidebar = () => {
       path: '/workforce/timesheets'
     },
     {
+      type: 'item',
+      label: 'Time Off',
+      icon: FiSun,
+      path: '/workforce/time-off'
+    },
+    {
       type: 'category',
       label: 'Career'
     },
