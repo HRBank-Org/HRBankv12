@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-HR Bank Super Admin System Testing
-Testing Super Admin System for HR Bank with role-based access control
-Focus: Admin roles, dashboard, pending activations, admin list, franchise management
+HR Bank Time-Off Management System Testing
+Testing Enhanced Time-Off Management System for HR Bank
+Focus: Policy management, balance tracking, request workflows, calendar integration
 """
 
 import requests
 import json
 import uuid
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import os
 from dotenv import load_dotenv
 
@@ -20,10 +20,10 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
 
-print(f"🚀 HR BANK SUPER ADMIN SYSTEM TESTING")
+print(f"🚀 HR BANK TIME-OFF MANAGEMENT SYSTEM TESTING")
 print(f"Testing backend at: {BASE_URL}")
 print(f"Base URL: {BACKEND_URL}")
-print(f"Focus: Admin roles, dashboard, pending activations, admin list, franchise management")
+print(f"Focus: Policy management, balance tracking, request workflows, calendar integration")
 print("="*80)
 
 class TestResults:
