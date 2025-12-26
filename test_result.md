@@ -1,11 +1,11 @@
 # Test Results - HR Bank
-## Latest Test Session: Auto-Dispatch Feature for Grid Services Testing
+## Latest Test Session: Super Admin System Testing
 
 ### Test Date: December 26, 2025
 
 ### Testing Agent: Testing Agent (Backend API Testing)
 
-### Feature Under Test: Auto-Dispatch feature for Grid Services in HR Bank
+### Feature Under Test: Super Admin System for HR Bank with role-based access control
 
 **Test URL:** https://credblock.preview.emergentagent.com
 
