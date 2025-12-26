@@ -66,6 +66,12 @@ import ManageAdmins from './pages/admin/ManageAdmins';
 import MinimumWageManager from './pages/admin/MinimumWageManager';
 import ManageZones from './pages/admin/ManageZones';
 import WSIBVerification from './pages/admin/WSIBVerification';
+// Super Admin Pages
+import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
+import PendingActivations from './pages/admin/PendingActivations';
+import AdminManagement from './pages/admin/AdminManagement';
+import FranchiseManagement from './pages/admin/FranchiseManagement';
+import SupportTickets from './pages/admin/SupportTickets';
 import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
 import WorkerComplianceOnboarding from './pages/workforce/WorkerComplianceOnboarding';
 import Analytics from './pages/admin/Analytics';
