@@ -318,6 +318,13 @@ function AppRoutes() {
         <Route path="/admin/manage-certifications" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageCertifications /></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminSettings /></ProtectedRoute>} />
         
+        {/* Super Admin Routes */}
+        <Route path="/admin/super-dashboard" element={<ProtectedRoute allowedUserTypes={['admin']}><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/pending-activations" element={<ProtectedRoute allowedUserTypes={['admin']}><PendingActivations /></ProtectedRoute>} />
+        <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminManagement /></ProtectedRoute>} />
+        <Route path="/admin/franchises" element={<ProtectedRoute allowedUserTypes={['admin']}><FranchiseManagement /></ProtectedRoute>} />
+        <Route path="/admin/support-tickets" element={<ProtectedRoute allowedUserTypes={['admin']}><SupportTickets /></ProtectedRoute>} />
+        
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
