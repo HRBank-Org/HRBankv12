@@ -20,7 +20,8 @@ const Notifications = () => {
     setLoading(true);
     try {
       const unreadOnly = filter === 'unread';
-      const response = await api.get(`/api/notifications/my-notifications?unread_only=${unreadOnly}&limit=50`);
+      // Enable translation by default
+      const response = await api.get(`/api/notifications/my-notifications?unread_only=${unreadOnly}&limit=50&translate=true`);
       setNotifications(response.data.data.notifications || []);
     } catch (error) {
       console.error('Failed to load notifications:', error);
