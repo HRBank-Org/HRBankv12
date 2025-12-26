@@ -57,7 +57,7 @@ def test_super_admin_system(results):
     print("\n🧪 Testing Super Admin System for HR Bank (Priority: HIGH)...")
     print("   Testing endpoints: /api/super-admin/roles, /api/super-admin/dashboard, /api/super-admin/pending-activations, /api/super-admin/admins, /api/super-admin/franchises")
     print("   Test credentials: qnizami@hrbank.ca / Test123!")
-    print("   Base URL: https://credblock.preview.emergentagent.com")
+    print("   Base URL: https://hrforge-14.preview.emergentagent.com")
     
     # Test credentials from review request
     admin_creds = {"email": "qnizami@hrbank.ca", "password": "Test123!", "user_type": "admin"}

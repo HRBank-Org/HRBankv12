@@ -7,7 +7,7 @@
 
 ### Feature Under Test: Super Admin System for HR Bank with role-based access control
 
-**Test URL:** https://credblock.preview.emergentagent.com
+**Test URL:** https://hrforge-14.preview.emergentagent.com
 
 **Test Credentials:**
 - Admin: qnizami@hrbank.ca / Test123!
@@ -309,7 +309,7 @@
 
 ### Feature Under Test: Auto-Translation system for notifications in HR Bank
 
-**Test URL:** https://credblock.preview.emergentagent.com
+**Test URL:** https://hrforge-14.preview.emergentagent.com
 
 **Test Scope:**
 1. **Login as French-speaking workforce user**
@@ -443,7 +443,7 @@
 
 ### Feature Under Test: Blockchain Verified Badge integration in HR Bank frontend UI components
 
-**Test URL:** https://credblock.preview.emergentagent.com
+**Test URL:** https://hrforge-14.preview.emergentagent.com
 
 **Test Scope:**
 1. **Workforce Profile Page with Blockchain Badge**
@@ -575,7 +575,7 @@
 
 ### Feature Under Test: Final Production Readiness Test for HR Bank after database indexing
 
-**Base URL:** https://credblock.preview.emergentagent.com
+**Base URL:** https://hrforge-14.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -705,7 +705,7 @@
 
 ### Feature Under Test: Production Hardening Changes for HR Bank
 
-**Base URL:** https://credblock.preview.emergentagent.com
+**Base URL:** https://hrforge-14.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -735,7 +735,7 @@
 
 #### ✅ TEST 3: CORS CONFIGURATION - PASSED
 - **CORS Headers:** ✅ Access-Control-Allow-Origin header present
-- **Origin Value:** ✅ https://credblock.preview.emergentagent.com (NOT "*")
+- **Origin Value:** ✅ https://hrforge-14.preview.emergentagent.com (NOT "*")
 - **Security:** ✅ CORS properly configured for production (not wildcard)
 - **Credentials Support:** ✅ Access-Control-Allow-Credentials: true
 - **Methods:** ✅ Proper CORS methods configured
@@ -812,7 +812,7 @@
 
 ### Feature Under Test: Complete Credential Minting Flow for HR Bank Institution Portal
 
-**Base URL:** https://credblock.preview.emergentagent.com
+**Base URL:** https://hrforge-14.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -1037,7 +1037,7 @@
 
 ### Feature Under Test: Institution Transcript Processing & Blockchain Credential System
 
-**Test URL:** https://credblock.preview.emergentagent.com
+**Test URL:** https://hrforge-14.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -1112,7 +1112,7 @@
 
 ### Feature Under Test: Institution User Flow for HR Bank
 
-**Base URL:** https://credblock.preview.emergentagent.com
+**Base URL:** https://hrforge-14.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -1229,7 +1229,7 @@
 
 ### Feature Under Test: Auto-Translation System for Chat (Emma) and Notifications
 
-**Base URL:** https://credblock.preview.emergentagent.com
+**Base URL:** https://hrforge-14.preview.emergentagent.com
 **Test Credentials:** 
 - Workforce: emily.chen@email.com / Test123!
 - Employer: john.b@swanpizza.ca / Test123!
@@ -1352,7 +1352,7 @@
 
 ### Feature Under Test: Unified Calendar Shifts Endpoint Implementation
 
-**Base URL:** https://credblock.preview.emergentagent.com
+**Base URL:** https://hrforge-14.preview.emergentagent.com
 **Test Credentials:** 
 - Employer: john.b@swanpizza.ca / Test123!
 
@@ -1666,7 +1666,7 @@
 
 ### Feature Under Test: Offer Management in Recruitment Tab
 
-**Test URL:** https://credblock.preview.emergentagent.com/employer/workforce-management
+**Test URL:** https://hrforge-14.preview.emergentagent.com/employer/workforce-management
 **Test Credentials:** john.b@swanpizza.ca / Test123! (Employer)
 
 **Test Scope:**
@@ -1961,7 +1961,7 @@
 - Email: john.b@swanpizza.ca
 - Password: Test123!
 - User Type: Employer
-- Base URL: https://credblock.preview.emergentagent.com
+- Base URL: https://hrforge-14.preview.emergentagent.com
 
 ### Comprehensive Test Results:
 
@@ -2121,7 +2121,7 @@
 ### Test Credentials Used:
 - **Employer:** john.b@swanpizza.ca / Test123!
 - **Login Method:** Email/Password via Employer tab
-- **Test URL:** https://credblock.preview.emergentagent.com/employer/workforce-management
+- **Test URL:** https://hrforge-14.preview.emergentagent.com/employer/workforce-management
 
 ### Integration Testing Results:
 - **Frontend-Backend Integration:** ✅ Auto-Assign API calls working correctly

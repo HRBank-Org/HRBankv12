@@ -2,7 +2,7 @@
 """
 HR Bank Production Hardening Tests
 Testing production hardening changes for HR Bank
-Base URL: https://credblock.preview.emergentagent.com
+Base URL: https://hrforge-14.preview.emergentagent.com
 
 Test Scope:
 1. Rate Limiting Test
@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 load_dotenv('/app/frontend/.env')
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://credblock.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://hrforge-14.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 
 print(f"🚀 HR BANK PRODUCTION HARDENING TESTS")
@@ -154,7 +154,7 @@ def test_cors_headers(results):
         # Test with a POST request and Origin header to trigger CORS
         headers = {
             'Content-Type': 'application/json',
-            'Origin': 'https://credblock.preview.emergentagent.com'
+            'Origin': 'https://hrforge-14.preview.emergentagent.com'
         }
         response = requests.post(f"{BASE_URL}/", json={"test": "data"}, headers=headers, timeout=10)
         
