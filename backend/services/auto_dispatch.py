@@ -168,7 +168,7 @@ class AutoDispatchService:
                 # Check for overlap
                 if not (new_end <= existing_start or new_start >= existing_end):
                     return True
-            except:
+            except ValueError:
                 continue
         
         return False
