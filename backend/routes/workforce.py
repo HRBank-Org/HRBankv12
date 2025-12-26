@@ -4,7 +4,7 @@ from auth.dependencies import get_current_user, require_role
 from utils.google_maps import google_maps_service
 from utils.calculations import calculate_profile_completeness
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import os
 
@@ -190,7 +190,7 @@ async def update_availability(
     }).to_list(1000)
     
     if accepted_bookings and availability_simple:
-        from datetime import datetime as dt
+        from datetime import datetime, timezone as dt
         available_days = availability_simple.get("days", [])
         available_periods = availability_simple.get("periods", [])
         
@@ -298,7 +298,7 @@ async def get_my_shifts(
     db = Depends(get_db)
 ):
     """Get worker's shifts for a specific date with tasks"""
-    from datetime import datetime as dt
+    from datetime import datetime, timezone as dt
     
     if not date:
         date = dt.utcnow().strftime('%Y-%m-%d')
@@ -339,7 +339,7 @@ async def get_task_completions(
     db = Depends(get_db)
 ):
     """Get task completions for a specific date"""
-    from datetime import datetime as dt
+    from datetime import datetime, timezone as dt
     
     if not date:
         date = dt.utcnow().strftime('%Y-%m-%d')
@@ -376,7 +376,7 @@ async def complete_task(
     db = Depends(get_db)
 ):
     """Mark a task as completed"""
-    from datetime import datetime, timezone
+    from datetime import datetime, timezone, timezone
     
     shift_id = data.get("shift_id")
     task_text = data.get("task_text")
