@@ -103,8 +103,8 @@ def test_super_admin_system(results):
                 if data.get("success") and "data" in data:
                     dashboard_data = data["data"]
                     
-                    # Check admin info section
-                    admin_info = dashboard_data.get("admin_info", {})
+                    # Check admin info section (actual field name is "admin")
+                    admin_info = dashboard_data.get("admin", {})
                     if "role" in admin_info and "is_super_admin" in admin_info and "assigned_provinces" in admin_info:
                         results.add_pass("Dashboard admin_info - All required fields present")
                         print(f"      Admin role: {admin_info.get('role', 'N/A')}")
