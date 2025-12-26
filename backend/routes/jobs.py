@@ -57,20 +57,32 @@ async def get_public_jobs(
         {"_id": 0}
     ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
     
+    # Batch fetch employer profiles and roles to avoid N+1 queries
+    employer_ids = list(set(p.get("employer_id") for p in postings if p.get("employer_id")))
+    role_ids = list(set(p.get("role_id") for p in postings if p.get("role_id")))
+    
+    # Fetch all employer profiles in one query
+    employer_profiles_list = await db.employer_profiles.find(
+        {"employer_id": {"$in": employer_ids}},
+        {"_id": 0, "employer_id": 1, "company_name": 1, "rating_avg": 1, "rating_count": 1}
+    ).to_list(100)
+    employer_profiles = {p["employer_id"]: p for p in employer_profiles_list}
+    
+    # Fetch all roles in one query
+    roles_list = await db.workplace_roles.find(
+        {"role_id": {"$in": role_ids}},
+        {"_id": 0, "role_id": 1, "required_certifications": 1, "skills_required": 1}
+    ).to_list(100)
+    roles = {r["role_id"]: r for r in roles_list}
+    
     # Enrich with employer info and ratings
     enriched_jobs = []
     for posting in postings:
-        # Get employer profile for company name and ratings
-        employer_profile = await db.employer_profiles.find_one(
-            {"employer_id": posting.get("employer_id")},
-            {"_id": 0, "company_name": 1, "rating_avg": 1, "rating_count": 1}
-        )
+        # Get employer profile from lookup dictionary
+        employer_profile = employer_profiles.get(posting.get("employer_id"))
         
-        # Get role requirements
-        role = await db.workplace_roles.find_one(
-            {"role_id": posting.get("role_id")},
-            {"_id": 0, "required_certifications": 1, "skills_required": 1}
-        )
+        # Get role requirements from lookup dictionary
+        role = roles.get(posting.get("role_id"))
         
         # Extract city from address if city is not set
         city = posting.get("workplace_city")
