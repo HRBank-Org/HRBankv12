@@ -230,7 +230,7 @@ def main():
     if success:
         print("✅ ALL TESTS PASSED - ADDRESS VALIDATION FEATURE IS WORKING")
         print("\n📋 FRONTEND TESTING INSTRUCTIONS:")
-        print("1. Navigate to: https://hrforge-14.preview.emergentagent.com/login")
+        print("1. Navigate to: https://superadmin-hr.preview.emergentagent.com/login")
         print("2. Login as employer: employer@hrbank.ca / Test123!")
         print("3. Navigate to: /employer/workplaces/setup")
         print("4. Test Case 1: Enter invalid postal code 'INVALID123' - should show validation error")

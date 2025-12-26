@@ -57,7 +57,7 @@ def test_time_off_management_system(results):
     print("\n🧪 Testing Time-Off Management System for HR Bank (Priority: HIGH)...")
     print("   Testing endpoints: Policy Management, Balance Management, Time-Off Requests, Calendar & Summary")
     print("   Test credentials: Employer: demo@swanpizza.ca / Demo123!, Workforce: alex.johnson@email.com / Demo123!")
-    print("   Base URL: https://hrforge-14.preview.emergentagent.com")
+    print("   Base URL: https://superadmin-hr.preview.emergentagent.com")
     
     # Test credentials from review request
     employer_creds = {"email": "demo@swanpizza.ca", "password": "Demo123!", "user_type": "employer"}
