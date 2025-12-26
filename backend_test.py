@@ -166,19 +166,20 @@ def test_super_admin_system(results):
                         "credentials_reviewer", "customer_service", "compliance_officer", "franchise_manager"
                     ]
                     
-                    role_names = [role.get("role_name") for role in roles]
-                    missing_roles = [role for role in expected_roles if role not in role_names]
+                    role_types = [role.get("role_type") for role in roles]
+                    missing_roles = [role for role in expected_roles if role not in role_types]
                     
                     if len(roles) == 7 and not missing_roles:
                         results.add_pass("Admin Roles - All 7 role types returned")
                         print(f"      Total roles: {len(roles)}")
                         
-                        # Check if each role has permissions
-                        roles_with_permissions = [role for role in roles if "permissions" in role]
+                        # Check if each role has permissions (field name is "default_permissions")
+                        roles_with_permissions = [role for role in roles if "default_permissions" in role]
                         if len(roles_with_permissions) == len(roles):
                             results.add_pass("Admin Roles - All roles have permissions defined")
                             for role in roles:
-                                print(f"      Role: {role.get('role_name', 'N/A')} - Permissions: {len(role.get('permissions', []))}")
+                                permissions_count = len(role.get('default_permissions', {}))
+                                print(f"      Role: {role.get('role_type', 'N/A')} - Permissions: {permissions_count}")
                         else:
                             results.add_fail("Admin Roles permissions", f"Some roles missing permissions: {len(roles_with_permissions)}/{len(roles)}")
                     else:
