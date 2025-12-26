@@ -410,25 +410,9 @@ def test_time_off_management_system(results):
     
     # Test 11.5: Time-Off Requests - Create Another Request for Reject Test
     reject_request_id = None
-    if workforce_token and employer_token:
+    if workforce_token and employer_id:
         print("\n   Test 11.5: Create Another Request for Reject Test - POST /api/time-off/request")
         try:
-            # Get employer ID from employer token
-            employer_response = requests.get(
-                f"{BASE_URL}/auth/me",
-                headers={"Authorization": f"Bearer {employer_token}"},
-                timeout=5
-            )
-            
-            employer_id = None
-            if employer_response.status_code == 200:
-                employer_data = employer_response.json()
-                employer_id = employer_data.get("data", {}).get("user_id")
-            
-            if not employer_id:
-                # Use a default employer ID for testing
-                employer_id = "emp_test_123"
-            
             # Create time-off request for rejection
             today = datetime.now().date()
             start_date = today + timedelta(days=14)  # Request for 2 weeks from now
