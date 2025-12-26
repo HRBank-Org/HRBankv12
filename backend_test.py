@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Auto-Dispatch Feature Testing
-Testing Auto-Dispatch feature for Grid Services in HR Bank
-Focus: Auto-dispatch stats, configuration, bulk dispatch, API documentation
+HR Bank Super Admin System Testing
+Testing Super Admin System for HR Bank with role-based access control
+Focus: Admin roles, dashboard, pending activations, admin list, franchise management
 """
 
 import requests
@@ -20,10 +20,10 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
 
-print(f"🚀 HR BANK AUTO-DISPATCH FEATURE TESTING")
+print(f"🚀 HR BANK SUPER ADMIN SYSTEM TESTING")
 print(f"Testing backend at: {BASE_URL}")
 print(f"Base URL: {BACKEND_URL}")
-print(f"Focus: Auto-dispatch stats, configuration, bulk dispatch, API documentation")
+print(f"Focus: Admin roles, dashboard, pending activations, admin list, franchise management")
 print("="*80)
 
 class TestResults:
