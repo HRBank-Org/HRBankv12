@@ -162,11 +162,22 @@ const Notifications = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{notification.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                        <p className="text-xs text-gray-400 mt-2">
-                          {new Date(notification.created_date).toLocaleString()}
+                        <h3 className="font-semibold text-gray-900">
+                          {notification.title_translated || notification.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {notification.message_translated || notification.message}
                         </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-xs text-gray-400">
+                            {new Date(notification.created_date).toLocaleString()}
+                          </p>
+                          {notification.translated_to && notification.translated_to !== 'en' && (
+                            <span className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
+                              🌐 {notification.translated_to.toUpperCase()}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       
                       {!notification.read_status && (
