@@ -403,17 +403,17 @@ def main():
     """Main test execution"""
     results = TestResults()
     
-    print("\n🔍 STARTING AUTO-DISPATCH FEATURE TESTS...")
+    print("\n🔍 STARTING SUPER ADMIN SYSTEM TESTS...")
     
-    # Run Auto-Dispatch Feature Tests
-    test_auto_dispatch_feature(results)
+    # Run Super Admin System Tests
+    test_super_admin_system(results)
     
     # Print final summary
     print("\n" + "="*80)
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL TESTS PASSED! Auto-Dispatch feature is working correctly.")
+        print("\n🎉 ALL TESTS PASSED! Super Admin System is working correctly.")
     else:
         print(f"\n⚠️  {results.failed} TEST(S) FAILED. See details above.")
     
