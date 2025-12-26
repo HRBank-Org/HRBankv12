@@ -47,7 +47,7 @@ def parse_date(date_str: str) -> date:
         return date_str
     try:
         return datetime.fromisoformat(date_str.replace('Z', '+00:00')).date()
-    except:
+    except (ValueError, AttributeError):
         return datetime.strptime(date_str[:10], "%Y-%m-%d").date()
 
 
