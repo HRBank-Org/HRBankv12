@@ -387,13 +387,13 @@ def test_time_off_management_system(results):
     
     # Test 11: Time-Off Requests - Approve Request (Employer)
     if employer_token and request_id:
-        print("\n   Test 11: Time-Off Requests - POST /api/time-off/requests/{request_id}/approve")
+        print("\n   Test 11: Time-Off Requests - PATCH /api/time-off/requests/{request_id}/approve")
         try:
             approval_data = {
                 "notes": "Approved for test purposes"
             }
             
-            response = requests.post(
+            response = requests.patch(
                 f"{BASE_URL}/time-off/requests/{request_id}/approve",
                 headers={"Authorization": f"Bearer {employer_token}"},
                 json=approval_data,
@@ -403,14 +403,177 @@ def test_time_off_management_system(results):
             if response.status_code == 200:
                 data = response.json()
                 if data.get("success"):
-                    results.add_pass("POST /api/time-off/requests/{request_id}/approve - Request approved")
+                    results.add_pass("PATCH /api/time-off/requests/{request_id}/approve - Request approved")
                     print(f"      Approved request: {request_id}")
                 else:
                     results.add_fail("Approve request", f"Invalid response structure: {data}")
             else:
-                results.add_fail("POST /api/time-off/requests/{request_id}/approve", f"HTTP {response.status_code}: {response.text}")
+                results.add_fail("PATCH /api/time-off/requests/{request_id}/approve", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
-            results.add_fail("POST /api/time-off/requests/{request_id}/approve", f"Request failed: {str(e)}")
+            results.add_fail("PATCH /api/time-off/requests/{request_id}/approve", f"Request failed: {str(e)}")
+    
+    # Test 11.5: Time-Off Requests - Create Another Request for Reject Test
+    reject_request_id = None
+    if workforce_token and employer_token:
+        print("\n   Test 11.5: Create Another Request for Reject Test - POST /api/time-off/request")
+        try:
+            # Get employer ID from employer token
+            employer_response = requests.get(
+                f"{BASE_URL}/auth/me",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                timeout=5
+            )
+            
+            employer_id = None
+            if employer_response.status_code == 200:
+                employer_data = employer_response.json()
+                employer_id = employer_data.get("data", {}).get("user_id")
+            
+            if not employer_id:
+                # Use a default employer ID for testing
+                employer_id = "emp_test_123"
+            
+            # Create time-off request for rejection
+            today = datetime.now().date()
+            start_date = today + timedelta(days=14)  # Request for 2 weeks from now
+            end_date = start_date + timedelta(days=1)  # 2-day sick leave
+            
+            request_data = {
+                "employer_id": employer_id,
+                "type": "sick",
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "is_full_day": True,
+                "business_days_only": True,
+                "reason": "Feeling unwell",
+                "notes": "Test sick leave request for rejection"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/time-off/request",
+                headers={"Authorization": f"Bearer {workforce_token}"},
+                json=request_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    reject_request_id = data["data"].get("request_id")
+                    results.add_pass("Create request for reject test - Request created")
+                    print(f"      Reject test request ID: {reject_request_id}")
+                else:
+                    results.add_fail("Create request for reject test", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("Create request for reject test", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Create request for reject test", f"Request failed: {str(e)}")
+    
+    # Test 11.6: Time-Off Requests - Reject Request (Employer)
+    if employer_token and reject_request_id:
+        print("\n   Test 11.6: Time-Off Requests - PATCH /api/time-off/requests/{request_id}/reject")
+        try:
+            rejection_data = {
+                "reason": "Insufficient staffing during that period"
+            }
+            
+            response = requests.patch(
+                f"{BASE_URL}/time-off/requests/{reject_request_id}/reject",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                json=rejection_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("PATCH /api/time-off/requests/{request_id}/reject - Request rejected")
+                    print(f"      Rejected request: {reject_request_id}")
+                else:
+                    results.add_fail("Reject request", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("PATCH /api/time-off/requests/{request_id}/reject", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("PATCH /api/time-off/requests/{request_id}/reject", f"Request failed: {str(e)}")
+    
+    # Test 11.7: Time-Off Requests - Cancel Request (Workforce)
+    cancel_request_id = None
+    if workforce_token and employer_token:
+        print("\n   Test 11.7: Create Request for Cancel Test - POST /api/time-off/request")
+        try:
+            # Get employer ID from employer token
+            employer_response = requests.get(
+                f"{BASE_URL}/auth/me",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                timeout=5
+            )
+            
+            employer_id = None
+            if employer_response.status_code == 200:
+                employer_data = employer_response.json()
+                employer_id = employer_data.get("data", {}).get("user_id")
+            
+            if not employer_id:
+                # Use a default employer ID for testing
+                employer_id = "emp_test_123"
+            
+            # Create time-off request for cancellation
+            today = datetime.now().date()
+            start_date = today + timedelta(days=21)  # Request for 3 weeks from now
+            end_date = start_date  # 1-day personal leave
+            
+            request_data = {
+                "employer_id": employer_id,
+                "type": "personal",
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "is_full_day": True,
+                "business_days_only": True,
+                "reason": "Personal appointment",
+                "notes": "Test personal leave request for cancellation"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/time-off/request",
+                headers={"Authorization": f"Bearer {workforce_token}"},
+                json=request_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    cancel_request_id = data["data"].get("request_id")
+                    results.add_pass("Create request for cancel test - Request created")
+                    print(f"      Cancel test request ID: {cancel_request_id}")
+                else:
+                    results.add_fail("Create request for cancel test", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("Create request for cancel test", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("Create request for cancel test", f"Request failed: {str(e)}")
+    
+    # Test 11.8: Time-Off Requests - Cancel Request (Workforce)
+    if workforce_token and cancel_request_id:
+        print("\n   Test 11.8: Time-Off Requests - DELETE /api/time-off/requests/{request_id}")
+        try:
+            response = requests.delete(
+                f"{BASE_URL}/time-off/requests/{cancel_request_id}",
+                headers={"Authorization": f"Bearer {workforce_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("DELETE /api/time-off/requests/{request_id} - Request cancelled")
+                    print(f"      Cancelled request: {cancel_request_id}")
+                else:
+                    results.add_fail("Cancel request", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("DELETE /api/time-off/requests/{request_id}", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("DELETE /api/time-off/requests/{request_id}", f"Request failed: {str(e)}")
     
     # Test 12: Calendar View
     if employer_token:
