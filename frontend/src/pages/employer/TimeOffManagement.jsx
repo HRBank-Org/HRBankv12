@@ -282,7 +282,7 @@ const RequestsTab = ({ requests, filter, setFilter, getStatusColor, getTypeIcon,
                     {new Date(request.start_date).toLocaleDateString()} - {new Date(request.end_date).toLocaleDateString()}
                   </p>
                   {request.reason && (
-                    <p className="text-sm text-gray-500 mt-1">"{request.reason}"</p>
+                    <p className="text-sm text-gray-500 mt-1 italic">&ldquo;{request.reason}&rdquo;</p>
                   )}
                 </div>
               </div>
