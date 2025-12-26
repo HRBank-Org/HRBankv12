@@ -52,311 +52,478 @@ class TestResults:
         print(f"{'='*60}")
         return len(self.errors) == 0
 
-def test_super_admin_system(results):
-    """Test the Super Admin System for HR Bank"""
-    print("\n🧪 Testing Super Admin System for HR Bank (Priority: HIGH)...")
-    print("   Testing endpoints: /api/super-admin/roles, /api/super-admin/dashboard, /api/super-admin/pending-activations, /api/super-admin/admins, /api/super-admin/franchises")
-    print("   Test credentials: qnizami@hrbank.ca / Test123!")
+def test_time_off_management_system(results):
+    """Test the Time-Off Management System for HR Bank"""
+    print("\n🧪 Testing Time-Off Management System for HR Bank (Priority: HIGH)...")
+    print("   Testing endpoints: Policy Management, Balance Management, Time-Off Requests, Calendar & Summary")
+    print("   Test credentials: Employer: demo@swanpizza.ca / Demo123!, Workforce: alex.johnson@email.com / Demo123!")
     print("   Base URL: https://hrforge-14.preview.emergentagent.com")
     
     # Test credentials from review request
-    admin_creds = {"email": "qnizami@hrbank.ca", "password": "Test123!", "user_type": "admin"}
+    employer_creds = {"email": "demo@swanpizza.ca", "password": "Demo123!", "user_type": "employer"}
+    workforce_creds = {"email": "alex.johnson@email.com", "password": "Demo123!", "user_type": "workforce"}
     
-    # Test 1: Super Admin Authentication
-    admin_token = None
-    print("\n   Test 1: Super Admin Authentication - POST /api/auth/login")
+    # Test 1: Employer Authentication
+    employer_token = None
+    print("\n   Test 1: Employer Authentication - POST /api/auth/login")
     try:
-        response = requests.post(f"{BASE_URL}/auth/login", json=admin_creds, timeout=10)
+        response = requests.post(f"{BASE_URL}/auth/login", json=employer_creds, timeout=10)
         
         if response.status_code == 200:
             data = response.json()
             if data.get("success") and "access_token" in data.get("data", {}):
-                admin_token = data["data"]["access_token"]
+                employer_token = data["data"]["access_token"]
                 user_data = data.get("data", {})
                 
-                # Verify user_type is "admin"
-                if user_data.get("user_type") == "admin":
-                    results.add_pass("Super Admin authentication - user_type is 'admin'")
-                    print(f"      Admin ID: {user_data.get('user_id', 'N/A')}")
+                # Verify user_type is "employer"
+                if user_data.get("user_type") == "employer":
+                    results.add_pass("Employer authentication - user_type is 'employer'")
+                    print(f"      Employer ID: {user_data.get('user_id', 'N/A')}")
                     print(f"      User Type: {user_data.get('user_type', 'N/A')}")
                 else:
-                    results.add_fail("Super Admin authentication", f"Expected user_type 'admin', got '{user_data.get('user_type')}'")
+                    results.add_fail("Employer authentication", f"Expected user_type 'employer', got '{user_data.get('user_type')}'")
             else:
-                results.add_fail("Super Admin authentication", f"Invalid response: {data}")
+                results.add_fail("Employer authentication", f"Invalid response: {data}")
         else:
-            results.add_fail("Super Admin authentication", f"HTTP {response.status_code}: {response.text}")
+            results.add_fail("Employer authentication", f"HTTP {response.status_code}: {response.text}")
     except Exception as e:
-        results.add_fail("Super Admin authentication", f"Request failed: {str(e)}")
+        results.add_fail("Employer authentication", f"Request failed: {str(e)}")
     
-    # Test 2: Admin Roles List
-    if admin_token:
-        print("\n   Test 2: Admin Roles List - GET /api/super-admin/roles")
-        try:
-            response = requests.get(
-                f"{BASE_URL}/super-admin/roles",
-                headers={"Authorization": f"Bearer {admin_token}"},
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("success") and "data" in data:
-                    roles_data = data["data"]
-                    roles = roles_data.get("roles", [])
-                    
-                    # Expected 7 role types
-                    expected_roles = [
-                        "super_admin", "regional_manager", "account_activator",
-                        "credentials_reviewer", "customer_service", "compliance_officer", "franchise_manager"
-                    ]
-                    
-                    found_roles = [role.get("role_type") for role in roles]
-                    
-                    if len(roles) == 7:
-                        results.add_pass("GET /api/super-admin/roles - Returns 7 role types")
-                        print(f"      Total roles: {len(roles)}")
-                        
-                        # Check if all expected roles are present
-                        missing_roles = [role for role in expected_roles if role not in found_roles]
-                        if not missing_roles:
-                            results.add_pass("Admin roles - All 7 expected role types present")
-                            print(f"      Found roles: {', '.join(found_roles)}")
-                            
-                            # Verify each role has permissions defined
-                            roles_with_permissions = 0
-                            for role in roles:
-                                if "default_permissions" in role and role["default_permissions"]:
-                                    roles_with_permissions += 1
-                            
-                            if roles_with_permissions == len(roles):
-                                results.add_pass("Admin roles - All roles have permissions defined")
-                            else:
-                                results.add_fail("Admin roles", f"Only {roles_with_permissions}/{len(roles)} roles have permissions defined")
-                        else:
-                            results.add_fail("Admin roles", f"Missing expected roles: {missing_roles}")
-                    else:
-                        results.add_fail("Admin roles", f"Expected 7 roles, got {len(roles)}")
+    # Test 2: Workforce Authentication
+    workforce_token = None
+    print("\n   Test 2: Workforce Authentication - POST /api/auth/login")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=workforce_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                workforce_token = data["data"]["access_token"]
+                user_data = data.get("data", {})
+                
+                # Verify user_type is "workforce"
+                if user_data.get("user_type") == "workforce":
+                    results.add_pass("Workforce authentication - user_type is 'workforce'")
+                    print(f"      Workforce ID: {user_data.get('user_id', 'N/A')}")
+                    print(f"      User Type: {user_data.get('user_type', 'N/A')}")
                 else:
-                    results.add_fail("Admin roles", f"Invalid response structure: {data}")
+                    results.add_fail("Workforce authentication", f"Expected user_type 'workforce', got '{user_data.get('user_type')}'")
             else:
-                results.add_fail("GET /api/super-admin/roles", f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_fail("GET /api/super-admin/roles", f"Request failed: {str(e)}")
+                results.add_fail("Workforce authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Workforce authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Workforce authentication", f"Request failed: {str(e)}")
     
-    # Test 3: Super Admin Dashboard
-    if admin_token:
-        print("\n   Test 3: Super Admin Dashboard - GET /api/super-admin/dashboard")
+    # Test 3: Policy Management - Get Policies (Employer)
+    if employer_token:
+        print("\n   Test 3: Policy Management - GET /api/time-off/policies")
         try:
             response = requests.get(
-                f"{BASE_URL}/super-admin/dashboard",
-                headers={"Authorization": f"Bearer {admin_token}"},
+                f"{BASE_URL}/time-off/policies",
+                headers={"Authorization": f"Bearer {employer_token}"},
                 timeout=10
             )
             
             if response.status_code == 200:
                 data = response.json()
                 if data.get("success") and "data" in data:
-                    dashboard_data = data["data"]
+                    policies_data = data["data"]
+                    policies = policies_data.get("policies", [])
                     
-                    # Verify admin info section
-                    if "admin" in dashboard_data:
-                        admin_info = dashboard_data["admin"]
-                        required_admin_fields = ["role", "is_super_admin", "assigned_provinces"]
-                        missing_admin_fields = [field for field in required_admin_fields if field not in admin_info]
+                    if len(policies) >= 1:
+                        results.add_pass("GET /api/time-off/policies - Returns policies (default policy)")
+                        print(f"      Total policies: {len(policies)}")
                         
-                        if not missing_admin_fields:
-                            results.add_pass("Dashboard admin info - All required fields present")
-                            print(f"      Admin role: {admin_info.get('role', 'N/A')}")
-                            print(f"      Is super admin: {admin_info.get('is_super_admin', 'N/A')}")
-                            print(f"      Assigned provinces: {admin_info.get('assigned_provinces', [])}")
+                        # Check if default policy exists
+                        default_policy = policies[0]
+                        if "policy_name" in default_policy:
+                            results.add_pass("Policy management - Default policy has policy_name")
+                            print(f"      Default policy name: {default_policy.get('policy_name', 'N/A')}")
                         else:
-                            results.add_fail("Dashboard admin info", f"Missing fields: {missing_admin_fields}")
+                            results.add_fail("Policy management", "Default policy missing policy_name")
                     else:
-                        results.add_fail("Dashboard admin info", "Admin info section missing")
-                    
-                    # Verify action items section
-                    if "action_items" in dashboard_data:
-                        action_items = dashboard_data["action_items"]
-                        required_action_fields = ["pending_activations", "pending_credentials", "open_tickets"]
-                        missing_action_fields = [field for field in required_action_fields if field not in action_items]
-                        
-                        if not missing_action_fields:
-                            results.add_pass("Dashboard action items - All required fields present")
-                            print(f"      Pending activations: {action_items.get('pending_activations', 0)}")
-                            print(f"      Pending credentials: {action_items.get('pending_credentials', 0)}")
-                            print(f"      Open tickets: {action_items.get('open_tickets', 0)}")
-                        else:
-                            results.add_fail("Dashboard action items", f"Missing fields: {missing_action_fields}")
-                    else:
-                        results.add_fail("Dashboard action items", "Action items section missing")
-                    
-                    # Verify platform stats section
-                    if "platform_stats" in dashboard_data:
-                        platform_stats = dashboard_data["platform_stats"]
-                        required_stats_fields = ["total_workforce", "total_employers"]
-                        missing_stats_fields = [field for field in required_stats_fields if field not in platform_stats]
-                        
-                        if not missing_stats_fields:
-                            results.add_pass("Dashboard platform stats - Required fields present")
-                            print(f"      Total workforce: {platform_stats.get('total_workforce', 0)}")
-                            print(f"      Total employers: {platform_stats.get('total_employers', 0)}")
-                            print(f"      Total institutions: {platform_stats.get('total_institutions', 0)}")
-                            print(f"      Total admins: {platform_stats.get('total_admins', 0)}")
-                            print(f"      Total franchises: {platform_stats.get('total_franchises', 0)}")
-                        else:
-                            results.add_fail("Dashboard platform stats", f"Missing fields: {missing_stats_fields}")
-                    else:
-                        results.add_fail("Dashboard platform stats", "Platform stats section missing")
-                        
-                    # Verify response includes success: true
-                    if data.get("success") is True:
-                        results.add_pass("Super admin dashboard - Returns success: true")
-                    else:
-                        results.add_fail("Super admin dashboard", "Response missing success: true")
+                        results.add_fail("Policy management", "No policies returned")
                 else:
-                    results.add_fail("Super admin dashboard", f"Invalid response structure: {data}")
+                    results.add_fail("Policy management", f"Invalid response structure: {data}")
             else:
-                results.add_fail("GET /api/super-admin/dashboard", f"HTTP {response.status_code}: {response.text}")
+                results.add_fail("GET /api/time-off/policies", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
-            results.add_fail("GET /api/super-admin/dashboard", f"Request failed: {str(e)}")
+            results.add_fail("GET /api/time-off/policies", f"Request failed: {str(e)}")
     
-    # Test 4: Pending Activations
-    if admin_token:
-        print("\n   Test 4: Pending Activations - GET /api/super-admin/pending-activations")
+    # Test 4: Policy Management - Create Policy (Employer)
+    policy_id = None
+    if employer_token:
+        print("\n   Test 4: Policy Management - POST /api/time-off/policies")
         try:
-            response = requests.get(
-                f"{BASE_URL}/super-admin/pending-activations",
-                headers={"Authorization": f"Bearer {admin_token}"},
+            policy_data = {
+                "policy_name": "Test Policy",
+                "vacation_days_per_year": 15.0,
+                "sick_days_per_year": 5.0,
+                "personal_days_per_year": 3.0,
+                "is_default": False
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/time-off/policies",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                json=policy_data,
                 timeout=10
             )
             
             if response.status_code == 200:
                 data = response.json()
                 if data.get("success") and "data" in data:
-                    pending_data = data["data"]
+                    policy_id = data["data"].get("policy_id")
+                    results.add_pass("POST /api/time-off/policies - Policy created successfully")
+                    print(f"      Created policy ID: {policy_id}")
+                else:
+                    results.add_fail("Create policy", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("POST /api/time-off/policies", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/time-off/policies", f"Request failed: {str(e)}")
+    
+    # Test 5: Policy Management - Update Policy (Employer)
+    if employer_token and policy_id:
+        print("\n   Test 5: Policy Management - PUT /api/time-off/policies/{policy_id}")
+        try:
+            update_data = {
+                "policy_name": "Updated Test Policy"
+            }
+            
+            response = requests.put(
+                f"{BASE_URL}/time-off/policies/{policy_id}",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                json=update_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("PUT /api/time-off/policies/{policy_id} - Policy updated successfully")
+                    print(f"      Policy updated: {policy_id}")
+                else:
+                    results.add_fail("Update policy", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("PUT /api/time-off/policies/{policy_id}", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("PUT /api/time-off/policies/{policy_id}", f"Request failed: {str(e)}")
+    
+    # Test 6: Balance Management - Get Worker Balance (Workforce)
+    if workforce_token:
+        print("\n   Test 6: Balance Management - GET /api/time-off/balance")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/time-off/balance",
+                headers={"Authorization": f"Bearer {workforce_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    balances_data = data["data"]
+                    balances = balances_data.get("balances", [])
                     
-                    # Verify response structure
-                    required_fields = ["pending_users", "total", "page"]
-                    missing_fields = [field for field in required_fields if field not in pending_data]
+                    results.add_pass("GET /api/time-off/balance - Worker balance accessible")
+                    print(f"      Total balances: {len(balances)}")
+                    
+                    if balances:
+                        balance = balances[0]
+                        print(f"      Vacation available: {balance.get('vacation_available', 0)}")
+                        print(f"      Sick available: {balance.get('sick_available', 0)}")
+                        print(f"      Personal available: {balance.get('personal_available', 0)}")
+                else:
+                    results.add_fail("Worker balance", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/time-off/balance", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/time-off/balance", f"Request failed: {str(e)}")
+    
+    # Test 7: Balance Management - Initialize Team Balances (Employer)
+    if employer_token:
+        print("\n   Test 7: Balance Management - POST /api/time-off/balance/initialize")
+        try:
+            response = requests.post(
+                f"{BASE_URL}/time-off/balance/initialize",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    initialized_count = data["data"].get("initialized_count", 0)
+                    results.add_pass("POST /api/time-off/balance/initialize - Team balances initialized")
+                    print(f"      Initialized count: {initialized_count}")
+                else:
+                    results.add_fail("Initialize team balances", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("POST /api/time-off/balance/initialize", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/time-off/balance/initialize", f"Request failed: {str(e)}")
+    
+    # Test 8: Time-Off Requests - Create Request (Workforce)
+    request_id = None
+    if workforce_token and employer_token:
+        print("\n   Test 8: Time-Off Requests - POST /api/time-off/request")
+        try:
+            # Get employer ID from employer token
+            employer_response = requests.get(
+                f"{BASE_URL}/auth/me",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                timeout=5
+            )
+            
+            employer_id = None
+            if employer_response.status_code == 200:
+                employer_data = employer_response.json()
+                employer_id = employer_data.get("data", {}).get("user_id")
+            
+            if not employer_id:
+                # Use a default employer ID for testing
+                employer_id = "emp_test_123"
+            
+            # Create time-off request
+            today = datetime.now().date()
+            start_date = today + timedelta(days=7)  # Request for next week
+            end_date = start_date + timedelta(days=2)  # 3-day vacation
+            
+            request_data = {
+                "employer_id": employer_id,
+                "type": "vacation",
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "is_full_day": True,
+                "business_days_only": True,
+                "reason": "Family vacation",
+                "notes": "Test vacation request"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/time-off/request",
+                headers={"Authorization": f"Bearer {workforce_token}"},
+                json=request_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    request_id = data["data"].get("request_id")
+                    total_days = data["data"].get("total_days", 0)
+                    results.add_pass("POST /api/time-off/request - Time-off request created")
+                    print(f"      Request ID: {request_id}")
+                    print(f"      Total days: {total_days}")
+                else:
+                    results.add_fail("Create time-off request", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("POST /api/time-off/request", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/time-off/request", f"Request failed: {str(e)}")
+    
+    # Test 9: Time-Off Requests - List Requests (Both user types)
+    if workforce_token:
+        print("\n   Test 9: Time-Off Requests - GET /api/time-off/requests (Workforce)")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/time-off/requests",
+                headers={"Authorization": f"Bearer {workforce_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    requests_data = data["data"]
+                    requests_list = requests_data.get("requests", [])
+                    total = requests_data.get("total", 0)
+                    
+                    results.add_pass("GET /api/time-off/requests (Workforce) - Requests list accessible")
+                    print(f"      Total requests: {total}")
+                    print(f"      Requests in response: {len(requests_list)}")
+                else:
+                    results.add_fail("List requests (Workforce)", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/time-off/requests (Workforce)", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/time-off/requests (Workforce)", f"Request failed: {str(e)}")
+    
+    if employer_token:
+        print("\n   Test 10: Time-Off Requests - GET /api/time-off/requests (Employer)")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/time-off/requests",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    requests_data = data["data"]
+                    requests_list = requests_data.get("requests", [])
+                    total = requests_data.get("total", 0)
+                    
+                    results.add_pass("GET /api/time-off/requests (Employer) - Requests list accessible")
+                    print(f"      Total requests: {total}")
+                    print(f"      Requests in response: {len(requests_list)}")
+                    
+                    # Check if requests have worker details for employer view
+                    if requests_list:
+                        first_request = requests_list[0]
+                        if "worker_name" in first_request:
+                            results.add_pass("Employer requests view - Worker details included")
+                        else:
+                            results.add_fail("Employer requests view", "Worker details missing")
+                else:
+                    results.add_fail("List requests (Employer)", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/time-off/requests (Employer)", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/time-off/requests (Employer)", f"Request failed: {str(e)}")
+    
+    # Test 11: Time-Off Requests - Approve Request (Employer)
+    if employer_token and request_id:
+        print("\n   Test 11: Time-Off Requests - POST /api/time-off/requests/{request_id}/approve")
+        try:
+            approval_data = {
+                "notes": "Approved for test purposes"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/time-off/requests/{request_id}/approve",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                json=approval_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    results.add_pass("POST /api/time-off/requests/{request_id}/approve - Request approved")
+                    print(f"      Approved request: {request_id}")
+                else:
+                    results.add_fail("Approve request", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("POST /api/time-off/requests/{request_id}/approve", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/time-off/requests/{request_id}/approve", f"Request failed: {str(e)}")
+    
+    # Test 12: Calendar View
+    if employer_token:
+        print("\n   Test 12: Calendar View - GET /api/time-off/calendar")
+        try:
+            current_date = datetime.now()
+            response = requests.get(
+                f"{BASE_URL}/time-off/calendar?month={current_date.month}&year={current_date.year}",
+                headers={"Authorization": f"Bearer {employer_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    calendar_data = data["data"]
+                    entries = calendar_data.get("entries", [])
+                    month = calendar_data.get("month")
+                    year = calendar_data.get("year")
+                    
+                    results.add_pass("GET /api/time-off/calendar - Calendar view accessible")
+                    print(f"      Month: {month}, Year: {year}")
+                    print(f"      Calendar entries: {len(entries)}")
+                else:
+                    results.add_fail("Calendar view", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/time-off/calendar", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/time-off/calendar", f"Request failed: {str(e)}")
+    
+    # Test 13: Summary Dashboard
+    if workforce_token:
+        print("\n   Test 13: Summary Dashboard - GET /api/time-off/summary (Workforce)")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/time-off/summary",
+                headers={"Authorization": f"Bearer {workforce_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    summary_data = data["data"]
+                    
+                    # Check workforce summary fields
+                    required_fields = ["pending_requests", "upcoming_time_off", "balances"]
+                    missing_fields = [field for field in required_fields if field not in summary_data]
                     
                     if not missing_fields:
-                        results.add_pass("GET /api/super-admin/pending-activations - Proper response structure")
-                        print(f"      Total pending users: {pending_data.get('total', 0)}")
-                        print(f"      Current page: {pending_data.get('page', 1)}")
-                        print(f"      Users in response: {len(pending_data.get('pending_users', []))}")
+                        results.add_pass("GET /api/time-off/summary (Workforce) - All required fields present")
+                        print(f"      Pending requests: {summary_data.get('pending_requests', 0)}")
+                        print(f"      Upcoming time off: {len(summary_data.get('upcoming_time_off', []))}")
                         
-                        # Test pagination by checking if pages field exists
-                        if "pages" in pending_data:
-                            results.add_pass("Pending activations - Pagination support present")
-                        else:
-                            results.add_fail("Pending activations", "Pagination support missing")
+                        balances = summary_data.get("balances", {})
+                        print(f"      Vacation available: {balances.get('vacation_available', 0)}")
+                        print(f"      Sick available: {balances.get('sick_available', 0)}")
+                        print(f"      Personal available: {balances.get('personal_available', 0)}")
                     else:
-                        results.add_fail("Pending activations", f"Missing fields: {missing_fields}")
+                        results.add_fail("Summary dashboard (Workforce)", f"Missing fields: {missing_fields}")
                 else:
-                    results.add_fail("Pending activations", f"Invalid response structure: {data}")
+                    results.add_fail("Summary dashboard (Workforce)", f"Invalid response structure: {data}")
             else:
-                results.add_fail("GET /api/super-admin/pending-activations", f"HTTP {response.status_code}: {response.text}")
+                results.add_fail("GET /api/time-off/summary (Workforce)", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
-            results.add_fail("GET /api/super-admin/pending-activations", f"Request failed: {str(e)}")
+            results.add_fail("GET /api/time-off/summary (Workforce)", f"Request failed: {str(e)}")
     
-    # Test 5: Admin List
-    if admin_token:
-        print("\n   Test 5: Admin List - GET /api/super-admin/admins")
+    if employer_token:
+        print("\n   Test 14: Summary Dashboard - GET /api/time-off/summary (Employer)")
         try:
             response = requests.get(
-                f"{BASE_URL}/super-admin/admins",
-                headers={"Authorization": f"Bearer {admin_token}"},
+                f"{BASE_URL}/time-off/summary",
+                headers={"Authorization": f"Bearer {employer_token}"},
                 timeout=10
             )
             
             if response.status_code == 200:
                 data = response.json()
                 if data.get("success") and "data" in data:
-                    admins_data = data["data"]
+                    summary_data = data["data"]
                     
-                    # Verify response structure
-                    required_fields = ["admins", "total", "page", "limit"]
-                    missing_fields = [field for field in required_fields if field not in admins_data]
-                    
-                    if not missing_fields:
-                        results.add_pass("GET /api/super-admin/admins - Proper response structure")
-                        admins_list = admins_data.get("admins", [])
-                        print(f"      Total admins: {admins_data.get('total', 0)}")
-                        print(f"      Admins in response: {len(admins_list)}")
-                        
-                        # Verify admin entries have roles
-                        if admins_list:
-                            admins_with_roles = 0
-                            for admin in admins_list:
-                                if "role" in admin:
-                                    admins_with_roles += 1
-                            
-                            if admins_with_roles == len(admins_list):
-                                results.add_pass("Admin list - All admin users have roles defined")
-                            else:
-                                results.add_fail("Admin list", f"Only {admins_with_roles}/{len(admins_list)} admins have roles")
-                        else:
-                            results.add_pass("Admin list - Endpoint accessible (empty list expected)")
-                    else:
-                        results.add_fail("Admin list", f"Missing fields: {missing_fields}")
-                else:
-                    results.add_fail("Admin list", f"Invalid response structure: {data}")
-            else:
-                results.add_fail("GET /api/super-admin/admins", f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_fail("GET /api/super-admin/admins", f"Request failed: {str(e)}")
-    
-    # Test 6: Franchise Management
-    if admin_token:
-        print("\n   Test 6: Franchise Management - GET /api/super-admin/franchises")
-        try:
-            response = requests.get(
-                f"{BASE_URL}/super-admin/franchises",
-                headers={"Authorization": f"Bearer {admin_token}"},
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("success") and "data" in data:
-                    franchises_data = data["data"]
-                    
-                    # Verify response structure
-                    required_fields = ["franchises", "total", "page"]
-                    missing_fields = [field for field in required_fields if field not in franchises_data]
+                    # Check employer summary fields
+                    required_fields = ["pending_requests", "approved_this_month", "workers_off_today", "workers_off_this_week"]
+                    missing_fields = [field for field in required_fields if field not in summary_data]
                     
                     if not missing_fields:
-                        results.add_pass("GET /api/super-admin/franchises - Endpoint accessible")
-                        print(f"      Total franchises: {franchises_data.get('total', 0)}")
-                        print(f"      Franchises in response: {len(franchises_data.get('franchises', []))}")
-                        
-                        # Verify response includes success: true
-                        if data.get("success") is True:
-                            results.add_pass("Franchise management - Returns success: true")
-                        else:
-                            results.add_fail("Franchise management", "Response missing success: true")
+                        results.add_pass("GET /api/time-off/summary (Employer) - All required fields present")
+                        print(f"      Pending requests: {summary_data.get('pending_requests', 0)}")
+                        print(f"      Approved this month: {summary_data.get('approved_this_month', 0)}")
+                        print(f"      Workers off today: {summary_data.get('workers_off_today', 0)}")
+                        print(f"      Workers off this week: {summary_data.get('workers_off_this_week', 0)}")
                     else:
-                        results.add_fail("Franchise management", f"Missing fields: {missing_fields}")
+                        results.add_fail("Summary dashboard (Employer)", f"Missing fields: {missing_fields}")
                 else:
-                    results.add_fail("Franchise management", f"Invalid response structure: {data}")
+                    results.add_fail("Summary dashboard (Employer)", f"Invalid response structure: {data}")
             else:
-                results.add_fail("GET /api/super-admin/franchises", f"HTTP {response.status_code}: {response.text}")
+                results.add_fail("GET /api/time-off/summary (Employer)", f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
-            results.add_fail("GET /api/super-admin/franchises", f"Request failed: {str(e)}")
+            results.add_fail("GET /api/time-off/summary (Employer)", f"Request failed: {str(e)}")
     
-    # Test 7: Authentication Enforcement
-    print("\n   Test 7: Authentication Enforcement")
+    # Test 15: Authentication Enforcement
+    print("\n   Test 15: Authentication Enforcement")
     
     # Test endpoints without authentication
-    super_admin_endpoints = [
-        ("GET", "/super-admin/roles"),
-        ("GET", "/super-admin/dashboard"),
-        ("GET", "/super-admin/pending-activations"),
-        ("GET", "/super-admin/admins"),
-        ("GET", "/super-admin/franchises")
+    time_off_endpoints = [
+        ("GET", "/time-off/policies"),
+        ("GET", "/time-off/balance"),
+        ("GET", "/time-off/requests"),
+        ("GET", "/time-off/calendar?month=12&year=2025"),
+        ("GET", "/time-off/summary")
     ]
     
-    for method, endpoint in super_admin_endpoints:
+    for method, endpoint in time_off_endpoints:
         try:
             if method == "GET":
                 response = requests.get(f"{BASE_URL}{endpoint}", timeout=5)
@@ -367,33 +534,6 @@ def test_super_admin_system(results):
                 results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
         except Exception as e:
             results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Request failed: {str(e)}")
-    
-    # Test 8: Role-Based Access Control
-    print("\n   Test 8: Role-Based Access Control Verification")
-    
-    # Verify that all endpoints return proper JSON responses with authentication
-    if admin_token:
-        authenticated_endpoints_working = 0
-        for method, endpoint in super_admin_endpoints:
-            try:
-                if method == "GET":
-                    response = requests.get(
-                        f"{BASE_URL}{endpoint}",
-                        headers={"Authorization": f"Bearer {admin_token}"},
-                        timeout=5
-                    )
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    if data.get("success"):
-                        authenticated_endpoints_working += 1
-            except Exception:
-                pass
-        
-        if authenticated_endpoints_working == len(super_admin_endpoints):
-            results.add_pass("Role-based access control - All endpoints return proper JSON with authentication")
-        else:
-            results.add_fail("Role-based access control", f"Only {authenticated_endpoints_working}/{len(super_admin_endpoints)} endpoints working with authentication")
 
 def get_auth_headers(token):
     """Get authorization headers for API requests"""
