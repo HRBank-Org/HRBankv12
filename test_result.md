@@ -1,5 +1,58 @@
 # Test Results - HR Bank
-## Latest Test Session: Super Admin System Testing
+## Latest Test Session: Time-Off Management System Testing
+
+### Test Date: December 26, 2025
+
+### Testing Agent: Backend & Frontend Testing
+
+### Feature Under Test: Enhanced Time-Off Management System for HR Bank
+
+**Test URL:** https://hrforge-14.preview.emergentagent.com
+
+**Test Credentials:**
+- Workforce: alex.johnson@email.com / Demo123!
+- Employer: demo@swanpizza.ca / Demo123!
+
+**Test Scope:**
+
+#### Backend API Testing:
+1. **Policy Management (Employer)**
+   - GET /api/time-off/policies - Get employer's time-off policies
+   - POST /api/time-off/policies - Create new policy
+   - PUT /api/time-off/policies/{policy_id} - Update policy
+
+2. **Balance Management**
+   - GET /api/time-off/balance - Get worker's time-off balance
+   - GET /api/time-off/balance/worker/{worker_id} - Employer views worker balance
+   - POST /api/time-off/balance/initialize - Initialize team balances
+
+3. **Time-Off Requests**
+   - POST /api/time-off/request - Worker creates time-off request
+   - GET /api/time-off/requests - List time-off requests
+   - POST /api/time-off/requests/{request_id}/approve - Approve request
+   - POST /api/time-off/requests/{request_id}/reject - Reject request
+   - DELETE /api/time-off/requests/{request_id} - Cancel request
+
+4. **Calendar & Dashboard**
+   - GET /api/time-off/calendar?month=X&year=Y - Calendar view
+   - GET /api/time-off/summary - Dashboard summary stats
+
+#### Frontend UI Testing:
+1. **Workforce Time-Off Page** (/workforce/time-off)
+   - Balance cards display (Vacation, Sick, Personal)
+   - Request history list
+   - Request creation modal
+   - Filter tabs (All, Pending, Approved, Rejected)
+
+2. **Employer Time-Off Management** (/employer/time-off)
+   - Stats cards (Pending, Approved, Off Today, Off This Week)
+   - Requests tab with approve/reject functionality
+   - Calendar tab with monthly view
+   - Policies tab with edit capability
+
+---
+
+## Previous Test Session: Super Admin System Testing
 
 ### Test Date: December 26, 2025
 
