@@ -88,6 +88,8 @@ import LiveAttendance from './pages/employer/LiveAttendance';
 import VideoInterview from './pages/VideoInterview';
 import ManageOccupations from './pages/admin/ManageOccupations';
 import ManageCertifications from './pages/admin/ManageCertifications';
+import WorkforceTimeOff from './pages/workforce/TimeOff';
+import EmployerTimeOffManagement from './pages/employer/TimeOffManagement';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
