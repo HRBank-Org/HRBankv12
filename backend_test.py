@@ -543,17 +543,17 @@ def main():
     """Main test execution"""
     results = TestResults()
     
-    print("\n🔍 STARTING SUPER ADMIN SYSTEM TESTS...")
+    print("\n🔍 STARTING TIME-OFF MANAGEMENT SYSTEM TESTS...")
     
-    # Run Super Admin System Tests
-    test_super_admin_system(results)
+    # Run Time-Off Management System Tests
+    test_time_off_management_system(results)
     
     # Print final summary
     print("\n" + "="*80)
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL TESTS PASSED! Super Admin System is working correctly.")
+        print("\n🎉 ALL TESTS PASSED! Time-Off Management System is working correctly.")
     else:
         print(f"\n⚠️  {results.failed} TEST(S) FAILED. See details above.")
     
