@@ -3,7 +3,7 @@
 
 ### Test Date: December 26, 2025
 
-### Testing Agent: Backend & Frontend Testing
+### Testing Agent: Testing Agent (Backend API Testing)
 
 ### Feature Under Test: Enhanced Time-Off Management System for HR Bank
 
@@ -29,26 +29,146 @@
 3. **Time-Off Requests**
    - POST /api/time-off/request - Worker creates time-off request
    - GET /api/time-off/requests - List time-off requests
-   - POST /api/time-off/requests/{request_id}/approve - Approve request
-   - POST /api/time-off/requests/{request_id}/reject - Reject request
+   - PATCH /api/time-off/requests/{request_id}/approve - Approve request
+   - PATCH /api/time-off/requests/{request_id}/reject - Reject request
    - DELETE /api/time-off/requests/{request_id} - Cancel request
 
 4. **Calendar & Dashboard**
    - GET /api/time-off/calendar?month=X&year=Y - Calendar view
    - GET /api/time-off/summary - Dashboard summary stats
 
-#### Frontend UI Testing:
-1. **Workforce Time-Off Page** (/workforce/time-off)
-   - Balance cards display (Vacation, Sick, Personal)
-   - Request history list
-   - Request creation modal
-   - Filter tabs (All, Pending, Approved, Rejected)
+### 🔍 TIME-OFF MANAGEMENT SYSTEM TESTING RESULTS
 
-2. **Employer Time-Off Management** (/employer/time-off)
-   - Stats cards (Pending, Approved, Off Today, Off This Week)
-   - Requests tab with approve/reject functionality
-   - Calendar tab with monthly view
-   - Policies tab with edit capability
+#### ✅ TEST 1: EMPLOYER AUTHENTICATION - PASSED
+- **Authentication:** ✅ demo@swanpizza.ca / Demo123! authenticated successfully
+- **User Type:** ✅ employer (verified)
+- **Employer ID:** ✅ emp_d98ddf3160cf
+- **Token Generation:** ✅ Access token received and valid
+- **Impact:** ✅ Employer successfully authenticated for time-off management testing
+
+#### ✅ TEST 2: WORKFORCE AUTHENTICATION - PASSED
+- **Authentication:** ✅ alex.johnson@email.com / Demo123! authenticated successfully
+- **User Type:** ✅ workforce (verified)
+- **Workforce ID:** ✅ wkr_78b3bac9cc7d
+- **Token Generation:** ✅ Access token received and valid
+- **Impact:** ✅ Workforce successfully authenticated for time-off request testing
+
+#### ✅ TEST 3: POLICY MANAGEMENT - PASSED
+- **Endpoint:** ✅ GET /api/time-off/policies accessible with employer authentication
+- **Response Structure:** ✅ Valid JSON with success: true
+- **Default Policy:** ✅ Returns default policy when no custom policies exist
+- **Policy Creation:** ✅ POST /api/time-off/policies creates new policy successfully
+- **Policy Update:** ✅ PUT /api/time-off/policies/{policy_id} updates policy successfully
+- **Policy Fields:** ✅ All required fields present (policy_name, vacation_days_per_year, sick_days_per_year, etc.)
+- **Impact:** ✅ Complete policy management system functional for employers
+
+#### ✅ TEST 4: BALANCE MANAGEMENT - PASSED
+- **Endpoint:** ✅ GET /api/time-off/balance accessible with workforce authentication
+- **Response Structure:** ✅ Valid JSON with proper balance structure
+- **Balance Fields:** ✅ All required fields present (vacation_available, sick_available, personal_available)
+- **Team Initialization:** ✅ POST /api/time-off/balance/initialize working correctly
+- **Balance Tracking:** ✅ Balances properly tracked across multiple employers
+- **Impact:** ✅ Balance management system working correctly for workforce users
+
+#### ✅ TEST 5: TIME-OFF REQUESTS - PASSED
+- **Request Creation:** ✅ POST /api/time-off/request creates requests successfully
+- **Request Listing:** ✅ GET /api/time-off/requests working for both user types
+- **Request Approval:** ✅ PATCH /api/time-off/requests/{request_id}/approve working correctly
+- **Request Rejection:** ✅ PATCH /api/time-off/requests/{request_id}/reject working correctly
+- **Request Cancellation:** ✅ DELETE /api/time-off/requests/{request_id} working correctly
+- **Worker Details:** ✅ Employer view includes worker names and details
+- **Balance Updates:** ✅ Balances properly updated on approval/rejection/cancellation
+- **Impact:** ✅ Complete request workflow functional with proper balance tracking
+
+#### ✅ TEST 6: CALENDAR & DASHBOARD - PASSED
+- **Calendar View:** ✅ GET /api/time-off/calendar accessible with month/year parameters
+- **Calendar Structure:** ✅ Proper response structure with entries, month, year
+- **Workforce Summary:** ✅ GET /api/time-off/summary returns pending_requests, upcoming_time_off, balances
+- **Employer Summary:** ✅ GET /api/time-off/summary returns pending_requests, approved_this_month, workers_off_today, workers_off_this_week
+- **Dashboard Analytics:** ✅ All required metrics present and accurate
+- **Impact:** ✅ Calendar and dashboard functionality working correctly for both user types
+
+#### ✅ TEST 7: AUTHENTICATION ENFORCEMENT - PASSED
+- **Security Verification:** ✅ All time-off endpoints require authentication
+- **Authentication Tests:**
+  - ✅ GET /time-off/policies: Returns 401/403 without token (proper security)
+  - ✅ GET /time-off/balance: Returns 401/403 without token (proper security)
+  - ✅ GET /time-off/requests: Returns 401/403 without token (proper security)
+  - ✅ GET /time-off/calendar: Returns 401/403 without token (proper security)
+  - ✅ GET /time-off/summary: Returns 401/403 without token (proper security)
+- **Impact:** ✅ Proper authentication enforcement implemented for all endpoints
+
+### 📊 TIME-OFF MANAGEMENT SYSTEM SUMMARY STATISTICS
+- **Total Test Categories:** 7
+- **Passed:** 7
+- **Failed:** 0
+- **Success Rate:** 100%
+
+### ✅ WORKING FEATURES
+1. **Employer Authentication:** ✅ Login system working correctly for demo@swanpizza.ca
+2. **Workforce Authentication:** ✅ Login system working correctly for alex.johnson@email.com
+3. **Policy Management:** ✅ Complete CRUD operations for time-off policies
+4. **Balance Management:** ✅ Balance tracking, initialization, and updates working correctly
+5. **Request Workflow:** ✅ Complete request lifecycle (create, approve, reject, cancel) functional
+6. **Calendar Integration:** ✅ Calendar view and dashboard analytics working correctly
+7. **Authentication Security:** ✅ Proper access control implemented for all endpoints
+
+### 🔧 TECHNICAL FINDINGS
+
+**Working Endpoints:**
+- ✅ `POST /api/auth/login` - Both employer and workforce authentication
+- ✅ `GET /api/time-off/policies` - Policy retrieval with default policy support
+- ✅ `POST /api/time-off/policies` - Policy creation with custom parameters
+- ✅ `PUT /api/time-off/policies/{policy_id}` - Policy updates
+- ✅ `GET /api/time-off/balance` - Worker balance retrieval
+- ✅ `POST /api/time-off/balance/initialize` - Team balance initialization
+- ✅ `POST /api/time-off/request` - Time-off request creation with validation
+- ✅ `GET /api/time-off/requests` - Request listing with role-based filtering
+- ✅ `PATCH /api/time-off/requests/{request_id}/approve` - Request approval workflow
+- ✅ `PATCH /api/time-off/requests/{request_id}/reject` - Request rejection workflow
+- ✅ `DELETE /api/time-off/requests/{request_id}` - Request cancellation
+- ✅ `GET /api/time-off/calendar` - Calendar view with date filtering
+- ✅ `GET /api/time-off/summary` - Dashboard analytics for both user types
+
+**Request Workflow Validation:**
+- ✅ Request creation validates balance availability
+- ✅ Approval updates balances correctly (pending → used)
+- ✅ Rejection returns pending balance
+- ✅ Cancellation handles both pending and approved requests
+- ✅ Worker details enriched in employer view
+- ✅ Proper business day calculations
+
+**Authentication & Authorization:**
+- ✅ Employer and workforce user types properly authenticated
+- ✅ Role-based access working correctly (policies require employer role)
+- ✅ Protected endpoints require valid tokens
+- ✅ Proper HTTP status codes returned (401/403 for unauthorized access)
+
+**Policy & Balance Management:**
+- ✅ Default policy creation when none exist
+- ✅ Custom policy creation with validation
+- ✅ Balance initialization for team members
+- ✅ Multi-employer balance tracking for workforce
+- ✅ Proper accrual and usage tracking
+
+### 🎯 TIME-OFF MANAGEMENT SYSTEM STATUS: FULLY FUNCTIONAL
+
+**✅ ALL EXPECTED RESULTS ACHIEVED:**
+1. **Policy Management:** All CRUD operations working with default and custom policies
+2. **Balance Management:** Complete balance tracking with initialization and updates
+3. **Request Workflow:** Full lifecycle from creation to approval/rejection/cancellation
+4. **Calendar Integration:** Calendar view and dashboard analytics functional
+5. **Authentication:** Proper access control and role-based permissions
+6. **Data Integrity:** Balances properly updated throughout request lifecycle
+
+**Time-Off Management System Complete:**
+- ✅ Backend API endpoints fully functional
+- ✅ Authentication and authorization properly implemented
+- ✅ Policy management with default and custom policies
+- ✅ Balance tracking with proper accrual and usage
+- ✅ Complete request workflow with approval/rejection
+- ✅ Calendar and dashboard analytics operational
+- ✅ All endpoints return proper JSON with success: true
 
 ---
 
