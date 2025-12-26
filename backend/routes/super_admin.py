@@ -876,10 +876,12 @@ async def get_admin_dashboard(
     
     admin = await get_admin_user(current_user["user_id"], db)
     
-    # Build regional filter
-    regional_filter = {}
+    # Build regional filter for non-super admins
     if admin and not admin.is_super_admin and admin.assigned_provinces:
-        regional_filter = {"province": {"$in": admin.assigned_provinces}}
+        # Apply regional filter to queries below
+        provinces_filter = {"province": {"$in": admin.assigned_provinces}}
+    else:
+        provinces_filter = {}
     
     # Get counts
     pending_activations = await db.users.count_documents({
