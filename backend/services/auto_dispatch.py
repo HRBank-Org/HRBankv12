@@ -318,7 +318,7 @@ class AutoDispatchService:
         task_date_str = task.get("scheduled_date", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
         try:
             task_date = datetime.strptime(task_date_str, "%Y-%m-%d")
-        except:
+        except ValueError:
             task_date = datetime.now(timezone.utc)
         
         # Get available workers
