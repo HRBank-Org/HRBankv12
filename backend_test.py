@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Blockchain Verified Badge and Emma System Prompt Testing
-Testing blockchain credentials endpoint and Emma system prompts for HR Bank
-Focus: Blockchain credentials for workforce, Emma prompts for institution/workforce
+HR Bank Auto-Dispatch Feature Testing
+Testing Auto-Dispatch feature for Grid Services in HR Bank
+Focus: Auto-dispatch stats, configuration, bulk dispatch, API documentation
 """
 
 import requests
@@ -20,10 +20,10 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
 
-print(f"🚀 HR BANK BLOCKCHAIN VERIFIED BADGE AND EMMA SYSTEM PROMPT TESTING")
+print(f"🚀 HR BANK AUTO-DISPATCH FEATURE TESTING")
 print(f"Testing backend at: {BASE_URL}")
 print(f"Base URL: {BACKEND_URL}")
-print(f"Focus: Blockchain credentials endpoint, Emma system prompts, Frontend compilation")
+print(f"Focus: Auto-dispatch stats, configuration, bulk dispatch, API documentation")
 print("="*80)
 
 class TestResults:
