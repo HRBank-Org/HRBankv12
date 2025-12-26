@@ -63,6 +63,12 @@ const ModernSidebar = () => {
       path: '/employer/live-attendance'
     },
     {
+      type: 'item',
+      label: 'Time Off',
+      icon: FiSun,
+      path: '/employer/time-off'
+    },
+    {
       type: 'category',
       label: 'Finances'
     },
