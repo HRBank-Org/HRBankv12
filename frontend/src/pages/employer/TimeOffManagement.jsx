@@ -121,9 +121,9 @@ const TimeOffManagement = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <EmployerHeader />
+      <GenericHeader />
       <div className="flex">
-        <EmployerSidebar />
+        <ModernSidebar />
         <main className="flex-1 p-6 lg:ml-64">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
