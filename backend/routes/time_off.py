@@ -18,7 +18,7 @@ from datetime import datetime, date, timedelta, timezone
 from typing import Optional, List, Dict
 import uuid
 
-router = APIRouter(prefix="/time-off", tags=["Time-Off Management"])
+router = APIRouter(prefix="/api/time-off", tags=["Time-Off Management"])
 
 
 def get_db():
