@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Time-Off Management System Testing
-Testing Enhanced Time-Off Management System for HR Bank
-Focus: Policy management, balance tracking, request workflows, calendar integration
+HR Bank Super Admin Backend API Testing
+Testing Super Admin Backend API endpoints for HR Bank
+Focus: Admin authentication, dashboard, roles, pending activations, admin management, franchise management, support tickets
 """
 
 import requests
@@ -20,10 +20,10 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
 
-print(f"🚀 HR BANK TIME-OFF MANAGEMENT SYSTEM TESTING")
+print(f"🚀 HR BANK SUPER ADMIN BACKEND API TESTING")
 print(f"Testing backend at: {BASE_URL}")
 print(f"Base URL: {BACKEND_URL}")
-print(f"Focus: Policy management, balance tracking, request workflows, calendar integration")
+print(f"Focus: Admin authentication, dashboard, roles, pending activations, admin management, franchise management, support tickets")
 print("="*80)
 
 class TestResults:
