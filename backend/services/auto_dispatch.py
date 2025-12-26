@@ -155,7 +155,7 @@ class AutoDispatchService:
         try:
             new_start = datetime.strptime(task_time, "%H:%M")
             new_end = new_start + timedelta(minutes=duration_minutes + self.dispatch_config["buffer_minutes"])
-        except:
+        except ValueError:
             return False
         
         # Check each existing task for overlap
