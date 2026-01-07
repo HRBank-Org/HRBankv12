@@ -1,11 +1,11 @@
 # Test Results - HR Bank
-## Latest Test Session: Super Admin Backend API Testing
+## Latest Test Session: Age Compliance Feature Testing
 
-### Test Date: December 26, 2025
+### Test Date: January 7, 2026
 
-### Testing Agent: Testing Agent (Backend API Testing)
+### Testing Agent: Testing Agent (Frontend UI Testing)
 
-### Feature Under Test: Super Admin Backend API endpoints for HR Bank
+### Feature Under Test: Age Compliance feature in Workforce Onboarding flow
 
 **Test URL:** https://superadmin-hr.preview.emergentagent.com
 
