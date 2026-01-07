@@ -205,6 +205,7 @@ const AdminManagement = () => {
               )}
             </div>
           </div>
+          </div>
         </main>
       </div>
 
