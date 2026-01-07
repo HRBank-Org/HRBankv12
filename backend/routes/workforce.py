@@ -151,6 +151,62 @@ async def update_personal_info(
         "message": "Personal information updated"
     }
 
+@router.get("/age-compliance/provinces", response_model=Dict)
+async def get_provincial_age_requirements():
+    """Get minimum age requirements for all Canadian provinces"""
+    return {
+        "success": True,
+        "data": {
+            "provinces": PROVINCIAL_MINIMUM_AGES
+        }
+    }
+
+@router.post("/age-compliance/verify", response_model=Dict)
+async def verify_worker_age_compliance(
+    data: dict,
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """
+    Verify age compliance for a worker based on DOB and province
+    
+    Request body:
+    {
+        "date_of_birth": "YYYY-MM-DD",
+        "province": "ON"  (optional, defaults to ON)
+    }
+    """
+    date_of_birth = data.get("date_of_birth")
+    province = data.get("province", "ON")
+    
+    if not date_of_birth:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Date of birth is required"
+        )
+    
+    # Validate format
+    is_valid, error_msg = validate_dob_format(date_of_birth)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    
+    # Get compliance info
+    compliance = verify_age_compliance(date_of_birth, province)
+    
+    # Get work restrictions
+    restrictions = get_work_restrictions_for_age(compliance["age"])
+    
+    return {
+        "success": True,
+        "data": {
+            **compliance,
+            "work_restrictions_detail": restrictions
+        }
+    }
+
 @router.patch("/me/profile/skills", response_model=Dict)
 async def update_skills(
     skills: List[str],
