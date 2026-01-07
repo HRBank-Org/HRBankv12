@@ -91,7 +91,7 @@ const LoginForm = () => {
       } else if (user_type === 'institution') {
         navigate('/institution/dashboard');
       } else if (user_type === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/admin/super-dashboard');
       }
     } catch (err) {
       setError(err.error?.message || err.detail || 'Login failed. Please check your credentials.');
