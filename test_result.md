@@ -14,40 +14,51 @@
 
 **Test Scope:**
 
-#### Backend API Testing:
-1. **Admin Authentication**
-   - POST /api/auth/login with qnizami@hrbank.ca / Test123!
-   - Verify admin user type and token generation
+#### Frontend UI Testing:
+1. **Super Admin Sidebar Structure**
+   - Login as admin and verify new sidebar structure with grouped menu items:
+     - Overview: Dashboard, Activity Feed
+     - User Management: Pending Activations, All Users, Credential Reviews, Document Verification
+     - Administration: Admin Users, Role Management, Permissions
+     - Business: Franchises, Employers, Institutions
+     - Regional: Zones & Regions, Minimum Wage
+     - Support: Support Tickets, Reported Issues
+     - Analytics & Reports: Platform Analytics, Audit Logs
+     - System: Platform Settings, Notifications
+   - Verify collapsible groups (click on group headers)
+   - Verify badge counts on items (Pending Activations, Credentials, Support Tickets)
+   - Test hover tooltips when sidebar is collapsed
+   - Verify Sign Out button at bottom
 
-2. **Super Admin Dashboard API**
-   - GET /api/super-admin/dashboard
-   - Verify response includes:
-     - admin info (role, is_super_admin, assigned_provinces)
-     - action_items (pending_activations, pending_credentials, open_tickets)
-     - platform_stats (total_workforce, total_employers, total_institutions, total_admins, total_franchises)
+2. **Role Management Page (/admin/roles)**
+   - Navigate to /admin/roles
+   - Verify page loads with:
+     - Header with Key icon and "Role Management" title
+     - Stats cards: Total Roles, Total Admins, Super Admins, Permissions
+     - Search bar for filtering roles
+     - Grid/List view toggle buttons
+   - Verify all 7 roles are displayed:
+     - Super Admin (red), Regional Manager (blue), Account Activator (green)
+     - Credentials Reviewer (purple), Customer Service (yellow), Compliance Officer (orange), Franchise Manager (pink)
+   - Each role card should show: Icon, Role name, Description, Admin count badge, Permissions count
 
-3. **Admin Roles API**
-   - GET /api/super-admin/roles
-   - Verify all 7 role types are returned with permissions:
-     - super_admin, regional_manager, account_activator
-     - credentials_reviewer, customer_service, compliance_officer, franchise_manager
+3. **Role Detail Modal**
+   - Click on a role card (e.g., "Super Admin")
+   - Verify modal opens with:
+     - Colored gradient header with role name
+     - Stats: Assigned Admins, Enabled/Disabled permissions count
+     - Permissions grid showing enabled/disabled status
+     - List of assigned administrators
 
-4. **Pending Activations API**
-   - GET /api/super-admin/pending-activations
-   - Verify pagination and user list returned
-   - Test with filter: GET /api/super-admin/pending-activations?user_type=employer
+4. **List View**
+   - Click list view toggle button
+   - Verify table displays with columns: Role, Description, Admins, Permissions, Actions
 
-5. **Admin List API**
-   - GET /api/super-admin/admins
-   - Verify returns list of admin users with roles
-
-6. **Franchise API**
-   - GET /api/super-admin/franchises
-   - Verify endpoint is accessible and returns proper response structure
-
-7. **Support Tickets API**
-   - GET /api/super-admin/support-tickets
-   - Verify endpoint is accessible and returns proper response structure
+5. **Permission Legend**
+   - Scroll to bottom of page
+   - Verify "Permission Categories" section with all categories:
+     - User Management, Credential Management, Admin Management
+     - Franchise Management, Support, Compliance, Analytics
 
 8. **Authentication Enforcement**
    - Test all super admin endpoints WITHOUT token
