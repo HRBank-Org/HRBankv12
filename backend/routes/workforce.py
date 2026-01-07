@@ -64,9 +64,37 @@ async def update_personal_info(
 ):
     """
     Update personal information (Step 1 of profile wizard)
-    Includes Google Maps geocoding for address
+    Includes Google Maps geocoding for address and age compliance verification
     """
     address = data.get("address")
+    date_of_birth = data.get("date_of_birth")
+    province = data.get("province", "ON")
+    
+    # Validate and process date of birth if provided
+    if date_of_birth:
+        is_valid, error_msg = validate_dob_format(date_of_birth)
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error_msg
+            )
+        
+        # Verify age compliance
+        compliance = verify_age_compliance(date_of_birth, province)
+        if not compliance["is_compliant"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=compliance["message"]
+            )
+        
+        # Add age compliance data to profile
+        data["age"] = compliance["age"]
+        data["is_minor"] = compliance["is_minor"]
+        data["is_young_worker"] = compliance["is_young_worker"]
+        data["requires_parental_consent"] = compliance["requires_parental_consent"]
+        data["work_restrictions"] = compliance["restrictions"]
+        data["age_verified"] = True
+        data["age_verified_date"] = datetime.now(timezone.utc).isoformat()
     
     # Geocode address to get lat/long (optional - falls back to default if unavailable)
     if address:
