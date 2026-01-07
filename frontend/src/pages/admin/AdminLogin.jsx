@@ -32,7 +32,7 @@ const AdminLogin = () => {
         if (response.data.user_type === 'admin') {
           // Small delay to ensure token is stored
           setTimeout(() => {
-            navigate('/admin/dashboard');
+            navigate('/admin/super-dashboard');
           }, 100);
         } else {
           setError('Access denied. Admin credentials required.');
