@@ -3,6 +3,13 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from utils.google_maps import google_maps_service
 from utils.calculations import calculate_profile_completeness
+from utils.age_compliance import (
+    calculate_age, 
+    verify_age_compliance, 
+    validate_dob_format,
+    get_work_restrictions_for_age,
+    PROVINCIAL_MINIMUM_AGES
+)
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
 import uuid
