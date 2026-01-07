@@ -72,6 +72,7 @@ import PendingActivations from './pages/admin/PendingActivations';
 import AdminManagement from './pages/admin/AdminManagement';
 import FranchiseManagement from './pages/admin/FranchiseManagement';
 import SupportTickets from './pages/admin/SupportTickets';
+import RoleManagement from './pages/admin/RoleManagement';
 import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
 import WorkerComplianceOnboarding from './pages/workforce/WorkerComplianceOnboarding';
 import Analytics from './pages/admin/Analytics';
