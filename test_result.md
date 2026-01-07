@@ -1,11 +1,11 @@
 # Test Results - HR Bank
-## Latest Test Session: Age Compliance Feature Testing
+## Latest Test Session: Super Admin Sidebar and Role Management Testing
 
 ### Test Date: January 7, 2026
 
 ### Testing Agent: Testing Agent (Frontend UI Testing)
 
-### Feature Under Test: Age Compliance feature in Workforce Onboarding flow
+### Feature Under Test: Restructured Super Admin Sidebar and Role Management Page
 
 **Test URL:** https://superadmin-hr.preview.emergentagent.com
 
