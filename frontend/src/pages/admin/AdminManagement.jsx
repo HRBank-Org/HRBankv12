@@ -81,18 +81,19 @@ const AdminManagement = () => {
       <GenericHeader />
       <div className="flex">
         <SuperAdminSidebar />
-        <main className="flex-1 p-6 lg:ml-64">
-          <div className="max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Admin Management</h1>
-                <p className="text-gray-600">{total} admin users</p>
-              </div>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white"
-                style={{ backgroundColor: theme.primaryColor }}
+        <main className="flex-1 lg:ml-[260px] transition-all duration-300">
+          <div className="p-6">
+            <div className="max-w-7xl mx-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Admin Management</h1>
+                  <p className="text-gray-600">{total} admin users</p>
+                </div>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-white"
+                  style={{ backgroundColor: theme.primaryColor }}
               >
                 <Plus className="w-5 h-5" />
                 Create Admin
