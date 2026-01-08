@@ -1389,32 +1389,31 @@ def test_institution_withdrawal_system(results):
                     missing_fields = [field for field in required_fields if field not in tax_data]
                     
                     if not missing_fields:
-                        provinces = tax_data.get("provinces", {})
+                        provinces = tax_data.get("provinces", [])
                         
                         # Check if all Canadian provinces are present
                         expected_provinces = ["AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT"]
-                        missing_provinces = [prov for prov in expected_provinces if prov not in provinces]
+                        province_codes = [prov.get("code") for prov in provinces]
+                        missing_provinces = [prov for prov in expected_provinces if prov not in province_codes]
                         
                         if not missing_provinces:
                             results.add_pass("Tax Information - All 13 Canadian provinces present")
                             print(f"      Total Provinces: {len(provinces)}")
                             
                             # Check a few specific provinces for tax rates
-                            if "ON" in provinces and "tax_rate" in provinces["ON"]:
-                                on_tax = provinces["ON"]["tax_rate"]
-                                if on_tax == 0.13:  # 13% HST for Ontario
-                                    results.add_pass("Tax Information - Ontario tax rate correct (13%)")
-                                    print(f"      Ontario Tax Rate: {on_tax * 100}%")
-                                else:
-                                    results.add_fail("Tax Information ON rate", f"Expected 13% for Ontario, got {on_tax * 100}%")
+                            on_province = next((p for p in provinces if p.get("code") == "ON"), None)
+                            if on_province and on_province.get("tax_rate") == 0.13:
+                                results.add_pass("Tax Information - Ontario tax rate correct (13%)")
+                                print(f"      Ontario Tax Rate: {on_province.get('tax_rate') * 100}%")
+                            else:
+                                results.add_fail("Tax Information ON rate", f"Ontario tax rate incorrect or missing")
                             
-                            if "BC" in provinces and "tax_rate" in provinces["BC"]:
-                                bc_tax = provinces["BC"]["tax_rate"]
-                                if bc_tax == 0.12:  # 12% PST+GST for BC
-                                    results.add_pass("Tax Information - BC tax rate correct (12%)")
-                                    print(f"      BC Tax Rate: {bc_tax * 100}%")
-                                else:
-                                    results.add_fail("Tax Information BC rate", f"Expected 12% for BC, got {bc_tax * 100}%")
+                            bc_province = next((p for p in provinces if p.get("code") == "BC"), None)
+                            if bc_province and bc_province.get("tax_rate") == 0.12:
+                                results.add_pass("Tax Information - BC tax rate correct (12%)")
+                                print(f"      BC Tax Rate: {bc_province.get('tax_rate') * 100}%")
+                            else:
+                                results.add_fail("Tax Information BC rate", f"BC tax rate incorrect or missing")
                         else:
                             results.add_fail("Tax Information", f"Missing provinces: {missing_provinces}")
                     else:
