@@ -233,6 +233,9 @@ const AdminSettings = () => {
             Logout
           </button>
         </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
