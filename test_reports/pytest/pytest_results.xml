@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="8" failures="0" skipped="0" tests="15" time="1.997" timestamp="2026-01-08T23:30:28.043277+00:00" hostname="agent-env-0f6dac97-b569-42dc-a6b2-4bbf17cffb8f"><testcase classname="tests.test_super_admin_apis.TestAdminAuthentication" name="test_admin_login_success" time="0.296" /><testcase classname="tests.test_super_admin_apis.TestAdminAuthentication" name="test_admin_login_invalid_password" time="0.264" /><testcase classname="tests.test_super_admin_apis.TestSuperAdminDashboard" name="test_dashboard_endpoint" time="0.314" /><testcase classname="tests.test_super_admin_apis.TestSuperAdminDashboard" name="test_roles_endpoint" time="0.042" /><testcase classname="tests.test_super_admin_apis.TestPendingActivations" name="test_pending_activations_list" time="0.301" /><testcase classname="tests.test_super_admin_apis.TestPendingActivations" name="test_pending_activations_filter_workforce" time="0.044" /><testcase classname="tests.test_super_admin_apis.TestAdminManagement" name="test_admins_list" time="0.303" /><testcase classname="tests.test_super_admin_apis.TestZoneManagement" name="test_provinces_list" time="0.035"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:163: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase><testcase classname="tests.test_super_admin_apis.TestZoneManagement" name="test_zones_list" time="0.000"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:163: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase><testcase classname="tests.test_super_admin_apis.TestRegionalStats" name="test_regional_stats" time="0.033"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:200: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase><testcase classname="tests.test_super_admin_apis.TestInstitutionPayouts" name="test_institutions_stripe_status" time="0.034"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:225: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase><testcase classname="tests.test_super_admin_apis.TestSupportTickets" name="test_support_tickets_list" time="0.033"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:251: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase><testcase classname="tests.test_super_admin_apis.TestFranchiseManagement" name="test_franchises_list" time="0.035"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:276: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase><testcase classname="tests.test_super_admin_apis.TestAnalytics" name="test_platform_analytics" time="0.038"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:301: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase><testcase classname="tests.test_super_admin_apis.TestCredentialReviews" name="test_credentials_pending_approval" time="0.078"><error message="failed on setup with &quot;KeyError: 'data'&quot;">tests/test_super_admin_apis.py:327: in auth_headers
+    token = response.json()["data"]["access_token"]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'data'</error></testcase></testsuite></testsuites>
