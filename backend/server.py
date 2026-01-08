@@ -179,6 +179,14 @@ app.include_router(transcripts.router, prefix="/api", tags=["transcripts"])
 app.include_router(auto_dispatch.router, prefix="/api", tags=["auto_dispatch"])
 app.include_router(super_admin.router, prefix="/api", tags=["super_admin"])
 app.include_router(career_profile.router, prefix="/api", tags=["career_profile"])
+app.include_router(credential_payments.router, prefix="/api", tags=["credential_payments"])
+
+# Stripe webhook at root /api level
+@app.post("/api/webhook/stripe")
+async def stripe_webhook_handler(request: Request):
+    """Handle Stripe webhook events"""
+    from routes.credential_payments import stripe_webhook
+    return await stripe_webhook(request, db)
 
 # Mount static files for uploaded photos
 from pathlib import Path
