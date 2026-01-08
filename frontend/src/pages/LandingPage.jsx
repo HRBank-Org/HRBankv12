@@ -176,7 +176,7 @@ const LandingPage = () => {
                 onClick={() => document.getElementById('employers').scrollIntoView({ behavior: 'smooth' })}
                 className="bg-white/10 border-white text-white hover:bg-white/20 h-14 px-8 text-lg backdrop-blur-sm"
               >
-                I'm Hiring
+                I&apos;m Hiring
               </Button>
             </div>
 
@@ -337,7 +337,7 @@ const LandingPage = () => {
             <div className="text-white">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-400 text-sm font-semibold mb-4 border border-amber-500/30">
                 <span className="animate-pulse w-2 h-2 bg-amber-400 rounded-full" />
-                Everyone's Talking About It
+                Everyone&apos;s Talking About It
               </div>
               
               <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
