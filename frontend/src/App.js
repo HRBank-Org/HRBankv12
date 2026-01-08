@@ -78,6 +78,7 @@ import RegionalDashboard from './pages/admin/RegionalDashboard';
 import ActivityFeed from './pages/admin/ActivityFeed';
 import AllUsers from './pages/admin/AllUsers';
 import CredentialReviews from './pages/admin/CredentialReviews';
+import InstitutionPayouts from './pages/admin/InstitutionPayouts';
 import DocumentVerification from './pages/admin/DocumentVerification';
 import Permissions from './pages/admin/Permissions';
 import EmployersList from './pages/admin/EmployersList';
