@@ -32,7 +32,7 @@ def send_credential_issued_email(
     try:
         issue_dt = datetime.fromisoformat(issue_date.replace('Z', '+00:00'))
         formatted_date = issue_dt.strftime('%B %d, %Y')
-    except:
+    except (ValueError, AttributeError):
         formatted_date = issue_date
     
     # Credential type styling
