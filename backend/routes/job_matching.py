@@ -249,10 +249,10 @@ async def post_job_to_matching_engine(
 async def run_matching_algorithm(db, job: JobPosting):
     """Run matching algorithm for a job posting"""
     
-    # Get all active workforce members with approved profiles
+    # Get all active workforce members with approved profiles (limit to prevent memory issues)
     workforce_members = await db.workforce_profiles.find({
         'profile_status': 'active'
-    }).to_list(length=None)
+    }).to_list(length=1000)
     
     # Get all active workforce members with approved profiles
     
