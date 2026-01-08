@@ -509,7 +509,7 @@ async def get_matched_jobs(
     matches = await db.job_matches.find({
         'workforce_id': current_user['user_id'],
         'status': 'matched'
-    }).sort('match_score', -1).to_list(length=None)
+    }).sort('match_score', -1).to_list(length=1000)
     
     # Enrich with job details
     jobs = []
@@ -544,7 +544,7 @@ async def get_job_offers(
         'workforce_id': current_user['user_id'],
         'status': 'pending',
         'expires_date': {'$gt': datetime.now(timezone.utc)}
-    }).to_list(length=None)
+    }).to_list(length=1000)
     
     # Calculate expires_in_hours for each offer
     for offer in offers:
@@ -566,7 +566,7 @@ async def get_interviews(
     interviews = await db.interview_invitations.find({
         'workforce_id': current_user['user_id'],
         'status': {'$in': ['pending', 'accepted', 'upcoming']}
-    }).sort('scheduled_date', 1).to_list(length=None)
+    }).sort('scheduled_date', 1).to_list(length=1000)
     
     return {
         'success': True,
@@ -838,7 +838,7 @@ async def quit_current_job(
     # Re-run matching algorithm for this worker with all active jobs
     active_jobs = await db.job_postings.find({
         'status': 'active'
-    }).to_list(length=None)
+    }).to_list(length=1000)
     
     matches_created = 0
     for job in active_jobs:
@@ -864,7 +864,7 @@ async def quit_current_job(
                     worker_occupations = await db.occupation_profiles.find({
                         'user_id': current_user['user_id'],
                         'active': True
-                    }).to_list(length=None)
+                    }).to_list(length=1000)
                     
                     # Update profile with available status for matching
                     temp_profile = {**workforce_profile, 'employment_status': 'available'}
