@@ -123,7 +123,7 @@ async def create_connect_account(
             "message": "Stripe Connect account created. Complete onboarding to start receiving payouts."
         }
         
-    except stripe.error.StripeError as e:
+    except stripe._error.StripeError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to create Stripe account: {str(e)}"
@@ -165,7 +165,7 @@ async def create_onboarding_link(
             }
         }
         
-    except stripe.error.StripeError as e:
+    except stripe._error.StripeError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to create onboarding link: {str(e)}"
@@ -239,7 +239,7 @@ async def get_account_status(
             }
         }
         
-    except stripe.error.StripeError as e:
+    except stripe._error.StripeError as e:
         return {
             "success": True,
             "data": {
@@ -281,7 +281,7 @@ async def get_dashboard_link(
             }
         }
         
-    except stripe.error.StripeError as e:
+    except stripe._error.StripeError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to create dashboard link: {str(e)}"
@@ -414,7 +414,7 @@ async def get_payout_history(
             }
         }
         
-    except stripe.error.StripeError as e:
+    except stripe._error.StripeError as e:
         return {
             "success": True,
             "data": {
