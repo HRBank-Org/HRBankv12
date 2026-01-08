@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Credential Monetization Backend API Testing
-Testing Credential Monetization Backend API endpoints for HR Bank
-Focus: Pricing tiers, credential issuing, payment processing, institution/workforce authentication
+HR Bank Institution Withdrawal System Backend API Testing
+Testing Institution Withdrawal System with Stripe Connect Express integration for HR Bank
+Focus: Stripe Connect account management, payout balance, tax information, credential payment with tax
 """
 
 import requests
