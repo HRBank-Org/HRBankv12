@@ -1126,21 +1126,488 @@ def test_credential_monetization_system(results):
         except Exception as e:
             results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_institution_withdrawal_system(results):
+    """Test the Institution Withdrawal System with Stripe Connect Express integration"""
+    print("\n🧪 Testing Institution Withdrawal System with Stripe Connect Express (Priority: HIGH)...")
+    print("   Testing endpoints: Stripe Connect Account Management, Payout Balance, Tax Information, Credential Payment with Tax")
+    print("   Test credentials: Institution: demo@stclairecollege.ca / Demo123!")
+    print("   Base URL: https://taxsmart-9.preview.emergentagent.com")
+    
+    # Test credentials from review request
+    institution_creds = {"email": "demo@stclairecollege.ca", "password": "Demo123!", "user_type": "institution"}
+    
+    # Test 1: Institution Authentication
+    institution_token = None
+    print("\n   Test 1: Institution Authentication - POST /api/auth/login")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=institution_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                institution_token = data["data"]["access_token"]
+                user_data = data.get("data", {})
+                
+                # Verify user_type is "institution"
+                if user_data.get("user_type") == "institution":
+                    results.add_pass("Institution authentication - user_type is 'institution'")
+                    print(f"      Institution ID: {user_data.get('user_id', 'N/A')}")
+                    print(f"      User Type: {user_data.get('user_type', 'N/A')}")
+                else:
+                    results.add_fail("Institution authentication", f"Expected user_type 'institution', got '{user_data.get('user_type')}'")
+            else:
+                results.add_fail("Institution authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Institution authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Institution authentication", f"Request failed: {str(e)}")
+    
+    # Test 2: Stripe Connect Account Status (Initial)
+    if institution_token:
+        print("\n   Test 2: Stripe Connect Account Status (Initial) - GET /api/stripe-connect/account-status")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/stripe-connect/account-status",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    status_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["has_account", "account_id", "onboarding_complete", "charges_enabled", "payouts_enabled"]
+                    missing_fields = [field for field in required_fields if field not in status_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Account Status - All required fields present")
+                        print(f"      Has Account: {status_data.get('has_account', False)}")
+                        print(f"      Account ID: {status_data.get('account_id', 'None')}")
+                        print(f"      Onboarding Complete: {status_data.get('onboarding_complete', False)}")
+                        print(f"      Charges Enabled: {status_data.get('charges_enabled', False)}")
+                        print(f"      Payouts Enabled: {status_data.get('payouts_enabled', False)}")
+                    else:
+                        results.add_fail("Account Status", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Account Status", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/stripe-connect/account-status", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/stripe-connect/account-status", f"Request failed: {str(e)}")
+    
+    # Test 3: Create Stripe Connect Account
+    stripe_account_id = None
+    if institution_token:
+        print("\n   Test 3: Create Stripe Connect Account - POST /api/stripe-connect/create-account")
+        try:
+            response = requests.post(
+                f"{BASE_URL}/stripe-connect/create-account",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    account_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["account_id", "created"]
+                    missing_fields = [field for field in required_fields if field not in account_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Create Account - Stripe Express account created")
+                        stripe_account_id = account_data.get("account_id")
+                        print(f"      Account ID: {stripe_account_id}")
+                        print(f"      Created: {account_data.get('created', False)}")
+                    else:
+                        results.add_fail("Create Account", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Create Account", f"Invalid response structure: {data}")
+            elif response.status_code == 400:
+                # Account might already exist
+                data = response.json()
+                if "already exists" in data.get("message", "").lower():
+                    results.add_pass("Create Account - Account already exists (expected)")
+                    print("      Account already exists for this institution")
+                else:
+                    results.add_fail("Create Account", f"HTTP 400: {data.get('message', response.text)}")
+            else:
+                results.add_fail("POST /api/stripe-connect/create-account", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/stripe-connect/create-account", f"Request failed: {str(e)}")
+    
+    # Test 4: Get Onboarding Link
+    if institution_token:
+        print("\n   Test 4: Get Onboarding Link - POST /api/stripe-connect/onboarding-link")
+        try:
+            onboarding_data = {
+                "refresh_url": "https://taxsmart-9.preview.emergentagent.com/institution/stripe-connect",
+                "return_url": "https://taxsmart-9.preview.emergentagent.com/institution/stripe-connect/success"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/stripe-connect/onboarding-link",
+                json=onboarding_data,
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    link_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["onboarding_url", "expires_at"]
+                    missing_fields = [field for field in required_fields if field not in link_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Onboarding Link - URL generated successfully")
+                        onboarding_url = link_data.get("onboarding_url", "")
+                        if onboarding_url.startswith("https://connect.stripe.com/"):
+                            results.add_pass("Onboarding Link - Valid Stripe Connect URL")
+                            print(f"      Onboarding URL: {onboarding_url[:50]}...")
+                        else:
+                            results.add_fail("Onboarding Link URL", f"Invalid URL format: {onboarding_url}")
+                        
+                        print(f"      Expires At: {link_data.get('expires_at', 'N/A')}")
+                    else:
+                        results.add_fail("Onboarding Link", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Onboarding Link", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("POST /api/stripe-connect/onboarding-link", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/stripe-connect/onboarding-link", f"Request failed: {str(e)}")
+    
+    # Test 5: Get Dashboard Link
+    if institution_token:
+        print("\n   Test 5: Get Dashboard Link - GET /api/stripe-connect/dashboard-link")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/stripe-connect/dashboard-link",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    dashboard_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["dashboard_url"]
+                    missing_fields = [field for field in required_fields if field not in dashboard_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Dashboard Link - URL generated successfully")
+                        dashboard_url = dashboard_data.get("dashboard_url", "")
+                        if dashboard_url.startswith("https://connect.stripe.com/"):
+                            results.add_pass("Dashboard Link - Valid Stripe Connect URL")
+                            print(f"      Dashboard URL: {dashboard_url[:50]}...")
+                        else:
+                            results.add_fail("Dashboard Link URL", f"Invalid URL format: {dashboard_url}")
+                    else:
+                        results.add_fail("Dashboard Link", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Dashboard Link", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/stripe-connect/dashboard-link", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/stripe-connect/dashboard-link", f"Request failed: {str(e)}")
+    
+    # Test 6: Get Payout Balance
+    if institution_token:
+        print("\n   Test 6: Get Payout Balance - GET /api/stripe-connect/balance")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/stripe-connect/balance",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    balance_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["total_earned_cad", "available_balance_cad", "total_paid_out_cad", "paid_credentials_count", "recent_sales", "payouts", "province", "tax_info", "payout_schedule"]
+                    missing_fields = [field for field in required_fields if field not in balance_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Payout Balance - All required fields present")
+                        print(f"      Total Earned: ${balance_data.get('total_earned_cad', 0)} CAD")
+                        print(f"      Available Balance: ${balance_data.get('available_balance_cad', 0)} CAD")
+                        print(f"      Total Paid Out: ${balance_data.get('total_paid_out_cad', 0)} CAD")
+                        print(f"      Paid Credentials: {balance_data.get('paid_credentials_count', 0)}")
+                        print(f"      Province: {balance_data.get('province', 'N/A')}")
+                        
+                        # Check tax_info structure
+                        tax_info = balance_data.get("tax_info", {})
+                        if "tax_rate" in tax_info and "tax_name" in tax_info:
+                            results.add_pass("Payout Balance - Tax info structure correct")
+                            print(f"      Tax Rate: {tax_info.get('tax_rate', 0)}%")
+                            print(f"      Tax Name: {tax_info.get('tax_name', 'N/A')}")
+                        else:
+                            results.add_fail("Payout Balance tax_info", "Missing tax_rate or tax_name in tax_info")
+                        
+                        # Check recent_sales and payouts are arrays
+                        if isinstance(balance_data.get("recent_sales"), list) and isinstance(balance_data.get("payouts"), list):
+                            results.add_pass("Payout Balance - Recent sales and payouts are arrays")
+                        else:
+                            results.add_fail("Payout Balance arrays", "recent_sales or payouts not arrays")
+                    else:
+                        results.add_fail("Payout Balance", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Payout Balance", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/stripe-connect/balance", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/stripe-connect/balance", f"Request failed: {str(e)}")
+    
+    # Test 7: Get Tax Information
+    if institution_token:
+        print("\n   Test 7: Get Tax Information - GET /api/stripe-connect/tax-info")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/stripe-connect/tax-info",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    tax_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["provinces"]
+                    missing_fields = [field for field in required_fields if field not in tax_data]
+                    
+                    if not missing_fields:
+                        provinces = tax_data.get("provinces", {})
+                        
+                        # Check if all Canadian provinces are present
+                        expected_provinces = ["AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT"]
+                        missing_provinces = [prov for prov in expected_provinces if prov not in provinces]
+                        
+                        if not missing_provinces:
+                            results.add_pass("Tax Information - All 13 Canadian provinces present")
+                            print(f"      Total Provinces: {len(provinces)}")
+                            
+                            # Check a few specific provinces for tax rates
+                            if "ON" in provinces and "tax_rate" in provinces["ON"]:
+                                on_tax = provinces["ON"]["tax_rate"]
+                                if on_tax == 0.13:  # 13% HST for Ontario
+                                    results.add_pass("Tax Information - Ontario tax rate correct (13%)")
+                                    print(f"      Ontario Tax Rate: {on_tax * 100}%")
+                                else:
+                                    results.add_fail("Tax Information ON rate", f"Expected 13% for Ontario, got {on_tax * 100}%")
+                            
+                            if "BC" in provinces and "tax_rate" in provinces["BC"]:
+                                bc_tax = provinces["BC"]["tax_rate"]
+                                if bc_tax == 0.12:  # 12% PST+GST for BC
+                                    results.add_pass("Tax Information - BC tax rate correct (12%)")
+                                    print(f"      BC Tax Rate: {bc_tax * 100}%")
+                                else:
+                                    results.add_fail("Tax Information BC rate", f"Expected 12% for BC, got {bc_tax * 100}%")
+                        else:
+                            results.add_fail("Tax Information", f"Missing provinces: {missing_provinces}")
+                    else:
+                        results.add_fail("Tax Information", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Tax Information", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/stripe-connect/tax-info", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/stripe-connect/tax-info", f"Request failed: {str(e)}")
+    
+    # Test 8: Update Province
+    if institution_token:
+        print("\n   Test 8: Update Province - PATCH /api/stripe-connect/update-province?province=BC")
+        try:
+            response = requests.patch(
+                f"{BASE_URL}/stripe-connect/update-province?province=BC",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    update_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["province", "tax_info"]
+                    missing_fields = [field for field in required_fields if field not in update_data]
+                    
+                    if not missing_fields:
+                        if update_data.get("province") == "BC":
+                            results.add_pass("Update Province - Province updated to BC")
+                            print(f"      Updated Province: {update_data.get('province')}")
+                            
+                            # Check tax_info for BC
+                            tax_info = update_data.get("tax_info", {})
+                            if tax_info.get("tax_rate") == 0.12:
+                                results.add_pass("Update Province - BC tax rate applied (12%)")
+                                print(f"      BC Tax Rate: {tax_info.get('tax_rate', 0) * 100}%")
+                            else:
+                                results.add_fail("Update Province tax rate", f"Expected 12% for BC, got {tax_info.get('tax_rate', 0) * 100}%")
+                        else:
+                            results.add_fail("Update Province", f"Expected province BC, got {update_data.get('province')}")
+                    else:
+                        results.add_fail("Update Province", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Update Province", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("PATCH /api/stripe-connect/update-province", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("PATCH /api/stripe-connect/update-province", f"Request failed: {str(e)}")
+    
+    # Test 9: Get Canadian Provinces for Credential Payments
+    print("\n   Test 9: Get Canadian Provinces - GET /api/credential-payments/provinces")
+    try:
+        response = requests.get(f"{BASE_URL}/credential-payments/provinces", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                provinces_data = data["data"]
+                
+                # Check required fields
+                required_fields = ["provinces"]
+                missing_fields = [field for field in required_fields if field not in provinces_data]
+                
+                if not missing_fields:
+                    provinces = provinces_data.get("provinces", [])
+                    
+                    # Check if 13 provinces are returned
+                    if len(provinces) == 13:
+                        results.add_pass("Credential Payments Provinces - All 13 provinces returned")
+                        print(f"      Total Provinces: {len(provinces)}")
+                        
+                        # Check if provinces have required fields
+                        if provinces and "code" in provinces[0] and "name" in provinces[0]:
+                            results.add_pass("Credential Payments Provinces - Province structure correct")
+                        else:
+                            results.add_fail("Credential Payments Provinces structure", "Missing code or name in province data")
+                    else:
+                        results.add_fail("Credential Payments Provinces", f"Expected 13 provinces, got {len(provinces)}")
+                else:
+                    results.add_fail("Credential Payments Provinces", f"Missing required fields: {missing_fields}")
+            else:
+                results.add_fail("Credential Payments Provinces", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/credential-payments/provinces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/credential-payments/provinces", f"Request failed: {str(e)}")
+    
+    # Test 10: Calculate Price with Tax
+    print("\n   Test 10: Calculate Price with Tax - GET /api/credential-payments/calculate-price?credential_type=certificate&province=ON")
+    try:
+        response = requests.get(f"{BASE_URL}/credential-payments/calculate-price?credential_type=certificate&province=ON", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                price_data = data["data"]
+                
+                # Check required fields
+                required_fields = ["base_price_cad", "tax_rate", "tax_amount", "total"]
+                missing_fields = [field for field in required_fields if field not in price_data]
+                
+                if not missing_fields:
+                    base_price = price_data.get("base_price_cad", 0)
+                    tax_rate = price_data.get("tax_rate", 0)
+                    tax_amount = price_data.get("tax_amount", 0)
+                    total = price_data.get("total", 0)
+                    
+                    # Verify certificate base price
+                    if base_price == 50.0:
+                        results.add_pass("Calculate Price - Certificate base price correct ($50)")
+                    else:
+                        results.add_fail("Calculate Price base price", f"Expected $50, got ${base_price}")
+                    
+                    # Verify Ontario tax rate (13% HST)
+                    if tax_rate == 0.13:
+                        results.add_pass("Calculate Price - Ontario tax rate correct (13%)")
+                    else:
+                        results.add_fail("Calculate Price tax rate", f"Expected 13%, got {tax_rate * 100}%")
+                    
+                    # Verify tax amount calculation (50 * 0.13 = 6.5)
+                    if tax_amount == 6.5:
+                        results.add_pass("Calculate Price - Tax amount correct ($6.50)")
+                    else:
+                        results.add_fail("Calculate Price tax amount", f"Expected $6.50, got ${tax_amount}")
+                    
+                    # Verify total calculation (50 + 6.5 = 56.5)
+                    if total == 56.5:
+                        results.add_pass("Calculate Price - Total amount correct ($56.50)")
+                    else:
+                        results.add_fail("Calculate Price total", f"Expected $56.50, got ${total}")
+                    
+                    print(f"      Base Price: ${base_price} CAD")
+                    print(f"      Tax Rate: {tax_rate * 100}%")
+                    print(f"      Tax Amount: ${tax_amount} CAD")
+                    print(f"      Total: ${total} CAD")
+                else:
+                    results.add_fail("Calculate Price", f"Missing required fields: {missing_fields}")
+            else:
+                results.add_fail("Calculate Price", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/credential-payments/calculate-price", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/credential-payments/calculate-price", f"Request failed: {str(e)}")
+    
+    # Test 11: Authentication Enforcement
+    print("\n   Test 11: Authentication Enforcement")
+    
+    # Test stripe-connect endpoints without authentication
+    stripe_connect_endpoints = [
+        ("POST", "/stripe-connect/create-account"),
+        ("POST", "/stripe-connect/onboarding-link"),
+        ("GET", "/stripe-connect/account-status"),
+        ("GET", "/stripe-connect/dashboard-link"),
+        ("GET", "/stripe-connect/balance"),
+        ("GET", "/stripe-connect/tax-info"),
+        ("PATCH", "/stripe-connect/update-province")
+    ]
+    
+    for method, endpoint in stripe_connect_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=5)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=5)
+            elif method == "PATCH":
+                response = requests.patch(f"{BASE_URL}{endpoint}", json={}, timeout=5)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Request failed: {str(e)}")
+
 def main():
     """Main test execution"""
     results = TestResults()
     
-    print("\n🔍 STARTING CREDENTIAL MONETIZATION SYSTEM TESTS...")
+    print("\n🔍 STARTING INSTITUTION WITHDRAWAL SYSTEM TESTS...")
     
-    # Run Credential Monetization System Tests
-    test_credential_monetization_system(results)
+    # Run Institution Withdrawal System Tests
+    test_institution_withdrawal_system(results)
     
     # Print final summary
     print("\n" + "="*80)
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL TESTS PASSED! Credential Monetization System is working correctly.")
+        print("\n🎉 ALL TESTS PASSED! Institution Withdrawal System is working correctly.")
     else:
         print(f"\n⚠️  {results.failed} TEST(S) FAILED. See details above.")
     
