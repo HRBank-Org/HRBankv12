@@ -331,10 +331,11 @@ async def initiate_credential_payment(
     current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
-    """Initiate Stripe payment for a pending credential"""
+    """Initiate Stripe payment for a pending credential with tax"""
     from emergentintegrations.payments.stripe.checkout import (
         StripeCheckout, CheckoutSessionRequest
     )
+    from utils.canadian_taxes import calculate_tax
     
     # Get the pending credential
     pending = await db.pending_credentials.find_one(
@@ -366,6 +367,11 @@ async def initiate_credential_payment(
             detail="You are not authorized to pay for this credential"
         )
     
+    # Calculate tax based on province
+    province = payment_data.province or "ON"
+    tax_breakdown = calculate_tax(pending["price_cad"], province)
+    total_amount = tax_breakdown["total"]
+    
     # Initialize Stripe
     api_key = os.environ.get("STRIPE_API_KEY")
     host_url = str(request.base_url).rstrip("/")
@@ -379,7 +385,7 @@ async def initiate_credential_payment(
     cancel_url = f"{origin_url}/workforce/credentials/pending"
     
     checkout_request = CheckoutSessionRequest(
-        amount=float(pending["price_cad"]),
+        amount=float(total_amount),
         currency="cad",
         success_url=success_url,
         cancel_url=cancel_url,
@@ -388,7 +394,11 @@ async def initiate_credential_payment(
             "user_id": current_user["user_id"],
             "institution_id": pending["institution_id"],
             "credential_name": pending["credential_name"],
-            "payment_type": "credential_purchase"
+            "payment_type": "credential_purchase",
+            "province": province,
+            "base_amount": str(pending["price_cad"]),
+            "tax_amount": str(tax_breakdown["tax_amount"]),
+            "tax_rate": str(tax_breakdown["tax_rate_percentage"])
         }
     )
     
@@ -401,7 +411,12 @@ async def initiate_credential_payment(
         "pending_credential_id": pending["pending_credential_id"],
         "user_id": current_user["user_id"],
         "institution_id": pending["institution_id"],
-        "amount_cad": pending["price_cad"],
+        "base_amount_cad": pending["price_cad"],
+        "tax_amount_cad": tax_breakdown["tax_amount"],
+        "tax_rate": tax_breakdown["tax_rate"],
+        "tax_description": tax_breakdown["tax_description"],
+        "province": province,
+        "total_amount_cad": total_amount,
         "platform_fee_cad": pending["platform_fee_cad"],
         "institution_payout_cad": pending["institution_payout_cad"],
         "currency": "CAD",
@@ -417,7 +432,13 @@ async def initiate_credential_payment(
         "data": {
             "checkout_url": session.url,
             "session_id": session.session_id,
-            "amount_cad": pending["price_cad"]
+            "pricing": {
+                "subtotal_cad": pending["price_cad"],
+                "tax_amount_cad": tax_breakdown["tax_amount"],
+                "tax_rate_percentage": tax_breakdown["tax_rate_percentage"],
+                "tax_description": tax_breakdown["tax_description"],
+                "total_cad": total_amount
+            }
         }
     }
 
