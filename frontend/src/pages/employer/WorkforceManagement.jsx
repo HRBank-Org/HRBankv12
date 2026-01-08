@@ -5,6 +5,7 @@ import api from '../../utils/api';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import DragDropAssignment from '../../components/employer/DragDropAssignment';
+import BlockchainVerifiedBadge from '../../components/common/BlockchainVerifiedBadge';
 
 // Extracted components for better maintainability
 import RecordsTable from '../../components/employer/workforce/RecordsTable';
