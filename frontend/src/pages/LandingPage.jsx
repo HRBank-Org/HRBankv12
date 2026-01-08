@@ -108,6 +108,9 @@ const LandingPage = () => {
                 <Search size={16} />
                 Browse Jobs
               </Link>
+              <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium flex items-center gap-1">
+                🏆 Leaderboard
+              </Link>
               <button 
                 onClick={() => document.getElementById('employers').scrollIntoView({ behavior: 'smooth' })}
                 className="text-gray-600 hover:text-[#ff5f00] font-medium"
