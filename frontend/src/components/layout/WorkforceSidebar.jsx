@@ -86,6 +86,12 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
+      label: 'Career Profile',
+      icon: FiShare2,
+      path: '/workforce/career-profile'
+    },
+    {
+      type: 'item',
       label: 'Find Jobs',
       icon: FiSearch,
       path: '/workforce/find-jobs'
