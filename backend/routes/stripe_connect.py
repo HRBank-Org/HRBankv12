@@ -345,7 +345,7 @@ async def get_payout_balance(
                 "pending": sum(b.amount for b in balance.pending) / 100,
                 "currency": "CAD"
             }
-        except:
+        except stripe.error.StripeError:
             pass
     
     return {
