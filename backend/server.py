@@ -178,6 +178,7 @@ app.include_router(admin_seeding.router, prefix="/api", tags=["admin_seeding"])
 app.include_router(transcripts.router, prefix="/api", tags=["transcripts"])
 app.include_router(auto_dispatch.router, prefix="/api", tags=["auto_dispatch"])
 app.include_router(super_admin.router, prefix="/api", tags=["super_admin"])
+app.include_router(career_profile.router, prefix="/api", tags=["career_profile"])
 
 # Mount static files for uploaded photos
 from pathlib import Path
