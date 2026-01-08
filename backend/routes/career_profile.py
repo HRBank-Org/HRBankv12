@@ -220,6 +220,13 @@ async def get_public_career_profile(
         {"_id": 0}
     )
     
+    # Get name from workforce profile first, then user
+    full_name = None
+    if profile:
+        full_name = profile.get("full_name") or f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip()
+    if not full_name:
+        full_name = user.get("full_name")
+    
     # Build public profile based on privacy settings
     public_profile = {
         "profile_code": profile_code.upper(),
@@ -229,10 +236,10 @@ async def get_public_career_profile(
     
     # Name
     if privacy.get("show_full_name", True):
-        public_profile["full_name"] = user.get("full_name", "HR Bank Member")
+        public_profile["full_name"] = full_name or "HR Bank Member"
     else:
         # Show initials only
-        name = user.get("full_name", "")
+        name = full_name or ""
         if name:
             parts = name.split()
             public_profile["full_name"] = f"{parts[0][0]}. {parts[-1][0]}." if len(parts) > 1 else f"{parts[0][0]}."
