@@ -138,7 +138,7 @@ const InstitutionLanding = () => {
                   <div className="w-16 h-16 bg-gray-100 rounded p-2">
                     <div className="w-full h-full bg-gray-200 rounded grid grid-cols-4 gap-px">
                       {Array(16).fill(0).map((_, i) => (
-                        <div key={i} className={`${Math.random() > 0.5 ? 'bg-gray-800' : 'bg-white'}`} />
+                        <div key={i} className={`${i % 2 === 0 ? 'bg-gray-800' : 'bg-white'}`} />
                       ))}
                     </div>
                   </div>
