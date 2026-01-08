@@ -692,16 +692,16 @@ const LandingPage = () => {
               <h4 className="text-white font-semibold mb-4">For Job Seekers</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/jobs" className="hover:text-white transition-colors">Browse Jobs</Link></li>
-                <li><Link to="/auth/register?type=workforce" className="hover:text-white transition-colors">Create Profile</Link></li>
+                <li><Link to="/signup?type=workforce" className="hover:text-white transition-colors">Create Profile</Link></li>
                 <li><Link to="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">For Employers</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/auth/register?type=employer" className="hover:text-white transition-colors">Post Jobs</Link></li>
+                <li><Link to="/signup?type=employer" className="hover:text-white transition-colors">Post Jobs</Link></li>
                 <li><button onClick={() => document.getElementById('employers').scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">Why HR Bank</button></li>
-                <li><Link to="/auth/register?type=institution" className="hover:text-white transition-colors">For Institutions</Link></li>
+                <li><Link to="/signup?type=institution" className="hover:text-white transition-colors">For Institutions</Link></li>
               </ul>
             </div>
             <div>
