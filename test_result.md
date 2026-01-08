@@ -3808,3 +3808,103 @@ Response: {
 5. Authentication credentials from review request working correctly
 
 **Backend System Status:** The two-way rating system backend is **FULLY FUNCTIONAL** and ready for production use. All API endpoints respond correctly with proper data structures, authentication, and privacy controls.
+
+---
+
+## Latest Test Session: Blockchain Credential Minting - PRODUCTION READY
+
+### Test Date: January 8, 2026
+
+### Testing Agent: Manual Testing (curl + python scripts)
+
+### Feature Under Test: Real Blockchain Credentialing System (Polygon Mainnet + IPFS)
+
+**Test URL:** https://blockverify-4.preview.emergentagent.com
+
+**Test Credentials:**
+- Institution: demo@stclairecollege.ca / Demo123!
+
+**Blockchain Configuration:**
+- Network: Polygon Mainnet (Chain ID: 137)
+- Wallet: 0x8a9C7F6656F111e5ab7Dc14a3681C72a68C485a8
+- Balance: 274.829 MATIC
+- IPFS Provider: Pinata
+
+### 🔍 BLOCKCHAIN CREDENTIAL SYSTEM TESTING RESULTS
+
+#### ✅ TEST 1: BLOCKCHAIN NETWORK CONNECTION - PASSED
+- **Connection Status:** ✅ Connected to Polygon Mainnet
+- **Chain ID:** ✅ 137 (Polygon Mainnet)
+- **Latest Block:** ✅ 81369479 (live network)
+- **Gas Price:** ✅ ~1026 Gwei
+- **Impact:** ✅ Real-time connection to Polygon blockchain
+
+#### ✅ TEST 2: WALLET BALANCE VERIFICATION - PASSED
+- **Wallet Address:** ✅ 0x8a9C7F6656F111e5ab7Dc14a3681C72a68C485a8
+- **Balance:** ✅ 274.829 MATIC (sufficient for minting)
+- **Currency:** ✅ MATIC
+- **Impact:** ✅ Wallet has sufficient funds for on-chain transactions
+
+#### ✅ TEST 3: PINATA IPFS INTEGRATION - PASSED
+- **Pinata Authentication:** ✅ Working
+- **IPFS Upload:** ✅ Files upload successfully
+- **IPFS Gateway:** ✅ https://gateway.pinata.cloud/ipfs/
+- **Test Upload CID:** ✅ bafkreidzpzknp2tj22ihuppxpoeozmrnb67xqhjib5wz24qxybuxjgkm7a
+- **Impact:** ✅ Credential metadata stored on decentralized storage
+
+#### ✅ TEST 4: ON-CHAIN CREDENTIAL MINTING - PASSED
+- **Credential ID:** ✅ HRBANK-2026-D69F5C
+- **Transaction Hash:** ✅ 7106ee8f58913b4705df231cd22eccfdae6950239b7a2a35412cbcede966cb7f
+- **Block Number:** ✅ 81369479
+- **Gas Fee:** ✅ 0.0238 MATIC
+- **On-Chain Status:** ✅ TRUE (confirmed)
+- **Explorer URL:** ✅ https://polygonscan.com/tx/7106ee8f58913b4705df231cd22eccfdae6950239b7a2a35412cbcede966cb7f
+- **Impact:** ✅ Credentials are now permanently recorded on Polygon blockchain
+
+#### ✅ TEST 5: PUBLIC VERIFICATION ENDPOINT - PASSED
+- **Endpoint:** ✅ GET /api/blockchain-credentials/verify/{credential_id}
+- **Response:** ✅ Returns full credential details with blockchain verification
+- **Institution Info:** ✅ St. Claire College, Windsor, Ontario
+- **Verification Method:** ✅ hybrid (database + blockchain)
+- **Impact:** ✅ Anyone can verify credentials via public URL
+
+#### ✅ TEST 6: NETWORK STATUS ENDPOINT - PASSED
+- **Endpoint:** ✅ GET /api/blockchain-credentials/network-status
+- **Response Fields:**
+  - ✅ network: Polygon Mainnet
+  - ✅ is_connected: true
+  - ✅ pinata_configured: true
+  - ✅ private_key_configured: true
+  - ✅ issuer_balance: 274.829 MATIC
+- **Impact:** ✅ Real-time blockchain status monitoring available
+
+### 📊 BLOCKCHAIN CREDENTIAL SYSTEM SUMMARY
+- **Total Test Categories:** 6
+- **Passed:** 6
+- **Failed:** 0
+- **Success Rate:** 100%
+
+### ✅ PRODUCTION-READY FEATURES
+1. **Polygon Mainnet Connection:** ✅ Live connection via Infura RPC
+2. **IPFS Storage:** ✅ Credential metadata stored on Pinata IPFS
+3. **On-Chain Minting:** ✅ Credentials recorded as Polygon transactions
+4. **Verification System:** ✅ Public verification endpoint working
+5. **Explorer Integration:** ✅ Direct links to PolygonScan
+6. **Wallet Management:** ✅ 274.829 MATIC balance for gas fees
+
+### 🔗 VERIFIED TRANSACTION ON POLYGON
+- **Transaction:** https://polygonscan.com/tx/7106ee8f58913b4705df231cd22eccfdae6950239b7a2a35412cbcede966cb7f
+- **IPFS Data:** https://gateway.pinata.cloud/ipfs/bafkreidzpzknp2tj22ihuppxpoeozmrnb67xqhjib5wz24qxybuxjgkm7a
+
+### 🎯 BLOCKCHAIN CREDENTIAL SYSTEM STATUS: FULLY OPERATIONAL
+
+**✅ WALLET ISSUE RESOLVED:**
+- Previous blocker: 0 MATIC balance
+- Resolution: User provided correct private key for GasFuel wallet
+- Result: Wallet now has 274.829 MATIC - sufficient for thousands of credential mints
+
+**Ready for Production:**
+- ✅ Real blockchain transactions confirmed
+- ✅ IPFS storage working
+- ✅ Public verification functional
+- ✅ All endpoints operational
