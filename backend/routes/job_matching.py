@@ -292,7 +292,7 @@ async def run_matching_algorithm(db, job: JobPosting):
         worker_occupations = await db.occupation_profiles.find({
             'user_id': worker_id,
             'active': True
-        }).to_list(length=None)
+        }).to_list(length=50)
         
         # Calculate match score
         match_data = calculate_match_score(job, worker, worker_occupations, distance_km)
