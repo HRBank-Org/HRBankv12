@@ -51,6 +51,7 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - Fixed navigation routes in all subdomain landing pages (auth/login -> /login)
 - Fixed footer links in main LandingPage (/auth/register -> /signup)
 - Fixed linting issues (Math.random, unescaped entities)
+- **Fixed old auth routes in public pages**: About, Contact, Privacy, Leaderboard
 - All landing page CTAs properly route to signup/login flows
 
 ### Previous Sessions
