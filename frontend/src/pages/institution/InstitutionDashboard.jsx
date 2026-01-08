@@ -214,6 +214,58 @@ const InstitutionDashboard = () => {
       <UserHeader />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Stripe Connect Banner - Show if not connected and has earnings */}
+        {stripeStatus && !stripeStatus.has_account && payoutBalance && payoutBalance.total_earned_cad > 0 && (
+          <div 
+            onClick={() => navigate('/institution/payouts')}
+            className="mb-6 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-5 text-white cursor-pointer hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center text-3xl">
+                  💰
+                </div>
+                <div>
+                  <h3 className="font-bold text-xl">You have ${payoutBalance.total_earned_cad.toFixed(2)} CAD in earnings!</h3>
+                  <p className="text-emerald-100">Connect your bank account to receive weekly payouts</p>
+                </div>
+              </div>
+              <button className="px-6 py-3 bg-white text-emerald-600 rounded-lg font-bold hover:bg-emerald-50 transition-colors flex items-center gap-2">
+                Get Started
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Stripe Connect Pending Banner - Show if account exists but not complete */}
+        {stripeStatus && stripeStatus.has_account && !stripeStatus.onboarding_complete && (
+          <div 
+            onClick={() => navigate('/institution/payouts')}
+            className="mb-6 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-5 text-white cursor-pointer hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center text-3xl">
+                  ⏳
+                </div>
+                <div>
+                  <h3 className="font-bold text-xl">Complete Your Payout Setup</h3>
+                  <p className="text-amber-100">Finish connecting your bank account to start receiving payouts</p>
+                </div>
+              </div>
+              <button className="px-6 py-3 bg-white text-amber-600 rounded-lg font-bold hover:bg-amber-50 transition-colors flex items-center gap-2">
+                Continue Setup
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Banner */}
         <div className="bg-gradient-to-r from-slate-50 to-gray-100 rounded-xl p-6 mb-6 border border-slate-200">
           <div className="flex items-center justify-between">
