@@ -102,13 +102,18 @@ const MinimumWageManager = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <UserHeader 
-        title="Minimum Wage Management"
-        showBack={true}
-        onBack={() => navigate('/admin/dashboard')}
-      />
+      <GenericHeader />
+      <div className="flex">
+        <SuperAdminSidebar />
+        <main className="flex-1 lg:ml-[260px] transition-all duration-300">
+          <div className="p-6">
+            <div className="max-w-7xl mx-auto">
+              {/* Header */}
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold text-gray-900">Minimum Wage Management</h1>
+                <p className="text-gray-600">Configure provincial minimum wage settings</p>
+              </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Alert Banner */}
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
           <div className="flex items-start">
