@@ -68,6 +68,7 @@ class PaymentInitiate(BaseModel):
     """Initiate payment for a pending credential"""
     pending_credential_id: str
     origin_url: str
+    province: Optional[str] = "ON"  # Province for tax calculation
 
 # ============================================
 # Institution Endpoints
