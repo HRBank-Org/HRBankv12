@@ -7,7 +7,7 @@
 
 ### Feature Under Test: Verified Career Profile Feature
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
@@ -58,7 +58,7 @@
 - **Page Access:** ✅ /workforce/career-profile accessible after authentication
 - **Page Header:** ✅ "Verified Career Profile" title with subtitle "Share your professional profile with employers outside HR Bank"
 - **QR Code Display:** ✅ Large QR code prominently displayed in blue gradient section
-- **Profile URL:** ✅ Profile URL shown: https://blockverify-4.preview.emergentagent.com/profile/3E68EA53
+- **Profile URL:** ✅ Profile URL shown: https://taxsmart-9.preview.emergentagent.com/profile/3E68EA53
 - **Action Buttons:** ✅ All required buttons present:
   - ✅ "Preview Profile" button (opens public profile)
   - ✅ "Download QR" button (downloads QR code)
@@ -158,7 +158,7 @@
 
 ### Feature Under Test: Credential Monetization System for HR Bank
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Institution: demo@stclairecollege.ca / Demo123!
@@ -356,7 +356,7 @@
 
 ### Feature Under Test: Restructured Super Admin Sidebar and Role Management Page
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -442,7 +442,7 @@
 
 #### ✅ TEST 3: ROLE MANAGEMENT PAGE NAVIGATION - PASSED
 - **Page Access:** ✅ /admin/roles accessible via sidebar navigation
-- **URL Routing:** ✅ Direct navigation to https://blockverify-4.preview.emergentagent.com/admin/roles working
+- **URL Routing:** ✅ Direct navigation to https://taxsmart-9.preview.emergentagent.com/admin/roles working
 - **Page Loading:** ✅ Page loads without errors and displays content
 - **Impact:** ✅ Role Management page properly integrated into navigation system
 
@@ -614,7 +614,7 @@
 
 ### Feature Under Test: Complete Super Admin Sidebar Navigation Links Testing
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com/admin/login
+**Test URL:** https://taxsmart-9.preview.emergentagent.com/admin/login
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -799,7 +799,7 @@ Test ALL Super Admin sidebar links to verify none are broken:
 
 ### Feature Under Test: Super Admin Pages Title and Sidebar Verification
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com/admin/login
+**Test URL:** https://taxsmart-9.preview.emergentagent.com/admin/login
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -956,7 +956,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Regional Admin System for HR Bank
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -1149,7 +1149,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Enhanced Time-Off Management System for HR Bank
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
@@ -1322,7 +1322,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Time-Off Management System Frontend UI for HR Bank
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
@@ -1491,7 +1491,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Super Admin System for HR Bank with role-based access control
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Admin: qnizami@hrbank.ca / Test123!
@@ -1793,7 +1793,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Auto-Translation system for notifications in HR Bank
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Scope:**
 1. **Login as French-speaking workforce user**
@@ -1927,7 +1927,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Super Admin Portal Frontend UI for HR Bank
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -2110,7 +2110,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Blockchain Verified Badge integration in HR Bank frontend UI components
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Scope:**
 1. **Workforce Profile Page with Blockchain Badge**
@@ -2242,7 +2242,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Final Production Readiness Test for HR Bank after database indexing
 
-**Base URL:** https://blockverify-4.preview.emergentagent.com
+**Base URL:** https://taxsmart-9.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2372,7 +2372,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Production Hardening Changes for HR Bank
 
-**Base URL:** https://blockverify-4.preview.emergentagent.com
+**Base URL:** https://taxsmart-9.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2402,7 +2402,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 #### ✅ TEST 3: CORS CONFIGURATION - PASSED
 - **CORS Headers:** ✅ Access-Control-Allow-Origin header present
-- **Origin Value:** ✅ https://blockverify-4.preview.emergentagent.com (NOT "*")
+- **Origin Value:** ✅ https://taxsmart-9.preview.emergentagent.com (NOT "*")
 - **Security:** ✅ CORS properly configured for production (not wildcard)
 - **Credentials Support:** ✅ Access-Control-Allow-Credentials: true
 - **Methods:** ✅ Proper CORS methods configured
@@ -2479,7 +2479,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Complete Credential Minting Flow for HR Bank Institution Portal
 
-**Base URL:** https://blockverify-4.preview.emergentagent.com
+**Base URL:** https://taxsmart-9.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2704,7 +2704,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Institution Transcript Processing & Blockchain Credential System
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2779,7 +2779,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Institution User Flow for HR Bank
 
-**Base URL:** https://blockverify-4.preview.emergentagent.com
+**Base URL:** https://taxsmart-9.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2896,7 +2896,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Auto-Translation System for Chat (Emma) and Notifications
 
-**Base URL:** https://blockverify-4.preview.emergentagent.com
+**Base URL:** https://taxsmart-9.preview.emergentagent.com
 **Test Credentials:** 
 - Workforce: emily.chen@email.com / Test123!
 - Employer: john.b@swanpizza.ca / Test123!
@@ -3019,7 +3019,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Unified Calendar Shifts Endpoint Implementation
 
-**Base URL:** https://blockverify-4.preview.emergentagent.com
+**Base URL:** https://taxsmart-9.preview.emergentagent.com
 **Test Credentials:** 
 - Employer: john.b@swanpizza.ca / Test123!
 
@@ -3333,7 +3333,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Offer Management in Recruitment Tab
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com/employer/workforce-management
+**Test URL:** https://taxsmart-9.preview.emergentagent.com/employer/workforce-management
 **Test Credentials:** john.b@swanpizza.ca / Test123! (Employer)
 
 **Test Scope:**
@@ -3628,7 +3628,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 - Email: john.b@swanpizza.ca
 - Password: Test123!
 - User Type: Employer
-- Base URL: https://blockverify-4.preview.emergentagent.com
+- Base URL: https://taxsmart-9.preview.emergentagent.com
 
 ### Comprehensive Test Results:
 
@@ -3788,7 +3788,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 ### Test Credentials Used:
 - **Employer:** john.b@swanpizza.ca / Test123!
 - **Login Method:** Email/Password via Employer tab
-- **Test URL:** https://blockverify-4.preview.emergentagent.com/employer/workforce-management
+- **Test URL:** https://taxsmart-9.preview.emergentagent.com/employer/workforce-management
 
 ### Integration Testing Results:
 - **Frontend-Backend Integration:** ✅ Auto-Assign API calls working correctly
@@ -4168,7 +4168,7 @@ Response: {
 
 ### Feature Under Test: Real Blockchain Credentialing System (Polygon Mainnet + IPFS)
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Institution: demo@stclairecollege.ca / Demo123!
@@ -4299,7 +4299,7 @@ Response: {
 
 ### Feature Under Test: Verified Career Profile System for Workforce Users
 
-**Test URL:** https://blockverify-4.preview.emergentagent.com
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
@@ -4339,7 +4339,7 @@ Response: {
 - **Endpoint:** ✅ GET /api/career-profile/my-settings accessible with workforce authentication
 - **Response Structure:** ✅ Valid JSON with success: true and all required fields
 - **Profile Code:** ✅ BDE43B74 (8 characters uppercase format correct)
-- **Profile URL:** ✅ https://blockverify-4.preview.emergentagent.com/profile/BDE43B74 (format correct)
+- **Profile URL:** ✅ https://taxsmart-9.preview.emergentagent.com/profile/BDE43B74 (format correct)
 - **QR Code:** ✅ Base64 encoded PNG data URL present
 - **Privacy Settings:** ✅ All privacy toggles present (show_full_name, show_credentials, etc.)
 - **Impact:** ✅ Career profile settings endpoint fully functional with QR code and URL generation
