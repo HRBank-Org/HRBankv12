@@ -675,6 +675,41 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
     }
     await db.notifications.insert_one(notification)
     
+    # Send payment receipt email
+    try:
+        from services.credential_email_service import send_payment_receipt_email
+        
+        # Get user email
+        user = await db.users.find_one(
+            {"user_id": user_id},
+            {"_id": 0, "email": 1}
+        )
+        
+        # Get transaction details for tax info
+        transaction = await db.payment_transactions.find_one(
+            {"session_id": session_id},
+            {"_id": 0}
+        )
+        
+        if user and transaction:
+            send_payment_receipt_email(
+                recipient_email=user["email"],
+                recipient_name=pending["recipient_name"],
+                credential_name=pending["credential_name"],
+                credential_type=pending["credential_type"],
+                institution_name=pending["institution_name"],
+                transaction_id=session_id,
+                subtotal_cad=pending["price_cad"],
+                tax_amount_cad=transaction.get("tax_amount_cad", 0),
+                tax_description=transaction.get("tax_description", "Tax"),
+                total_cad=transaction.get("total_amount_cad", pending["price_cad"]),
+                credential_id=credential_id,
+                verification_url=f"https://taxsmart-9.preview.emergentagent.com/verify/{credential_id}",
+                paid_at=datetime.now(timezone.utc).isoformat()
+            )
+    except Exception as e:
+        print(f"Failed to send payment receipt email: {e}")
+    
     # Update institution stats
     await db.institution_profiles.update_one(
         {"institution_id": pending["institution_id"]},
