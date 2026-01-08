@@ -144,7 +144,7 @@ const WorkPassport = () => {
                   <div className="relative">
                     {profile.photo_url ? (
                       <img
-                        src={profile.photo_url}
+                        src={profile.photo_url.startsWith('http') ? profile.photo_url : `${process.env.REACT_APP_BACKEND_URL}${profile.photo_url}`}
                         alt={profile.full_name}
                         className="w-40 h-48 rounded-lg border-4 border-amber-500/30 shadow-lg object-cover"
                       />
