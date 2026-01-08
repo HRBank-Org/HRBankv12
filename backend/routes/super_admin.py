@@ -926,3 +926,392 @@ async def get_admin_dashboard(
             }
         }
     }
+
+
+
+# ==================== ZONE MANAGEMENT ====================
+
+# Canadian provinces with their details
+CANADIAN_PROVINCES = {
+    "AB": {"name": "Alberta", "capital": "Edmonton"},
+    "BC": {"name": "British Columbia", "capital": "Victoria"},
+    "MB": {"name": "Manitoba", "capital": "Winnipeg"},
+    "NB": {"name": "New Brunswick", "capital": "Fredericton"},
+    "NL": {"name": "Newfoundland and Labrador", "capital": "St. John's"},
+    "NS": {"name": "Nova Scotia", "capital": "Halifax"},
+    "NT": {"name": "Northwest Territories", "capital": "Yellowknife"},
+    "NU": {"name": "Nunavut", "capital": "Iqaluit"},
+    "ON": {"name": "Ontario", "capital": "Toronto"},
+    "PE": {"name": "Prince Edward Island", "capital": "Charlottetown"},
+    "QC": {"name": "Quebec", "capital": "Quebec City"},
+    "SK": {"name": "Saskatchewan", "capital": "Regina"},
+    "YT": {"name": "Yukon", "capital": "Whitehorse"}
+}
+
+
+@router.get("/provinces", response_model=Dict)
+async def get_provinces(
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Get list of Canadian provinces with stats"""
+    
+    provinces = []
+    for code, details in CANADIAN_PROVINCES.items():
+        # Get counts for this province
+        workforce_count = await db.users.count_documents({
+            "user_type": "workforce",
+            "$or": [
+                {"province": code},
+                {"province": details["name"]}
+            ]
+        })
+        employer_count = await db.users.count_documents({
+            "user_type": "employer",
+            "$or": [
+                {"province": code},
+                {"province": details["name"]}
+            ]
+        })
+        zone_count = await db.zones.count_documents({"province": code})
+        admin_count = await db.admins.count_documents({
+            "assigned_provinces": {"$in": [code]}
+        })
+        
+        provinces.append({
+            "code": code,
+            "name": details["name"],
+            "capital": details["capital"],
+            "workforce_count": workforce_count,
+            "employer_count": employer_count,
+            "zone_count": zone_count,
+            "admin_count": admin_count
+        })
+    
+    # Sort by name
+    provinces.sort(key=lambda x: x["name"])
+    
+    return {
+        "success": True,
+        "data": {
+            "provinces": provinces,
+            "total": len(provinces)
+        }
+    }
+
+
+@router.get("/zones", response_model=Dict)
+async def list_zones(
+    province: Optional[str] = None,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """List all zones with optional province filter"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    if admin and not admin.has_permission("can_manage_zones") and not admin.is_super_admin:
+        # Non-super admins can only see zones in their assigned provinces
+        if admin.assigned_provinces:
+            province_filter = {"province": {"$in": admin.assigned_provinces}}
+        else:
+            return {
+                "success": True,
+                "data": {"zones": [], "total": 0, "page": page, "pages": 0}
+            }
+    else:
+        province_filter = {}
+    
+    query = province_filter.copy()
+    if province:
+        query["province"] = province.upper()
+    
+    skip = (page - 1) * limit
+    zones = await db.zones.find(query, {"_id": 0}).sort("zone_name", 1).skip(skip).limit(limit).to_list(limit)
+    total = await db.zones.count_documents(query)
+    
+    return {
+        "success": True,
+        "data": {
+            "zones": zones,
+            "total": total,
+            "page": page,
+            "pages": (total + limit - 1) // limit
+        }
+    }
+
+
+@router.post("/zones", response_model=Dict)
+async def create_zone(
+    zone_data: dict,
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Create a new zone within a province"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    if admin and not admin.has_permission("can_manage_zones"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied: cannot manage zones"
+        )
+    
+    required = ["zone_name", "zone_code", "province"]
+    for field in required:
+        if field not in zone_data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Missing required field: {field}"
+            )
+    
+    province = zone_data["province"].upper()
+    if province not in CANADIAN_PROVINCES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid province code: {province}"
+        )
+    
+    # Check for duplicate zone code
+    existing = await db.zones.find_one({"zone_code": zone_data["zone_code"]})
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Zone code '{zone_data['zone_code']}' already exists"
+        )
+    
+    zone = Zone(
+        zone_name=zone_data["zone_name"],
+        zone_code=zone_data["zone_code"],
+        province=province,
+        cities=zone_data.get("cities", []),
+        postal_code_prefixes=zone_data.get("postal_code_prefixes", [])
+    )
+    
+    await db.zones.insert_one(zone.model_dump())
+    
+    return {
+        "success": True,
+        "data": {
+            "zone_id": zone.zone_id,
+            "zone_name": zone.zone_name,
+            "zone_code": zone.zone_code
+        },
+        "message": f"Zone '{zone.zone_name}' created successfully"
+    }
+
+
+@router.put("/zones/{zone_id}", response_model=Dict)
+async def update_zone(
+    zone_id: str,
+    zone_data: dict,
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Update a zone"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    if admin and not admin.has_permission("can_manage_zones"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied: cannot manage zones"
+        )
+    
+    zone = await db.zones.find_one({"zone_id": zone_id})
+    if not zone:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Zone not found"
+        )
+    
+    updates = {}
+    allowed_fields = ["zone_name", "cities", "postal_code_prefixes", "active"]
+    for field in allowed_fields:
+        if field in zone_data:
+            updates[field] = zone_data[field]
+    
+    if updates:
+        updates["updated_date"] = datetime.now(timezone.utc).isoformat()
+        await db.zones.update_one({"zone_id": zone_id}, {"$set": updates})
+    
+    return {
+        "success": True,
+        "message": "Zone updated successfully"
+    }
+
+
+@router.delete("/zones/{zone_id}", response_model=Dict)
+async def delete_zone(
+    zone_id: str,
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Delete a zone"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    if admin and not admin.has_permission("can_manage_zones"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied: cannot manage zones"
+        )
+    
+    zone = await db.zones.find_one({"zone_id": zone_id})
+    if not zone:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Zone not found"
+        )
+    
+    # Remove zone from any admins
+    await db.admins.update_many(
+        {"assigned_zones": zone_id},
+        {"$pull": {"assigned_zones": zone_id}}
+    )
+    
+    await db.zones.delete_one({"zone_id": zone_id})
+    
+    return {
+        "success": True,
+        "message": f"Zone '{zone['zone_name']}' deleted successfully"
+    }
+
+
+@router.get("/regional-stats", response_model=Dict)
+async def get_regional_stats(
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Get statistics broken down by province/region"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    
+    # Determine which provinces to show
+    if admin and admin.is_super_admin:
+        provinces_to_show = list(CANADIAN_PROVINCES.keys())
+    elif admin and admin.assigned_provinces:
+        provinces_to_show = admin.assigned_provinces
+    else:
+        provinces_to_show = list(CANADIAN_PROVINCES.keys())
+    
+    regional_stats = []
+    
+    for province_code in provinces_to_show:
+        province_info = CANADIAN_PROVINCES.get(province_code, {"name": province_code})
+        
+        # Count users by type for this province
+        workforce_count = await db.users.count_documents({
+            "user_type": "workforce",
+            "$or": [
+                {"province": province_code},
+                {"province": province_info.get("name", province_code)}
+            ]
+        })
+        
+        employer_count = await db.users.count_documents({
+            "user_type": "employer",
+            "$or": [
+                {"province": province_code},
+                {"province": province_info.get("name", province_code)}
+            ]
+        })
+        
+        pending_count = await db.users.count_documents({
+            "profile_status": "pending",
+            "$or": [
+                {"province": province_code},
+                {"province": province_info.get("name", province_code)}
+            ]
+        })
+        
+        # Get zones in this province
+        zones = await db.zones.find({"province": province_code}, {"_id": 0, "zone_name": 1, "zone_code": 1}).to_list(50)
+        
+        # Get admins assigned to this province
+        assigned_admins = await db.admins.find(
+            {"assigned_provinces": {"$in": [province_code]}},
+            {"_id": 0, "admin_id": 1, "full_name": 1, "email": 1, "role": 1}
+        ).to_list(20)
+        
+        regional_stats.append({
+            "province_code": province_code,
+            "province_name": province_info.get("name", province_code),
+            "workforce_count": workforce_count,
+            "employer_count": employer_count,
+            "pending_activations": pending_count,
+            "total_users": workforce_count + employer_count,
+            "zones": zones,
+            "zone_count": len(zones),
+            "assigned_admins": assigned_admins,
+            "admin_count": len(assigned_admins)
+        })
+    
+    # Sort by total users descending
+    regional_stats.sort(key=lambda x: x["total_users"], reverse=True)
+    
+    return {
+        "success": True,
+        "data": {
+            "regional_stats": regional_stats,
+            "total_provinces": len(regional_stats)
+        }
+    }
+
+
+@router.get("/pending-activations-by-region", response_model=Dict)
+async def get_pending_activations_by_region(
+    province: Optional[str] = None,
+    user_type: Optional[str] = None,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Get pending activations filtered by region"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    
+    query = {"profile_status": "pending"}
+    
+    # Apply province filter
+    if province:
+        province_info = CANADIAN_PROVINCES.get(province.upper(), {})
+        query["$or"] = [
+            {"province": province.upper()},
+            {"province": province_info.get("name", province)}
+        ]
+    elif admin and not admin.is_super_admin and admin.assigned_provinces:
+        # Non-super admins only see their assigned provinces
+        province_conditions = []
+        for prov in admin.assigned_provinces:
+            province_info = CANADIAN_PROVINCES.get(prov, {})
+            province_conditions.append({"province": prov})
+            if province_info.get("name"):
+                province_conditions.append({"province": province_info["name"]})
+        query["$or"] = province_conditions
+    
+    # Apply user type filter
+    if user_type:
+        query["user_type"] = user_type
+    
+    skip = (page - 1) * limit
+    users = await db.users.find(query, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.users.count_documents(query)
+    
+    # Group by province for summary
+    province_counts = {}
+    all_pending = await db.users.find({"profile_status": "pending"}, {"province": 1}).to_list(1000)
+    for user in all_pending:
+        prov = user.get("province", "Unknown")
+        province_counts[prov] = province_counts.get(prov, 0) + 1
+    
+    return {
+        "success": True,
+        "data": {
+            "users": users,
+            "total": total,
+            "page": page,
+            "pages": (total + limit - 1) // limit,
+            "province_summary": province_counts
+        }
+    }
+
