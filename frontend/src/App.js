@@ -326,6 +326,8 @@ function AppRoutes() {
         <Route path="/admin/pending-activations" element={<ProtectedRoute allowedUserTypes={['admin']}><PendingActivations /></ProtectedRoute>} />
         <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminManagement /></ProtectedRoute>} />
         <Route path="/admin/roles" element={<ProtectedRoute allowedUserTypes={['admin']}><RoleManagement /></ProtectedRoute>} />
+        <Route path="/admin/zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ZoneManagement /></ProtectedRoute>} />
+        <Route path="/admin/analytics" element={<ProtectedRoute allowedUserTypes={['admin']}><RegionalDashboard /></ProtectedRoute>} />
         <Route path="/admin/franchises" element={<ProtectedRoute allowedUserTypes={['admin']}><FranchiseManagement /></ProtectedRoute>} />
         <Route path="/admin/support-tickets" element={<ProtectedRoute allowedUserTypes={['admin']}><SupportTickets /></ProtectedRoute>} />
         
