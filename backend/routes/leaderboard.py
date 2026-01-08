@@ -208,7 +208,7 @@ async def get_province_leaderboard(
         {"_id": 0, "institution_id": 1, "province": 1}
     ).to_list(length=500)
     
-    inst_to_province = {i["institution_id"]: i.get("province", "Unknown") for i in institutions}
+    inst_to_province = {i["institution_id"]: i.get("province", "Unknown") for i in institutions if "institution_id" in i}
     
     # Get credentials
     credential_query = {"status": "issued"}
