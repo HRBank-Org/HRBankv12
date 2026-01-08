@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Career Profile Backend API Testing
-Testing Career Profile Backend API endpoints for HR Bank
-Focus: Workforce authentication, career profile settings, public profile access, privacy controls, profile stats
+HR Bank Credential Monetization Backend API Testing
+Testing Credential Monetization Backend API endpoints for HR Bank
+Focus: Pricing tiers, credential issuing, payment processing, institution/workforce authentication
 """
 
 import requests
