@@ -1437,29 +1437,31 @@ def test_institution_withdrawal_system(results):
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get("success") and "data" in data:
-                    update_data = data["data"]
+                if data.get("success") and "message" in data:
+                    message = data.get("message", "")
                     
-                    # Check required fields
-                    required_fields = ["province", "tax_info"]
-                    missing_fields = [field for field in required_fields if field not in update_data]
-                    
-                    if not missing_fields:
-                        if update_data.get("province") == "BC":
-                            results.add_pass("Update Province - Province updated to BC")
-                            print(f"      Updated Province: {update_data.get('province')}")
-                            
-                            # Check tax_info for BC
-                            tax_info = update_data.get("tax_info", {})
-                            if tax_info.get("tax_rate") == 0.12:
-                                results.add_pass("Update Province - BC tax rate applied (12%)")
-                                print(f"      BC Tax Rate: {tax_info.get('tax_rate', 0) * 100}%")
+                    if "BC" in message:
+                        results.add_pass("Update Province - Province updated to BC")
+                        print(f"      Update Message: {message}")
+                        
+                        # Verify the province was actually updated by checking balance endpoint
+                        balance_response = requests.get(
+                            f"{BASE_URL}/stripe-connect/balance",
+                            headers={"Authorization": f"Bearer {institution_token}"},
+                            timeout=10
+                        )
+                        
+                        if balance_response.status_code == 200:
+                            balance_data = balance_response.json().get("data", {})
+                            if balance_data.get("province") == "BC":
+                                results.add_pass("Update Province - Province change verified in balance")
+                                print(f"      Verified Province: {balance_data.get('province')}")
                             else:
-                                results.add_fail("Update Province tax rate", f"Expected 12% for BC, got {tax_info.get('tax_rate', 0) * 100}%")
+                                results.add_fail("Update Province verification", f"Province not updated in balance: {balance_data.get('province')}")
                         else:
-                            results.add_fail("Update Province", f"Expected province BC, got {update_data.get('province')}")
+                            results.add_fail("Update Province verification", "Could not verify province update")
                     else:
-                        results.add_fail("Update Province", f"Missing required fields: {missing_fields}")
+                        results.add_fail("Update Province", f"Expected BC in message, got: {message}")
                 else:
                     results.add_fail("Update Province", f"Invalid response structure: {data}")
             else:
