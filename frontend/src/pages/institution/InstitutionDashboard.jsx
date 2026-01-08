@@ -307,6 +307,13 @@ const InstitutionDashboard = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <QuickActionCard
+              icon="💰"
+              title="Credential Marketplace"
+              description="Issue & sell credentials, track revenue"
+              onClick={() => navigate('/institution/marketplace')}
+              color="#f59e0b"
+            />
+            <QuickActionCard
               icon="📄"
               title="Upload Transcripts"
               description="Process transcripts with AI extraction"
@@ -340,13 +347,6 @@ const InstitutionDashboard = () => {
               description="Send invitations to new students"
               onClick={() => navigate('/institution/students/invite')}
               color="#475569"
-            />
-            <QuickActionCard
-              icon="✅"
-              title="Verify Credentials"
-              description="Review pending verification requests"
-              onClick={() => navigate('/institution/verification-requests')}
-              color="#1e293b"
             />
           </div>
         </div>
