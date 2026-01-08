@@ -263,10 +263,15 @@ function AppRoutes() {
         <Route path="/workforce/settings" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceSettings /></ProtectedRoute>} />
         <Route path="/workforce/documents" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceDocuments /></ProtectedRoute>} />
         <Route path="/workforce/credentials/verify" element={<ProtectedRoute allowedUserTypes={['workforce']}><CredentialVerification /></ProtectedRoute>} />
+        <Route path="/workforce/credentials/pending" element={<ProtectedRoute allowedUserTypes={['workforce']}><PendingCredentials /></ProtectedRoute>} />
+        <Route path="/workforce/credentials/payment-success" element={<ProtectedRoute allowedUserTypes={['workforce']}><PaymentSuccess /></ProtectedRoute>} />
         <Route path="/workforce/credentials" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyCredentials /></ProtectedRoute>} />
         <Route path="/workforce/time-off" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceTimeOff /></ProtectedRoute>} />
         <Route path="/workforce/career-profile" element={<ProtectedRoute allowedUserTypes={['workforce']}><CareerProfileSettings /></ProtectedRoute>} />
         <Route path="/workforce/work-passport" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkPassportSettings /></ProtectedRoute>} />
+        
+        {/* Institution Routes */}
+        <Route path="/institution/marketplace" element={<ProtectedRoute allowedUserTypes={['institution']}><CredentialMarketplace /></ProtectedRoute>} />
         
         {/* Employer Routes */}
         <Route path="/employer/home" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerHome /></ProtectedRoute>} />
