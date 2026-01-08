@@ -3908,3 +3908,34 @@ Response: {
 - ✅ IPFS storage working
 - ✅ Public verification functional
 - ✅ All endpoints operational
+
+---
+
+## Latest Test Session: Verified Career Profile Feature
+
+### Test Date: January 8, 2026
+
+### Feature Under Test: Verified Career Profile (Digital Work Passport)
+
+**Test Credentials:**
+- Workforce: alex.johnson@email.com / Demo123!
+
+### Backend Endpoints to Test:
+1. `GET /api/career-profile/my-settings` - Get privacy settings and QR code
+2. `PATCH /api/career-profile/my-settings` - Update privacy toggles
+3. `POST /api/career-profile/regenerate-code` - Generate new share code
+4. `GET /api/career-profile/public/{profile_code}` - Public profile (no auth)
+5. `GET /api/career-profile/stats` - View statistics
+
+### Frontend Pages to Test:
+1. `/profile/{profileCode}` - Public shareable profile page
+2. `/workforce/career-profile` - Privacy settings page
+
+### Test Scenarios:
+1. Login as workforce user and access career profile settings
+2. Verify QR code generation and profile URL
+3. Test privacy toggles (turn on/off different sections)
+4. Access public profile via generated code
+5. Verify privacy settings are respected in public view
+6. Test print functionality
+7. Test "Create Employer Account" CTA on public page
