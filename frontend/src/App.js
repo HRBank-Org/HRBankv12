@@ -211,6 +211,7 @@ function AppRoutes() {
         <Route path="/verify/:credentialId" element={<VerifyCredential />} />
         <Route path="/verify" element={<VerifyCredential />} />
         <Route path="/profile/:profileCode" element={<VerifiedCareerProfile />} />
+        <Route path="/passport/:profileCode" element={<WorkPassport />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
