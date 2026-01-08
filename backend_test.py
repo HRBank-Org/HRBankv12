@@ -20,10 +20,10 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
 
-print(f"🚀 HR BANK CAREER PROFILE BACKEND API TESTING")
+print(f"🚀 HR BANK CREDENTIAL MONETIZATION BACKEND API TESTING")
 print(f"Testing backend at: {BASE_URL}")
 print(f"Base URL: {BACKEND_URL}")
-print(f"Focus: Workforce authentication, career profile settings, public profile access, privacy controls, profile stats")
+print(f"Focus: Pricing tiers, credential issuing, payment processing, institution/workforce authentication")
 print("="*80)
 
 class TestResults:
