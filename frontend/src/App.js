@@ -110,6 +110,7 @@ import ManageOccupations from './pages/admin/ManageOccupations';
 import ManageCertifications from './pages/admin/ManageCertifications';
 import WorkforceTimeOff from './pages/workforce/TimeOff';
 import EmployerTimeOffManagement from './pages/employer/TimeOffManagement';
+import CareerProfileSettings from './pages/workforce/CareerProfileSettings';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
