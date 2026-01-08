@@ -335,3 +335,226 @@ def send_stripe_connect_reminder_email(
     except EmailDeliveryError as e:
         print(f"❌ Failed to send Stripe Connect reminder to {institution_email}: {str(e)}")
         return False
+
+
+def send_payment_receipt_email(
+    recipient_email: str,
+    recipient_name: str,
+    credential_name: str,
+    credential_type: str,
+    institution_name: str,
+    transaction_id: str,
+    subtotal_cad: float,
+    tax_amount_cad: float,
+    tax_description: str,
+    total_cad: float,
+    credential_id: str,
+    verification_url: str,
+    paid_at: str
+):
+    """
+    Send payment receipt/invoice email to workforce user after successful payment
+    """
+    
+    # Format payment date
+    try:
+        paid_dt = datetime.fromisoformat(paid_at.replace('Z', '+00:00'))
+        formatted_date = paid_dt.strftime('%B %d, %Y at %I:%M %p')
+    except (ValueError, AttributeError):
+        formatted_date = paid_at
+    
+    # Credential type styling
+    type_colors = {
+        'certificate': '#3b82f6',
+        'diploma': '#8b5cf6',
+        'degree': '#10b981'
+    }
+    type_color = type_colors.get(credential_type, '#6b7280')
+    
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
+    credentials_url = f"{frontend_url}/workforce/credentials"
+    passport_url = f"{frontend_url}/workforce/work-passport"
+    
+    subject = f"🧾 Payment Receipt - {credential_name} - HR Bank"
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px 0;">
+            <tr>
+                <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <!-- Header -->
+                        <tr>
+                            <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🧾 HR Bank</h1>
+                                <p style="color: #d1fae5; margin: 5px 0 0 0; font-size: 14px;">Payment Receipt</p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Success Banner -->
+                        <tr>
+                            <td style="background-color: #10b981; padding: 15px; text-align: center;">
+                                <h2 style="color: #ffffff; margin: 0; font-size: 20px;">✅ Payment Successful!</h2>
+                            </td>
+                        </tr>
+                        
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 30px;">
+                                <p style="font-size: 16px; color: #333; margin: 0 0 20px 0;">
+                                    Hello {recipient_name},
+                                </p>
+                                
+                                <p style="font-size: 16px; color: #333; line-height: 1.5; margin: 0 0 20px 0;">
+                                    Thank you for your payment! Your credential has been issued and permanently recorded on the blockchain.
+                                </p>
+                                
+                                <!-- Receipt Box -->
+                                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
+                                    <tr>
+                                        <td style="padding: 25px;">
+                                            <h3 style="margin: 0 0 20px 0; color: #111827; font-size: 18px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                                                📋 Receipt Details
+                                            </h3>
+                                            
+                                            <table width="100%" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td style="color: #6b7280; font-size: 14px; padding: 8px 0;">Transaction ID:</td>
+                                                    <td style="color: #111827; font-size: 14px; padding: 8px 0; text-align: right; font-family: monospace;">{transaction_id[:20]}...</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="color: #6b7280; font-size: 14px; padding: 8px 0;">Date:</td>
+                                                    <td style="color: #111827; font-size: 14px; padding: 8px 0; text-align: right;">{formatted_date}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="padding: 15px 0;">
+                                                        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="color: #6b7280; font-size: 14px; padding: 8px 0;">Credential:</td>
+                                                    <td style="color: #111827; font-size: 14px; padding: 8px 0; text-align: right; font-weight: bold;">{credential_name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="color: #6b7280; font-size: 14px; padding: 8px 0;">Type:</td>
+                                                    <td style="padding: 8px 0; text-align: right;">
+                                                        <span style="background-color: {type_color}; color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">{credential_type}</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="color: #6b7280; font-size: 14px; padding: 8px 0;">Issued By:</td>
+                                                    <td style="color: #111827; font-size: 14px; padding: 8px 0; text-align: right;">{institution_name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="padding: 15px 0;">
+                                                        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="color: #6b7280; font-size: 14px; padding: 8px 0;">Subtotal:</td>
+                                                    <td style="color: #111827; font-size: 14px; padding: 8px 0; text-align: right;">${subtotal_cad:.2f} CAD</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="color: #6b7280; font-size: 14px; padding: 8px 0;">Tax ({tax_description}):</td>
+                                                    <td style="color: #111827; font-size: 14px; padding: 8px 0; text-align: right;">${tax_amount_cad:.2f} CAD</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="padding: 10px 0;">
+                                                        <hr style="border: none; border-top: 2px solid #111827; margin: 0;">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="color: #111827; font-size: 16px; padding: 8px 0; font-weight: bold;">Total Paid:</td>
+                                                    <td style="color: #10b981; font-size: 18px; padding: 8px 0; text-align: right; font-weight: bold;">${total_cad:.2f} CAD</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <!-- Credential Info Box -->
+                                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ecfdf5; border-left: 4px solid #10b981; border-radius: 4px; margin: 20px 0;">
+                                    <tr>
+                                        <td style="padding: 20px;">
+                                            <h4 style="margin: 0 0 10px 0; color: #065f46; font-size: 16px;">🔗 Your Credential is Now Live!</h4>
+                                            <p style="margin: 0 0 10px 0; color: #065f46; font-size: 14px;">
+                                                Credential ID: <strong style="font-family: monospace;">{credential_id}</strong>
+                                            </p>
+                                            <p style="margin: 0; color: #065f46; font-size: 14px;">
+                                                ✅ Permanently recorded on the Polygon blockchain<br>
+                                                ✅ Instantly verifiable by any employer<br>
+                                                ✅ Added to your Work Passport profile
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <!-- CTA Buttons -->
+                                <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                                    <tr>
+                                        <td align="center">
+                                            <a href="{credentials_url}" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 14px; font-weight: bold; margin: 0 8px;">
+                                                View My Credentials
+                                            </a>
+                                            <a href="{passport_url}" style="display: inline-block; background: #ffffff; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: bold; margin: 0 8px;">
+                                                My Work Passport
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <!-- Verification Link -->
+                                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; border-radius: 8px; margin: 20px 0;">
+                                    <tr>
+                                        <td style="padding: 15px; text-align: center;">
+                                            <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 12px;">Verification URL (share with employers):</p>
+                                            <a href="{verification_url}" style="color: #4f46e5; font-size: 12px; word-break: break-all;">{verification_url}</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <p style="font-size: 14px; color: #666; line-height: 1.5; margin: 20px 0 0 0;">
+                                    Keep this email for your records. If you have any questions, please contact support.
+                                </p>
+                                
+                                <p style="font-size: 14px; color: #666; margin: 20px 0 0 0;">
+                                    Best regards,<br>
+                                    <strong>HR Bank Team</strong>
+                                </p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer -->
+                        <tr>
+                            <td style="background-color: #f4f4f4; padding: 20px; text-align: center;">
+                                <p style="margin: 0; font-size: 12px; color: #999;">
+                                    This is your official payment receipt from HR Bank.<br>
+                                    Transaction ID: {transaction_id}
+                                </p>
+                                <p style="margin: 10px 0 0 0; font-size: 12px; color: #999;">
+                                    © 2025 HR Bank. All rights reserved.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+    
+    try:
+        send_email(recipient_email, subject, html_content)
+        print(f"✅ Payment receipt sent to {recipient_email}")
+        return True
+    except EmailDeliveryError as e:
+        print(f"❌ Failed to send payment receipt to {recipient_email}: {str(e)}")
+        return False
+
