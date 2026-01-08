@@ -685,7 +685,14 @@ const WorkforceManagement = () => {
                                 {worker.full_name?.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-900">{worker.full_name}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium text-gray-900">{worker.full_name}</p>
+                                  <BlockchainVerifiedBadge 
+                                    count={worker.verified_credentials_count || 0} 
+                                    size="sm" 
+                                    showCount={true}
+                                  />
+                                </div>
                                 <p className="text-xs text-gray-500">{worker.email}</p>
                               </div>
                             </div>
