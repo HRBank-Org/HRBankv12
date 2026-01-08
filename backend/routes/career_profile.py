@@ -383,6 +383,58 @@ async def get_public_career_profile(
         "is_blockchain_verified": len(blockchain_credentials) > 0
     }
     
+    # Security Verifications (always show if verified - builds trust)
+    security_verifications = []
+    
+    # ID Verification Status
+    id_status = profile.get("id_verification_status") if profile else None
+    if id_status == "approved":
+        security_verifications.append({
+            "type": "id_verified",
+            "label": "ID Verified",
+            "status": "verified",
+            "icon": "id-card"
+        })
+    
+    # Check for verified documents
+    verified_docs = await db.workforce_documents.find(
+        {"user_id": workforce_id, "verification_status": "verified"},
+        {"_id": 0, "document_type": 1, "document_name": 1}
+    ).to_list(length=10)
+    
+    for doc in verified_docs:
+        doc_type = doc.get("document_type", "")
+        if doc_type == "background_check":
+            security_verifications.append({
+                "type": "background_check",
+                "label": "Background Check",
+                "status": "verified",
+                "icon": "shield-check"
+            })
+        elif doc_type == "work_permit":
+            security_verifications.append({
+                "type": "work_permit",
+                "label": "Work Permit",
+                "status": "verified",
+                "icon": "file-check"
+            })
+        elif doc_type == "drivers_license":
+            security_verifications.append({
+                "type": "drivers_license",
+                "label": "Driver's License",
+                "status": "verified",
+                "icon": "car"
+            })
+        elif doc_type == "sin_card":
+            security_verifications.append({
+                "type": "sin_verified",
+                "label": "SIN Verified",
+                "status": "verified",
+                "icon": "lock"
+            })
+    
+    public_profile["security_verifications"] = security_verifications
+    
     # Track profile view
     await db.career_profile_views.insert_one({
         "profile_code": profile_code.upper(),
