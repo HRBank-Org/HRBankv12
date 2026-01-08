@@ -82,6 +82,9 @@ async def issue_blockchain_credential(
         "institution_id": credential.institution_id
     })
     
+    # Log blockchain result for debugging
+    print(f"🔗 Blockchain mint result: on_chain={blockchain_result.get('on_chain')}, status={blockchain_result.get('status')}")
+    
     credential.blockchain_transaction_hash = blockchain_result["transaction_hash"]
     credential.blockchain_token_id = blockchain_result["token_id"]
     credential.status = "issued"
@@ -99,8 +102,15 @@ async def issue_blockchain_credential(
     
     credential.qr_code_url = f"data:image/png;base64,{img_str}"
     
-    # Save to database
-    await db.blockchain_credentials.insert_one(credential.model_dump())
+    # Save to database with blockchain details
+    credential_data = credential.model_dump()
+    credential_data["on_chain"] = blockchain_result.get("on_chain", False)
+    credential_data["blockchain_status"] = blockchain_result.get("status", "simulated")
+    credential_data["explorer_url"] = blockchain_result.get("explorer_url")
+    credential_data["gas_fee"] = blockchain_result.get("gas_fee", 0)
+    credential_data["block_number"] = blockchain_result.get("block_number", 0)
+    
+    await db.blockchain_credentials.insert_one(credential_data)
     
     # Update institution stats
     await db.institution_profiles.update_one(
@@ -116,10 +126,17 @@ async def issue_blockchain_credential(
             "credential_id": credential.credential_id,
             "transaction_hash": credential.blockchain_transaction_hash,
             "ipfs_url": credential.ipfs_url,
+            "ipfs_gateway_url": blockchain_result.get("ipfs_gateway_url"),
             "verification_url": credential.verification_url,
-            "qr_code": credential.qr_code_url
+            "qr_code": credential.qr_code_url,
+            "on_chain": blockchain_result.get("on_chain", False),
+            "blockchain_status": blockchain_result.get("status", "simulated"),
+            "explorer_url": blockchain_result.get("explorer_url"),
+            "gas_fee": blockchain_result.get("gas_fee", 0),
+            "block_number": blockchain_result.get("block_number", 0),
+            "network": blockchain_result.get("network", "Polygon Mainnet")
         },
-        "message": "Credential issued successfully on blockchain"
+        "message": "Credential issued successfully" + (" on blockchain" if blockchain_result.get("on_chain") else " (IPFS only - blockchain simulated)")
     }
 
 @router.get("/verify/{credential_id}", response_model=Dict)
