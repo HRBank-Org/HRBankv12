@@ -1875,24 +1875,356 @@ def test_institution_withdrawal_enhancements(results):
         except Exception as e:
             results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_public_leaderboard_system(results):
+    """Test the Public Leaderboard System for HR Bank"""
+    print("\n🧪 Testing Public Leaderboard System for HR Bank (Priority: HIGH)...")
+    print("   Testing endpoints: Platform Stats, Institution Leaderboard, Province Leaderboard")
+    print("   Test URL: https://taxsmart-9.preview.emergentagent.com")
+    print("   Note: These are public endpoints - no authentication required")
+    
+    # Test 1: Platform Stats API (No Auth Required)
+    print("\n   Test 1: Platform Stats - GET /api/leaderboard/stats")
+    try:
+        response = requests.get(f"{BASE_URL}/leaderboard/stats", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                stats_data = data["data"]
+                
+                # Check required fields
+                required_fields = [
+                    "total_institutions", "total_credentials_issued", "total_work_passports",
+                    "total_workforce_users", "total_employers", "credentials_last_30_days",
+                    "blockchain_network"
+                ]
+                missing_fields = [field for field in required_fields if field not in stats_data]
+                
+                if not missing_fields:
+                    results.add_pass("Platform Stats - All required fields present")
+                    
+                    # Verify blockchain network
+                    if stats_data.get("blockchain_network") == "Polygon Mainnet":
+                        results.add_pass("Platform Stats - Blockchain network is 'Polygon Mainnet'")
+                    else:
+                        results.add_fail("Platform Stats blockchain", f"Expected 'Polygon Mainnet', got '{stats_data.get('blockchain_network')}'")
+                    
+                    # Print stats for verification
+                    print(f"      Total Institutions: {stats_data.get('total_institutions', 0)}")
+                    print(f"      Total Credentials Issued: {stats_data.get('total_credentials_issued', 0)}")
+                    print(f"      Total Work Passports: {stats_data.get('total_work_passports', 0)}")
+                    print(f"      Total Workforce Users: {stats_data.get('total_workforce_users', 0)}")
+                    print(f"      Total Employers: {stats_data.get('total_employers', 0)}")
+                    print(f"      Credentials Last 30 Days: {stats_data.get('credentials_last_30_days', 0)}")
+                    print(f"      Blockchain Network: {stats_data.get('blockchain_network', 'N/A')}")
+                    
+                    # Verify numeric values are non-negative
+                    numeric_fields = ["total_institutions", "total_credentials_issued", "total_work_passports", 
+                                    "total_workforce_users", "total_employers", "credentials_last_30_days"]
+                    all_valid = all(isinstance(stats_data.get(field, 0), (int, float)) and stats_data.get(field, 0) >= 0 
+                                  for field in numeric_fields)
+                    
+                    if all_valid:
+                        results.add_pass("Platform Stats - All numeric values are valid (non-negative)")
+                    else:
+                        results.add_fail("Platform Stats validation", "Some numeric values are invalid or negative")
+                else:
+                    results.add_fail("Platform Stats", f"Missing required fields: {missing_fields}")
+            else:
+                results.add_fail("Platform Stats", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/leaderboard/stats", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/leaderboard/stats", f"Request failed: {str(e)}")
+    
+    # Test 2: Institution Leaderboard (No Auth Required)
+    print("\n   Test 2: Institution Leaderboard - GET /api/leaderboard/institutions")
+    try:
+        response = requests.get(f"{BASE_URL}/leaderboard/institutions", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                leaderboard_data = data["data"]
+                
+                # Check required top-level fields
+                required_fields = ["leaderboard", "total_institutions", "summary", "filters"]
+                missing_fields = [field for field in required_fields if field not in leaderboard_data]
+                
+                if not missing_fields:
+                    results.add_pass("Institution Leaderboard - All required top-level fields present")
+                    
+                    # Check leaderboard array
+                    leaderboard = leaderboard_data.get("leaderboard", [])
+                    if isinstance(leaderboard, list):
+                        results.add_pass("Institution Leaderboard - Leaderboard is array")
+                        print(f"      Institutions in leaderboard: {len(leaderboard)}")
+                        
+                        # Check leaderboard entry structure (if any entries exist)
+                        if leaderboard:
+                            first_entry = leaderboard[0]
+                            entry_fields = ["rank", "institution_name", "province", "credentials_issued", 
+                                          "unique_students", "work_passports", "passport_rate"]
+                            missing_entry_fields = [field for field in entry_fields if field not in first_entry]
+                            
+                            if not missing_entry_fields:
+                                results.add_pass("Institution Leaderboard - Entry structure correct")
+                                print(f"      Top institution: {first_entry.get('institution_name', 'N/A')}")
+                                print(f"      Credentials issued: {first_entry.get('credentials_issued', 0)}")
+                                
+                                # Check for St. Claire College specifically
+                                st_claire = next((inst for inst in leaderboard 
+                                                if "St. Claire" in inst.get("institution_name", "") or 
+                                                   "St Claire" in inst.get("institution_name", "")), None)
+                                
+                                if st_claire:
+                                    results.add_pass("Institution Leaderboard - St. Claire College found in leaderboard")
+                                    print(f"      St. Claire College credentials: {st_claire.get('credentials_issued', 0)}")
+                                    
+                                    # Check if it has 12 credentials as mentioned in review request
+                                    if st_claire.get("credentials_issued") == 12:
+                                        results.add_pass("Institution Leaderboard - St. Claire College has 12 credentials")
+                                    else:
+                                        print(f"      Note: St. Claire College has {st_claire.get('credentials_issued', 0)} credentials (expected 12)")
+                                else:
+                                    print("      Note: St. Claire College not found in current leaderboard")
+                            else:
+                                results.add_fail("Institution Leaderboard entry", f"Missing entry fields: {missing_entry_fields}")
+                    else:
+                        results.add_fail("Institution Leaderboard", "Leaderboard is not an array")
+                    
+                    # Check summary structure
+                    summary = leaderboard_data.get("summary", {})
+                    summary_fields = ["total_credentials_issued", "total_work_passports", "total_students", "period"]
+                    missing_summary = [field for field in summary_fields if field not in summary]
+                    
+                    if not missing_summary:
+                        results.add_pass("Institution Leaderboard - Summary structure correct")
+                        print(f"      Summary - Total credentials: {summary.get('total_credentials_issued', 0)}")
+                        print(f"      Summary - Total passports: {summary.get('total_work_passports', 0)}")
+                        print(f"      Summary - Total students: {summary.get('total_students', 0)}")
+                    else:
+                        results.add_fail("Institution Leaderboard summary", f"Missing summary fields: {missing_summary}")
+                    
+                    # Check filters structure
+                    filters = leaderboard_data.get("filters", {})
+                    if "provinces" in filters:
+                        provinces = filters["provinces"]
+                        if isinstance(provinces, list) and len(provinces) == 13:
+                            results.add_pass("Institution Leaderboard - All 13 Canadian provinces in filters")
+                            print(f"      Provinces available: {len(provinces)}")
+                            
+                            # Check province structure
+                            if provinces and "code" in provinces[0] and "name" in provinces[0]:
+                                results.add_pass("Institution Leaderboard - Province filter structure correct")
+                            else:
+                                results.add_fail("Institution Leaderboard provinces", "Province entries missing code or name")
+                        else:
+                            results.add_fail("Institution Leaderboard provinces", f"Expected 13 provinces, got {len(provinces) if isinstance(provinces, list) else 'non-array'}")
+                    else:
+                        results.add_fail("Institution Leaderboard filters", "Missing provinces in filters")
+                else:
+                    results.add_fail("Institution Leaderboard", f"Missing required fields: {missing_fields}")
+            else:
+                results.add_fail("Institution Leaderboard", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/leaderboard/institutions", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/leaderboard/institutions", f"Request failed: {str(e)}")
+    
+    # Test 3: Institution Leaderboard with Province Filter
+    print("\n   Test 3: Institution Leaderboard with Province Filter - GET /api/leaderboard/institutions?province=ON")
+    try:
+        response = requests.get(f"{BASE_URL}/leaderboard/institutions?province=ON", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                filtered_data = data["data"]
+                
+                # Check that province filter is applied
+                summary = filtered_data.get("summary", {})
+                if summary.get("province_filter") == "ON":
+                    results.add_pass("Institution Leaderboard - Province filter applied (ON)")
+                    print(f"      Filtered results for Ontario")
+                else:
+                    results.add_fail("Institution Leaderboard province filter", f"Province filter not applied correctly")
+                
+                # Check that all entries are from Ontario (if any)
+                leaderboard = filtered_data.get("leaderboard", [])
+                if leaderboard:
+                    all_ontario = all(entry.get("province") == "ON" for entry in leaderboard)
+                    if all_ontario:
+                        results.add_pass("Institution Leaderboard - All filtered results are from Ontario")
+                        print(f"      Ontario institutions: {len(leaderboard)}")
+                    else:
+                        results.add_fail("Institution Leaderboard filter", "Some results are not from Ontario")
+                else:
+                    print("      No institutions found in Ontario filter")
+            else:
+                results.add_fail("Institution Leaderboard (province filter)", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/leaderboard/institutions?province=ON", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/leaderboard/institutions?province=ON", f"Request failed: {str(e)}")
+    
+    # Test 4: Institution Leaderboard with Period Filter
+    print("\n   Test 4: Institution Leaderboard with Period Filter - GET /api/leaderboard/institutions?period=month")
+    try:
+        response = requests.get(f"{BASE_URL}/leaderboard/institutions?period=month", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                period_data = data["data"]
+                
+                # Check that period filter is applied
+                summary = period_data.get("summary", {})
+                if summary.get("period") == "month":
+                    results.add_pass("Institution Leaderboard - Period filter applied (month)")
+                    print(f"      Filtered results for last month")
+                else:
+                    results.add_fail("Institution Leaderboard period filter", f"Period filter not applied correctly")
+            else:
+                results.add_fail("Institution Leaderboard (period filter)", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/leaderboard/institutions?period=month", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/leaderboard/institutions?period=month", f"Request failed: {str(e)}")
+    
+    # Test 5: Province Leaderboard (No Auth Required)
+    print("\n   Test 5: Province Leaderboard - GET /api/leaderboard/provinces")
+    try:
+        response = requests.get(f"{BASE_URL}/leaderboard/provinces", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                province_data = data["data"]
+                
+                # Check required fields
+                required_fields = ["leaderboard", "period"]
+                missing_fields = [field for field in required_fields if field not in province_data]
+                
+                if not missing_fields:
+                    results.add_pass("Province Leaderboard - All required fields present")
+                    
+                    # Check leaderboard structure
+                    leaderboard = province_data.get("leaderboard", [])
+                    if isinstance(leaderboard, list):
+                        results.add_pass("Province Leaderboard - Leaderboard is array")
+                        print(f"      Provinces in leaderboard: {len(leaderboard)}")
+                        
+                        # Check entry structure (if any entries exist)
+                        if leaderboard:
+                            first_entry = leaderboard[0]
+                            entry_fields = ["rank", "province_name", "credentials_issued", 
+                                          "unique_students", "participating_institutions"]
+                            missing_entry_fields = [field for field in entry_fields if field not in first_entry]
+                            
+                            if not missing_entry_fields:
+                                results.add_pass("Province Leaderboard - Entry structure correct")
+                                print(f"      Top province: {first_entry.get('province_name', 'N/A')}")
+                                print(f"      Credentials issued: {first_entry.get('credentials_issued', 0)}")
+                                print(f"      Participating institutions: {first_entry.get('participating_institutions', 0)}")
+                            else:
+                                results.add_fail("Province Leaderboard entry", f"Missing entry fields: {missing_entry_fields}")
+                    else:
+                        results.add_fail("Province Leaderboard", "Leaderboard is not an array")
+                else:
+                    results.add_fail("Province Leaderboard", f"Missing required fields: {missing_fields}")
+            else:
+                results.add_fail("Province Leaderboard", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/leaderboard/provinces", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/leaderboard/provinces", f"Request failed: {str(e)}")
+    
+    # Test 6: Province Leaderboard with Period Filter
+    print("\n   Test 6: Province Leaderboard with Period Filter - GET /api/leaderboard/provinces?period=year")
+    try:
+        response = requests.get(f"{BASE_URL}/leaderboard/provinces?period=year", timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "data" in data:
+                year_data = data["data"]
+                
+                # Check that period filter is applied
+                if year_data.get("period") == "year":
+                    results.add_pass("Province Leaderboard - Period filter applied (year)")
+                    print(f"      Filtered results for last year")
+                else:
+                    results.add_fail("Province Leaderboard period filter", f"Period filter not applied correctly")
+            else:
+                results.add_fail("Province Leaderboard (period filter)", f"Invalid response structure: {data}")
+        else:
+            results.add_fail("GET /api/leaderboard/provinces?period=year", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("GET /api/leaderboard/provinces?period=year", f"Request failed: {str(e)}")
+    
+    # Test 7: Response Format Validation
+    print("\n   Test 7: Response Format Validation")
+    
+    # Test all endpoints return success: true
+    endpoints_to_test = [
+        "/leaderboard/stats",
+        "/leaderboard/institutions", 
+        "/leaderboard/provinces"
+    ]
+    
+    for endpoint in endpoints_to_test:
+        try:
+            response = requests.get(f"{BASE_URL}{endpoint}", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") == True:
+                    results.add_pass(f"Response format - {endpoint} returns success: true")
+                else:
+                    results.add_fail(f"Response format {endpoint}", f"success field is not true: {data.get('success')}")
+            else:
+                results.add_fail(f"Response format {endpoint}", f"HTTP {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Response format {endpoint}", f"Request failed: {str(e)}")
+    
+    # Test 8: Public Access Verification
+    print("\n   Test 8: Public Access Verification (No Authentication Required)")
+    
+    # Verify all leaderboard endpoints work without any authentication
+    public_endpoints = [
+        ("GET", "/leaderboard/stats"),
+        ("GET", "/leaderboard/institutions"),
+        ("GET", "/leaderboard/provinces")
+    ]
+    
+    for method, endpoint in public_endpoints:
+        try:
+            # Make request without any authorization headers
+            response = requests.get(f"{BASE_URL}{endpoint}", timeout=5)
+            
+            # Should return 200 (not 401/403) since these are public endpoints
+            if response.status_code == 200:
+                results.add_pass(f"Public access - {endpoint} accessible without authentication")
+            else:
+                results.add_fail(f"Public access {endpoint}", f"Expected 200, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Public access {endpoint}", f"Request failed: {str(e)}")
+
 def main():
     """Main test execution"""
     results = TestResults()
     
-    print("\n🔍 STARTING INSTITUTION WITHDRAWAL SYSTEM TESTS...")
+    print("\n🔍 STARTING PUBLIC LEADERBOARD SYSTEM TESTS...")
     
-    # Run Institution Withdrawal System Tests
-    test_institution_withdrawal_system(results)
-    
-    # Run Institution Withdrawal System Enhancements Tests (NEW)
-    test_institution_withdrawal_enhancements(results)
+    # Run Public Leaderboard System Tests
+    test_public_leaderboard_system(results)
     
     # Print final summary
     print("\n" + "="*80)
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL TESTS PASSED! Institution Withdrawal System is working correctly.")
+        print("\n🎉 ALL TESTS PASSED! Public Leaderboard System is working correctly.")
     else:
         print(f"\n⚠️  {results.failed} TEST(S) FAILED. See details above.")
     
