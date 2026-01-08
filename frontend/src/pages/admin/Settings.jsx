@@ -104,13 +104,18 @@ const AdminSettings = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <UserHeader
-        showBack={true}
-        onBackClick={() => navigate('/admin/dashboard')}
-        title="Settings"
-      />
+      <GenericHeader />
+      <div className="flex">
+        <SuperAdminSidebar />
+        <main className="flex-1 lg:ml-[260px] transition-all duration-300">
+          <div className="p-6">
+            <div className="max-w-4xl mx-auto">
+              {/* Header */}
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold text-gray-900">Admin Settings</h1>
+                <p className="text-gray-600">Manage your account and preferences</p>
+              </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Profile Information */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
