@@ -95,6 +95,7 @@ import TermsOfService from './pages/legal/TermsOfService';
 import VerifyCredential from './pages/public/VerifyCredential';
 import VerifiedCareerProfile from './pages/public/VerifiedCareerProfile';
 import WorkPassport from './pages/public/WorkPassport';
+import Leaderboard from './pages/public/Leaderboard';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import MyTasks from './pages/workforce/MyTasks';
