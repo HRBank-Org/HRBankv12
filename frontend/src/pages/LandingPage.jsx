@@ -393,44 +393,71 @@ const LandingPage = () => {
                 {/* Gold stripe */}
                 <div className="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 rounded-full mb-4" />
                 
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center">
-                    <Shield className="w-8 h-8 text-slate-900" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold text-xl">WORK PASSPORT</h3>
-                    <p className="text-amber-400 text-sm">BLOCKCHAIN VERIFIED</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <p className="text-slate-400 text-xs uppercase mb-1">Full Name</p>
-                    <p className="text-white font-semibold">Alex Johnson</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs uppercase mb-1">Location</p>
-                    <p className="text-white font-semibold">Windsor, ON</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs uppercase mb-1">Hours Verified</p>
-                    <p className="text-amber-400 font-bold text-xl">8,500+</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs uppercase mb-1">Avg Rating</p>
-                    <div className="flex items-center gap-1">
-                      <span className="text-amber-400 font-bold text-xl">4.8</span>
-                      <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                <div className="flex items-start gap-4 mb-6">
+                  {/* Profile Photo */}
+                  <div className="relative">
+                    <img 
+                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=180&fit=crop&crop=face"
+                      alt="Alex Johnson"
+                      className="w-20 h-24 rounded-lg border-2 border-amber-500/50 object-cover shadow-lg"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-slate-800">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
                   </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-bold text-lg">Alex Johnson</h3>
+                    <p className="text-slate-400 text-sm">Windsor, ON • Canada</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-amber-400 font-bold">4.8</span>
+                      <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                      <span className="text-slate-500 text-sm">(127 reviews)</span>
+                    </div>
+                  </div>
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-slate-900" />
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-slate-700">
-                  <div className="flex gap-2">
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium">3 Credentials</span>
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-medium">3 Occupations</span>
+                {/* Security Verifications */}
+                <div className="bg-slate-700/50 rounded-lg p-3 mb-4">
+                  <p className="text-slate-400 text-xs uppercase mb-2 flex items-center gap-1">
+                    <Shield className="w-3 h-3" /> Security Clearances
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> ID Verified
+                    </span>
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Background Check
+                    </span>
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Work Permit
+                    </span>
                   </div>
-                  <div className="w-12 h-12 bg-white rounded p-1">
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="bg-slate-700/30 rounded-lg p-2 text-center">
+                    <p className="text-amber-400 font-bold text-lg">8,500+</p>
+                    <p className="text-slate-400 text-xs">Hours Verified</p>
+                  </div>
+                  <div className="bg-slate-700/30 rounded-lg p-2 text-center">
+                    <p className="text-green-400 font-bold text-lg">5</p>
+                    <p className="text-slate-400 text-xs">Credentials</p>
+                  </div>
+                  <div className="bg-slate-700/30 rounded-lg p-2 text-center">
+                    <p className="text-blue-400 font-bold text-lg">3</p>
+                    <p className="text-slate-400 text-xs">Occupations</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    Blockchain Verified on Polygon
+                  </div>
+                  <div className="w-10 h-10 bg-white rounded p-1">
                     <div className="w-full h-full bg-slate-200 rounded grid grid-cols-4 gap-px">
                       {Array(16).fill(0).map((_, i) => (
                         <div key={i} className={`${Math.random() > 0.5 ? 'bg-slate-800' : 'bg-white'}`} />
@@ -441,8 +468,8 @@ const LandingPage = () => {
               </div>
 
               {/* Floating badges */}
-              <div className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                ✓ Verified
+              <div className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center gap-1">
+                <CheckCircle2 className="w-4 h-4" /> Trusted
               </div>
               <div className="absolute -bottom-4 -left-4 bg-slate-700 text-white px-4 py-2 rounded-lg text-sm shadow-lg border border-slate-600">
                 <span className="text-gray-400">Viewed by</span>
