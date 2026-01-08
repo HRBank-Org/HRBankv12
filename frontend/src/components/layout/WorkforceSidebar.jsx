@@ -86,9 +86,9 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
-      label: 'Career Profile',
-      icon: FiShare2,
-      path: '/workforce/career-profile'
+      label: 'Work Passport',
+      icon: FiGlobe,
+      path: '/workforce/work-passport'
     },
     {
       type: 'item',
