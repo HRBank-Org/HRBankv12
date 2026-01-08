@@ -1598,6 +1598,283 @@ def test_institution_withdrawal_system(results):
         except Exception as e:
             results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Request failed: {str(e)}")
 
+def test_institution_withdrawal_enhancements(results):
+    """Test the Institution Withdrawal System Enhancements for HR Bank"""
+    print("\n🧪 Testing Institution Withdrawal System Enhancements for HR Bank (Priority: HIGH)...")
+    print("   Testing endpoints: Super Admin Institution Payouts, Email on Credential Issuance, Stripe Connect Status")
+    print("   Test credentials: Super Admin: qnizami@hrbank.ca / Test123!, Institution: demo@stclairecollege.ca / Demo123!")
+    print("   Base URL: https://taxsmart-9.preview.emergentagent.com")
+    
+    # Test credentials from review request
+    admin_creds = {"email": "qnizami@hrbank.ca", "password": "Test123!", "user_type": "admin"}
+    institution_creds = {"email": "demo@stclairecollege.ca", "password": "Demo123!", "user_type": "institution"}
+    
+    # Test 1: Super Admin Authentication
+    admin_token = None
+    print("\n   Test 1: Super Admin Authentication - POST /api/auth/login")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=admin_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                admin_token = data["data"]["access_token"]
+                user_data = data.get("data", {})
+                
+                # Verify user_type is "admin"
+                if user_data.get("user_type") == "admin":
+                    results.add_pass("Super Admin authentication - user_type is 'admin'")
+                    print(f"      Admin ID: {user_data.get('user_id', 'N/A')}")
+                    print(f"      User Type: {user_data.get('user_type', 'N/A')}")
+                else:
+                    results.add_fail("Super Admin authentication", f"Expected user_type 'admin', got '{user_data.get('user_type')}'")
+            else:
+                results.add_fail("Super Admin authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Super Admin authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Super Admin authentication", f"Request failed: {str(e)}")
+    
+    # Test 2: Super Admin Institution Payouts API
+    if admin_token:
+        print("\n   Test 2: Super Admin Institution Payouts - GET /api/super-admin/institutions-stripe-status")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/super-admin/institutions-stripe-status",
+                headers={"Authorization": f"Bearer {admin_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    payout_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["institutions", "stats"]
+                    missing_fields = [field for field in required_fields if field not in payout_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Super Admin Institution Payouts - All required fields present")
+                        
+                        # Check institutions array
+                        institutions = payout_data.get("institutions", [])
+                        if institutions:
+                            results.add_pass("Super Admin Institution Payouts - Institutions array returned")
+                            print(f"      Total institutions: {len(institutions)}")
+                            
+                            # Check institution fields
+                            first_inst = institutions[0]
+                            inst_required_fields = ["institution_id", "institution_name", "email", "stripe_status", "credentials_sold", "total_earned", "platform_fee"]
+                            inst_missing_fields = [field for field in inst_required_fields if field not in first_inst]
+                            
+                            if not inst_missing_fields:
+                                results.add_pass("Super Admin Institution Payouts - Institution fields complete")
+                                print(f"      Sample institution: {first_inst.get('institution_name', 'N/A')}")
+                                print(f"      Stripe status: {first_inst.get('stripe_status', 'N/A')}")
+                                print(f"      Credentials sold: {first_inst.get('credentials_sold', 0)}")
+                                print(f"      Total earned: ${first_inst.get('total_earned', 0)}")
+                            else:
+                                results.add_fail("Super Admin Institution Payouts institution fields", f"Missing fields: {inst_missing_fields}")
+                        else:
+                            results.add_fail("Super Admin Institution Payouts", "No institutions returned")
+                        
+                        # Check stats
+                        stats = payout_data.get("stats", {})
+                        stats_required_fields = ["total", "connected", "pending", "not_connected", "total_platform_earnings"]
+                        stats_missing_fields = [field for field in stats_required_fields if field not in stats]
+                        
+                        if not stats_missing_fields:
+                            results.add_pass("Super Admin Institution Payouts - Stats fields complete")
+                            print(f"      Total institutions: {stats.get('total', 0)}")
+                            print(f"      Connected: {stats.get('connected', 0)}")
+                            print(f"      Pending: {stats.get('pending', 0)}")
+                            print(f"      Not connected: {stats.get('not_connected', 0)}")
+                            print(f"      Total platform earnings: ${stats.get('total_platform_earnings', 0)}")
+                            
+                            # Verify data consistency - demo@stclairecollege.ca should show as "pending"
+                            demo_institution = next((inst for inst in institutions if inst.get("email") == "demo@stclairecollege.ca"), None)
+                            if demo_institution:
+                                if demo_institution.get("stripe_status") == "pending":
+                                    results.add_pass("Data Consistency - demo@stclairecollege.ca shows as 'pending'")
+                                else:
+                                    results.add_fail("Data Consistency", f"demo@stclairecollege.ca shows as '{demo_institution.get('stripe_status')}', expected 'pending'")
+                            else:
+                                results.add_fail("Data Consistency", "demo@stclairecollege.ca not found in institutions list")
+                        else:
+                            results.add_fail("Super Admin Institution Payouts stats", f"Missing stats fields: {stats_missing_fields}")
+                    else:
+                        results.add_fail("Super Admin Institution Payouts", f"Missing required fields: {missing_fields}")
+                else:
+                    results.add_fail("Super Admin Institution Payouts", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/super-admin/institutions-stripe-status", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/super-admin/institutions-stripe-status", f"Request failed: {str(e)}")
+    
+    # Test 3: Institution Authentication
+    institution_token = None
+    print("\n   Test 3: Institution Authentication - POST /api/auth/login")
+    try:
+        response = requests.post(f"{BASE_URL}/auth/login", json=institution_creds, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and "access_token" in data.get("data", {}):
+                institution_token = data["data"]["access_token"]
+                user_data = data.get("data", {})
+                
+                # Verify user_type is "institution"
+                if user_data.get("user_type") == "institution":
+                    results.add_pass("Institution authentication - user_type is 'institution'")
+                    print(f"      Institution ID: {user_data.get('user_id', 'N/A')}")
+                    print(f"      User Type: {user_data.get('user_type', 'N/A')}")
+                else:
+                    results.add_fail("Institution authentication", f"Expected user_type 'institution', got '{user_data.get('user_type')}'")
+            else:
+                results.add_fail("Institution authentication", f"Invalid response: {data}")
+        else:
+            results.add_fail("Institution authentication", f"HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        results.add_fail("Institution authentication", f"Request failed: {str(e)}")
+    
+    # Test 4: Email on Credential Issuance
+    if institution_token:
+        print("\n   Test 4: Email on Credential Issuance - POST /api/credential-payments/issue-pending")
+        try:
+            credential_data = {
+                "recipient_email": "test_worker@example.com",
+                "recipient_name": "Test Worker",
+                "credential_type": "certificate",
+                "credential_name": "Food Handler Certificate",
+                "issue_date": "2026-01-08",
+                "student_id": "TEST123"
+            }
+            
+            response = requests.post(
+                f"{BASE_URL}/credential-payments/issue-pending",
+                json=credential_data,
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    issue_data = data["data"]
+                    
+                    # Check if email_sent is true
+                    if issue_data.get("email_sent") == True:
+                        results.add_pass("Email on Credential Issuance - email_sent is true")
+                        print(f"      Email sent to: {credential_data['recipient_email']}")
+                        print(f"      Credential: {credential_data['credential_name']}")
+                    else:
+                        results.add_fail("Email on Credential Issuance", f"email_sent is {issue_data.get('email_sent')}, expected true")
+                    
+                    # Check other required fields
+                    required_fields = ["pending_credential_id", "recipient_email", "recipient_has_account", "price_cad", "status"]
+                    missing_fields = [field for field in required_fields if field not in issue_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Email on Credential Issuance - All required fields present")
+                        print(f"      Pending Credential ID: {issue_data.get('pending_credential_id')}")
+                        print(f"      Price: ${issue_data.get('price_cad')} CAD")
+                    else:
+                        results.add_fail("Email on Credential Issuance fields", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_fail("Email on Credential Issuance", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("POST /api/credential-payments/issue-pending", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("POST /api/credential-payments/issue-pending", f"Request failed: {str(e)}")
+    
+    # Test 5: Stripe Connect Account Status (verify still working)
+    if institution_token:
+        print("\n   Test 5: Stripe Connect Account Status - GET /api/stripe-connect/account-status")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/stripe-connect/account-status",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    status_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["has_account", "status", "onboarding_complete"]
+                    missing_fields = [field for field in required_fields if field not in status_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Stripe Connect Account Status - All required fields present")
+                        print(f"      Has account: {status_data.get('has_account')}")
+                        print(f"      Status: {status_data.get('status')}")
+                        print(f"      Onboarding complete: {status_data.get('onboarding_complete')}")
+                    else:
+                        results.add_fail("Stripe Connect Account Status", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_fail("Stripe Connect Account Status", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/stripe-connect/account-status", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/stripe-connect/account-status", f"Request failed: {str(e)}")
+    
+    # Test 6: Stripe Connect Balance (verify still working)
+    if institution_token:
+        print("\n   Test 6: Stripe Connect Balance - GET /api/stripe-connect/balance")
+        try:
+            response = requests.get(
+                f"{BASE_URL}/stripe-connect/balance",
+                headers={"Authorization": f"Bearer {institution_token}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success") and "data" in data:
+                    balance_data = data["data"]
+                    
+                    # Check required fields
+                    required_fields = ["total_earned_cad", "available_balance_cad", "paid_credentials_count", "connect_status", "has_connect_account"]
+                    missing_fields = [field for field in required_fields if field not in balance_data]
+                    
+                    if not missing_fields:
+                        results.add_pass("Stripe Connect Balance - All required fields present")
+                        print(f"      Total earned: ${balance_data.get('total_earned_cad', 0)} CAD")
+                        print(f"      Available balance: ${balance_data.get('available_balance_cad', 0)} CAD")
+                        print(f"      Connect status: {balance_data.get('connect_status')}")
+                        print(f"      Has connect account: {balance_data.get('has_connect_account')}")
+                    else:
+                        results.add_fail("Stripe Connect Balance", f"Missing fields: {missing_fields}")
+                else:
+                    results.add_fail("Stripe Connect Balance", f"Invalid response structure: {data}")
+            else:
+                results.add_fail("GET /api/stripe-connect/balance", f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            results.add_fail("GET /api/stripe-connect/balance", f"Request failed: {str(e)}")
+    
+    # Test 7: Authentication Enforcement
+    print("\n   Test 7: Authentication Enforcement")
+    
+    # Test super admin endpoints without authentication
+    protected_endpoints = [
+        ("GET", "/super-admin/institutions-stripe-status"),
+    ]
+    
+    for method, endpoint in protected_endpoints:
+        try:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=5)
+            
+            if response.status_code in [401, 403]:
+                results.add_pass(f"Authentication required for {method} {endpoint}")
+            else:
+                results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            results.add_fail(f"Authentication enforcement {method} {endpoint}", f"Request failed: {str(e)}")
+
 def main():
     """Main test execution"""
     results = TestResults()
@@ -1606,6 +1883,9 @@ def main():
     
     # Run Institution Withdrawal System Tests
     test_institution_withdrawal_system(results)
+    
+    # Run Institution Withdrawal System Enhancements Tests (NEW)
+    test_institution_withdrawal_enhancements(results)
     
     # Print final summary
     print("\n" + "="*80)
