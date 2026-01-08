@@ -113,6 +113,11 @@ import WorkforceTimeOff from './pages/workforce/TimeOff';
 import EmployerTimeOffManagement from './pages/employer/TimeOffManagement';
 import CareerProfileSettings from './pages/workforce/CareerProfileSettings';
 import WorkPassportSettings from './pages/workforce/WorkPassportSettings';
+import PendingCredentials from './pages/workforce/PendingCredentials';
+import PaymentSuccess from './pages/workforce/PaymentSuccess';
+
+// Institution pages
+import CredentialMarketplace from './pages/institution/CredentialMarketplace';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
