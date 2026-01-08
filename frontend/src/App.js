@@ -73,6 +73,8 @@ import AdminManagement from './pages/admin/AdminManagement';
 import FranchiseManagement from './pages/admin/FranchiseManagement';
 import SupportTickets from './pages/admin/SupportTickets';
 import RoleManagement from './pages/admin/RoleManagement';
+import ZoneManagement from './pages/admin/ZoneManagement';
+import RegionalDashboard from './pages/admin/RegionalDashboard';
 import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
 import WorkerComplianceOnboarding from './pages/workforce/WorkerComplianceOnboarding';
 import Analytics from './pages/admin/Analytics';
