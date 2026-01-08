@@ -157,7 +157,7 @@ async def regenerate_profile_code(
     )
     
     frontend_url = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
-    profile_url = f"{frontend_url}/profile/{new_code}"
+    profile_url = f"{frontend_url}/passport/{new_code}"
     qr_code = generate_qr_code(profile_url)
     
     return {
@@ -167,7 +167,7 @@ async def regenerate_profile_code(
             "profile_url": profile_url,
             "qr_code": qr_code
         },
-        "message": "Profile code regenerated. Old links will no longer work."
+        "message": "Work Passport code regenerated. Old links will no longer work."
     }
 
 @router.get("/public/{profile_code}", response_model=Dict)
