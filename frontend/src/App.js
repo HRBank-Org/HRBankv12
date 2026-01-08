@@ -224,6 +224,9 @@ function AppRoutes() {
         <Route path="/profile/:profileCode" element={<VerifiedCareerProfile />} />
         <Route path="/passport/:profileCode" element={<WorkPassport />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
