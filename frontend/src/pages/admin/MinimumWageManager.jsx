@@ -306,7 +306,10 @@ const MinimumWageManager = () => {
             <li>Updates take effect immediately for new role postings</li>
           </ul>
         </div>
-      </main>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
