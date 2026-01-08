@@ -254,6 +254,27 @@ const WorkPassport = () => {
                 </div>
               </div>
             )}
+
+            {/* Security Verifications */}
+            {profile.security_verifications && profile.security_verifications.length > 0 && (
+              <div className="px-8 py-4 bg-slate-800/50 border-t border-slate-700">
+                <div className="flex items-center gap-2 mb-3">
+                  <Shield className="w-5 h-5 text-green-400" />
+                  <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Security Clearances</h4>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile.security_verifications.map((verification, index) => (
+                    <span 
+                      key={index}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      {verification.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Occupation Profiles */}
