@@ -306,6 +306,131 @@ async def get_admin_profile(
         "data": admin
     }
 
+
+@router.put("/my-profile", response_model=Dict)
+async def update_admin_profile(
+    data: dict,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Update current admin's profile"""
+    if current_user.get("user_type") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    
+    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Admin profile not found"
+        )
+    
+    # Only allow updating certain fields
+    allowed_fields = ["full_name", "phone", "first_name", "last_name"]
+    updates = {}
+    
+    for field in allowed_fields:
+        if field in data:
+            updates[field] = data[field]
+    
+    # Update full_name if first_name or last_name provided
+    if "first_name" in data or "last_name" in data:
+        first = data.get("first_name", admin.get("first_name", ""))
+        last = data.get("last_name", admin.get("last_name", ""))
+        updates["full_name"] = f"{first} {last}".strip()
+    
+    if not updates:
+        return {
+            "success": True,
+            "message": "No changes to update"
+        }
+    
+    # Update admin profile
+    await db.admins.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$set": updates}
+    )
+    
+    # Also update user record
+    user_updates = {}
+    if "full_name" in updates:
+        user_updates["full_name"] = updates["full_name"]
+    if "phone" in updates:
+        user_updates["phone"] = updates["phone"]
+    
+    if user_updates:
+        await db.users.update_one(
+            {"user_id": current_user["user_id"]},
+            {"$set": user_updates}
+        )
+    
+    return {
+        "success": True,
+        "message": "Profile updated successfully"
+    }
+
+
+@router.put("/change-password", response_model=Dict)
+async def change_admin_password(
+    data: dict,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Change admin password"""
+    from passlib.context import CryptContext
+    
+    if current_user.get("user_type") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+    
+    if not current_password or not new_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password and new password are required"
+        )
+    
+    if len(new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be at least 8 characters"
+        )
+    
+    # Get user record
+    user = await db.users.find_one({"user_id": current_user["user_id"]})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Verify current password
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    if not pwd_context.verify(current_password, user.get("password_hash", "")):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect"
+        )
+    
+    # Hash and update new password
+    new_hash = pwd_context.hash(new_password)
+    await db.users.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$set": {"password_hash": new_hash}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Password changed successfully"
+    }
+
+
 # ==================== ANALYTICS ====================
 
 @router.get("/analytics/platform", response_model=Dict)
