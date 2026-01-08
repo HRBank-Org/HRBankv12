@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HR Bank Super Admin Backend API Testing
-Testing Super Admin Backend API endpoints for HR Bank
-Focus: Admin authentication, dashboard, roles, pending activations, admin management, franchise management, support tickets
+HR Bank Career Profile Backend API Testing
+Testing Career Profile Backend API endpoints for HR Bank
+Focus: Workforce authentication, career profile settings, public profile access, privacy controls, profile stats
 """
 
 import requests
