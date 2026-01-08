@@ -93,6 +93,7 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import VerifyCredential from './pages/public/VerifyCredential';
 import VerifiedCareerProfile from './pages/public/VerifiedCareerProfile';
+import WorkPassport from './pages/public/WorkPassport';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import MyTasks from './pages/workforce/MyTasks';
@@ -111,6 +112,7 @@ import ManageCertifications from './pages/admin/ManageCertifications';
 import WorkforceTimeOff from './pages/workforce/TimeOff';
 import EmployerTimeOffManagement from './pages/employer/TimeOffManagement';
 import CareerProfileSettings from './pages/workforce/CareerProfileSettings';
+import WorkPassportSettings from './pages/workforce/WorkPassportSettings';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
