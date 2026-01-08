@@ -1000,6 +1000,116 @@ async def get_provinces(
     }
 
 
+# ============================================
+# Institution Stripe Connect Status (Super Admin)
+# ============================================
+@router.get("/institutions-stripe-status")
+async def get_institutions_stripe_status(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get all institutions with their Stripe Connect status and earnings
+    """
+    # Verify super admin or admin access
+    if current_user.get("user_type") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    
+    # Get all institution profiles
+    institutions = await db.institution_profiles.find(
+        {},
+        {"_id": 0}
+    ).to_list(length=500)
+    
+    # Get all paid credentials for earnings calculation
+    paid_credentials = await db.pending_credentials.find(
+        {"status": "paid"},
+        {"_id": 0, "institution_id": 1, "price_cad": 1, "platform_fee_cad": 1, "institution_payout_cad": 1}
+    ).to_list(length=5000)
+    
+    # Calculate earnings per institution
+    earnings_by_institution = {}
+    for cred in paid_credentials:
+        inst_id = cred.get("institution_id")
+        if inst_id not in earnings_by_institution:
+            earnings_by_institution[inst_id] = {
+                "credentials_sold": 0,
+                "total_earned": 0,
+                "platform_fee": 0
+            }
+        earnings_by_institution[inst_id]["credentials_sold"] += 1
+        earnings_by_institution[inst_id]["total_earned"] += cred.get("institution_payout_cad", 0)
+        earnings_by_institution[inst_id]["platform_fee"] += cred.get("platform_fee_cad", 0)
+    
+    # Build response
+    institution_data = []
+    total_platform_earnings = 0
+    connected_count = 0
+    pending_count = 0
+    not_connected_count = 0
+    
+    for inst in institutions:
+        inst_id = inst.get("institution_id")
+        stripe_status = inst.get("stripe_connect_status")
+        
+        # Count status
+        if stripe_status == "active":
+            connected_count += 1
+        elif stripe_status == "pending":
+            pending_count += 1
+        else:
+            not_connected_count += 1
+        
+        # Get earnings
+        earnings = earnings_by_institution.get(inst_id, {
+            "credentials_sold": 0,
+            "total_earned": 0,
+            "platform_fee": 0
+        })
+        total_platform_earnings += earnings["platform_fee"]
+        
+        # Get user email
+        user = await db.users.find_one(
+            {"user_id": inst_id},
+            {"_id": 0, "email": 1}
+        )
+        
+        institution_data.append({
+            "institution_id": inst_id,
+            "institution_name": inst.get("institution_name", "Unknown"),
+            "email": user.get("email") if user else "N/A",
+            "province": inst.get("province", "N/A"),
+            "logo_url": inst.get("logo_url"),
+            "stripe_status": stripe_status,
+            "stripe_connect_account_id": inst.get("stripe_connect_account_id"),
+            "stripe_connect_created_at": inst.get("stripe_connect_created_at"),
+            "credentials_sold": earnings["credentials_sold"],
+            "total_earned": earnings["total_earned"],
+            "platform_fee": earnings["platform_fee"]
+        })
+    
+    # Sort by credentials sold (descending)
+    institution_data.sort(key=lambda x: x["credentials_sold"], reverse=True)
+    
+    return {
+        "success": True,
+        "data": {
+            "institutions": institution_data,
+            "stats": {
+                "total": len(institutions),
+                "connected": connected_count,
+                "pending": pending_count,
+                "not_connected": not_connected_count,
+                "total_platform_earnings": total_platform_earnings
+            }
+        }
+    }
+
+
+
 @router.get("/zones", response_model=Dict)
 async def list_zones(
     province: Optional[str] = None,
