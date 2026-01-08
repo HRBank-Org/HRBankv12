@@ -85,6 +85,37 @@ async def get_pricing_tiers():
         }
     }
 
+@router.get("/calculate-price")
+async def calculate_credential_price(
+    credential_type: str,
+    province: str = "ON"
+):
+    """Calculate total price including tax for a credential"""
+    from utils.canadian_taxes import calculate_credential_price_with_tax
+    
+    try:
+        price_breakdown = calculate_credential_price_with_tax(credential_type, province)
+        return {
+            "success": True,
+            "data": price_breakdown
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+@router.get("/provinces")
+async def get_canadian_provinces():
+    """Get list of Canadian provinces with tax rates"""
+    from utils.canadian_taxes import get_all_provinces
+    return {
+        "success": True,
+        "data": {
+            "provinces": get_all_provinces()
+        }
+    }
+
 @router.post("/issue-pending")
 async def issue_pending_credential(
     credential: PendingCredentialCreate,
