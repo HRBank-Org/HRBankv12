@@ -129,6 +129,8 @@ const InstitutionDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [walletStatus, setWalletStatus] = useState(null);
   const [walletLoading, setWalletLoading] = useState(true);
+  const [stripeStatus, setStripeStatus] = useState(null);
+  const [payoutBalance, setPayoutBalance] = useState(null);
 
   const loadDashboardData = useCallback(async () => {
     try {
@@ -162,10 +164,24 @@ const InstitutionDashboard = () => {
     }
   }, []);
 
+  const loadStripeStatus = useCallback(async () => {
+    try {
+      const [statusRes, balanceRes] = await Promise.all([
+        api.get('/api/stripe-connect/account-status'),
+        api.get('/api/stripe-connect/balance')
+      ]);
+      setStripeStatus(statusRes.data.data);
+      setPayoutBalance(balanceRes.data.data);
+    } catch (error) {
+      console.error('Failed to load Stripe status:', error);
+    }
+  }, []);
+
   useEffect(() => {
     loadDashboardData();
     loadWalletStatus();
-  }, [loadDashboardData, loadWalletStatus]);
+    loadStripeStatus();
+  }, [loadDashboardData, loadWalletStatus, loadStripeStatus]);
 
   // Get personalized greeting
   const getGreeting = () => {
