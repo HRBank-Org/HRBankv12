@@ -13,21 +13,28 @@ ADMIN_EMAIL = "qnizami@hrbank.ca"
 ADMIN_PASSWORD = "Test123!"
 
 
+@pytest.fixture(scope="module")
+def auth_token():
+    """Get authentication token for admin - shared across all tests"""
+    response = requests.post(
+        f"{BASE_URL}/api/auth/login",
+        json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
+    )
+    assert response.status_code == 200, f"Login failed: {response.text}"
+    data = response.json()
+    assert data.get("success") == True
+    assert "access_token" in data.get("data", {})
+    return data["data"]["access_token"]
+
+
+@pytest.fixture(scope="module")
+def auth_headers(auth_token):
+    """Get auth headers - shared across all tests"""
+    return {"Authorization": f"Bearer {auth_token}"}
+
+
 class TestAdminAuthentication:
     """Test admin login and authentication"""
-    
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get authentication token for admin"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        assert response.status_code == 200, f"Login failed: {response.text}"
-        data = response.json()
-        assert data.get("success") == True
-        assert "access_token" in data.get("data", {})
-        return data["data"]["access_token"]
     
     def test_admin_login_success(self):
         """Test admin login with valid credentials"""
@@ -52,16 +59,6 @@ class TestAdminAuthentication:
 
 class TestSuperAdminDashboard:
     """Test Super Admin Dashboard APIs"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
     
     def test_dashboard_endpoint(self, auth_headers):
         """Test super admin dashboard endpoint"""
@@ -92,16 +89,6 @@ class TestSuperAdminDashboard:
 class TestPendingActivations:
     """Test Pending Activations APIs"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
-    
     def test_pending_activations_list(self, auth_headers):
         """Test pending activations listing"""
         response = requests.get(
@@ -128,16 +115,6 @@ class TestPendingActivations:
 class TestAdminManagement:
     """Test Admin Management APIs"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
-    
     def test_admins_list(self, auth_headers):
         """Test admins listing"""
         response = requests.get(
@@ -152,16 +129,6 @@ class TestAdminManagement:
 
 class TestZoneManagement:
     """Test Zone Management APIs"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
     
     def test_provinces_list(self, auth_headers):
         """Test provinces listing"""
@@ -190,16 +157,6 @@ class TestZoneManagement:
 class TestRegionalStats:
     """Test Regional Stats APIs"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
-    
     def test_regional_stats(self, auth_headers):
         """Test regional stats endpoint"""
         response = requests.get(
@@ -214,16 +171,6 @@ class TestRegionalStats:
 
 class TestInstitutionPayouts:
     """Test Institution Payouts APIs"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
     
     def test_institutions_stripe_status(self, auth_headers):
         """Test institutions stripe status endpoint"""
@@ -241,16 +188,6 @@ class TestInstitutionPayouts:
 class TestSupportTickets:
     """Test Support Tickets APIs"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
-    
     def test_support_tickets_list(self, auth_headers):
         """Test support tickets listing"""
         response = requests.get(
@@ -265,16 +202,6 @@ class TestSupportTickets:
 
 class TestFranchiseManagement:
     """Test Franchise Management APIs"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
     
     def test_franchises_list(self, auth_headers):
         """Test franchises listing"""
@@ -291,16 +218,6 @@ class TestFranchiseManagement:
 class TestAnalytics:
     """Test Analytics APIs"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
-    
     def test_platform_analytics(self, auth_headers):
         """Test platform analytics endpoint"""
         response = requests.get(
@@ -316,16 +233,6 @@ class TestAnalytics:
 
 class TestCredentialReviews:
     """Test Credential Reviews APIs"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get auth headers"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        token = response.json()["data"]["access_token"]
-        return {"Authorization": f"Bearer {token}"}
     
     def test_credentials_pending_approval(self, auth_headers):
         """Test credentials pending approval endpoint"""
