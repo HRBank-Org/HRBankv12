@@ -6,7 +6,8 @@ import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
 import {
   Shield, CreditCard, CheckCircle, Clock, AlertCircle,
-  Award, Building2, DollarSign, ExternalLink, Loader2
+  Award, Building2, DollarSign, ExternalLink, Loader2,
+  MapPin, Receipt, Info
 } from 'lucide-react';
 
 const PendingCredentials = () => {
@@ -17,9 +18,14 @@ const PendingCredentials = () => {
   const [pendingCredentials, setPendingCredentials] = useState([]);
   const [processingPayment, setProcessingPayment] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [provinces, setProvinces] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState('ON');
+  const [taxBreakdown, setTaxBreakdown] = useState(null);
+  const [showTaxModal, setShowTaxModal] = useState(false);
+  const [selectedCredential, setSelectedCredential] = useState(null);
 
   useEffect(() => {
-    loadPendingCredentials();
+    loadData();
     
     // Check if returning from payment
     const sessionId = searchParams.get('session_id');
@@ -28,14 +34,22 @@ const PendingCredentials = () => {
     }
   }, [searchParams]);
 
-  const loadPendingCredentials = async () => {
+  const loadData = async () => {
     try {
-      const response = await api.get('/api/credential-payments/my-pending');
-      if (response.data.success) {
-        setPendingCredentials(response.data.data.pending_credentials);
+      const [credentialsRes, provincesRes] = await Promise.all([
+        api.get('/api/credential-payments/my-pending'),
+        api.get('/api/credential-payments/provinces')
+      ]);
+      
+      if (credentialsRes.data.success) {
+        setPendingCredentials(credentialsRes.data.data.pending_credentials);
+      }
+      
+      if (provincesRes.data.success) {
+        setProvinces(provincesRes.data.data.provinces);
       }
     } catch (error) {
-      console.error('Failed to load pending credentials:', error);
+      console.error('Failed to load data:', error);
     } finally {
       setLoading(false);
     }
@@ -46,20 +60,38 @@ const PendingCredentials = () => {
       const response = await api.get(`/api/credential-payments/payment-status/${sessionId}`);
       if (response.data.success && response.data.data.payment_status === 'paid') {
         setSuccessMessage('Payment successful! Your credential has been added to your profile.');
-        loadPendingCredentials();
+        loadData();
       }
     } catch (error) {
       console.error('Failed to check payment status:', error);
     }
   };
 
-  const initiatePayment = async (pendingCredentialId) => {
-    setProcessingPayment(pendingCredentialId);
+  const calculateTax = async (credential) => {
+    setSelectedCredential(credential);
+    try {
+      const response = await api.get(`/api/credential-payments/calculate-price?credential_type=${credential.credential_type}&province=${selectedProvince}`);
+      if (response.data.success) {
+        setTaxBreakdown(response.data.data);
+        setShowTaxModal(true);
+      }
+    } catch (error) {
+      console.error('Failed to calculate tax:', error);
+    }
+  };
+
+  const initiatePayment = async () => {
+    if (!selectedCredential) return;
+    
+    setProcessingPayment(selectedCredential.pending_credential_id);
+    setShowTaxModal(false);
+    
     try {
       const originUrl = window.location.origin;
       const response = await api.post('/api/credential-payments/initiate-payment', {
-        pending_credential_id: pendingCredentialId,
-        origin_url: originUrl
+        pending_credential_id: selectedCredential.pending_credential_id,
+        origin_url: originUrl,
+        province: selectedProvince
       });
       
       if (response.data.success && response.data.data.checkout_url) {
@@ -70,6 +102,7 @@ const PendingCredentials = () => {
       alert('Failed to initiate payment. Please try again.');
     } finally {
       setProcessingPayment(null);
+      setSelectedCredential(null);
     }
   };
 
@@ -117,6 +150,29 @@ const PendingCredentials = () => {
             </div>
           )}
 
+          {/* Province Selection */}
+          {pendingCredentials.length > 0 && (
+            <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-gray-600" />
+                  <span className="font-medium text-gray-700">Your Province (for tax calculation):</span>
+                </div>
+                <select
+                  value={selectedProvince}
+                  onChange={(e) => setSelectedProvince(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {provinces.map((p) => (
+                    <option key={p.code} value={p.code}>
+                      {p.name} ({p.code}) - {(p.tax_rate * 100).toFixed(1)}% {p.tax_description}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
           {pendingCredentials.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -138,7 +194,7 @@ const PendingCredentials = () => {
                   </span>
                 </div>
                 <span className="font-bold text-amber-900">
-                  Total: ${pendingCredentials.reduce((sum, c) => sum + c.price_cad, 0).toFixed(2)} CAD
+                  Subtotal: ${pendingCredentials.reduce((sum, c) => sum + c.price_cad, 0).toFixed(2)} CAD
                 </span>
               </div>
 
@@ -176,7 +232,7 @@ const PendingCredentials = () => {
 
                       <div className="text-right">
                         <p className="text-2xl font-bold text-gray-900">${credential.price_cad.toFixed(2)}</p>
-                        <p className="text-sm text-gray-500">CAD</p>
+                        <p className="text-sm text-gray-500">+ tax</p>
                       </div>
                     </div>
                   </div>
@@ -187,7 +243,7 @@ const PendingCredentials = () => {
                       <span>Blockchain verified upon payment</span>
                     </div>
                     <button
-                      onClick={() => initiatePayment(credential.pending_credential_id)}
+                      onClick={() => calculateTax(credential)}
                       disabled={processingPayment === credential.pending_credential_id}
                       className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                     >
@@ -219,7 +275,7 @@ const PendingCredentials = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">2.</span>
-                <span>You pay a one-time fee to claim the credential</span>
+                <span>You pay a one-time fee (plus applicable taxes) to claim the credential</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">3.</span>
@@ -233,6 +289,74 @@ const PendingCredentials = () => {
           </div>
         </div>
       </div>
+
+      {/* Tax Breakdown Modal */}
+      {showTaxModal && taxBreakdown && selectedCredential && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white">
+              <div className="flex items-center gap-3">
+                <Receipt className="w-6 h-6" />
+                <h2 className="text-xl font-bold">Payment Summary</h2>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-4">
+                <h3 className="font-semibold text-gray-900">{selectedCredential.credential_name}</h3>
+                <p className="text-sm text-gray-600">{selectedCredential.institution_name}</p>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-gray-700">
+                  <span>Credential Price</span>
+                  <span className="font-medium">${taxBreakdown.base_price_cad.toFixed(2)} CAD</span>
+                </div>
+                <div className="flex justify-between text-gray-700">
+                  <span className="flex items-center gap-1">
+                    Tax ({taxBreakdown.tax_description})
+                    <Info className="w-4 h-4 text-gray-400" />
+                  </span>
+                  <span className="font-medium">${taxBreakdown.tax_amount.toFixed(2)} CAD</span>
+                </div>
+                <div className="border-t pt-3 flex justify-between text-lg font-bold text-gray-900">
+                  <span>Total</span>
+                  <span>${taxBreakdown.total.toFixed(2)} CAD</span>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-2 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p><strong>Province:</strong> {taxBreakdown.province_name}</p>
+                    <p className="text-xs mt-1">Tax rate: {taxBreakdown.tax_rate_percentage}%</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowTaxModal(false);
+                    setSelectedCredential(null);
+                  }}
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={initiatePayment}
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  Proceed to Pay
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
