@@ -156,6 +156,12 @@ const SuperAdminSidebar = () => {
       label: 'Regional',
       items: [
         {
+          label: 'Regional Stats',
+          icon: BarChart3,
+          path: '/admin/regional-stats',
+          badge: null
+        },
+        {
           label: 'Zones & Regions',
           icon: MapPin,
           path: '/admin/zones',
