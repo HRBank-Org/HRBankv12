@@ -1348,12 +1348,12 @@ def test_institution_withdrawal_system(results):
                         
                         # Check tax_info structure
                         tax_info = balance_data.get("tax_info", {})
-                        if "tax_rate" in tax_info and "tax_name" in tax_info:
+                        if "total" in tax_info and "description" in tax_info:
                             results.add_pass("Payout Balance - Tax info structure correct")
-                            print(f"      Tax Rate: {tax_info.get('tax_rate', 0)}%")
-                            print(f"      Tax Name: {tax_info.get('tax_name', 'N/A')}")
+                            print(f"      Tax Rate: {tax_info.get('total', 0) * 100}%")
+                            print(f"      Tax Description: {tax_info.get('description', 'N/A')}")
                         else:
-                            results.add_fail("Payout Balance tax_info", "Missing tax_rate or tax_name in tax_info")
+                            results.add_fail("Payout Balance tax_info", "Missing total or description in tax_info")
                         
                         # Check recent_sales and payouts are arrays
                         if isinstance(balance_data.get("recent_sales"), list) and isinstance(balance_data.get("payouts"), list):
