@@ -18,8 +18,8 @@ const CredentialReviews = () => {
   const loadCredentials = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/admin/credential-submissions?status=${filter}&limit=50`);
-      setCredentials(response.data.data?.submissions || []);
+      const response = await api.get(`/api/admin/credentials/pending-approval?status=${filter}&limit=50`);
+      setCredentials(response.data.data?.submissions || response.data.data?.credentials || []);
     } catch (error) {
       console.error('Failed to load credentials:', error);
       setCredentials([]);

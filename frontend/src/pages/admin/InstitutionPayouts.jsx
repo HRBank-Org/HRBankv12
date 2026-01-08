@@ -222,8 +222,8 @@ const InstitutionPayouts = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredInstitutions.map((inst) => (
-                    <tr key={inst.institution_id} className="hover:bg-gray-50">
+                  filteredInstitutions.map((inst, index) => (
+                    <tr key={`${inst.institution_id}-${index}`} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
