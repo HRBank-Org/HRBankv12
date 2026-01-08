@@ -333,13 +333,23 @@ function AppRoutes() {
         
         {/* Super Admin Routes */}
         <Route path="/admin/super-dashboard" element={<ProtectedRoute allowedUserTypes={['admin']}><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/activity" element={<ProtectedRoute allowedUserTypes={['admin']}><ActivityFeed /></ProtectedRoute>} />
         <Route path="/admin/pending-activations" element={<ProtectedRoute allowedUserTypes={['admin']}><PendingActivations /></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute allowedUserTypes={['admin']}><AllUsers /></ProtectedRoute>} />
+        <Route path="/admin/credentials" element={<ProtectedRoute allowedUserTypes={['admin']}><CredentialReviews /></ProtectedRoute>} />
+        <Route path="/admin/documents" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentVerification /></ProtectedRoute>} />
         <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminManagement /></ProtectedRoute>} />
         <Route path="/admin/roles" element={<ProtectedRoute allowedUserTypes={['admin']}><RoleManagement /></ProtectedRoute>} />
+        <Route path="/admin/permissions" element={<ProtectedRoute allowedUserTypes={['admin']}><Permissions /></ProtectedRoute>} />
         <Route path="/admin/zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ZoneManagement /></ProtectedRoute>} />
         <Route path="/admin/regional-stats" element={<ProtectedRoute allowedUserTypes={['admin']}><RegionalDashboard /></ProtectedRoute>} />
         <Route path="/admin/franchises" element={<ProtectedRoute allowedUserTypes={['admin']}><FranchiseManagement /></ProtectedRoute>} />
+        <Route path="/admin/employers" element={<ProtectedRoute allowedUserTypes={['admin']}><EmployersList /></ProtectedRoute>} />
+        <Route path="/admin/institutions" element={<ProtectedRoute allowedUserTypes={['admin']}><InstitutionsList /></ProtectedRoute>} />
         <Route path="/admin/support-tickets" element={<ProtectedRoute allowedUserTypes={['admin']}><SupportTickets /></ProtectedRoute>} />
+        <Route path="/admin/reported-issues" element={<ProtectedRoute allowedUserTypes={['admin']}><ReportedIssues /></ProtectedRoute>} />
+        <Route path="/admin/audit-logs" element={<ProtectedRoute allowedUserTypes={['admin']}><AuditLogs /></ProtectedRoute>} />
+        <Route path="/admin/notification-settings" element={<ProtectedRoute allowedUserTypes={['admin']}><NotificationSettings /></ProtectedRoute>} />
         
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
