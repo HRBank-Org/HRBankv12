@@ -176,7 +176,22 @@ async def issue_pending_credential(
     
     await db.pending_credentials.insert_one(pending_credential)
     
-    # If recipient has account, send them a notification
+    # Send email notification to the recipient
+    try:
+        from services.credential_email_service import send_credential_issued_email
+        send_credential_issued_email(
+            recipient_email=credential.recipient_email,
+            recipient_name=credential.recipient_name,
+            credential_name=credential.credential_name,
+            credential_type=credential.credential_type,
+            institution_name=institution.get("institution_name", "Unknown Institution") if institution else "Unknown Institution",
+            price_cad=price,
+            issue_date=credential.issue_date
+        )
+    except Exception as e:
+        print(f"Failed to send credential email: {e}")
+    
+    # If recipient has account, send them an in-app notification
     if recipient:
         notification = {
             "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
@@ -199,9 +214,10 @@ async def issue_pending_credential(
             "price_cad": price,
             "platform_fee_cad": pending_credential["platform_fee_cad"],
             "institution_payout_cad": pending_credential["institution_payout_cad"],
-            "status": "pending_payment"
+            "status": "pending_payment",
+            "email_sent": True
         },
-        "message": f"Credential issued. {'Recipient notified to complete payment.' if recipient else 'Recipient will be notified when they create an account.'}"
+        "message": f"Credential issued and email sent to {credential.recipient_email}. {'Recipient also notified in-app.' if recipient else 'Recipient will see it when they create an account.'}"
     }
 
 @router.get("/institution/issued")
