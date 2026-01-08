@@ -348,11 +348,11 @@ async def get_job_candidates(
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
-    # Get matches sorted by score
+    # Get matches sorted by score (limit to top 100)
     matches = await db.job_matches.find({
         'job_id': job_id,
         'match_score': {'$gte': min_score}
-    }, {'_id': 0}).sort('match_score', -1).to_list(length=None)
+    }, {'_id': 0}).sort('match_score', -1).to_list(length=100)
     
     # Enrich with worker profiles
     candidates = []
@@ -366,7 +366,7 @@ async def get_job_candidates(
             occupations = await db.occupation_profiles.find({
                 'user_id': match['workforce_id'],
                 'active': True
-            }, {'_id': 0}).to_list(length=None)
+            }, {'_id': 0}).to_list(length=10)
             
             candidates.append({
                 **match,
