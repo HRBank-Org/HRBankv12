@@ -27,7 +27,7 @@ const Contact = () => {
             <span className="font-bold text-xl text-gray-900">HR Bank</span>
           </Link>
           <Link 
-            to="/auth/login" 
+            to="/login" 
             className="px-4 py-2 bg-[#30496d] text-white rounded-lg hover:bg-[#243a57] transition-colors"
           >
             Sign In

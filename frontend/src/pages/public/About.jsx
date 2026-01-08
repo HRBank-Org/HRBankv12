@@ -13,7 +13,7 @@ const About = () => {
             <span className="font-bold text-xl text-gray-900">HR Bank</span>
           </Link>
           <Link 
-            to="/auth/login" 
+            to="/login" 
             className="px-4 py-2 bg-[#30496d] text-white rounded-lg hover:bg-[#243a57] transition-colors"
           >
             Sign In
@@ -123,7 +123,7 @@ const About = () => {
           <p className="text-gray-600 mb-8">Join the workforce revolution today.</p>
           <div className="flex items-center justify-center gap-4">
             <Link 
-              to="/auth/register" 
+              to="/signup" 
               className="px-6 py-3 bg-[#30496d] text-white rounded-lg font-semibold hover:bg-[#243a57] transition-colors flex items-center gap-2"
             >
               Create Account <ArrowRight className="w-5 h-5" />

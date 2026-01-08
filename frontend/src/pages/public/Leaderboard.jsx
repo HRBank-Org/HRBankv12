@@ -94,7 +94,7 @@ const Leaderboard = () => {
               <span className="font-bold">HR Bank</span>
             </Link>
             <Link 
-              to="/auth/login" 
+              to="/login" 
               className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
             >
               Sign In
@@ -403,7 +403,7 @@ const Leaderboard = () => {
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link 
-              to="/auth/register"
+              to="/signup"
               className="px-8 py-3 bg-white text-purple-600 rounded-lg font-bold hover:bg-purple-50 transition-colors"
             >
               Get Started Free
