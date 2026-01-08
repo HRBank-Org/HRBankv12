@@ -257,6 +257,7 @@ function AppRoutes() {
         <Route path="/workforce/credentials/verify" element={<ProtectedRoute allowedUserTypes={['workforce']}><CredentialVerification /></ProtectedRoute>} />
         <Route path="/workforce/credentials" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyCredentials /></ProtectedRoute>} />
         <Route path="/workforce/time-off" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceTimeOff /></ProtectedRoute>} />
+        <Route path="/workforce/career-profile" element={<ProtectedRoute allowedUserTypes={['workforce']}><CareerProfileSettings /></ProtectedRoute>} />
         
         {/* Employer Routes */}
         <Route path="/employer/home" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerHome /></ProtectedRoute>} />
