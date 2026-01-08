@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import UserHeader from '../../components/common/UserHeader';
+import GenericHeader from '../../components/layout/GenericHeader';
+import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 
 const AdminSettings = () => {
