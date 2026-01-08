@@ -148,6 +148,12 @@ const SuperAdminSidebar = () => {
           icon: Globe,
           path: '/admin/institutions',
           badge: null
+        },
+        {
+          label: 'Institution Payouts',
+          icon: DollarSign,
+          path: '/admin/institution-payouts',
+          badge: null
         }
       ]
     },
