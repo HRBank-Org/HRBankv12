@@ -118,6 +118,7 @@ import PaymentSuccess from './pages/workforce/PaymentSuccess';
 
 // Institution pages
 import CredentialMarketplace from './pages/institution/CredentialMarketplace';
+import PayoutsDashboard from './pages/institution/PayoutsDashboard';
 
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
@@ -272,6 +273,7 @@ function AppRoutes() {
         
         {/* Institution Routes */}
         <Route path="/institution/marketplace" element={<ProtectedRoute allowedUserTypes={['institution']}><CredentialMarketplace /></ProtectedRoute>} />
+        <Route path="/institution/payouts" element={<ProtectedRoute allowedUserTypes={['institution']}><PayoutsDashboard /></ProtectedRoute>} />
         
         {/* Employer Routes */}
         <Route path="/employer/home" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerHome /></ProtectedRoute>} />
