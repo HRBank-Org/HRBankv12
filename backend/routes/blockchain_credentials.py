@@ -360,3 +360,63 @@ async def get_transaction_status(
             detail=f"Failed to get transaction: {str(e)}"
         )
 
+
+@router.get("/network-status")
+async def get_network_status():
+    """
+    Get the current blockchain network status and configuration.
+    Public endpoint for checking system status.
+    """
+    try:
+        status = blockchain_service.get_network_status()
+        
+        # Get wallet balance if connected
+        if status.get("is_connected") and status.get("issuer_address"):
+            balance = await blockchain_service.get_wallet_balance()
+            status["issuer_balance"] = balance
+        
+        return {
+            "success": True,
+            "data": status
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@router.post("/test-ipfs-upload")
+async def test_ipfs_upload(
+    current_user: dict = Depends(require_role("institution"))
+):
+    """
+    Test IPFS upload functionality.
+    Uploads a test document to verify Pinata configuration.
+    """
+    try:
+        test_metadata = {
+            "type": "test",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "message": "IPFS connection test from HR Bank",
+            "institution_id": current_user.get("user_id")
+        }
+        
+        ipfs_url = await blockchain_service.upload_to_ipfs(test_metadata)
+        gateway_url = blockchain_service.get_ipfs_gateway_url(ipfs_url)
+        
+        return {
+            "success": True,
+            "data": {
+                "ipfs_url": ipfs_url,
+                "gateway_url": gateway_url,
+                "test_data": test_metadata
+            },
+            "message": "IPFS upload successful!"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"IPFS upload test failed: {str(e)}"
+        )
+
