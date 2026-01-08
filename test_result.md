@@ -7,7 +7,7 @@
 
 ### Feature Under Test: Restructured Super Admin Sidebar and Role Management Page
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -93,7 +93,7 @@
 
 #### ✅ TEST 3: ROLE MANAGEMENT PAGE NAVIGATION - PASSED
 - **Page Access:** ✅ /admin/roles accessible via sidebar navigation
-- **URL Routing:** ✅ Direct navigation to https://hrcert-system.preview.emergentagent.com/admin/roles working
+- **URL Routing:** ✅ Direct navigation to https://blockverify-4.preview.emergentagent.com/admin/roles working
 - **Page Loading:** ✅ Page loads without errors and displays content
 - **Impact:** ✅ Role Management page properly integrated into navigation system
 
@@ -265,7 +265,7 @@
 
 ### Feature Under Test: Complete Super Admin Sidebar Navigation Links Testing
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com/admin/login
+**Test URL:** https://blockverify-4.preview.emergentagent.com/admin/login
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -450,7 +450,7 @@ Test ALL Super Admin sidebar links to verify none are broken:
 
 ### Feature Under Test: Super Admin Pages Title and Sidebar Verification
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com/admin/login
+**Test URL:** https://blockverify-4.preview.emergentagent.com/admin/login
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -607,7 +607,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Regional Admin System for HR Bank
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -800,7 +800,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Enhanced Time-Off Management System for HR Bank
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
@@ -973,7 +973,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Time-Off Management System Frontend UI for HR Bank
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
@@ -1142,7 +1142,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Super Admin System for HR Bank with role-based access control
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Credentials:**
 - Admin: qnizami@hrbank.ca / Test123!
@@ -1444,7 +1444,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Auto-Translation system for notifications in HR Bank
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Scope:**
 1. **Login as French-speaking workforce user**
@@ -1578,7 +1578,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Super Admin Portal Frontend UI for HR Bank
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Credentials:**
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -1761,7 +1761,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Blockchain Verified Badge integration in HR Bank frontend UI components
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 
 **Test Scope:**
 1. **Workforce Profile Page with Blockchain Badge**
@@ -1893,7 +1893,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Final Production Readiness Test for HR Bank after database indexing
 
-**Base URL:** https://hrcert-system.preview.emergentagent.com
+**Base URL:** https://blockverify-4.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2023,7 +2023,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Production Hardening Changes for HR Bank
 
-**Base URL:** https://hrcert-system.preview.emergentagent.com
+**Base URL:** https://blockverify-4.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2053,7 +2053,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 #### ✅ TEST 3: CORS CONFIGURATION - PASSED
 - **CORS Headers:** ✅ Access-Control-Allow-Origin header present
-- **Origin Value:** ✅ https://hrcert-system.preview.emergentagent.com (NOT "*")
+- **Origin Value:** ✅ https://blockverify-4.preview.emergentagent.com (NOT "*")
 - **Security:** ✅ CORS properly configured for production (not wildcard)
 - **Credentials Support:** ✅ Access-Control-Allow-Credentials: true
 - **Methods:** ✅ Proper CORS methods configured
@@ -2130,7 +2130,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Complete Credential Minting Flow for HR Bank Institution Portal
 
-**Base URL:** https://hrcert-system.preview.emergentagent.com
+**Base URL:** https://blockverify-4.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2355,7 +2355,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Institution Transcript Processing & Blockchain Credential System
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com
+**Test URL:** https://blockverify-4.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2430,7 +2430,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Institution User Flow for HR Bank
 
-**Base URL:** https://hrcert-system.preview.emergentagent.com
+**Base URL:** https://blockverify-4.preview.emergentagent.com
 **Test Credentials:** 
 - Institution: demo@stclairecollege.ca / Demo123!
 
@@ -2547,7 +2547,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Auto-Translation System for Chat (Emma) and Notifications
 
-**Base URL:** https://hrcert-system.preview.emergentagent.com
+**Base URL:** https://blockverify-4.preview.emergentagent.com
 **Test Credentials:** 
 - Workforce: emily.chen@email.com / Test123!
 - Employer: john.b@swanpizza.ca / Test123!
@@ -2670,7 +2670,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Unified Calendar Shifts Endpoint Implementation
 
-**Base URL:** https://hrcert-system.preview.emergentagent.com
+**Base URL:** https://blockverify-4.preview.emergentagent.com
 **Test Credentials:** 
 - Employer: john.b@swanpizza.ca / Test123!
 
@@ -2984,7 +2984,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 
 ### Feature Under Test: Offer Management in Recruitment Tab
 
-**Test URL:** https://hrcert-system.preview.emergentagent.com/employer/workforce-management
+**Test URL:** https://blockverify-4.preview.emergentagent.com/employer/workforce-management
 **Test Credentials:** john.b@swanpizza.ca / Test123! (Employer)
 
 **Test Scope:**
@@ -3279,7 +3279,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 - Email: john.b@swanpizza.ca
 - Password: Test123!
 - User Type: Employer
-- Base URL: https://hrcert-system.preview.emergentagent.com
+- Base URL: https://blockverify-4.preview.emergentagent.com
 
 ### Comprehensive Test Results:
 
@@ -3439,7 +3439,7 @@ Comprehensive testing of all 16 Super Admin pages to verify:
 ### Test Credentials Used:
 - **Employer:** john.b@swanpizza.ca / Test123!
 - **Login Method:** Email/Password via Employer tab
-- **Test URL:** https://hrcert-system.preview.emergentagent.com/employer/workforce-management
+- **Test URL:** https://blockverify-4.preview.emergentagent.com/employer/workforce-management
 
 ### Integration Testing Results:
 - **Frontend-Backend Integration:** ✅ Auto-Assign API calls working correctly

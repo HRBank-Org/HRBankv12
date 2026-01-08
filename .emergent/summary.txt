@@ -1,212 +1,237 @@
 <analysis>**original_problem_statement:**
 The user's objective is to build a comprehensive HR platform. This session focused on several key areas:
-1.  **Build Institution Features:** Develop the workflow for educational institutions to issue blockchain-verified credentials, including AI-powered transcript processing.
-2.  **Production Readiness:** Conduct a full audit and hardening of the application, addressing security, performance, and timezone consistency.
+1.  **Build Institution Features:** Develop the workflow for educational institutions to issue blockchain-verified credentials, including AI-powered transcript processing. This session focused on implementing a real blockchain credentialing system.
+2.  **Production Readiness:** Conduct a full audit and hardening of the application, addressing security, performance, and timezone consistency. Also, implement a real blockchain credentialing system instead of the mock one.
 3.  **Implement Core Features:**
     *   Add Blockchain Verified ✓ badges to workforce profiles.
     *   Update the Emma AI assistant with knowledge of new features.
     *   Verify and complete the auto-translation functionality.
     *   Build an auto-dispatch system for Grid services (e.g., CleanGrid).
-    *   Create a Super Admin system for franchise and role management.
+    *   Create a Super Admin system for franchise and role management with regional (province/zone) capabilities.
     *   Enhance the Time-Off Management system with balance tracking and policies.
-4.  **Fix Core Bugs:** Resolve issues with messaging, notifications, and data display that were reported in previous sessions.
+    *   Implement an age compliance system for workforce users based on Canadian law.
+4.  **Fix Core Bugs:** Resolve issues with messaging, notifications, data display, broken links, missing page titles, and inconsistent UI in the Super Admin portal.
+5.  **Monetization:** Build monetization for the issued credentials.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a feature-rich HR platform with a hardened backend ready for production.
-- **Institution Portal:** A complete, tested, and functional institution-side experience exists. This includes a dashboard with a wallet status widget, a transcript management page, and a (mocked) end-to-end flow for issuing blockchain credentials. A public verification page allows anyone to check a credential's validity.
-- **Production Hardening:** The backend has been significantly strengthened with secure configurations (JWT, CORS), rate limiting on critical endpoints, timezone-aware datetime objects (), and comprehensive database indexing for performance.
-- **Core Features (Backend Complete):**
-    -   An auto-dispatch service for assigning tasks to workers.
-    -   A powerful Super Admin system for managing franchises and granular, region-based admin roles.
-- **Core Features (Full-Stack Complete):**
-    -   Blockchain Verified ✓ badges appear on workforce user profiles.
-    -   The Emma AI assistant's knowledge base is updated.
-    -   The auto-translation system for notifications is fully functional and verified end-to-end.
-    -   The core messaging and notification systems are dynamic and working correctly.
+The application is a comprehensive HR platform. The main achievement of this session was replacing the mocked blockchain credentialing system with a real one. The backend is now integrated with Polygon Mainnet (via Infura) for blockchain interaction and Pinata for IPFS storage. The connection to both services has been successfully tested. IPFS file uploads are fully functional. However, the on-chain minting process is currently blocked because the configured wallet has a zero MATIC balance. The Super Admin portal and age compliance features from previous sessions are stable.
 
 **Last working item**:
--   **Last item agent was working:** The agent was enhancing the Time-Off Management system. After reviewing the basic existing implementation, it overwrote  and  to introduce a more advanced system including time-off balance tracking, accrual policies, and calendar views.
--   **Status:** IN PROGRESS
--   **Agent Testing Done:** N
--   **Which testing method agent to use?** backend testing agent to test the newly implemented API endpoints. After that, manual testing with  for targeted checks. A frontend testing agent will be needed once the UI is built.
+-   **Last item agent was working:** Diagnosing why the configured issuer wallet () has a 0 MATIC balance, preventing the minting of blockchain credentials. The agent discovered the user funded a different wallet (GasFuel) than the one configured in the application's  file.
+-   **Status:** BLOCKED
+-   **Agent Testing Done:** Y
+-   **Which testing method agent to use?** Manual testing by  script to re-check the wallet balance after the user resolves the fund mismatch.
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Deployment Agent Failure (P1)**
--   **Issue 2: Benign  Warning on Startup (P3)**
--   **Issue 3: Remaining  Usages (P3)**
--   **Issue 4: Health Check Endpoint Routing (P3)**
+-   **Issue 1: 0 MATIC Balance for Minting Wallet (P0)**
+-   **Issue 2: Deployment blocked by  dependency (P1)**
+-   **Issue 3: Deployment Agent Failure (P2)**
+-   **Issue 4: Benign  Warning on Startup (P3)**
+-   **Issue 5: Remaining  Usages (P3)**
+-   **Issue 6: Health Check Endpoint Routing (P3)**
 
 **Issues Detail:**
--   **Issue 1: Deployment Agent Failure**
-    -   **Attempted fixes:** This has been confirmed as a platform-level bug with the  tool. The application code itself builds successfully.
+-   **Issue 1: 0 MATIC Balance for Minting Wallet**
+    -   **Attempted fixes:** The agent confirmed the balance is 0 using a  script, isolating the problem from the application logic. The agent then identified from a user-provided screenshot that funds were added to a different wallet account.
+    -   **Next debug checklist:**
+        1.  Explain the wallet mismatch to the user: The private key in  corresponds to wallet , but the funds are in a different wallet (GasFuel).
+        2.  Present two options to the user:
+            a. Transfer MATIC from the GasFuel wallet to the configured issuer wallet ().
+            b. Ask the user to provide the **private key** for the GasFuel wallet so the agent can update the  in .
+        3.  Once the user confirms action, re-run the balance check script to verify the balance is greater than 0.
+    -   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker. Fixing it will enable on-chain transactions, allowing the system to mint blockchain credentials (NFTs), which is the primary goal of the current workstream.
+    -   **Status:** BLOCKED
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Backend
+    -   **Blocked on other issue:** Waiting for user action.
+
+-   **Issue 2: Deployment blocked by  dependency**
+    -   **Attempted fixes:** None. The dependency is now required.
+    -   **Next debug checklist:** This issue will be resolved once the full blockchain implementation is complete and tested. It is no longer an issue of an unused dependency but rather part of a feature that is not yet fully functional.
+    -   **Why fix this issue and what will be achieved with the fix?** Allows the application to pass deployment health checks.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Backend.
+    -   **Blocked on other issue:** Issue 1: 0 MATIC Balance.
+
+-   **Issue 3: Deployment Agent Failure**
+    -   **Attempted fixes:** This is a known platform-level bug.
     -   **Next debug checklist:** No action needed. The workaround is to inform the user to use the Deploy button in the Emergent UI.
-    -   **Why fix this issue and what will be achieved with the fix?** This is a platform bug. The workaround enables deployment.
+    -   **Why fix this issue and what will be achieved with the fix?** Enables programmatic deployment.
     -   **Status:** BLOCKED
     -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** N/A
     -   **Blocked on other issue:** Platform-level tool issue.
 
--   **Issue 2: Benign  Warning on Startup**
+-   **Issue 4: Benign  Warning on Startup**
     -   **Attempted fixes:** None.
-    -   **Next debug checklist:** The warning  appears on server start. Investigate the  library usage and update it to the modern approach to remove the warning.
-    -   **Why fix this issue and what will be achieved with the fix?** Cleans up server logs for better readability in production.
+    -   **Next debug checklist:** A  appears on server start. Investigate  usage in  and update to the modern approach.
+    -   **Why fix this issue and what will be achieved with the fix?** Cleans up server logs for better readability.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** Y
-    -   **Should Test frontend/backend/both after fix?** Backend (verify server starts cleanly).
+    -   **Should Test frontend/backend/both after fix?** Backend.
 
--   **Issue 3: Remaining  Usages**
-    -   **Attempted fixes:** A script was run that fixed hundreds of instances.
-    -   **Next debug checklist:** About 22 files, mostly seeding scripts and less critical modules, still use the deprecated . Run a  for  and manually replace the remaining instances with .
-    -   **Why fix this issue and what will be achieved with the fix?** Ensures all timestamps in the system are timezone-aware, preventing potential data inconsistencies.
+-   **Issue 5: Remaining  Usages**
+    -   **Attempted fixes:** None in this session.
+    -   **Next debug checklist:** Run /app/backend/scripts/seed_workforce_profiles.py:            "created_date": datetime.utcnow().isoformat(),
+/app/backend/scripts/seed_workforce_profiles.py:            "updated_date": datetime.utcnow().isoformat()
+/app/backend/scripts/seed_workforce_profiles.py:            "phone_verified_at": datetime.utcnow(),
+/app/backend/scripts/seed_workforce_profiles.py:            "created_date": datetime.utcnow().isoformat(),
+/app/backend/scripts/seed_workforce_profiles.py:            "updated_date": datetime.utcnow().isoformat()
+/app/backend/scripts/seed_workforce_profiles.py:            "created_date": datetime.utcnow(),
+/app/backend/scripts/seed_workforce_profiles.py:            "updated_date": datetime.utcnow().isoformat()
+/app/backend/scripts/setup_realistic_data.py:                "created_at": datetime.utcnow()
+/app/backend/scripts/setup_realistic_data.py:            "created_at": datetime.utcnow()
+/app/backend/scripts/setup_realistic_data.py:            "created_at": datetime.utcnow()
+/app/backend/scripts/setup_realistic_data.py:            "created_at": datetime.utcnow()
+/app/backend/scripts/setup_realistic_data.py:            "created_at": datetime.utcnow()
+/app/backend/scripts/setup_realistic_data.py:                    "created_at": datetime.utcnow(),
+/app/backend/create_super_admin.py:    user_id = f"user_admin_{datetime.utcnow().timestamp()}"
+/app/backend/create_super_admin.py:        "created_date": datetime.utcnow().isoformat()
+/app/backend/create_super_admin.py:    admin_id = f"admin_{datetime.utcnow().timestamp()}"
+/app/backend/create_super_admin.py:        "created_date": datetime.utcnow().isoformat(),
+/app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d')
+/app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d') to find remaining instances and replace with .
+    -   **Why fix this issue and what will be achieved with the fix?** Ensures all timestamps are timezone-aware.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Backend.
 
--   **Issue 4: Health Check Endpoint Routing**
+-   **Issue 6: Health Check Endpoint Routing**
     -   **Attempted fixes:** None.
-    -   **Next debug checklist:** The agent noted that curl requests to the  endpoint failed, likely due to an infrastructure/routing issue rather than a code problem. First, verify the  route is correctly registered in . If it is, this is an external issue.
+    -   **Next debug checklist:** Verify the  endpoint route is registered in  and test with .
     -   **Why fix this issue and what will be achieved with the fix?** Enables external monitoring services to correctly check application health.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Backend (via curl).
+    -   **Should Test frontend/backend/both after fix?** Backend.
 
 **In progress Task List**:
--   **Task 1: Complete Time-Off Management Enhancement (P0)**
+-   **Task 1: Implement Real Blockchain Credentialing (P0)**
 
 **Task Detail:**
--   **Task 1: Complete Time-Off Management Enhancement**
-    -   **Where to resume:** The backend files  and  have just been overwritten. The next steps are:
-        1.  Lint the modified files to ensure code quality.
-        2.  Restart the backend server and ensure it starts without errors.
-        3.  Thoroughly test the new API endpoints (, , calendar view endpoint) using  or the testing agent.
-        4.  Build the corresponding frontend components for workers to view their balances and for employers/admins to manage policies and view the team calendar.
-    -   **What will be achieved with this?** A complete, modern time-off management system.
-    -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** Both.
-    -   **Blocked on something:** None.
+-   **Task 1: Implement Real Blockchain Credentialing**
+    -   **Where to resume:** The implementation is blocked by the 0 MATIC balance issue. The next step is to resolve this with the user. Once resolved, the agent needs to test the end-to-end minting flow, which involves calling the  function in . This will upload to IPFS (already working) and then mint the NFT on the Polygon mainnet.
+    -   **What will be achieved with this?** A fully functional, production-ready system for issuing tamper-proof, blockchain-verified educational and professional credentials.
+    -   **Status:** BLOCKED
+    -   **Should Test frontend/backend/both after fix?** Backend, then Frontend to verify display.
+    -   **Blocked on something:** Issue 1: 0 MATIC Balance for Minting Wallet.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   **P0: Build Frontend for Super Admin Portal:** The backend for franchise and role management is complete. A new frontend interface is needed for super admins to use these features.
+    -   **P0: Build Monetization for Credentials:** After minting is functional, implement a system to charge institutions for issuing credentials.
     -   **P1: Build Frontend for Auto-Dispatch:** The backend service is complete. A UI is needed for admins to monitor dispatch statistics and manage settings.
     -   **P1: Add Blockchain Badge to Employer's Workforce View:** Implement the  component in  so employers can see which workers have verified credentials.
+    -   **P2: Implement Placeholder Pages:** The 11 placeholder pages created to fix broken links (e.g., , , ) need to be built out with actual functionality.
 -   **Future Tasks:**
-    -   No outstanding future tasks remain from the initial list. New features will depend on user requests.
+    -   **Enhance Admin Management:** Add map visualization for province/zone assignment.
+    -   **Build Franchise Management UI:** Build out the full CRUD UI for creating and managing franchises.
 
 **Completed work in this session**
--   **Institution Portal & Credentialing Flow:**
-    -   Completed the Institution Dashboard UI, including the wallet status widget.
-    -   Implemented and tested the full (mocked) blockchain credential issuance and public verification flow.
--   **Production Readiness & Hardening:**
-    -   Implemented rate limiting on critical auth and blockchain API endpoints.
-    -   Secured environment variables, JWT secrets, and CORS policies.
-    -   Replaced nearly all  instances with timezone-aware .
-    -   Created comprehensive database indexes across all major collections to improve query performance.
--   **Feature Implementation (Full-Stack):**
-    -   Created and integrated a  component onto the workforce profile page.
-    -   Updated the Emma AI assistant's system prompt with knowledge of new institution and blockchain features.
-    -   Verified and enabled the auto-translation feature for user notifications on the frontend.
--   **Feature Implementation (Backend):**
-    -   Built the backend service and API routes for an **Auto-Dispatch system** for Grid services.
-    -   Built a powerful **Super Admin system** with backend routes for managing franchises and granular, region-based admin roles.
-    -   Began a major enhancement of the **Time-Off Management** system.
+-   **Blockchain Credentialing Backend (Polygon + IPFS):**
+    -   Guided the user to obtain and configured all necessary credentials (Infura API Key, Pinata API Key/Secret, Wallet Address, and Private Key).
+    -   Replaced the mocked  with a real implementation using  to connect to Polygon Mainnet via Infura.
+    -   Integrated Pinata for storing credential metadata on IPFS.
+    -   Added a new diagnostic endpoint  to check the connection status, wallet balance, and network details.
+    -   Successfully tested and verified the connection to Polygon, Pinata authentication, and the IPFS data upload and retrieval flow.
 
 **Earlier issues found/mentioned but not fixed**
-None not already captured in the All Pending/In progress Issue list.
+-   **Issue 1: Blockchain Badge Missing from Employer View**
+    -   **Debug checklist:** The  component needs to be imported and used within the user mapping in .
+    -   **Why to solve this issue and what will be achieved with this?** This is a core feature request to allow employers to easily identify workers with verified credentials.
+    -   **Should Test frontend/backend/both after fix:** Frontend.
+    -   **Is recurring issue?** Y (Carried over from a previous session).
 
 **Known issue recurrence from previous fork**
 -   **Issue recurrence in previous fork:** Deployment Agent Failure ().
 -   **Recurrence count:** High.
--   **Status:** BLOCKED (Confirmed platform issue, workaround provided).
+-   **Status:** BLOCKED (Confirmed platform issue, workaround is to use the UI 'Deploy' button).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Production Hardening:** Implementing measures like rate limiting (), secure configuration (CORS, JWT), and database indexing to prepare an application for a production environment.
--   **Timezone-Awareness:** Systematically replacing naive  with  to ensure data integrity across timezones.
--   **Role-Based Access Control (RBAC):** Designing and implementing a granular permission system that extends beyond simple roles to include regional and franchise-based access controls.
--   **Mocking for Development:** Using simulated services (e.g., ) to enable end-to-end testing of complex flows without incurring real-world costs or dependencies.
+-   **Real-time Blockchain Service Integration:** Successfully integrated with live, third-party blockchain infrastructure: Polygon Mainnet (via Infura for RPC) and Pinata (for IPFS).
+-   **IPFS Data Storage:** Implemented credential metadata storage on the InterPlanetary File System, ensuring decentralized and persistent data availability.
+-   **API Key Management:** Securely managed and utilized multiple API keys and a private key for external services via environment variables.
+-   **Interactive User Guidance:** Walked the user through a multi-step process of creating accounts and retrieving credentials from multiple third-party services (Metamask, Infura, Pinata).
 
 **key DB schema**
--   **admins (modified):** The schema was significantly enhanced to support the new RBAC system. Key fields include  (object with , ),  (object), , , .
--   **time_off_policies (new):** To store accrual rules, policy types, and eligibility criteria.
--   **time_off_balances (new):** To track accrued, used, and available time-off for each user.
--   **franchises (new):** To store details for different regional franchises managed by the Super Admin.
+-   No changes to the database schema in this session.
 
 **changes in tech stack**
--   **slowapi:** Added to  to provide robust rate-limiting middleware for FastAPI.
+-   ****: Added and successfully configured for Polygon mainnet interaction.
+-   ****: Attempted to install , which failed. The agent successfully used direct API calls to Pinata's service as a workaround.
 
 **All files of reference**
--    (New Super Admin feature backend)
--    (New Auto-Dispatch feature backend)
--    (New DB optimization script)
--    (New security utility)
--    (Overwritten for new feature)
--    (Overwritten for new feature)
--    (New UI component)
--    (Completed UI feature)
+-   **/app/backend/.env**: Updated with , , , , and .
+-   **/app/backend/utils/blockchain_service.py**: Overwritten with the real implementation connecting to Infura and Pinata.
+-   **/app/backend/server.py**: Modified to include the new  endpoint.
+
+**Areas that need refactoring**:
+-   The 11 placeholder pages in  still need to be implemented.
 
 **key api endpoints**
--   : Creates a new franchise.
--   : Lists all available admin roles and permissions.
--   : Creates a new admin with a specific role and regional assignment.
--   : Retrieves statistics for the auto-dispatch system.
--   : Creates a new time-off accrual policy.
--   : Retrieves the time-off balance for a specific user.
+-    (NEW: Checks connection status to Polygon, Pinata, and wallet balance)
+-    (NEW functionality: now uploads to real IPFS)
 
 **Critical Info for New Agent**
--   **Deployment Agent is Broken:** Do not use the  tool. It has a known platform bug. To deploy, instruct the user to use the Deploy button in the Emergent UI.
--   **Blockchain is Mocked:** The actual NFT minting in  is simulated. This is intentional for the current MVP stage and allows for complete UI and backend flow testing. Do not attempt to implement real web3 minting unless requested.
--   **Backend Features Await Frontend:** The Auto-Dispatch and Super Admin features are fully implemented on the backend. The next logical step for these is to build the corresponding frontend interfaces.
--   **Time-Off Enhancement is Mid-Flight:** You are resuming work immediately after overwriting the time-off model and routes. Your first task should be to lint, restart the server, and test these new backend changes before building any UI.
+-   **Wallet Mismatch is the #1 Blocker:** The application is configured with a private key for wallet , but the user has deposited funds into a different wallet named GasFuel. You **MUST** address this with the user immediately.
+-   **Two Solutions for the Wallet Issue:**
+    1.  Instruct the user to transfer MATIC from their GasFuel wallet to the configured wallet: .
+    2.  Ask the user for the **private key** of the funded GasFuel wallet and update the  in .
+-   **Do not proceed with minting tests until the balance is confirmed to be > 0 in the correct, configured wallet.**
+-   **IPFS Is Working:** The IPFS upload part of the service is fully functional. You can test this independently of the on-chain minting.
 
-**documents and test_reports created in this job**
--   
--   
--   
--   
--   
--   The  file has been extensively updated with new test cases for all completed features.
+**documents and test reports created in this job**
+-   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. Go ahead with the time off management
-9.  Let's build the super admin. Remember we have different types of roles for admin which we will assign to different employees in different provinces and regions, such as user accounts activation, credentials review and approval, customer service.
-8.  Go ahead
-7.  What's Next
-6.  Would you like me to verify the auto-translation feature next or proceed with any other tasks?
-5.  Next
-4.  Would you like me to proceed with any additional features or optimizations?
-3.  Let's go ahead
-2.  Would you like me to add database indexes for better performance at scale?
-1.  Let's begin
+1.  **User (pending):** Screenshot showing MATIC balance in a wallet named GasFuel. *Agent needs to act on this.*
+2.  **Agent (pending):** Asked user to confirm if they sent funds to the correct network and wallet, as the balance shows 0.
+3.  **User:** I put funds there just now. Can you reconfirm its functionality. Then Lets login to an institute account and test its functionality and build monitization for these credentials. - *User confirms funds were added and states next goal.*
+4.  **Agent:** Provided a summary of the working IPFS implementation and the pending on-chain functionality due to 0 MATIC balance.
+5.  **User:** here: 342410abd662117c920c32ad16163b12b118d5598c8bec199cab743581993586 - *User provided the private key.*
+6.  **Agent:** Asked what the private key looks like.
+7.  **User:** Provided all credentials (Wallet Address, Pinata keys, Infura key), but was unsure about the private key initially.
+8.  **Agent & User:** A multi-message exchange where the agent guided the user through the Infura/Metamask signup process with screenshots.
+9.  **User:** lets begin with a step by step guide - *User requested guidance on getting credentials.*
+10. **Agent:** Proposed a plan to implement the blockchain feature and asked the user for the required credentials.
 
 **Project Health Check:**
--   **Broken:** The  tool is non-functional due to a platform bug.
--   **Mocked:** The  simulates NFT minting, which is the intended behavior for the current development stage.
+-   **Broken:**
+    -    tool is non-functional.
+    -   On-chain credential minting is blocked due to a 0 MATIC balance in the configured wallet.
+-   **Mocked:**
+    -   None. The blockchain service is now a real implementation.
 
 **3rd Party Integrations**
+-   **Infura:** For Polygon Mainnet RPC access (Live).
+-   **Pinata:** For IPFS storage (Live).
+-   **web3.py:** For interacting with Ethereum/Polygon (Live).
 -   **Google Maps Platform:** Geocoding and address validation.
--   **Emergent LLM Key:** Used via  for AI Translation and OpenAI-based transcript extraction.
--   **web3.py:** For interacting with Ethereum/Polygon blockchain (currently in a mocked service).
--   **OpenAI:** For AI-powered transcript extraction from PDFs.
+-   **Emergent LLM Key:** For AI Translation and OpenAI services.
+-   **OpenAI:** For AI-powered transcript extraction.
 -   **Etherscan API:** For checking wallet balances.
 -   **slowapi:** For backend rate limiting.
 
 **Testing status**
--   **Testing agent used after significant changes:** YES (Used extensively for production hardening, super admin, and auto-dispatch features).
+-   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
--   **Test files created:** None, but  was heavily updated with new test plans and results.
+-   **Test files created:** None.
 -   **Known regressions:** None.
+-   **Testing done in this session:**
+    -   Used  and  to confirm connection to Polygon and check wallet balance.
+    -   Used  to test the new  endpoint.
+    -   Used  to test the end-to-end IPFS upload flow, from login to file retrieval.
 
 **Credentials to test flow:**
--   **Super Admin (New):**  / 
--   **Institution (Primary):**  / 
--   **Demo Employer:**  / 
--   **Demo Workforce:**  / 
+-   **Super Admin:**  / 
+-   **Institution:**  /  (Used for IPFS testing)
+-   **Employer:**  / 
+-   **Workforce:**  / 
 
 **What agent forgot to execute**
--   The plan to add the  to the employer's view of their workforce () was started but not completed. The agent created the badge and added it to the worker's own profile but switched tasks before adding it to the employer-facing page.</analysis>
+-   The task to add the  to the employer's view of their workforce () was not addressed and remains an upcoming task.</analysis>
