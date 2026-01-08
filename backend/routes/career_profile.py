@@ -56,7 +56,7 @@ async def get_my_privacy_settings(
     current_user: dict = Depends(require_role("workforce")),
     db = Depends(get_db)
 ):
-    """Get current user's career profile privacy settings"""
+    """Get current user's Work Passport privacy settings"""
     settings = await db.career_profile_settings.find_one(
         {"workforce_id": current_user["user_id"]},
         {"_id": 0}
@@ -74,9 +74,9 @@ async def get_my_privacy_settings(
         await db.career_profile_settings.insert_one(settings)
         settings.pop("_id", None)
     
-    # Generate profile URL and QR code
+    # Generate profile URL and QR code (using /passport URL)
     frontend_url = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
-    profile_url = f"{frontend_url}/profile/{settings['profile_code']}"
+    profile_url = f"{frontend_url}/passport/{settings['profile_code']}"
     qr_code = generate_qr_code(profile_url)
     
     return {
