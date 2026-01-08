@@ -57,7 +57,7 @@ def test_super_admin_system(results):
     print("\n🧪 Testing Super Admin System for HR Bank (Priority: HIGH)...")
     print("   Testing endpoints: Admin Authentication, Dashboard, Roles, Pending Activations, Admin List, Franchise Management, Support Tickets")
     print("   Test credentials: Super Admin: qnizami@hrbank.ca / Test123!")
-    print("   Base URL: https://superadmin-hr.preview.emergentagent.com")
+    print("   Base URL: https://hrcert-system.preview.emergentagent.com")
     
     # Test credentials from review request
     admin_creds = {"email": "qnizami@hrbank.ca", "password": "Test123!", "user_type": "admin"}
