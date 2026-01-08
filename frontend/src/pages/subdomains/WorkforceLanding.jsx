@@ -65,13 +65,13 @@ const WorkforceLanding = () => {
               Browse Jobs
             </Link>
             <button
-              onClick={() => navigate('/auth/login?type=workforce')}
+              onClick={() => navigate('/login')}
               className="px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg"
             >
               Sign In
             </button>
             <button
-              onClick={() => navigate('/auth/register?type=workforce')}
+              onClick={() => navigate('/signup?type=workforce')}
               className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
             >
               Join Free
@@ -99,7 +99,7 @@ const WorkforceLanding = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => navigate('/auth/register?type=workforce')}
+                  onClick={() => navigate('/signup?type=workforce')}
                   className="px-8 py-4 bg-white text-blue-600 font-bold rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-lg"
                 >
                   Create Your Profile <ArrowRight className="w-5 h-5" />
@@ -232,7 +232,7 @@ const WorkforceLanding = () => {
           <h2 className="text-4xl font-bold mb-4">Ready to Build Your Verified Career?</h2>
           <p className="text-xl text-blue-100 mb-8">Join thousands of workers with trusted profiles</p>
           <button
-            onClick={() => navigate('/auth/register?type=workforce')}
+            onClick={() => navigate('/signup?type=workforce')}
             className="px-10 py-4 bg-white text-blue-600 font-bold rounded-lg hover:bg-blue-50 text-lg"
           >
             Create Your Free Profile

@@ -62,13 +62,13 @@ const EmployerLanding = () => {
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/auth/login?type=employer')}
+              onClick={() => navigate('/login')}
               className="px-4 py-2 text-orange-600 font-medium hover:bg-orange-50 rounded-lg"
             >
               Sign In
             </button>
             <button
-              onClick={() => navigate('/auth/register?type=employer')}
+              onClick={() => navigate('/signup?type=employer')}
               className="px-6 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700"
             >
               Start Hiring
@@ -96,7 +96,7 @@ const EmployerLanding = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => navigate('/auth/register?type=employer')}
+                  onClick={() => navigate('/signup?type=employer')}
                   className="px-8 py-4 bg-white text-orange-600 font-bold rounded-lg hover:bg-orange-50 transition-colors flex items-center justify-center gap-2 text-lg"
                 >
                   Start Hiring Free <ArrowRight className="w-5 h-5" />
@@ -206,7 +206,7 @@ const EmployerLanding = () => {
           <h2 className="text-4xl font-bold mb-4">Ready to Hire Smarter?</h2>
           <p className="text-xl text-orange-100 mb-8">Join 500+ employers using HR Bank</p>
           <button
-            onClick={() => navigate('/auth/register?type=employer')}
+            onClick={() => navigate('/signup?type=employer')}
             className="px-10 py-4 bg-white text-orange-600 font-bold rounded-lg hover:bg-orange-50 text-lg"
           >
             Create Employer Account

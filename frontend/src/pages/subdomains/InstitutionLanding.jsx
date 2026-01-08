@@ -58,13 +58,13 @@ const InstitutionLanding = () => {
               Leaderboard
             </Link>
             <button
-              onClick={() => navigate('/auth/login?type=institution')}
+              onClick={() => navigate('/login')}
               className="px-4 py-2 text-purple-600 font-medium hover:bg-purple-50 rounded-lg"
             >
               Sign In
             </button>
             <button
-              onClick={() => navigate('/auth/register?type=institution')}
+              onClick={() => navigate('/signup?type=institution')}
               className="px-6 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700"
             >
               Partner With Us
@@ -92,7 +92,7 @@ const InstitutionLanding = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => navigate('/auth/register?type=institution')}
+                  onClick={() => navigate('/signup?type=institution')}
                   className="px-8 py-4 bg-white text-purple-600 font-bold rounded-lg hover:bg-purple-50 transition-colors flex items-center justify-center gap-2 text-lg"
                 >
                   Become a Partner <ArrowRight className="w-5 h-5" />
@@ -225,7 +225,7 @@ const InstitutionLanding = () => {
             <div className="mt-8 pt-8 border-t text-center">
               <p className="text-gray-600 mb-4">50/50 revenue share • Weekly payouts • No upfront costs</p>
               <button
-                onClick={() => navigate('/auth/register?type=institution')}
+                onClick={() => navigate('/signup?type=institution')}
                 className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700"
               >
                 Start Issuing Credentials
@@ -241,7 +241,7 @@ const InstitutionLanding = () => {
           <h2 className="text-4xl font-bold mb-4">Join the Credential Revolution</h2>
           <p className="text-xl text-purple-100 mb-8">Partner with HR Bank and transform how you certify students</p>
           <button
-            onClick={() => navigate('/auth/register?type=institution')}
+            onClick={() => navigate('/signup?type=institution')}
             className="px-10 py-4 bg-white text-purple-600 font-bold rounded-lg hover:bg-purple-50 text-lg"
           >
             Become a Partner
