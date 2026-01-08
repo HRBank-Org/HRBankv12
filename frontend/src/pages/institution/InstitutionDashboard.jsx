@@ -314,6 +314,13 @@ const InstitutionDashboard = () => {
               color="#f59e0b"
             />
             <QuickActionCard
+              icon="💳"
+              title="Payouts Dashboard"
+              description="Manage earnings, connect bank account"
+              onClick={() => navigate('/institution/payouts')}
+              color="#10b981"
+            />
+            <QuickActionCard
               icon="📄"
               title="Upload Transcripts"
               description="Process transcripts with AI extraction"
