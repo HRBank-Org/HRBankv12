@@ -150,6 +150,204 @@
 
 ---
 
+## Latest Test Session: Credential Monetization System Backend API Testing
+
+### Test Date: January 8, 2026
+
+### Testing Agent: Testing Agent (Backend API Testing)
+
+### Feature Under Test: Credential Monetization System for HR Bank
+
+**Test URL:** https://blockverify-4.preview.emergentagent.com
+
+**Test Credentials:**
+- Institution: demo@stclairecollege.ca / Demo123!
+- Workforce: alex.johnson@email.com / Demo123!
+
+**Test Scope:**
+
+#### Backend API Testing:
+1. **GET /api/credential-payments/pricing-tiers** - Get pricing tiers (no auth)
+   - Should return 3 tiers: certificate ($50), diploma ($100), degree ($200)
+   - Should show 50% platform fee
+
+2. **POST /api/credential-payments/issue-pending** - Issue credential (institution auth)
+   - Test issuing to existing user (alex.johnson@email.com)
+   - Test issuing to non-existing user (test-new-user@example.com)
+   - Verify price calculation based on credential type
+
+3. **GET /api/credential-payments/institution/issued** - Get institution's issued credentials
+   - Should return list with summary stats
+   - Should show total issued, paid, pending, revenue
+
+4. **GET /api/credential-payments/my-pending** - Get workforce's pending credentials
+   - Should return credentials waiting for payment
+   - Should calculate total cost
+
+5. **POST /api/credential-payments/initiate-payment** - Initiate Stripe payment
+   - Test with valid pending_credential_id
+   - Should return checkout URL
+
+### 🔍 CREDENTIAL MONETIZATION SYSTEM TESTING RESULTS
+
+#### ✅ TEST 1: PRICING TIERS (NO AUTH) - PASSED
+- **Endpoint Access:** ✅ GET /api/credential-payments/pricing-tiers accessible without authentication
+- **Response Structure:** ✅ Valid JSON with success: true and all required fields
+- **Pricing Tiers:** ✅ All 3 tiers present (certificate, diploma, degree)
+- **Tier Prices:** ✅ Correct prices: Certificate $50, Diploma $100, Degree $200 CAD
+- **Platform Fee:** ✅ Platform fee correctly set to 50%
+- **Currency:** ✅ Currency properly set to CAD
+- **Impact:** ✅ Public pricing endpoint fully functional with correct tier structure
+
+#### ✅ TEST 2: INSTITUTION AUTHENTICATION - PASSED
+- **Authentication:** ✅ demo@stclairecollege.ca / Demo123! authenticated successfully
+- **User Type:** ✅ institution (verified)
+- **Institution ID:** ✅ inst_b84c52d2592f
+- **Token Generation:** ✅ Access token received and valid
+- **Impact:** ✅ Institution successfully authenticated for credential issuing
+
+#### ✅ TEST 3: WORKFORCE AUTHENTICATION - PASSED
+- **Authentication:** ✅ alex.johnson@email.com / Demo123! authenticated successfully
+- **User Type:** ✅ workforce (verified)
+- **Workforce ID:** ✅ wkr_78b3bac9cc7d
+- **Token Generation:** ✅ Access token received and valid
+- **Impact:** ✅ Workforce successfully authenticated for credential purchasing
+
+#### ✅ TEST 4: ISSUE PENDING CREDENTIAL TO EXISTING USER - PASSED
+- **Endpoint:** ✅ POST /api/credential-payments/issue-pending working correctly
+- **Recipient Detection:** ✅ Existing user (alex.johnson@email.com) properly detected
+- **Price Calculation:** ✅ Certificate price correctly calculated at $50 CAD
+- **Platform Fee:** ✅ Platform fee correctly calculated at $25 CAD (50%)
+- **Institution Payout:** ✅ Institution payout correctly calculated at $25 CAD (50%)
+- **Pending Credential ID:** ✅ Unique pending credential ID generated (PEND-5A622C8759BA)
+- **Response Fields:** ✅ All required fields present in response
+- **Impact:** ✅ Credential issuing to existing users fully functional with correct pricing
+
+#### ✅ TEST 5: ISSUE PENDING CREDENTIAL TO NON-EXISTING USER - PASSED
+- **Endpoint:** ✅ POST /api/credential-payments/issue-pending working correctly
+- **Recipient Detection:** ✅ Non-existing user (test-new-user@example.com) properly detected
+- **Price Calculation:** ✅ Diploma price correctly calculated at $100 CAD
+- **Account Status:** ✅ recipient_has_account correctly set to false
+- **Credential Type:** ✅ Different credential types (diploma) handled correctly
+- **Impact:** ✅ Credential issuing to non-existing users fully functional
+
+#### ✅ TEST 6: INSTITUTION ISSUED CREDENTIALS - PASSED
+- **Endpoint:** ✅ GET /api/credential-payments/institution/issued accessible with institution auth
+- **Response Structure:** ✅ Valid JSON with credentials list and summary stats
+- **Summary Stats:** ✅ All required summary fields present:
+  - Total Issued: 4 credentials
+  - Total Paid: 0 credentials
+  - Total Pending: 4 credentials
+  - Total Revenue: $0 CAD
+- **Credentials List:** ✅ List of 4 issued credentials returned
+- **Data Tracking:** ✅ Proper tracking of issued credentials by institution
+- **Impact:** ✅ Institution dashboard functionality fully operational
+
+#### ✅ TEST 7: WORKFORCE PENDING CREDENTIALS - PASSED
+- **Endpoint:** ✅ GET /api/credential-payments/my-pending accessible with workforce auth
+- **Response Structure:** ✅ Valid JSON with pending credentials and totals
+- **Pending Credentials:** ✅ 2 pending credentials found for workforce user
+- **Total Cost:** ✅ Total cost correctly calculated at $100 CAD
+- **Credential Matching:** ✅ Issued credential appears in workforce's pending list
+- **User Linking:** ✅ Credentials properly linked to workforce user account
+- **Impact:** ✅ Workforce credential purchasing interface fully functional
+
+#### ✅ TEST 8: STRIPE PAYMENT INITIATION - PASSED
+- **Endpoint:** ✅ POST /api/credential-payments/initiate-payment working correctly
+- **Stripe Integration:** ✅ Valid Stripe checkout URL returned (https://checkout.stripe.com/...)
+- **Session ID:** ✅ Stripe session ID generated (cs_test_a1lgj9In3j7T9KBKulZvAYVLIuNoUdOf8IEszOxYpBgvP5lMzrfOLfdzcl)
+- **Amount Verification:** ✅ Correct amount ($50 CAD) passed to Stripe
+- **Authorization:** ✅ Proper authorization check (workforce can only pay for their own credentials)
+- **Transaction Record:** ✅ Payment transaction record created in database
+- **Impact:** ✅ Stripe payment integration fully functional
+
+#### ✅ TEST 9: AUTHENTICATION ENFORCEMENT - PASSED
+- **Security Verification:** ✅ All protected endpoints require authentication
+- **Authentication Tests:**
+  - ✅ POST /credential-payments/issue-pending: Returns 401/403 without token (proper security)
+  - ✅ GET /credential-payments/institution/issued: Returns 401/403 without token (proper security)
+  - ✅ GET /credential-payments/my-pending: Returns 401/403 without token (proper security)
+  - ✅ POST /credential-payments/initiate-payment: Returns 401/403 without token (proper security)
+- **Impact:** ✅ Proper authentication enforcement implemented for all endpoints
+
+### 📊 CREDENTIAL MONETIZATION SYSTEM SUMMARY STATISTICS
+- **Total Test Categories:** 9
+- **Passed:** 9
+- **Failed:** 0
+- **Success Rate:** 100%
+
+### ✅ WORKING FEATURES
+1. **Pricing Tiers API:** ✅ Public endpoint returning correct tier structure with 50% platform fee
+2. **Institution Authentication:** ✅ Login system working correctly for demo@stclairecollege.ca
+3. **Workforce Authentication:** ✅ Login system working correctly for alex.johnson@email.com
+4. **Credential Issuing:** ✅ Complete issuing workflow for both existing and non-existing users
+5. **Price Calculation:** ✅ Accurate pricing based on credential type (certificate $50, diploma $100, degree $200)
+6. **Revenue Sharing:** ✅ Correct 50/50 split between platform and institution
+7. **Institution Dashboard:** ✅ Complete view of issued credentials with summary statistics
+8. **Workforce Dashboard:** ✅ Pending credentials view with total cost calculation
+9. **Stripe Integration:** ✅ Payment initiation with valid checkout URLs and session management
+10. **Authentication Security:** ✅ Proper access control for all protected endpoints
+
+### 🔧 TECHNICAL FINDINGS
+
+**Working Endpoints:**
+- ✅ `GET /api/credential-payments/pricing-tiers` - Public pricing information
+- ✅ `POST /api/auth/login` - Institution and workforce authentication
+- ✅ `POST /api/credential-payments/issue-pending` - Credential issuing with pricing calculation
+- ✅ `GET /api/credential-payments/institution/issued` - Institution dashboard with summary stats
+- ✅ `GET /api/credential-payments/my-pending` - Workforce pending credentials view
+- ✅ `POST /api/credential-payments/initiate-payment` - Stripe payment initiation
+
+**Pricing & Revenue Model:**
+- ✅ Fixed tier pricing: Certificate $50, Diploma $100, Degree $200 CAD
+- ✅ 50% platform fee correctly calculated and applied
+- ✅ Institution payout correctly calculated (50% of total price)
+- ✅ Currency properly set to CAD throughout system
+- ✅ Price validation based on credential type
+
+**User Account Handling:**
+- ✅ Existing users properly detected and linked to credentials
+- ✅ Non-existing users handled with pending status until account creation
+- ✅ Credential ownership properly validated for payment authorization
+- ✅ User type verification (institution vs workforce) working correctly
+
+**Payment Integration:**
+- ✅ Stripe checkout session creation working correctly
+- ✅ Valid checkout URLs generated for payment processing
+- ✅ Session IDs properly tracked for transaction management
+- ✅ Payment amount validation and currency handling
+- ✅ Transaction record creation for audit trail
+
+**Authentication & Authorization:**
+- ✅ Institution and workforce user types properly authenticated
+- ✅ Role-based access working correctly (institutions can issue, workforce can purchase)
+- ✅ Protected endpoints require valid tokens
+- ✅ Proper HTTP status codes returned (401/403 for unauthorized access)
+
+### 🎯 CREDENTIAL MONETIZATION SYSTEM STATUS: FULLY FUNCTIONAL
+
+**✅ ALL EXPECTED RESULTS ACHIEVED:**
+1. **Pricing Tiers:** Public endpoint with correct tier structure and platform fee
+2. **Credential Issuing:** Complete workflow for both existing and non-existing users
+3. **Revenue Sharing:** Accurate 50/50 split calculation between platform and institutions
+4. **Dashboard Views:** Institution and workforce dashboards with proper data display
+5. **Payment Processing:** Stripe integration with valid checkout URLs and session management
+6. **Authentication:** Proper access control and role-based permissions
+7. **Data Integrity:** Correct price calculations and user account linking
+
+**Credential Monetization System Complete:**
+- ✅ Backend API endpoints fully functional
+- ✅ Authentication and authorization properly implemented
+- ✅ Pricing model with fixed tiers and revenue sharing operational
+- ✅ Credential issuing workflow for all user scenarios
+- ✅ Payment processing integration with Stripe working correctly
+- ✅ Dashboard functionality for both institutions and workforce
+- ✅ All endpoints return proper JSON with success: true
+- ✅ No critical issues detected during comprehensive testing
+- ✅ Ready for production use with complete monetization capabilities
+
+---
+
 ## Previous Test Session: Super Admin Sidebar and Role Management Testing
 
 ### Test Date: January 7, 2026
