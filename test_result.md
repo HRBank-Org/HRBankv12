@@ -791,7 +791,44 @@ Test ALL Super Admin sidebar links to verify none are broken:
 
 ---
 
-## Latest Test Session: Institution Withdrawal System (Stripe Connect) Testing
+## Latest Test Session: Institution Withdrawal System Enhancements Testing
+
+### Test Date: January 8, 2026
+
+### Testing Agent: Backend API Testing
+
+### Features Under Test:
+1. **Stripe Connect Onboarding Banner on Institution Dashboard**
+2. **Email Notifications for Credential Issuance**
+3. **Super Admin Institution Payouts Visibility**
+
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
+
+**Test Credentials:**
+- Super Admin: qnizami@hrbank.ca / Test123!
+- Institution: demo@stclairecollege.ca / Demo123!
+
+**Test Scope:**
+
+#### 1. Super Admin Institution Payouts API:
+- GET /api/super-admin/institutions-stripe-status
+  - Should return all institutions with their Stripe Connect status
+  - Should include stats: total, connected, pending, not_connected, platform_earnings
+  - Should show credentials_sold, total_earned, platform_fee per institution
+
+#### 2. Email Notification (Credential Issuance):
+- POST /api/credential-payments/issue-pending
+  - Should send email to recipient when credential is issued
+  - Response should include email_sent: true
+
+#### 3. Frontend Components Verification:
+- Institution Dashboard shows Stripe onboarding banner if not connected
+- Super Admin can view /admin/institution-payouts page
+- Institution Payouts link visible in Super Admin sidebar
+
+---
+
+## Previous Test Session: Institution Withdrawal System (Stripe Connect) Testing
 
 ### Test Date: January 8, 2026
 
