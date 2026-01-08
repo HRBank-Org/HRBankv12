@@ -791,7 +791,44 @@ Test ALL Super Admin sidebar links to verify none are broken:
 
 ---
 
-## Latest Test Session: Super Admin Pages Title and Sidebar Comprehensive Testing
+## Latest Test Session: Institution Withdrawal System (Stripe Connect) Testing
+
+### Test Date: January 8, 2026
+
+### Testing Agent: Backend API Testing
+
+### Feature Under Test: Institution Withdrawal System with Stripe Connect
+
+**Test URL:** https://taxsmart-9.preview.emergentagent.com
+
+**Test Credentials:**
+- Institution: demo@stclairecollege.ca / Demo123!
+
+**Test Scope:**
+
+#### Backend API Testing:
+1. **Stripe Connect Account Management**
+   - POST /api/stripe-connect/create-account - Create Express account
+   - POST /api/stripe-connect/onboarding-link - Get onboarding URL
+   - GET /api/stripe-connect/account-status - Check account status
+   - GET /api/stripe-connect/dashboard-link - Get Stripe dashboard link
+
+2. **Payout Management**
+   - GET /api/stripe-connect/balance - Get payout balance and history
+   - GET /api/stripe-connect/payout-history - Get detailed payout history
+
+3. **Tax Information**
+   - GET /api/stripe-connect/tax-info - Get province tax rates
+   - PATCH /api/stripe-connect/update-province - Update institution province
+
+4. **Credential Payment with Tax**
+   - GET /api/credential-payments/provinces - Get Canadian provinces
+   - GET /api/credential-payments/calculate-price - Calculate price with tax
+   - POST /api/credential-payments/initiate-payment - Start payment with tax
+
+---
+
+## Previous Test Session: Super Admin Pages Title and Sidebar Comprehensive Testing
 
 ### Test Date: January 8, 2026
 
