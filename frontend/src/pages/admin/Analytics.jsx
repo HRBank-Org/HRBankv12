@@ -66,20 +66,17 @@ const Analytics = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/admin/dashboard')}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </button>
-              <div>
+      <GenericHeader />
+      <div className="flex">
+        <SuperAdminSidebar />
+        <main className="flex-1 lg:ml-[260px] transition-all duration-300">
+          <div className="p-6">
+            <div className="max-w-7xl mx-auto">
+              {/* Header */}
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold text-gray-900">Platform Analytics</h1>
+                <p className="text-gray-600">Platform performance and metrics</p>
+              </div>
                 <h1 className="text-2xl font-bold text-gray-900">Platform Analytics</h1>
                 <p className="text-sm text-gray-600">Comprehensive CEO Dashboard</p>
               </div>
