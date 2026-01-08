@@ -248,7 +248,9 @@ async def get_public_career_profile(
     
     # Photo
     if privacy.get("show_photo", True) and profile:
-        public_profile["photo_url"] = profile.get("photo_url", "")
+        # Try both field names - profile_photo_url is the actual field name used
+        photo = profile.get("profile_photo_url") or profile.get("photo_url", "")
+        public_profile["photo_url"] = photo
     
     # Location (city, province, country only - never address)
     if privacy.get("show_location", True) and profile:
