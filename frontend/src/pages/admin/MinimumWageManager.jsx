@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import UserHeader from '../../components/common/UserHeader';
+import GenericHeader from '../../components/layout/GenericHeader';
+import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 import { FiEdit2, FiCheck, FiX, FiAlertCircle, FiDollarSign, FiCalendar, FiClock } from 'react-icons/fi';
 
