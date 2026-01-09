@@ -199,242 +199,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Breaking Language Barriers in the Workplace */}
-      <section className="py-20 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] relative overflow-hidden">
-        {/* Subtle Background */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 text-6xl text-white">مرحبا</div>
-          <div className="absolute top-20 right-20 text-5xl text-white">你好</div>
-          <div className="absolute bottom-20 left-1/4 text-4xl text-white">ਸਤ ਸ੍ਰੀ ਅਕਾਲ</div>
-          <div className="absolute bottom-10 right-10 text-6xl text-white">नमस्ते</div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Work in Canada.
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400"> In Your Language.</span>
-              </h2>
-              <p className="text-lg text-gray-300 mb-6 leading-relaxed">
-                You don&apos;t need perfect English or French to contribute to Canada&apos;s economy. 
-                Our AI understands your workplace context and guides you through everything — 
-                from understanding your rights to completing your tasks.
-              </p>
-              <p className="text-gray-400 mb-8">
-                Emma isn&apos;t just a translator. She&apos;s a workplace guide who speaks your language, 
-                understands Canadian employment standards, and helps you succeed at work.
-              </p>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
-                  <div>
-                    <p className="text-white font-medium">Understand your workplace rights</p>
-                    <p className="text-gray-400 text-sm">Know what you&apos;re entitled to, explained clearly</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
-                  <div>
-                    <p className="text-white font-medium">Navigate job requirements with confidence</p>
-                    <p className="text-gray-400 text-sm">Get context-aware guidance for your specific role</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
-                  <div>
-                    <p className="text-white font-medium">Build your career without language barriers</p>
-                    <p className="text-gray-400 text-sm">Your skills matter more than your accent</p>
-                  </div>
-                </div>
-              </div>
-
-              <Button 
-                onClick={() => navigate('/signup?type=workforce')}
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-6 text-lg"
-              >
-                Get Started
-                <ChevronRight className="ml-2 w-5 h-5" />
-              </Button>
-            </div>
-
-            <div className="relative">
-              {/* Emma Chat Preview */}
-              <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md mx-auto">
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                    E
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">Emma</p>
-                    <p className="text-sm text-gray-500">Workplace Guide</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="bg-purple-50 rounded-lg p-3 max-w-[85%]">
-                    <p className="text-gray-800 text-sm" dir="rtl">
-                      ستاسو د کار ساعتونه د اونۍ ۴۴ ساعته دي. که تاسو زیات کار وکړئ، تاسو باید ۱.۵x معاش ترلاسه کړئ.
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2 border-t pt-2">Your work hours are 44/week. Overtime is paid at 1.5x rate.</p>
-                  </div>
-                  
-                  <div className="bg-gray-100 rounded-lg p-3 max-w-[85%] ml-auto">
-                    <p className="text-gray-800 text-sm" dir="rtl">زما مالک ماته د رخصتۍ پیسې نه راکوي</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 rounded-lg p-3 max-w-[85%]">
-                    <p className="text-gray-800 text-sm" dir="rtl">
-                      په اونټاریو کې، تاسو حق لرئ چې د ۴٪ رخصتي معاش ترلاسه کړئ. دا ستاسو قانوني حق دی.
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2 border-t pt-2">In Ontario, you&apos;re entitled to 4% vacation pay. This is your legal right.</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-xs text-gray-400 text-center">
-                    Context-aware guidance based on your province &amp; job type
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom message */}
-          <div className="mt-16 text-center">
-            <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-              In an economy being reshaped by AI, we believe human talent remains our greatest resource. 
-              <span className="text-cyan-400"> Every worker deserves the chance to contribute.</span>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Job Board Preview */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Latest Opportunities</h2>
-              <p className="text-gray-600">Jobs matched to your skills, updated in real-time</p>
-            </div>
-            <Link to="/jobs">
-              <Button variant="outline" className="mt-4 md:mt-0">
-                View All Jobs <ChevronRight className="ml-1 w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-
-          {/* Job Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {loadingJobs ? (
-              Array(4).fill(0).map((_, i) => (
-                <div key={i} className="bg-white rounded-xl p-5 shadow-sm animate-pulse">
-                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                </div>
-              ))
-            ) : (
-              featuredJobs.map((job) => (
-                <Card key={job.posting_id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                  <CardContent className="p-5">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-[#ff5f00] transition-colors mb-1">
-                      {job.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">{job.company_name}</p>
-                    <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                      <span className="flex items-center gap-1">
-                        <MapPin size={14} />
-                        {job.workplace_city || 'Remote'}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <DollarSign size={14} />
-                        ${job.hourly_rate}/hr
-                      </span>
-                    </div>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      job.work_type === 'on_site' ? 'bg-blue-100 text-blue-700' :
-                      job.work_type === 'route_based' ? 'bg-green-100 text-green-700' :
-                      'bg-purple-100 text-purple-700'
-                    }`}>
-                      {job.work_type === 'on_site' ? 'On-Site' : 
-                       job.work_type === 'route_based' ? 'Route-Based' : 'Flexible'}
-                    </span>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-
-          {/* Search Bar */}
-          <div className="mt-8 bg-white rounded-xl shadow-sm p-4 flex flex-col md:flex-row gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Job title, skill, or keyword"
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ff5f00] focus:border-transparent"
-              />
-            </div>
-            <div className="flex-1 relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="City or postal code"
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ff5f00] focus:border-transparent"
-              />
-            </div>
-            <Button 
-              onClick={() => navigate('/jobs')}
-              className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-12 px-8"
-            >
-              Search Jobs
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">How It Works</h2>
-            <p className="text-gray-600">Get matched to jobs in 3 simple steps</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { step: '1', title: 'Create Your Profile', desc: 'Add your skills, certifications, and preferences. No resume needed.', icon: Users },
-              { step: '2', title: 'Get Matched by AI', desc: 'Our AI finds jobs that fit your profile. Opportunities come to you.', icon: Zap },
-              { step: '3', title: 'Build Your Career', desc: 'Earn ratings, collect credentials, unlock better opportunities.', icon: Award },
-            ].map((item, index) => (
-              <div key={index} className="text-center relative">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#ff5f00] text-white text-2xl font-bold mb-4">
-                  {item.step}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
-                {index < 2 && (
-                  <ChevronRight className="hidden md:block absolute top-8 -right-4 text-gray-300" size={32} />
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-10">
-            <Button
-              onClick={() => navigate('/signup?type=workforce')}
-              className="bg-[#30496d] hover:bg-[#234058] text-white h-12 px-8"
-            >
-              Create Free Account
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Work Passport Section */}
+      {/* Work Passport Section - PRIMARY for grads/students */}
       <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -572,7 +337,7 @@ const LandingPage = () => {
                   <div className="w-10 h-10 bg-white rounded p-1">
                     <div className="w-full h-full bg-slate-200 rounded grid grid-cols-4 gap-px">
                       {Array(16).fill(0).map((_, i) => (
-                        <div key={i} className={`${Math.random() > 0.5 ? 'bg-slate-800' : 'bg-white'}`} />
+                        <div key={i} className={`${i % 2 === 0 ? 'bg-slate-800' : 'bg-white'}`} />
                       ))}
                     </div>
                   </div>
@@ -599,6 +364,238 @@ const LandingPage = () => {
               <div className="text-white font-semibold">QuickDash Delivery</div>
               <div className="text-white font-semibold">+ 200 more</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works - Fancy AI Matching Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 left-20 w-96 h-96 bg-[#ff5f00] rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#30496d] rounded-full blur-3xl" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff5f00]/10 rounded-full text-[#ff5f00] text-sm font-semibold mb-4">
+              <Zap className="w-4 h-4" />
+              Stop Applying. Start Working.
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Jobs Find <span className="text-[#ff5f00]">You</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Tired of endless applications? Our AI knows your skills and certifications. 
+              We match you with real shifts that need to be filled — today.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="relative group">
+              <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 hover:border-[#30496d]/30 transition-all hover:-translate-y-2 h-full">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#30496d] to-[#1a2d42] rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 group-hover:scale-110 transition-transform">
+                  1
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Build Your Profile</h3>
+                <p className="text-gray-600 mb-6">
+                  Tell us your skills, certifications, and when you&apos;re available. No resume needed — just real information about what you can do.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span>Add credentials from your institution</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span>Set your availability calendar</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span>Choose your preferred work zones</span>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                <ChevronRight className="w-8 h-8 text-gray-300" />
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="relative group">
+              <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 hover:border-[#ff5f00]/30 transition-all hover:-translate-y-2 h-full">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#ff5f00] to-[#e55500] rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 group-hover:scale-110 transition-transform">
+                  2
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">AI Does the Work</h3>
+                <p className="text-gray-600 mb-6">
+                  Our AI scans thousands of shifts from employers. When a shift matches your skills and availability — you get notified instantly.
+                </p>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-[#ff5f00]/10 rounded-full flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-[#ff5f00]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">New Match Found!</p>
+                      <p className="text-xs text-gray-500">Just now</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">Line Cook at Swan Pizza — Tomorrow 6AM-2PM • $18/hr</p>
+                </div>
+              </div>
+              <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                <ChevronRight className="w-8 h-8 text-gray-300" />
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="relative group">
+              <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 hover:border-green-500/30 transition-all hover:-translate-y-2 h-full">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 group-hover:scale-110 transition-transform">
+                  3
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Accept & Work</h3>
+                <p className="text-gray-600 mb-6">
+                  One tap to accept. Show up, do great work, get rated. Your Work Passport grows with every shift — unlocking better opportunities.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <span className="text-sm font-medium text-green-800">Shift Completed</span>
+                    <span className="text-sm text-green-600">+8 hours logged</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                    <span className="text-sm font-medium text-amber-800">New Rating</span>
+                    <span className="text-sm text-amber-600">⭐ 5.0 from employer</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-gray-500 mb-6">No more endless job boards. No more ghosted applications.</p>
+            <Button
+              size="lg"
+              onClick={() => navigate('/signup?type=workforce')}
+              className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-14 px-10 text-lg font-semibold"
+            >
+              Let Jobs Find Me
+              <ChevronRight className="ml-2 w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Work in Your Language Section */}
+      <section className="py-20 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] relative overflow-hidden">
+        {/* Subtle Background */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 text-6xl text-white">مرحبا</div>
+          <div className="absolute top-20 right-20 text-5xl text-white">你好</div>
+          <div className="absolute bottom-20 left-1/4 text-4xl text-white">ਸਤ ਸ੍ਰੀ ਅਕਾਲ</div>
+          <div className="absolute bottom-10 right-10 text-6xl text-white">नमस्ते</div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                Work in Canada.
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400"> In Your Language.</span>
+              </h2>
+              <p className="text-lg text-gray-300 mb-6 leading-relaxed">
+                You don&apos;t need perfect English or French to contribute to Canada&apos;s economy. 
+                Our AI understands your workplace context and guides you through everything — 
+                from understanding your rights to completing your tasks.
+              </p>
+              <p className="text-gray-400 mb-8">
+                Emma isn&apos;t just a translator. She&apos;s a workplace guide who speaks your language, 
+                understands Canadian employment standards, and helps you succeed at work.
+              </p>
+              
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <div>
+                    <p className="text-white font-medium">Understand your workplace rights</p>
+                    <p className="text-gray-400 text-sm">Know what you&apos;re entitled to, explained clearly</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <div>
+                    <p className="text-white font-medium">Navigate job requirements with confidence</p>
+                    <p className="text-gray-400 text-sm">Get context-aware guidance for your specific role</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <div>
+                    <p className="text-white font-medium">Build your career without language barriers</p>
+                    <p className="text-gray-400 text-sm">Your skills matter more than your accent</p>
+                  </div>
+                </div>
+              </div>
+
+              <Button 
+                onClick={() => navigate('/signup?type=workforce')}
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-6 text-lg"
+              >
+                Get Started
+                <ChevronRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="relative">
+              {/* Emma Chat Preview */}
+              <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md mx-auto">
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                    E
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Emma</p>
+                    <p className="text-sm text-gray-500">Workplace Guide</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="bg-purple-50 rounded-lg p-3 max-w-[85%]">
+                    <p className="text-gray-800 text-sm" dir="rtl">
+                      ستاسو د کار ساعتونه د اونۍ ۴۴ ساعته دي. که تاسو زیات کار وکړئ، تاسو باید ۱.۵x معاش ترلاسه کړئ.
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2 border-t pt-2">Your work hours are 44/week. Overtime is paid at 1.5x rate.</p>
+                  </div>
+                  
+                  <div className="bg-gray-100 rounded-lg p-3 max-w-[85%] ml-auto">
+                    <p className="text-gray-800 text-sm" dir="rtl">زما مالک ماته د رخصتۍ پیسې نه راکوي</p>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-lg p-3 max-w-[85%]">
+                    <p className="text-gray-800 text-sm" dir="rtl">
+                      په اونټاریو کې، تاسو حق لرئ چې د ۴٪ رخصتي معاش ترلاسه کړئ. دا ستاسو قانوني حق دی.
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2 border-t pt-2">In Ontario, you&apos;re entitled to 4% vacation pay. This is your legal right.</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs text-gray-400 text-center">
+                    Context-aware guidance based on your province &amp; job type
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom message */}
+          <div className="mt-16 text-center">
+            <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+              In an economy being reshaped by AI, we believe human talent remains our greatest resource. 
+              <span className="text-cyan-400"> Every worker deserves the chance to contribute.</span>
+            </p>
           </div>
         </div>
       </section>
