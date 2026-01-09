@@ -175,10 +175,13 @@
                     }),
                     (e.__SV = 1));
             })(document, window.posthog || []);
-            posthog.init("phc_yJW1VjHGGwmCbbrtczfqqNxgBDbhlhOWcdzcIJEOTFE", {
-                api_host: "https://us.i.posthog.com",
-                person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
-            });
+            // PostHog initialization - key injected at build time
+            if (window.REACT_APP_POSTHOG_KEY) {
+                posthog.init(window.REACT_APP_POSTHOG_KEY, {
+                    api_host: "https://us.i.posthog.com",
+                    person_profiles: "identified_only",
+                });
+            }
         </script>
     </body>
 </html>
