@@ -258,7 +258,7 @@ const LandingPage = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => window.open('/passport/3E68EA53', '_blank')}
+                  onClick={() => window.open('/passport/ALEX2024', '_blank')}
                   className="bg-transparent border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg"
                 >
                   <Play className="mr-2 w-5 h-5" />
