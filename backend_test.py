@@ -57,7 +57,7 @@ def test_super_admin_system(results):
     print("\n🧪 Testing Super Admin System for HR Bank (Priority: HIGH)...")
     print("   Testing endpoints: Admin Authentication, Dashboard, Roles, Pending Activations, Admin List, Franchise Management, Support Tickets")
     print("   Test credentials: Super Admin: qnizami@hrbank.ca / Test123!")
-    print("   Base URL: https://talentcreds.preview.emergentagent.com")
+    print("   Base URL: https://blockwork-1.preview.emergentagent.com")
     
     # Test credentials from review request
     admin_creds = {"email": "qnizami@hrbank.ca", "password": "Test123!", "user_type": "admin"}
@@ -360,7 +360,7 @@ def test_career_profile_system(results):
     print("\n🧪 Testing Career Profile System for Workforce Users (Priority: HIGH)...")
     print("   Testing endpoints: Career Profile Settings, Public Profile, Privacy Updates, Code Regeneration, Profile Stats")
     print("   Test credentials: Workforce: alex.johnson@email.com / Demo123!")
-    print("   Base URL: https://talentcreds.preview.emergentagent.com")
+    print("   Base URL: https://blockwork-1.preview.emergentagent.com")
     
     # Test credentials from review request
     workforce_creds = {"email": "alex.johnson@email.com", "password": "Demo123!", "user_type": "workforce"}
@@ -432,7 +432,7 @@ def test_career_profile_system(results):
                             results.add_fail("Career Profile Settings profile code", f"Profile code '{profile_code}' is not 8 characters uppercase")
                         
                         # Verify profile URL format
-                        expected_url_pattern = f"https://talentcreds.preview.emergentagent.com/profile/{profile_code}"
+                        expected_url_pattern = f"https://blockwork-1.preview.emergentagent.com/profile/{profile_code}"
                         if settings_data.get("profile_url") == expected_url_pattern:
                             results.add_pass("Career Profile Settings - Profile URL format correct")
                         else:
@@ -706,7 +706,7 @@ def test_credential_monetization_system(results):
     print("\n🧪 Testing Credential Monetization System for HR Bank (Priority: HIGH)...")
     print("   Testing endpoints: Pricing Tiers, Issue Pending, Institution Issued, My Pending, Initiate Payment")
     print("   Test credentials: Institution: demo@stclairecollege.ca / Demo123!, Workforce: alex.johnson@email.com / Demo123!")
-    print("   Base URL: https://talentcreds.preview.emergentagent.com")
+    print("   Base URL: https://blockwork-1.preview.emergentagent.com")
     
     # Test credentials from review request
     institution_creds = {"email": "demo@stclairecollege.ca", "password": "Demo123!", "user_type": "institution"}
@@ -1054,7 +1054,7 @@ def test_credential_monetization_system(results):
         try:
             payment_data = {
                 "pending_credential_id": pending_credential_id,
-                "origin_url": "https://talentcreds.preview.emergentagent.com"
+                "origin_url": "https://blockwork-1.preview.emergentagent.com"
             }
             
             response = requests.post(
@@ -1131,7 +1131,7 @@ def test_institution_withdrawal_system(results):
     print("\n🧪 Testing Institution Withdrawal System with Stripe Connect Express (Priority: HIGH)...")
     print("   Testing endpoints: Stripe Connect Account Management, Payout Balance, Tax Information, Credential Payment with Tax")
     print("   Test credentials: Institution: demo@stclairecollege.ca / Demo123!")
-    print("   Base URL: https://talentcreds.preview.emergentagent.com")
+    print("   Base URL: https://blockwork-1.preview.emergentagent.com")
     
     # Test credentials from review request
     institution_creds = {"email": "demo@stclairecollege.ca", "password": "Demo123!", "user_type": "institution"}
@@ -1248,8 +1248,8 @@ def test_institution_withdrawal_system(results):
         print("\n   Test 4: Get Onboarding Link - POST /api/stripe-connect/onboarding-link")
         try:
             onboarding_data = {
-                "refresh_url": "https://talentcreds.preview.emergentagent.com/institution/stripe-connect",
-                "return_url": "https://talentcreds.preview.emergentagent.com/institution/stripe-connect/success"
+                "refresh_url": "https://blockwork-1.preview.emergentagent.com/institution/stripe-connect",
+                "return_url": "https://blockwork-1.preview.emergentagent.com/institution/stripe-connect/success"
             }
             
             response = requests.post(
@@ -1603,7 +1603,7 @@ def test_institution_withdrawal_enhancements(results):
     print("\n🧪 Testing Institution Withdrawal System Enhancements for HR Bank (Priority: HIGH)...")
     print("   Testing endpoints: Super Admin Institution Payouts, Email on Credential Issuance, Stripe Connect Status")
     print("   Test credentials: Super Admin: qnizami@hrbank.ca / Test123!, Institution: demo@stclairecollege.ca / Demo123!")
-    print("   Base URL: https://talentcreds.preview.emergentagent.com")
+    print("   Base URL: https://blockwork-1.preview.emergentagent.com")
     
     # Test credentials from review request
     admin_creds = {"email": "qnizami@hrbank.ca", "password": "Test123!", "user_type": "admin"}
@@ -1879,7 +1879,7 @@ def test_public_leaderboard_system(results):
     """Test the Public Leaderboard System for HR Bank"""
     print("\n🧪 Testing Public Leaderboard System for HR Bank (Priority: HIGH)...")
     print("   Testing endpoints: Platform Stats, Institution Leaderboard, Province Leaderboard")
-    print("   Test URL: https://talentcreds.preview.emergentagent.com")
+    print("   Test URL: https://blockwork-1.preview.emergentagent.com")
     print("   Note: These are public endpoints - no authentication required")
     
     # Test 1: Platform Stats API (No Auth Required)

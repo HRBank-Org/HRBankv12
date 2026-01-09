@@ -4,56 +4,70 @@ The user's initial objective was to build a comprehensive HR platform with block
 2.  **Enhance User Experience & Trust:**
     *   Implement email notifications for issued credentials and payment receipts.
     *   Add prompts and admin visibility for institution Stripe onboarding.
-    *   Improve the landing page's Work Passport example with a real photo and security clearance badges.
-    *   Fix broken footer links.
-3.  **Drive Platform Adoption:** Create a public-facing leaderboard to gamify participation among institutions.
-4.  **Subdomain-Specific Experiences:** Rework the application to provide unique, tailored landing pages for each user-specific subdomain (, , , ) instead of a single generic login page, and simplify the main  landing page to act as a central hub.
+    *   Improve the landing page's Work Passport example, fix broken footer links, and refine the page structure based on target audience (workforce first).
+    *   Implement a language-agnostic workplace enablement system using AI to guide workers, removing language proficiency as a barrier to employment.
+3.  **Drive Platform Adoption:**
+    *   Create a public-facing leaderboard to gamify participation.
+    *   Build a growth flywheel by allowing users to upload credentials from non-partner institutions, which in turn notifies those institutions and encourages them to join and monetize.
+4.  **Subdomain-Specific Experiences:** Rework the application to provide unique, tailored landing pages for each user-specific subdomain (, , , ).
+5.  **Platform Concerns:** The user expressed frustration about saving progress to GitHub and deploying the application, requesting a comprehensive test and guidance on AWS deployment and PWA implementation.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a feature-rich HR platform. It has a functional blockchain credentialing system, a public Work Passport for workforce users, and a complete credential monetization loop.
+The application is a full-stack HR platform with a React frontend, FastAPI backend, and MongoDB database. It includes a live, functional blockchain credentialing system, a Work Passport for workforce users, and a complete credential monetization loop using a **LIVE** Stripe Connect key.
 
-A full-stack institution withdrawal system using Stripe Connect (with the user's **LIVE** API key) is now implemented. This includes a self-service onboarding flow for institutions, automated Canadian tax calculations, and a Payouts Dashboard. To support this, the system now includes an admin page to track institution Stripe connections and sends email notifications for issued credentials and payment receipts.
-
-To drive engagement, a public leaderboard ranks institutions. The platform's visual polish has been improved by enhancing the landing page's Work Passport example with a realistic photo and security verification badges, and by fixing all broken footer links with new placeholder pages.
-
-The agent has just begun implementing the user's latest request for subdomain-specific landing pages by creating the initial component files.
+Key accomplishments in the last session include:
+-   **Completed Subdomain Landing Pages:** All user types now have tailored landing pages.
+-   **Landing Page Overhaul:** The main landing page has been completely restructured and redesigned to focus on the workforce user. It features a new How It Works section that emphasizes AI job matching, an enhanced For Business Owners section with dashboard mockups, and a powerful new section that frames the AI translation feature as a workplace enablement tool, not just multilingual support.
+-   **Growth Flywheel Backend:** A system is in place to notify institutions via email when a student uploads a credential for verification, creating an organic incentive for them to join the platform.
+-   **Bug Fixes & Audits:** A comprehensive Super Admin audit was completed, fixing a broken API endpoint and a UI bug. All broken  routes were fixed across the site. The Leaderboard UI was polished.
+-   **User Onboarding & AI:** The workforce login flow was fixed for existing users, and the Emma AI chat now correctly initializes in the user's preferred language.
+-   **Deployment Support:** In response to user concerns, a full system test was passed, an  was created, and the existing Progressive Web App (PWA) foundation was verified.
 
 **Last working item**:
--   **Last item agent was working:** The agent was implementing subdomain-specific landing pages to create a tailored experience for each user type (, , , ). The goal is to replace the generic login portal with full, audience-specific landing pages for each subdomain and simplify the main  page into an ecosystem hub. The agent created the four new landing page component files in .
--   **Status:** IN PROGRESS
--   **Agent Testing Done:** N
--   **Which testing method agent to use?** Frontend testing agent
+-   **Last item agent was working:** Addressing the user's frustration about being unable to save progress to GitHub or deploy. The agent called a support subagent for platform guidance, ran a comprehensive test of the entire application (which passed with a 100% success rate), created an , and confirmed that the basic PWA setup already exists.
+-   **Status:** USER VERIFICATION PENDING
+-   **Agent Testing Done:** Y
+-   **Which testing method agent to use?** NA (The agent is awaiting the user's response to the provided support and documentation).
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
 -   Issue 1: Old Career Profile Components/Routes Still Active (P2)
--   Issue 2: Benign  Warning on Startup (P3)
--   Issue 3: Remaining  Usages (P3)
+-   Issue 2: Workforce Dashboard Performance (P2)
+-   Issue 3: Benign  Warning on Startup (P3)
+-   Issue 4: Remaining  Usages (P3)
 
 **Issues Detail:**
 -   **Issue 1: Old Career Profile Components/Routes Still Active**
-    -   **Attempted fixes:** Agent identified that  and  are still imported and routed in . Deletion was deferred to avoid breaking the app.
     -   **Next debug checklist:**
-        1.  Search the codebase for any links or navigation pointing to  and .
-        2.  Replace them with  and  respectively.
-        3.  Remove the routes and imports from .
-        4.  Delete the obsolete files:  and .
-    -   **Why fix this issue and what will be achieved with the fix?** To remove dead code, reduce confusion, and complete the rebranding to Work Passport.
+        1.  Search for links to  and .
+        2.  Replace them with  and .
+        3.  Remove the old routes and imports from .
+        4.  Delete  and .
+    -   **Why fix this issue and what will be achieved with the fix?** To remove dead code and complete the Work Passport rebranding.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Frontend
-    -   **Blocked on other issue:** None
 
--   **Issue 2: Benign  Warning on Startup**
-    -   **Next debug checklist:** A  appears on server start. Investigate  usage in  and update to the modern approach.
-    -   **Why fix this issue and what will be achieved with the fix?** Cleans up server logs for better readability.
+-   **Issue 2: Workforce Dashboard Performance**
+    -   **Attempted fixes:** Agent identified that the dashboard has hardcoded text and feels slow. The user deprioritized UI translation but the performance issue remains.
+    -   **Next debug checklist:**
+        1.  Use browser dev tools to analyze the network tab and component rendering times for .
+        2.  Investigate the backend endpoints serving the dashboard for potential slow queries or large data payloads.
+    -   **Why fix this issue and what will be achieved with the fix?** To improve the user experience for the platform's primary audience.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Both
+
+-   **Issue 3: Benign  Warning on Startup**
+    -   **Next debug checklist:** A  appears on server start. Investigate  usage in .
+    -   **Why fix this issue and what will be achieved with the fix?** To clean up server logs.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** Backend
 
--   **Issue 3: Remaining  Usages**
+-   **Issue 4: Remaining  Usages**
     -   **Next debug checklist:** Run /app/backend/scripts/seed_workforce_profiles.py:            "created_date": datetime.utcnow().isoformat(),
 /app/backend/scripts/seed_workforce_profiles.py:            "updated_date": datetime.utcnow().isoformat()
 /app/backend/scripts/seed_workforce_profiles.py:            "phone_verified_at": datetime.utcnow(),
@@ -72,152 +86,137 @@ The agent has just begun implementing the user's latest request for subdomain-sp
 /app/backend/create_super_admin.py:    admin_id = f"admin_{datetime.utcnow().timestamp()}"
 /app/backend/create_super_admin.py:        "created_date": datetime.utcnow().isoformat(),
 /app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d')
-/app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d') to find remaining instances and replace with .
-    -   **Why fix this issue and what will be achieved with the fix?** Ensures all timestamps are timezone-aware for production readiness.
+/app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d') and replace with .
+    -   **Why fix this issue and what will be achieved with the fix?** Ensures all timestamps are timezone-aware.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Backend
 
 **In progress Task List**:
--   **Task 1: Complete Subdomain-Specific Landing Pages (P0)**
-
-**Task Detail:**
--   **Task 1: Complete Subdomain-Specific Landing Pages**
-    -   **Where to resume:** The agent has created the files in . The next steps are to:
-        1.  Update  to render the correct new landing page based on the detected subdomain.
-        2.  Update  to ensure these components are correctly integrated.
-        3.  Modify the main  to become a simpler ecosystem hub as requested.
-        4.  Ensure the Sign Up flow on each subdomain landing page works correctly.
-    -   **What will be achieved with this?** A more professional, intuitive, and trustworthy user experience where each user type is greeted with a tailored message and value proposition.
-    -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** Frontend
-    -   **Blocked on something:** None.
+-   None.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   **P1: Comprehensive Super Admin Page Audit:** The user requested a full functionality check of all Super Admin pages before deployment.
+    -   **P0: Institution Directory Import & Admin UI:** The user wants to import a list of 1,800 institutions. An admin UI is needed to upload the CSV file and monitor the request to join counts from students.
+    -   **P1: Enhance PWA Functionality:** Build upon the existing PWA foundation to add features like push notifications and improved offline access for the workforce app.
     -   **P1: Build Frontend for Auto-Dispatch:** The backend service is complete. A UI is needed for admins to monitor dispatch statistics and manage settings.
-    -   **P1: Add Blockchain Badge to Employer's Workforce View:** Implement the  component in .
-    -   **P2: Implement Placeholder Pages:** The 11 placeholder pages created to fix broken links (e.g., , , ) need to be built out with actual functionality.
+    -   **P2: Implement Placeholder Pages:** The 11 placeholder pages created to fix broken footer links need to be built out with actual functionality.
 -   **Future Tasks:**
     -   **Enhance Admin Management:** Add map visualization for province/zone assignment.
     -   **Build Franchise Management UI:** Build out the full CRUD UI for creating and managing franchises.
+    -   **Full i18n Implementation:** Implement a proper internationalization library (e.g., ) to translate the entire frontend, not just AI chat and notifications.
 
 **Completed work in this session**
--   **Institution Withdrawal System (Stripe Connect):** Implemented an end-to-end, self-service system for institutions to connect their bank accounts via Stripe Express and receive automatic weekly payouts. Integrated the user's **LIVE** Stripe secret key.
--   **Automated Tax Calculation:** Integrated Canadian province-specific tax calculations into the Stripe checkout flow.
--   **Onboarding & Admin Tooling:**
-    -   Added a banner to the Institution Dashboard prompting users to connect their Stripe account.
-    -   Created a Super Admin page () to monitor the Stripe connection status of all institutions.
--   **Email Notifications:**
-    -   Implemented email notifications to the workforce when a credential is issued.
-    -   Added automated payment receipt/invoice emails for workforce users after a successful purchase.
--   **Public Leaderboard:** Created a public-facing page () to rank institutions and drive platform engagement.
--   **Visual & UX Polish:**
-    -   Enhanced the landing page's Work Passport example and the actual passport with a realistic photo and a Security Clearances section.
-    -   Fixed all broken footer links by creating new static pages (, , ).
+-   **Subdomain-Specific Landing Pages:** Finalized implementation and fixed all routing and linting issues.
+-   **Landing Page Overhaul:** Completely restructured the page to prioritize the Work Passport and added compelling new sections for How It Works, Work in Your Language, and an enhanced For Business Owners showcase with dashboard mockups.
+-   **Institution Engagement Flywheel:** Implemented the backend service to notify institutions when students request credential verification, creating a powerful growth loop.
+-   **Super Admin Audit:** Completed a comprehensive audit of all 32 admin pages, fixing two bugs found.
+-   **Bug Fixes & Polish:** Fixed all broken  routes, fixed the Leaderboard UI (logo, header, back button), added the Blockchain Badge to the employer view, and resolved a critical workforce login/onboarding bug.
+-   **AI & Translation:** Fixed the Emma AI chat to correctly use the user's preferred language.
+-   **User Support & Pre-Deployment:** Addressed user deployment concerns by running a full test suite (100% pass), creating an AWS deployment guide, and verifying the PWA setup.
+-   **Documentation:** Created and maintained .
 
 **Earlier issues found/mentioned but not fixed**
--   **Issue 1: Blockchain Badge Missing from Employer View**
-    -   **Debug checklist:** The  component needs to be imported and used within the user mapping in .
-    -   **Why to solve this issue and what will be achieved with this?** This is a core feature request to allow employers to easily identify workers with verified credentials.
-    -   **Should Test frontend/backend/both after fix:** Frontend.
-    -   **Is recurring issue?** Y
+-   All known issues have been captured in the **All Pending/In progress Issue list**.
 
 **Known issue recurrence from previous fork**
 -   **Issue recurrence in previous fork:** Deployment Agent Failure.
 -   **Recurrence count:** High.
--   **Status:** BLOCKED. The agent consistently reports false positives. The workaround is to manually verify readiness and use the UI Deploy button.
+-   **Status:** BLOCKED. The agent correctly avoided the tool and provided an alternative (AWS guide).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Stripe Connect Express:** Using self-service Express accounts to enable automated payouts to third-party institutions.
--   **Destination Charges:** Implicitly used to route a portion of the payment to the institution's connected account.
--   **Subdomain Routing:** Using the hostname to detect the subdomain and render a specific landing page and user experience.
--   **Live API Key Usage:** The application is configured with the user's  key, meaning all Stripe transactions are real.
+-   **Stripe Connect Express:** Live usage for real transactions and payouts.
+-   **Growth Hacking/Flywheel Model:** Using user actions (credential uploads) to trigger automated outreach to potential B2B customers (institutions), creating a self-reinforcing adoption loop.
+-   **Dynamic AI Prompting:** Passing user language preferences to the AI's system prompt for multilingual guidance.
+-   **Progressive Web App (PWA):** Foundational elements are in place for enabling an app-like experience.
+-   **Subdomain Routing:** Using hostname to render specific landing pages.
 
 **key DB schema**
--   ****: Updated to include , .
--   ****: Updated to include  and  to support the enhanced Work Passport.
--   ****: Used to store security verification documents (e.g., Background Check, Work Permit).
+-   **** (New Collection): Stores data for the 1800+ imported institutions, including , , , , and .
+-   ****:  field was identified as critical for the login flow and was updated for the demo user.
+-   ****: This collection was cleared for the demo user to allow the conversation to restart in the correct language.
 
 **changes in tech stack**
--   No new technologies were added; existing stack ( for Stripe) was expanded upon.
+-   None.
 
 **All files of reference**
--   **/app/backend/routes/stripe_connect.py**: Core logic for Stripe Connect onboarding and payouts.
--   **/app/frontend/src/pages/institution/PayoutsDashboard.jsx**: UI for institutions to manage payouts.
--   **/app/backend/services/credential_email_service.py**: Logic for sending all new credential and payment-related emails.
--   **/app/backend/routes/leaderboard.py**: API for the public leaderboard.
--   **/app/frontend/src/pages/public/Leaderboard.jsx**: UI for the public leaderboard.
--   **/app/frontend/src/pages/subdomains/**: New location for tailored landing pages.
--   **/app/backend/routes/career_profile.py**: Modified to include photo URL and security verification data.
--   **/app/frontend/src/pages/public/WorkPassport.jsx**: Modified to display the new photo and security sections.
--   **/app/frontend/src/pages/LandingPage.jsx**: Heavily modified to fix footer links and enhance the Work Passport example.
--   **/app/backend/.env**: Modified to use the user's **LIVE** Stripe secret key.
+-   **/app/frontend/src/pages/LandingPage.jsx**: The main hub of recent activity, completely restructured and rewritten.
+-   **/app/backend/routes/institution_directory.py**: Backend logic for the new institution import and leaderboard expansion.
+-   **/app/backend/services/institution_notification_service.py**: Core of the new growth flywheel.
+-   **/app/backend/routes/emma.py**: Contains the fix for the AI language preference.
+-   **/app/frontend/src/pages/public/Leaderboard.jsx**: Contains fixes for UI, branding, and navigation.
+-   **/app/AWS_DEPLOYMENT_GUIDE.md**: Key document created to address user concerns about deployment.
+-   **/app/memory/PRD.md**: Contains the evolving project requirements.
 
 **Areas that need refactoring**:
--   The old  and  components and their corresponding routes in  should be removed once it's confirmed they are no longer linked from anywhere in the application.
+-   The obsolete  and  components and routes in  must be removed.
+-   The  needs investigation for performance bottlenecks.
 
 **key api endpoints**
--   : Creates a new Stripe Express account for an institution.
--   : Checks the onboarding status of an institution's Stripe account.
--   : Generates a one-time link for an institution to complete Stripe onboarding.
--   : Retrieves data for the public institution leaderboard.
--   : (Admin-only) Retrieves the Stripe connection status for all institutions.
--   : Modified to trigger an email to the workforce user.
--   : Modified to trigger a payment receipt email upon successful payment.
+-   : (New) Imports a CSV of institutions.
+-   : (New) Lists all institutions for the leaderboard.
+-   : (New) Increments the request counter for an institution.
+-   : (Modified) Now correctly uses the user's preferred language.
+-   : (Modified) Triggers the .
 
 **Critical Info for New Agent**
--   **⚠️ LIVE STRIPE KEY CONFIGURED:** The application is using the user's  key. All Stripe transactions are **real**. Exercise caution.
--   **Primary Task:** Your immediate goal is to complete the subdomain-specific landing page feature. This involves modifying  and  to route to the newly created landing page components and simplifying the main  landing page.
--   **Deployment Agent is Unreliable:** Do not trust the . It gives false positives. Manually verify readiness before informing the user about deployment.
--   **Refactoring Needed:** Plan to remove the obsolete  components and routes after the current task is complete.
+-   **User State:** The user is currently blocked by frustration with the platform's deployment and source control capabilities. Do not proceed with feature work until the user has responded to the support agent's message and the provided . Your first action should be to acknowledge their concern and ask how they wish to proceed.
+-   **Top Feature Priority:** Once unblocked, the next task is to build the Admin UI for the institution CSV import and to monitor student requests, as this is central to the user's growth strategy.
+-   **⚠️ LIVE STRIPE KEY CONFIGURED:** All Stripe transactions are **real**.
+-   **Deployment Agent is Unreliable:** Do not use this tool. Refer the user to the  or the platform's manual deployment options.
 
 **documents and test reports created in this job**
--   : Updated multiple times by the backend and frontend testing agents, contains detailed test results for Stripe Connect and the Leaderboard feature.
+-   
+-   
+-   
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** Requested subdomain-specific full landing pages with self-service registration, a simpler main hub, and an admin-specific info page. (IN PROGRESS)
-2.  **Agent:** Proposed a detailed plan for subdomain-specific landing pages. (User approved)
-3.  **User:** Explained that Emergent's deployment failed before due to blockchain functionality and expressed the need for subdomain-specific landing pages to improve trust and user experience.
-4.  **Agent:** Recommended Emergent's native deployment and offered to guide through a manual AWS deployment if preferred.
-5.  **User:** Asked for guidance on deploying to AWS.
-6.  **User:** Requested that all footer links be fixed. (DONE)
-7.  **Agent:** Confirmed both the Leaderboard link and the enhanced Work Passport are now working and visible. (User confirmed issues were fixed)
-8.  **User:** Reported that the leaderboard link was not visible and the example Work Passport still showed a placeholder and lacked the security section. (FIXED)
-9.  **User:** Wanted the example passport on the landing page to be more realistic with a face photo and to display security/background check status. (DONE)
-10. **User:** Asked to add a real person's photo to the placeholder on the Work Passport. (DONE)
+10. **User:** Wants to enhance the For Business Owners section with pain points, solutions, and dashboard screenshots. (DONE)
+9.  **User:** Redo the landing page order: Work Passports first, remove Latest Opportunities, and make How it Works fancy. (DONE)
+8.  **User:** Clarified that the language feature is about workplace enablement not just multilingual support. (DONE)
+7.  **User:** Likes the new Work in Your Language section on the landing pages. (DONE)
+6.  **User:** Explained the vision for language support: enabling work without requiring perfect English/French, powered by AI. (DONE)
+5.  **User:** The workforce account UI/Emma is not translated and is slow. (PARTIALLY DONE - Emma fixed, UI translation deferred, slowness pending)
+4.  **User:** Asked for workforce credentials and noted issues with the login button and leaderboard logo/title. (DONE)
+3.  **User:** The leaderboard header design doesn't match the landing page. (DONE)
+2.  **User:** The leaderboard is missing a back button. (DONE)
+1.  **User:** Feeling suffocated due to inability to push to GitHub or deploy. Asks for a full system test, AWS deployment guide, and info on making the workforce account a PWA. (IN PROGRESS - Agent provided resources, waiting for user feedback).
 
 **Project Health Check:**
 -   **Broken:**
-    -   The  tool is unreliable and produces false positives.
+    -   The  tool is unreliable and should not be used.
 -   **Mocked:**
-    -   None.
+    -   The For Business Owners section on the landing page uses static images of a dashboard to showcase features. This is a design choice, not a broken component.
 
 **3rd Party Integrations**
--   **Stripe:** For processing payments and enabling institution payouts via Stripe Connect (**LIVE**).
--   **Infura:** For Polygon Mainnet RPC access (Live).
--   **Pinata:** For IPFS storage (Live).
--   **SendGrid:** For transactional emails (Live).
--   **web3.py:** For interacting with Ethereum/Polygon (Live).
+-   **Stripe:** Payments and payouts via Stripe Connect (**LIVE KEY**).
+-   **Infura:** Polygon Mainnet RPC access.
+-   **Pinata:** IPFS storage.
+-   **SendGrid:** Transactional emails.
+-   **web3.py:** Ethereum/Polygon interaction.
 -   **Google Maps Platform:** Geocoding and address validation.
--   **Emergent LLM Key:** For AI Translation and OpenAI services.
--   **OpenAI:** For AI-powered transcript extraction.
+-   **Emergent LLM Key:** OpenAI services (used by Emma AI).
+-   **OpenAI:** AI-powered transcript extraction and Emma AI chat.
 
 **Testing status**
--   **Testing agent used after significant changes:** YES (Backend and frontend agents were used to test the Stripe Connect, email, and leaderboard features).
+-   **Testing agent used after significant changes:** YES (used 3 times, with the final run being a comprehensive, pre-deployment system check that passed).
 -   **Troubleshoot agent used after agent stuck in loop:** NO
--   **Test files created:** Test plans were updated in .
+-   **Test files created:**
+    -   
+    -   
+    -   
 -   **Known regressions:** None.
 
 **Credentials to test flow:**
 -   **Super Admin:**  / 
 -   **Institution:**  / 
 -   **Employer:**  / 
--   **Workforce:**  / 
+-   **Workforce (Pashto language):**  / 
 
 **What agent forgot to execute**
--   The agent correctly deferred the deletion of old  files because they are still referenced in . This is a pending refactoring task, not a forgotten execution.</analysis>
+-   The agent correctly deferred tasks like full UI translation and refactoring based on user priority. No critical tasks were forgotten.</analysis>

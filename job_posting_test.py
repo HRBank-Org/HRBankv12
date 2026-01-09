@@ -21,7 +21,7 @@ BASE_URL = f"{BACKEND_URL}/api"
 
 print(f"🚀 JOB POSTING WORKFLOW TESTING FOR HR BANK")
 print(f"Testing backend at: {BASE_URL}")
-print(f"Base URL: https://talentcreds.preview.emergentagent.com")
+print(f"Base URL: https://blockwork-1.preview.emergentagent.com")
 print("="*80)
 
 class TestResults:
