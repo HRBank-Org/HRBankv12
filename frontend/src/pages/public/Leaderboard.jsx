@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
+import { LOGOS } from '../../utils/logoUtils';
 import {
   Trophy, Medal, Award, Building2, Users, FileCheck,
   MapPin, Filter, TrendingUp, ChevronDown, ExternalLink,
@@ -89,9 +90,8 @@ const Leaderboard = () => {
         
         <div className="max-w-7xl mx-auto px-6 py-16 relative z-10">
           <div className="flex items-center justify-between mb-8">
-            <Link to="/" className="text-white hover:text-purple-300 transition-colors flex items-center gap-2">
-              <span className="text-2xl">🏦</span>
-              <span className="font-bold">HR Bank</span>
+            <Link to="/" className="hover:opacity-80 transition-opacity">
+              <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
             </Link>
             <Link 
               to="/login" 
