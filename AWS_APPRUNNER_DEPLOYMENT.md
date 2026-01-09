@@ -31,8 +31,8 @@ sudo installer -pkg AWSCLIV2.pkg -target /
 ```
 
 **On Windows:**
-Download and run: https://awscli.amazonaws.com/AWSCLIV2.msi
-
+Download and run:https://awscli.amazonaws.com/AWSCLIV2.msi
+ 
 **On Linux:**
 ```bash
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
