@@ -63,6 +63,7 @@ async def root():
 
 # Health check endpoint for Kubernetes - at root level (not /api)
 @app.get("/health")
+@app.get("/api/health")
 async def health_check():
     """Health check endpoint for Kubernetes liveness/readiness probes"""
     try:
