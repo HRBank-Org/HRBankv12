@@ -168,6 +168,63 @@ const EmployerLanding = () => {
         </div>
       </section>
 
+      {/* Access Diverse Talent */}
+      <section className="py-16 px-6 bg-gradient-to-r from-slate-900 via-orange-900 to-slate-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5 text-white text-6xl font-bold">
+          <span className="absolute top-5 left-10">🌍</span>
+          <span className="absolute top-10 right-20">🤝</span>
+          <span className="absolute bottom-10 left-1/4">💼</span>
+          <span className="absolute bottom-5 right-10">🌐</span>
+        </div>
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-orange-300 text-sm font-medium mb-6">
+                <Users className="w-4 h-4" />
+                Diverse Talent Pool
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Access Canada&apos;s Most Diverse Workforce
+              </h2>
+              <p className="text-lg text-orange-100 mb-6">
+                HR Bank breaks language barriers to give you access to talented workers from every background. 
+                Our multilingual platform means you can hire skilled workers who might otherwise be overlooked.
+              </p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                  Workers communicate with Emma AI in their native language
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                  Verified credentials from international institutions
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                  Notifications translated to worker&apos;s preferred language
+                </li>
+              </ul>
+            </div>
+            <div className="text-center">
+              <div className="bg-white/10 rounded-2xl p-8 backdrop-blur-sm border border-white/20">
+                <p className="text-5xl font-bold text-white mb-2">20+</p>
+                <p className="text-orange-200 mb-6">Languages Supported</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {['EN', 'FR', 'AR', 'ZH', 'PA', 'PS', 'TL', 'ES', 'HI', 'UR'].map((lang) => (
+                    <span key={lang} className="px-3 py-1 bg-white/10 rounded text-white text-sm">
+                      {lang}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-orange-300 mt-6 italic">
+                  "Human talent is our greatest resource in the age of AI"
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works */}
       <section className="py-20 px-6 bg-gray-50">
         <div className="max-w-5xl mx-auto">
