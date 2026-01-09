@@ -57,6 +57,10 @@ next-env.d.ts
 htmlcov/
 .pytest_cache/
 .tox/
+test_result.md
+test_reports/
+*_test.py
+test_*.py
 
 # ============================================
 # IDE & Editors
