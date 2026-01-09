@@ -217,7 +217,7 @@ const EmployerLanding = () => {
                   ))}
                 </div>
                 <p className="text-sm text-orange-300 mt-6 italic">
-                  "Human talent is our greatest resource in the age of AI"
+                  &ldquo;Human talent is our greatest resource in the age of AI&rdquo;
                 </p>
               </div>
             </div>

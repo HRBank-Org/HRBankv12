@@ -210,7 +210,7 @@ const WorkforceLanding = () => {
             ))}
           </div>
           <p className="text-purple-300 italic">
-            "In the age of AI, we believe human talent is our greatest resource. Everyone deserves the right to work."
+            &ldquo;In the age of AI, we believe human talent is our greatest resource. Everyone deserves the right to work.&rdquo;
           </p>
         </div>
       </section>
