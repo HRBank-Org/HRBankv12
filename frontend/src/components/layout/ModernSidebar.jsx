@@ -151,9 +151,14 @@ const ModernSidebar = () => {
               }}
             />
             {showExpanded && (
-              <span className="text-white font-bold text-lg whitespace-nowrap">
-                HR Bank
-              </span>
+              <div className="flex flex-col">
+                <span className="text-white font-bold text-lg whitespace-nowrap">
+                  HR Bank
+                </span>
+                <span className="px-2 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full w-fit">
+                  BETA
+                </span>
+              </div>
             )}
           </div>
         </div>
