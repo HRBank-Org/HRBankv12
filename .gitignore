@@ -1,183 +1,128 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ============================================
+# SECURITY - Environment & Secrets (CRITICAL)
+# ============================================
+# All .env files - NEVER commit credentials
+.env
+.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+**/.env
+**/.env.*
 
-# IDE and editors
-.idea/
-.vscode/
+# API keys, tokens, credentials
+*token.json*
+*credentials.json*
+*.pem
+*.key
+*.cert
+secrets/
+.secrets
 
+# ============================================
 # Dependencies
+# ============================================
 node_modules/
 /node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Testing
-/coverage
-
-# Next.js
+# ============================================
+# Build & Production Outputs
+# ============================================
+/build
+/dist
+dist/
 /.next/
 /out/
-next-env.d.ts
 *.tsbuildinfo
+next-env.d.ts
 
-# Production builds
-/build
-dist/
-dist
+# ============================================
+# Testing & Coverage
+# ============================================
+/coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
 
-# Environment files (comprehensive coverage)
+# ============================================
+# IDE & Editors
+# ============================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
 
-*token.json*
-*credentials.json*
-
-# Logs and debug files
+# ============================================
+# Logs & Debug Files
+# ============================================
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
+logs/
+
+# ============================================
+# System Files
+# ============================================
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+
+# ============================================
+# Cache & Temporary Files
+# ============================================
+.cache/
+*.cache
+.ipynb_checkpoints/
 dump.rdb
 
-# System files
-.DS_Store
-*.pem
-
-# Python
-__pycache__/
-*pyc*
-venv/
-.venv/
-
-# Development tools
-chainlit.md
-.chainlit
-.ipynb_checkpoints/
-.ac
-
-# Deployment
+# ============================================
+# Deployment & Platform Specific
+# ============================================
 .vercel
+.netlify
+.serverless
 
-# Data and databases
-agenthub/agents/youtube/db
+# ============================================
+# Archive & Large Files
+# ============================================
+*.zip
+*.tar.gz
+*.tar
+*.tgz
+*.rar
 
-# Archive files and large assets
-**/*.zip
-**/*.tar.gz
-**/*.tar
-**/*.tgz
-*.pack
-*.deb
-*.dylib
+# ============================================
+# Database Files (if local)
+# ============================================
+*.sqlite
+*.db
+*.sqlite3
 
-# Build caches
-.cache/
-
-# Mobile development
-android-sdk/ frontend/node_modules/.cache/default-development/10.pack
-frontend/node_modules/.cache/default-development/10.pack
-frontend/node_modules/.cache/default-development/2.pack
+# ============================================
+# Emergent Platform (preserve these locally)
+# ============================================
+# .emergent/ - Keep this commented, platform needs it
+# .git/ - Keep this commented, version control needs it
 frontend/node_modules/.cache/default-development/3.pack
-# Environment files
-frontend/node_modules/.cache/default-development/4.pack
-frontend/node_modules/.cache/default-development/6.pack
-# Environment files
-frontend/node_modules/.cache/default-development/0.pack
-frontend/node_modules/.cache/default-development/8.pack
-frontend/node_modules/.cache/default-development/5.pack
-# Environment files
-# Environment files
-# Environment files
-frontend/node_modules/.cache/default-development/12.pack
-frontend/node_modules/.cache/default-development/13.pack
-# Environment files
-frontend/node_modules/.cache/default-development/1.pack
-# Environment files
-# Environment files
-# Environment files
-frontend/node_modules/.cache/default-development/9.pack
-frontend/node_modules/.cache/default-development/7.pack
-# Environment files
-frontend/node_modules/.cache/default-development/11.pack
 frontend/node_modules/.cache/default-development/14.pack
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
-frontend/node_modules/.cache/default-development/11.pack_
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
-frontend/node_modules/.cache/default-development/7.pack_
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
--e 
-# Environment files
-frontend/node_modules/.cache/default-development/6.pack_
-frontend/node_modules/.cache/default-development/1.pack_
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
+frontend/node_modules/.cache/default-development/0.pack
