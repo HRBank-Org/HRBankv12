@@ -228,21 +228,21 @@ const LandingPage = () => {
               
               <div className="space-y-4 mb-8">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
                   <div>
                     <p className="text-white font-medium">Understand your workplace rights</p>
                     <p className="text-gray-400 text-sm">Know what you&apos;re entitled to, explained clearly</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
                   <div>
                     <p className="text-white font-medium">Navigate job requirements with confidence</p>
                     <p className="text-gray-400 text-sm">Get context-aware guidance for your specific role</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-cyan-400 mt-0.5" />
                   <div>
                     <p className="text-white font-medium">Build your career without language barriers</p>
                     <p className="text-gray-400 text-sm">Your skills matter more than your accent</p>
