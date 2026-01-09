@@ -258,10 +258,23 @@ async def get_conversation(
     """Get Emma conversation history"""
     db = await get_database()
     
+    # Get user's preferred language
+    preferred_language = "en"
+    profile_collection = f"{current_user['user_type']}_profiles"
+    id_field = "workforce_id" if current_user['user_type'] == "workforce" else "employer_id"
+    
+    user_profile = await db[profile_collection].find_one(
+        {id_field: current_user['user_id']}
+    )
+    
+    if user_profile:
+        preferred_language = user_profile.get("preferred_language", "en")
+    
     conversation = await get_or_create_conversation(
         current_user['user_id'],
         current_user['user_type'],
-        db
+        db,
+        preferred_language
     )
     
     return {
