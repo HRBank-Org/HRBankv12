@@ -212,28 +212,31 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Content */}
             <div className="text-white">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-400 text-sm font-semibold mb-4 border border-amber-500/30">
-                <span className="animate-pulse w-2 h-2 bg-amber-400 rounded-full" />
-                Everyone&apos;s Talking About It
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full text-green-400 text-sm font-semibold mb-4 border border-green-500/30">
+                <span className="animate-pulse w-2 h-2 bg-green-400 rounded-full" />
+                100% Free for Workers
               </div>
               
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-                Have You Got Your
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                Get Your Free
                 <br />
-                <span className="text-amber-400">Work Passport?</span>
+                <span className="text-amber-400">Work Passport</span>
               </h2>
               
-              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                Your skills. Your experience. Your credentials. All verified and portable. 
-                Share it with any employer — they see real-time, trustworthy career data.
+              <p className="text-xl text-gray-300 mb-4 leading-relaxed">
+                Carry your credentials and experience wherever you go.
+              </p>
+              <p className="text-lg text-gray-400 mb-8">
+                Your verified skills, work history, and ratings — all in one portable profile. 
+                Share with any employer instantly. No more starting from zero at every new job.
               </p>
 
               <div className="space-y-4 mb-8">
                 {[
+                  'Free forever — no hidden costs for workers',
                   'Blockchain-verified credentials that can\'t be faked',
-                  'Real-time hours worked and ratings from employers',
-                  'Portable — take your reputation anywhere',
-                  'Privacy controls — you decide what to share',
+                  'Carry your reputation from job to job',
+                  'Your experience follows you, not your employer',
                   'QR code sharing — instant trust in seconds',
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
@@ -249,7 +252,7 @@ const LandingPage = () => {
                   onClick={() => navigate('/signup?type=workforce')}
                   className="bg-amber-500 hover:bg-amber-400 text-slate-900 h-14 px-8 text-lg font-semibold"
                 >
-                  Get My Work Passport
+                  Get My Free Passport
                   <ChevronRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button
