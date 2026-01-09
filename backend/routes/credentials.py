@@ -38,7 +38,9 @@ async def submit_credential(
 ):
     """
     Submit a credential for verification (workers only)
-    Creates credential + verification request for institution
+    Creates credential + verification request for institution.
+    
+    If institution is not a partner, triggers notification to invite them.
     """
     # Auto-assign workforce_id from current user
     credential_data.workforce_id = current_user["user_id"]
@@ -60,36 +62,86 @@ async def submit_credential(
     if credential_dict.get("expiration_date"):
         credential_dict["expiration_date"] = credential_dict["expiration_date"].isoformat()
     
+    # Check if institution is a partner
+    institution_id = credential_data.institution_id if hasattr(credential_data, 'institution_id') else None
+    institution_is_partner = False
+    institution_info = None
+    
+    if institution_id:
+        # Check if this institution is registered on our platform
+        institution_info = await db.institution_profiles.find_one(
+            {"institution_id": institution_id},
+            {"_id": 0, "institution_name": 1}
+        )
+        institution_is_partner = institution_info is not None
+        
+        # If not a partner, check if they're in our directory
+        if not institution_is_partner:
+            directory_institution = await db.institution_directory.find_one(
+                {"directory_id": institution_id},
+                {"_id": 0, "institution_name": 1, "email": 1}
+            )
+            
+            if directory_institution:
+                # Notify the institution about this request
+                try:
+                    from services.institution_notification_service import notify_institution_of_credential_request
+                    
+                    # Get workforce user's name
+                    workforce_profile = await db.workforce_profiles.find_one(
+                        {"workforce_id": current_user["user_id"]},
+                        {"_id": 0, "full_name": 1}
+                    )
+                    workforce_name = workforce_profile.get("full_name", "A student") if workforce_profile else "A student"
+                    
+                    await notify_institution_of_credential_request(
+                        db=db,
+                        institution_id=institution_id,
+                        institution_name=directory_institution.get("institution_name", "Unknown"),
+                        workforce_name=workforce_name,
+                        credential_type=credential_data.credential_type_name,
+                        institution_email=directory_institution.get("email")
+                    )
+                except Exception as e:
+                    print(f"Failed to notify institution: {e}")
+    
     # Set initial statuses
-    credential_dict["institution_verification_status"] = "pending"
+    if institution_is_partner:
+        credential_dict["institution_verification_status"] = "pending"
+        credential_dict["final_status"] = "pending_institution"
+        status_message = "Credential submitted. The institution will review and verify it."
+    else:
+        credential_dict["institution_verification_status"] = "awaiting_institution"
+        credential_dict["final_status"] = "awaiting_institution"
+        status_message = "Credential submitted. We've notified the institution to join HR Bank and verify your credential."
+    
     credential_dict["admin_approval_status"] = "pending"
-    credential_dict["final_status"] = "pending_institution"
     
     await db.workforce_credentials.insert_one(credential_dict)
     
-    # Create verification request for institution
-    from models.institution import CredentialVerificationRequest
-    
-    verification_request = CredentialVerificationRequest(
-        workforce_id=current_user["user_id"],
-        credential_id=credential_data.credential_id,
-        assigned_to_institution_id="",  # Will be assigned based on catchment area
-        requested_date=datetime.now(timezone.utc),
-        status="pending"
-    )
-    
-    await db.credential_verification_requests.insert_one(verification_request.model_dump())
-    
-    # TODO: Notify institution about new verification request
+    # Create verification request for institution (if partner)
+    if institution_is_partner:
+        from models.institution import CredentialVerificationRequest
+        
+        verification_request = CredentialVerificationRequest(
+            workforce_id=current_user["user_id"],
+            credential_id=credential_data.credential_id,
+            assigned_to_institution_id=institution_id,
+            requested_date=datetime.now(timezone.utc),
+            status="pending"
+        )
+        
+        await db.credential_verification_requests.insert_one(verification_request.model_dump())
     
     return {
         "success": True,
         "data": {
             "credential_id": credential_data.credential_id,
-            "verification_status": "pending_institution",
+            "verification_status": credential_dict["final_status"],
+            "institution_is_partner": institution_is_partner,
             "submitted_date": credential_dict["submitted_date"]
         },
-        "message": "Credential submitted for verification. Institution will review it first, then HR Bank admin."
+        "message": status_message
     }
 
 @router.get("/me", response_model=Dict)
