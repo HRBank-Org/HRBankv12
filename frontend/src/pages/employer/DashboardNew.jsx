@@ -145,6 +145,20 @@ const EmployerDashboardNew = () => {
       
       <div className="ml-[70px] pt-[64px] transition-all duration-300">
         <main className="max-w-7xl mx-auto px-4 py-6">
+        
+        {/* BETA Banner */}
+        <div className="mb-6 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-4 flex items-center justify-between shadow-lg" data-testid="beta-banner">
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-bold tracking-wider">
+              BETA
+            </span>
+            <div className="text-white">
+              <p className="font-semibold">Employer Dashboard is in Beta</p>
+              <p className="text-sm text-white/80">We're building our workforce pipeline. Full features coming soon!</p>
+            </div>
+          </div>
+        </div>
+
         {/* Pending Ratings Banner */}
         {pendingRatings > 0 && (
           <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
