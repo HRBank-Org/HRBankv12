@@ -181,36 +181,33 @@ const WorkforceLanding = () => {
         </div>
       </section>
 
-      {/* Multilingual Support Section */}
+      {/* Work Without Language Barriers */}
       <section className="py-16 px-6 bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 text-white text-4xl font-bold">
-          <span className="absolute top-5 left-10">سلام</span>
-          <span className="absolute top-10 right-20">你好</span>
-          <span className="absolute bottom-10 left-1/4">ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span>
-          <span className="absolute bottom-5 right-10">नमस्ते</span>
-        </div>
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-cyan-300 text-sm font-medium mb-6">
-            <Globe className="w-4 h-4" />
-            Speak Your Language
-          </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Language Should Never Be a Barrier to Your Success
+            Work in Canada. In Your Language.
           </h2>
-          <p className="text-lg text-purple-200 mb-8 max-w-3xl mx-auto">
-            Our AI assistant Emma speaks 20+ languages including Pashto, Punjabi, Arabic, Mandarin, 
-            and Tagalog. Get help with your profile, understand your workplace rights, and find jobs 
-            — all in your preferred language.
+          <p className="text-lg text-purple-200 mb-6 max-w-3xl mx-auto">
+            You don&apos;t need perfect English to build a career here. Emma understands your workplace 
+            context and guides you through everything — your rights, your responsibilities, your growth.
           </p>
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {['English', 'Français', 'العربية', '中文', 'ਪੰਜਾਬੀ', 'پښتو', 'Tagalog', 'Español'].map((lang) => (
-              <span key={lang} className="px-4 py-2 bg-white/10 rounded-full text-white text-sm border border-white/20">
-                {lang}
-              </span>
-            ))}
+          <div className="bg-white/10 rounded-xl p-6 max-w-2xl mx-auto backdrop-blur-sm border border-white/10">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">E</div>
+              <div className="text-left">
+                <p className="text-white font-medium">Emma</p>
+                <p className="text-purple-300 text-sm">Your Workplace Guide</p>
+              </div>
+            </div>
+            <p className="text-purple-100 text-left" dir="rtl">
+              په اونټاریو کې، تاسو حق لرئ چې د ۴٪ رخصتي معاش ترلاسه کړئ. دا ستاسو قانوني حق دی.
+            </p>
+            <p className="text-purple-300 text-sm text-left mt-2 italic">
+              &ldquo;In Ontario, you&apos;re entitled to 4% vacation pay. This is your legal right.&rdquo;
+            </p>
           </div>
-          <p className="text-purple-300 italic">
-            &ldquo;In the age of AI, we believe human talent is our greatest resource. Everyone deserves the right to work.&rdquo;
+          <p className="text-purple-300 mt-8">
+            Your skills matter more than your accent.
           </p>
         </div>
       </section>
