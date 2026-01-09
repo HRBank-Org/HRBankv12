@@ -64,6 +64,13 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
   - Updated Leaderboard UI to show both Active Partners and Listed Institutions
   - Added search functionality for all Canadian institutions
   - Added "All Institutions" tab and search feature
+- **Emma Translation Fixed**: Fixed `/api/emma/conversation` to pass preferred_language
+- **Multilingual Value Proposition Added**:
+  - New section on landing page highlighting 20+ language support
+  - Emma AI chat preview showing Pashto conversation
+  - Messaging: "Language Should Never Be a Barrier to Your Dream Job"
+  - Added to Workforce and Employer subdomain landing pages
+  - Stats: 20+ Languages, 24/7 AI Support, 100% Notification Translation
 
 ### Previous Sessions
 - Stripe Connect integration (LIVE key)
