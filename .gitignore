@@ -128,20 +128,6 @@ dump.rdb
 *.sqlite
 *.db
 *.sqlite3
-
-# ============================================
-# Emergent Platform (preserve these locally)
-# ============================================
-# .emergent/ - Keep this commented, platform needs it
-# .git/ - Keep this commented, version control needs it
 frontend/node_modules/.cache/default-development/3.pack
 frontend/node_modules/.cache/default-development/14.pack
 frontend/node_modules/.cache/default-development/0.pack
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
