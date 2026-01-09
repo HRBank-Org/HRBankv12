@@ -46,7 +46,7 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ## What's Been Implemented
 
-### January 8, 2026
+### January 8-9, 2026
 - Completed subdomain-specific landing pages integration
 - Fixed navigation routes in all subdomain landing pages (auth/login -> /login)
 - Fixed footer links in main LandingPage (/auth/register -> /signup)
@@ -57,6 +57,13 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - **Fixed CredentialReviews API**: Changed endpoint from `/api/admin/credential-submissions` to `/api/admin/credentials/pending-approval`
 - **Fixed InstitutionPayouts React key warning**: Added index to prevent duplicate key errors
 - **Added Blockchain Badge to Employer Workforce View**: Workers now display their verified credential count
+- **Fixed Leaderboard Header**: Now matches landing page design with fixed position at top
+- **Institution Directory System**:
+  - Created `/api/institution-directory` API with bulk CSV import
+  - Added "Request Institution to Join" feature for workforce users
+  - Updated Leaderboard UI to show both Active Partners and Listed Institutions
+  - Added search functionality for all Canadian institutions
+  - Added "All Institutions" tab and search feature
 
 ### Previous Sessions
 - Stripe Connect integration (LIVE key)
