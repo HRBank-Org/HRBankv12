@@ -23,14 +23,14 @@ Based on comprehensive testing, your application is **production-ready**:
 
 # 2. Create .env.example files (without secrets)
 # backend/.env.example
-MONGO_URL=mongodb+srv://username:password@cluster.mongodb.net/hrbank_db
+MONGO_URL=<YOUR_MONGODB_CONNECTION_STRING>
 DB_NAME=hrbank_db
-JWT_SECRET=your-jwt-secret
-STRIPE_SECRET_KEY=sk_live_...
-SENDGRID_API_KEY=SG....
-INFURA_PROJECT_ID=your-infura-id
-PINATA_API_KEY=your-pinata-key
-GOOGLE_CLIENT_ID=your-google-client-id
+JWT_SECRET=<YOUR_JWT_SECRET>
+STRIPE_SECRET_KEY=<YOUR_STRIPE_SECRET_KEY>
+SENDGRID_API_KEY=<YOUR_SENDGRID_API_KEY>
+INFURA_PROJECT_ID=<YOUR_INFURA_PROJECT_ID>
+PINATA_API_KEY=<YOUR_PINATA_API_KEY>
+GOOGLE_CLIENT_ID=<YOUR_GOOGLE_CLIENT_ID>
 FRONTEND_URL=https://your-domain.com
 ```
 
@@ -209,27 +209,27 @@ docker push YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/hr-bank-backend:late
 
 **Backend (.env)**:
 ```
-MONGO_URL=mongodb+srv://prod-user:password@cluster.mongodb.net/hrbank_db
+MONGO_URL=<YOUR_MONGODB_CONNECTION_STRING>
 DB_NAME=hrbank_db
-JWT_SECRET=generate-a-secure-256-bit-key
-STRIPE_SECRET_KEY=sk_live_your_stripe_key
-SENDGRID_API_KEY=SG.your_sendgrid_key
-INFURA_PROJECT_ID=your_infura_project_id
-PINATA_API_KEY=your_pinata_key
-PINATA_SECRET_KEY=your_pinata_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+JWT_SECRET=<YOUR_JWT_SECRET>
+STRIPE_SECRET_KEY=<YOUR_STRIPE_SECRET_KEY>
+SENDGRID_API_KEY=<YOUR_SENDGRID_API_KEY>
+INFURA_PROJECT_ID=<YOUR_INFURA_PROJECT_ID>
+PINATA_API_KEY=<YOUR_PINATA_API_KEY>
+PINATA_SECRET_KEY=<YOUR_PINATA_SECRET_KEY>
+GOOGLE_CLIENT_ID=<YOUR_GOOGLE_CLIENT_ID>
+GOOGLE_CLIENT_SECRET=<YOUR_GOOGLE_CLIENT_SECRET>
 FRONTEND_URL=https://hrbank.ca
-POLYGON_RPC_URL=https://polygon-mainnet.infura.io/v3/your_project_id
-CONTRACT_ADDRESS=your_deployed_contract_address
-PRIVATE_KEY=your_wallet_private_key
+POLYGON_RPC_URL=<YOUR_POLYGON_RPC_URL>
+CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
+PRIVATE_KEY=<YOUR_WALLET_PRIVATE_KEY>
 ```
 
 **Frontend (.env)**:
 ```
 REACT_APP_BACKEND_URL=https://api.hrbank.ca
-REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id
-REACT_APP_GOOGLE_MAPS_API_KEY=your_maps_key
+REACT_APP_GOOGLE_CLIENT_ID=<YOUR_GOOGLE_CLIENT_ID>
+REACT_APP_GOOGLE_MAPS_API_KEY=<YOUR_GOOGLE_MAPS_API_KEY>
 ```
 
 ---
