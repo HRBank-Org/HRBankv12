@@ -199,136 +199,114 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Multilingual Support - Breaking Language Barriers */}
+      {/* Breaking Language Barriers in the Workplace */}
       <section className="py-20 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 text-6xl">مرحبا</div>
-          <div className="absolute top-20 right-20 text-5xl">你好</div>
-          <div className="absolute bottom-20 left-1/4 text-4xl">ਸਤ ਸ੍ਰੀ ਅਕਾਲ</div>
-          <div className="absolute top-1/3 right-1/3 text-5xl">Bonjour</div>
-          <div className="absolute bottom-10 right-10 text-6xl">नमस्ते</div>
-          <div className="absolute top-1/2 left-10 text-4xl">Olá</div>
-          <div className="absolute bottom-1/3 right-1/4 text-5xl">سلام</div>
+        {/* Subtle Background */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 text-6xl text-white">مرحبا</div>
+          <div className="absolute top-20 right-20 text-5xl text-white">你好</div>
+          <div className="absolute bottom-20 left-1/4 text-4xl text-white">ਸਤ ਸ੍ਰੀ ਅਕਾਲ</div>
+          <div className="absolute bottom-10 right-10 text-6xl text-white">नमस्ते</div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-cyan-300 text-sm font-medium mb-6">
-                <Globe className="w-4 h-4" />
-                20+ Languages Supported
-              </div>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Language Should Never Be a Barrier to
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400"> Your Dream Job</span>
+                Work in Canada.
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400"> In Your Language.</span>
               </h2>
-              <p className="text-lg text-gray-300 mb-8 leading-relaxed">
-                In an era where AI is reshaping the economy, we believe in preserving the value of 
-                <span className="text-cyan-400 font-semibold"> human talent</span>. Every worker deserves 
-                to be understood, regardless of what language they speak.
+              <p className="text-lg text-gray-300 mb-6 leading-relaxed">
+                You don&apos;t need perfect English or French to contribute to Canada&apos;s economy. 
+                Our AI understands your workplace context and guides you through everything — 
+                from understanding your rights to completing your tasks.
               </p>
               <p className="text-gray-400 mb-8">
-                Our AI assistant Emma speaks your language—Pashto, Punjabi, Arabic, Mandarin, Tagalog, 
-                and 15+ more. Get help with your profile, understand your rights, and find jobs without 
-                language barriers.
+                Emma isn&apos;t just a translator. She&apos;s a workplace guide who speaks your language, 
+                understands Canadian employment standards, and helps you succeed at work.
               </p>
               
-              <div className="flex flex-wrap gap-3 mb-8">
-                {['English', 'Français', 'العربية', '中文', 'ਪੰਜਾਬੀ', 'اردو', 'پښتو', 'हिंदी', 'Tagalog', 'Español'].map((lang) => (
-                  <span key={lang} className="px-3 py-1 bg-white/10 rounded-full text-white text-sm border border-white/20">
-                    {lang}
-                  </span>
-                ))}
-                <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-cyan-300 text-sm border border-cyan-500/30">
-                  +10 more
-                </span>
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <div>
+                    <p className="text-white font-medium">Understand your workplace rights</p>
+                    <p className="text-gray-400 text-sm">Know what you&apos;re entitled to, explained clearly</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <div>
+                    <p className="text-white font-medium">Navigate job requirements with confidence</p>
+                    <p className="text-gray-400 text-sm">Get context-aware guidance for your specific role</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-6 h-6 text-cyan-400 mt-0.5" />
+                  <div>
+                    <p className="text-white font-medium">Build your career without language barriers</p>
+                    <p className="text-gray-400 text-sm">Your skills matter more than your accent</p>
+                  </div>
+                </div>
               </div>
 
               <Button 
                 onClick={() => navigate('/signup?type=workforce')}
                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-6 text-lg"
               >
-                Start in Your Language
+                Get Started
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </div>
 
             <div className="relative">
               {/* Emma Chat Preview */}
-              <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md mx-auto transform rotate-1 hover:rotate-0 transition-transform">
+              <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md mx-auto">
                 <div className="flex items-center gap-3 mb-4 pb-4 border-b">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
                     E
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Emma - AI Assistant</p>
-                    <p className="text-sm text-green-500">● Online - Speaking Pashto</p>
+                    <p className="font-semibold text-gray-900">Emma</p>
+                    <p className="text-sm text-gray-500">Workplace Guide</p>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="bg-purple-50 rounded-lg p-3 max-w-[85%]">
                     <p className="text-gray-800 text-sm" dir="rtl">
-                      سلام! 👋 زه Emma یم، ستاسو د HR Bank مرستیال. زه دلته یم چې ستاسو سره مرسته وکړم.
+                      ستاسو د کار ساعتونه د اونۍ ۴۴ ساعته دي. که تاسو زیات کار وکړئ، تاسو باید ۱.۵x معاش ترلاسه کړئ.
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">(Hello! I&apos;m Emma, your HR Bank assistant)</p>
+                    <p className="text-xs text-gray-500 mt-2 border-t pt-2">Your work hours are 44/week. Overtime is paid at 1.5x rate.</p>
                   </div>
                   
                   <div className="bg-gray-100 rounded-lg p-3 max-w-[85%] ml-auto">
-                    <p className="text-gray-800 text-sm" dir="rtl">زه غواړم کار ومومم</p>
-                    <p className="text-xs text-gray-500 mt-1">(I want to find work)</p>
+                    <p className="text-gray-800 text-sm" dir="rtl">زما مالک ماته د رخصتۍ پیسې نه راکوي</p>
                   </div>
                   
                   <div className="bg-purple-50 rounded-lg p-3 max-w-[85%]">
                     <p className="text-gray-800 text-sm" dir="rtl">
-                      ډیره ښه! راځئ چې ستاسو پروفایل جوړ کړو. ستاسو تجربه څه ده؟
+                      په اونټاریو کې، تاسو حق لرئ چې د ۴٪ رخصتي معاش ترلاسه کړئ. دا ستاسو قانوني حق دی.
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">(Great! Let&apos;s build your profile. What&apos;s your experience?)</p>
+                    <p className="text-xs text-gray-500 mt-2 border-t pt-2">In Ontario, you&apos;re entitled to 4% vacation pay. This is your legal right.</p>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t flex items-center gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Type in any language..." 
-                    className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm"
-                    disabled
-                  />
-                  <button className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white">
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs text-gray-400 text-center">
+                    Context-aware guidance based on your province &amp; job type
+                  </p>
                 </div>
-              </div>
-
-              {/* Floating badges */}
-              <div className="absolute -top-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg">
-                ✓ No Translation Needed
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg">
-                🌍 Your Rights, Your Language
               </div>
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-12 border-t border-white/10">
-            <div className="text-center">
-              <p className="text-4xl font-bold text-white mb-2">20+</p>
-              <p className="text-gray-400">Languages Supported</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-white mb-2">24/7</p>
-              <p className="text-gray-400">AI Support Available</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-white mb-2">100%</p>
-              <p className="text-gray-400">Notification Translation</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-white mb-2">∞</p>
-              <p className="text-gray-400">Human Potential</p>
-            </div>
+          {/* Bottom message */}
+          <div className="mt-16 text-center">
+            <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+              In an economy being reshaped by AI, we believe human talent remains our greatest resource. 
+              <span className="text-cyan-400"> Every worker deserves the chance to contribute.</span>
+            </p>
           </div>
         </div>
       </section>
