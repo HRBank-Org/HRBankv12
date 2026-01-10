@@ -372,10 +372,12 @@ async def get_platform_stats(
     Get overall platform statistics for public display.
     """
     
-    # Count totals
-    total_institutions = await db.institution_profiles.count_documents({})
+    # Count totals (exclude test institutions)
+    total_institutions = await db.institution_profiles.count_documents({
+        "institution_name": {"$not": {"$regex": "^Test ", "$options": "i"}}
+    })
     total_credentials = await db.blockchain_credentials.count_documents({"status": "issued"})
-    total_passports = await db.career_profiles.count_documents({"is_public": True})
+    total_passports = await db.career_profile_settings.count_documents({"is_public": True})
     total_workforce = await db.users.count_documents({"user_type": "workforce"})
     total_employers = await db.users.count_documents({"user_type": "employer"})
     
