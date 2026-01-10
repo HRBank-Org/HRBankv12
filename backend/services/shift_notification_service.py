@@ -237,12 +237,28 @@ def get_shift_change_email_html(recipient_name: str, change_type: str, old_detai
 async def notify_shift_assigned(worker_email: str, worker_phone: str, worker_name: str, 
                                 shift_details: dict, employer_name: str, worker_id: str = None):
     """
-    Notify worker about shift assignment via email and SMS
+    Notify worker about shift assignment via email, SMS, and push notification
     """
     try:
         # Check preferences
         send_email_pref = await check_notification_preference(worker_id, "shift_assigned", "email") if worker_id else True
         send_sms_pref = await check_notification_preference(worker_id, "shift_assigned", "sms") if worker_id else True
+        send_push_pref = await check_notification_preference(worker_id, "shift_assigned", "push") if worker_id else True
+        
+        # Send push notification
+        if send_push_pref and worker_id:
+            try:
+                push_service = await get_push_notification_service()
+                if push_service:
+                    await push_service.notify_shift_assigned(
+                        user_id=worker_id,
+                        shift_date=shift_details.get('date', 'TBD'),
+                        location_name=shift_details.get('location', employer_name),
+                        shift_id=shift_details.get('shift_id', '')
+                    )
+                    logger.info(f"Shift assignment push sent to {worker_id}")
+            except Exception as e:
+                logger.error(f"Push notification error: {e}")
         
         # Send email
         if send_email_pref and worker_email:
