@@ -147,31 +147,26 @@ const PublicJobsPage = () => {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate(-1)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft size={18} className="mr-1" />
-                Back
-              </Button>
-              <Link to="/" className="flex items-center gap-2">
-                <img src={LOGOS.master} alt="HR Bank" className="h-9 w-auto" />
+            <Link to="/" className="flex items-center gap-2">
+              <img src={LOGOS.master} alt="HR Bank" className="h-9 w-auto" />
+            </Link>
+            <div className="hidden md:flex items-center gap-6">
+              <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
+                Workforce
+              </Link>
+              <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
+                Institutions
+              </Link>
+              <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
+                Leaderboard
+              </Link>
+              <Link to="/jobs" className="text-[#30496d] font-semibold">
+                Jobs
               </Link>
             </div>
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
-                Sign In
-              </Button>
-              <Button 
-                onClick={() => navigate('/signup?type=workforce')}
-                className="bg-[#ff5f00] hover:bg-[#e55500] text-white"
-              >
-                Create Profile
-              </Button>
-            </div>
+            <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
+              Sign In
+            </Button>
           </div>
         </div>
       </header>
