@@ -220,6 +220,9 @@ function AppRoutes() {
   return (
     <ThemeProvider userType={user?.user_type || 'workforce'}>
       <>
+      {/* PWA Install Prompt - Only for workforce and employer */}
+      {user && <PWAInstallPrompt userType={user.user_type} />}
+      
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={isSubdomainPortal() ? <SubdomainPortal /> : <LandingPage />} />
