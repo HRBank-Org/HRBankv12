@@ -5,7 +5,7 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ## User Personas
 1. **Workforce Users** - Job seekers looking for employment with verified credentials
-2. **Employers** - Businesses looking to hire verified workers
+2. **Employers** - Businesses looking to manage their existing workforce operations
 3. **Institutions** - Educational institutions issuing blockchain credentials
 4. **Admins** - Platform administrators managing the ecosystem
 
@@ -37,42 +37,55 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - [x] Work Passport with security verifications
 
 ### Audience-Specific Landing Pages
-- [x] `/work-passport` - Free Work Passport page for workforce/students
-- [x] `/institutions` - Credential issuance focused page for educational institutions
-- [x] `/employers` - Beta workforce operations tools page for employers
-- [x] Updated main navigation: Work Passport (Free), Institutions, Employers (Beta), Leaderboard, Sign In
-- [x] Jobs page empty state encourages Work Passport creation
+- [x] **Main Landing Page (/)** - 100% workforce-focused, "Get Your Free Work Passport" messaging
+- [x] **Institutions Landing (/institutions)** - Credential issuance, LinkedIn/Indeed trust warning
+- [x] **Employers Landing (/employers)** - Beta workforce operations tools with dashboard preview
+- [x] Navigation structure: Browse Jobs, Institutions, Employers (Beta), Leaderboard, Sign In
 
 ## What's Been Implemented
 
-### January 10, 2026
-- **Focused Landing Pages Implementation (P0 COMPLETE)**:
-  - Created `/work-passport` landing page focused on workforce/students with "Free Work Passport" messaging
-  - Created `/institutions` landing page focused on educational institutions with credential issuance and revenue messaging
-  - Created `/employers` landing page positioned as "Beta" for workforce operations tools (attendance, timesheets, scheduling)
-  - Updated main landing page navigation to: Work Passport (Free), Institutions, Employers (Beta), Leaderboard, Sign In
-  - Updated navigation consistency across all landing pages
-  - Fixed Sign In links to use `/login` instead of `/auth/login`
-  - Updated Jobs page empty state to encourage Work Passport creation when no jobs match filters
-  - All 7 test scenarios passed (100% frontend testing success)
+### January 10, 2026 - Landing Page Restructuring
+- **Main Landing Page Overhaul (COMPLETE)**:
+  - Removed all employer-focused sections ("For Business Owners", dashboard mockups)
+  - 100% workforce-focused with "Get Your Free Work Passport" messaging
+  - Added Work Passport preview card featuring Alex Johnson example
+  - Privacy controls section, multilingual support section
+  - "Build Your Work Passport" 3-step process
+  - Navigation: Browse Jobs, Institutions, Employers (Beta), Leaderboard
 
-### Previous Sessions (January 8-9, 2026)
-- Completed subdomain-specific landing pages integration
-- Super Admin Page Audit Complete (22 pages, 100% pass rate)
-- Fixed CredentialReviews API endpoint
-- Added Blockchain Badge to Employer Workforce View
-- Institution Directory System with CSV import and "Request to Join" feature
-- Emma Translation Fixed with multilingual value proposition
-- Stripe Connect integration (LIVE key)
+- **Employers Landing Page Enhanced (COMPLETE)**:
+  - Added dashboard preview card (Swan Pizza example with 4 locations)
+  - Shows live metrics: 23 clocked in, 4 locations, 98% on-time
+  - Clear "Beta Program — Early Access" messaging
+  - "What This Is / What This Isn't" section clarifying it's NOT a hiring marketplace
+  - Sample dashboard section with full feature showcase
+
+- **Institutions Landing Page Enhanced (COMPLETE)**:
+  - Added "LinkedIn and Indeed Profiles Won't Work Forever" section
+  - Trust level comparison: LinkedIn 32%, Indeed 41%, PDF 45%, Blockchain 94%
+  - Warning about AI-fabricated profiles and employer trust erosion
+  - Fixed HTML entity issue in pricing table
+
+- **Route Changes**:
+  - `/work-passport` now redirects to main landing page (same content)
+  - Jobs page empty state directs to `/signup?type=workforce`
+
+- **Testing**: 100% pass rate (10/10 test scenarios)
+
+### Previous Sessions
 - AWS Lightsail deployment complete
+- Production MongoDB Atlas database
+- Stripe Connect integration (LIVE key)
+- Institution Directory System with CSV import
+- Emma AI multilingual support
+- Super Admin audit complete (22 pages, 100% pass)
 
 ## Technical Architecture
 
 ### Frontend
 - React with React Router
 - Shadcn/UI components
-- Subdomain detection via hostname parsing
-- Theme provider per user type
+- Audience-specific landing pages
 
 ### Backend  
 - FastAPI
@@ -82,20 +95,18 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - Web3/Infura for blockchain
 
 ### Key Files
-- `/app/frontend/src/pages/landing/` - Audience-specific landing pages
-  - `WorkPassportLanding.jsx` - Workforce focused
-  - `InstitutionsLanding.jsx` - Institution focused
-  - `EmployersLanding.jsx` - Employer Beta focused
-- `/app/frontend/src/pages/LandingPage.jsx` - Main landing page
-- `/app/frontend/src/pages/PublicJobsPage.jsx` - Jobs with Work Passport empty state
-- `/app/frontend/src/App.js` - Routes for all landing pages
+- `/app/frontend/src/pages/LandingPage.jsx` - Workforce-focused main landing
+- `/app/frontend/src/pages/landing/InstitutionsLanding.jsx` - Institution landing with LinkedIn/Indeed warning
+- `/app/frontend/src/pages/landing/EmployersLanding.jsx` - Employer Beta landing with dashboard preview
+- `/app/frontend/src/App.js` - Routes configuration
 
 ## Prioritized Backlog
 
 ### P0 (Completed)
-- [x] Audience-specific landing pages (Work Passport, Institutions, Employers Beta)
-- [x] Updated navigation across all landing pages
-- [x] Jobs page empty state with Work Passport CTA
+- [x] Landing page restructuring - workforce-focused main page
+- [x] Remove employer sections from main landing
+- [x] Add dashboard preview to employers page
+- [x] Add LinkedIn/Indeed warning to institutions page
 
 ### P1 (High Priority)
 - [ ] Institution Directory Import & Admin UI (1,800 institutions CSV upload)
@@ -115,7 +126,7 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - [ ] Full i18n Implementation
 
 ## Known Issues
-- YouTube video background may show unavailable in some environments (main landing hero)
+- YouTube video background may show unavailable in some environments
 - Deployment agent unreliable - use manual AWS Lightsail deployment
 - Old Career Profile components still in codebase (should be removed)
 
@@ -130,3 +141,4 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - **Application is deployed on AWS Lightsail** - changes require redeployment
 - Production database on MongoDB Atlas
 - Custom domain hrbank.ca setup in progress
+- Main landing page is now 100% workforce-focused (HR Bank = Human Resources Bank)
