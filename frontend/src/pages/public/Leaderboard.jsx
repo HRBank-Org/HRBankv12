@@ -138,16 +138,21 @@ const Leaderboard = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-4">
-              <Link to="/" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
-                </svg>
-                <span className="text-sm font-medium">Back</span>
+            <Link to="/" className="hover:opacity-80 transition-opacity">
+              <img src={LOGOS.master} alt="HR Bank" className="h-9 w-auto" />
+            </Link>
+            <div className="hidden md:flex items-center gap-6">
+              <Link to="/" className="text-white/70 hover:text-white font-medium">
+                Workforce
               </Link>
-              <div className="w-px h-6 bg-white/20"></div>
-              <Link to="/" className="hover:opacity-80 transition-opacity">
-                <img src={LOGOS.master} alt="HR Bank" className="h-9 w-auto" />
+              <Link to="/institutions" className="text-white/70 hover:text-white font-medium">
+                Institutions
+              </Link>
+              <Link to="/leaderboard" className="text-white font-semibold">
+                Leaderboard
+              </Link>
+              <Link to="/jobs" className="text-white/70 hover:text-white font-medium">
+                Jobs
               </Link>
             </div>
             <Link 
