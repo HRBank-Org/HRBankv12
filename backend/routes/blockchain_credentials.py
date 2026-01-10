@@ -4,6 +4,7 @@ from auth.dependencies import get_current_user, require_role
 from models.blockchain_credentials import BlockchainCredential, CredentialTemplate, CredentialVerification
 from utils.blockchain_service import blockchain_service
 from utils.rate_limiter import limiter
+from utils.push_notifications import get_push_service
 from typing import Dict
 from datetime import datetime, timedelta, timezone
 import qrcode
