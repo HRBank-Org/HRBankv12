@@ -1,73 +1,56 @@
 <analysis>**original_problem_statement:**
-The user's initial objective was to build a comprehensive HR platform with blockchain credentialing. This evolved to include several key features:
-1.  **Credential Monetization & Payouts:** Create a system for institutions to sell credentials and then withdraw their earnings via Stripe Connect, including automated, province-specific tax handling.
-2.  **Enhance User Experience & Trust:**
-    *   Implement email notifications for issued credentials and payment receipts.
-    *   Add prompts and admin visibility for institution Stripe onboarding.
-    *   Improve the landing page's Work Passport example, fix broken footer links, and refine the page structure based on target audience (workforce first).
-    *   Implement a language-agnostic workplace enablement system using AI to guide workers, removing language proficiency as a barrier to employment.
-3.  **Drive Platform Adoption:**
-    *   Create a public-facing leaderboard to gamify participation.
-    *   Build a growth flywheel by allowing users to upload credentials from non-partner institutions, which in turn notifies those institutions and encourages them to join and monetize.
-4.  **Subdomain-Specific Experiences:** Rework the application to provide unique, tailored landing pages for each user-specific subdomain (, , , ).
-5.  **Platform Concerns:** The user expressed frustration about saving progress to GitHub and deploying the application, requesting a comprehensive test and guidance on AWS deployment and PWA implementation.
+The user's initial goal was a major overhaul of the application's Go-To-Market (GTM) strategy and landing pages to create focused experiences for Workforce, Institutions, and Employers. This evolved to include building out a public leaderboard with regional workforce density indicators, importing a large directory of institutions, implementing a Request to Join system for non-partnered institutions, and enhancing the application's Progressive Web App (PWA) capabilities with push notifications. A key focus was ensuring data authenticity, removing fake placeholder stats, and correctly seeding a live production database on MongoDB Atlas.
+
+**PRODUCT REQUIREMENTS:**
+1.  **GTM Landing Page Overhaul:** Restructure landing pages for specific audiences, update navigation, and refine messaging to emphasize blockchain verification and data authenticity.
+2.  **Leaderboard Enhancements:** Display which institutions have joined, show regional workforce density indicators to gamify adoption, and allow users to request that un-partnered institutions join.
+3.  **Institution Directory:** Import a list of ~1800 institutions from an Excel file, clean up data formatting issues (character encoding), and display them on the leaderboard.
+4.  **Data Authenticity:** Remove all fake or placeholder statistics from the UI. All displayed numbers should reflect real data from the database.
+5.  **PWA & Push Notifications:** Implement push notification subscription UI for all user types (Workforce, Employer, Institution, Admin) and add backend triggers for key events like credential issuance and shift assignments. Show a PWA install prompt to Workforce and Employer users after login.
+6.  **Production Database Seeding:** Connect to the user-provided MongoDB Atlas database and seed it with all necessary data, including the institution directory, test user accounts (Alex Johnson, etc.), and shift history to ensure the live application reflects the intended state.
+7.  **Code Cleanup:** Remove unused components and routes related to the old Career Profile pages.
+8.  **Branding:** Implement a new user-provided favicon across the application.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack HR platform with a React frontend, FastAPI backend, and MongoDB database. It includes a live, functional blockchain credentialing system, a Work Passport for workforce users, and a complete credential monetization loop using a **LIVE** Stripe Connect key.
-
-Key accomplishments in the last session include:
--   **Completed Subdomain Landing Pages:** All user types now have tailored landing pages.
--   **Landing Page Overhaul:** The main landing page has been completely restructured and redesigned to focus on the workforce user. It features a new How It Works section that emphasizes AI job matching, an enhanced For Business Owners section with dashboard mockups, and a powerful new section that frames the AI translation feature as a workplace enablement tool, not just multilingual support.
--   **Growth Flywheel Backend:** A system is in place to notify institutions via email when a student uploads a credential for verification, creating an organic incentive for them to join the platform.
--   **Bug Fixes & Audits:** A comprehensive Super Admin audit was completed, fixing a broken API endpoint and a UI bug. All broken  routes were fixed across the site. The Leaderboard UI was polished.
--   **User Onboarding & AI:** The workforce login flow was fixed for existing users, and the Emma AI chat now correctly initializes in the user's preferred language.
--   **Deployment Support:** In response to user concerns, a full system test was passed, an  was created, and the existing Progressive Web App (PWA) foundation was verified.
+The application is a full-stack HR platform (React, FastAPI, MongoDB). The agent has successfully completed the GTM landing page overhaul, including all messaging and UI changes. The Leaderboard page is now a dynamic feature with regional filtering and workforce density stats, populated by a directory of 1,758 institutions imported from a user-provided file. The application now uses a live MongoDB Atlas database, which has been fully seeded with user data, test profiles (like Alex Johnson), and the entire institution directory. PWA features, including push notification settings and backend triggers, have been implemented for all user types. All fake placeholder data has been removed from the UI, and dead code has been cleaned up. A new favicon has been implemented. The application is feature-complete for this phase and ready for deployment.
 
 **Last working item**:
--   **Last item agent was working:** Addressing the user's frustration about being unable to save progress to GitHub or deploy. The agent called a support subagent for platform guidance, ran a comprehensive test of the entire application (which passed with a 100% success rate), created an , and confirmed that the basic PWA setup already exists.
--   **Status:** USER VERIFICATION PENDING
+-   **Last item agent was working:** Creating and implementing a new favicon for the application. The agent received an image, cropped it to remove excess whitespace, generated multiple favicon formats (,  in various sizes), and placed them in the  directory.
+-   **Status:** NONE (COMPLETED will be marked only if user has verified it by testing)
 -   **Agent Testing Done:** Y
--   **Which testing method agent to use?** NA (The agent is awaiting the user's response to the provided support and documentation).
+-   **Which testing method agent to use?** NA
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   Issue 1: Old Career Profile Components/Routes Still Active (P2)
--   Issue 2: Workforce Dashboard Performance (P2)
--   Issue 3: Benign  Warning on Startup (P3)
--   Issue 4: Remaining  Usages (P3)
+-   Issue 1: Workforce Dashboard Performance (P2)
+-   Issue 2: Benign  Warning on Startup (P3)
+-   Issue 3: Remaining  Usages (P3)
 
 **Issues Detail:**
--   **Issue 1: Old Career Profile Components/Routes Still Active**
+-   **Issue 1: Workforce Dashboard Performance**
+    -   **Attempted fixes:** None.
     -   **Next debug checklist:**
-        1.  Search for links to  and .
-        2.  Replace them with  and .
-        3.  Remove the old routes and imports from .
-        4.  Delete  and .
-    -   **Why fix this issue and what will be achieved with the fix?** To remove dead code and complete the Work Passport rebranding.
-    -   **Status:** NOT STARTED
-    -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Frontend
-
--   **Issue 2: Workforce Dashboard Performance**
-    -   **Attempted fixes:** Agent identified that the dashboard has hardcoded text and feels slow. The user deprioritized UI translation but the performance issue remains.
-    -   **Next debug checklist:**
-        1.  Use browser dev tools to analyze the network tab and component rendering times for .
-        2.  Investigate the backend endpoints serving the dashboard for potential slow queries or large data payloads.
-    -   **Why fix this issue and what will be achieved with the fix?** To improve the user experience for the platform's primary audience.
+        1.  Use browser dev tools to analyze network tab and component rendering times for .
+        2.  Investigate the backend endpoints serving the dashboard for potential slow queries or data over-fetching.
+    -   **Why fix this issue and what will be achieved with the fix?** To improve UX for the primary user base.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Both
+    -   **Blocked on other issue:** None
 
--   **Issue 3: Benign  Warning on Startup**
-    -   **Next debug checklist:** A  appears on server start. Investigate  usage in .
-    -   **Why fix this issue and what will be achieved with the fix?** To clean up server logs.
+-   **Issue 2: Benign  Warning on Startup**
+    -   **Attempted fixes:** None.
+    -   **Next debug checklist:** A  appears on server start. Investigate  usage in  and update to the current recommended practice.
+    -   **Why fix this issue and what will be achieved with the fix?** To clean up server logs and remove deprecated code.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** Backend
+    -   **Blocked on other issue:** None
 
--   **Issue 4: Remaining  Usages**
+-   **Issue 3: Remaining  Usages**
+    -   **Attempted fixes:** None.
     -   **Next debug checklist:** Run /app/backend/scripts/seed_workforce_profiles.py:            "created_date": datetime.utcnow().isoformat(),
 /app/backend/scripts/seed_workforce_profiles.py:            "updated_date": datetime.utcnow().isoformat()
 /app/backend/scripts/seed_workforce_profiles.py:            "phone_verified_at": datetime.utcnow(),
@@ -86,87 +69,104 @@ Key accomplishments in the last session include:
 /app/backend/create_super_admin.py:    admin_id = f"admin_{datetime.utcnow().timestamp()}"
 /app/backend/create_super_admin.py:        "created_date": datetime.utcnow().isoformat(),
 /app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d')
-/app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d') and replace with .
-    -   **Why fix this issue and what will be achieved with the fix?** Ensures all timestamps are timezone-aware.
+/app/backend/routes/workforce.py:        date = dt.utcnow().strftime('%Y-%m-%d') and replace all instances with .
+    -   **Why fix this issue and what will be achieved with the fix?** To ensure all timestamps are timezone-aware and prevent potential future bugs.
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Backend
+    -   **Blocked on other issue:** None
 
 **In progress Task List**:
--   None.
+-   None. All active tasks were completed.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   **P0: Institution Directory Import & Admin UI:** The user wants to import a list of 1,800 institutions. An admin UI is needed to upload the CSV file and monitor the request to join counts from students.
-    -   **P1: Enhance PWA Functionality:** Build upon the existing PWA foundation to add features like push notifications and improved offline access for the workforce app.
-    -   **P1: Build Frontend for Auto-Dispatch:** The backend service is complete. A UI is needed for admins to monitor dispatch statistics and manage settings.
-    -   **P2: Implement Placeholder Pages:** The 11 placeholder pages created to fix broken footer links need to be built out with actual functionality.
+    -   **P0: Start the CleanGrid project.** The user has indicated this is the next major focus after the GTM overhaul is deployed.
+
 -   **Future Tasks:**
-    -   **Enhance Admin Management:** Add map visualization for province/zone assignment.
-    -   **Build Franchise Management UI:** Build out the full CRUD UI for creating and managing franchises.
-    -   **Full i18n Implementation:** Implement a proper internationalization library (e.g., ) to translate the entire frontend, not just AI chat and notifications.
+    -   Build 11 placeholder pages with functionality.
+    -   Enhance Admin Management: Add map visualization for province/zone assignment.
+    -   Build Franchise Management UI: Full CRUD UI for creating and managing franchises.
+    -   Full i18n Implementation.
+    -   Address the pending technical debt issues (Dashboard Performance,  warning,  usages).
 
 **Completed work in this session**
--   **Subdomain-Specific Landing Pages:** Finalized implementation and fixed all routing and linting issues.
--   **Landing Page Overhaul:** Completely restructured the page to prioritize the Work Passport and added compelling new sections for How It Works, Work in Your Language, and an enhanced For Business Owners showcase with dashboard mockups.
--   **Institution Engagement Flywheel:** Implemented the backend service to notify institutions when students request credential verification, creating a powerful growth loop.
--   **Super Admin Audit:** Completed a comprehensive audit of all 32 admin pages, fixing two bugs found.
--   **Bug Fixes & Polish:** Fixed all broken  routes, fixed the Leaderboard UI (logo, header, back button), added the Blockchain Badge to the employer view, and resolved a critical workforce login/onboarding bug.
--   **AI & Translation:** Fixed the Emma AI chat to correctly use the user's preferred language.
--   **User Support & Pre-Deployment:** Addressed user deployment concerns by running a full test suite (100% pass), creating an AWS deployment guide, and verifying the PWA setup.
--   **Documentation:** Created and maintained .
+-   **GTM Landing Page Completion:** Verified and fixed blockchain-centric messaging on Workforce and Institutions pages.
+-   **Leaderboard Feature Suite:**
+    -   Implemented regional filtering and workforce density indicators on .
+    -   Imported 1,758 institutions from a user-provided Excel file, fixing character encoding issues.
+    -   Added a Request to Join system for non-partnered institutions, including social responsibility messaging.
+-   **Data Authenticity & Cleanup:**
+    -   Removed all fake/placeholder stats from the landing page.
+    -   Removed dozens of test institutions from the database and API responses to ensure the leaderboard shows authentic data.
+    -   Added ™ to Work Passport throughout the application.
+-   **Production Database Seeding:**
+    -   Connected to the user's live MongoDB Atlas instance.
+    -   Seeded the production database with 1,758 institutions.
+    -   Seeded all necessary test accounts (Super Admin, Employer, Institution, Workforce).
+    -   Fixed and seeded Alex Johnson's work experience (shifts and hours) to be consistent.
+-   **PWA & Push Notifications:**
+    -   Generated and configured VAPID keys for push notifications.
+    -   Added a  component and integrated it into the settings pages for all 4 user types (Workforce, Employer, Institution, Admin).
+    -   Created a backend endpoint to store push subscriptions.
+    -   Implemented backend push notification triggers for credential issuance and shift assignments.
+    -   Created a  script to notify users of expiring credentials.
+    -   Added a PWA install prompt that appears for Workforce and Employer users after login.
+-   **Code Refactoring:**
+    -   Removed obsolete Career Profile components (, ) and their associated routes.
+    -   Created an idempotent local development seed script ().
+-   **Bug Fixes & Branding:**
+    -   Fixed a bug where an icon () was not imported, causing a page to crash.
+    -   Created and implemented a new favicon from a user-provided image.
 
 **Earlier issues found/mentioned but not fixed**
--   All known issues have been captured in the **All Pending/In progress Issue list**.
+-   See **All Pending/In progress Issue list**.
 
 **Known issue recurrence from previous fork**
--   **Issue recurrence in previous fork:** Deployment Agent Failure.
--   **Recurrence count:** High.
--   **Status:** BLOCKED. The agent correctly avoided the tool and provided an alternative (AWS guide).
+-   **Local vs. Production Data Mismatch:** RESOLVED. The agent created a robust local seeding script and, more importantly, connected to and fully seeded the user's production MongoDB Atlas database, eliminating the root cause of the problem.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Stripe Connect Express:** Live usage for real transactions and payouts.
--   **Growth Hacking/Flywheel Model:** Using user actions (credential uploads) to trigger automated outreach to potential B2B customers (institutions), creating a self-reinforcing adoption loop.
--   **Dynamic AI Prompting:** Passing user language preferences to the AI's system prompt for multilingual guidance.
--   **Progressive Web App (PWA):** Foundational elements are in place for enabling an app-like experience.
--   **Subdomain Routing:** Using hostname to render specific landing pages.
+-   **Live Database Management:** Agent connected directly to a user-provided MongoDB Atlas instance, analyzed its state, performed schema queries, and executed a complex, multi-collection seeding operation.
+-   **Data Seeding & Migration:** Created Python scripts to parse external data (Excel), clean it (UTF-8 encoding fixes), and import it into MongoDB. Created idempotent seed scripts for both local development and production.
+-   **PWA & Push Notifications (End-to-End):** Implemented the full stack for push notifications: VAPID key generation, service worker enhancements, frontend subscription UI (), backend subscription storage, and backend event-driven push triggers ().
+-   **Code Refactoring & Cleanup:** Systematically identified and removed dead code, including obsolete React components and their associated routes in .
+-   **Image Processing:** Used Python's Pillow library to programmatically crop an image and generate multiple sizes for favicons and PWA icons.
 
 **key DB schema**
--   **** (New Collection): Stores data for the 1800+ imported institutions, including , , , , and .
--   ****:  field was identified as critical for the login flow and was updated for the demo user.
--   ****: This collection was cleared for the demo user to allow the conversation to restart in the correct language.
+-   ****: 
+-   ****: 
 
 **changes in tech stack**
--   None.
+-   Added  to  for sending web push notifications.
+-   Added  for reading  files.
 
 **All files of reference**
--   **/app/frontend/src/pages/LandingPage.jsx**: The main hub of recent activity, completely restructured and rewritten.
--   **/app/backend/routes/institution_directory.py**: Backend logic for the new institution import and leaderboard expansion.
--   **/app/backend/services/institution_notification_service.py**: Core of the new growth flywheel.
--   **/app/backend/routes/emma.py**: Contains the fix for the AI language preference.
--   **/app/frontend/src/pages/public/Leaderboard.jsx**: Contains fixes for UI, branding, and navigation.
--   **/app/AWS_DEPLOYMENT_GUIDE.md**: Key document created to address user concerns about deployment.
--   **/app/memory/PRD.md**: Contains the evolving project requirements.
+-   **/app/backend/scripts/seed_local_dev.py**: Idempotent script to seed a local database with essential test data.
+-   **/app/backend/scripts/import_institutions.py**: Script to parse and import institution data from an Excel file.
+-   **/app/frontend/src/pages/public/Leaderboard.jsx**: The heavily modified page now serving as the hub for institution rankings, directory, and regional density.
+-   **/app/frontend/src/App.js**: Main router, updated to remove old routes and add the PWA install prompt logic.
+-   **/app/frontend/src/components/common/PushNotificationSettings.jsx**: Reusable component for enabling push notifications, used across all user types.
+-   **/app/backend/routes/institution_directory.py**: API for querying the new institution directory and handling Request to Join.
+-   **/app/backend/routes/leaderboard.py**: API providing data for the leaderboard, now filtering out test data.
 
 **Areas that need refactoring**:
--   The obsolete  and  components and routes in  must be removed.
--   The  needs investigation for performance bottlenecks.
+-   The core refactoring of removing old components and creating a seed script was completed. The remaining items are low-priority technical debt (see **All Pending/In progress Issue list**).
 
 **key api endpoints**
--   : (New) Imports a CSV of institutions.
--   : (New) Lists all institutions for the leaderboard.
--   : (New) Increments the request counter for an institution.
--   : (Modified) Now correctly uses the user's preferred language.
--   : (Modified) Triggers the .
+-   : Retrieves regional data with workforce density stats.
+-   : Searches the directory of 1,758 institutions.
+-   : Increments the request counter for a non-partnered institution.
+-   : Saves a user's web push subscription object to the database.
+-   : Checks if a user is currently subscribed to push notifications.
 
 **Critical Info for New Agent**
--   **User State:** The user is currently blocked by frustration with the platform's deployment and source control capabilities. Do not proceed with feature work until the user has responded to the support agent's message and the provided . Your first action should be to acknowledge their concern and ask how they wish to proceed.
--   **Top Feature Priority:** Once unblocked, the next task is to build the Admin UI for the institution CSV import and to monitor student requests, as this is central to the user's growth strategy.
--   **⚠️ LIVE STRIPE KEY CONFIGURED:** All Stripe transactions are **real**.
--   **Deployment Agent is Unreliable:** Do not use this tool. Refer the user to the  or the platform's manual deployment options.
+-   **Production Database is Live:** The application is connected to a live MongoDB Atlas instance provided by the user. All data (users, institutions, etc.) is persistent. **Do not rely on the local MongoDB instance for production data state.**
+-   **GTM Overhaul is Complete:** The user considers the landing page and GTM tasks finished. The next major project is **CleanGrid**.
+-   **Data Authenticity is Paramount:** The user is very strict about not showing any fake or placeholder data (e.g., test partners, inflated stats). All data displayed should be queried from the live database.
+-   **Deployment Guidance:** The user needs to use the Replace Deployment option in their dashboard to update the existing AWS Lightsail deployment. The agent has prepared the code and database, so no post-deployment data import is needed.
 
 **documents and test reports created in this job**
 -   
@@ -174,49 +174,55 @@ Key accomplishments in the last session include:
 -   
 -   
 -   
+-   
+-    (and other icon sizes)
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User:** Wants to enhance the For Business Owners section with pain points, solutions, and dashboard screenshots. (DONE)
-9.  **User:** Redo the landing page order: Work Passports first, remove Latest Opportunities, and make How it Works fancy. (DONE)
-8.  **User:** Clarified that the language feature is about workplace enablement not just multilingual support. (DONE)
-7.  **User:** Likes the new Work in Your Language section on the landing pages. (DONE)
-6.  **User:** Explained the vision for language support: enabling work without requiring perfect English/French, powered by AI. (DONE)
-5.  **User:** The workforce account UI/Emma is not translated and is slow. (PARTIALLY DONE - Emma fixed, UI translation deferred, slowness pending)
-4.  **User:** Asked for workforce credentials and noted issues with the login button and leaderboard logo/title. (DONE)
-3.  **User:** The leaderboard header design doesn't match the landing page. (DONE)
-2.  **User:** The leaderboard is missing a back button. (DONE)
-1.  **User:** Feeling suffocated due to inability to push to GitHub or deploy. Asks for a full system test, AWS deployment guide, and info on making the workforce account a PWA. (IN PROGRESS - Agent provided resources, waiting for user feedback).
+10. **User:** Asked to use a provided image for the favicon, suggesting it be cropped. (DONE)
+9.  **User:** Provided the production MongoDB Atlas connection string and asked to seed it with all necessary sample data (Alex Johnson, Swan Pizza, etc.) and fix Alex's work experience stats. (DONE)
+8.  **User:** Pointed out that the local database is empty on deployment and that they had to manually populate it last time. Confirmed the agent should clean up unused code and clarified that Deploy to AWS Lightsail doesn't appear as an option. (DONE)
+7.  **User:** Confirmed the PWA implementation plan and stated they want to publish to AWS and start building CleanGrid next. Specified PWA install should only trigger for Workforce and Employer users. (DONE)
+6.  **User:** Requested the agent to proceed with implementing VAPID keys and ensuring notifications work for all user types, not just workforce. (DONE)
+5.  **User:** Affirmed the agent's summary and requested to move forward with the next items, specifically not showing fake partner information. (DONE)
+4.  **User:** Reported that the Leaderboard was showing Verified Partner badges for institutions that aren't partners, filters weren't working, and test data was still visible. Asked to add social responsibility messaging. (DONE)
+3.  **User:** Provided an Excel file with ~1800 institutions and asked how non-partner institutions would be notified of verification requests since many lack email data. (DONE)
+2.  **User:** Confirmed the proposed Request to Join approach and asked the agent to fix character encoding issues for Quebec institution names in the provided file. (DONE)
+1.  **User:** Corrected the agent for removing the partner logo carousel and keeping fake stats. Emphasized the importance of truthfulness and asked for the ™ symbol to be added to Work Passport. (DONE)
 
 **Project Health Check:**
 -   **Broken:**
-    -   The  tool is unreliable and should not be used.
+    -   See **All Pending/In progress Issue list** for minor technical debt items.
 -   **Mocked:**
-    -   The For Business Owners section on the landing page uses static images of a dashboard to showcase features. This is a design choice, not a broken component.
+    -   None. All mock/placeholder data has been replaced with real data from the live database.
 
 **3rd Party Integrations**
--   **Stripe:** Payments and payouts via Stripe Connect (**LIVE KEY**).
+-   **Stripe:** Payments and payouts.
 -   **Infura:** Polygon Mainnet RPC access.
 -   **Pinata:** IPFS storage.
 -   **SendGrid:** Transactional emails.
 -   **web3.py:** Ethereum/Polygon interaction.
--   **Google Maps Platform:** Geocoding and address validation.
--   **Emergent LLM Key:** OpenAI services (used by Emma AI).
--   **OpenAI:** AI-powered transcript extraction and Emma AI chat.
+-   **Google Maps Platform:** Geocoding.
+-   **OpenAI:** Emma AI assistant.
+-   **MongoDB Atlas:** Cloud database for production.
+-   **AWS Lightsail:** Cloud hosting.
+-   **pywebpush:** Web Push Protocol implementation for backend notifications.
 
 **Testing status**
--   **Testing agent used after significant changes:** YES (used 3 times, with the final run being a comprehensive, pre-deployment system check that passed).
+-   **Testing agent used after significant changes:** YES (iterations 7 and 8)
 -   **Troubleshoot agent used after agent stuck in loop:** NO
--   **Test files created:**
-    -   
-    -   
-    -   
+-   **Test files created:** None, but multiple verification scripts were created in .
 -   **Known regressions:** None.
 
 **Credentials to test flow:**
+The following test accounts were successfully seeded into the live production database on MongoDB Atlas.
 -   **Super Admin:**  / 
 -   **Institution:**  / 
 -   **Employer:**  / 
 -   **Workforce (Pashto language):**  / 
+-   **Sample Profile Code:** 
 
 **What agent forgot to execute**
--   The agent correctly deferred tasks like full UI translation and refactoring based on user priority. No critical tasks were forgotten.</analysis>
+The agent successfully completed all high-priority tasks and user requests from this session. The only remaining items are the low-priority technical debt tasks identified in the very first handoff summary, which were not prioritized by the user during this session:
+-   Investigate and improve Workforce Dashboard performance.
+-   Fix the benign  warning on backend startup.
+-   Replace all remaining  usages.</analysis>
