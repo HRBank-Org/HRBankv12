@@ -94,27 +94,48 @@ async def get_all_directory_institutions(
     # Get partner institutions (registered on platform)
     # Filter out test institutions
     partner_query = {
-        "institution_name": {"$not": {"$regex": "^Test ", "$options": "i"}}
+        "institution_name": {
+            "$not": {"$regex": "test", "$options": "i"}
+        }
     }
     if province:
         partner_query["province"] = province.upper()
     if search:
-        partner_query["institution_name"] = {
-            "$regex": search, 
-            "$options": "i",
-            "$not": {"$regex": "^Test ", "$options": "i"}
-        }
+        # For search, we need a different approach since $not doesn't combine well
+        pass  # Will filter in Python below
     
     partners = []
     if include_partners:
-        partners = await db.institution_profiles.find(
-            partner_query,
-            {"_id": 0, "institution_id": 1, "institution_name": 1, "province": 1, 
-             "city": 1, "logo_url": 1, "institution_type": 1, "phone": 1, "website": 1}
-        ).to_list(length=500)
+        # If searching, get all then filter
+        if search:
+            search_query = {"institution_name": {"$regex": search, "$options": "i"}}
+            if province:
+                search_query["province"] = province.upper()
+            partners = await db.institution_profiles.find(
+                search_query,
+                {"_id": 0, "institution_id": 1, "institution_name": 1, "province": 1, 
+                 "city": 1, "logo_url": 1, "institution_type": 1, "phone": 1, "website": 1}
+            ).to_list(length=500)
+        else:
+            partners = await db.institution_profiles.find(
+                partner_query,
+                {"_id": 0, "institution_id": 1, "institution_name": 1, "province": 1, 
+                 "city": 1, "logo_url": 1, "institution_type": 1, "phone": 1, "website": 1}
+            ).to_list(length=500)
         
-        # Additional filter to remove any test institutions that slipped through
-        partners = [p for p in partners if not p.get("institution_name", "").lower().startswith("test ")]
+        # Filter out any test institutions (comprehensive filter)
+        def is_test_institution(name):
+            name_lower = (name or "").lower()
+            return (
+                "test " in name_lower or 
+                name_lower.startswith("test") or
+                "test institution" in name_lower or
+                "test university" in name_lower or
+                "updated test" in name_lower or
+                "new test" in name_lower
+            )
+        
+        partners = [p for p in partners if not is_test_institution(p.get("institution_name", ""))]
     
     # Get credential counts for partners
     partner_ids = [p["institution_id"] for p in partners if "institution_id" in p]
