@@ -127,13 +127,12 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - [x] Work Passport messaging update
 - [x] Remove pricing from Institutions page
 - [x] Update Employers pricing to Early Adopter offer
+- [x] Leaderboard Region Filtering with Workforce Density Indicators
 
 ### P1 (High Priority - GTM)
-- [ ] **Leaderboard Enhancement**: Show which institutions have joined HR Bank vs listed only
-- [ ] **Region-Based Filtering**: Add Durham, Peel, York, Halton regions under Ontario
-- [ ] **Workforce Density Indicator**: Show region readiness for job matching
 - [ ] Institution Directory Import & Admin UI (1,800 institutions CSV upload)
 - [ ] Enhance PWA Functionality (push notifications, offline access)
+- [ ] Create local database seed script (prevent "Alex Johnson" profile issues)
 
 ### P2 (Medium Priority)
 - [ ] Remove old Career Profile components/routes (dead code cleanup)
