@@ -21,7 +21,7 @@ const WorkPassportLanding = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/work-passport" className="text-[#30496d] font-semibold">
-                Work Passport <span className="text-green-600 text-xs">(Free)</span>
+                Work Passport™ <span className="text-green-600 text-xs">(Free)</span>
               </Link>
               <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Institutions
@@ -58,7 +58,7 @@ const WorkPassportLanding = () => {
               <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
                 Get Your Free
                 <br />
-                <span className="text-amber-400">Work Passport</span>
+                <span className="text-amber-400">Work Passport™</span>
               </h1>
               
               <p className="text-xl text-gray-300 mb-4 leading-relaxed">
@@ -75,7 +75,7 @@ const WorkPassportLanding = () => {
                   onClick={() => navigate('/signup?type=workforce')}
                   className="bg-amber-500 hover:bg-amber-400 text-slate-900 h-14 px-8 text-lg font-semibold"
                 >
-                  Get My Free Work Passport
+                  Get My Free Work Passport™
                   <ChevronRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button
@@ -178,7 +178,7 @@ const WorkPassportLanding = () => {
                 <FileCheck className="w-6 h-6 text-amber-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Profiles are self-claims</h3>
-              <p className="text-gray-600">Work Passports are verifiable. Credentials issued by the source — not screenshots.</p>
+              <p className="text-gray-600">Work Passport™s are verifiable. Credentials issued by the source — not screenshots.</p>
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -283,7 +283,7 @@ const WorkPassportLanding = () => {
               onClick={() => navigate('/signup?type=workforce')}
               className="bg-amber-500 hover:bg-amber-400 text-slate-900 h-14 px-10 text-lg font-semibold"
             >
-              Create My Work Passport
+              Create My Work Passport™
               <ChevronRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
@@ -334,7 +334,7 @@ const WorkPassportLanding = () => {
               <div className="space-y-4">
                 <div className="bg-purple-50 rounded-lg p-3 max-w-[85%]">
                   <p className="text-gray-800 text-sm">
-                    Hi! I can help you build your Work Passport. What skills would you like to highlight?
+                    Hi! I can help you build your Work Passport™. What skills would you like to highlight?
                   </p>
                 </div>
                 <div className="bg-gray-100 rounded-lg p-3 max-w-[85%] ml-auto">
@@ -379,7 +379,7 @@ const WorkPassportLanding = () => {
       <section className="py-20 bg-gradient-to-r from-amber-500 to-orange-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Build Your Work Passport?
+            Ready to Build Your Work Passport™?
           </h2>
           <p className="text-xl text-white/90 mb-8">
             Free forever. No hidden costs. Start in under 5 minutes.
@@ -389,7 +389,7 @@ const WorkPassportLanding = () => {
             onClick={() => navigate('/signup?type=workforce')}
             className="bg-white text-amber-600 hover:bg-gray-100 h-14 px-10 text-lg font-semibold"
           >
-            Get My Free Work Passport
+            Get My Free Work Passport™
             <ChevronRight className="ml-2 w-5 h-5" />
           </Button>
         </div>

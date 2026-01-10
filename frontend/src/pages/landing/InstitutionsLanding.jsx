@@ -260,7 +260,7 @@ const InstitutionsLanding = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Graduate Passports</h3>
               <p className="text-gray-600 text-sm">
-                Graduates get free Work Passports automatically. They carry your credentials everywhere.
+                Graduates get free Work Passport™s automatically. They carry your credentials everywhere.
               </p>
             </div>
           </div>

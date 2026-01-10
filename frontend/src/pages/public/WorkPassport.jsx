@@ -28,7 +28,7 @@ const WorkPassport = () => {
       }
     } catch (err) {
       console.error('Failed to load profile:', err);
-      setError(err.response?.data?.detail || 'Work Passport not found');
+      setError(err.response?.data?.detail || 'Work Passport™ not found');
     } finally {
       setLoading(false);
     }
@@ -52,7 +52,7 @@ const WorkPassport = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading Work Passport...</p>
+          <p className="text-gray-300">Loading Work Passport™...</p>
         </div>
       </div>
     );
@@ -65,7 +65,7 @@ const WorkPassport = () => {
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="w-10 h-10 text-red-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Work Passport Not Found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Work Passport™ Not Found</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link
             to="/"
@@ -99,7 +99,7 @@ const WorkPassport = () => {
                 <Stamp className="w-6 h-6 text-slate-900" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">Work Passport</h1>
+                <h1 className="text-lg font-bold text-white">Work Passport™</h1>
                 <p className="text-sm text-slate-400">Verified by HR Bank</p>
               </div>
             </div>
@@ -459,7 +459,7 @@ const WorkPassport = () => {
 
           {/* Footer */}
           <div className="text-center mt-8 text-sm text-slate-500">
-            <p>Work Passport ID: {profile.profile_code}</p>
+            <p>Work Passport™ ID: {profile.profile_code}</p>
             <p className="mt-1">Verified by HR Bank's blockchain credential system</p>
             <p className="mt-2">© {new Date().getFullYear()} HR Bank. All rights reserved.</p>
           </div>
