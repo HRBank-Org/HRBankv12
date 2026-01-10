@@ -46,6 +46,19 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ## What's Been Implemented
 
+### January 10, 2026 - Final PWA & Cron Setup (COMPLETE)
+- **Credential Expiry Checker Cron Job:**
+  - Script: `/app/backend/scripts/check_credential_expiry.py`
+  - Checks credentials expiring in 30, 14, 7, 3, 1 days
+  - Sends push notifications and creates in-app notifications
+  - Recommended cron: `0 8 * * * cd /app/backend && python scripts/check_credential_expiry.py`
+
+- **PWA Install Prompt:**
+  - Only shows for workforce and employer users
+  - Triggers 3 seconds after login
+  - Can be dismissed (7-day cooldown)
+  - Detects if already installed
+
 ### January 10, 2026 - Push Notification Triggers (COMPLETE)
 - **Push Notification Service Created:**
   - `/app/backend/utils/push_notifications.py` with full Web Push API support
