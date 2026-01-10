@@ -414,35 +414,35 @@ const EmployersLanding = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Beta Pricing
+              Early Adopter Offer
             </h2>
             <p className="text-xl text-gray-600">
-              Early adopters get special rates
+              Be part of shaping the future of workforce management
             </p>
           </div>
 
           <div className="bg-white rounded-2xl p-8 border-2 border-[#ff5f00] shadow-xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="bg-[#ff5f00] text-white text-xs font-bold px-3 py-1 rounded-full">BETA</span>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">Free During Beta</h3>
+                <span className="bg-[#ff5f00] text-white text-xs font-bold px-3 py-1 rounded-full">EARLY ADOPTER</span>
+                <h3 className="text-2xl font-bold text-gray-900 mt-2">Free for 3 Months</h3>
               </div>
               <div className="text-right">
                 <p className="text-4xl font-bold text-gray-900">$0</p>
-                <p className="text-gray-500">per month</p>
+                <p className="text-gray-500">for 3 months</p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               {[
-                'Unlimited locations',
-                'Unlimited team members',
+                'Up to 10 locations',
+                'Up to 300 workers',
                 'GPS + QR attendance',
                 'Shift scheduling',
                 'Timesheet management',
                 'Task tracking',
                 'Mobile apps',
-                'Email support'
+                'Priority support'
               ].map((feature, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -451,10 +451,10 @@ const EmployersLanding = () => {
               ))}
             </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-              <p className="text-amber-800 text-sm">
-                <strong>Beta terms:</strong> Free access while we refine the product. 
-                We&apos;ll give 60 days notice before introducing any paid features.
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-blue-800 text-sm">
+                <strong>Early Adopter Benefits:</strong> 3 months free access with up to 300 workers and 10 locations. 
+                Your feedback helps us build the tools you actually need.
               </p>
             </div>
 
@@ -464,7 +464,7 @@ const EmployersLanding = () => {
               className="w-full bg-[#ff5f00] hover:bg-[#e55500] text-white h-14 text-lg font-semibold"
               data-testid="employer-pricing-signup"
             >
-              Join Beta — It&apos;s Free
+              Claim Early Adopter Access
               <ChevronRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
