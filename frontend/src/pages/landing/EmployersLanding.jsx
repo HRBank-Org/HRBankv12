@@ -22,16 +22,16 @@ const EmployersLanding = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Work Passport (Free)
+                Workforce
               </Link>
               <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Institutions
               </Link>
-              <Link to="/employers" className="text-[#ff5f00] font-medium border-b-2 border-[#ff5f00]">
-                Employers (Beta)
-              </Link>
               <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
-                🏆 Leaderboard
+                Leaderboard
+              </Link>
+              <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium">
+                Jobs
               </Link>
             </div>
             <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
