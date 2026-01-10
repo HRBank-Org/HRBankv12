@@ -34,7 +34,7 @@ const InstitutionsLanding = () => {
   const pricingTiers = [
     { type: 'High-frequency credentials', price: '$50', desc: 'Certificates, badges, micro-credentials' },
     { type: 'Certificates/Diplomas', price: '$100', desc: 'Program completions + transcript' },
-    { type: 'Degrees', price: '$200', desc: 'Bachelor&apos;s, Master&apos;s + full transcript' },
+    { type: 'Degrees', price: '$200', desc: "Bachelor's, Master's + full transcript" },
   ];
 
   return (
