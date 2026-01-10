@@ -7,10 +7,14 @@ logger = logging.getLogger(__name__)
 
 class GoogleMapsService:
     def __init__(self):
+        self.gmaps = None
         if settings.GOOGLE_MAPS_API_KEY:
-            self.gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+            try:
+                self.gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+                logger.info("Google Maps client initialized successfully")
+            except ValueError as e:
+                logger.warning(f"Google Maps API key invalid or expired: {e}. Maps features will be disabled.")
         else:
-            self.gmaps = None
             logger.warning("Google Maps API key not configured")
     
     def geocode_address(self, address: str) -> Optional[Tuple[float, float]]:
