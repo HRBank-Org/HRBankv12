@@ -326,45 +326,9 @@ const InstitutionsLanding = () => {
           </div>
         </div>
       </section>
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Simple Pricing</h2>
-            <p className="text-gray-600">Per credential issued. No platform fees. You keep the majority.</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-[#30496d] text-white">
-                <tr>
-                  <th className="py-4 px-6 text-left">Credential Type</th>
-                  <th className="py-4 px-6 text-right">Suggested Price</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {pricingTiers.map((tier, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="py-4 px-6">
-                      <p className="font-semibold text-gray-900">{tier.type}</p>
-                      <p className="text-sm text-gray-500">{tier.desc}</p>
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <span className="text-2xl font-bold text-[#30496d]">{tier.price}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <p className="text-center text-gray-500 text-sm mt-6">
-            Prices are customizable. Contact us for volume discounts.
-          </p>
-        </div>
-      </section>
 
       {/* Leaderboard Preview */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
