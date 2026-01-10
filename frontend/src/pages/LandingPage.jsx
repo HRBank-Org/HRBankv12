@@ -78,9 +78,9 @@ const LandingPage = () => {
 
       {/* SECTION 1: Hero with Video Background */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16">
-        {/* Video Background - Relaxing ambient visuals */}
+        {/* Video Background - Lofi aesthetic visuals */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900/80 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-slate-900/70 to-slate-900/85 z-10" />
           <iframe
             ref={videoRef}
             className="absolute w-full h-full object-cover"
@@ -90,7 +90,7 @@ const LandingPage = () => {
               minHeight: '100%',
               minWidth: '100%'
             }}
-            src="https://www.youtube.com/embed/hlWiI4xVXKY?autoplay=1&mute=1&loop=1&playlist=hlWiI4xVXKY&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+            src="https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1&mute=1&loop=1&playlist=5qap5aO4i9A&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
             title="HR Bank Workforce Background"
             frameBorder="0"
             allow="autoplay; encrypted-media"
