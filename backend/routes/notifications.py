@@ -193,3 +193,71 @@ async def create_notification(
     # TODO: Send email if enabled
     
     return notification.notification_id
+
+
+@router.post("/push-subscription")
+async def save_push_subscription(
+    subscription: dict,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Save a push notification subscription for the current user.
+    """
+    user_id = current_user["user_id"]
+    
+    # Upsert the subscription
+    await db.push_subscriptions.update_one(
+        {"user_id": user_id},
+        {
+            "$set": {
+                "user_id": user_id,
+                "subscription": subscription.get("subscription"),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            "$setOnInsert": {
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+        },
+        upsert=True
+    )
+    
+    return {"success": True, "message": "Push subscription saved"}
+
+@router.delete("/push-subscription")
+async def delete_push_subscription(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Remove push notification subscription for the current user.
+    """
+    user_id = current_user["user_id"]
+    
+    await db.push_subscriptions.delete_one({"user_id": user_id})
+    
+    return {"success": True, "message": "Push subscription removed"}
+
+@router.get("/push-subscription/status")
+async def get_push_subscription_status(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Check if the current user has an active push subscription.
+    """
+    user_id = current_user["user_id"]
+    
+    subscription = await db.push_subscriptions.find_one(
+        {"user_id": user_id},
+        {"_id": 0}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "is_subscribed": subscription is not None,
+            "updated_at": subscription.get("updated_at") if subscription else None
+        }
+    }
+
