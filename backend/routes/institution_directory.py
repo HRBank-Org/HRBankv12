@@ -92,19 +92,29 @@ async def get_all_directory_institutions(
     ).skip((page - 1) * limit).limit(limit).to_list(length=limit)
     
     # Get partner institutions (registered on platform)
-    partner_query = {}
+    # Filter out test institutions
+    partner_query = {
+        "institution_name": {"$not": {"$regex": "^Test ", "$options": "i"}}
+    }
     if province:
         partner_query["province"] = province.upper()
     if search:
-        partner_query["institution_name"] = {"$regex": search, "$options": "i"}
+        partner_query["institution_name"] = {
+            "$regex": search, 
+            "$options": "i",
+            "$not": {"$regex": "^Test ", "$options": "i"}
+        }
     
     partners = []
     if include_partners:
         partners = await db.institution_profiles.find(
             partner_query,
             {"_id": 0, "institution_id": 1, "institution_name": 1, "province": 1, 
-             "city": 1, "logo_url": 1, "institution_type": 1}
+             "city": 1, "logo_url": 1, "institution_type": 1, "phone": 1, "website": 1}
         ).to_list(length=500)
+        
+        # Additional filter to remove any test institutions that slipped through
+        partners = [p for p in partners if not p.get("institution_name", "").lower().startswith("test ")]
     
     # Get credential counts for partners
     partner_ids = [p["institution_id"] for p in partners if "institution_id" in p]
