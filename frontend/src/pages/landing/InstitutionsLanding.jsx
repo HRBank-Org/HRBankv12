@@ -48,16 +48,16 @@ const InstitutionsLanding = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Work Passport <span className="text-green-600 text-xs">(Free)</span>
+                Workforce
               </Link>
               <Link to="/institutions" className="text-[#30496d] font-semibold">
                 Institutions
               </Link>
-              <Link to="/employers" className="text-gray-600 hover:text-[#ff5f00] font-medium">
-                Employers <span className="text-orange-500 text-xs">(Beta)</span>
-              </Link>
               <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
-                🏆 Leaderboard
+                Leaderboard
+              </Link>
+              <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium">
+                Jobs
               </Link>
             </div>
             <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
