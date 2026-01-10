@@ -283,7 +283,7 @@ const PublicJobsPage = () => {
                   Don&apos;t wait for jobs to be posted. Create your free Work Passport and let opportunities come to you.
                 </p>
                 <Button 
-                  onClick={() => navigate('/work-passport')}
+                  onClick={() => navigate('/signup?type=workforce')}
                   className="bg-amber-500 hover:bg-amber-400 text-slate-900"
                   data-testid="empty-jobs-work-passport-btn"
                 >
