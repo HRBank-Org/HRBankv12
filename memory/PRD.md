@@ -46,6 +46,29 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ## What's Been Implemented
 
+### January 10, 2026 - Push Notification Triggers (COMPLETE)
+- **Push Notification Service Created:**
+  - `/app/backend/utils/push_notifications.py` with full Web Push API support
+  - Pre-built notification templates for all key events
+  - Installed pywebpush library
+
+- **Events that trigger push notifications:**
+  - Credential Issued (to worker)
+  - Shift Assigned (to worker)
+  - Shift Reminder (to worker)
+  - Shift Cancelled (to worker)
+  - Payment Received (to worker)
+  - New Message (to recipient)
+  - Shift Available (to matching workers)
+  - Credential Expiring (to worker)
+  - Worker Applied (to employer)
+  - Worker Checked In (to employer)
+  - Verification Request (to institution)
+
+- **Integration points:**
+  - `blockchain_credentials.py` - triggers on credential issuance
+  - `shift_notification_service.py` - triggers on shift events
+
 ### January 10, 2026 - Institution Directory Import & Request System (COMPLETE)
 - **1,758 Institutions Imported:**
   - Fixed French character encoding (Mojibake) for Quebec institutions
