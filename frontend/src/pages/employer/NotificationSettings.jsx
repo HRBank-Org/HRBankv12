@@ -122,6 +122,11 @@ const NotificationSettings = () => {
           </div>
         </div>
 
+        {/* Push Notifications */}
+        <div className="mb-6">
+          <PushNotificationSettings />
+        </div>
+
         {/* Message */}
         {message.text && (
           <div className={`mb-6 p-4 rounded-lg ${
