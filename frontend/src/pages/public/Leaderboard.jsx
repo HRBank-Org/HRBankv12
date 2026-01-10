@@ -5,7 +5,7 @@ import { LOGOS } from '../../utils/logoUtils';
 import {
   Trophy, Medal, Building2, Users, FileCheck,
   MapPin, TrendingUp, Search, Mail, CheckCircle,
-  Globe, Star, ArrowRight, Sparkles
+  Globe, Star, ArrowRight, Sparkles, Zap, Target
 } from 'lucide-react';
 
 const Leaderboard = () => {
@@ -13,6 +13,8 @@ const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [allInstitutions, setAllInstitutions] = useState([]);
   const [provinceLeaderboard, setProvinceLeaderboard] = useState([]);
+  const [regionData, setRegionData] = useState(null);
+  const [selectedRegionProvince, setSelectedRegionProvince] = useState('ON');
   const [stats, setStats] = useState(null);
   const [directoryStats, setDirectoryStats] = useState(null);
   const [provinces, setProvinces] = useState([]);
