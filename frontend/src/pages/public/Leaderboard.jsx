@@ -849,10 +849,16 @@ const Leaderboard = () => {
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
                 <p className="text-gray-400">{inviteSuccess}</p>
+                <div className="mt-4 p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                  <p className="text-green-300 text-sm">
+                    Every request helps build a verified workforce in your region. 
+                    Share this with others from your institution!
+                  </p>
+                </div>
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white">Request Institution to Join</h3>
                   <button 
                     onClick={() => setInviteModal(null)}
@@ -862,26 +868,41 @@ const Leaderboard = () => {
                   </button>
                 </div>
 
-                <div className="bg-slate-700/50 rounded-lg p-4 mb-6">
+                {/* Social Responsibility Message */}
+                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-4 mb-4 border border-blue-500/20">
+                  <div className="flex items-start gap-3">
+                    <Globe className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-white text-sm font-medium mb-1">Why This Matters</p>
+                      <p className="text-gray-300 text-xs leading-relaxed">
+                        When institutions join HR Bank, they help build a <span className="text-blue-400">blockchain-verified workforce</span> in 
+                        your region. More verified workers means better job matching and reduced unemployment. 
+                        Your request helps drive this digital transformation.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-700/50 rounded-lg p-4 mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg bg-slate-600 flex items-center justify-center">
                       <Building2 className="w-6 h-6 text-gray-400" />
                     </div>
                     <div>
                       <p className="text-white font-semibold">{inviteModal.institution_name}</p>
-                      <p className="text-gray-400 text-sm">{inviteModal.city}, {inviteModal.province_name}</p>
+                      <p className="text-gray-400 text-sm">{inviteModal.city}, {inviteModal.province_name || inviteModal.province}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-4">
                   <label className="block text-gray-300 text-sm mb-2">
-                    Why should they join? (Optional)
+                    Share why they should join (Optional)
                   </label>
                   <textarea
                     value={inviteMessage}
                     onChange={(e) => setInviteMessage(e.target.value)}
-                    placeholder="I'm an alumni/student and would like to have my credentials verified on this platform..."
+                    placeholder="I'm an alumni/student and would like to have my credentials verified on the blockchain..."
                     className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                     rows={3}
                   />
@@ -916,6 +937,14 @@ const Leaderboard = () => {
                     {inviteModal.invite_requests} other{inviteModal.invite_requests > 1 ? 's' : ''} have also requested this institution
                   </p>
                 )}
+
+                {/* Regional Impact Note */}
+                <div className="mt-4 pt-4 border-t border-slate-700">
+                  <p className="text-gray-500 text-xs text-center">
+                    <TrendingUp className="w-3 h-3 inline mr-1" />
+                    Help your region reach its workforce threshold for automated job matching
+                  </p>
+                </div>
               </>
             )}
           </div>
