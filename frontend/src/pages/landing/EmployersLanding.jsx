@@ -48,7 +48,7 @@ const EmployersLanding = () => {
       <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-16">
         {/* Video Background - Employer focused operations */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-slate-900/70 to-slate-900/90 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/60 to-transparent z-10" />
           <iframe
             className="absolute w-full h-full object-cover"
             style={{ 
@@ -66,68 +66,48 @@ const EmployersLanding = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff5f00]/20 rounded-full text-[#ff5f00] text-sm font-semibold mb-6 border border-[#ff5f00]/30">
-                <Zap className="w-4 h-4" />
-                Beta Program — Early Access
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Workforce Operations.
-                <br />
-                <span className="text-[#ff5f00]">Simplified.</span>
-              </h1>
-              
-              <p className="text-xl text-gray-300 mb-4 leading-relaxed">
-                Manage your existing team&apos;s attendance, timesheets, and scheduling — all from your phone. 
-              </p>
-              <p className="text-lg text-gray-400 mb-8">
-                Built for multi-location businesses who need real oversight without being on-site 24/7.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/signup?type=employer')}
-                  className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-14 px-8 text-lg font-semibold"
-                  data-testid="employer-signup-btn"
-                >
-                  Join Beta (Free)
-                  <ChevronRight className="ml-2 w-5 h-5" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => document.getElementById('sample-dashboard').scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-transparent border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg"
-                >
-                  <Play className="mr-2 w-5 h-5" />
-                  See Example
-                </Button>
-              </div>
-
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5" />
-                  <div>
-                    <p className="text-amber-400 font-semibold text-sm">Beta Program</p>
-                    <p className="text-gray-400 text-sm">
-                      We&apos;re offering free early access to businesses who want to shape the product. 
-                      Not a hiring marketplace — just better workforce tools.
-                    </p>
-                  </div>
-                </div>
-              </div>
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff5f00] rounded-full text-white text-sm font-semibold mb-6">
+              <Zap className="w-4 h-4" />
+              Beta Program — Early Access
             </div>
+            
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              Workforce Operations.
+              <br />
+              <span className="text-[#ff5f00]">Simplified.</span>
+            </h1>
+            
+            <p className="text-xl text-gray-200 mb-8 leading-relaxed">
+              Manage your existing team&apos;s attendance, timesheets, and scheduling — all from your phone. 
+              Built for multi-location businesses who need real oversight without being on-site 24/7.
+            </p>
 
-            {/* Dashboard Preview Card - Similar to Work Passport */}
-            <div className="relative">
-              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-2xl transform -rotate-1 hover:rotate-0 transition-transform duration-500">
-                {/* Orange accent bar */}
-                <div className="h-2 bg-gradient-to-r from-[#ff5f00] via-orange-500 to-[#ff5f00] rounded-full mb-4" />
-                
-                <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                size="lg"
+                onClick={() => navigate('/signup?type=employer')}
+                className="bg-[#ff5f00] hover:bg-[#e55500] text-white h-14 px-8 text-lg font-semibold"
+                data-testid="employer-signup-btn"
+              >
+                Join Beta (Free)
+                <ChevronRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => document.getElementById('sample-dashboard').scrollIntoView({ behavior: 'smooth' })}
+                className="bg-white/10 border-white/30 text-white hover:bg-white/20 h-14 px-8 text-lg"
+              >
+                <Play className="mr-2 w-5 h-5" />
+                See How It Works
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* What This Is / What This Isn't */}
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-[#ff5f00]/20 rounded-lg flex items-center justify-center">
                       <Building2 className="w-6 h-6 text-[#ff5f00]" />
