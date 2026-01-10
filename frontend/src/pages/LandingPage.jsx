@@ -517,19 +517,23 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="py-16 bg-white">
+      {/* Partner Logos Carousel */}
+      <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center mb-16">
-            {[
-              { value: '10,000+', label: 'Work Passports' },
-              { value: '500+', label: 'Employers' },
-              { value: '50+', label: 'Partner Institutions' },
-              { value: '95%', label: 'Match Rate' },
-            ].map((stat, index) => (
-              <div key={index}>
-                <div className="text-3xl md:text-4xl font-bold text-[#30496d] mb-1">{stat.value}</div>
-                <div className="text-gray-600 text-sm">{stat.label}</div>
+          <div className="text-center mb-8">
+            <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Trusted By</p>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-8">
+            {partnerLogos.map((logo, index) => (
+              <div
+                key={`${logo.id}-${index}`}
+                className="w-32 h-16 bg-white rounded-lg flex items-center justify-center p-3 shadow-sm grayscale hover:grayscale-0 transition-all"
+              >
+                <img
+                  src={logo.logo_url}
+                  alt={logo.institution_name}
+                  className="max-w-full max-h-full object-contain"
+                />
               </div>
             ))}
           </div>
@@ -540,7 +544,7 @@ const LandingPage = () => {
       <section className="py-20 bg-gradient-to-r from-amber-500 to-orange-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Build Your Work Passport?
+            Ready to Build Your Work Passport™?
           </h2>
           <p className="text-xl text-white/90 mb-8">
             Free forever. No hidden costs. Start in under 5 minutes.
@@ -551,7 +555,7 @@ const LandingPage = () => {
             className="bg-white text-amber-600 hover:bg-gray-100 h-14 px-10 text-lg font-semibold"
             data-testid="final-cta-btn"
           >
-            Get My Free Work Passport
+            Get My Free Work Passport™
             <ChevronRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
