@@ -33,7 +33,7 @@ const WorkPassportLanding = () => {
                 🏆 Leaderboard
               </Link>
             </div>
-            <Button variant="ghost" onClick={() => navigate('/auth/login')} className="text-gray-700">
+            <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
               Sign In
             </Button>
           </div>
