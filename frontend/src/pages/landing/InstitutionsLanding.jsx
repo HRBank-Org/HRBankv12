@@ -200,7 +200,132 @@ const InstitutionsLanding = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Future of Work Section - LinkedIn/Indeed */}
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-[#1a2d42] to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 rounded-full text-amber-400 text-sm font-medium mb-4">
+                <TrendingUp className="w-4 h-4" />
+                The Future is Verified
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                LinkedIn and Indeed Profiles
+                <br />
+                <span className="text-amber-400">Won&apos;t Work Forever.</span>
+              </h2>
+              <p className="text-lg text-gray-300 mb-6 leading-relaxed">
+                Self-reported credentials on LinkedIn, Indeed, and traditional resumes are being questioned 
+                more than ever. AI makes it trivial to fabricate impressive profiles. Employers are losing trust.
+              </p>
+              <p className="text-gray-400 mb-8">
+                The future belongs to <span className="text-white font-semibold">verified credentials</span> — 
+                issued by trusted institutions, secured on blockchain, and instantly verifiable. 
+                Graduates who can prove their qualifications will win.
+              </p>
+
+              <div className="space-y-4">
+                {[
+                  { platform: 'LinkedIn', issue: 'Anyone can claim any credential. No verification.' },
+                  { platform: 'Indeed', issue: 'Self-reported skills. Easy to exaggerate.' },
+                  { platform: 'PDF Certificates', issue: 'Trivially easy to forge with AI tools.' },
+                  { platform: 'HR Bank', issue: 'Blockchain-verified. Institution-issued. Tamper-proof.', isPositive: true }
+                ].map((item, i) => (
+                  <div key={i} className={`flex items-start gap-3 p-3 rounded-lg ${item.isPositive ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
+                    {item.isPositive ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                    )}
+                    <div>
+                      <p className={`font-semibold ${item.isPositive ? 'text-green-400' : 'text-red-400'}`}>{item.platform}</p>
+                      <p className="text-gray-400 text-sm">{item.issue}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Visual */}
+            <div className="relative">
+              <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+                <div className="text-center mb-6">
+                  <h3 className="text-white font-bold text-lg mb-2">Employer Trust Level</h3>
+                  <p className="text-gray-400 text-sm">When reviewing candidate credentials</p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* LinkedIn */}
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-gray-300 text-sm flex items-center gap-2">
+                        <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">in</div>
+                        LinkedIn Profile
+                      </span>
+                      <span className="text-red-400 text-sm">32% Trust</span>
+                    </div>
+                    <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full" style={{ width: '32%' }}></div>
+                    </div>
+                  </div>
+
+                  {/* Indeed */}
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-gray-300 text-sm flex items-center gap-2">
+                        <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">i</div>
+                        Indeed Resume
+                      </span>
+                      <span className="text-amber-400 text-sm">41% Trust</span>
+                    </div>
+                    <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full" style={{ width: '41%' }}></div>
+                    </div>
+                  </div>
+
+                  {/* PDF */}
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-gray-300 text-sm flex items-center gap-2">
+                        <div className="w-6 h-6 bg-red-600 rounded flex items-center justify-center text-white text-xs font-bold">PDF</div>
+                        PDF Certificate
+                      </span>
+                      <span className="text-amber-400 text-sm">45% Trust</span>
+                    </div>
+                    <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full" style={{ width: '45%' }}></div>
+                    </div>
+                  </div>
+
+                  {/* HR Bank */}
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-gray-300 text-sm flex items-center gap-2">
+                        <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center text-white text-xs font-bold">✓</div>
+                        Blockchain Verified
+                      </span>
+                      <span className="text-green-400 text-sm">94% Trust</span>
+                    </div>
+                    <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style={{ width: '94%' }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-green-500/10 rounded-lg border border-green-500/30">
+                  <p className="text-green-400 text-sm text-center">
+                    <strong>Your graduates deserve credentials employers trust.</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className="absolute -top-4 -right-4 bg-amber-500 text-slate-900 px-4 py-2 rounded-lg text-sm font-bold shadow-lg">
+                Future-Proof
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
