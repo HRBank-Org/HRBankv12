@@ -3,6 +3,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import { Bell, Mail, MessageSquare, Smartphone, Globe, ToggleLeft, ToggleRight } from 'lucide-react';
+import PushNotificationSettings from '../../components/common/PushNotificationSettings';
 
 const NotificationSettings = () => {
   const theme = useTheme();
