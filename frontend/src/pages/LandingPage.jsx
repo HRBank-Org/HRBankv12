@@ -90,7 +90,7 @@ const LandingPage = () => {
               minHeight: '100%',
               minWidth: '100%'
             }}
-            src="https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1&mute=1&loop=1&playlist=5qap5aO4i9A&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+            src="https://www.youtube.com/embed/2Gg6Seob5Mg?autoplay=1&mute=1&loop=1&playlist=2Gg6Seob5Mg&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
             title="HR Bank Workforce Background"
             frameBorder="0"
             allow="autoplay; encrypted-media"
