@@ -12,6 +12,9 @@ import PendingApproval from './pages/auth/PendingApproval';
 
 // Landing & Common
 import LandingPage from './pages/LandingPage';
+import WorkPassportLanding from './pages/landing/WorkPassportLanding';
+import InstitutionsLanding from './pages/landing/InstitutionsLanding';
+import EmployersLanding from './pages/landing/EmployersLanding';
 import PublicJobsPage from './pages/PublicJobsPage';
 import SubdomainPortal from './pages/SubdomainPortal';
 import ForgotPassword from './pages/ForgotPassword';
