@@ -145,6 +145,9 @@ const Leaderboard = () => {
               <Link to="/" className="text-white/70 hover:text-white font-medium">
                 Workforce
               </Link>
+              <Link to="/employers" className="text-white/70 hover:text-white font-medium">
+                Employers <span className="text-orange-400 text-xs">(Beta)</span>
+              </Link>
               <Link to="/institutions" className="text-white/70 hover:text-white font-medium">
                 Institutions
               </Link>
