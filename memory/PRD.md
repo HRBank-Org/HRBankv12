@@ -46,6 +46,29 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ## What's Been Implemented
 
+### January 10, 2026 - Institution Directory Import & Request System (COMPLETE)
+- **1,758 Institutions Imported:**
+  - Fixed French character encoding (Mojibake) for Quebec institutions
+  - Data includes: Name, Province, City, Phone, Website, Program Categories
+  - Provinces: QC (619), ON (524), BC (224), AB (221), MB (69), others
+  
+- **"Request to Join" System:**
+  - Workers can request their institution to join HR Bank
+  - Request count displayed on Leaderboard
+  - Backend API tracks all requests by institution
+  
+- **Admin Dashboard:**
+  - New page at `/admin/institution-directory`
+  - Shows: Total institutions, Active partners, Join requests, Coverage rate
+  - "Most Requested" section for priority outreach
+  - Export to CSV for outreach campaigns
+  - Filter by province, type, search
+  
+- **Leaderboard Updates:**
+  - Shows 1,758 institutions in "All Institutions" tab
+  - Non-partner institutions have "Request to Join" button
+  - Partners show credential count, non-partners show request count
+
 ### January 10, 2026 - GTM Strategy Updates (Session 2)
 - **Bug Fix: InstitutionsLanding.jsx Icon Import (COMPLETE)**:
   - Fixed missing GraduationCap and Award icon imports from lucide-react
