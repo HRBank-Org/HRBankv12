@@ -44,6 +44,9 @@ const InstitutionsLanding = () => {
               <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Workforce
               </Link>
+              <Link to="/employers" className="text-gray-600 hover:text-[#ff5f00] font-medium">
+                Employers <span className="text-orange-500 text-xs">(Beta)</span>
+              </Link>
               <Link to="/institutions" className="text-[#30496d] font-semibold">
                 Institutions
               </Link>
