@@ -99,11 +99,25 @@ const Leaderboard = () => {
       const params = new URLSearchParams();
       if (selectedProvince) params.append('province', selectedProvince);
       if (searchQuery) params.append('search', searchQuery);
-      params.append('limit', '100');
+      params.append('limit', '200');
+      params.append('include_partners', 'true');
 
       const res = await api.get(`/api/institution-directory/all?${params}`);
       if (res.data.success) {
-        setAllInstitutions(res.data.data.institutions);
+        // Sort: non-partners with requests first, then non-partners, then partners
+        const sorted = [...res.data.data.institutions].sort((a, b) => {
+          // Partners go to the end
+          if (a.is_partner !== b.is_partner) {
+            return a.is_partner ? 1 : -1;
+          }
+          // Among non-partners, sort by invite requests
+          if (!a.is_partner && !b.is_partner) {
+            return (b.invite_requests || 0) - (a.invite_requests || 0);
+          }
+          // Among partners, sort by credentials issued
+          return (b.credentials_issued || 0) - (a.credentials_issued || 0);
+        });
+        setAllInstitutions(sorted);
       }
     } catch (error) {
       console.error('Failed to load directory:', error);
