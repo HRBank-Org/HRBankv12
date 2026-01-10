@@ -67,6 +67,23 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 - **Testing**: 100% pass rate (iteration_7.json) - 11/11 scenarios passed
 
+### January 10, 2026 - Leaderboard Regions Feature (COMPLETE)
+- **New "Regions" Tab on Leaderboard:**
+  - Added 12 Ontario regions: Durham, Peel, York, Halton, Toronto, Hamilton, Waterloo, Niagara, Ottawa, London, Windsor, Simcoe
+  - Also added regions for BC (3), AB (2), QC (2)
+  - Workforce density progress bars show percentage toward job-matching threshold
+  - Region status badges: Early Stage → Emerging → Growing → Almost Ready → Active
+  - "How Job Matching Works" explainer section
+  - "Get Your Passport" CTA for inactive regions
+  - Province selector dropdown (ON, BC, AB, QC)
+
+- **Backend API:**
+  - New endpoint: `/api/leaderboard/regions?province=ON`
+  - Returns region name, cities, worker count, threshold, density percentage, status
+  - City-to-region mapping for accurate workforce counting
+
+- **Testing**: 100% pass rate (iteration_8.json) - 16/16 backend, 10/10 frontend scenarios passed
+
 ### January 10, 2026 - GTM Strategy Updates (Session 1)
 - **Navigation Standardization (COMPLETE)**:
   - All pages now have consistent nav: Workforce, Institutions, Leaderboard, Employers (Beta), Jobs, Sign In
