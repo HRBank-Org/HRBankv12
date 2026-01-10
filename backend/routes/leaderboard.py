@@ -153,8 +153,10 @@ async def get_institution_leaderboard(
     elif period == "year":
         date_filter = (now - timedelta(days=365)).isoformat()
     
-    # Get all institutions
-    institution_query = {}
+    # Get all institutions (exclude test institutions)
+    institution_query = {
+        "institution_name": {"$not": {"$regex": "^Test ", "$options": "i"}}
+    }
     if province:
         institution_query["province"] = province.upper()
     
@@ -162,6 +164,9 @@ async def get_institution_leaderboard(
         institution_query,
         {"_id": 0, "institution_id": 1, "institution_name": 1, "logo_url": 1, "province": 1, "city": 1}
     ).to_list(length=500)
+    
+    # Additional filter to remove any test institutions
+    institutions = [i for i in institutions if not i.get("institution_name", "").lower().startswith("test ")]
     
     # Build credential query
     credential_query = {"status": "issued"}
