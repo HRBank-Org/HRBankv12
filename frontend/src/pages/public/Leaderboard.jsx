@@ -253,7 +253,7 @@ const Leaderboard = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => { setActiveTab('institutions'); setShowDirectory(false); setSearchQuery(''); }}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
@@ -261,6 +261,7 @@ const Leaderboard = () => {
                     ? 'bg-purple-600 text-white' 
                     : 'text-gray-400 hover:text-white'
                 }`}
+                data-testid="tab-top-ranked"
               >
                 <Trophy className="w-4 h-4 inline mr-1" />
                 Top Ranked
@@ -272,9 +273,22 @@ const Leaderboard = () => {
                     ? 'bg-purple-600 text-white' 
                     : 'text-gray-400 hover:text-white'
                 }`}
+                data-testid="tab-all-institutions"
               >
                 <Building2 className="w-4 h-4 inline mr-1" />
                 All Institutions
+              </button>
+              <button
+                onClick={() => { setActiveTab('regions'); setShowDirectory(false); setSearchQuery(''); }}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                  activeTab === 'regions' && !showDirectory
+                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                data-testid="tab-regions"
+              >
+                <Target className="w-4 h-4 inline mr-1" />
+                Regions
               </button>
               <button
                 onClick={() => { setActiveTab('provinces'); setShowDirectory(false); }}
@@ -283,6 +297,7 @@ const Leaderboard = () => {
                     ? 'bg-purple-600 text-white' 
                     : 'text-gray-400 hover:text-white'
                 }`}
+                data-testid="tab-provinces"
               >
                 <MapPin className="w-4 h-4 inline mr-1" />
                 By Province
@@ -291,27 +306,43 @@ const Leaderboard = () => {
 
             {/* Filters */}
             <div className="flex items-center gap-2">
-              <select
-                value={selectedProvince}
-                onChange={(e) => setSelectedProvince(e.target.value)}
-                className="px-3 py-2 bg-slate-700 text-white text-sm rounded-lg border border-slate-600 focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="">All Provinces</option>
-                {provinces.map((p) => (
-                  <option key={p.code} value={p.code}>{p.name}</option>
-                ))}
-              </select>
-              {!showDirectory && (
+              {activeTab === 'regions' ? (
                 <select
-                  value={selectedPeriod}
-                  onChange={(e) => setSelectedPeriod(e.target.value)}
+                  value={selectedRegionProvince}
+                  onChange={(e) => setSelectedRegionProvince(e.target.value)}
                   className="px-3 py-2 bg-slate-700 text-white text-sm rounded-lg border border-slate-600 focus:ring-2 focus:ring-purple-500"
+                  data-testid="region-province-select"
                 >
-                  <option value="all">All Time</option>
-                  <option value="year">This Year</option>
-                  <option value="month">This Month</option>
-                  <option value="week">This Week</option>
+                  <option value="ON">Ontario</option>
+                  <option value="BC">British Columbia</option>
+                  <option value="AB">Alberta</option>
+                  <option value="QC">Quebec</option>
                 </select>
+              ) : (
+                <>
+                  <select
+                    value={selectedProvince}
+                    onChange={(e) => setSelectedProvince(e.target.value)}
+                    className="px-3 py-2 bg-slate-700 text-white text-sm rounded-lg border border-slate-600 focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">All Provinces</option>
+                    {provinces.map((p) => (
+                      <option key={p.code} value={p.code}>{p.name}</option>
+                    ))}
+                  </select>
+                  {!showDirectory && activeTab !== 'regions' && (
+                    <select
+                      value={selectedPeriod}
+                      onChange={(e) => setSelectedPeriod(e.target.value)}
+                      className="px-3 py-2 bg-slate-700 text-white text-sm rounded-lg border border-slate-600 focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="all">All Time</option>
+                      <option value="year">This Year</option>
+                      <option value="month">This Month</option>
+                      <option value="week">This Week</option>
+                    </select>
+                  )}
+                </>
               )}
             </div>
           </div>
