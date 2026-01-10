@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiBell, FiMail, FiMessageSquare, FiSmartphone, FiRefreshCw } from 'react-icons/fi';
 import api from '../../services/api';
+import PushNotificationSettings from '../../components/common/PushNotificationSettings';
 
 const NotificationSettings = () => {
   const [preferences, setPreferences] = useState(null);
