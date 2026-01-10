@@ -137,21 +137,6 @@ const LandingPage = () => {
             </Button>
           </div>
 
-          {/* Quick Stats */}
-          <div className="flex flex-wrap justify-center gap-8 text-white/80">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">10,000+</div>
-              <div className="text-sm">Work Passports</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">50+</div>
-              <div className="text-sm">Partner Institutions</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">500+</div>
-              <div className="text-sm">Employers Trust Us</div>
-            </div>
-          </div>
         </div>
 
         {/* Scroll Indicator */}
