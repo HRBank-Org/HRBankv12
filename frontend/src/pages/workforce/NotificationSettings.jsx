@@ -122,14 +122,6 @@ const NotificationSettings = () => {
           </div>
         </div>
 
-        {/* Message */}
-        {message.text && (
-          <div className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-700' 
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
-
         {/* Push Notifications */}
         <div className="mb-6">
           <PushNotificationSettings />
@@ -137,7 +129,7 @@ const NotificationSettings = () => {
 
         {/* Message */}
         {message.text && (
-          <div className={`p-4 rounded-lg ${
+          <div className={`mb-6 p-4 rounded-lg ${
             message.type === 'success' 
               ? 'bg-green-50 border border-green-200 text-green-700' 
               : 'bg-red-50 border border-red-200 text-red-700'
