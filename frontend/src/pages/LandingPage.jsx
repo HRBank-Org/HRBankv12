@@ -112,7 +112,7 @@ const LandingPage = () => {
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Build a Work Passport that proves what you can do. Carry your credentials, experience, and ratings wherever you go.
+            Build a Work Passport™ that proves what you can do. Carry your credentials, experience, and ratings wherever you go.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -145,7 +145,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SECTION 2: Why Work Passport - The Differentiator */}
+      {/* SECTION 2: Why Work Passport™ - The Differentiator */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-20 w-96 h-96 bg-amber-500 rounded-full blur-3xl" />
@@ -168,7 +168,7 @@ const LandingPage = () => {
               </h2>
               
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Work Passports highlights, optimizes and authenticates your skills, credentials and experience — 
+                Work Passport™ highlights, optimizes and authenticates your skills, credentials and experience — 
                 <strong className="text-gray-900"> secured on the blockchain</strong> where they can never be faked, altered, or disputed.
               </p>
 
@@ -188,7 +188,7 @@ const LandingPage = () => {
                     <CheckCircle2 className="w-6 h-6 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Work Passport</h3>
+                    <h3 className="font-semibold text-gray-900 mb-1">Work Passport™</h3>
                     <p className="text-gray-500">Institution-issued credentials written to the <strong>Polygon blockchain</strong>. Tamper-proof. Employer-verified work history. Authenticity guaranteed.</p>
                   </div>
                 </div>
@@ -209,12 +209,12 @@ const LandingPage = () => {
                 onClick={() => navigate('/signup?type=workforce')}
                 className="bg-amber-500 hover:bg-amber-400 text-slate-900 h-14 px-8 text-lg font-semibold"
               >
-                Build Your Work Passport
+                Build Your Work Passport™
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </div>
 
-            {/* Work Passport Preview Card */}
+            {/* Work Passport™ Preview Card */}
             <div className="relative">
               <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <div className="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 rounded-full mb-4" />
@@ -452,7 +452,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Build Your Work Passport in 3 Steps
+              Build Your Work Passport™ in 3 Steps
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Free forever. Takes under 5 minutes.
