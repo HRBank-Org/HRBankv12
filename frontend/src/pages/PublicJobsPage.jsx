@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { 
   Search, MapPin, DollarSign, Clock, Building2, Filter,
-  ChevronRight, ChevronDown, Briefcase, X, Star, ArrowLeft
+  ChevronRight, ChevronDown, Briefcase, X, Star
 } from 'lucide-react';
 import { LOGOS } from '../utils/logoUtils';
 
