@@ -46,9 +46,30 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ## What's Been Implemented
 
-### January 10, 2026 - GTM Strategy Updates
+### January 10, 2026 - GTM Strategy Updates (Session 2)
+- **Bug Fix: InstitutionsLanding.jsx Icon Import (COMPLETE)**:
+  - Fixed missing GraduationCap and Award icon imports from lucide-react
+  - Page was rendering blank due to undefined icons
+
+- **Blockchain Messaging Verification (COMPLETE)**:
+  - Workforce page displays: "Unlike LinkedIn and Indeed, You Don't Claim Competence"
+  - "secured on the blockchain where they can never be faked, altered, or disputed"
+  - "Polygon blockchain" references throughout
+  - "Always Current" credential validity tracking section visible
+  - "Verified on Polygon Blockchain" badge on sample Work Passport
+
+- **Institutions Page Messaging (COMPLETE)**:
+  - "Issue Blockchain Credentials. Prove Authenticity Forever."
+  - "For All Regulated Training Providers" badge
+  - Three provider types: Universities & Colleges, Training Centers, Specialized Providers
+  - Inclusivity message: "The only requirement: Your credentials must be regulated or recognized"
+  - Examples include: WHMIS, Forklift, Working at Heights, Food Handler, Smart Serve
+
+- **Testing**: 100% pass rate (iteration_7.json) - 11/11 scenarios passed
+
+### January 10, 2026 - GTM Strategy Updates (Session 1)
 - **Navigation Standardization (COMPLETE)**:
-  - All pages now have consistent nav: Workforce, Institutions, Leaderboard, Jobs, Sign In
+  - All pages now have consistent nav: Workforce, Institutions, Leaderboard, Employers (Beta), Jobs, Sign In
   - Fixed: LandingPage, InstitutionsLanding, EmployersLanding, Leaderboard, PublicJobsPage
 
 - **Main Landing Page Restructured (COMPLETE)**:
