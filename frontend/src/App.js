@@ -230,8 +230,8 @@ function AppRoutes() {
         <Route path="/jobs" element={<PublicJobsPage />} />
         <Route path="/verify/:credentialId" element={<VerifyCredential />} />
         <Route path="/verify" element={<VerifyCredential />} />
-        <Route path="/profile/:profileCode" element={<VerifiedCareerProfile />} />
         <Route path="/passport/:profileCode" element={<WorkPassport />} />
+        <Route path="/profile/:profileCode" element={<Navigate to="/passport/:profileCode" replace />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
