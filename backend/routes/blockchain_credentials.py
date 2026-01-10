@@ -119,6 +119,24 @@ async def issue_blockchain_credential(
         {"$inc": {"total_credentials_issued": 1}}
     )
     
+    # Send push notification to the credential recipient
+    try:
+        push_service = get_push_service(db)
+        institution_profile = await db.institution_profiles.find_one(
+            {"institution_id": current_user["user_id"]},
+            {"_id": 0, "institution_name": 1}
+        )
+        institution_name = institution_profile.get("institution_name", "Institution") if institution_profile else "Institution"
+        
+        await push_service.notify_credential_issued(
+            user_id=credential.user_id,
+            credential_type=credential.credential_type,
+            institution_name=institution_name,
+            credential_id=credential.credential_id
+        )
+    except Exception as e:
+        print(f"Push notification error: {e}")  # Don't fail the request if notification fails
+    
     # TODO: Send notification to worker
     
     return {
