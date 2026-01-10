@@ -278,8 +278,21 @@ const PublicJobsPage = () => {
             ) : filteredJobs.length === 0 ? (
               <div className="bg-white rounded-xl p-8 text-center">
                 <Briefcase className="mx-auto text-gray-300 mb-4" size={48} />
-                <p className="text-gray-500 font-medium">No jobs match your search</p>
-                <p className="text-gray-400 text-sm mt-1">Try adjusting your filters</p>
+                <p className="text-gray-900 font-semibold text-lg mb-2">No jobs available right now</p>
+                <p className="text-gray-500 text-sm mb-6">
+                  Don&apos;t wait for jobs to be posted. Create your free Work Passport and let opportunities come to you.
+                </p>
+                <Button 
+                  onClick={() => navigate('/work-passport')}
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-900"
+                  data-testid="empty-jobs-work-passport-btn"
+                >
+                  Get Your Free Work Passport
+                  <ChevronRight className="ml-2" size={16} />
+                </Button>
+                <p className="text-xs text-gray-400 mt-3">
+                  Build your verified credentials and get matched to jobs automatically
+                </p>
               </div>
             ) : (
               filteredJobs.map((job) => (
