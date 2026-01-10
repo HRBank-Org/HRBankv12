@@ -165,8 +165,19 @@ async def get_institution_leaderboard(
         {"_id": 0, "institution_id": 1, "institution_name": 1, "logo_url": 1, "province": 1, "city": 1}
     ).to_list(length=500)
     
-    # Additional filter to remove any test institutions
-    institutions = [i for i in institutions if not i.get("institution_name", "").lower().startswith("test ")]
+    # Comprehensive filter to remove test institutions
+    def is_test_institution(name):
+        name_lower = (name or "").lower()
+        return (
+            "test " in name_lower or 
+            name_lower.startswith("test") or
+            "test institution" in name_lower or
+            "test university" in name_lower or
+            "updated test" in name_lower or
+            "new test" in name_lower
+        )
+    
+    institutions = [i for i in institutions if not is_test_institution(i.get("institution_name", ""))]
     
     # Build credential query
     credential_query = {"status": "issued"}
