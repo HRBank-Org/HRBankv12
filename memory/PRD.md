@@ -36,41 +36,38 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - [x] Public leaderboard for institutions
 - [x] Work Passport with security verifications
 
-### Audience-Specific Landing Pages
-- [x] **Main Landing Page (/)** - 100% workforce-focused, "Get Your Free Work Passport" messaging
-- [x] **Institutions Landing (/institutions)** - Credential issuance, LinkedIn/Indeed trust warning
-- [x] **Employers Landing (/employers)** - Beta workforce operations tools with dashboard preview
-- [x] Navigation structure: Browse Jobs, Institutions, Employers (Beta), Leaderboard, Sign In
+### GTM Strategy Implementation
+- [x] **Consistent Navigation**: Workforce, Institutions, Leaderboard, Jobs, Sign In
+- [x] **Main Landing Page**: Hero video → Work Passport section → Context-aware AI Agent
+- [x] **Work Passport Messaging**: "Unlike LinkedIn and Indeed, you don't claim competence — Work Passports highlights, optimizes and authenticates your skills, credentials and experience."
+- [x] **Context-Aware AI Agent**: Multilingual support, no Canada-specific reference (global scalability)
+- [x] **Institutions Page**: No pricing section (revenue model TBD)
+- [x] **Employers Page**: Early Adopter offer - 3 months free, up to 300 workers, 10 locations
 
 ## What's Been Implemented
 
-### January 10, 2026 - Landing Page Restructuring
-- **Main Landing Page Overhaul (COMPLETE)**:
-  - Removed all employer-focused sections ("For Business Owners", dashboard mockups)
-  - 100% workforce-focused with "Get Your Free Work Passport" messaging
-  - Added Work Passport preview card featuring Alex Johnson example
-  - Privacy controls section, multilingual support section
-  - "Build Your Work Passport" 3-step process
-  - Navigation: Browse Jobs, Institutions, Employers (Beta), Leaderboard
+### January 10, 2026 - GTM Strategy Updates
+- **Navigation Standardization (COMPLETE)**:
+  - All pages now have consistent nav: Workforce, Institutions, Leaderboard, Jobs, Sign In
+  - Fixed: LandingPage, InstitutionsLanding, EmployersLanding, Leaderboard, PublicJobsPage
 
-- **Employers Landing Page Enhanced (COMPLETE)**:
-  - Added dashboard preview card (Swan Pizza example with 4 locations)
-  - Shows live metrics: 23 clocked in, 4 locations, 98% on-time
-  - Clear "Beta Program — Early Access" messaging
-  - "What This Is / What This Isn't" section clarifying it's NOT a hiring marketplace
-  - Sample dashboard section with full feature showcase
+- **Main Landing Page Restructured (COMPLETE)**:
+  - Hero section with video background now FIRST
+  - Work Passport section SECOND with new messaging about highlighting/authenticating skills
+  - Context-aware AI Agent section THIRD - no Canada reference (global scalability)
+  - "Emma" positioned as context-aware career guide who knows your schedule, availability, credentials
 
-- **Institutions Landing Page Enhanced (COMPLETE)**:
-  - Added "LinkedIn and Indeed Profiles Won't Work Forever" section
-  - Trust level comparison: LinkedIn 32%, Indeed 41%, PDF 45%, Blockchain 94%
-  - Warning about AI-fabricated profiles and employer trust erosion
-  - Fixed HTML entity issue in pricing table
+- **Institutions Page Updated (COMPLETE)**:
+  - Removed "Simple Pricing" section
+  - Kept LinkedIn/Indeed trust comparison section
+  - Leaderboard preview section retained
 
-- **Route Changes**:
-  - `/work-passport` now redirects to main landing page (same content)
-  - Jobs page empty state directs to `/signup?type=workforce`
+- **Employers Page Updated (COMPLETE)**:
+  - Changed from "Beta Pricing" to "Early Adopter Offer"
+  - Now shows: Free for 3 months, up to 10 locations, up to 300 workers
+  - Priority support included
 
-- **Testing**: 100% pass rate (10/10 test scenarios)
+- **Testing**: 100% pass rate after Jobs page nav fix
 
 ### Previous Sessions
 - AWS Lightsail deployment complete
@@ -85,7 +82,7 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 ### Frontend
 - React with React Router
 - Shadcn/UI components
-- Audience-specific landing pages
+- Consistent navigation across all public pages
 
 ### Backend  
 - FastAPI
@@ -95,35 +92,45 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - Web3/Infura for blockchain
 
 ### Key Files
-- `/app/frontend/src/pages/LandingPage.jsx` - Workforce-focused main landing
-- `/app/frontend/src/pages/landing/InstitutionsLanding.jsx` - Institution landing with LinkedIn/Indeed warning
-- `/app/frontend/src/pages/landing/EmployersLanding.jsx` - Employer Beta landing with dashboard preview
-- `/app/frontend/src/App.js` - Routes configuration
+- `/app/frontend/src/pages/LandingPage.jsx` - Workforce-focused, hero video, Work Passport, AI Agent
+- `/app/frontend/src/pages/landing/InstitutionsLanding.jsx` - Institution landing (no pricing)
+- `/app/frontend/src/pages/landing/EmployersLanding.jsx` - Employer Beta (3 months/300/10)
+- `/app/frontend/src/pages/public/Leaderboard.jsx` - Institution leaderboard
+- `/app/frontend/src/pages/PublicJobsPage.jsx` - Job listings
 
 ## Prioritized Backlog
 
 ### P0 (Completed)
-- [x] Landing page restructuring - workforce-focused main page
-- [x] Remove employer sections from main landing
-- [x] Add dashboard preview to employers page
-- [x] Add LinkedIn/Indeed warning to institutions page
+- [x] Navigation standardization across all pages
+- [x] Landing page restructure (Hero video → Work Passport → AI Agent)
+- [x] Work Passport messaging update
+- [x] Remove pricing from Institutions page
+- [x] Update Employers pricing to Early Adopter offer
 
-### P1 (High Priority)
+### P1 (High Priority - GTM)
+- [ ] **Leaderboard Enhancement**: Show which institutions have joined HR Bank vs listed only
+- [ ] **Region-Based Filtering**: Add Durham, Peel, York, Halton regions under Ontario
+- [ ] **Workforce Density Indicator**: Show region readiness for job matching
 - [ ] Institution Directory Import & Admin UI (1,800 institutions CSV upload)
 - [ ] Enhance PWA Functionality (push notifications, offline access)
-- [ ] Build Frontend for Auto-Dispatch monitoring
 
 ### P2 (Medium Priority)
 - [ ] Remove old Career Profile components/routes (dead code cleanup)
 - [ ] Build out 11 placeholder pages with functionality
-- [ ] Fix bcrypt deprecation warning
-- [ ] Workforce Dashboard Performance optimization
+- [ ] Build Frontend for Auto-Dispatch monitoring
 
 ### P3 (Low Priority)
+- [ ] Fix bcrypt deprecation warning
 - [ ] Replace remaining utcnow() usages
 - [ ] Enhance Admin Management with map visualization
 - [ ] Build Franchise Management UI
 - [ ] Full i18n Implementation
+
+## GTM Strategy Notes
+- **Region-by-Region Launch**: Workforce density must reach threshold before job matching features launch in a region
+- **Work Passports as Marketing**: Shareable assets create curiosity even before matching is active
+- **Employer Beta**: Free tools build adoption; helps identify regions reaching maturity
+- **Institution Leaderboard**: Shows active partners vs all institutions; builds competitive dynamics
 
 ## Known Issues
 - YouTube video background may show unavailable in some environments
@@ -141,4 +148,4 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - **Application is deployed on AWS Lightsail** - changes require redeployment
 - Production database on MongoDB Atlas
 - Custom domain hrbank.ca setup in progress
-- Main landing page is now 100% workforce-focused (HR Bank = Human Resources Bank)
+- Main landing page is 100% workforce-focused (HR Bank = Human Resources Bank)
