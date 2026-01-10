@@ -154,14 +154,14 @@ const PublicJobsPage = () => {
               <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Workforce
               </Link>
-              <Link to="/employers" className="text-gray-600 hover:text-[#ff5f00] font-medium">
-                Employers <span className="text-orange-500 text-xs">(Beta)</span>
-              </Link>
               <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Institutions
               </Link>
               <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Leaderboard
+              </Link>
+              <Link to="/employers" className="text-gray-600 hover:text-[#ff5f00] font-medium">
+                Employers <span className="text-orange-500 text-xs">(Beta)</span>
               </Link>
               <Link to="/jobs" className="text-[#30496d] font-semibold">
                 Jobs
