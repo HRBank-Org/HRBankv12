@@ -365,6 +365,7 @@ function AppRoutes() {
         <Route path="/admin/manage-occupations" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageOccupations /></ProtectedRoute>} />
         <Route path="/admin/manage-certifications" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageCertifications /></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminSettings /></ProtectedRoute>} />
+        <Route path="/admin/institution-directory" element={<ProtectedRoute allowedUserTypes={['admin']}><InstitutionDirectory /></ProtectedRoute>} />
         
         {/* Super Admin Routes */}
         <Route path="/admin/super-dashboard" element={<ProtectedRoute allowedUserTypes={['admin']}><SuperAdminDashboard /></ProtectedRoute>} />
