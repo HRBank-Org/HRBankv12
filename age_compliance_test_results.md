@@ -6,7 +6,7 @@
 
 ## Feature Under Test: Age Compliance feature in Workforce Onboarding flow
 
-**Test URL:** https://audience-landing.preview.emergentagent.com
+**Test URL:** https://landing-overhaul-1.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!

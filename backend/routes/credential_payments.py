@@ -629,7 +629,7 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
         "blockchain_token_id": blockchain_result.get("token_id"),
         "on_chain": blockchain_result.get("on_chain", False),
         "blockchain_status": blockchain_result.get("status"),
-        "verification_url": f"https://audience-landing.preview.emergentagent.com/verify/{credential_id}",
+        "verification_url": f"https://landing-overhaul-1.preview.emergentagent.com/verify/{credential_id}",
         "payment_info": {
             "amount_cad": pending["price_cad"],
             "transaction_id": session_id,
@@ -704,7 +704,7 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
                 tax_description=transaction.get("tax_description", "Tax"),
                 total_cad=transaction.get("total_amount_cad", pending["price_cad"]),
                 credential_id=credential_id,
-                verification_url=f"https://audience-landing.preview.emergentagent.com/verify/{credential_id}",
+                verification_url=f"https://landing-overhaul-1.preview.emergentagent.com/verify/{credential_id}",
                 paid_at=datetime.now(timezone.utc).isoformat()
             )
     except Exception as e:
