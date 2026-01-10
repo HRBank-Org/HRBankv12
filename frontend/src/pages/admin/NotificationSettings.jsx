@@ -57,6 +57,11 @@ const NotificationSettings = () => {
               </div>
 
               {/* Delivery Methods */}
+              <div className="mb-6">
+                <PushNotificationSettings />
+              </div>
+
+              {/* Channel Settings */}
               <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
                 <h2 className="font-semibold text-gray-900 mb-4">Delivery Methods</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
