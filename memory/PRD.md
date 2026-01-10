@@ -163,16 +163,21 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ### P0 (Completed)
 - [x] Navigation standardization across all pages
-- [x] Landing page restructure (Hero video → Work Passport → AI Agent)
-- [x] Work Passport messaging update
+- [x] Landing page restructure (Hero video → Work Passport™ → AI Agent)
+- [x] Work Passport™ messaging update (trademark added throughout)
 - [x] Remove pricing from Institutions page
 - [x] Update Employers pricing to Early Adopter offer
 - [x] Leaderboard Region Filtering with Workforce Density Indicators
+- [x] Institution Directory Import (1,758 institutions)
+- [x] "Request to Join" system with social responsibility messaging
+- [x] Remove test institutions from display (only real partners shown)
+- [x] Local database seed script created
+- [x] PWA Push Notification infrastructure
 
 ### P1 (High Priority - GTM)
-- [ ] Institution Directory Import & Admin UI (1,800 institutions CSV upload)
-- [ ] Enhance PWA Functionality (push notifications, offline access)
-- [ ] Create local database seed script (prevent "Alex Johnson" profile issues)
+- [ ] Configure VAPID keys for push notifications (backend integration)
+- [ ] Add push notification triggers for key events (shifts, credentials)
+- [ ] Institution Directory Admin UI refinements
 
 ### P2 (Medium Priority)
 - [ ] Remove old Career Profile components/routes (dead code cleanup)
