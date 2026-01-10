@@ -36,7 +36,7 @@ const WorkforceLanding = () => {
     },
     {
       icon: Globe,
-      title: 'Work Passport',
+      title: 'Work Passport™',
       description: 'One shareable profile that travels with you. Apply to jobs with a single link.'
     }
   ];
@@ -44,7 +44,7 @@ const WorkforceLanding = () => {
   const steps = [
     { num: '1', title: 'Create Your Profile', desc: 'Sign up and add your skills, experience, and upload your documents.' },
     { num: '2', title: 'Get Verified', desc: 'Your credentials are verified and recorded on the blockchain.' },
-    { num: '3', title: 'Apply to Jobs', desc: 'Browse opportunities and apply with your verified Work Passport.' },
+    { num: '3', title: 'Apply to Jobs', desc: 'Browse opportunities and apply with your verified Work Passport™.' },
     { num: '4', title: 'Work & Get Rated', desc: 'Complete shifts, get paid, and build your reputation.' }
   ];
 
@@ -94,7 +94,7 @@ const WorkforceLanding = () => {
                 <span className="text-blue-300"> Verified Forever</span>
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Build a Work Passport that proves your skills, experience, and reliability. 
+                Build a Work Passport™ that proves your skills, experience, and reliability. 
                 Get hired faster with blockchain-verified credentials that employers trust.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -127,7 +127,7 @@ const WorkforceLanding = () => {
               </div>
             </div>
 
-            {/* Work Passport Preview */}
+            {/* Work Passport™ Preview */}
             <div className="relative hidden lg:block">
               <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform">
                 <div className="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 rounded-full mb-4" />
