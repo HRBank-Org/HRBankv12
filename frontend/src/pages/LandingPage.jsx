@@ -292,9 +292,9 @@ const LandingPage = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-3 border-t border-slate-700">
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-2 text-xs text-green-400 font-medium">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    Blockchain Verified
+                    Verified on Polygon Blockchain
                   </div>
                   <div className="w-10 h-10 bg-white rounded p-1">
                     <QrCode className="w-full h-full text-slate-800" />
@@ -302,9 +302,59 @@ const LandingPage = () => {
                 </div>
               </div>
 
-              <div className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4" /> Verified
+              <div className="absolute -top-4 -right-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center gap-1">
+                <Shield className="w-4 h-4" /> Blockchain
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Credential Validity Tracking Section */}
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Never Let Your Credentials Expire
+              </h2>
+              <p className="text-lg text-blue-100 mb-6">
+                HR Bank tracks the validity of all your credentials and sends you reminders before they expire. 
+                Stale credentials mean missed opportunities — we make sure you stay hire-ready.
+              </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-white">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
+                  <span>Automatic expiry tracking for all credentials</span>
+                </div>
+                <div className="flex items-center gap-3 text-white">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
+                  <span>Email and in-app renewal reminders</span>
+                </div>
+                <div className="flex items-center gap-3 text-white">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
+                  <span>Employers see only valid, current credentials</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/20">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-semibold">Credential Alert</p>
+                  <p className="text-blue-200 text-sm">Your Food Handler Certificate</p>
+                </div>
+              </div>
+              <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg p-4">
+                <p className="text-amber-200 text-sm">
+                  <strong>Expires in 30 days</strong> — Renew now to keep your profile active and visible to employers.
+                </p>
+              </div>
+              <Button className="w-full mt-4 bg-white text-blue-600 hover:bg-blue-50">
+                Renew Credential
+              </Button>
             </div>
           </div>
         </div>
