@@ -38,6 +38,12 @@ const Leaderboard = () => {
     }
   }, [showDirectory, searchQuery, selectedProvince]);
 
+  useEffect(() => {
+    if (activeTab === 'regions') {
+      loadRegionData();
+    }
+  }, [activeTab, selectedRegionProvince]);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -74,6 +80,17 @@ const Leaderboard = () => {
       console.error('Failed to load leaderboard:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRegionData = async () => {
+    try {
+      const res = await api.get(`/api/leaderboard/regions?province=${selectedRegionProvince}`);
+      if (res.data.success) {
+        setRegionData(res.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to load region data:', error);
     }
   };
 
