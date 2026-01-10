@@ -512,28 +512,31 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Partner Logos Carousel */}
-      <section className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Trusted By</p>
+      {/* Partner Logos Carousel - Only show if we have partners */}
+      {partnerLogos.length > 0 && (
+        <section className="py-12 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Trusted By</p>
+            </div>
+            <div className="flex flex-wrap justify-center items-center gap-8">
+              {partnerLogos.map((logo, index) => (
+                <div
+                  key={`${logo.id}-${index}`}
+                  className="w-32 h-16 bg-white rounded-lg flex items-center justify-center p-3 shadow-sm grayscale hover:grayscale-0 transition-all"
+                >
+                  <img
+                    src={logo.logo_url}
+                    alt={logo.institution_name}
+                    className="max-w-full max-h-full object-contain"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            {partnerLogos.map((logo, index) => (
-              <div
-                key={`${logo.id}-${index}`}
-                className="w-32 h-16 bg-white rounded-lg flex items-center justify-center p-3 shadow-sm grayscale hover:grayscale-0 transition-all"
-              >
-                <img
-                  src={logo.logo_url}
-                  alt={logo.institution_name}
-                  className="max-w-full max-h-full object-contain"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Final CTA */}
       <section className="py-20 bg-gradient-to-r from-amber-500 to-orange-500">
