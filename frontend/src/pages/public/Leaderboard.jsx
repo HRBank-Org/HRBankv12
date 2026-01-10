@@ -503,7 +503,7 @@ const Leaderboard = () => {
             {/* Can't find your school? */}
             <div className="mt-8 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-xl p-6 border border-purple-500/30 text-center">
               <Sparkles className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-              <h3 className="text-xl font-bold text-white mb-2">Can't find your school?</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Can&apos;t find your school?</h3>
               <p className="text-gray-300 mb-4">
                 Search our directory of 1,800+ Canadian institutions and request them to join HR Bank.
               </p>
