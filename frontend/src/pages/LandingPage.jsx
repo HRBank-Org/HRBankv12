@@ -548,24 +548,6 @@ const LandingPage = () => {
               </div>
             ))}
           </div>
-
-          <div className="text-center mb-8">
-            <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Trusted By</p>
-          </div>
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            {partnerLogos.map((logo, index) => (
-              <div
-                key={`${logo.id}-${index}`}
-                className="w-32 h-16 bg-gray-50 rounded-lg flex items-center justify-center p-3 grayscale hover:grayscale-0 transition-all"
-              >
-                <img
-                  src={logo.logo_url}
-                  alt={logo.institution_name}
-                  className="max-w-full max-h-full object-contain"
-                />
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
