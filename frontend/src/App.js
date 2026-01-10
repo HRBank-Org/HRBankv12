@@ -220,7 +220,7 @@ function AppRoutes() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={isSubdomainPortal() ? <SubdomainPortal /> : <LandingPage />} />
-        <Route path="/work-passport" element={<WorkPassportLanding />} />
+        <Route path="/work-passport" element={<LandingPage />} /> {/* Redirect to main - main IS the workforce page */}
         <Route path="/institutions" element={<InstitutionsLanding />} />
         <Route path="/employers" element={<EmployersLanding />} />
         <Route path="/jobs" element={<PublicJobsPage />} />
