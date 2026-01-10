@@ -104,19 +104,18 @@ const LandingPage = () => {
               <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
             </div>
             <div className="hidden md:flex items-center gap-6">
-              <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium flex items-center gap-1">
-                <Search size={16} />
-                Browse Jobs
+              <Link to="/work-passport" className="text-gray-600 hover:text-[#30496d] font-medium">
+                Work Passport <span className="text-green-600 text-xs">(Free)</span>
               </Link>
-              <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium flex items-center gap-1">
+              <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
+                Institutions
+              </Link>
+              <Link to="/employers" className="text-gray-600 hover:text-[#ff5f00] font-medium">
+                Employers <span className="text-orange-500 text-xs">(Beta)</span>
+              </Link>
+              <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
                 🏆 Leaderboard
               </Link>
-              <button 
-                onClick={() => document.getElementById('employers').scrollIntoView({ behavior: 'smooth' })}
-                className="text-gray-600 hover:text-[#ff5f00] font-medium"
-              >
-                For Employers
-              </button>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
