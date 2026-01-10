@@ -36,49 +36,35 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 - [x] Public leaderboard for institutions
 - [x] Work Passport with security verifications
 
-### Subdomain-Specific Landing Pages
-- [x] WorkforceLanding - tailored for job seekers
-- [x] EmployerLanding - tailored for businesses
-- [x] InstitutionLanding - tailored for educational institutions  
-- [x] AdminLanding - secure admin portal
-- [x] SubdomainPortal routing based on hostname detection
-- [x] Correct navigation routes (/login, /signup?type=X)
+### Audience-Specific Landing Pages
+- [x] `/work-passport` - Free Work Passport page for workforce/students
+- [x] `/institutions` - Credential issuance focused page for educational institutions
+- [x] `/employers` - Beta workforce operations tools page for employers
+- [x] Updated main navigation: Work Passport (Free), Institutions, Employers (Beta), Leaderboard, Sign In
+- [x] Jobs page empty state encourages Work Passport creation
 
 ## What's Been Implemented
 
-### January 8-9, 2026
-- Completed subdomain-specific landing pages integration
-- Fixed navigation routes in all subdomain landing pages (auth/login -> /login)
-- Fixed footer links in main LandingPage (/auth/register -> /signup)
-- Fixed linting issues (Math.random, unescaped entities)
-- **Fixed old auth routes in public pages**: About, Contact, Privacy, Leaderboard
-- All landing page CTAs properly route to signup/login flows
-- **Super Admin Audit Complete**: All 22 admin pages tested (100% pass rate)
-- **Fixed CredentialReviews API**: Changed endpoint from `/api/admin/credential-submissions` to `/api/admin/credentials/pending-approval`
-- **Fixed InstitutionPayouts React key warning**: Added index to prevent duplicate key errors
-- **Added Blockchain Badge to Employer Workforce View**: Workers now display their verified credential count
-- **Fixed Leaderboard Header**: Now matches landing page design with fixed position at top
-- **Institution Directory System**:
-  - Created `/api/institution-directory` API with bulk CSV import
-  - Added "Request Institution to Join" feature for workforce users
-  - Updated Leaderboard UI to show both Active Partners and Listed Institutions
-  - Added search functionality for all Canadian institutions
-  - Added "All Institutions" tab and search feature
-- **Emma Translation Fixed**: Fixed `/api/emma/conversation` to pass preferred_language
-- **Multilingual Value Proposition Added**:
-  - New section on landing page highlighting 20+ language support
-  - Emma AI chat preview showing Pashto conversation
-  - Messaging: "Language Should Never Be a Barrier to Your Dream Job"
-  - Added to Workforce and Employer subdomain landing pages
-  - Stats: 20+ Languages, 24/7 AI Support, 100% Notification Translation
+### January 10, 2026
+- **Focused Landing Pages Implementation (P0 COMPLETE)**:
+  - Created `/work-passport` landing page focused on workforce/students with "Free Work Passport" messaging
+  - Created `/institutions` landing page focused on educational institutions with credential issuance and revenue messaging
+  - Created `/employers` landing page positioned as "Beta" for workforce operations tools (attendance, timesheets, scheduling)
+  - Updated main landing page navigation to: Work Passport (Free), Institutions, Employers (Beta), Leaderboard, Sign In
+  - Updated navigation consistency across all landing pages
+  - Fixed Sign In links to use `/login` instead of `/auth/login`
+  - Updated Jobs page empty state to encourage Work Passport creation when no jobs match filters
+  - All 7 test scenarios passed (100% frontend testing success)
 
-### Previous Sessions
+### Previous Sessions (January 8-9, 2026)
+- Completed subdomain-specific landing pages integration
+- Super Admin Page Audit Complete (22 pages, 100% pass rate)
+- Fixed CredentialReviews API endpoint
+- Added Blockchain Badge to Employer Workforce View
+- Institution Directory System with CSV import and "Request to Join" feature
+- Emma Translation Fixed with multilingual value proposition
 - Stripe Connect integration (LIVE key)
-- Automated tax calculations
-- Email notifications (credentials + payments)
-- Public leaderboard
-- Work Passport enhancements
-- Footer link fixes
+- AWS Lightsail deployment complete
 
 ## Technical Architecture
 
@@ -90,40 +76,48 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ### Backend  
 - FastAPI
-- MongoDB
+- MongoDB (Atlas for production)
 - Stripe Connect (LIVE)
 - SendGrid for emails
 - Web3/Infura for blockchain
 
 ### Key Files
-- `/app/frontend/src/pages/subdomains/` - Subdomain landing pages
-- `/app/frontend/src/pages/SubdomainPortal.jsx` - Subdomain routing
-- `/app/frontend/src/utils/subdomainDetector.js` - Hostname parsing
+- `/app/frontend/src/pages/landing/` - Audience-specific landing pages
+  - `WorkPassportLanding.jsx` - Workforce focused
+  - `InstitutionsLanding.jsx` - Institution focused
+  - `EmployersLanding.jsx` - Employer Beta focused
+- `/app/frontend/src/pages/LandingPage.jsx` - Main landing page
+- `/app/frontend/src/pages/PublicJobsPage.jsx` - Jobs with Work Passport empty state
+- `/app/frontend/src/App.js` - Routes for all landing pages
 
 ## Prioritized Backlog
 
 ### P0 (Completed)
-- [x] Subdomain-specific landing pages
+- [x] Audience-specific landing pages (Work Passport, Institutions, Employers Beta)
+- [x] Updated navigation across all landing pages
+- [x] Jobs page empty state with Work Passport CTA
 
 ### P1 (High Priority)
-- [ ] Comprehensive Super Admin Page Audit
+- [ ] Institution Directory Import & Admin UI (1,800 institutions CSV upload)
+- [ ] Enhance PWA Functionality (push notifications, offline access)
 - [ ] Build Frontend for Auto-Dispatch monitoring
-- [ ] Add Blockchain Badge to Employer Workforce View
 
 ### P2 (Medium Priority)
-- [ ] Remove old Career Profile components/routes
+- [ ] Remove old Career Profile components/routes (dead code cleanup)
 - [ ] Build out 11 placeholder pages with functionality
 - [ ] Fix bcrypt deprecation warning
+- [ ] Workforce Dashboard Performance optimization
 
 ### P3 (Low Priority)
 - [ ] Replace remaining utcnow() usages
 - [ ] Enhance Admin Management with map visualization
 - [ ] Build Franchise Management UI
+- [ ] Full i18n Implementation
 
 ## Known Issues
-- YouTube video background may show unavailable in some environments
-- Deployment agent unreliable (false positives) - use manual deployment
-- Subdomain landing pages require actual DNS setup for production
+- YouTube video background may show unavailable in some environments (main landing hero)
+- Deployment agent unreliable - use manual AWS Lightsail deployment
+- Old Career Profile components still in codebase (should be removed)
 
 ## Test Credentials
 - Super Admin: qnizami@hrbank.ca / Test123!
@@ -133,5 +127,6 @@ Build a comprehensive HR platform with blockchain credentialing, credential mone
 
 ## Critical Notes
 - **LIVE Stripe key is configured** - all transactions are real
-- Subdomain landing pages work via hostname detection in production
-- Preview environment shows main landing page (localhost returns null)
+- **Application is deployed on AWS Lightsail** - changes require redeployment
+- Production database on MongoDB Atlas
+- Custom domain hrbank.ca setup in progress
