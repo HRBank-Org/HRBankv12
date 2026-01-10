@@ -15,12 +15,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const videoRef = useRef(null);
   
-  const [partnerLogos, setPartnerLogos] = useState([
-    { id: 1, institution_name: 'Partner 1', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+1' },
-    { id: 2, institution_name: 'Partner 2', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+2' },
-    { id: 3, institution_name: 'Partner 3', logo_url: 'https://via.placeholder.com/150x60/4267B2/ffffff?text=Partner+3' },
-    { id: 4, institution_name: 'Partner 4', logo_url: 'https://via.placeholder.com/150x60/2C4A6B/ffffff?text=Partner+4' },
-  ]);
+  const [partnerLogos, setPartnerLogos] = useState([]);
 
   useEffect(() => {
     const fetchPartnerLogos = async () => {
