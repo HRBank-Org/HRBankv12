@@ -221,6 +221,9 @@ function AppRoutes() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={isSubdomainPortal() ? <SubdomainPortal /> : <LandingPage />} />
+        <Route path="/work-passport" element={<WorkPassportLanding />} />
+        <Route path="/institutions" element={<InstitutionsLanding />} />
+        <Route path="/employers" element={<EmployersLanding />} />
         <Route path="/jobs" element={<PublicJobsPage />} />
         <Route path="/verify/:credentialId" element={<VerifyCredential />} />
         <Route path="/verify" element={<VerifyCredential />} />
