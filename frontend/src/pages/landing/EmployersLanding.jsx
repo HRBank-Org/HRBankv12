@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { 
   Building2, Shield, Clock, Users, CheckCircle2, ChevronRight, 
   DollarSign, MapPin, Smartphone, BarChart3, Zap, Calendar,
-  ClipboardList, UserCheck, AlertTriangle
+  ClipboardList, UserCheck, AlertTriangle, Star, Play
 } from 'lucide-react';
 import { LOGOS } from '../../utils/logoUtils';
 
@@ -21,7 +21,7 @@ const EmployersLanding = () => {
               <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
             </Link>
             <div className="hidden md:flex items-center gap-6">
-              <Link to="/work-passport" className="text-gray-600 hover:text-[#30496d] font-medium">
+              <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Work Passport (Free)
               </Link>
               <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
@@ -31,7 +31,7 @@ const EmployersLanding = () => {
                 Employers (Beta)
               </Link>
               <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Leaderboard
+                🏆 Leaderboard
               </Link>
             </div>
             <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
@@ -43,7 +43,6 @@ const EmployersLanding = () => {
 
       {/* Hero Section */}
       <section className="pt-24 pb-20 bg-gradient-to-br from-slate-900 via-[#1a2d42] to-slate-900 relative overflow-hidden">
-        {/* Animated background */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-72 h-72 bg-[#ff5f00]/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
@@ -52,7 +51,6 @@ const EmployersLanding = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              {/* Beta Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff5f00]/20 rounded-full text-[#ff5f00] text-sm font-semibold mb-6">
                 <Zap className="w-4 h-4" />
                 Beta Program — Early Access
@@ -84,14 +82,14 @@ const EmployersLanding = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => document.getElementById('sample-dashboard').scrollIntoView({ behavior: 'smooth' })}
                   className="bg-transparent border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg"
                 >
-                  See Features
+                  <Play className="mr-2 w-5 h-5" />
+                  See Example
                 </Button>
               </div>
 
-              {/* Beta Notice */}
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5" />
@@ -106,13 +104,21 @@ const EmployersLanding = () => {
               </div>
             </div>
 
-            {/* Dashboard Preview */}
+            {/* Dashboard Preview Card - Similar to Work Passport */}
             <div className="relative">
-              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-2xl">
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-2xl transform -rotate-1 hover:rotate-0 transition-transform duration-500">
+                {/* Orange accent bar */}
+                <div className="h-2 bg-gradient-to-r from-[#ff5f00] via-orange-500 to-[#ff5f00] rounded-full mb-4" />
+                
                 <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="text-white font-bold text-lg">Live Overview</p>
-                    <p className="text-gray-400 text-sm">All locations • Now</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-[#ff5f00]/20 rounded-lg flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-[#ff5f00]" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">Swan Pizza</h3>
+                      <p className="text-slate-400 text-sm">4 Locations • Windsor, ON</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -120,43 +126,60 @@ const EmployersLanding = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mb-6">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-3 mb-4">
                   <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-green-400">23</p>
-                    <p className="text-gray-400 text-xs">Clocked In</p>
+                    <p className="text-green-400 font-bold text-xl">23</p>
+                    <p className="text-slate-400 text-xs">Clocked In</p>
                   </div>
                   <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-blue-400">4</p>
-                    <p className="text-gray-400 text-xs">Locations</p>
+                    <p className="text-blue-400 font-bold text-xl">4</p>
+                    <p className="text-slate-400 text-xs">Locations</p>
                   </div>
                   <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-amber-400">98%</p>
-                    <p className="text-gray-400 text-xs">On-Time</p>
+                    <p className="text-amber-400 font-bold text-xl">98%</p>
+                    <p className="text-slate-400 text-xs">On-Time</p>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                {/* Location Status */}
+                <div className="space-y-2 mb-4">
                   {[
-                    { name: 'Downtown Location', status: '8/8 present', color: 'bg-green-500/20 text-green-400' },
-                    { name: 'Airport Terminal', status: '6/6 present', color: 'bg-green-500/20 text-green-400' },
-                    { name: 'Mall Kiosk', status: '5/5 present', color: 'bg-green-500/20 text-green-400' },
-                    { name: 'University Campus', status: '4/4 present', color: 'bg-green-500/20 text-green-400' }
+                    { name: 'Downtown', status: '8/8', ok: true },
+                    { name: 'Airport', status: '6/6', ok: true },
+                    { name: 'Mall', status: '5/5', ok: true },
+                    { name: 'Campus', status: '4/4', ok: true }
                   ].map((loc, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <MapPin className="w-4 h-4 text-gray-400" />
+                    <div key={i} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-3 h-3 text-gray-400" />
                         <span className="text-white text-sm">{loc.name}</span>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${loc.color}`}>
-                        {loc.status}
+                      <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">
+                        {loc.status} present
                       </span>
                     </div>
                   ))}
                 </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Clock className="w-3 h-3" />
+                    Today&apos;s shifts: 6 AM - 11 PM
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <span className="text-white text-sm font-medium">4.5</span>
+                    <span className="text-slate-500 text-xs">(12)</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="absolute -top-4 -right-4 bg-[#ff5f00] text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
+              <div className="absolute -top-4 -right-4 bg-[#ff5f00] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">
                 BETA
+              </div>
+              <div className="absolute -bottom-4 -left-4 bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow-lg flex items-center gap-1">
+                <CheckCircle2 className="w-4 h-4" /> All Shifts Covered
               </div>
             </div>
           </div>
@@ -167,7 +190,6 @@ const EmployersLanding = () => {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8">
-            {/* What This Is */}
             <div className="bg-white rounded-2xl p-8 border border-gray-200">
               <div className="flex items-center gap-2 text-green-600 font-semibold mb-6">
                 <CheckCircle2 className="w-6 h-6" />
@@ -190,7 +212,6 @@ const EmployersLanding = () => {
               </ul>
             </div>
 
-            {/* What This Isn't */}
             <div className="bg-white rounded-2xl p-8 border border-gray-200">
               <div className="flex items-center gap-2 text-gray-500 font-semibold mb-6">
                 <AlertTriangle className="w-6 h-6" />
@@ -220,80 +241,107 @@ const EmployersLanding = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
+      {/* Sample Dashboard Section */}
+      <section id="sample-dashboard" className="py-20 bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Manage Your Team
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              See Everything. From Anywhere.
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Built for business owners who want oversight without being chained to their locations.
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Your entire workforce operation in one dashboard — live attendance, task progress, shift coverage.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Smartphone,
-                title: 'Mobile-First',
-                desc: 'Manage everything from your phone. See who clocked in, approve timesheets, assign tasks — anywhere.',
-                color: 'from-blue-500 to-cyan-500'
-              },
-              {
-                icon: Shield,
-                title: 'GPS + QR Verification',
-                desc: 'Workers clock in with QR code at the location. GPS confirms they\'re actually there. No buddy punching.',
-                color: 'from-green-500 to-emerald-500'
-              },
-              {
-                icon: Calendar,
-                title: 'Shift Scheduling',
-                desc: 'Create and manage shifts across all locations. Workers see their schedule in their app.',
-                color: 'from-purple-500 to-pink-500'
-              },
-              {
-                icon: ClipboardList,
-                title: 'Task Management',
-                desc: 'Assign tasks to shifts. Track completion. Know what got done without being there.',
-                color: 'from-orange-500 to-amber-500'
-              },
-              {
-                icon: BarChart3,
-                title: 'Timesheet Reports',
-                desc: 'Automated timesheet generation. Review, approve, export for payroll. Save hours every week.',
-                color: 'from-red-500 to-rose-500'
-              },
-              {
-                icon: Users,
-                title: 'Multi-Location',
-                desc: 'One dashboard for all your locations. See the big picture and drill down when needed.',
-                color: 'from-indigo-500 to-violet-500'
-              }
-            ].map((feature, index) => (
-              <div key={index} className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-shadow">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
-                  <feature.icon className="w-6 h-6 text-white" />
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Features List */}
+            <div className="space-y-6">
+              {[
+                { icon: Smartphone, title: 'Mobile-First', desc: 'Manage from your phone. See who clocked in, approve timesheets, assign tasks — anywhere.', color: 'from-blue-500 to-cyan-500' },
+                { icon: Shield, title: 'GPS + QR Verification', desc: 'Workers clock in with QR at location. GPS confirms they\'re there. No buddy punching.', color: 'from-green-500 to-emerald-500' },
+                { icon: Calendar, title: 'Shift Scheduling', desc: 'Create and manage shifts across all locations. Workers see their schedule in the app.', color: 'from-purple-500 to-pink-500' },
+                { icon: ClipboardList, title: 'Task Management', desc: 'Assign tasks to shifts. Track completion. Know what got done without being there.', color: 'from-orange-500 to-amber-500' },
+                { icon: BarChart3, title: 'Timesheet Reports', desc: 'Automated timesheet generation. Review, approve, export for payroll.', color: 'from-red-500 to-rose-500' },
+                { icon: Users, title: 'Multi-Location', desc: 'One dashboard for all locations. Big picture view with drill-down capability.', color: 'from-indigo-500 to-violet-500' }
+              ].map((feature, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center flex-shrink-0`}>
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold mb-1">{feature.title}</h3>
+                    <p className="text-gray-400 text-sm">{feature.desc}</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.desc}</p>
+              ))}
+            </div>
+
+            {/* Full Dashboard Mockup */}
+            <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-white font-bold text-lg">Operations Dashboard</p>
+                  <p className="text-gray-400 text-sm">Live • Updated just now</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  <span className="text-green-400 text-sm">All systems normal</span>
+                </div>
               </div>
-            ))}
+
+              <div className="grid grid-cols-4 gap-3 mb-6">
+                {[
+                  { label: 'Active Workers', value: '47', color: 'text-green-400' },
+                  { label: 'Locations', value: '5', color: 'text-blue-400' },
+                  { label: 'Shifts Today', value: '23', color: 'text-purple-400' },
+                  { label: 'Coverage', value: '98%', color: 'text-amber-400' },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-slate-700/50 rounded-lg p-3 text-center">
+                    <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                    <p className="text-gray-400 text-xs">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { name: 'Downtown Restaurant', workers: '12/12', status: 'Fully Staffed', statusColor: 'bg-green-500/20 text-green-400' },
+                  { name: 'Airport Kitchen', workers: '8/8', status: 'Fully Staffed', statusColor: 'bg-green-500/20 text-green-400' },
+                  { name: 'Mall Food Court', workers: '6/7', status: '1 No-Show • AI Dispatched', statusColor: 'bg-amber-500/20 text-amber-400' },
+                  { name: 'University Campus', workers: '10/10', status: 'Fully Staffed', statusColor: 'bg-green-500/20 text-green-400' },
+                ].map((loc, i) => (
+                  <div key={i} className="bg-slate-700/30 rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-slate-600 flex items-center justify-center">
+                        <MapPin className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">{loc.name}</p>
+                        <p className="text-gray-500 text-xs">{loc.workers} workers</p>
+                      </div>
+                    </div>
+                    <span className={`text-xs px-3 py-1 rounded-full ${loc.statusColor}`}>
+                      {loc.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Live Attendance Preview */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 to-slate-800">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                 Real-Time Attendance.
                 <br />
                 <span className="text-[#ff5f00]">Real Peace of Mind.</span>
               </h2>
-              <p className="text-lg text-gray-300 mb-8">
+              <p className="text-lg text-gray-600 mb-8">
                 See exactly who&apos;s working at each location, right now. Get notified when someone&apos;s late. 
                 Never wonder if your shifts are covered again.
               </p>
@@ -306,16 +354,16 @@ const EmployersLanding = () => {
                   { icon: AlertTriangle, text: 'Instant late/no-show alerts' }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#ff5f00]/20 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-[#ff5f00]/10 rounded-lg flex items-center justify-center">
                       <item.icon className="w-5 h-5 text-[#ff5f00]" />
                     </div>
-                    <span className="text-gray-300">{item.text}</span>
+                    <span className="text-gray-700">{item.text}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Attendance Card */}
+            {/* Attendance Card Preview */}
             <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-white font-bold">Downtown Location</h3>
