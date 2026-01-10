@@ -47,7 +47,7 @@ const InstitutionsLanding = () => {
               <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
             </Link>
             <div className="hidden md:flex items-center gap-6">
-              <Link to="/work-passport" className="text-gray-600 hover:text-[#30496d] font-medium">
+              <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Work Passport <span className="text-green-600 text-xs">(Free)</span>
               </Link>
               <Link to="/institutions" className="text-[#30496d] font-semibold">
