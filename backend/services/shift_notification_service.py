@@ -525,7 +525,7 @@ async def notify_clock_out(worker_email: str, worker_phone: str, worker_name: st
     Notify worker about successful clock-out with hours worked summary
     """
     try:
-        subject = f"✅ Clock-Out Confirmed - Shift Complete"
+        subject = "✅ Clock-Out Confirmed - Shift Complete"
         
         # Send email
         if worker_email:
