@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { 
   ChevronRight, Shield, CheckCircle2, Building2, FileCheck, 
   DollarSign, Users, Trophy, Search, TrendingUp, Globe,
-  AlertCircle, ArrowRight
+  AlertCircle, ArrowRight, GraduationCap, Award
 } from 'lucide-react';
 import { LOGOS } from '../../utils/logoUtils';
 import api from '../../utils/api';
