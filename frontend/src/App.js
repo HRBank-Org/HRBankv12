@@ -46,6 +46,7 @@ import EmployerDocuments from './pages/employer/Documents';
 import InstitutionDocuments from './pages/institution/Documents';
 import InstitutionDashboard from './pages/institution/InstitutionDashboard';
 import InstitutionSettings from './pages/institution/Settings';
+import InstitutionNotificationSettings from './pages/institution/NotificationSettings';
 import ClassTemplates from './pages/institution/ClassTemplates';
 import ClassesManagement from './pages/institution/ClassesManagement';
 import ClassDetails from './pages/institution/ClassDetails';
