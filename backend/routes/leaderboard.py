@@ -393,3 +393,215 @@ async def get_platform_stats(
             "blockchain_network": "Polygon Mainnet"
         }
     }
+
+
+
+@router.get("/regions")
+async def get_regional_workforce_density(
+    province: str = Query("ON", description="Province code"),
+    db = Depends(get_db)
+):
+    """
+    Get workforce density by region within a province.
+    Shows how close each region is to enabling job-matching features.
+    """
+    province = province.upper()
+    
+    # Get region definitions based on province
+    if province == "ON":
+        regions_def = ONTARIO_REGIONS
+    elif province in PROVINCE_REGIONS:
+        regions_def = PROVINCE_REGIONS[province]
+    else:
+        # Return province-level data for provinces without detailed regions
+        return {
+            "success": True,
+            "data": {
+                "province": province,
+                "province_name": CANADIAN_PROVINCES.get(province, province),
+                "regions": [],
+                "has_detailed_regions": False,
+                "message": "Detailed regional data coming soon for this province"
+            }
+        }
+    
+    # Get all workforce users with their locations
+    workforce_users = await db.workforce_profiles.find(
+        {},
+        {"_id": 0, "user_id": 1, "city": 1, "province": 1}
+    ).to_list(length=50000)
+    
+    # Get all work passports
+    passport_users = await db.career_profile_settings.find(
+        {"is_public": True},
+        {"_id": 0, "workforce_id": 1}
+    ).to_list(length=50000)
+    passport_workforce_ids = {p.get("workforce_id") for p in passport_users}
+    
+    # Get institutions by location
+    institutions = await db.institution_profiles.find(
+        {"province": province},
+        {"_id": 0, "institution_id": 1, "city": 1, "institution_name": 1}
+    ).to_list(length=1000)
+    
+    # Build region statistics
+    region_stats = []
+    
+    for region_key, region_data in regions_def.items():
+        region_cities = [c.lower() for c in region_data.get("cities", [])]
+        threshold = region_data.get("threshold", 500)
+        
+        # Count workers in this region
+        workers_in_region = 0
+        passports_in_region = 0
+        
+        for user in workforce_users:
+            user_city = (user.get("city") or "").lower()
+            user_province = (user.get("province") or "").upper()
+            
+            # Check if user is in this region
+            if user_province == province and any(city in user_city or user_city in city for city in region_cities):
+                workers_in_region += 1
+                if user.get("user_id") in passport_workforce_ids:
+                    passports_in_region += 1
+        
+        # Count institutions in region
+        institutions_in_region = 0
+        partner_institutions = []
+        for inst in institutions:
+            inst_city = (inst.get("city") or "").lower()
+            if any(city in inst_city or inst_city in city for city in region_cities):
+                institutions_in_region += 1
+                partner_institutions.append(inst.get("institution_name"))
+        
+        # Calculate density percentage
+        density_percent = min(round((workers_in_region / threshold) * 100, 1), 100) if threshold > 0 else 0
+        
+        # Determine status
+        if density_percent >= 100:
+            status = "active"
+            status_label = "Job Matching Active"
+        elif density_percent >= 75:
+            status = "almost_ready"
+            status_label = "Almost Ready"
+        elif density_percent >= 50:
+            status = "growing"
+            status_label = "Growing"
+        elif density_percent >= 25:
+            status = "emerging"
+            status_label = "Emerging"
+        else:
+            status = "early"
+            status_label = "Early Stage"
+        
+        region_stats.append({
+            "region_key": region_key,
+            "region_name": region_data.get("name"),
+            "description": region_data.get("description", ""),
+            "cities": region_data.get("cities", []),
+            "workers_count": workers_in_region,
+            "passports_count": passports_in_region,
+            "institutions_count": institutions_in_region,
+            "partner_institutions": partner_institutions[:5],  # Top 5
+            "threshold": threshold,
+            "density_percent": density_percent,
+            "workers_needed": max(0, threshold - workers_in_region),
+            "status": status,
+            "status_label": status_label
+        })
+    
+    # Sort by density percentage (highest first)
+    region_stats.sort(key=lambda x: x["density_percent"], reverse=True)
+    
+    # Calculate province totals
+    total_workers = sum(r["workers_count"] for r in region_stats)
+    total_passports = sum(r["passports_count"] for r in region_stats)
+    regions_active = len([r for r in region_stats if r["status"] == "active"])
+    regions_almost = len([r for r in region_stats if r["status"] == "almost_ready"])
+    
+    return {
+        "success": True,
+        "data": {
+            "province": province,
+            "province_name": CANADIAN_PROVINCES.get(province, province),
+            "has_detailed_regions": True,
+            "regions": region_stats,
+            "summary": {
+                "total_regions": len(region_stats),
+                "regions_active": regions_active,
+                "regions_almost_ready": regions_almost,
+                "total_workers": total_workers,
+                "total_passports": total_passports
+            },
+            "available_provinces": [
+                {"code": "ON", "name": "Ontario", "has_regions": True},
+                {"code": "BC", "name": "British Columbia", "has_regions": True},
+                {"code": "AB", "name": "Alberta", "has_regions": True},
+                {"code": "QC", "name": "Quebec", "has_regions": True}
+            ]
+        }
+    }
+
+@router.get("/regions/{region_key}")
+async def get_region_detail(
+    region_key: str,
+    province: str = Query("ON"),
+    db = Depends(get_db)
+):
+    """
+    Get detailed information about a specific region including top institutions.
+    """
+    province = province.upper()
+    region_key = region_key.lower()
+    
+    # Get region definition
+    if province == "ON":
+        regions_def = ONTARIO_REGIONS
+    elif province in PROVINCE_REGIONS:
+        regions_def = PROVINCE_REGIONS[province]
+    else:
+        return {"success": False, "message": "Province not found"}
+    
+    if region_key not in regions_def:
+        return {"success": False, "message": "Region not found"}
+    
+    region_data = regions_def[region_key]
+    region_cities = [c.lower() for c in region_data.get("cities", [])]
+    
+    # Get institutions in this region
+    all_institutions = await db.institution_profiles.find(
+        {"province": province},
+        {"_id": 0, "institution_id": 1, "institution_name": 1, "city": 1, "logo_url": 1}
+    ).to_list(length=500)
+    
+    institutions_in_region = []
+    for inst in all_institutions:
+        inst_city = (inst.get("city") or "").lower()
+        if any(city in inst_city or inst_city in city for city in region_cities):
+            # Get credential count for this institution
+            cred_count = await db.blockchain_credentials.count_documents({
+                "institution_id": inst.get("institution_id"),
+                "status": "issued"
+            })
+            institutions_in_region.append({
+                "institution_id": inst.get("institution_id"),
+                "institution_name": inst.get("institution_name"),
+                "city": inst.get("city"),
+                "logo_url": inst.get("logo_url"),
+                "credentials_issued": cred_count
+            })
+    
+    # Sort by credentials issued
+    institutions_in_region.sort(key=lambda x: x["credentials_issued"], reverse=True)
+    
+    return {
+        "success": True,
+        "data": {
+            "region_key": region_key,
+            "region_name": region_data.get("name"),
+            "description": region_data.get("description"),
+            "cities": region_data.get("cities", []),
+            "institutions": institutions_in_region[:20],
+            "total_institutions": len(institutions_in_region)
+        }
+    }
