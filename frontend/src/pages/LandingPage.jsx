@@ -173,7 +173,7 @@ const LandingPage = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 rounded-full text-amber-600 text-sm font-medium mb-4">
                 <Shield className="w-4 h-4" />
-                The Work Passport Difference
+                Blockchain-Verified Credentials
               </div>
               
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
@@ -183,7 +183,8 @@ const LandingPage = () => {
               </h2>
               
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Work Passports highlights, optimizes and authenticates your skills, credentials and experience.
+                Work Passports highlights, optimizes and authenticates your skills, credentials and experience — 
+                <strong className="text-gray-900"> secured on the blockchain</strong> where they can never be faked, altered, or disputed.
               </p>
 
               <div className="space-y-6 mb-8">
@@ -193,7 +194,7 @@ const LandingPage = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Traditional Profiles</h3>
-                    <p className="text-gray-500">Self-reported claims anyone can make. Easy to exaggerate. No verification.</p>
+                    <p className="text-gray-500">Self-reported claims anyone can make. Easy to exaggerate. No verification. No proof of authenticity.</p>
                   </div>
                 </div>
                 
@@ -203,7 +204,17 @@ const LandingPage = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Work Passport</h3>
-                    <p className="text-gray-500">Institution-verified credentials. Employer-confirmed experience. Blockchain-secured proof.</p>
+                    <p className="text-gray-500">Institution-issued credentials written to the <strong>Polygon blockchain</strong>. Tamper-proof. Employer-verified work history. Authenticity guaranteed.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Always Current</h3>
+                    <p className="text-gray-500">We track credential validity and remind you before they expire. Keep your profile fresh so employers can hire you without hassle.</p>
                   </div>
                 </div>
               </div>
