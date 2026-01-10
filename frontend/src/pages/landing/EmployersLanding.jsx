@@ -44,17 +44,31 @@ const EmployersLanding = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-24 pb-20 bg-gradient-to-br from-slate-900 via-[#1a2d42] to-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-[#ff5f00]/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Hero Section with Video Background */}
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-16">
+        {/* Video Background - Employer focused operations */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-slate-900/70 to-slate-900/90 z-10" />
+          <iframe
+            className="absolute w-full h-full object-cover"
+            style={{ 
+              transform: 'scale(1.5)',
+              pointerEvents: 'none',
+              minHeight: '100%',
+              minWidth: '100%'
+            }}
+            src="https://www.youtube.com/embed/H8vQs5nbJzo?autoplay=1&mute=1&loop=1&playlist=H8vQs5nbJzo&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+            title="HR Bank Employers Background"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff5f00]/20 rounded-full text-[#ff5f00] text-sm font-semibold mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff5f00]/20 rounded-full text-[#ff5f00] text-sm font-semibold mb-6 border border-[#ff5f00]/30">
                 <Zap className="w-4 h-4" />
                 Beta Program — Early Access
               </div>
