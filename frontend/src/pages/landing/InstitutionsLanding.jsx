@@ -70,18 +70,22 @@ const InstitutionsLanding = () => {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 rounded-full text-blue-300 text-sm font-semibold mb-6">
               <Building2 className="w-4 h-4" />
-              For Colleges, Universities & Training Centers
+              For All Regulated Training Providers
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-              Issue Verified Credentials.
+              Issue Blockchain Credentials.
               <br />
-              <span className="text-amber-400">Future-Proof Your Graduates.</span>
+              <span className="text-amber-400">Prove Authenticity Forever.</span>
             </h1>
             
-            <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              Replace manual verification with QR-verifiable credentials and transcripts 
-              graduates can share instantly. Reduce admin burden, increase trust.
+            <p className="text-xl text-gray-300 mb-4 leading-relaxed">
+              Whether you&apos;re a university, college, or specialized training provider — 
+              if your credentials are regulated, you can issue them on the blockchain.
+            </p>
+            <p className="text-lg text-gray-400 mb-8">
+              From degrees to forklift certifications, WHMIS to food safety — every credential 
+              your students earn becomes tamper-proof and instantly verifiable.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -90,7 +94,7 @@ const InstitutionsLanding = () => {
                 onClick={() => navigate('/signup?type=institution')}
                 className="bg-amber-500 hover:bg-amber-400 text-slate-900 h-14 px-8 text-lg font-semibold"
               >
-                Join as an Institution
+                Partner With HR Bank
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
               <Button
@@ -103,6 +107,72 @@ const InstitutionsLanding = () => {
                 View Leaderboard
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Who Can Join Section */}
+      <section className="py-16 bg-gradient-to-r from-emerald-50 to-cyan-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Who Can Partner With HR Bank?</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Any training provider issuing regulated credentials can join — from large universities to specialized certification centers.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <GraduationCap className="w-7 h-7 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Universities & Colleges</h3>
+              <p className="text-gray-600 mb-4">
+                Issue degrees, diplomas, and transcripts that employers can verify instantly.
+              </p>
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">Examples:</span> Bachelor&apos;s degrees, College diplomas, Academic transcripts
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <div className="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mb-4">
+                <Award className="w-7 h-7 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Training Centers</h3>
+              <p className="text-gray-600 mb-4">
+                Issue high-frequency certifications that workers need for employment.
+              </p>
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">Examples:</span> Food Handler, Smart Serve, First Aid, CPR
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                <Shield className="w-7 h-7 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Specialized Providers</h3>
+              <p className="text-gray-600 mb-4">
+                Issue industry-specific certifications and safety credentials.
+              </p>
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">Examples:</span> WHMIS, Forklift, Working at Heights, Security Guard
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 text-center">
+            <p className="text-gray-600 mb-4">
+              <strong>The only requirement:</strong> Your credentials must be regulated or recognized by relevant authorities.
+            </p>
+            <Button
+              onClick={() => navigate('/contact')}
+              variant="outline"
+              className="border-gray-300"
+            >
+              Questions? Contact Us
+            </Button>
           </div>
         </div>
       </section>
