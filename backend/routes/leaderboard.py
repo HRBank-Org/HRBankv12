@@ -32,6 +32,99 @@ CANADIAN_PROVINCES = {
     "YT": "Yukon"
 }
 
+# Ontario regions with major cities/areas
+ONTARIO_REGIONS = {
+    "durham": {
+        "name": "Durham Region",
+        "cities": ["Oshawa", "Whitby", "Ajax", "Pickering", "Clarington", "Uxbridge", "Scugog", "Brock"],
+        "threshold": 500,  # Workers needed to enable job matching
+        "description": "Eastern GTA region including Oshawa and Whitby"
+    },
+    "peel": {
+        "name": "Peel Region",
+        "cities": ["Mississauga", "Brampton", "Caledon"],
+        "threshold": 1000,
+        "description": "Western GTA including Mississauga and Brampton"
+    },
+    "york": {
+        "name": "York Region",
+        "cities": ["Markham", "Vaughan", "Richmond Hill", "Newmarket", "Aurora", "King", "Whitchurch-Stouffville", "Georgina", "East Gwillimbury"],
+        "threshold": 800,
+        "description": "Northern GTA suburbs"
+    },
+    "halton": {
+        "name": "Halton Region",
+        "cities": ["Oakville", "Burlington", "Milton", "Halton Hills"],
+        "threshold": 400,
+        "description": "Southwest of Toronto along Lake Ontario"
+    },
+    "toronto": {
+        "name": "City of Toronto",
+        "cities": ["Toronto", "North York", "Scarborough", "Etobicoke"],
+        "threshold": 2000,
+        "description": "Canada's largest city"
+    },
+    "hamilton": {
+        "name": "Hamilton-Wentworth",
+        "cities": ["Hamilton", "Stoney Creek", "Ancaster", "Dundas", "Flamborough"],
+        "threshold": 500,
+        "description": "Steel city and McMaster University area"
+    },
+    "waterloo": {
+        "name": "Waterloo Region",
+        "cities": ["Kitchener", "Waterloo", "Cambridge", "Wilmot", "Wellesley", "Woolwich", "North Dumfries"],
+        "threshold": 600,
+        "description": "Tech hub with University of Waterloo"
+    },
+    "niagara": {
+        "name": "Niagara Region",
+        "cities": ["St. Catharines", "Niagara Falls", "Welland", "Fort Erie", "Grimsby", "Lincoln", "Port Colborne"],
+        "threshold": 400,
+        "description": "Border region with tourism and wine industry"
+    },
+    "ottawa": {
+        "name": "Ottawa-Gatineau",
+        "cities": ["Ottawa", "Kanata", "Orleans", "Nepean", "Gloucester"],
+        "threshold": 700,
+        "description": "National capital region"
+    },
+    "london": {
+        "name": "London-Middlesex",
+        "cities": ["London", "Strathroy", "Dorchester"],
+        "threshold": 400,
+        "description": "Southwestern Ontario hub"
+    },
+    "windsor": {
+        "name": "Windsor-Essex",
+        "cities": ["Windsor", "Tecumseh", "Lakeshore", "Amherstburg", "LaSalle", "Essex", "Kingsville", "Leamington"],
+        "threshold": 400,
+        "description": "Border city with automotive industry"
+    },
+    "simcoe": {
+        "name": "Simcoe County",
+        "cities": ["Barrie", "Orillia", "Collingwood", "Innisfil", "Bradford", "Midland"],
+        "threshold": 350,
+        "description": "Cottage country gateway north of GTA"
+    }
+}
+
+# Regions for other provinces (simplified)
+PROVINCE_REGIONS = {
+    "BC": {
+        "vancouver": {"name": "Greater Vancouver", "cities": ["Vancouver", "Burnaby", "Surrey", "Richmond", "Coquitlam", "New Westminster"], "threshold": 1500},
+        "victoria": {"name": "Greater Victoria", "cities": ["Victoria", "Saanich", "Langford", "Colwood"], "threshold": 400},
+        "kelowna": {"name": "Okanagan", "cities": ["Kelowna", "Penticton", "Vernon"], "threshold": 300}
+    },
+    "AB": {
+        "calgary": {"name": "Calgary Region", "cities": ["Calgary", "Airdrie", "Cochrane", "Okotoks"], "threshold": 800},
+        "edmonton": {"name": "Edmonton Region", "cities": ["Edmonton", "St. Albert", "Sherwood Park", "Spruce Grove"], "threshold": 700}
+    },
+    "QC": {
+        "montreal": {"name": "Greater Montreal", "cities": ["Montreal", "Laval", "Longueuil", "Brossard", "Terrebonne"], "threshold": 1200},
+        "quebec_city": {"name": "Quebec City", "cities": ["Quebec City", "Levis"], "threshold": 400}
+    }
+}
+
 @router.get("/institutions")
 async def get_institution_leaderboard(
     province: Optional[str] = None,
