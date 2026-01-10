@@ -92,6 +92,7 @@ import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
 import WorkerComplianceOnboarding from './pages/workforce/WorkerComplianceOnboarding';
 import Analytics from './pages/admin/Analytics';
 import AdminSettings from './pages/admin/Settings';
+import InstitutionDirectory from './pages/admin/InstitutionDirectory';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import VerifyCredential from './pages/public/VerifyCredential';
