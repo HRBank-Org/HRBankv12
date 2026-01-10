@@ -1,6 +1,6 @@
 """
 Shift Notification Service
-Handles email and SMS notifications for shift-related events
+Handles email, SMS, and push notifications for shift-related events
 """
 import os
 import logging
@@ -11,6 +11,22 @@ from services.sms_service import send_sms, format_phone_e164
 from database import get_database
 
 logger = logging.getLogger(__name__)
+
+# Push notification service (lazy loaded)
+_push_service = None
+
+async def get_push_notification_service():
+    """Get push notification service instance"""
+    global _push_service
+    if _push_service is None:
+        try:
+            from utils.push_notifications import get_push_service
+            db = await get_database()
+            _push_service = get_push_service(db)
+        except Exception as e:
+            logger.error(f"Failed to initialize push service: {e}")
+            _push_service = None
+    return _push_service
 
 
 async def check_notification_preference(user_id: str, notification_type: str, channel: str) -> bool:
