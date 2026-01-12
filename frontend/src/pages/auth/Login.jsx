@@ -39,7 +39,7 @@ const LoginForm = () => {
   React.useEffect(() => {
     const checkGoogleOAuth = async () => {
       try {
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
         const response = await fetch(`${backendUrl}/api/auth/google/status`);
         const data = await response.json();
         setGoogleAvailable(data.data?.available || false);
