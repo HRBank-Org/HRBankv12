@@ -95,7 +95,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
 
   const handleGoogleSignup = () => {
     // Redirect to backend OAuth endpoint with selected user type
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
     // Include apply_job in Google OAuth flow
     const applyJobParam = applyJobId ? `&apply_job=${applyJobId}` : '';
     window.location.href = `${backendUrl}/api/auth/google/login?user_type=${selectedUserType}${applyJobParam}`;
