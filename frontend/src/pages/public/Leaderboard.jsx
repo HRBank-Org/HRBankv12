@@ -176,7 +176,7 @@ const Leaderboard = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-white/70 hover:text-white font-medium">
-                Workforce
+                Work Passport™
               </Link>
               <Link to="/institutions" className="text-white/70 hover:text-white font-medium">
                 Institutions
