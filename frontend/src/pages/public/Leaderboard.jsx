@@ -834,7 +834,7 @@ const Leaderboard = () => {
               to="/signup?type=workforce"
               className="px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
             >
-              Join as Workforce
+              Get Work Passport™
             </Link>
           </div>
         </div>
