@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    image: qnizami/hrbank-backend:latest
+    container_name: hrbank-backend
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - hrbank-network
+
+  frontend:
+    image: qnizami/hrbank-frontend:latest
+    container_name: hrbank-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - hrbank-network
+
+networks:
+  hrbank-network:
+    driver: bridge
