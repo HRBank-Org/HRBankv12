@@ -194,9 +194,9 @@ const WorkPassport = () => {
           </div>
         </header>
 
-        <main className="max-w-5xl mx-auto px-4 py-8">
+        <main className="max-w-5xl mx-auto px-4 py-8 print-content">
           {/* Passport Card Design */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl overflow-hidden mb-6 print-section border border-slate-700">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl overflow-hidden mb-6 print-section border border-slate-700 print:bg-white print:border-gray-300 print:shadow-none">
             {/* Gold Stripe */}
             <div className="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400"></div>
             
