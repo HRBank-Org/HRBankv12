@@ -545,18 +545,21 @@ const WorkPassport = () => {
           </div>
 
           {/* Footer with Trust Seal */}
-          <div className="text-center mt-8 pb-8">
+          <div className="text-center mt-8 pb-8 print:mt-12 print:border-t print:border-gray-300 print:pt-6">
             <div className="flex justify-center mb-4">
               <img 
                 src="/work-passport-seal.png" 
-                alt="Work Passport Official Seal" 
-                className="w-16 h-16 object-contain opacity-60"
+                alt="WorkPassport Official Seal" 
+                className="w-16 h-16 object-contain opacity-60 print:opacity-80"
               />
             </div>
-            <p className="text-sm text-slate-400 font-medium">WorkPassport™ ID: {profile.profile_code}</p>
-            <p className="mt-1 text-xs text-slate-500">Verified by HR Bank's blockchain credential system</p>
-            <p className="mt-1 text-xs text-slate-500">Secured on Polygon Network • Immutable & Tamper-Proof</p>
-            <p className="mt-3 text-xs text-slate-600">© {new Date().getFullYear()} HR Bank. All rights reserved.</p>
+            <p className="text-sm text-slate-400 font-medium print:text-gray-700">WorkPassport™ ID: {profile.profile_code}</p>
+            <p className="mt-1 text-xs text-slate-500 print:text-gray-500">Verified by HR Bank's blockchain credential system</p>
+            <p className="mt-1 text-xs text-slate-500 print:text-gray-500">Secured on Polygon Network • Immutable & Tamper-Proof</p>
+            <p className="mt-3 text-xs text-slate-600 print:text-gray-400">© {new Date().getFullYear()} HR Bank. All rights reserved.</p>
+            <p className="mt-2 text-xs text-slate-600 hidden print:block print:text-gray-500">
+              Verify this document at: hrbank.ca/passport/{profile.profile_code}
+            </p>
           </div>
         </main>
       </div>
