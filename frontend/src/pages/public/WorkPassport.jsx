@@ -253,16 +253,16 @@ const WorkPassport = () => {
                   <div className="grid grid-cols-2 gap-6">
                     {/* Name */}
                     <div className="col-span-2">
-                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Full Name</p>
-                      <h3 className="text-3xl font-bold text-white">{profile.full_name}</h3>
+                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1 print:text-gray-500">Full Name</p>
+                      <h3 className="text-3xl font-bold text-white print:text-gray-900">{profile.full_name}</h3>
                     </div>
 
                     {/* Location */}
                     {profile.location && (
                       <div>
-                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Location</p>
-                        <p className="text-white font-medium flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-amber-400" />
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1 print:text-gray-500">Location</p>
+                        <p className="text-white font-medium flex items-center gap-2 print:text-gray-800">
+                          <MapPin className="w-4 h-4 text-amber-400 print:text-amber-600" />
                           {[profile.location.city, profile.location.province, profile.location.country]
                             .filter(Boolean)
                             .join(', ')}
@@ -273,9 +273,9 @@ const WorkPassport = () => {
                     {/* Member Since */}
                     {profile.member_since && (
                       <div>
-                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Member Since</p>
-                        <p className="text-white font-medium flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-amber-400" />
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1 print:text-gray-500">Member Since</p>
+                        <p className="text-white font-medium flex items-center gap-2 print:text-gray-800">
+                          <Calendar className="w-4 h-4 text-amber-400 print:text-amber-600" />
                           {new Date(profile.member_since).toLocaleDateString('en-CA', { month: 'long', year: 'numeric' })}
                         </p>
                       </div>
@@ -283,8 +283,8 @@ const WorkPassport = () => {
 
                     {/* Status */}
                     <div>
-                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Status</p>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30">
+                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1 print:text-gray-500">Status</p>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30 print:bg-green-100 print:text-green-700 print:border-green-300">
                         <CheckCircle className="w-4 h-4" />
                         Verified
                       </span>
@@ -292,9 +292,9 @@ const WorkPassport = () => {
 
                     {/* Credentials Count */}
                     <div>
-                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Verified Credentials</p>
-                      <p className="text-white font-medium flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-amber-400" />
+                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1 print:text-gray-500">Verified Credentials</p>
+                      <p className="text-white font-medium flex items-center gap-2 print:text-gray-800">
+                        <Shield className="w-4 h-4 text-amber-400 print:text-amber-600" />
                         {profile.summary?.verified_credentials || 0} On Blockchain
                       </p>
                     </div>
@@ -311,22 +311,22 @@ const WorkPassport = () => {
 
             {/* Stats Bar */}
             {profile.summary && (
-              <div className="px-8 py-4 bg-slate-900/50 border-t border-slate-700">
+              <div className="px-8 py-4 bg-slate-900/50 border-t border-slate-700 print:bg-gray-100 print:border-gray-300">
                 <div className="grid grid-cols-4 gap-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-amber-400">{profile.summary.total_occupations}</p>
-                    <p className="text-xs text-slate-400 uppercase">Occupations</p>
+                    <p className="text-2xl font-bold text-amber-400 print:text-amber-600">{profile.summary.total_occupations}</p>
+                    <p className="text-xs text-slate-400 uppercase print:text-gray-500">Occupations</p>
                   </div>
                   {profile.summary.years_of_experience !== null && (
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-amber-400">{profile.summary.years_of_experience}</p>
-                      <p className="text-xs text-slate-400 uppercase">Years Exp.</p>
+                      <p className="text-2xl font-bold text-amber-400 print:text-amber-600">{profile.summary.years_of_experience}</p>
+                      <p className="text-xs text-slate-400 uppercase print:text-gray-500">Years Exp.</p>
                     </div>
                   )}
                   {profile.summary.total_hours_worked !== null && (
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-amber-400">{profile.summary.total_hours_worked.toLocaleString()}</p>
-                      <p className="text-xs text-slate-400 uppercase">Hours Worked</p>
+                      <p className="text-2xl font-bold text-amber-400 print:text-amber-600">{profile.summary.total_hours_worked.toLocaleString()}</p>
+                      <p className="text-xs text-slate-400 uppercase print:text-gray-500">Hours Worked</p>
                     </div>
                   )}
                   {profile.summary.average_rating !== null && (
