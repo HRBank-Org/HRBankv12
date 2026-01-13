@@ -61,7 +61,7 @@ const About = () => {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Workforce Empowerment</h3>
               <p className="text-gray-600">
-                Workers own their verified credentials through their Work Passport™, 
+                Workers own their verified credentials through their WorkPassport™, 
                 building a portable reputation that opens doors to new opportunities.
               </p>
             </div>
@@ -106,7 +106,7 @@ const About = () => {
             </div>
             <div>
               <p className="text-4xl font-bold text-amber-400">500+</p>
-              <p className="text-gray-400">Work Passport™s</p>
+              <p className="text-gray-400">WorkPassport™s</p>
             </div>
             <div>
               <p className="text-4xl font-bold text-amber-400">13</p>

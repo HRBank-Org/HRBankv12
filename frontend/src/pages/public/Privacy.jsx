@@ -52,7 +52,7 @@ const Privacy = () => {
                 <UserCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-blue-900">You Control Your Data</p>
-                  <p className="text-sm text-blue-700">Choose what's visible on your Work Passport™.</p>
+                  <p className="text-sm text-blue-700">Choose what's visible on your WorkPassport™.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -96,7 +96,7 @@ const Privacy = () => {
                 <li>Provide, maintain, and improve our services</li>
                 <li>Process transactions and send related information</li>
                 <li>Verify your identity and credentials</li>
-                <li>Create and maintain your Work Passport™</li>
+                <li>Create and maintain your WorkPassport™</li>
                 <li>Record credentials on the blockchain (public, anonymized data only)</li>
                 <li>Connect you with employers and job opportunities</li>
                 <li>Send you technical notices, updates, and support messages</li>
@@ -116,7 +116,7 @@ const Privacy = () => {
                 <li>Only credential hashes (not personal details) are stored on-chain</li>
                 <li>Your name and personal information remain in our secure database</li>
                 <li>Employers can verify credentials without accessing your private data</li>
-                <li>You control which credentials appear on your public Work Passport™</li>
+                <li>You control which credentials appear on your public WorkPassport™</li>
               </ul>
             </section>
 
@@ -150,7 +150,7 @@ const Privacy = () => {
                 <li><strong>Correction:</strong> Update or correct inaccurate information</li>
                 <li><strong>Deletion:</strong> Request deletion of your account and data</li>
                 <li><strong>Portability:</strong> Export your data in a machine-readable format</li>
-                <li><strong>Privacy Controls:</strong> Adjust what appears on your public Work Passport™</li>
+                <li><strong>Privacy Controls:</strong> Adjust what appears on your public WorkPassport™</li>
                 <li><strong>Opt-out:</strong> Unsubscribe from marketing communications</li>
               </ul>
             </section>
