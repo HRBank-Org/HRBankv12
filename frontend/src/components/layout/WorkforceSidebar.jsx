@@ -86,7 +86,7 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
-      label: 'Work Passport',
+      label: 'WorkPassport',
       icon: FiGlobe,
       path: '/workforce/work-passport'
     },
