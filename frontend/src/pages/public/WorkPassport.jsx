@@ -95,9 +95,11 @@ const WorkPassport = () => {
         <header className="bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 no-print">
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
-                <Stamp className="w-6 h-6 text-slate-900" />
-              </div>
+              <img 
+                src="/work-passport-seal.png" 
+                alt="Work Passport Seal" 
+                className="w-12 h-12 object-contain"
+              />
               <div>
                 <h1 className="text-lg font-bold text-white">Work Passport™</h1>
                 <p className="text-sm text-slate-400">Verified by HR Bank</p>
