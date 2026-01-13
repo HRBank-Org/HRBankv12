@@ -83,14 +83,93 @@ const WorkPassport = () => {
       {/* Print Styles */}
       <style>{`
         @media print {
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .no-print { display: none !important; }
-          .print-break { page-break-before: always; }
-          .print-section { break-inside: avoid; }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          .no-print { 
+            display: none !important; 
+          }
+          
+          .print-section { 
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          
+          /* Remove dark background for print */
+          .print-bg-white {
+            background: white !important;
+          }
+          
+          /* Watermark styling */
+          .print-watermark {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            opacity: 0.08 !important;
+            width: 400px !important;
+            height: 400px !important;
+            z-index: 0 !important;
+            pointer-events: none !important;
+          }
+          
+          /* Content styling for print */
+          .print-content {
+            position: relative !important;
+            z-index: 1 !important;
+            background: white !important;
+            color: #1f2937 !important;
+            padding: 20px !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+          }
+          
+          .print-content h1, .print-content h2, .print-content h3 {
+            color: #1f2937 !important;
+          }
+          
+          .print-content p, .print-content span {
+            color: #374151 !important;
+          }
+          
+          /* Page sizing */
+          @page {
+            size: A4 portrait;
+            margin: 15mm;
+          }
+          
+          /* Prevent orphan content */
+          .credential-item, .experience-item {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+        }
+        
+        @media screen {
+          .print-only {
+            display: none !important;
+          }
         }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900" ref={printRef}>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 print-bg-white" ref={printRef}>
+        {/* Print Watermark - Only shows when printing */}
+        <img 
+          src="/work-passport-seal.png" 
+          alt="" 
+          className="hidden print-only print-watermark"
+          aria-hidden="true"
+        />
+        
         {/* Header */}
         <header className="bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 no-print">
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
