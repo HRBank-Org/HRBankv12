@@ -198,50 +198,50 @@ const WorkPassport = () => {
           {/* Passport Card Design */}
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl overflow-hidden mb-6 print-section border border-slate-700 print:bg-white print:border-gray-300 print:shadow-none">
             {/* Gold Stripe */}
-            <div className="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400"></div>
+            <div className="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 print:bg-amber-500"></div>
             
             {/* Header with Official Seal */}
-            <div className="px-8 py-6 border-b border-slate-700 flex items-center justify-between">
+            <div className="px-8 py-6 border-b border-slate-700 flex items-center justify-between print:border-gray-300">
               <div className="flex items-center gap-4">
                 <img 
                   src="/work-passport-seal.png" 
-                  alt="Work Passport Official Seal" 
+                  alt="WorkPassport Official Seal" 
                   className="w-20 h-20 object-contain drop-shadow-lg"
                 />
                 <div>
-                  <h2 className="text-2xl font-bold text-white tracking-wide">WORK PASSPORT™</h2>
-                  <p className="text-amber-400 text-sm font-medium">BLOCKCHAIN VERIFIED • HR BANK</p>
-                  <p className="text-slate-500 text-xs mt-1">Secured on Polygon Network</p>
+                  <h2 className="text-2xl font-bold text-white tracking-wide print:text-gray-900">WORKPASSPORT™</h2>
+                  <p className="text-amber-400 text-sm font-medium print:text-amber-600">BLOCKCHAIN VERIFIED • HR BANK</p>
+                  <p className="text-slate-500 text-xs mt-1 print:text-gray-500">Secured on Polygon Network</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-slate-400 text-sm">Passport No.</p>
-                <p className="text-white font-mono text-lg font-bold">{profile.profile_code}</p>
-                <p className="text-green-400 text-xs mt-1 flex items-center justify-end gap-1">
+                <p className="text-slate-400 text-sm print:text-gray-500">Passport No.</p>
+                <p className="text-white font-mono text-lg font-bold print:text-gray-900">{profile.profile_code}</p>
+                <p className="text-green-400 text-xs mt-1 flex items-center justify-end gap-1 print:text-green-600">
                   <CheckCircle className="w-3 h-3" /> Authentic
                 </p>
               </div>
             </div>
 
             {/* Main Content */}
-            <div className="p-8">
+            <div className="p-8 print:bg-white">
               <div className="flex flex-col md:flex-row items-start gap-8">
                 {/* Photo Section */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 print-section">
                   <div className="relative">
                     {profile.photo_url ? (
                       <img
                         src={profile.photo_url.startsWith('http') ? profile.photo_url : `${process.env.REACT_APP_BACKEND_URL}${profile.photo_url}`}
                         alt={profile.full_name}
-                        className="w-40 h-48 rounded-lg border-4 border-amber-500/30 shadow-lg object-cover"
+                        className="w-40 h-48 rounded-lg border-4 border-amber-500/30 shadow-lg object-cover print:border-amber-400"
                       />
                     ) : (
-                      <div className="w-40 h-48 rounded-lg border-4 border-amber-500/30 shadow-lg bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white text-4xl font-bold">
+                      <div className="w-40 h-48 rounded-lg border-4 border-amber-500/30 shadow-lg bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white text-4xl font-bold print:bg-gray-200 print:text-gray-700">
                         {getInitials(profile.full_name)}
                       </div>
                     )}
                     {profile.summary?.is_blockchain_verified && (
-                      <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center border-4 border-slate-800 shadow-lg">
+                      <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center border-4 border-slate-800 shadow-lg print:border-white">
                         <CheckCircle className="w-6 h-6 text-white" />
                       </div>
                     )}
