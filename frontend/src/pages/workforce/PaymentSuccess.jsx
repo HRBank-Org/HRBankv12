@@ -106,7 +106,7 @@ const PaymentSuccess = () => {
               to="/workforce/work-passport"
               className="block w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
             >
-              Update Work Passport™
+              Update WorkPassport™
             </Link>
           </div>
 

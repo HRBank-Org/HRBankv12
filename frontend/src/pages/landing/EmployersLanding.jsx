@@ -22,7 +22,7 @@ const EmployersLanding = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Work Passport™
+                WorkPassport™
               </Link>
               <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Institutions

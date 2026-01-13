@@ -5,7 +5,7 @@ import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 import { FiArrowLeft } from 'react-icons/fi';
 
 const USER_TYPES = [
-  { value: 'workforce', label: 'Work Passport™' },
+  { value: 'workforce', label: 'WorkPassport™' },
   { value: 'employer', label: 'Employer' },
   { value: 'institution', label: 'Institution' }
 ];

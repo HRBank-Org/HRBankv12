@@ -152,7 +152,7 @@ const PublicJobsPage = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Work Passport™
+                WorkPassport™
               </Link>
               <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Institutions
@@ -278,14 +278,14 @@ const PublicJobsPage = () => {
                 <Briefcase className="mx-auto text-gray-300 mb-4" size={48} />
                 <p className="text-gray-900 font-semibold text-lg mb-2">No jobs available right now</p>
                 <p className="text-gray-500 text-sm mb-6">
-                  Don&apos;t wait for jobs to be posted. Create your free Work Passport™ and let opportunities come to you.
+                  Don&apos;t wait for jobs to be posted. Create your free WorkPassport™ and let opportunities come to you.
                 </p>
                 <Button 
                   onClick={() => navigate('/signup?type=workforce')}
                   className="bg-amber-500 hover:bg-amber-400 text-slate-900"
                   data-testid="empty-jobs-work-passport-btn"
                 >
-                  Get Your Free Work Passport™
+                  Get Your Free WorkPassport™
                   <ChevronRight className="ml-2" size={16} />
                 </Button>
                 <p className="text-xs text-gray-400 mt-3">

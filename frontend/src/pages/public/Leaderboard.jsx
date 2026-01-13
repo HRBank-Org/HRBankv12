@@ -176,7 +176,7 @@ const Leaderboard = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-white/70 hover:text-white font-medium">
-                Work Passport™
+                WorkPassport™
               </Link>
               <Link to="/institutions" className="text-white/70 hover:text-white font-medium">
                 Institutions
@@ -237,7 +237,7 @@ const Leaderboard = () => {
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
               <p className="text-2xl md:text-3xl font-bold text-white">{stats?.total_work_passports?.toLocaleString() || 0}</p>
-              <p className="text-purple-300 text-xs md:text-sm">Work Passport™s</p>
+              <p className="text-purple-300 text-xs md:text-sm">WorkPassport™s</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10 col-span-2 md:col-span-1">
               <p className="text-2xl md:text-3xl font-bold text-white">{stats?.credentials_last_30_days?.toLocaleString() || 0}</p>
@@ -633,7 +633,7 @@ const Leaderboard = () => {
                   <h3 className="text-white font-semibold mb-1">How Job Matching Works</h3>
                   <p className="text-gray-300 text-sm">
                     When a region reaches its workforce threshold, employers in that area can instantly match with verified workers.
-                    Help your region unlock this feature by getting your Work Passport™ and inviting colleagues!
+                    Help your region unlock this feature by getting your WorkPassport™ and inviting colleagues!
                   </p>
                 </div>
               </div>
@@ -834,7 +834,7 @@ const Leaderboard = () => {
               to="/signup?type=workforce"
               className="px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
             >
-              Get Work Passport™
+              Get WorkPassport™
             </Link>
           </div>
         </div>

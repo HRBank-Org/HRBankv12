@@ -283,7 +283,7 @@ const PendingCredentials = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">4.</span>
-                <span>Share it on your Work Passport™ for employers to verify</span>
+                <span>Share it on your WorkPassport™ for employers to verify</span>
               </li>
             </ul>
           </div>

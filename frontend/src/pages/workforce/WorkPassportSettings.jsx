@@ -103,8 +103,8 @@ const WorkPassportSettings = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'My Work Passport™',
-          text: 'Check out my verified Work Passport™ on HR Bank',
+          title: 'My WorkPassport™',
+          text: 'Check out my verified WorkPassport™ on HR Bank',
           url: settings.profile_url
         });
       } catch (error) {
@@ -155,7 +155,7 @@ const WorkPassportSettings = () => {
               <Stamp className="w-7 h-7 text-slate-900" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Work Passport™</h1>
+              <h1 className="text-3xl font-bold">WorkPassport™</h1>
               <p className="text-slate-300">Your verified career, portable and trusted</p>
             </div>
           </div>
@@ -169,9 +169,9 @@ const WorkPassportSettings = () => {
                 <Stamp className="w-6 h-6 text-amber-600" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Everyone's talking about Work Passport™. Have you got yours?</h3>
+                <h3 className="font-bold text-gray-900 mb-1">Everyone's talking about WorkPassport™. Have you got yours?</h3>
                 <p className="text-gray-600 text-sm">
-                  Your Work Passport™ contains your verified skills, experience, and credentials — all validated by HR Bank's blockchain system. 
+                  Your WorkPassport™ contains your verified skills, experience, and credentials — all validated by HR Bank's blockchain system. 
                   Share it with any employer, and they'll see real-time, trustworthy information about your career.
                 </p>
               </div>
@@ -185,7 +185,7 @@ const WorkPassportSettings = () => {
               <div className="flex-shrink-0">
                 <div className="bg-white p-3 rounded-xl shadow-lg">
                   {settings?.qr_code && (
-                    <img src={settings.qr_code} alt="Work Passport™ QR Code" className="w-40 h-40" />
+                    <img src={settings.qr_code} alt="WorkPassport™ QR Code" className="w-40 h-40" />
                   )}
                 </div>
                 <button
@@ -201,7 +201,7 @@ const WorkPassportSettings = () => {
               <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
                   <Stamp className="w-6 h-6 text-amber-400" />
-                  Share Your Work Passport™
+                  Share Your WorkPassport™
                 </h2>
                 <p className="text-slate-300 mb-4">
                   External employers can view your verified career profile by scanning the QR code or visiting the link below. 
@@ -210,7 +210,7 @@ const WorkPassportSettings = () => {
 
                 {/* URL Display */}
                 <div className="bg-slate-700/50 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-slate-400 mb-1">Work Passport™ URL</p>
+                  <p className="text-sm text-slate-400 mb-1">WorkPassport™ URL</p>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 text-amber-400 font-mono text-sm break-all">
                       {settings?.profile_url}
@@ -302,7 +302,7 @@ const WorkPassportSettings = () => {
                 <Lock className="w-5 h-5 text-gray-700" />
                 <h3 className="text-lg font-semibold text-gray-900">Privacy Settings</h3>
               </div>
-              <p className="text-sm text-gray-600 mt-1">Choose what information to display on your Work Passport™</p>
+              <p className="text-sm text-gray-600 mt-1">Choose what information to display on your WorkPassport™</p>
             </div>
 
             <div className="p-6">
@@ -386,7 +386,7 @@ const WorkPassportSettings = () => {
             <div className="flex items-start gap-3">
               <Shield className="w-5 h-5 text-slate-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-slate-700">
-                <strong>Privacy Protected:</strong> Your email, phone number, and full address are NEVER shared on your Work Passport™. 
+                <strong>Privacy Protected:</strong> Your email, phone number, and full address are NEVER shared on your WorkPassport™. 
                 External employers can only see your city, province, and country. They must create an HR Bank employer account to connect with you.
               </div>
             </div>

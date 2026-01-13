@@ -42,7 +42,7 @@ const InstitutionsLanding = () => {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Work Passport™
+                WorkPassport™
               </Link>
               <Link to="/institutions" className="text-[#30496d] font-semibold">
                 Institutions
@@ -260,7 +260,7 @@ const InstitutionsLanding = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Graduate Passports</h3>
               <p className="text-gray-600 text-sm">
-                Graduates get free Work Passport™s automatically. They carry your credentials everywhere.
+                Graduates get free WorkPassport™s automatically. They carry your credentials everywhere.
               </p>
             </div>
           </div>
