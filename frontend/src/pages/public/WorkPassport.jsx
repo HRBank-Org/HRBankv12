@@ -332,10 +332,10 @@ const WorkPassport = () => {
                   {profile.summary.average_rating !== null && (
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-1">
-                        <p className="text-2xl font-bold text-amber-400">{profile.summary.average_rating}</p>
-                        <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                        <p className="text-2xl font-bold text-amber-400 print:text-amber-600">{profile.summary.average_rating}</p>
+                        <Star className="w-5 h-5 text-amber-400 fill-amber-400 print:text-amber-600 print:fill-amber-600" />
                       </div>
-                      <p className="text-xs text-slate-400 uppercase">Avg Rating</p>
+                      <p className="text-xs text-slate-400 uppercase print:text-gray-500">Avg Rating</p>
                     </div>
                   )}
                 </div>
@@ -344,16 +344,16 @@ const WorkPassport = () => {
 
             {/* Security Verifications */}
             {profile.security_verifications && profile.security_verifications.length > 0 && (
-              <div className="px-8 py-4 bg-slate-800/50 border-t border-slate-700">
+              <div className="px-8 py-4 bg-slate-800/50 border-t border-slate-700 print:bg-gray-50 print:border-gray-300">
                 <div className="flex items-center gap-2 mb-3">
-                  <Shield className="w-5 h-5 text-green-400" />
-                  <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Security Clearances</h4>
+                  <Shield className="w-5 h-5 text-green-400 print:text-green-600" />
+                  <h4 className="text-sm font-semibold text-white uppercase tracking-wider print:text-gray-800">Security Clearances</h4>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {profile.security_verifications.map((verification, index) => (
                     <span 
                       key={index}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30 print:bg-green-100 print:text-green-700 print:border-green-300"
                     >
                       <CheckCircle className="w-4 h-4" />
                       {verification.label}
@@ -367,36 +367,36 @@ const WorkPassport = () => {
           {/* Occupation Profiles */}
           {profile.occupation_profiles?.length > 0 && (
             <div className="space-y-4 mb-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-amber-400" />
+              <h3 className="text-xl font-bold text-white flex items-center gap-2 print:text-gray-900">
+                <Briefcase className="w-5 h-5 text-amber-400 print:text-amber-600" />
                 Career Entries
               </h3>
               
               {profile.occupation_profiles.map((occ, index) => (
-                <div key={occ.occupation_id || index} className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 overflow-hidden print-section">
+                <div key={occ.occupation_id || index} className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 overflow-hidden print-section credential-item print:bg-white print:border-gray-300">
                   {/* Occupation Header */}
-                  <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4 border-b border-slate-600">
+                  <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4 border-b border-slate-600 print:bg-gray-100 print:border-gray-300">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="text-xl font-bold text-white">{occ.occupation_title}</h4>
-                        <p className="text-slate-400 text-sm">{occ.occupation_category}</p>
+                        <h4 className="text-xl font-bold text-white print:text-gray-900">{occ.occupation_title}</h4>
+                        <p className="text-slate-400 text-sm print:text-gray-500">{occ.occupation_category}</p>
                       </div>
                       {occ.skill_rating_avg && (
-                        <div className="flex items-center gap-1 bg-amber-500/20 px-3 py-1 rounded-full">
-                          <span className="text-amber-400 font-bold">{occ.skill_rating_avg.toFixed(1)}</span>
-                          <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                        <div className="flex items-center gap-1 bg-amber-500/20 px-3 py-1 rounded-full print:bg-amber-100">
+                          <span className="text-amber-400 font-bold print:text-amber-600">{occ.skill_rating_avg.toFixed(1)}</span>
+                          <Star className="w-4 h-4 text-amber-400 fill-amber-400 print:text-amber-600" />
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="p-6">
+                  <div className="p-6 print:bg-white">
                     {/* Stats Row */}
                     <div className="grid grid-cols-3 gap-4 mb-6">
                       {occ.years_of_experience !== undefined && (
-                        <div className="text-center p-3 bg-slate-700/50 rounded-lg">
-                          <p className="text-2xl font-bold text-white">{occ.years_of_experience}</p>
-                          <p className="text-xs text-slate-400">Years Exp.</p>
+                        <div className="text-center p-3 bg-slate-700/50 rounded-lg print:bg-gray-100">
+                          <p className="text-2xl font-bold text-white print:text-gray-900">{occ.years_of_experience}</p>
+                          <p className="text-xs text-slate-400 print:text-gray-500">Years Exp.</p>
                         </div>
                       )}
                       {occ.total_hours_worked !== undefined && (
