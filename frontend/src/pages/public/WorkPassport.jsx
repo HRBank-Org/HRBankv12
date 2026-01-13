@@ -465,11 +465,19 @@ const WorkPassport = () => {
             </Link>
           </div>
 
-          {/* Footer */}
-          <div className="text-center mt-8 text-sm text-slate-500">
-            <p>Work Passport™ ID: {profile.profile_code}</p>
-            <p className="mt-1">Verified by HR Bank's blockchain credential system</p>
-            <p className="mt-2">© {new Date().getFullYear()} HR Bank. All rights reserved.</p>
+          {/* Footer with Trust Seal */}
+          <div className="text-center mt-8 pb-8">
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/work-passport-seal.png" 
+                alt="Work Passport Official Seal" 
+                className="w-16 h-16 object-contain opacity-60"
+              />
+            </div>
+            <p className="text-sm text-slate-400 font-medium">Work Passport™ ID: {profile.profile_code}</p>
+            <p className="mt-1 text-xs text-slate-500">Verified by HR Bank's blockchain credential system</p>
+            <p className="mt-1 text-xs text-slate-500">Secured on Polygon Network • Immutable & Tamper-Proof</p>
+            <p className="mt-3 text-xs text-slate-600">© {new Date().getFullYear()} HR Bank. All rights reserved.</p>
           </div>
         </main>
       </div>
