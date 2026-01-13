@@ -119,20 +119,26 @@ const WorkPassport = () => {
             {/* Gold Stripe */}
             <div className="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400"></div>
             
-            {/* Header with Emblem */}
+            {/* Header with Official Seal */}
             <div className="px-8 py-6 border-b border-slate-700 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
-                  <Stamp className="w-10 h-10 text-slate-900" />
-                </div>
+                <img 
+                  src="/work-passport-seal.png" 
+                  alt="Work Passport Official Seal" 
+                  className="w-20 h-20 object-contain drop-shadow-lg"
+                />
                 <div>
-                  <h2 className="text-2xl font-bold text-white tracking-wide">WORK PASSPORT</h2>
+                  <h2 className="text-2xl font-bold text-white tracking-wide">WORK PASSPORT™</h2>
                   <p className="text-amber-400 text-sm font-medium">BLOCKCHAIN VERIFIED • HR BANK</p>
+                  <p className="text-slate-500 text-xs mt-1">Secured on Polygon Network</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-slate-400 text-sm">Passport No.</p>
-                <p className="text-white font-mono text-lg">{profile.profile_code}</p>
+                <p className="text-white font-mono text-lg font-bold">{profile.profile_code}</p>
+                <p className="text-green-400 text-xs mt-1 flex items-center justify-end gap-1">
+                  <CheckCircle className="w-3 h-3" /> Authentic
+                </p>
               </div>
             </div>
 
