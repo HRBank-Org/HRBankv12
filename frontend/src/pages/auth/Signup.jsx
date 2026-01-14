@@ -107,7 +107,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
     window.location.href = `${backendUrl}/api/auth/google/login?user_type=${selectedUserType}${applyJobParam}`;
   };
 
-  if (success) {
+  if (signupResponse) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: theme.bgColor }}>
         <div className="max-w-md w-full text-center">
@@ -117,24 +117,23 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Account</h2>
             <p className="text-gray-600 mb-4">
-              We sent a verification link to <strong>{formData.email}</strong>. 
-              Please check your inbox and click the link to activate your account.
+              We sent verification codes to your email and phone. Please enter them to complete your registration.
             </p>
             {applyJobId && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
                 <p className="text-sm text-orange-800">
-                  📋 Your job application will be submitted automatically after you verify your email and complete your profile.
+                  📋 Your job application will be submitted automatically after verification and admin approval.
                 </p>
               </div>
             )}
             <Link
-              to="/login"
+              to={`/verify-otp?user_id=${signupResponse.data?.user_id}&user_type=${formData.user_type}`}
               className="inline-block py-3 px-6 rounded-lg text-white font-medium"
               style={{ backgroundColor: theme.primaryColor }}
             >
-              Go to Login
+              Enter Verification Codes
             </Link>
           </div>
         </div>
