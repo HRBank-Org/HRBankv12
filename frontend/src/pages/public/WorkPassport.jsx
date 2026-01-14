@@ -495,29 +495,31 @@ const WorkPassport = () => {
           {/* Blockchain Credentials */}
           {profile.blockchain_credentials?.length > 0 && (
             <div className="mb-6 print-section">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <Shield className="w-5 h-5 text-green-400" />
+              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4 print:text-gray-900">
+                <Shield className="w-5 h-5 text-green-400 print:text-green-600" />
                 Blockchain Verified Credentials
               </h3>
               
               <div className="grid md:grid-cols-2 gap-4">
                 {profile.blockchain_credentials.map((cred, index) => (
-                  <div key={cred.credential_id || index} className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 backdrop-blur-sm rounded-xl p-5 border border-green-500/30">
+                  <div key={cred.credential_id || index} className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 backdrop-blur-sm rounded-xl p-5 border border-green-500/30 credential-item print:bg-green-50 print:border-green-300">
                     <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <GraduationCap className="w-7 h-7 text-white" />
-                      </div>
+                      <img 
+                        src="/credential-verified-seal.png" 
+                        alt="Blockchain Verified" 
+                        className="w-14 h-14 object-contain flex-shrink-0"
+                      />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-white truncate">{cred.credential_name}</h4>
+                        <h4 className="font-semibold text-white truncate print:text-gray-900">{cred.credential_name}</h4>
                         {cred.program_name && (
-                          <p className="text-sm text-slate-300 truncate">{cred.program_name}</p>
+                          <p className="text-sm text-slate-300 truncate print:text-gray-600">{cred.program_name}</p>
                         )}
                         {cred.institution_name && (
-                          <p className="text-sm text-slate-400 mt-1">{cred.institution_name}</p>
+                          <p className="text-sm text-slate-400 mt-1 print:text-gray-500">{cred.institution_name}</p>
                         )}
                         <div className="flex items-center gap-2 mt-3">
                           {cred.on_chain && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs font-medium border border-green-500/30">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs font-medium border border-green-500/30 print:bg-green-100 print:text-green-700 print:border-green-300">
                               <CheckCircle className="w-3 h-3" />
                               On-Chain
                             </span>
