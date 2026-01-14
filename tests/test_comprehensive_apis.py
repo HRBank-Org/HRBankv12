@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://leaderboard-revamp-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://skill-passport-5.preview.emergentagent.com')
 
 # Test credentials for different user types
 CREDENTIALS = {
