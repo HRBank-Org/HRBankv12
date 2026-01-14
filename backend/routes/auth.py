@@ -400,30 +400,50 @@ async def resend_signup_otp(request: Request, resend_data: ResendOTPRequest, db:
     messages_sent = []
     
     if resend_data.otp_type in ["email", "both"] and email_otp:
-        from utils.email_service import email_service
-        await email_service.send_otp_email(
-            to_email=user["email"],
-            full_name=full_name,
-            otp_code=email_otp
-        )
-        messages_sent.append("email")
+        try:
+            from utils.email_service import email_service
+            email_sent = await email_service.send_otp_email(
+                to_email=user["email"],
+                full_name=full_name,
+                otp_code=email_otp
+            )
+            if email_sent:
+                messages_sent.append("email")
+            else:
+                print(f"\n{'='*50}")
+                print(f"📧 EMAIL OTP for {user['email']}: {email_otp}")
+                print(f"{'='*50}\n")
+                messages_sent.append("email (console)")
+        except Exception as e:
+            logger.error(f"Error sending email OTP: {str(e)}")
+            print(f"\n{'='*50}")
+            print(f"📧 EMAIL OTP for {user['email']}: {email_otp}")
+            print(f"{'='*50}\n")
+            messages_sent.append("email (console)")
     
     if resend_data.otp_type in ["phone", "both"] and phone_otp:
-        from services.sms_service import send_sms, format_phone_e164
-        formatted_phone = format_phone_e164(user["phone"])
-        if formatted_phone:
-            sms_result = await send_sms(
-                formatted_phone,
-                f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
-            )
-            if sms_result.get("success"):
-                messages_sent.append("phone")
+        try:
+            from services.sms_service import send_sms, format_phone_e164
+            formatted_phone = format_phone_e164(user["phone"])
+            if formatted_phone:
+                sms_result = await send_sms(
+                    formatted_phone,
+                    f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
+                )
+                if sms_result.get("success"):
+                    messages_sent.append("phone")
+                else:
+                    print(f"\n{'='*50}")
+                    print(f"📱 PHONE OTP for {user['phone']}: {phone_otp}")
+                    print(f"{'='*50}\n")
+                    messages_sent.append("phone (console)")
             else:
                 print(f"\n{'='*50}")
                 print(f"📱 PHONE OTP for {user['phone']}: {phone_otp}")
                 print(f"{'='*50}\n")
                 messages_sent.append("phone (console)")
-        else:
+        except Exception as e:
+            logger.error(f"Error sending SMS OTP: {str(e)}")
             print(f"\n{'='*50}")
             print(f"📱 PHONE OTP for {user['phone']}: {phone_otp}")
             print(f"{'='*50}\n")
