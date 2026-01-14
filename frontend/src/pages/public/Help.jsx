@@ -4,6 +4,7 @@ import {
   BookOpen, MessageCircle, FileText, Shield, Users, Settings,
   ChevronRight, Search, Phone, Mail
 } from 'lucide-react';
+import { LOGOS } from '../../utils/logoUtils';
 
 const helpCategories = [
   {
@@ -12,8 +13,8 @@ const helpCategories = [
     description: 'Learn the basics of HR Bank and create your WorkPassport™',
     links: [
       { label: 'Create your account', href: '/signup' },
-      { label: 'Build your WorkPassport™', href: '/faq#getting-started' },
-      { label: 'Add your first credential', href: '/faq#credentials' }
+      { label: 'Build your WorkPassport™', href: '/faq' },
+      { label: 'Add your first credential', href: '/faq' }
     ],
     color: 'blue'
   },
@@ -22,9 +23,9 @@ const helpCategories = [
     title: 'Verification & Credentials',
     description: 'Understand how blockchain verification works',
     links: [
-      { label: 'How verification works', href: '/faq#credentials' },
-      { label: 'Verification timeframes', href: '/faq#credentials' },
-      { label: 'Supported credential types', href: '/faq#credentials' }
+      { label: 'How verification works', href: '/faq' },
+      { label: 'Verification timeframes', href: '/faq' },
+      { label: 'Supported credential types', href: '/faq' }
     ],
     color: 'green'
   },
@@ -33,7 +34,7 @@ const helpCategories = [
     title: 'For Employers',
     description: 'Hire verified workers and manage your team',
     links: [
-      { label: 'Verify candidate credentials', href: '/faq#employers' },
+      { label: 'Verify candidate credentials', href: '/faq' },
       { label: 'Post job listings', href: '/employers' },
       { label: 'Employer pricing', href: '/contact' }
     ],
@@ -45,8 +46,8 @@ const helpCategories = [
     description: 'Issue credentials to your students and members',
     links: [
       { label: 'Partnership program', href: '/institutions' },
-      { label: 'Credential issuance', href: '/faq#institutions' },
-      { label: 'Institution benefits', href: '/faq#institutions' }
+      { label: 'Credential issuance', href: '/faq' },
+      { label: 'Institution benefits', href: '/faq' }
     ],
     color: 'purple'
   },
@@ -55,7 +56,7 @@ const helpCategories = [
     title: 'Account Settings',
     description: 'Manage your profile, privacy, and preferences',
     links: [
-      { label: 'Update profile', href: '/faq#account' },
+      { label: 'Update profile', href: '/faq' },
       { label: 'Privacy settings', href: '/privacy' },
       { label: 'Password reset', href: '/forgot-password' }
     ],
@@ -66,7 +67,7 @@ const helpCategories = [
     title: 'Contact Support',
     description: 'Get help from our support team',
     links: [
-      { label: 'Submit a ticket', href: '/contact' },
+      { label: 'Submit a request', href: '/contact' },
       { label: 'Email support', href: 'mailto:support@hrbank.ca' },
       { label: 'Call us', href: 'tel:+14164142955' }
     ],
@@ -90,15 +91,19 @@ const Help = () => {
       <nav className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏦</span>
-            <span className="font-bold text-xl text-gray-900">HR Bank</span>
+            <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
           </Link>
-          <Link 
-            to="/login" 
-            className="px-4 py-2 bg-[#30496d] text-white rounded-lg hover:bg-[#243a57] transition-colors"
-          >
-            Sign In
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/faq" className="text-gray-600 hover:text-gray-900 font-medium">
+              FAQ
+            </Link>
+            <Link 
+              to="/login" 
+              className="px-4 py-2 bg-[#30496d] text-white rounded-lg hover:bg-[#243a57] transition-colors"
+            >
+              Sign In
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -219,13 +224,16 @@ const Help = () => {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-8 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p>&copy; {new Date().getFullYear()} HR Bank. All rights reserved.</p>
-          <div className="flex items-center justify-center gap-6 mt-4">
-            <Link to="/about" className="hover:text-white">About</Link>
-            <Link to="/contact" className="hover:text-white">Contact</Link>
-            <Link to="/privacy" className="hover:text-white">Privacy</Link>
-            <Link to="/terms" className="hover:text-white">Terms</Link>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <img src={LOGOS.master} alt="HR Bank" className="h-8 w-auto opacity-70" />
+            <p>&copy; {new Date().getFullYear()} HR Bank. All rights reserved.</p>
+            <div className="flex items-center gap-6">
+              <Link to="/about" className="hover:text-white">About</Link>
+              <Link to="/contact" className="hover:text-white">Contact</Link>
+              <Link to="/privacy" className="hover:text-white">Privacy</Link>
+              <Link to="/terms" className="hover:text-white">Terms</Link>
+            </div>
           </div>
         </div>
       </footer>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Search, HelpCircle } from 'lucide-react';
+import { LOGOS } from '../../utils/logoUtils';
 
 const faqData = [
   {
@@ -112,15 +113,19 @@ const FAQ = () => {
       <nav className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏦</span>
-            <span className="font-bold text-xl text-gray-900">HR Bank</span>
+            <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
           </Link>
-          <Link 
-            to="/login" 
-            className="px-4 py-2 bg-[#30496d] text-white rounded-lg hover:bg-[#243a57] transition-colors"
-          >
-            Sign In
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/help" className="text-gray-600 hover:text-gray-900 font-medium">
+              Help Center
+            </Link>
+            <Link 
+              to="/login" 
+              className="px-4 py-2 bg-[#30496d] text-white rounded-lg hover:bg-[#243a57] transition-colors"
+            >
+              Sign In
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -223,13 +228,16 @@ const FAQ = () => {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-8 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p>&copy; {new Date().getFullYear()} HR Bank. All rights reserved.</p>
-          <div className="flex items-center justify-center gap-6 mt-4">
-            <Link to="/about" className="hover:text-white">About</Link>
-            <Link to="/contact" className="hover:text-white">Contact</Link>
-            <Link to="/privacy" className="hover:text-white">Privacy</Link>
-            <Link to="/terms" className="hover:text-white">Terms</Link>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <img src={LOGOS.master} alt="HR Bank" className="h-8 w-auto opacity-70" />
+            <p>&copy; {new Date().getFullYear()} HR Bank. All rights reserved.</p>
+            <div className="flex items-center gap-6">
+              <Link to="/about" className="hover:text-white">About</Link>
+              <Link to="/contact" className="hover:text-white">Contact</Link>
+              <Link to="/privacy" className="hover:text-white">Privacy</Link>
+              <Link to="/terms" className="hover:text-white">Terms</Link>
+            </div>
           </div>
         </div>
       </footer>
