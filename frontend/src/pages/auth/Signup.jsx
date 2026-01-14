@@ -84,8 +84,14 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
 
     try {
       const { password, confirmPassword, ...userData } = formData;
-      await signup({ ...userData, password, phone });
-      setSuccess(true);
+      const response = await signup({ ...userData, password, phone });
+      
+      // Redirect to OTP verification page
+      if (response?.data?.user_id) {
+        navigate(`/verify-otp?user_id=${response.data.user_id}&user_type=${formData.user_type}`);
+      } else {
+        setSignupResponse(response);
+      }
     } catch (err) {
       setError(err.error?.message || err.detail || 'Signup failed. Please try again.');
     } finally {
