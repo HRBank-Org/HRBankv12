@@ -26,7 +26,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
   }, [selectedUserType]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [signupResponse, setSignupResponse] = useState(null);
   const [googleAvailable, setGoogleAvailable] = useState(true);
   const { signup } = useAuth();
   const navigate = useNavigate();
