@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   GraduationCap, Shield, Award, CheckCircle, ArrowRight,
   FileCheck, TrendingUp, Users, Globe, Trophy, DollarSign
 } from 'lucide-react';
+import LoginModal from '../../components/auth/LoginModal';
 
 const InstitutionLanding = () => {
   const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const benefits = [
     {
@@ -58,14 +60,16 @@ const InstitutionLanding = () => {
               Leaderboard
             </Link>
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => setShowLoginModal(true)}
               className="px-4 py-2 text-purple-600 font-medium hover:bg-purple-50 rounded-lg"
+              data-testid="institution-signin-btn"
             >
               Sign In
             </button>
             <button
               onClick={() => navigate('/signup?type=institution')}
               className="px-6 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700"
+              data-testid="institution-signup-btn"
             >
               Partner With Us
             </button>
@@ -260,6 +264,13 @@ const InstitutionLanding = () => {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        userType="institution" 
+      />
     </div>
   );
 };

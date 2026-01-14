@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Building2, Shield, Users, Clock, CheckCircle, ArrowRight,
   Search, Calendar, DollarSign, FileCheck, TrendingUp, Zap
 } from 'lucide-react';
+import LoginModal from '../../components/auth/LoginModal';
 
 const EmployerLanding = () => {
   const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const benefits = [
     {
@@ -62,14 +64,16 @@ const EmployerLanding = () => {
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => setShowLoginModal(true)}
               className="px-4 py-2 text-orange-600 font-medium hover:bg-orange-50 rounded-lg"
+              data-testid="employer-signin-btn"
             >
               Sign In
             </button>
             <button
               onClick={() => navigate('/signup?type=employer')}
               className="px-6 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700"
+              data-testid="employer-signup-btn"
             >
               Start Hiring
             </button>
@@ -271,6 +275,13 @@ const EmployerLanding = () => {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        userType="employer" 
+      />
     </div>
   );
 };
