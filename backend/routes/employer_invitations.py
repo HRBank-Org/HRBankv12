@@ -525,7 +525,7 @@ async def send_invitation_notifications(invite_token: InviteToken, employer_name
     """Send email and SMS invitation"""
     
     # Generate signup link
-    frontend_url = "https://login-routes.preview.emergentagent.com"
+    frontend_url = "https://careerbridge-45.preview.emergentagent.com"
     signup_link = f"{frontend_url}/signup?token={invite_token.invite_token}&type=employer_invite"
     
     # Email
