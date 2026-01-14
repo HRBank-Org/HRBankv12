@@ -5,12 +5,31 @@ from auth.password import hash_password, verify_password
 from auth.jwt_handler import create_access_token, create_refresh_token
 from datetime import datetime, timedelta, timezone
 from typing import Dict
+from pydantic import BaseModel
 import uuid
 import os
+import random
+import logging
 from starlette.responses import RedirectResponse
 from utils.rate_limiter import limiter
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+# OTP Models
+class VerifyOTPRequest(BaseModel):
+    user_id: str
+    email_otp: str
+    phone_otp: str
+
+class ResendOTPRequest(BaseModel):
+    user_id: str
+    otp_type: str  # "email", "phone", or "both"
+
+def generate_otp():
+    """Generate a 6-digit OTP"""
+    return str(random.randint(100000, 999999))
 
 def get_db():
     """Dependency to get database instance"""
