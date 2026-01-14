@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { 
@@ -7,9 +7,11 @@ import {
   ClipboardList, UserCheck, AlertTriangle, Star, Play
 } from 'lucide-react';
 import { LOGOS } from '../../utils/logoUtils';
+import LoginModal from '../../components/auth/LoginModal';
 
 const EmployersLanding = () => {
   const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   return (
     <div className="min-h-screen bg-white">
@@ -37,7 +39,7 @@ const EmployersLanding = () => {
                 Jobs
               </Link>
             </div>
-            <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
+            <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="employer-landing-signin">
               Sign In
             </Button>
           </div>
