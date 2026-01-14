@@ -731,8 +731,15 @@ async def google_login(request: Request, user_type: str = "workforce"):
     
     from auth.oauth_config import oauth
     
-    # Store user_type in session for callback
-    redirect_uri = f"{request.base_url}api/auth/google/callback?user_type={user_type}"
+    # Build redirect URI - force HTTPS for production
+    base_url = str(request.base_url)
+    # Replace http with https for production environments
+    if 'hrbank.ca' in base_url or 'preview.emergentagent.com' in base_url:
+        base_url = base_url.replace('http://', 'https://')
+    # Ensure no trailing slash issues
+    base_url = base_url.rstrip('/')
+    
+    redirect_uri = f"{base_url}/api/auth/google/callback?user_type={user_type}"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @router.get("/google/callback")
