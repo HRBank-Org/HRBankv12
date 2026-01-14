@@ -540,6 +540,31 @@ const LandingPage = () => {
         </section>
       )}
 
+      {/* High School Students Callout - Compact */}
+      <section className="py-12 bg-gradient-to-r from-emerald-600 to-teal-600">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <span className="text-3xl">🎓</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Still in High School?</h3>
+                <p className="text-emerald-100">Start building your WorkPassport™ early — track volunteer hours, certifications & achievements now.</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => navigate('/signup?type=workforce')}
+              className="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 font-semibold whitespace-nowrap"
+              data-testid="student-cta-btn"
+            >
+              Start Early — It&apos;s Free
+              <ChevronRight className="ml-2 w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-20 bg-gradient-to-r from-amber-500 to-orange-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
