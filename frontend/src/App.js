@@ -8,6 +8,7 @@ import "./App.css";
 // Auth pages
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import VerifyOTP from './pages/auth/VerifyOTP';
 import GoogleCallback from './pages/auth/GoogleCallback';
 import PendingApproval from './pages/auth/PendingApproval';
 
