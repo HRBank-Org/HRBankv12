@@ -73,7 +73,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">Phone</h3>
-                  <p className="text-gray-600">1-800-HR-BANK (1-800-472-2265)</p>
+                  <p className="text-gray-600">+1 (416) 414-2955</p>
                   <p className="text-gray-500 text-sm">Mon-Fri 9AM-5PM EST</p>
                 </div>
               </div>
