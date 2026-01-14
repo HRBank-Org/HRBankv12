@@ -502,6 +502,13 @@ const InstitutionsLanding = () => {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        userType="institution" 
+      />
     </div>
   );
 };
