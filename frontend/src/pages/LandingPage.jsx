@@ -512,6 +512,130 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* High School Students Section */}
+      <section className="py-20 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 text-9xl font-bold text-white rotate-12">📚</div>
+          <div className="absolute bottom-10 right-10 text-9xl font-bold text-white -rotate-12">🎓</div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Content */}
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-white text-sm font-semibold mb-6 backdrop-blur-sm">
+                <span className="text-xl">🎒</span>
+                <span>For High School Students</span>
+              </div>
+
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                Start Building Your
+                <br />
+                <span className="text-emerald-200">Future Today</span>
+              </h2>
+
+              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
+                Don't wait until graduation. Start organizing your achievements, certifications, 
+                and volunteer work now. Your WorkPassport™ grows with you — making your first job 
+                application a breeze.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">Track Your Achievements</p>
+                    <p className="text-emerald-200 text-sm">Volunteer hours, club activities, certifications — all in one place</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">Stand Out to Employers</p>
+                    <p className="text-emerald-200 text-sm">Verified credentials beat a blank resume every time</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">Free Forever</p>
+                    <p className="text-emerald-200 text-sm">No hidden costs — build your future without breaking the bank</p>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                size="lg"
+                onClick={() => navigate('/signup?type=workforce')}
+                className="bg-white text-emerald-700 hover:bg-emerald-50 h-14 px-8 text-lg font-semibold"
+                data-testid="highschool-cta-btn"
+              >
+                Start My WorkPassport™ — It's Free
+                <ChevronRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Visual Card */}
+            <div className="relative hidden lg:block">
+              <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm mx-auto transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    S
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">Sarah Chen</h4>
+                    <p className="text-sm text-gray-500">Grade 11 Student</p>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full">
+                      Building Profile
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🏆</span>
+                      <span className="text-sm font-medium text-gray-700">First Aid Certificate</span>
+                    </div>
+                    <span className="text-xs text-green-600 font-semibold">Verified</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🤝</span>
+                      <span className="text-sm font-medium text-gray-700">50 Volunteer Hours</span>
+                    </div>
+                    <span className="text-xs text-green-600 font-semibold">Verified</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">💻</span>
+                      <span className="text-sm font-medium text-gray-700">Computer Science Club</span>
+                    </div>
+                    <span className="text-xs text-blue-600 font-semibold">2 Years</span>
+                  </div>
+                </div>
+
+                <div className="text-center pt-4 border-t border-gray-100">
+                  <p className="text-xs text-gray-500">Ready for part-time jobs & internships</p>
+                </div>
+              </div>
+
+              <div className="absolute -bottom-4 -left-4 bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
+                🌟 Head start on your career!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Partner Logos Carousel - Only show if we have partners */}
       {partnerLogos.length > 0 && (
         <section className="py-12 bg-gray-50">
