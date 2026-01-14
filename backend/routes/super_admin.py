@@ -592,12 +592,13 @@ async def get_franchise_analytics(
 async def get_pending_activations(
     user_type: Optional[str] = Query(None, description="workforce, employer, institution"),
     province: Optional[str] = Query(None),
+    city: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     current_user: dict = Depends(require_super_admin),
     db = Depends(get_db)
 ):
-    """Get users pending account activation"""
+    """Get users pending account activation with province/city filtering"""
     
     admin = await get_admin_user(current_user["user_id"], db)
     if admin and not admin.has_permission("can_activate_users"):
@@ -619,12 +620,12 @@ async def get_pending_activations(
     
     skip = (page - 1) * limit
     
-    users = await db.users.find(query, {"_id": 0, "password_hash": 0}).skip(skip).limit(limit).to_list(limit)
-    total = await db.users.count_documents(query)
+    # First get all matching users
+    all_users = await db.users.find(query, {"_id": 0, "password_hash": 0}).to_list(None)
     
-    # Enrich with profile data
+    # Enrich with profile data and filter by province/city
     enriched_users = []
-    for user in users:
+    for user in all_users:
         user_data = dict(user)
         
         # Get profile based on type
@@ -644,15 +645,32 @@ async def get_pending_activations(
                 user_data["province"] = profile.get("province")
                 user_data["city"] = profile.get("city")
         
+        # Apply province/city filters
+        if province:
+            user_province = user_data.get("province", "")
+            if user_province != province:
+                continue
+        
+        if city:
+            user_city = user_data.get("city", "")
+            if user_city != city:
+                continue
+        
         enriched_users.append(user_data)
+    
+    # Calculate total after filtering
+    total = len(enriched_users)
+    
+    # Apply pagination
+    paginated_users = enriched_users[skip:skip + limit]
     
     return {
         "success": True,
         "data": {
-            "pending_users": enriched_users,
+            "pending_users": paginated_users,
             "total": total,
             "page": page,
-            "pages": (total + limit - 1) // limit
+            "pages": (total + limit - 1) // limit if total > 0 else 1
         }
     }
 
