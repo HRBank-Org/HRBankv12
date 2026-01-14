@@ -426,6 +426,13 @@ const EmployersLanding = () => {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        userType="employer" 
+      />
     </div>
   );
 };
