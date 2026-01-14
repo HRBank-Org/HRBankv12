@@ -209,7 +209,7 @@ const WorkPassport = () => {
                   className="w-20 h-20 object-contain drop-shadow-lg"
                 />
                 <div>
-                  <h2 className="text-2xl font-bold text-white tracking-wide print:text-gray-900">WORKPASSPORT™</h2>
+                  <h2 className="text-2xl font-bold text-white tracking-wide print:text-gray-900">WorkPassport™</h2>
                   <p className="text-amber-400 text-sm font-medium print:text-amber-600">BLOCKCHAIN VERIFIED • HR BANK</p>
                   <p className="text-slate-500 text-xs mt-1 print:text-gray-500">Secured on Polygon Network</p>
                 </div>
