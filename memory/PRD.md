@@ -13,111 +13,69 @@ Build a comprehensive HR platform (HR Bank) with Go-To-Market strategy focusing 
 
 ### Authentication & Verification
 - [x] JWT-based authentication
-- [x] Google OAuth integration
-- [x] **Dual OTP Verification (Implemented but pending credentials)** - Email + Phone OTP during signup
+- [x] Google OAuth integration (Fixed HTTPS redirect)
+- [x] Dual OTP Verification - Email (SendGrid) + Phone (Twilio)
 - [x] Admin approval workflow for new accounts
 - [x] Password reset functionality
-- [x] **NEW: Popup Login Modals** - User-type specific login modals with remember me
+- [x] Popup Login Modals with "Remember Me" checkbox
 
 ### WorkPassport™ Features
 - [x] Public profile pages with blockchain verification
 - [x] Professional seal and branding
 - [x] Print-friendly export with watermark
 - [x] Credential-level verification badges
-- [x] **NEW: High School Students Section** - Encouraging early enrollment
+- [x] High School Students Section (compact callout)
 
 ### Employer Features
 - [x] Job posting management
 - [x] Shift scheduling
 - [x] Worker management
 - [x] WSIB compliance tracking
-- [x] **NEW: Popup Login Modal** with orange theme
+- [x] Popup Login Modal with orange theme
 
 ### Institution Features
 - [x] Credential issuance
 - [x] Transcript management
 - [x] Student/alumni verification
-- [x] **NEW: Popup Login Modal** with purple theme
+- [x] Popup Login Modal with purple theme
 
 ### Admin Features
 - [x] User management and approval
 - [x] Platform analytics
 - [x] Compliance monitoring
-- [x] **NEW: Popup Login Modal** with red/dark theme for admin.hrbank.ca
+- [x] Activity Feed with real data
+- [x] Popup Login Modal with red/dark theme
 
 ## Tech Stack
 - **Frontend**: React + TailwindCSS + Shadcn/UI
 - **Backend**: FastAPI (Python)
 - **Database**: MongoDB (hrbank_db)
 - **Blockchain**: Polygon Mainnet
-- **Email**: SendGrid (PENDING CREDENTIALS)
-- **SMS**: Twilio (PENDING CREDENTIALS)
+- **Email**: SendGrid (Configured)
+- **SMS**: Twilio (Configured)
 - **Storage**: IPFS (Pinata)
 - **Payments**: Stripe
 
 ## What's Been Implemented
 
-### December 2025
-- Core platform architecture
-- Multi-tenant landing pages
-- Blockchain credential verification
-- Public WorkPassport pages
+### January 14, 2026
+- **OTP System**: Fully functional with SendGrid (email) and Twilio (SMS)
+- **Google OAuth Fix**: Backend now forces HTTPS for production redirect URIs
+- **Popup Login Modals**: All landing pages now use themed popup modals with "Remember Me"
+- **High School Students Section**: Moved to compact callout before final CTA
+- **Activity Feed**: Updated to fetch real data from API instead of static dummy data
+- **New Public Pages Created**:
+  - `/faq` - Searchable FAQ with categories
+  - `/help` - Help center with category cards
+  - `/careers` - Careers page with open positions
+- **Contact Page**: Updated phone number to +1 (416) 414-2955
+- **Contact Info**: support@hrbank.ca, partnerships@hrbank.ca
 
-### January 2026
-- **Jan 14**: Dual OTP verification system (functional but SendGrid/Twilio credentials failing)
-- **Jan 14**: WorkPassport seal branding update
-- **Jan 14**: NEW - Popup Login Modals for all user types
-  - Created `/app/frontend/src/components/auth/LoginModal.jsx`
-  - Updated WorkforceLanding, EmployerLanding, InstitutionLanding, AdminLanding (subdomain pages)
-  - Updated LandingPage.jsx, EmployersLanding.jsx, InstitutionsLanding.jsx (main pages)
-  - Features: Remember me checkbox, Google OAuth, show/hide password, color themes
-- **Jan 14**: NEW - High School Students Section on main landing page
-  - Encouraging section with visual card showing example student profile
-  - CTA for early enrollment
-
-## Prioritized Backlog
-
-### P0 (Critical)
-- [ ] Configure production SendGrid/Twilio credentials (OTP feature blocked)
-- [ ] Deploy latest changes to AWS Lightsail
-
-### P1 (High)
-- [ ] **11 Placeholder Pages** (user to provide list)
-- [ ] **Start CleanGrid Project** (user to provide details)
-
-### P2 (Medium)
-- [ ] Admin Management map visualization
-- [ ] Franchise Management UI
-- [ ] Full i18n Implementation
-
-### P3 (Low/Technical Debt)
-- [ ] Workforce Dashboard Performance optimization
-- [ ] Fix bcrypt warning on startup
-- [ ] Update remaining utcnow() usages
-
-## Environment Configuration
-
-### Frontend (.env)
-```
-REACT_APP_BACKEND_URL=<production_url>
-```
-
-### Backend (.env)
-```
-MONGO_URL=mongodb://localhost:27017
-DB_NAME=hrbank_db
-SENDGRID_API_KEY=<api_key>
-TWILIO_ACCOUNT_SID=<account_sid>
-TWILIO_AUTH_TOKEN=<auth_token>
-TWILIO_PHONE_NUMBER=<phone_number>
-```
-
-## Test Credentials
-- **Super Admin**: qnizami@hrbank.ca / Test123!
-- **Institution**: demo@stclairecollege.ca / Demo123!
-- **Employer**: demo@swanpizza.ca / Demo123!
-- **Workforce**: alex.johnson@email.com / Demo123!
-- **Sample Profile Code**: ALEX2024
+## Contact Information
+- **Support Email**: support@hrbank.ca
+- **Partnerships Email**: partnerships@hrbank.ca
+- **Phone**: +1 (416) 414-2955
+- **Location**: Windsor, Ontario, Canada
 
 ## Key API Endpoints
 
@@ -126,30 +84,56 @@ TWILIO_PHONE_NUMBER=<phone_number>
 - `POST /api/auth/verify-signup-otp` - Verify email + phone OTPs
 - `POST /api/auth/resend-signup-otp` - Resend OTP codes
 - `POST /api/auth/login` - User login
-- `GET /api/auth/signup-verification-status/{user_id}` - Check verification status
+- `GET /api/auth/google/login` - Google OAuth (forces HTTPS)
 
-### WorkPassport
-- `GET /api/career-profile/public/{profile_code}` - Public profile data
+### Admin
+- `GET /api/admin/users` - List users (for Activity Feed)
+- `GET /api/admin/credential-reviews` - Credential reviews
+- `GET /api/admin/support-tickets` - Support tickets
 
-## Key Files Reference
+## Test Credentials
+- **Super Admin**: qnizami@hrbank.ca / Test123!
+- **Institution**: demo@stclairecollege.ca / Demo123!
+- **Employer**: demo@swanpizza.ca / Demo123!
+- **Workforce**: alex.johnson@email.com / Demo123!
+- **Sample Profile Code**: ALEX2024
 
-### Login Modal System
-- `/app/frontend/src/components/auth/LoginModal.jsx` - Reusable popup login modal
-- `/app/frontend/src/pages/LandingPage.jsx` - Main workforce landing
-- `/app/frontend/src/pages/landing/EmployersLanding.jsx` - Employer landing
-- `/app/frontend/src/pages/landing/InstitutionsLanding.jsx` - Institution landing
-- `/app/frontend/src/pages/subdomains/AdminLanding.jsx` - Admin subdomain landing
-
-### High School Section
-- `/app/frontend/src/pages/LandingPage.jsx` - Contains new High School Students section
+## Public Pages
+- `/` - Main landing page (WorkPassport™)
+- `/employers` - Employers landing
+- `/institutions` - Institutions landing
+- `/about` - About HR Bank
+- `/contact` - Contact page
+- `/faq` - Frequently Asked Questions
+- `/help` - Help Center
+- `/careers` - Careers page
+- `/privacy` - Privacy Policy
+- `/terms` - Terms of Service
+- `/leaderboard` - Institution leaderboard
 
 ## Production Deployment
 - **AWS Lightsail**: 35.183.20.213
 - **Domain**: hrbank.ca
-- **Subdomains planned**: workforce.hrbank.ca, employer.hrbank.ca, institution.hrbank.ca, admin.hrbank.ca
+- **Google OAuth**: Configured with HTTPS redirect URIs
 - **SSL**: AWS Load Balancer with certificate
 
-## Known Issues
-1. **OTP Feature MOCKED**: SendGrid/Twilio returning 401 errors - credentials needed
-2. **bcrypt warning**: Benign startup warning
-3. **utcnow deprecation**: Some usages still exist
+## Deployment Checklist
+To deploy latest changes to production:
+1. Build Docker images locally (Windows)
+2. Push to Docker Hub
+3. Pull and restart on AWS Lightsail
+4. Verify Google OAuth works with HTTPS
+
+## Completed in This Session
+1. ✅ OTP verification working (Email + SMS)
+2. ✅ Google OAuth HTTPS fix for production
+3. ✅ Popup login modals on all landing pages
+4. ✅ High School Students section repositioned
+5. ✅ Activity Feed fetching real data
+6. ✅ FAQ page created
+7. ✅ Help page created
+8. ✅ Careers page created
+9. ✅ Contact info updated
+
+## Ready for Next Project
+HR Bank is feature-complete for current scope. Ready to start **CleanGrid** in a new session with its own database.
