@@ -41,7 +41,7 @@ def get_db():
 async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     User signup endpoint
-    Creates new user account and sends email verification
+    Creates new user account and sends email + phone OTPs for verification
     """
     # Check if user already exists
     existing_user = await db.users.find_one({"email": user_data.email})
@@ -66,10 +66,12 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
     user_doc = {
         "user_id": user_id,
         "email": user_data.email,
+        "phone": user_data.phone,
         "password_hash": hashed_password,
         "user_type": user_data.user_type,
-        "profile_status": "pending",  # All new users start as pending
+        "profile_status": "pending_verification",  # New status: pending OTP verification
         "email_verified": False,
+        "phone_verified": False,
         "mfa_enabled": False,
         "created_date": datetime.now(timezone.utc).isoformat(),
         "last_login_date": None,
@@ -84,7 +86,7 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
         "full_name": user_data.full_name,
         "phone": user_data.phone,
         "created_date": datetime.now(timezone.utc).isoformat(),
-        "onboarding_completed": False  # Track onboarding status
+        "onboarding_completed": False
     }
     
     if user_data.user_type == "workforce":
@@ -93,12 +95,12 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
             "certifications": [],
             "rating_avg": 0.0,
             "rating_count": 0,
-            "profile_completeness": 20,  # 20% for basic info
+            "profile_completeness": 20,
             "completed_jobs_count": 0
         })
         await db.workforce_profiles.insert_one(profile_doc)
     elif user_data.user_type == "employer":
-        profile_doc["company_name"] = user_data.full_name  # Will be updated in onboarding
+        profile_doc["company_name"] = user_data.full_name
         profile_doc["rating_avg"] = 0.0
         profile_doc["rating_count"] = 0
         profile_doc["address"] = ""
@@ -110,40 +112,178 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
         profile_doc["verified_status"] = "pending"
         await db.institution_profiles.insert_one(profile_doc)
     
-    # Create email verification token
-    verification_token = uuid.uuid4().hex
-    verification_doc = {
-        "user_id": user_id,
-        "verification_token": verification_token,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
-        "verified": False
-    }
-    await db.email_verifications.insert_one(verification_doc)
+    # Generate OTPs for both email and phone
+    email_otp = generate_otp()
+    phone_otp = generate_otp()
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     
-    # Send verification email via SendGrid
+    # Store OTPs in database
+    otp_doc = {
+        "user_id": user_id,
+        "email": user_data.email,
+        "phone": user_data.phone,
+        "email_otp": email_otp,
+        "phone_otp": phone_otp,
+        "email_verified": False,
+        "phone_verified": False,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "attempts": 0
+    }
+    await db.signup_otps.insert_one(otp_doc)
+    
+    # Send Email OTP via SendGrid
     from utils.email_service import email_service
-    await email_service.send_verification_email(
+    await email_service.send_otp_email(
         to_email=user_data.email,
         full_name=user_data.full_name,
-        verification_token=verification_token
+        otp_code=email_otp
     )
     
-    # Create admin notification for new signup
+    # Send Phone OTP via Twilio
+    from services.sms_service import send_sms, format_phone_e164
+    formatted_phone = format_phone_e164(user_data.phone)
+    if formatted_phone:
+        sms_result = await send_sms(
+            formatted_phone,
+            f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
+        )
+        if not sms_result.get("success"):
+            logger.warning(f"Failed to send SMS OTP to {user_data.phone}: {sms_result.get('error')}")
+            # Log OTP to console for testing if SMS fails
+            print(f"\n{'='*50}")
+            print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
+            print(f"{'='*50}\n")
+    else:
+        # Log OTP to console for testing
+        print(f"\n{'='*50}")
+        print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
+        print(f"{'='*50}\n")
+    
+    return {
+        "success": True,
+        "data": {
+            "user_id": user_id,
+            "email": user_data.email,
+            "phone": user_data.phone,
+            "user_type": user_data.user_type,
+            "requires_verification": True,
+            "message": "Please verify your email and phone with the OTPs sent."
+        },
+        "message": "Account created. Please verify your email and phone."
+    }
+
+
+@router.post("/verify-signup-otp", response_model=Dict)
+@limiter.limit("10/minute")
+async def verify_signup_otp(request: Request, otp_data: VerifyOTPRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Verify both email and phone OTPs during signup
+    After verification, account moves to 'pending' status for admin approval
+    """
+    # Find the OTP record
+    otp_record = await db.signup_otps.find_one({
+        "user_id": otp_data.user_id
+    }, sort=[("created_at", -1)])
+    
+    if not otp_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No verification request found. Please sign up again."
+        )
+    
+    # Check if OTP has expired
+    expires_at = datetime.fromisoformat(otp_record["expires_at"])
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OTP has expired. Please request new codes."
+        )
+    
+    # Check attempts
+    if otp_record.get("attempts", 0) >= 5:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Too many failed attempts. Please request new codes."
+        )
+    
+    # Verify both OTPs
+    email_valid = otp_record["email_otp"] == otp_data.email_otp
+    phone_valid = otp_record["phone_otp"] == otp_data.phone_otp
+    
+    if not email_valid or not phone_valid:
+        # Increment attempts
+        await db.signup_otps.update_one(
+            {"_id": otp_record["_id"]},
+            {"$inc": {"attempts": 1}}
+        )
+        
+        errors = []
+        if not email_valid:
+            errors.append("Invalid email OTP")
+        if not phone_valid:
+            errors.append("Invalid phone OTP")
+        
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=". ".join(errors)
+        )
+    
+    # Mark OTPs as verified
+    await db.signup_otps.update_one(
+        {"_id": otp_record["_id"]},
+        {
+            "$set": {
+                "email_verified": True,
+                "phone_verified": True,
+                "verified_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    # Update user verification status
+    await db.users.update_one(
+        {"user_id": otp_data.user_id},
+        {
+            "$set": {
+                "email_verified": True,
+                "phone_verified": True,
+                "profile_status": "pending"  # Move to pending for admin approval
+            }
+        }
+    )
+    
+    # Create admin notification for new verified signup
     from models.admin import Notification
+    
+    user = await db.users.find_one({"user_id": otp_data.user_id}, {"_id": 0})
+    user_type = user.get("user_type", "unknown")
+    
+    # Get profile info
+    profile = None
+    if user_type == "workforce":
+        profile = await db.workforce_profiles.find_one({"workforce_id": otp_data.user_id}, {"_id": 0})
+    elif user_type == "employer":
+        profile = await db.employer_profiles.find_one({"employer_id": otp_data.user_id}, {"_id": 0})
+    elif user_type == "institution":
+        profile = await db.institution_profiles.find_one({"institution_id": otp_data.user_id}, {"_id": 0})
+    
+    full_name = profile.get("full_name", "Unknown") if profile else "Unknown"
+    
     admin_users = await db.users.find({"user_type": "admin"}, {"user_id": 1}).to_list(10)
     
     for admin in admin_users:
         admin_notif = Notification(
             user_id=admin["user_id"],
-            type="new_signup",
-            title=f"New {user_data.user_type.title()} Signup",
-            message=f"{user_data.full_name} ({user_data.email}) signed up as {user_data.user_type}. Phone: {user_data.phone}. Please review and approve.",
+            type="new_verified_signup",
+            title=f"New Verified {user_type.title()} Account",
+            message=f"{full_name} ({user['email']}) has verified their email and phone. Account is ready for approval.",
             data={
-                "action_url": f"/admin/users/{user_id}",
-                "action_button_text": "Review Account",
+                "action_url": f"/admin/users/{otp_data.user_id}",
+                "action_button_text": "Review & Approve",
                 "priority": "high",
-                "user_type": user_data.user_type
+                "user_type": user_type,
+                "verified": True
             }
         )
         await db.notifications.insert_one(admin_notif.model_dump())
@@ -151,14 +291,165 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
     return {
         "success": True,
         "data": {
-            "user_id": user_id,
-            "email": user_data.email,
-            "user_type": user_data.user_type,
-            "email_verified": False,
+            "email_verified": True,
+            "phone_verified": True,
             "profile_status": "pending",
-            "verification_token_sent": True
+            "message": "Your account has been verified and is pending admin approval."
         },
-        "message": "Account created. Please verify your email."
+        "message": "Verification successful! Your account is pending admin approval."
+    }
+
+
+@router.post("/resend-signup-otp", response_model=Dict)
+@limiter.limit("3/minute")
+async def resend_signup_otp(request: Request, resend_data: ResendOTPRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Resend OTP(s) for signup verification
+    """
+    # Find the user
+    user = await db.users.find_one({"user_id": resend_data.user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    if user.get("profile_status") != "pending_verification":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account is already verified or has a different status"
+        )
+    
+    # Get profile for full name
+    profile = None
+    user_type = user.get("user_type")
+    if user_type == "workforce":
+        profile = await db.workforce_profiles.find_one({"workforce_id": resend_data.user_id}, {"_id": 0})
+    elif user_type == "employer":
+        profile = await db.employer_profiles.find_one({"employer_id": resend_data.user_id}, {"_id": 0})
+    elif user_type == "institution":
+        profile = await db.institution_profiles.find_one({"institution_id": resend_data.user_id}, {"_id": 0})
+    
+    full_name = profile.get("full_name", "User") if profile else "User"
+    
+    # Generate new OTPs
+    email_otp = generate_otp() if resend_data.otp_type in ["email", "both"] else None
+    phone_otp = generate_otp() if resend_data.otp_type in ["phone", "both"] else None
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    
+    # Get existing OTP record or create new one
+    existing_otp = await db.signup_otps.find_one(
+        {"user_id": resend_data.user_id},
+        sort=[("created_at", -1)]
+    )
+    
+    update_fields = {
+        "expires_at": expires_at.isoformat(),
+        "attempts": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    if email_otp:
+        update_fields["email_otp"] = email_otp
+        update_fields["email_verified"] = False
+    if phone_otp:
+        update_fields["phone_otp"] = phone_otp
+        update_fields["phone_verified"] = False
+    
+    if existing_otp:
+        await db.signup_otps.update_one(
+            {"_id": existing_otp["_id"]},
+            {"$set": update_fields}
+        )
+        # Keep old OTPs if not regenerating
+        if not email_otp:
+            email_otp = existing_otp.get("email_otp")
+        if not phone_otp:
+            phone_otp = existing_otp.get("phone_otp")
+    else:
+        # Create new OTP record
+        otp_doc = {
+            "user_id": resend_data.user_id,
+            "email": user["email"],
+            "phone": user["phone"],
+            "email_otp": email_otp or generate_otp(),
+            "phone_otp": phone_otp or generate_otp(),
+            "email_verified": False,
+            "phone_verified": False,
+            **update_fields
+        }
+        await db.signup_otps.insert_one(otp_doc)
+    
+    # Send OTPs
+    messages_sent = []
+    
+    if resend_data.otp_type in ["email", "both"] and email_otp:
+        from utils.email_service import email_service
+        await email_service.send_otp_email(
+            to_email=user["email"],
+            full_name=full_name,
+            otp_code=email_otp
+        )
+        messages_sent.append("email")
+    
+    if resend_data.otp_type in ["phone", "both"] and phone_otp:
+        from services.sms_service import send_sms, format_phone_e164
+        formatted_phone = format_phone_e164(user["phone"])
+        if formatted_phone:
+            sms_result = await send_sms(
+                formatted_phone,
+                f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
+            )
+            if sms_result.get("success"):
+                messages_sent.append("phone")
+            else:
+                print(f"\n{'='*50}")
+                print(f"📱 PHONE OTP for {user['phone']}: {phone_otp}")
+                print(f"{'='*50}\n")
+                messages_sent.append("phone (console)")
+        else:
+            print(f"\n{'='*50}")
+            print(f"📱 PHONE OTP for {user['phone']}: {phone_otp}")
+            print(f"{'='*50}\n")
+            messages_sent.append("phone (console)")
+    
+    return {
+        "success": True,
+        "data": {
+            "otp_sent_to": messages_sent,
+            "expires_in_minutes": 10
+        },
+        "message": f"OTP(s) resent successfully to {', '.join(messages_sent)}"
+    }
+
+
+@router.get("/signup-verification-status/{user_id}", response_model=Dict)
+async def get_signup_verification_status(user_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Get the current verification status for a signup
+    """
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password_hash": 0})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    otp_record = await db.signup_otps.find_one(
+        {"user_id": user_id},
+        sort=[("created_at", -1)]
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "profile_status": user.get("profile_status"),
+            "email_verified": user.get("email_verified", False),
+            "phone_verified": user.get("phone_verified", False),
+            "otp_expires_at": otp_record.get("expires_at") if otp_record else None,
+            "email": user.get("email"),
+            "phone": user.get("phone")
+        }
     }
 
 @router.post("/login", response_model=Dict)
