@@ -106,7 +106,6 @@ import Contact from './pages/public/Contact';
 import Privacy from './pages/public/Privacy';
 import FAQ from './pages/public/FAQ';
 import Help from './pages/public/Help';
-import Careers from './pages/public/Careers';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import MyTasks from './pages/workforce/MyTasks';
@@ -242,7 +241,6 @@ function AppRoutes() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/help" element={<Help />} />
-        <Route path="/careers" element={<Careers />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
