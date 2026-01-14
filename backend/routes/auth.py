@@ -132,30 +132,46 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
     }
     await db.signup_otps.insert_one(otp_doc)
     
-    # Send Email OTP via SendGrid
-    from utils.email_service import email_service
-    await email_service.send_otp_email(
-        to_email=user_data.email,
-        full_name=user_data.full_name,
-        otp_code=email_otp
-    )
-    
-    # Send Phone OTP via Twilio
-    from services.sms_service import send_sms, format_phone_e164
-    formatted_phone = format_phone_e164(user_data.phone)
-    if formatted_phone:
-        sms_result = await send_sms(
-            formatted_phone,
-            f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
+    # Send Email OTP via SendGrid (don't fail signup if email fails)
+    try:
+        from utils.email_service import email_service
+        email_sent = await email_service.send_otp_email(
+            to_email=user_data.email,
+            full_name=user_data.full_name,
+            otp_code=email_otp
         )
-        if not sms_result.get("success"):
-            logger.warning(f"Failed to send SMS OTP to {user_data.phone}: {sms_result.get('error')}")
-            # Log OTP to console for testing if SMS fails
+        if not email_sent:
+            logger.warning(f"Failed to send email OTP to {user_data.email}")
+            # Log OTP to console for testing
+            print(f"\n{'='*50}")
+            print(f"📧 EMAIL OTP for {user_data.email}: {email_otp}")
+            print(f"{'='*50}\n")
+    except Exception as e:
+        logger.error(f"Error sending email OTP: {str(e)}")
+        print(f"\n{'='*50}")
+        print(f"📧 EMAIL OTP for {user_data.email}: {email_otp}")
+        print(f"{'='*50}\n")
+    
+    # Send Phone OTP via Twilio (don't fail signup if SMS fails)
+    try:
+        from services.sms_service import send_sms, format_phone_e164
+        formatted_phone = format_phone_e164(user_data.phone)
+        if formatted_phone:
+            sms_result = await send_sms(
+                formatted_phone,
+                f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
+            )
+            if not sms_result.get("success"):
+                logger.warning(f"Failed to send SMS OTP to {user_data.phone}: {sms_result.get('error')}")
+                print(f"\n{'='*50}")
+                print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
+                print(f"{'='*50}\n")
+        else:
             print(f"\n{'='*50}")
             print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
             print(f"{'='*50}\n")
-    else:
-        # Log OTP to console for testing
+    except Exception as e:
+        logger.error(f"Error sending SMS OTP: {str(e)}")
         print(f"\n{'='*50}")
         print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
         print(f"{'='*50}\n")
