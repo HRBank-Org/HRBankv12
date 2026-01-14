@@ -6,7 +6,7 @@
 
 ## Feature Under Test: Age Compliance feature in Workforce Onboarding flow
 
-**Test URL:** https://skill-passport-5.preview.emergentagent.com
+**Test URL:** https://login-routes.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
