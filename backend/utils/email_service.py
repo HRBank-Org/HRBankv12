@@ -84,6 +84,57 @@ class EmailService:
         
         return await self.send_email(to_email, subject, html_content, plain_content)
     
+    async def send_otp_email(self, to_email: str, full_name: str, otp_code: str):
+        """Send OTP verification email"""
+        subject = "Your HR Bank Verification Code"
+        
+        html_content = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">HR Bank</h1>
+                <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">Secure Verification</p>
+            </div>
+            <div style="padding: 40px 30px; background: #ffffff;">
+                <h2 style="color: #1e3a5f; margin-bottom: 20px;">Hi {full_name}! 👋</h2>
+                <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                    Welcome to HR Bank! Use the verification code below to complete your account setup.
+                </p>
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px; padding: 30px; text-align: center; margin: 25px 0; border: 2px dashed #cbd5e1;">
+                    <p style="color: #64748b; font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 2px;">Your Email Verification Code</p>
+                    <p style="font-size: 42px; font-weight: bold; color: #1e3a5f; letter-spacing: 8px; margin: 0; font-family: 'Courier New', monospace;">{otp_code}</p>
+                </div>
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 25px 0; border-radius: 0 8px 8px 0;">
+                    <p style="color: #92400e; font-size: 14px; margin: 0;">
+                        ⏰ <strong>This code expires in 10 minutes.</strong> Do not share this code with anyone.
+                    </p>
+                </div>
+                <p style="color: #9ca3af; font-size: 13px; margin-top: 25px;">
+                    If you didn't create an HR Bank account, you can safely ignore this email.
+                </p>
+            </div>
+            <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+                <p style="color: #94a3b8; font-size: 12px; margin: 0;">HR Bank - Connecting Workers with Employers</p>
+                <p style="color: #64748b; font-size: 11px; margin: 8px 0 0 0;">hrbank.ca</p>
+            </div>
+        </div>
+        """
+        
+        plain_content = f"""
+        Hi {full_name}!
+        
+        Welcome to HR Bank! Use the verification code below to complete your account setup.
+        
+        Your Email Verification Code: {otp_code}
+        
+        This code expires in 10 minutes. Do not share this code with anyone.
+        
+        If you didn't create an HR Bank account, you can safely ignore this email.
+        
+        HR Bank - hrbank.ca
+        """
+        
+        return await self.send_email(to_email, subject, html_content, plain_content)
+    
     async def send_password_reset_email(self, to_email: str, full_name: str, reset_token: str):
         """Send password reset email"""
         reset_link = f"{os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')}/reset-password?token={reset_token}"
