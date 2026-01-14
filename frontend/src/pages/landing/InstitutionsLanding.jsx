@@ -8,11 +8,13 @@ import {
 } from 'lucide-react';
 import { LOGOS } from '../../utils/logoUtils';
 import api from '../../utils/api';
+import LoginModal from '../../components/auth/LoginModal';
 
 const InstitutionsLanding = () => {
   const navigate = useNavigate();
   const [topInstitutions, setTopInstitutions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     loadLeaderboard();
@@ -57,7 +59,7 @@ const InstitutionsLanding = () => {
                 Jobs
               </Link>
             </div>
-            <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
+            <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="institution-landing-signin">
               Sign In
             </Button>
           </div>
