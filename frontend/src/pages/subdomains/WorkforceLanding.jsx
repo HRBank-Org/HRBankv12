@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Briefcase, Shield, Star, Clock, Award, CheckCircle, ArrowRight,
   FileCheck, TrendingUp, Users, Globe, Smartphone, Lock
 } from 'lucide-react';
+import LoginModal from '../../components/auth/LoginModal';
 
 const WorkforceLanding = () => {
   const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const benefits = [
     {
@@ -65,14 +67,16 @@ const WorkforceLanding = () => {
               Browse Jobs
             </Link>
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => setShowLoginModal(true)}
               className="px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg"
+              data-testid="workforce-signin-btn"
             >
               Sign In
             </button>
             <button
               onClick={() => navigate('/signup?type=workforce')}
               className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
+              data-testid="workforce-join-btn"
             >
               Join Free
             </button>
@@ -282,6 +286,13 @@ const WorkforceLanding = () => {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        userType="workforce" 
+      />
     </div>
   );
 };
