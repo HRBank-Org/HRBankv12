@@ -725,6 +725,13 @@ const LandingPage = () => {
 
       {/* Emma Chat */}
       <EmmaLandingChat />
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        userType="workforce" 
+      />
     </div>
   );
 };
