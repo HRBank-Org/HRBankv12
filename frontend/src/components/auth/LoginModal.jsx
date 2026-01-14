@@ -338,7 +338,7 @@ const LoginModal = ({ isOpen, onClose, userType = 'workforce' }) => {
           {userType !== 'admin' && (
             <div className="mt-6 text-center">
               <p className="text-gray-600 text-sm">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <button
                   onClick={handleSignup}
                   className="font-semibold hover:underline"

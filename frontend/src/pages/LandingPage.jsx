@@ -537,7 +537,7 @@ const LandingPage = () => {
               </h2>
 
               <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
-                Don't wait until graduation. Start organizing your achievements, certifications, 
+                Don&apos;t wait until graduation. Start organizing your achievements, certifications, 
                 and volunteer work now. Your WorkPassport™ grows with you — making your first job 
                 application a breeze.
               </p>
@@ -578,7 +578,7 @@ const LandingPage = () => {
                 className="bg-white text-emerald-700 hover:bg-emerald-50 h-14 px-8 text-lg font-semibold"
                 data-testid="highschool-cta-btn"
               >
-                Start My WorkPassport™ — It's Free
+                Start My WorkPassport™ — It&apos;s Free
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </div>
