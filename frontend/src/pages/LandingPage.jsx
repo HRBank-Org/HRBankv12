@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { LOGOS } from '../utils/logoUtils';
 import EmmaLandingChat from '../components/emma/EmmaLandingChat';
+import LoginModal from '../components/auth/LoginModal';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -16,6 +17,7 @@ const LandingPage = () => {
   const videoRef = useRef(null);
   
   const [partnerLogos, setPartnerLogos] = useState([]);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const fetchPartnerLogos = async () => {
@@ -64,7 +66,7 @@ const LandingPage = () => {
                 Jobs
               </Link>
             </div>
-            <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
+            <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="main-landing-signin">
               Sign In
             </Button>
           </div>
