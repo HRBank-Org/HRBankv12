@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Shield, Users, Building2, GraduationCap, Activity,
   BarChart3, Settings, Lock, Globe, CheckCircle
 } from 'lucide-react';
+import LoginModal from '../../components/auth/LoginModal';
 
 const AdminLanding = () => {
   const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const features = [
     {
@@ -61,8 +63,9 @@ const AdminLanding = () => {
             </div>
           </div>
           <button
-            onClick={() => navigate('/admin/login')}
+            onClick={() => setShowLoginModal(true)}
             className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 flex items-center gap-2"
+            data-testid="admin-signin-btn"
           >
             <Lock className="w-4 h-4" /> Admin Login
           </button>
@@ -84,8 +87,9 @@ const AdminLanding = () => {
             Authorized personnel only.
           </p>
           <button
-            onClick={() => navigate('/admin/login')}
+            onClick={() => setShowLoginModal(true)}
             className="px-8 py-4 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 text-lg"
+            data-testid="admin-access-btn"
           >
             Access Admin Panel
           </button>
@@ -172,6 +176,13 @@ const AdminLanding = () => {
           <p className="text-sm mt-2">For support, contact: admin-support@hrbank.ca</p>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        userType="admin" 
+      />
     </div>
   );
 };
