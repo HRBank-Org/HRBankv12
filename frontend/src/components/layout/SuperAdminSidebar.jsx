@@ -101,6 +101,13 @@ const SuperAdminSidebar = () => {
           icon: FileText,
           path: '/admin/documents',
           badge: null
+        },
+        {
+          label: 'Document Expiry',
+          icon: FileWarning,
+          path: '/admin/document-expiry',
+          badge: 'expiring',
+          badgeColor: 'bg-red-500'
         }
       ]
     },
