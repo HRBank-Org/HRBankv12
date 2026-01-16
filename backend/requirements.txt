@@ -158,3 +158,5 @@ wrapt==2.0.1
 yarl==1.22.0
 zipp==3.23.0
 pywebpush==2.2.0
+boto3==1.40.67
+cryptography==46.0.3
