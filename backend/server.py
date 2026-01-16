@@ -184,6 +184,7 @@ app.include_router(credential_payments.router, prefix="/api", tags=["credential_
 app.include_router(stripe_connect.router, prefix="/api", tags=["stripe_connect"])
 app.include_router(leaderboard.router, prefix="/api", tags=["leaderboard"])
 app.include_router(institution_directory.router, prefix="/api", tags=["institution_directory"])
+app.include_router(admin_document_expiry.router, prefix="/api", tags=["admin_document_expiry"])
 
 # Stripe webhook at root /api level
 @app.post("/api/webhook/stripe")
