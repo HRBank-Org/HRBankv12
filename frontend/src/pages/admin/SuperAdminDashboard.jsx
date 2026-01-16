@@ -13,7 +13,8 @@ import {
   Shield,
   TrendingUp,
   AlertCircle,
-  ChevronRight
+  ChevronRight,
+  FileWarning
 } from 'lucide-react';
 
 const SuperAdminDashboard = () => {
