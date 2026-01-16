@@ -18,7 +18,7 @@ from utils.rate_limiter import limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 # Import routes
-from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, blockchain_credentials, translation, partner_logos, calendar, workforce_management, eula, documents, admin_management, google_calendar, shift_scheduling, admin_occupations, admin_certifications, otp_verification, file_upload, validation, institution_classes, credential_verification, compliance, payroll, rosters, workforce_roster, emma, job_matching, admin_credentials, shift_management, calendar_scheduling, notification_preferences, time_off, live_attendance, dashboard, shift_ratings, qr_attendance, workplace_roles, employer_invitations, workforce_monitoring, fee_calculator_api, minimum_wage_admin, timesheets, payroll_management, weekly_timesheets, occupation_templates, admin_id_verification, workforce_profile_update, interviews, address, service_tasks, external_bookings, match_engine, admin_seeding, transcripts, auto_dispatch, super_admin, career_profile, credential_payments, stripe_connect, leaderboard, institution_directory, admin_document_expiry
+from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, blockchain_credentials, translation, partner_logos, calendar, workforce_management, eula, documents, admin_management, google_calendar, shift_scheduling, admin_occupations, admin_certifications, otp_verification, file_upload, validation, institution_classes, credential_verification, compliance, payroll, rosters, workforce_roster, emma, job_matching, admin_credentials, shift_management, calendar_scheduling, notification_preferences, time_off, live_attendance, dashboard, shift_ratings, qr_attendance, workplace_roles, employer_invitations, workforce_monitoring, fee_calculator_api, minimum_wage_admin, timesheets, payroll_management, weekly_timesheets, occupation_templates, admin_id_verification, workforce_profile_update, interviews, address, service_tasks, external_bookings, match_engine, admin_seeding, transcripts, auto_dispatch, super_admin, career_profile, credential_payments, stripe_connect, leaderboard, institution_directory, admin_document_expiry, support_tickets
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -185,6 +185,7 @@ app.include_router(stripe_connect.router, prefix="/api", tags=["stripe_connect"]
 app.include_router(leaderboard.router, prefix="/api", tags=["leaderboard"])
 app.include_router(institution_directory.router, prefix="/api", tags=["institution_directory"])
 app.include_router(admin_document_expiry.router, prefix="/api", tags=["admin_document_expiry"])
+app.include_router(support_tickets.router, prefix="/api", tags=["support_tickets"])
 
 # Stripe webhook at root /api level
 @app.post("/api/webhook/stripe")
