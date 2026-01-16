@@ -60,7 +60,7 @@ const CredentialVerification = () => {
     
     setSearchingInstitutions(true);
     try {
-      const response = await api.get(`/api/institutions/directory/search?q=${encodeURIComponent(query)}&limit=10`);
+      const response = await api.get(`/api/institution-directory/search?q=${encodeURIComponent(query)}&limit=10`);
       if (response.data.success) {
         setInstitutionSuggestions(response.data.data.institutions || []);
         setShowInstitutionDropdown(true);
