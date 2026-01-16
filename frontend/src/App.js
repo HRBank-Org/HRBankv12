@@ -296,6 +296,7 @@ function AppRoutes() {
         <Route path="/workforce/time-off" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceTimeOff /></ProtectedRoute>} />
         <Route path="/workforce/work-passport" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkPassportSettings /></ProtectedRoute>} />
         <Route path="/workforce/career-profile" element={<Navigate to="/workforce/work-passport" replace />} />
+        <Route path="/workforce/support" element={<ProtectedRoute allowedUserTypes={['workforce']}><Support /></ProtectedRoute>} />
         
         {/* Institution Routes */}
         <Route path="/institution/marketplace" element={<ProtectedRoute allowedUserTypes={['institution']}><CredentialMarketplace /></ProtectedRoute>} />
