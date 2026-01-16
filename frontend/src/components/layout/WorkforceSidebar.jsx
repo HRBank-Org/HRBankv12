@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiCalendar, FiBriefcase, FiSearch, FiClock, FiFileText, FiSettings, FiCheckSquare, FiChevronRight, FiAward, FiDollarSign, FiNavigation, FiSun, FiShare2, FiGlobe } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiBriefcase, FiSearch, FiClock, FiFileText, FiSettings, FiCheckSquare, FiChevronRight, FiAward, FiDollarSign, FiNavigation, FiSun, FiShare2, FiGlobe, FiHelpCircle } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const WorkforceSidebar = () => {
@@ -95,6 +95,16 @@ const WorkforceSidebar = () => {
       label: 'Find Jobs',
       icon: FiSearch,
       path: '/workforce/find-jobs'
+    },
+    {
+      type: 'category',
+      label: 'Support'
+    },
+    {
+      type: 'item',
+      label: 'Help & Support',
+      icon: FiHelpCircle,
+      path: '/workforce/support'
     }
   ];
 
