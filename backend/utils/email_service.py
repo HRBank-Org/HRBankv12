@@ -173,3 +173,69 @@ class EmailService:
 
 # Singleton instance
 email_service = EmailService()
+
+
+# Add ticket response email method
+async def send_ticket_response_email(to_email: str, user_name: str, ticket_id: str, subject: str, response_preview: str):
+    """Send email notification when admin responds to a support ticket"""
+    email_subject = f"Response to Your Support Ticket #{ticket_id}"
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">HR Bank</h1>
+            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">Support Update</p>
+        </div>
+        <div style="padding: 40px 30px; background: #ffffff;">
+            <h2 style="color: #1e3a5f; margin-bottom: 20px;">Hi {user_name}! 📬</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                Our support team has responded to your ticket.
+            </p>
+            <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid #1e3a5f;">
+                <p style="color: #64748b; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Ticket #{ticket_id}</p>
+                <p style="font-size: 16px; font-weight: 600; color: #1e3a5f; margin: 0 0 15px 0;">{subject}</p>
+                <p style="color: #4b5563; font-size: 14px; margin: 0; line-height: 1.6;">
+                    {response_preview}{'...' if len(response_preview) >= 200 else ''}
+                </p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://hrbank.ca/workforce/support" 
+                   style="background: #1e3a5f; color: white; padding: 15px 40px; 
+                          text-decoration: none; border-radius: 8px; display: inline-block;
+                          font-weight: bold;">
+                    View Full Response
+                </a>
+            </div>
+            <p style="color: #9ca3af; font-size: 13px; margin-top: 25px;">
+                If you have any additional questions, feel free to reply to your ticket.
+            </p>
+        </div>
+        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">HR Bank Support Team</p>
+            <p style="color: #64748b; font-size: 11px; margin: 8px 0 0 0;">hrbank.ca</p>
+        </div>
+    </div>
+    """
+    
+    plain_content = f"""
+    Hi {user_name}!
+    
+    Our support team has responded to your ticket.
+    
+    Ticket #{ticket_id}: {subject}
+    
+    Response preview:
+    {response_preview}
+    
+    View the full response at: https://hrbank.ca/workforce/support
+    
+    If you have any additional questions, feel free to reply to your ticket.
+    
+    HR Bank Support Team
+    hrbank.ca
+    """
+    
+    return await email_service.send_email(to_email, email_subject, html_content, plain_content)
+
+# Add the method to the EmailService class as well
+EmailService.send_ticket_response_email = lambda self, to_email, user_name, ticket_id, subject, response_preview: send_ticket_response_email(to_email, user_name, ticket_id, subject, response_preview)
