@@ -385,6 +385,7 @@ function AppRoutes() {
         <Route path="/admin/users" element={<ProtectedRoute allowedUserTypes={['admin']}><AllUsers /></ProtectedRoute>} />
         <Route path="/admin/credentials" element={<ProtectedRoute allowedUserTypes={['admin']}><CredentialReviews /></ProtectedRoute>} />
         <Route path="/admin/documents" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentVerification /></ProtectedRoute>} />
+        <Route path="/admin/document-expiry" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentExpiryDashboard /></ProtectedRoute>} />
         <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminManagement /></ProtectedRoute>} />
         <Route path="/admin/roles" element={<ProtectedRoute allowedUserTypes={['admin']}><RoleManagement /></ProtectedRoute>} />
         <Route path="/admin/permissions" element={<ProtectedRoute allowedUserTypes={['admin']}><Permissions /></ProtectedRoute>} />
