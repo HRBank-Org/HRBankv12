@@ -64,6 +64,7 @@ import MyCredentials from './pages/workforce/MyCredentials';
 import Messages from './pages/common/Messages';
 import Notifications from './pages/common/Notifications';
 import Settings from './pages/common/Settings';
+import Support from './pages/common/Support';
 import DocumentReview from './pages/admin/DocumentReview';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
