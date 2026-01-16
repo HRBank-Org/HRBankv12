@@ -23,6 +23,7 @@ const SuperAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState(null);
   const [roles, setRoles] = useState([]);
+  const [expirySummary, setExpirySummary] = useState(null);
 
   useEffect(() => {
     loadDashboard();
@@ -30,12 +31,14 @@ const SuperAdminDashboard = () => {
 
   const loadDashboard = async () => {
     try {
-      const [dashboardRes, rolesRes] = await Promise.all([
+      const [dashboardRes, rolesRes, expiryRes] = await Promise.all([
         api.get('/api/super-admin/dashboard'),
-        api.get('/api/super-admin/roles')
+        api.get('/api/super-admin/roles'),
+        api.get('/api/admin/document-expiry/summary').catch(() => ({ data: { data: null } }))
       ]);
       setDashboard(dashboardRes.data.data);
       setRoles(rolesRes.data.data.roles || []);
+      setExpirySummary(expiryRes.data.data);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
     } finally {
