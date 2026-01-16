@@ -252,11 +252,13 @@ async def search_institutions(
          "province": 1, "institution_type": 1, "email": 1, "phone": 1}
     ).limit(limit).to_list(length=limit)
     
-    # Search registered partners
+    # Search registered partners (exclude test institutions)
     partner_results = await db.institution_profiles.find(
         {
-            "institution_name": search_regex,
-            "institution_name": {"$not": {"$regex": "test", "$options": "i"}}
+            "$and": [
+                {"institution_name": search_regex},
+                {"institution_name": {"$not": {"$regex": "^test", "$options": "i"}}}
+            ]
         },
         {"_id": 0, "institution_id": 1, "institution_name": 1, "city": 1,
          "province": 1, "institution_type": 1, "email": 1, "phone": 1}
