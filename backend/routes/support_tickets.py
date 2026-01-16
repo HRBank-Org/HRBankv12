@@ -169,7 +169,7 @@ async def get_ticket_categories():
 @router.post("/tickets")
 async def create_ticket(
     ticket_data: CreateTicketRequest,
-    current_user: dict = Depends(require_role(["workforce", "employer", "institution"])),
+    current_user: dict = Depends(require_role("workforce", "employer", "institution")),
     db = Depends(get_db)
 ):
     """Create a new support ticket"""
@@ -266,7 +266,7 @@ async def get_my_tickets(
     status: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, le=50),
-    current_user: dict = Depends(require_role(["workforce", "employer", "institution"])),
+    current_user: dict = Depends(require_role("workforce", "employer", "institution")),
     db = Depends(get_db)
 ):
     """Get user's support tickets"""
@@ -308,7 +308,7 @@ async def get_my_tickets(
 @router.get("/tickets/{ticket_id}")
 async def get_ticket_details(
     ticket_id: str,
-    current_user: dict = Depends(require_role(["workforce", "employer", "institution"])),
+    current_user: dict = Depends(require_role("workforce", "employer", "institution")),
     db = Depends(get_db)
 ):
     """Get ticket details including all messages"""
@@ -338,7 +338,7 @@ async def get_ticket_details(
 async def reply_to_ticket(
     ticket_id: str,
     reply_data: TicketReplyRequest,
-    current_user: dict = Depends(require_role(["workforce", "employer", "institution"])),
+    current_user: dict = Depends(require_role("workforce", "employer", "institution")),
     db = Depends(get_db)
 ):
     """Reply to a support ticket"""
@@ -409,7 +409,7 @@ async def close_ticket(
     ticket_id: str,
     satisfaction_rating: Optional[int] = Query(None, ge=1, le=5),
     feedback: Optional[str] = Query(None),
-    current_user: dict = Depends(require_role(["workforce", "employer", "institution"])),
+    current_user: dict = Depends(require_role("workforce", "employer", "institution")),
     db = Depends(get_db)
 ):
     """Close a resolved ticket with optional satisfaction rating"""
@@ -453,7 +453,7 @@ async def close_ticket(
 async def reopen_ticket(
     ticket_id: str,
     reason: str = Query(..., min_length=10),
-    current_user: dict = Depends(require_role(["workforce", "employer", "institution"])),
+    current_user: dict = Depends(require_role("workforce", "employer", "institution")),
     db = Depends(get_db)
 ):
     """Reopen a closed/resolved ticket"""
