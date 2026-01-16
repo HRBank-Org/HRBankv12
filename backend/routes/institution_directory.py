@@ -233,6 +233,63 @@ async def get_all_directory_institutions(
     }
 
 
+@router.get("/search")
+async def search_institutions(
+    q: str = Query(..., min_length=2, description="Search query"),
+    limit: int = Query(10, le=50),
+    db = Depends(get_db)
+):
+    """
+    Fast institution search for autocomplete.
+    Searches both directory entries and registered partners.
+    """
+    search_regex = {"$regex": q, "$options": "i"}
+    
+    # Search directory entries
+    directory_results = await db.institution_directory.find(
+        {"institution_name": search_regex},
+        {"_id": 0, "directory_id": 1, "institution_name": 1, "city": 1, 
+         "province": 1, "institution_type": 1, "email": 1, "phone": 1}
+    ).limit(limit).to_list(length=limit)
+    
+    # Search registered partners
+    partner_results = await db.institution_profiles.find(
+        {
+            "institution_name": search_regex,
+            "institution_name": {"$not": {"$regex": "test", "$options": "i"}}
+        },
+        {"_id": 0, "institution_id": 1, "institution_name": 1, "city": 1,
+         "province": 1, "institution_type": 1, "email": 1, "phone": 1}
+    ).limit(limit).to_list(length=limit)
+    
+    # Merge results, prioritizing partners
+    seen_names = set()
+    results = []
+    
+    for p in partner_results:
+        name_lower = p.get("institution_name", "").lower()
+        if name_lower not in seen_names:
+            seen_names.add(name_lower)
+            p["is_partner"] = True
+            p["directory_id"] = p.get("institution_id")
+            results.append(p)
+    
+    for d in directory_results:
+        name_lower = d.get("institution_name", "").lower()
+        if name_lower not in seen_names:
+            seen_names.add(name_lower)
+            d["is_partner"] = False
+            results.append(d)
+    
+    return {
+        "success": True,
+        "data": {
+            "institutions": results[:limit],
+            "query": q
+        }
+    }
+
+
 @router.post("/invite-request")
 async def request_institution_invite(
     request: InviteInstitutionRequest,
