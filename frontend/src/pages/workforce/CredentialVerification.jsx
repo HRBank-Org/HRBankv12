@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import UserHeader from '../../components/common/UserHeader';
@@ -12,6 +12,9 @@ const CredentialVerification = () => {
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [uploading, setUploading] = useState(false);
+  const [institutionSuggestions, setInstitutionSuggestions] = useState([]);
+  const [showInstitutionDropdown, setShowInstitutionDropdown] = useState(false);
+  const [searchingInstitutions, setSearchingInstitutions] = useState(false);
   const [formData, setFormData] = useState({
     credential_name: '',
     credential_type: '',
