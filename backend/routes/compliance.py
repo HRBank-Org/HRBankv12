@@ -8,7 +8,7 @@ from typing import Dict, Optional, List
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 
-from auth.jwt_handler import require_role
+from auth.dependencies import require_role
 from config.database import get_db
 
 router = APIRouter(prefix="/compliance", tags=["Compliance"])
