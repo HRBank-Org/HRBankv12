@@ -28,7 +28,8 @@ import {
   DollarSign,
   AlertTriangle,
   CheckCircle,
-  Activity
+  Activity,
+  FileWarning
 } from 'lucide-react';
 
 const SuperAdminSidebar = () => {
