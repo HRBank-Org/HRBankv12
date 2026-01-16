@@ -76,7 +76,7 @@ const SuperAdminDashboard = () => {
             </div>
 
             {/* Action Items */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <ActionCard
                 icon={<UserCheck className="w-6 h-6" />}
                 label="Pending Activations"
@@ -94,10 +94,18 @@ const SuperAdminDashboard = () => {
                 urgent={actionItems.pending_credentials > 5}
               />
               <ActionCard
+                icon={<FileWarning className="w-6 h-6" />}
+                label="Expiring Documents"
+                value={expirySummary ? (expirySummary.expired + expirySummary.expiring_today + expirySummary.expiring_7_days) : 0}
+                color="#EF4444"
+                onClick={() => navigate('/admin/document-expiry')}
+                urgent={expirySummary && (expirySummary.expired > 0 || expirySummary.expiring_today > 0)}
+              />
+              <ActionCard
                 icon={<MessageSquare className="w-6 h-6" />}
                 label="Open Tickets"
                 value={actionItems.open_tickets || 0}
-                color="#EF4444"
+                color="#3B82F6"
                 onClick={() => navigate('/admin/support-tickets')}
                 urgent={actionItems.open_tickets > 10}
               />
