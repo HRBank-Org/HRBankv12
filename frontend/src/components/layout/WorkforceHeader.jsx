@@ -54,12 +54,14 @@ const WorkforceHeader = () => {
         {/* Left: User Info */}
         <div className="flex items-center gap-4">
           {/* User Photo */}
-          {user?.profile?.photo_url ? (
+          {(user?.profile?.photo_url || user?.profile?.profile_photo_url || user?.profile?.profile_photo) ? (
             <img 
-              src={user.profile.photo_url.startsWith('http') 
-                ? user.profile.photo_url 
-                : `${process.env.REACT_APP_BACKEND_URL}${user.profile.photo_url}`
-              }
+              src={(() => {
+                const photoUrl = user.profile.photo_url || user.profile.profile_photo_url || user.profile.profile_photo;
+                return photoUrl.startsWith('http') 
+                  ? photoUrl 
+                  : `${process.env.REACT_APP_BACKEND_URL}${photoUrl}`;
+              })()}
               alt="Profile"
               className="w-12 h-12 rounded-full object-cover bg-white border-2 border-white"
             />
