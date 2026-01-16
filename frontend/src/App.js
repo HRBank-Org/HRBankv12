@@ -71,6 +71,7 @@ import ManageAdmins from './pages/admin/ManageAdmins';
 import MinimumWageManager from './pages/admin/MinimumWageManager';
 import ManageZones from './pages/admin/ManageZones';
 import WSIBVerification from './pages/admin/WSIBVerification';
+import DocumentExpiryDashboard from './pages/admin/DocumentExpiryDashboard';
 // Super Admin Pages
 import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
 import PendingActivations from './pages/admin/PendingActivations';
