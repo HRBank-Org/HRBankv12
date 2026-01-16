@@ -250,18 +250,41 @@ const SuperAdminSidebar = () => {
   const [badgeCounts, setBadgeCounts] = useState({
     pending: 0,
     credentials: 0,
-    tickets: 0
+    tickets: 0,
+    expiring: 0
   });
 
   useEffect(() => {
     // Fetch badge counts from API
     const fetchCounts = async () => {
       try {
-        // This would be an API call in production
+        // Fetch expiring documents count
+        const token = localStorage.getItem('token');
+        let expiringCount = 0;
+        
+        if (token) {
+          try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/document-expiry/summary`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success) {
+                expiringCount = (data.data.expired || 0) + 
+                               (data.data.expiring_today || 0) + 
+                               (data.data.expiring_7_days || 0);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to fetch expiry counts:', e);
+          }
+        }
+        
         setBadgeCounts({
           pending: 81,
           credentials: 12,
-          tickets: 5
+          tickets: 5,
+          expiring: expiringCount
         });
       } catch (error) {
         console.error('Failed to fetch badge counts:', error);
