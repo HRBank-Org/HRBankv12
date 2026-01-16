@@ -1,231 +1,170 @@
 """
-Background scheduler for document expiry checks and reminders
+Enhanced Background Scheduler for Document Expiry
+Multi-interval reminders via Email and SMS
 """
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime, timedelta, timezone
-from services.email_service import send_document_expiry_reminder, send_account_restricted_email
-import asyncio
+from datetime import datetime, timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Global scheduler instance
 scheduler = None
 
-async def check_and_send_expiry_reminders(db):
+
+async def run_daily_expiry_check(db):
     """
-    Check for expiring documents and send email reminders
-    This runs daily at 9 AM
+    Daily document expiry check - runs at 9 AM UTC.
+    Sends reminders at: 30 days, 14 days, 7 days, 3 days, 1 day, and expiry day.
     """
-    print(f"[{datetime.now(timezone.utc)}] Running document expiry check...")
+    logger.info(f"[{datetime.now(timezone.utc)}] Starting daily document expiry check...")
     
     try:
-        # Get all documents with expiry dates that are verified
-        documents = await db.documents.find({
-            "expiry_date": {"$ne": None},
-            "verification_status": "verified"
-        }).to_list(10000)
+        from services.document_expiry_service import document_expiry_service
         
-        emails_sent = 0
-        accounts_restricted = 0
+        # Process all reminders
+        results = await document_expiry_service.process_all_reminders(send_sms=True)
         
-        for doc in documents:
-            if not doc.get("expiry_date"):
-                continue
-            
-            try:
-                # Calculate days until expiry
-                from datetime import timezone
-                expiry_date_obj = datetime.fromisoformat(doc["expiry_date"].replace('Z', '+00:00'))
-                now_utc = datetime.now(timezone.utc)
-                days_until = (expiry_date_obj - now_utc).days
-                
-                # Send reminder if expiring within 7 days (including today)
-                if 0 <= days_until <= 7:
-                    # Get user info
-                    user = await db.users.find_one({"user_id": doc["user_id"]})
-                    if not user:
-                        continue
-                    
-                    # Get user profile for name
-                    user_type = user.get("user_type")
-                    full_name = user.get("full_name", "User")
-                    
-                    if user_type == "workforce":
-                        profile = await db.workforce_profiles.find_one({"user_id": doc["user_id"]})
-                        if profile:
-                            full_name = profile.get("full_name", full_name)
-                    elif user_type == "employer":
-                        profile = await db.employer_profiles.find_one({"user_id": doc["user_id"]})
-                        if profile:
-                            full_name = profile.get("contact_name", full_name)
-                    elif user_type == "institution":
-                        profile = await db.institution_profiles.find_one({"user_id": doc["user_id"]})
-                        if profile:
-                            full_name = profile.get("contact_name", full_name)
-                    
-                    # Check if reminder already sent today
-                    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-                    last_reminder = doc.get("last_reminder_sent")
-                    
-                    # Send reminder if not sent today
-                    if not last_reminder or datetime.fromisoformat(last_reminder) < today_start:
-                        success = send_document_expiry_reminder(
-                            recipient_email=user.get("email"),
-                            recipient_name=full_name,
-                            document_name=doc.get("document_name", "Document"),
-                            document_type=doc.get("document_type", ""),
-                            expiry_date=doc["expiry_date"],
-                            days_until_expiry=days_until
-                        )
-                        
-                        if success:
-                            # Update last reminder sent timestamp
-                            await db.documents.update_one(
-                                {"document_id": doc["document_id"]},
-                                {"$set": {"last_reminder_sent": datetime.now(timezone.utc).isoformat()}}
-                            )
-                            emails_sent += 1
-                            print(f"  ✓ Sent reminder to {user.get('email')} for {doc.get('document_name')} ({days_until} days)")
-                
-                # Handle expired documents (days_until < 0)
-                elif days_until < 0:
-                    # Mark document as expired
-                    if doc.get("verification_status") != "expired":
-                        await db.documents.update_one(
-                            {"document_id": doc["document_id"]},
-                            {"$set": {
-                                "verification_status": "expired",
-                                "is_expired": True
-                            }}
-                        )
-                    
-                    # Check if user account needs to be restricted
-                    await check_and_restrict_account(db, doc["user_id"], doc["user_type"])
-                    accounts_restricted += 1
-                    
-            except Exception as e:
-                print(f"  ✗ Error processing document {doc.get('document_id')}: {str(e)}")
-                continue
+        logger.info(f"[{datetime.now(timezone.utc)}] Expiry check complete:")
+        logger.info(f"  - Documents processed: {results['total_processed']}")
+        logger.info(f"  - Reminders sent: {results['reminders_sent']}")
+        logger.info(f"  - Emails sent: {results['emails_sent']}")
+        logger.info(f"  - SMS sent: {results['sms_sent']}")
         
-        print(f"[{datetime.now(timezone.utc)}] Expiry check complete: {emails_sent} reminders sent, {accounts_restricted} accounts checked for restriction")
-        return {"emails_sent": emails_sent, "accounts_checked": accounts_restricted}
+        if results['by_interval']:
+            logger.info(f"  - By interval: {results['by_interval']}")
+        
+        if results['errors']:
+            logger.warning(f"  - Errors: {len(results['errors'])}")
+        
+        # Also process expired documents (mark as expired, restrict accounts)
+        await process_expired_documents(db)
+        
+        return results
         
     except Exception as e:
-        print(f"[{datetime.now(timezone.utc)}] ERROR in expiry check: {str(e)}")
+        logger.error(f"[{datetime.now(timezone.utc)}] ERROR in expiry check: {str(e)}")
         return {"error": str(e)}
+
+
+async def process_expired_documents(db):
+    """Process documents that have expired - mark them and restrict accounts if needed"""
+    from services.document_expiry_service import document_expiry_service
+    from services.email_service import send_account_restricted_email
+    
+    now = datetime.now(timezone.utc)
+    
+    # Find expired but not yet marked documents
+    expired_docs = await db.documents.find({
+        "expiry_date": {"$lt": now.isoformat()},
+        "verification_status": {"$ne": "expired"}
+    }).to_list(10000)
+    
+    accounts_to_check = set()
+    
+    for doc in expired_docs:
+        # Mark as expired
+        await db.documents.update_one(
+            {"document_id": doc["document_id"]},
+            {"$set": {
+                "verification_status": "expired",
+                "is_expired": True,
+                "expired_at": now.isoformat()
+            }}
+        )
+        
+        accounts_to_check.add((doc["user_id"], doc.get("user_type", "workforce")))
+        logger.info(f"Marked document {doc['document_id']} as expired")
+    
+    # Check and potentially restrict accounts
+    for user_id, user_type in accounts_to_check:
+        await check_and_restrict_account(db, user_id, user_type)
 
 
 async def check_and_restrict_account(db, user_id: str, user_type: str):
     """
-    Check if user has expired required documents and restrict account if needed
+    Check if user has expired required documents and restrict account if needed.
     """
-    from models.documents import (
-        WORKFORCE_DOCUMENT_TYPES, 
-        EMPLOYER_DOCUMENT_TYPES, 
-        INSTITUTION_DOCUMENT_TYPES, 
-        ADMIN_DOCUMENT_TYPES
-    )
+    from services.document_expiry_service import DOCUMENTS_REQUIRING_EXPIRY
+    from services.email_service import send_account_restricted_email
     
-    # Get document types for this user
-    type_map = {
-        'workforce': WORKFORCE_DOCUMENT_TYPES,
-        'employer': EMPLOYER_DOCUMENT_TYPES,
-        'institution': INSTITUTION_DOCUMENT_TYPES,
-        'admin': ADMIN_DOCUMENT_TYPES
-    }
-    document_types = type_map.get(user_type, {})
-    required_types = [k for k, v in document_types.items() if v.get('required')]
+    # Get user
+    user = await db.users.find_one({"user_id": user_id})
+    if not user:
+        return
     
     # Get all user documents
     documents = await db.documents.find({"user_id": user_id}).to_list(100)
     
-    # Check which required documents are valid (verified and not expired)
-    valid_required = []
-    expired_documents = []
-    
+    # Find expired required documents
+    expired_required = []
     for doc in documents:
-        if doc.get("document_type") in required_types:
-            # Check if expired
-            if doc.get("expiry_date"):
-                try:
-                    from datetime import timezone
-                    expiry_date_obj = datetime.fromisoformat(doc["expiry_date"].replace('Z', '+00:00'))
-                    now_utc = datetime.now(timezone.utc)
-                    is_expired = (expiry_date_obj - now_utc).days < 0
-                    
-                    if is_expired:
-                        expired_documents.append(doc.get("document_name", doc.get("document_type")))
-                    elif doc.get("verification_status") == "verified":
-                        valid_required.append(doc.get("document_type"))
-                except:
-                    pass
-            elif doc.get("verification_status") == "verified":
-                # No expiry date means document doesn't expire
-                valid_required.append(doc.get("document_type"))
+        doc_type = doc.get("document_type", "")
+        if doc_type in DOCUMENTS_REQUIRING_EXPIRY:
+            if doc.get("verification_status") == "expired" or doc.get("is_expired"):
+                doc_name = DOCUMENTS_REQUIRING_EXPIRY.get(doc_type, {}).get("name", doc_type)
+                expired_required.append(doc_name)
     
-    # Check if all required documents are valid
-    missing_or_expired = [req for req in required_types if req not in valid_required]
-    
-    # Get current account status
-    user = await db.users.find_one({"user_id": user_id})
-    current_status = user.get("account_status", "active")
-    
-    if missing_or_expired:
-        # Restrict account
-        new_status = "restricted"
+    if expired_required:
+        current_status = user.get("account_status", "active")
         
         if current_status != "restricted":
-            # Update account status
+            # Restrict account
             await db.users.update_one(
                 {"user_id": user_id},
                 {"$set": {
-                    "account_status": new_status,
+                    "account_status": "restricted",
                     "restriction_reason": "expired_documents",
-                    "restricted_date": datetime.now(timezone.utc).isoformat()
+                    "restricted_date": datetime.now(timezone.utc).isoformat(),
+                    "expired_documents": expired_required
                 }}
             )
             
-            # Send account restriction email
-            if expired_documents:
-                # Get user profile for name
-                full_name = user.get("full_name", "User")
-                
-                if user_type == "workforce":
-                    profile = await db.workforce_profiles.find_one({"user_id": user_id})
-                    if profile:
-                        full_name = profile.get("full_name", full_name)
-                elif user_type == "employer":
-                    profile = await db.employer_profiles.find_one({"user_id": user_id})
-                    if profile:
-                        full_name = profile.get("contact_name", full_name)
-                elif user_type == "institution":
-                    profile = await db.institution_profiles.find_one({"user_id": user_id})
-                    if profile:
-                        full_name = profile.get("contact_name", full_name)
-                
-                send_account_restricted_email(
-                    recipient_email=user.get("email"),
-                    recipient_name=full_name,
-                    expired_documents=expired_documents
-                )
-                
-                print(f"  ⚠ Account restricted for user {user_id} due to expired documents: {', '.join(expired_documents)}")
-    else:
-        # All required documents are valid, ensure account is active
-        if current_status == "restricted" and user.get("restriction_reason") == "expired_documents":
-            await db.users.update_one(
-                {"user_id": user_id},
-                {"$set": {
-                    "account_status": "active",
-                    "restriction_reason": None,
-                    "restricted_date": None
-                }}
+            # Get user profile for name
+            from services.document_expiry_service import document_expiry_service
+            profile = await document_expiry_service._get_user_profile(user_id, user_type)
+            full_name = profile.get("full_name") or profile.get("contact_name") or "User"
+            
+            # Send restriction email
+            send_account_restricted_email(
+                recipient_email=user.get("email"),
+                recipient_name=full_name,
+                expired_documents=expired_required
             )
-            print(f"  ✓ Account reactivated for user {user_id} - all documents now valid")
+            
+            # Send restriction SMS
+            phone = profile.get("phone") or user.get("phone")
+            if phone:
+                try:
+                    from services.sms_service import send_sms
+                    await send_sms(
+                        phone,
+                        f"HR Bank: Your account has been restricted due to expired documents ({', '.join(expired_required[:2])}). Please upload renewed documents to restore access."
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to send restriction SMS: {str(e)}")
+            
+            logger.warning(f"Account restricted for user {user_id} due to expired: {', '.join(expired_required)}")
+            
+            # Log to audit
+            from services.audit_logger import audit_logger, AuditEventType, AuditSeverity
+            await audit_logger.log(
+                event_type=AuditEventType.USER_DEACTIVATED,
+                action="account_restricted",
+                description=f"Account restricted due to expired documents",
+                actor_type="system",
+                target_type="user",
+                target_id=user_id,
+                severity=AuditSeverity.WARNING,
+                metadata={"expired_documents": expired_required}
+            )
 
 
 def start_scheduler(db):
     """
-    Start the background scheduler for document expiry checks
+    Start the background scheduler for document expiry checks.
     
     Args:
         db: MongoDB database instance
@@ -233,23 +172,36 @@ def start_scheduler(db):
     global scheduler
     
     if scheduler is not None:
-        print("Scheduler already running")
+        logger.info("Scheduler already running")
         return scheduler
     
     scheduler = AsyncIOScheduler()
     
     # Schedule daily check at 9 AM UTC
     scheduler.add_job(
-        check_and_send_expiry_reminders,
-        CronTrigger(hour=9, minute=0),  # 9:00 AM UTC daily
+        run_daily_expiry_check,
+        CronTrigger(hour=9, minute=0),
         args=[db],
         id='document_expiry_check',
-        name='Document Expiry Reminder Check',
+        name='Daily Document Expiry Check',
+        replace_existing=True
+    )
+    
+    # Also run a check at 6 PM UTC for urgent (same-day/next-day) reminders
+    scheduler.add_job(
+        run_daily_expiry_check,
+        CronTrigger(hour=18, minute=0),
+        args=[db],
+        id='document_expiry_check_evening',
+        name='Evening Document Expiry Check',
         replace_existing=True
     )
     
     scheduler.start()
-    print(f"[{datetime.now(timezone.utc)}] Document expiry scheduler started - will run daily at 9:00 AM UTC")
+    logger.info(f"[{datetime.now(timezone.utc)}] Document expiry scheduler started")
+    logger.info("  - Daily check at 9:00 AM UTC")
+    logger.info("  - Evening check at 6:00 PM UTC")
+    logger.info("  - Reminder intervals: 30, 14, 7, 3, 1, 0 days")
     
     return scheduler
 
@@ -261,12 +213,12 @@ def stop_scheduler():
     if scheduler is not None:
         scheduler.shutdown()
         scheduler = None
-        print("Document expiry scheduler stopped")
+        logger.info("Document expiry scheduler stopped")
 
 
 async def run_manual_check(db):
     """
-    Manually trigger an expiry check (for testing or admin action)
+    Manually trigger an expiry check (for testing or admin action).
     
     Args:
         db: MongoDB database instance
@@ -274,6 +226,6 @@ async def run_manual_check(db):
     Returns:
         dict: Results of the check
     """
-    print("[MANUAL] Running document expiry check...")
-    result = await check_and_send_expiry_reminders(db)
+    logger.info("[MANUAL] Running document expiry check...")
+    result = await run_daily_expiry_check(db)
     return result
