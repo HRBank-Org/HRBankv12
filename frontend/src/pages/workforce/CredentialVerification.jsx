@@ -31,8 +31,8 @@ const CredentialVerification = () => {
 
   const loadMetadata = async () => {
     try {
-      const response = await api.get('/api/institution/metadata/credential-types');
-      setCredentialTypes(response.data.data.credential_types);
+      const response = await api.get('/api/credentials/types');
+      setCredentialTypes(response.data.data.credential_types || []);
     } catch (error) {
       console.error('Failed to load metadata:', error);
     }
