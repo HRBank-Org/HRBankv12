@@ -9,9 +9,14 @@ from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 
 from auth.dependencies import require_role
-from config.database import get_db
 
 router = APIRouter(prefix="/compliance", tags=["Compliance"])
+
+
+def get_db():
+    """Dependency to get database instance"""
+    from server import db
+    return db
 
 
 # Request/Response Models
