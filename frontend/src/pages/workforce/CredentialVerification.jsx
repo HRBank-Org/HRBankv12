@@ -50,6 +50,49 @@ const CredentialVerification = () => {
     }
   };
 
+  // Institution search with debounce
+  const searchInstitutions = useCallback(async (query) => {
+    if (!query || query.length < 2) {
+      setInstitutionSuggestions([]);
+      setShowInstitutionDropdown(false);
+      return;
+    }
+    
+    setSearchingInstitutions(true);
+    try {
+      const response = await api.get(`/api/institutions/directory/search?q=${encodeURIComponent(query)}&limit=10`);
+      if (response.data.success) {
+        setInstitutionSuggestions(response.data.data.institutions || []);
+        setShowInstitutionDropdown(true);
+      }
+    } catch (error) {
+      console.error('Failed to search institutions:', error);
+      setInstitutionSuggestions([]);
+    } finally {
+      setSearchingInstitutions(false);
+    }
+  }, []);
+
+  // Debounced institution search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (formData.institution_name) {
+        searchInstitutions(formData.institution_name);
+      }
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [formData.institution_name, searchInstitutions]);
+
+  const selectInstitution = (institution) => {
+    setFormData(prev => ({
+      ...prev,
+      institution_name: institution.institution_name,
+      registrar_email: institution.email || prev.registrar_email
+    }));
+    setShowInstitutionDropdown(false);
+    setInstitutionSuggestions([]);
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
