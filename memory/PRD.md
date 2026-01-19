@@ -245,6 +245,29 @@ Complete multi-user support ticket system with:
 - `/institution/support` - Institution support center
 - `/admin/support-tickets` - Admin ticket management
 
+### Role Management Updates (January 19, 2026)
+
+**1. Address Localization:**
+- All addresses updated to Windsor-Essex region (Windsor, Leamington, Kingsville, Essex, Tecumseh, LaSalle, Amherstburg)
+- Workplaces, employer profiles, workforce profiles, and shift locations updated
+
+**2. Co-op/Volunteer Program Support:**
+- New checkbox on role creation: "Co-op / Volunteer Eligible"
+- Allows employers to mark roles as suitable for high school students
+- Students' hours tracked in WorkPassport for credit purposes
+- Schools/organizations can generate volunteer certificates
+
+**3. Role Type Naming Cleanup:**
+- Renamed `shift_type` to `work_type` in role models for clarity
+- Work types: `on_site`, `route_based`, `continental`
+- Shifts inherit `work_type` from their role (no duplication)
+- Backward compatibility maintained for existing data
+
+**API Changes:**
+- `POST /api/employer/workplace-roles/create` - Now accepts `work_type` and `coop_volunteer_eligible`
+- `PUT /api/employer/workplace-roles/{id}/update` - Can update `work_type` and `coop_volunteer_eligible`
+- `GET /api/employer/workplace-roles/list` - Returns normalized `work_type` field
+
 ## Known Issues
 - EULA shows Worker version for Admin users (cosmetic)
 - Some seeded users missing password_hash field
