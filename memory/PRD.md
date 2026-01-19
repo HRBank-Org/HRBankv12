@@ -1,16 +1,17 @@
 # HR Bank - Product Requirements Document
 
 ## Original Problem Statement
-Build a comprehensive HR platform (HR Bank) for workforce management in Canada, featuring:
+Build a comprehensive HR platform (HR Bank) for workforce management in the Windsor-Essex and Leamington regions of Ontario, Canada, featuring:
 - Dual OTP verification (Email + SMS) for user registration
 - Multi-role authentication (Workforce, Employer, Institution, Admin)
 - Google OAuth integration
 - WorkPassport™ credentials system
 - Blockchain-based credential verification
 - Real-time shift management and time tracking
+- Support for high school co-op and volunteer programs
 
 ## User Personas
-1. **Workforce** - Job seekers building verified credentials
+1. **Workforce** - Job seekers building verified credentials (including high school students)
 2. **Employers** - Companies hiring verified workers
 3. **Institutions** - Educational bodies issuing credentials
 4. **Admins** - Platform administrators managing users and approvals
@@ -20,8 +21,9 @@ Build a comprehensive HR platform (HR Bank) for workforce management in Canada, 
 - Google OAuth for social login
 - EULA acceptance flow for all user types
 - Admin dashboard with pending activations management
-- Address-based filtering for admin operations
+- Address-based filtering for admin operations (Windsor-Essex region focus)
 - Responsive landing pages with popup login modals
+- Co-op/Volunteer program support for high school students
 
 ## What's Been Implemented (January 2026)
 
