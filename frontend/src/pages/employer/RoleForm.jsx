@@ -21,7 +21,7 @@ const RoleForm = () => {
     workplace_id: '',
     role_name: '',
     occupation_template: '',
-    shift_type: 'on_site', // on_site, route_based, continental
+    work_type: 'on_site', // on_site, route_based, continental
     continental_config: null,
     route_config: null,
     required_skills: [],
@@ -29,7 +29,8 @@ const RoleForm = () => {
     generic_tasks: [],
     hourly_rate: '',
     description: '',
-    positions_available: 1
+    positions_available: 1,
+    coop_volunteer_eligible: false // For high school co-op/volunteer programs
   });
 
   const [newSkill, setNewSkill] = useState('');
