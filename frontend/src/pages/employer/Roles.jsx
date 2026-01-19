@@ -40,7 +40,7 @@ const Roles = () => {
         return {
           ...role,
           hours_this_week: kpi?.hours_this_week || 0,
-          shift_type: kpi?.shift_type || role.shift_type || 'on_site'
+          shift_type: kpi?.shift_type || role.work_type || 'on_site'
         };
       });
 
@@ -131,9 +131,9 @@ const Roles = () => {
     // Track overfilled positions (data issue warning)
     overfilledRoles: roles.filter(r => (r.positions_filled || 0) > (r.positions_available || 1)).length,
     // By work type
-    onSiteRoles: roles.filter(r => !r.shift_type || r.shift_type === 'on_site').length,
-    routeBasedRoles: roles.filter(r => r.shift_type === 'route_based').length,
-    continentalRoles: roles.filter(r => r.shift_type === 'continental').length,
+    onSiteRoles: roles.filter(r => !r.work_type || r.work_type === 'on_site').length,
+    routeBasedRoles: roles.filter(r => r.work_type === 'route_based').length,
+    continentalRoles: roles.filter(r => r.work_type === 'continental').length,
     totalHoursWeek: roles.reduce((sum, r) => sum + (r.hours_this_week || 0), 0)
   };
 
@@ -303,17 +303,17 @@ const Roles = () => {
                         <h3 className="text-xl font-bold text-gray-900">{role.role_name || role.title || 'Unnamed Role'}</h3>
                         {getStatusBadge(role)}
                         {/* Shift Type Badge */}
-                        {role.shift_type === 'continental' && (
+                        {role.work_type === 'continental' && (
                           <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium flex items-center gap-1">
                             🔄 Continental
                           </span>
                         )}
-                        {role.shift_type === 'route_based' && (
+                        {role.work_type === 'route_based' && (
                           <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium flex items-center gap-1">
                             🚗 Route-Based
                           </span>
                         )}
-                        {(!role.shift_type || role.shift_type === 'on_site') && (
+                        {(!role.work_type || role.work_type === 'on_site') && (
                           <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-1">
                             🏢 On-Site
                           </span>
