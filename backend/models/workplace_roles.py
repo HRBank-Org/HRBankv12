@@ -64,9 +64,10 @@ class WorkplaceRoleCreate(BaseModel):
     workplace_id: Optional[str] = None
     role_name: str
     occupation_template: str
-    shift_type: str = "on_site"  # on_site, route_based, continental
+    work_type: str = "on_site"  # on_site, route_based, continental
     continental_config: Optional[Dict] = None  # For continental roles
     route_config: Optional[Dict] = None  # For route_based roles
+    coop_volunteer_eligible: bool = False  # For high school co-op/volunteer programs
     required_skills: List[str] = []
     additional_certifications: List[str] = []  # Employer can add extra certs
     generic_tasks: List[Dict] = []  # [{task_name, estimated_minutes, is_mandatory}]
@@ -77,9 +78,10 @@ class WorkplaceRoleCreate(BaseModel):
 class WorkplaceRoleUpdate(BaseModel):
     """Request model for updating a workplace role"""
     role_name: Optional[str] = None
-    shift_type: Optional[str] = None
+    work_type: Optional[str] = None
     continental_config: Optional[Dict] = None
     route_config: Optional[Dict] = None
+    coop_volunteer_eligible: Optional[bool] = None
     required_skills: Optional[List[str]] = None
     additional_certifications: Optional[List[str]] = None
     generic_tasks: Optional[List[Dict]] = None
