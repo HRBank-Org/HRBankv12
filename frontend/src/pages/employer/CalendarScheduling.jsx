@@ -271,7 +271,7 @@ const CalendarScheduling = () => {
 
   const getShiftColor = (shift) => {
     // Color by work type first
-    const workType = shift.work_type || shift.shift_type || 'on_site';
+    const workType = shift.work_type || shift.work_type || 'on_site';
     
     if (workType === 'route_based' || shift.source === 'service_task') {
       // Route-based (CleanGrid) - Blue theme
@@ -293,7 +293,7 @@ const CalendarScheduling = () => {
   };
 
   const getShiftTypeLabel = (shift) => {
-    const workType = shift.work_type || shift.shift_type || 'on_site';
+    const workType = shift.work_type || shift.work_type || 'on_site';
     
     if (workType === 'route_based' || shift.source === 'service_task') {
       return { label: '🚗 Route', color: 'bg-blue-200 text-blue-800' };
