@@ -102,9 +102,9 @@ async def create_workplace_role(
                 detail="Workplace not found or doesn't belong to you"
             )
     
-    # Validate shift_type
-    valid_shift_types = ["on_site", "route_based", "continental"]
-    shift_type = role_data.shift_type if role_data.shift_type in valid_shift_types else "on_site"
+    # Validate work_type
+    valid_work_types = ["on_site", "route_based", "continental"]
+    work_type = role_data.work_type if role_data.work_type in valid_work_types else "on_site"
     
     # Create role
     role = WorkplaceRole(
@@ -113,9 +113,10 @@ async def create_workplace_role(
         role_name=role_data.role_name,
         occupation_template=occupation_template,
         occupation_category=occupation_category,
-        shift_type=shift_type,
-        continental_config=role_data.continental_config if shift_type == "continental" else None,
-        route_config=role_data.route_config if shift_type == "route_based" else None,
+        work_type=work_type,
+        continental_config=role_data.continental_config if work_type == "continental" else None,
+        route_config=role_data.route_config if work_type == "route_based" else None,
+        coop_volunteer_eligible=role_data.coop_volunteer_eligible,
         required_skills=role_data.required_skills,
         required_certifications=all_required_certs,
         occupation_required_certifications=occupation_required_certs,
