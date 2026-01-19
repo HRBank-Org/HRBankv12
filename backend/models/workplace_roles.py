@@ -16,17 +16,20 @@ class WorkplaceRole(BaseModel):
     occupation_template: str  # Links to admin occupation template (e.g., "Chef")
     occupation_category: str  # e.g., "Hospitality", "Security"
     
-    # Shift Type - Defines how shifts are created and attendance is tracked
+    # Work Type - Defines how shifts are created and attendance is tracked
     # on_site: Standard GPS clock-in at workplace location (Chef, Server, Manager)
     # route_based: Multi-stop tasks with GPS at each location (Delivery Driver, Cleaner)
     # continental: 12-hour rotating shifts with GPS at workplace (Security Guard)
-    shift_type: str = "on_site"  # on_site, route_based, continental
+    work_type: str = "on_site"  # on_site, route_based, continental
     
-    # Continental Shift Config (only for shift_type=continental)
+    # Continental Shift Config (only for work_type=continental)
     continental_config: Optional[Dict] = None  # {pattern, day_shift, night_shift, rotation_groups}
     
-    # Route Config (only for shift_type=route_based)
+    # Route Config (only for work_type=route_based)
     route_config: Optional[Dict] = None  # {default_duration_hours, allow_recurring_routes}
+    
+    # Co-op/Volunteer Program - For high school students
+    coop_volunteer_eligible: bool = False  # If True, students can apply for co-op/volunteer hours
     
     # Requirements
     required_skills: List[str] = []
