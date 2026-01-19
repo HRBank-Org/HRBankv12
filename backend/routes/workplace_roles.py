@@ -374,6 +374,14 @@ async def update_workplace_role(
     if update_data.role_name:
         update_dict["role_name"] = update_data.role_name
     
+    if update_data.work_type is not None:
+        valid_work_types = ["on_site", "route_based", "continental"]
+        if update_data.work_type in valid_work_types:
+            update_dict["work_type"] = update_data.work_type
+    
+    if update_data.coop_volunteer_eligible is not None:
+        update_dict["coop_volunteer_eligible"] = update_data.coop_volunteer_eligible
+    
     if update_data.required_skills is not None:
         update_dict["required_skills"] = update_data.required_skills
     
