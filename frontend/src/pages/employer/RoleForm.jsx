@@ -106,7 +106,7 @@ const RoleForm = () => {
         const newWorkType = workTypeData.default_work_type;
         setFormData(prev => ({
           ...prev,
-          shift_type: newWorkType,
+          work_type: newWorkType,
           continental_config: newWorkType === 'continental' 
             ? { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
             : null,
@@ -441,7 +441,7 @@ const RoleForm = () => {
                               const newType = defaultWorkType.default_work_type;
                               setFormData(prev => ({
                                 ...prev,
-                                shift_type: newType,
+                                work_type: newType,
                                 continental_config: newType === 'continental' 
                                   ? { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
                                   : null,
@@ -464,7 +464,7 @@ const RoleForm = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, shift_type: 'on_site', continental_config: null, route_config: null }));
+                        setFormData(prev => ({ ...prev, work_type: 'on_site', continental_config: null, route_config: null }));
                         if (defaultWorkType && defaultWorkType.default_work_type !== 'on_site') {
                           setWorkTypeOverridden(true);
                         } else {
@@ -472,7 +472,7 @@ const RoleForm = () => {
                         }
                       }}
                       className={`p-4 rounded-xl border-2 text-left transition-all relative ${
-                        formData.shift_type === 'on_site'
+                        formData.work_type === 'on_site'
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
@@ -492,7 +492,7 @@ const RoleForm = () => {
                       onClick={() => {
                         setFormData(prev => ({ 
                           ...prev, 
-                          shift_type: 'route_based', 
+                          work_type: 'route_based', 
                           continental_config: null,
                           route_config: { default_duration_hours: 8, allow_recurring_routes: true }
                         }));
@@ -503,7 +503,7 @@ const RoleForm = () => {
                         }
                       }}
                       className={`p-4 rounded-xl border-2 text-left transition-all relative ${
-                        formData.shift_type === 'route_based'
+                        formData.work_type === 'route_based'
                           ? 'border-orange-500 bg-orange-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
@@ -523,7 +523,7 @@ const RoleForm = () => {
                       onClick={() => {
                         setFormData(prev => ({ 
                           ...prev, 
-                          shift_type: 'continental',
+                          work_type: 'continental',
                           route_config: null,
                           continental_config: { pattern: 'dupont', day_shift: { start: '06:00', end: '18:00' }, night_shift: { start: '18:00', end: '06:00' } }
                         }));
@@ -534,7 +534,7 @@ const RoleForm = () => {
                         }
                       }}
                       className={`p-4 rounded-xl border-2 text-left transition-all relative ${
-                        formData.shift_type === 'continental'
+                        formData.work_type === 'continental'
                           ? 'border-indigo-500 bg-indigo-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
@@ -551,7 +551,7 @@ const RoleForm = () => {
                 </div>
 
                 {/* Continental Config (when continental is selected) */}
-                {formData.shift_type === 'continental' && (
+                {formData.work_type === 'continental' && (
                   <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
                     <h4 className="font-medium text-indigo-900 mb-3">Continental Shift Configuration</h4>
                     <div className="grid grid-cols-3 gap-3">
@@ -607,7 +607,7 @@ const RoleForm = () => {
                 )}
 
                 {/* Route Config (when route_based is selected) */}
-                {formData.shift_type === 'route_based' && (
+                {formData.work_type === 'route_based' && (
                   <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
                     <h4 className="font-medium text-orange-900 mb-3">Route Configuration</h4>
                     <p className="text-sm text-orange-700 mb-3">
