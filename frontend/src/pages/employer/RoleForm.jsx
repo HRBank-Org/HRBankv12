@@ -161,9 +161,10 @@ const RoleForm = () => {
           workplace_id: role.workplace_id || '',
           role_name: role.role_name || '',
           occupation_template: role.occupation_template || '',
-          shift_type: role.shift_type || 'on_site',
+          work_type: role.work_type || role.shift_type || 'on_site', // backward compat
           continental_config: role.continental_config || null,
           route_config: role.route_config || null,
+          coop_volunteer_eligible: role.coop_volunteer_eligible || false,
           required_skills: role.required_skills || [],
           additional_certifications: role.required_certifications || [],
           generic_tasks: role.generic_tasks || [],
