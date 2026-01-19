@@ -707,6 +707,49 @@ const RoleForm = () => {
               </div>
             </div>
 
+            {/* Co-op/Volunteer Program */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Student Programs</h2>
+              <p className="text-gray-600 text-sm mb-4">
+                Enable this role for high school co-op placements or volunteer opportunities
+              </p>
+              
+              <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border-2 transition-all hover:border-purple-300"
+                style={{ 
+                  borderColor: formData.coop_volunteer_eligible ? '#9333ea' : '#e5e7eb',
+                  backgroundColor: formData.coop_volunteer_eligible ? '#faf5ff' : 'white'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.coop_volunteer_eligible}
+                  onChange={(e) => setFormData(prev => ({ ...prev, coop_volunteer_eligible: e.target.checked }))}
+                  className="mt-1 w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  data-testid="coop-volunteer-checkbox"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🎓</span>
+                    <span className="font-semibold text-gray-900">Co-op / Volunteer Eligible</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Allow high school students to apply for co-op placements or volunteer hours in this role. 
+                    Their hours will be tracked in their WorkPassport for credit purposes.
+                  </p>
+                  {formData.coop_volunteer_eligible && (
+                    <div className="mt-3 p-3 bg-purple-100 rounded-lg">
+                      <p className="text-sm text-purple-800">
+                        <strong>When creating shifts for this role:</strong>
+                        <br />• You can mark shifts as "Co-op" or "Volunteer" shifts
+                        <br />• Students' hours will automatically be recorded in their WorkPassport
+                        <br />• Schools and organizations can generate certificates from their end
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </label>
+            </div>
+
             {/* Required Skills */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Required Skills</h2>
