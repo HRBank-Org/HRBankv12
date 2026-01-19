@@ -173,8 +173,22 @@ async def list_workplace_roles(
     
     roles = await db.workplace_roles.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     
-    # Enrich with workplace and worker info
+    # Normalize data and enrich with workplace and worker info
     for role in roles:
+        # Backward compatibility: map shift_type to work_type
+        if 'shift_type' in role and 'work_type' not in role:
+            role['work_type'] = role.pop('shift_type')
+        elif 'shift_type' in role:
+            del role['shift_type']  # Remove duplicate
+        
+        # Ensure work_type exists
+        if 'work_type' not in role:
+            role['work_type'] = 'on_site'
+        
+        # Ensure coop_volunteer_eligible exists
+        if 'coop_volunteer_eligible' not in role:
+            role['coop_volunteer_eligible'] = False
+        
         # Calculate display status based on positions
         positions_filled = role.get('positions_filled', 0)
         positions_needed = role.get('positions_needed', 1)
