@@ -2,9 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   BookOpen, MessageCircle, FileText, Shield, Users, Settings,
-  ChevronRight, Search, Phone, Mail
+  ChevronRight, Search, Phone, Mail, ArrowLeft
 } from 'lucide-react';
-import { LOGOS } from '../../utils/logoUtils';
 
 const helpCategories = [
   {
@@ -91,19 +90,20 @@ const Help = () => {
       <nav className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
+            <img 
+              src="/logo192.png" 
+              alt="HR Bank"
+              className="w-10 h-10 rounded-lg object-contain"
+            />
+            <span className="font-bold text-xl text-gray-900">HR Bank</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/faq" className="text-gray-600 hover:text-gray-900 font-medium">
-              FAQ
-            </Link>
-            <Link 
-              to="/login" 
-              className="px-4 py-2 bg-[#30496d] text-white rounded-lg hover:bg-[#243a57] transition-colors"
-            >
-              Sign In
-            </Link>
-          </div>
+          <Link 
+            to="/" 
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
         </div>
       </nav>
 
