@@ -233,50 +233,7 @@ const PartnerManagement = () => {
                   </table>
                 </div>
               )
-            ) : activeTab === 'territories' ? (
-              territories.length === 0 ? (
-                <div className="text-center py-12 px-4">
-                  <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">No Territories Assigned</h3>
-                  <p className="text-gray-500">Assign FSA territories to franchisee employers to route work orders.</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
-                      <tr>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">FSA</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Franchisee</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Status</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Assigned</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {territories.map(territory => (
-                        <tr key={territory.fsa} className="hover:bg-gray-50">
-                          <td className="px-4 py-3">
-                            <span className="font-mono font-bold text-lg text-orange-600">{territory.fsa}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="font-medium text-gray-900">{territory.employer_name || 'Unknown'}</p>
-                            <p className="text-xs text-gray-500">{territory.employer_id}</p>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                              <CheckCircle className="w-3 h-3" />
-                              {territory.status}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="text-sm text-gray-600">{formatDate(territory.assigned_date)}</p>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )
-            ) : (
+            ) : activeTab === 'orders' ? (
               <div className="text-center py-12 px-4">
                 <Package className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                 <h3 className="text-lg font-medium text-gray-900 mb-1">Work Orders View</h3>
