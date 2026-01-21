@@ -1,6 +1,6 @@
 """
-CleanGrid Work Order API - Webhook-based integration for work order dispatch
-Work orders flow: CleanGrid → FSA Bundling → Franchisee Dashboard → Worker Assignment → Shift
+CleanGrid Work Order API - Webhook integration for work order dispatch
+CleanGrid sends work orders with franchisee email → HR Bank routes to employer → Franchisee assigns workers
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Header, BackgroundTasks
@@ -35,34 +35,53 @@ class PartnerResponse(BaseModel):
     message: str
 
 
-class WorkOrderCreate(BaseModel):
-    """Work order from CleanGrid"""
-    external_order_id: str  # CleanGrid's order ID
-    service_type: str  # residential_cleaning, commercial_cleaning, move_in_out, deep_clean
-    customer_name: str
-    service_address: str
-    service_city: str
-    service_province: str = "Ontario"
-    service_postal_code: str  # FSA for routing (e.g., N9A, N8H)
-    scheduled_date: str  # YYYY-MM-DD
-    time_window_start: str  # HH:MM (e.g., "09:00")
-    time_window_end: str  # HH:MM (e.g., "12:00")
-    estimated_duration_hours: float = 2.0
+# CleanGrid webhook payload models
+class FranchiseeInfo(BaseModel):
+    email: str
+    name: Optional[str] = None
+    phone: Optional[str] = None
+
+
+class ServiceInfo(BaseModel):
+    name: str
+    type: str  # residential, commercial, etc.
+    scheduledDate: str  # ISO datetime
+    estimatedDuration: int  # minutes
+
+
+class LocationInfo(BaseModel):
+    address: str
+    postalCode: str
+    fsaCode: Optional[str] = None
+
+
+class CustomerInfo(BaseModel):
+    name: str
+    phone: Optional[str] = None
+    email: Optional[str] = None
+
+
+class PaymentInfo(BaseModel):
+    totalPrice: float
+    escrowStatus: str  # held, released, etc.
+
+
+class CleanGridWorkOrder(BaseModel):
+    """Work order payload from CleanGrid"""
+    cleangrid_booking_id: str
+    franchisee: FranchiseeInfo
+    service: ServiceInfo
+    location: LocationInfo
+    customer: CustomerInfo
+    payment: PaymentInfo
     special_instructions: Optional[str] = None
-    required_equipment: List[str] = []
     workers_needed: int = 1
-    hourly_rate: float = 22.00
-    customer_phone: Optional[str] = None
-    access_instructions: Optional[str] = None
-    is_recurring: bool = False
-    recurrence_pattern: Optional[str] = None  # weekly, biweekly, monthly
     priority: str = "normal"  # normal, high, urgent
-    metadata: Optional[Dict] = None
 
 
 class WorkOrderAssignment(BaseModel):
     """Assign work order to worker"""
-    worker_id: str
+    worker_ids: List[str]
     notes: Optional[str] = None
 
 
@@ -85,19 +104,19 @@ async def get_partner_by_api_key(api_key: str) -> Optional[dict]:
     return partner
 
 
-def extract_fsa(postal_code: str) -> str:
-    """Extract FSA (Forward Sortation Area) from postal code - first 3 characters"""
-    return postal_code.replace(" ", "").upper()[:3] if postal_code else ""
-
-
-async def get_franchisee_for_fsa(fsa: str) -> Optional[dict]:
-    """Find the franchisee employer assigned to this FSA territory"""
-    # Check FSA territory assignments
-    assignment = await db.fsa_territories.find_one({"fsa": fsa, "status": "active"})
-    if assignment:
-        employer = await db.employer_profiles.find_one({"user_id": assignment["employer_id"]})
-        return employer
-    return None
+async def get_employer_by_email(email: str) -> Optional[dict]:
+    """Find employer by email - checks users and employer_profiles"""
+    # First try users collection
+    user = await db.users.find_one({"email": email.lower(), "user_type": "employer"})
+    if user:
+        profile = await db.employer_profiles.find_one({"user_id": user["user_id"]})
+        if profile:
+            return {**profile, "user_id": user["user_id"], "email": email}
+        return {"user_id": user["user_id"], "email": email, "company_name": user.get("company_name", "")}
+    
+    # Try employer_profiles directly
+    profile = await db.employer_profiles.find_one({"email": email.lower()})
+    return profile
 
 
 async def send_webhook(url: str, payload: dict, secret: str):
@@ -179,65 +198,17 @@ async def list_partners(admin_key: str = Header(..., alias="X-Admin-Key")):
     return {"success": True, "data": {"partners": partners, "total": len(partners)}}
 
 
-@router.post("/fsa-territory/assign")
-async def assign_fsa_territory(
-    data: dict,
-    admin_key: str = Header(..., alias="X-Admin-Key")
-):
-    """Assign FSA territory to a franchisee employer (Admin only)"""
-    expected_admin_key = os.environ.get("PARTNER_ADMIN_KEY", "hrbank_admin_secret")
-    if admin_key != expected_admin_key:
-        raise HTTPException(status_code=403, detail="Invalid admin key")
-    
-    fsa = data.get("fsa", "").upper()[:3]
-    employer_id = data.get("employer_id")
-    
-    if not fsa or not employer_id:
-        raise HTTPException(status_code=400, detail="FSA and employer_id required")
-    
-    # Verify employer exists
-    employer = await db.employer_profiles.find_one({"user_id": employer_id})
-    if not employer:
-        raise HTTPException(status_code=404, detail="Employer not found")
-    
-    # Upsert territory assignment
-    await db.fsa_territories.update_one(
-        {"fsa": fsa},
-        {"$set": {
-            "fsa": fsa,
-            "employer_id": employer_id,
-            "employer_name": employer.get("company_name", ""),
-            "status": "active",
-            "assigned_date": datetime.now(timezone.utc).isoformat()
-        }},
-        upsert=True
-    )
-    
-    return {"success": True, "message": f"FSA {fsa} assigned to {employer.get('company_name')}"}
-
-
-@router.get("/fsa-territories")
-async def list_fsa_territories(admin_key: str = Header(..., alias="X-Admin-Key")):
-    """List all FSA territory assignments (Admin only)"""
-    expected_admin_key = os.environ.get("PARTNER_ADMIN_KEY", "hrbank_admin_secret")
-    if admin_key != expected_admin_key:
-        raise HTTPException(status_code=403, detail="Invalid admin key")
-    
-    territories = await db.fsa_territories.find({"status": "active"}, {"_id": 0}).to_list(500)
-    return {"success": True, "data": {"territories": territories, "total": len(territories)}}
-
-
-# ============== Partner Webhook Endpoints ==============
+# ============== CleanGrid Webhook Endpoint ==============
 
 @router.post("/work-orders")
 async def receive_work_order(
-    work_order: WorkOrderCreate,
+    work_order: CleanGridWorkOrder,
     background_tasks: BackgroundTasks,
     api_key: str = Depends(verify_api_key)
 ):
     """
     Receive work order from CleanGrid.
-    Work order is routed to franchisee based on FSA.
+    Routes to franchisee based on franchisee.email lookup.
     """
     partner = await get_partner_by_api_key(api_key)
     if not partner:
@@ -246,7 +217,7 @@ async def receive_work_order(
     # Check for duplicate
     existing = await db.work_orders.find_one({
         "partner_id": partner["partner_id"],
-        "external_order_id": work_order.external_order_id
+        "external_order_id": work_order.cleangrid_booking_id
     })
     
     if existing:
@@ -254,7 +225,20 @@ async def receive_work_order(
         await db.work_orders.update_one(
             {"_id": existing["_id"]},
             {"$set": {
-                **work_order.dict(),
+                "service_type": work_order.service.type,
+                "service_name": work_order.service.name,
+                "scheduled_datetime": work_order.service.scheduledDate,
+                "estimated_duration_minutes": work_order.service.estimatedDuration,
+                "service_address": work_order.location.address,
+                "service_postal_code": work_order.location.postalCode,
+                "customer_name": work_order.customer.name,
+                "customer_phone": work_order.customer.phone,
+                "customer_email": work_order.customer.email,
+                "total_price": work_order.payment.totalPrice,
+                "escrow_status": work_order.payment.escrowStatus,
+                "special_instructions": work_order.special_instructions,
+                "workers_needed": work_order.workers_needed,
+                "priority": work_order.priority,
                 "updated_date": datetime.now(timezone.utc).isoformat()
             }}
         )
@@ -266,50 +250,130 @@ async def receive_work_order(
             }
         }
     
-    # Extract FSA and find franchisee
-    fsa = extract_fsa(work_order.service_postal_code)
-    franchisee = await get_franchisee_for_fsa(fsa)
+    # Look up franchisee by email
+    franchisee = await get_employer_by_email(work_order.franchisee.email)
     
+    if not franchisee:
+        # Log unroutable order but still accept it
+        hrbank_order_id = f"wo_{uuid.uuid4().hex[:12]}"
+        now = datetime.now(timezone.utc).isoformat()
+        
+        order = {
+            "hrbank_order_id": hrbank_order_id,
+            "partner_id": partner["partner_id"],
+            "partner_name": partner["partner_name"],
+            "external_order_id": work_order.cleangrid_booking_id,
+            
+            # Franchisee info (not found in HR Bank)
+            "franchisee_email": work_order.franchisee.email,
+            "franchisee_name": work_order.franchisee.name,
+            "franchisee_phone": work_order.franchisee.phone,
+            "franchisee_id": None,  # Not found
+            
+            # Service details
+            "service_type": work_order.service.type,
+            "service_name": work_order.service.name,
+            "scheduled_datetime": work_order.service.scheduledDate,
+            "estimated_duration_minutes": work_order.service.estimatedDuration,
+            
+            # Location
+            "service_address": work_order.location.address,
+            "service_postal_code": work_order.location.postalCode,
+            "fsa": work_order.location.fsaCode or work_order.location.postalCode[:3].upper(),
+            
+            # Customer
+            "customer_name": work_order.customer.name,
+            "customer_phone": work_order.customer.phone,
+            "customer_email": work_order.customer.email,
+            
+            # Payment
+            "total_price": work_order.payment.totalPrice,
+            "escrow_status": work_order.payment.escrowStatus,
+            
+            # Details
+            "special_instructions": work_order.special_instructions,
+            "workers_needed": work_order.workers_needed,
+            "priority": work_order.priority,
+            
+            # Status
+            "status": "unroutable",  # Franchisee not found in HR Bank
+            "status_reason": f"Franchisee email {work_order.franchisee.email} not found in HR Bank",
+            "assigned_workers": [],
+            "shift_ids": [],
+            
+            "created_date": now,
+            "updated_date": now
+        }
+        
+        await db.work_orders.insert_one(order)
+        await db.partners.update_one(
+            {"partner_id": partner["partner_id"]},
+            {"$inc": {"work_orders_received": 1}}
+        )
+        
+        return {
+            "success": True,
+            "data": {
+                "hrbank_order_id": hrbank_order_id,
+                "status": "unroutable",
+                "reason": f"Franchisee {work_order.franchisee.email} not registered in HR Bank. They need to create an employer account first."
+            }
+        }
+    
+    # Franchisee found - create work order
     hrbank_order_id = f"wo_{uuid.uuid4().hex[:12]}"
     now = datetime.now(timezone.utc).isoformat()
+    
+    # Parse scheduled datetime
+    scheduled_date = work_order.service.scheduledDate[:10]  # YYYY-MM-DD
+    scheduled_time = work_order.service.scheduledDate[11:16] if len(work_order.service.scheduledDate) > 10 else "09:00"
+    
+    # Calculate end time
+    duration_hours = work_order.service.estimatedDuration / 60
     
     order = {
         "hrbank_order_id": hrbank_order_id,
         "partner_id": partner["partner_id"],
         "partner_name": partner["partner_name"],
-        "external_order_id": work_order.external_order_id,
-        "fsa": fsa,
-        "franchisee_id": franchisee["user_id"] if franchisee else None,
-        "franchisee_name": franchisee.get("company_name") if franchisee else None,
+        "external_order_id": work_order.cleangrid_booking_id,
+        
+        # Franchisee (matched)
+        "franchisee_id": franchisee["user_id"],
+        "franchisee_email": work_order.franchisee.email,
+        "franchisee_name": work_order.franchisee.name or franchisee.get("company_name", ""),
+        "franchisee_phone": work_order.franchisee.phone,
         
         # Service details
-        "service_type": work_order.service_type,
-        "customer_name": work_order.customer_name,
-        "service_address": work_order.service_address,
-        "service_city": work_order.service_city,
-        "service_province": work_order.service_province,
-        "service_postal_code": work_order.service_postal_code,
+        "service_type": work_order.service.type,
+        "service_name": work_order.service.name,
+        "scheduled_datetime": work_order.service.scheduledDate,
+        "scheduled_date": scheduled_date,
+        "time_window_start": scheduled_time,
+        "estimated_duration_minutes": work_order.service.estimatedDuration,
+        "estimated_duration_hours": duration_hours,
         
-        # Scheduling
-        "scheduled_date": work_order.scheduled_date,
-        "time_window_start": work_order.time_window_start,
-        "time_window_end": work_order.time_window_end,
-        "estimated_duration_hours": work_order.estimated_duration_hours,
+        # Location
+        "service_address": work_order.location.address,
+        "service_postal_code": work_order.location.postalCode,
+        "fsa": work_order.location.fsaCode or work_order.location.postalCode[:3].upper(),
+        
+        # Customer
+        "customer_name": work_order.customer.name,
+        "customer_phone": work_order.customer.phone,
+        "customer_email": work_order.customer.email,
+        
+        # Payment
+        "total_price": work_order.payment.totalPrice,
+        "escrow_status": work_order.payment.escrowStatus,
+        "hourly_rate": round(work_order.payment.totalPrice / duration_hours, 2) if duration_hours > 0 else 0,
         
         # Details
         "special_instructions": work_order.special_instructions,
-        "required_equipment": work_order.required_equipment,
         "workers_needed": work_order.workers_needed,
-        "hourly_rate": work_order.hourly_rate,
-        "customer_phone": work_order.customer_phone,
-        "access_instructions": work_order.access_instructions,
-        "is_recurring": work_order.is_recurring,
-        "recurrence_pattern": work_order.recurrence_pattern,
         "priority": work_order.priority,
-        "metadata": work_order.metadata,
         
-        # Status tracking
-        "status": "pending" if franchisee else "unassigned",  # pending = awaiting franchisee action
+        # Status
+        "status": "pending",
         "assigned_workers": [],
         "shift_ids": [],
         
@@ -325,24 +389,22 @@ async def receive_work_order(
         {"$inc": {"work_orders_received": 1}}
     )
     
-    # Notify franchisee (in background)
-    if franchisee:
-        background_tasks.add_task(
-            notify_franchisee_new_order,
-            franchisee["user_id"],
-            hrbank_order_id,
-            work_order.service_type,
-            work_order.scheduled_date
-        )
+    # Notify franchisee
+    background_tasks.add_task(
+        notify_franchisee_new_order,
+        franchisee["user_id"],
+        hrbank_order_id,
+        work_order.service.name,
+        scheduled_date
+    )
     
     return {
         "success": True,
         "data": {
             "hrbank_order_id": hrbank_order_id,
-            "fsa": fsa,
-            "franchisee_assigned": franchisee is not None,
-            "franchisee_name": franchisee.get("company_name") if franchisee else None,
-            "status": order["status"]
+            "franchisee_matched": True,
+            "franchisee_name": franchisee.get("company_name", work_order.franchisee.name),
+            "status": "pending"
         }
     }
 
@@ -370,7 +432,7 @@ async def get_work_order_status(
     external_order_id: str,
     api_key: str = Depends(verify_api_key)
 ):
-    """Get status of a specific work order"""
+    """Get status of a specific work order by CleanGrid booking ID"""
     partner = await get_partner_by_api_key(api_key)
     if not partner:
         raise HTTPException(status_code=401, detail="Invalid API key")
@@ -391,21 +453,17 @@ async def get_work_order_status(
 @router.get("/employer/work-orders")
 async def get_franchisee_work_orders(
     status: Optional[str] = None,
-    fsa: Optional[str] = None,
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
     employer_id: str = Header(..., alias="X-Employer-ID")
 ):
-    """Get work orders for franchisee's territories"""
-    # Build query for this employer's orders
+    """Get work orders for this franchisee"""
     query = {"franchisee_id": employer_id}
     
     if status:
         query["status"] = status
-    if fsa:
-        query["fsa"] = fsa.upper()[:3]
     if date_from:
         query["scheduled_date"] = {"$gte": date_from}
     if date_to:
@@ -487,7 +545,7 @@ async def decline_work_order(
         }}
     )
     
-    # Notify partner via webhook
+    # Notify CleanGrid via webhook
     partner = await db.partners.find_one({"partner_id": order["partner_id"]})
     if partner and partner.get("webhook_url"):
         background_tasks.add_task(
@@ -495,7 +553,8 @@ async def decline_work_order(
             partner["webhook_url"],
             {
                 "event": "work_order.declined",
-                "external_order_id": order["external_order_id"],
+                "cleangrid_booking_id": order["external_order_id"],
+                "hrbank_order_id": order_id,
                 "reason": reason,
                 "timestamp": datetime.now(timezone.utc).isoformat()
             },
@@ -508,13 +567,12 @@ async def decline_work_order(
 @router.post("/employer/work-orders/{order_id}/assign")
 async def assign_workers_to_order(
     order_id: str,
-    data: dict,
+    data: WorkOrderAssignment,
     background_tasks: BackgroundTasks,
     employer_id: str = Header(..., alias="X-Employer-ID")
 ):
     """
     Assign workers to work order and create route-based shifts.
-    This creates actual shifts in HR Bank's shift system.
     """
     order = await db.work_orders.find_one({"hrbank_order_id": order_id, "franchisee_id": employer_id})
     if not order:
@@ -523,7 +581,7 @@ async def assign_workers_to_order(
     if order["status"] not in ["pending", "accepted"]:
         raise HTTPException(status_code=400, detail=f"Cannot assign workers to {order['status']} order")
     
-    worker_ids = data.get("worker_ids", [])
+    worker_ids = data.worker_ids
     if not worker_ids:
         raise HTTPException(status_code=400, detail="At least one worker required")
     
@@ -537,7 +595,7 @@ async def assign_workers_to_order(
         if not employment:
             raise HTTPException(status_code=400, detail=f"Worker {worker_id} is not employed by you")
     
-    # Get employer's workplace for this territory
+    # Get employer's workplace
     workplace = await db.workplaces.find_one({
         "employer_id": employer_id,
         "status": "active"
@@ -549,50 +607,60 @@ async def assign_workers_to_order(
     # Create shifts for each worker
     shift_ids = []
     now = datetime.now(timezone.utc).isoformat()
+    duration_hours = order.get("estimated_duration_hours", order.get("estimated_duration_minutes", 120) / 60)
     
     for worker_id in worker_ids:
         shift_id = f"shift_{uuid.uuid4().hex[:12]}"
         
-        # Build start/end datetime
-        start_datetime = f"{order['scheduled_date']}T{order['time_window_start']}:00"
+        # Parse scheduled time
+        scheduled_date = order.get("scheduled_date", order.get("scheduled_datetime", "")[:10])
+        start_time = order.get("time_window_start", "09:00")
         
-        # Calculate end time based on duration
-        start_hour, start_min = map(int, order['time_window_start'].split(':'))
-        duration_hours = order['estimated_duration_hours']
+        # Calculate end time
+        start_hour, start_min = map(int, start_time.split(':'))
         end_hour = start_hour + int(duration_hours)
         end_min = start_min + int((duration_hours % 1) * 60)
         if end_min >= 60:
             end_hour += 1
             end_min -= 60
-        end_datetime = f"{order['scheduled_date']}T{end_hour:02d}:{end_min:02d}:00"
+        
+        start_datetime = f"{scheduled_date}T{start_time}:00"
+        end_datetime = f"{scheduled_date}T{end_hour:02d}:{end_min:02d}:00"
+        
+        hourly_rate = order.get("hourly_rate", 22.00)
         
         shift = {
             "shift_id": shift_id,
             "employer_id": employer_id,
             "workplace_id": workplace["workplace_id"],
             "workforce_id": worker_id,
-            "work_order_id": order_id,  # Link to work order
+            "work_order_id": order_id,
             "partner_id": order["partner_id"],
+            "cleangrid_booking_id": order["external_order_id"],
             
             # Shift details
-            "title": f"{order['service_type'].replace('_', ' ').title()} - {order['customer_name']}",
+            "title": f"{order.get('service_name', order.get('service_type', 'Cleaning'))} - {order['customer_name']}",
             "description": order.get("special_instructions", ""),
-            "shift_type": "route_based",  # This is key - route-based shift
+            "shift_type": "route_based",
             
-            # Location (service address, not workplace)
+            # Location (service address)
             "service_address": order["service_address"],
-            "service_city": order["service_city"],
             "service_postal_code": order["service_postal_code"],
             
             # Timing
-            "shift_date": order["scheduled_date"],
+            "shift_date": scheduled_date,
             "start_time": start_datetime,
             "end_time": end_datetime,
             "duration_hours": duration_hours,
             
             # Pay
-            "hourly_rate": order["hourly_rate"],
-            "estimated_pay": round(duration_hours * order["hourly_rate"], 2),
+            "hourly_rate": hourly_rate,
+            "estimated_pay": round(duration_hours * hourly_rate, 2),
+            "total_price": order.get("total_price", 0),
+            
+            # Customer contact
+            "customer_name": order["customer_name"],
+            "customer_phone": order.get("customer_phone"),
             
             # Status
             "status": "scheduled",
@@ -608,8 +676,8 @@ async def assign_workers_to_order(
             "notification_id": f"notif_{uuid.uuid4().hex[:8]}",
             "user_id": worker_id,
             "type": "shift_assigned",
-            "title": "New Shift Assigned",
-            "message": f"You have been assigned a new shift: {shift['title']} on {order['scheduled_date']}",
+            "title": "New Cleaning Job Assigned",
+            "message": f"You have been assigned: {shift['title']} on {scheduled_date} at {start_time}",
             "data": {"shift_id": shift_id, "work_order_id": order_id},
             "read": False,
             "created_date": now
@@ -627,7 +695,7 @@ async def assign_workers_to_order(
         }}
     )
     
-    # Notify partner
+    # Notify CleanGrid
     partner = await db.partners.find_one({"partner_id": order["partner_id"]})
     if partner and partner.get("webhook_url"):
         background_tasks.add_task(
@@ -635,9 +703,10 @@ async def assign_workers_to_order(
             partner["webhook_url"],
             {
                 "event": "work_order.assigned",
-                "external_order_id": order["external_order_id"],
+                "cleangrid_booking_id": order["external_order_id"],
+                "hrbank_order_id": order_id,
                 "workers_assigned": len(worker_ids),
-                "scheduled_date": order["scheduled_date"],
+                "scheduled_date": scheduled_date,
                 "timestamp": now
             },
             partner["webhook_secret"]
@@ -658,7 +727,7 @@ async def get_available_workers_for_order(
     order_id: str,
     employer_id: str = Header(..., alias="X-Employer-ID")
 ):
-    """Get available workers for a work order based on schedule and skills"""
+    """Get available workers for a work order"""
     order = await db.work_orders.find_one({"hrbank_order_id": order_id, "franchisee_id": employer_id})
     if not order:
         raise HTTPException(status_code=404, detail="Work order not found")
@@ -670,20 +739,21 @@ async def get_available_workers_for_order(
     }).to_list(100)
     
     worker_ids = [e["workforce_id"] for e in employments]
+    scheduled_date = order.get("scheduled_date", order.get("scheduled_datetime", "")[:10])
     
-    # Check availability for each worker
     available_workers = []
     
     for worker_id in worker_ids:
-        # Get worker profile
         profile = await db.workforce_profiles.find_one({"user_id": worker_id})
         if not profile:
-            continue
+            # Try users collection
+            user = await db.users.find_one({"user_id": worker_id})
+            profile = user or {}
         
-        # Check for conflicting shifts on that date
+        # Check for conflicting shifts
         conflicts = await db.shifts.find_one({
             "workforce_id": worker_id,
-            "shift_date": order["scheduled_date"],
+            "shift_date": scheduled_date,
             "status": {"$in": ["scheduled", "active", "in_progress"]}
         })
         
@@ -691,19 +761,17 @@ async def get_available_workers_for_order(
         
         worker_info = {
             "worker_id": worker_id,
-            "name": profile.get("full_name", "Unknown"),
+            "name": profile.get("full_name", profile.get("name", "Unknown")),
             "email": profile.get("email", ""),
             "phone": profile.get("phone", ""),
             "is_available": is_available,
             "conflict_reason": "Already has shift on this date" if conflicts else None,
             "skills": profile.get("skills", []),
-            "certifications": profile.get("certifications", []),
             "rating": profile.get("average_rating", 0)
         }
         
         available_workers.append(worker_info)
     
-    # Sort by availability then rating
     available_workers.sort(key=lambda w: (not w["is_available"], -w["rating"]))
     
     return {
@@ -715,8 +783,6 @@ async def get_available_workers_for_order(
         }
     }
 
-
-# ============== Status Update Endpoints ==============
 
 @router.post("/employer/work-orders/{order_id}/complete")
 async def complete_work_order(
@@ -748,7 +814,7 @@ async def complete_work_order(
         {"$inc": {"work_orders_completed": 1}}
     )
     
-    # Notify partner
+    # Notify CleanGrid
     partner = await db.partners.find_one({"partner_id": order["partner_id"]})
     if partner and partner.get("webhook_url"):
         background_tasks.add_task(
@@ -756,7 +822,8 @@ async def complete_work_order(
             partner["webhook_url"],
             {
                 "event": "work_order.completed",
-                "external_order_id": order["external_order_id"],
+                "cleangrid_booking_id": order["external_order_id"],
+                "hrbank_order_id": order_id,
                 "completed_at": now,
                 "notes": data.get("notes", "")
             },
@@ -766,16 +833,16 @@ async def complete_work_order(
     return {"success": True, "message": "Work order marked as completed"}
 
 
-# ============== Helper Background Tasks ==============
+# ============== Background Tasks ==============
 
-async def notify_franchisee_new_order(employer_id: str, order_id: str, service_type: str, scheduled_date: str):
+async def notify_franchisee_new_order(employer_id: str, order_id: str, service_name: str, scheduled_date: str):
     """Send notification to franchisee about new work order"""
     await db.notifications.insert_one({
         "notification_id": f"notif_{uuid.uuid4().hex[:8]}",
         "user_id": employer_id,
         "type": "new_work_order",
-        "title": "New Work Order",
-        "message": f"New {service_type.replace('_', ' ')} work order for {scheduled_date}",
+        "title": "New CleanGrid Work Order",
+        "message": f"New booking: {service_name} on {scheduled_date}",
         "data": {"work_order_id": order_id},
         "read": False,
         "created_date": datetime.now(timezone.utc).isoformat()
