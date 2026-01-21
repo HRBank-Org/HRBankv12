@@ -275,7 +275,51 @@ Complete multi-user support ticket system with:
 
 ## Recently Completed (January 21, 2026)
 
-### Invoicing System Frontend ✅
+### CleanGrid Work Order System - REBUILT ✅
+Complete work order dispatch system for franchisee operations:
+
+**Correct Flow (Work Order → Shift Assignment):**
+1. CleanGrid sends work orders via webhook (`POST /api/partner/work-orders`)
+2. Work orders are routed by FSA (postal code) to assigned franchisee
+3. Franchisee sees incoming work orders in Employer Dashboard
+4. Franchisee accepts/declines and assigns workers from their hired staff
+5. Assignment creates route-based shifts in HR Bank's shift system
+6. Workers see scheduled shifts (not job applications)
+
+**Admin Features:**
+- Partner registration with API key generation
+- FSA territory assignment to franchisee employers
+- Territory management dashboard
+
+**Employer Dashboard (`/employer/work-orders`):**
+- Summary cards: Pending, Accepted, Assigned, Completed counts
+- Work order list with full details (customer, address, time window, rate)
+- Accept/Decline actions
+- Assign Workers modal showing available staff
+- Filter by status and FSA
+
+**Backend Endpoints:**
+- `POST /api/partner/work-orders` - Receive work order from CleanGrid
+- `GET /api/partner/work-orders` - Partner's work order list
+- `POST /api/partner/fsa-territory/assign` - Admin assigns FSA to employer
+- `GET /api/partner/employer/work-orders` - Franchisee's work orders
+- `POST /api/partner/employer/work-orders/{id}/accept` - Accept order
+- `POST /api/partner/employer/work-orders/{id}/decline` - Decline order
+- `POST /api/partner/employer/work-orders/{id}/assign` - Assign workers (creates shifts)
+- `GET /api/partner/employer/available-workers` - Workers available for assignment
+
+**Files Modified:**
+- `/app/backend/routes/partner_api.py` - Rebuilt as Work Order system
+- `/app/frontend/src/pages/employer/WorkOrders.jsx` - New page
+- `/app/frontend/src/pages/admin/PartnerManagement.jsx` - Updated for FSA territories
+- `/app/frontend/src/components/layout/ModernSidebar.jsx` - Added Work Orders link
+
+### Public Pages UI Cleanup ✅
+- Replaced "Sign In" button with "Back to Home" link on all public pages
+- Updated logo from emoji to actual HR Bank logo image
+- Affected pages: Privacy, About, Contact, FAQ, Help, Leaderboard
+
+### Invoice System Frontend ✅
 Complete invoice management interface for all user types:
 
 **User Features (Workforce, Employer, Institution):**
