@@ -310,6 +310,7 @@ function AppRoutes() {
         <Route path="/employer/home" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerHome /></ProtectedRoute>} />
         <Route path="/employer/roster" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerRoster /></ProtectedRoute>} />
         <Route path="/employer/payroll" element={<ProtectedRoute allowedUserTypes={['employer']}><Payroll /></ProtectedRoute>} />
+        <Route path="/employer/work-orders" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkOrders /></ProtectedRoute>} />
         <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
         <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDashboard /></ProtectedRoute>} />
         <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerNotifications /></ProtectedRoute>} />
