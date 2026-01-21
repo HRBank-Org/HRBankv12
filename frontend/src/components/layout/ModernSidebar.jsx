@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiCalendar, FiMapPin, FiUsers, FiUserCheck, FiClock, FiDollarSign, FiFileText, FiChevronRight, FiNavigation, FiSun, FiHelpCircle, FiCreditCard } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiMapPin, FiUsers, FiUserCheck, FiClock, FiDollarSign, FiFileText, FiChevronRight, FiNavigation, FiSun, FiHelpCircle, FiCreditCard, FiPackage } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const ModernSidebar = () => {
@@ -33,6 +33,12 @@ const ModernSidebar = () => {
       label: 'Roster',
       icon: FiCalendar,
       path: '/employer/roster'
+    },
+    {
+      type: 'item',
+      label: 'Work Orders',
+      icon: FiPackage,
+      path: '/employer/work-orders'
     },
     {
       type: 'item',
