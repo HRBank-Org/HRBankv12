@@ -300,6 +300,7 @@ function AppRoutes() {
         <Route path="/workforce/work-passport" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkPassportSettings /></ProtectedRoute>} />
         <Route path="/workforce/career-profile" element={<Navigate to="/workforce/work-passport" replace />} />
         <Route path="/workforce/support" element={<ProtectedRoute allowedUserTypes={['workforce']}><Support /></ProtectedRoute>} />
+        <Route path="/workforce/invoices" element={<ProtectedRoute allowedUserTypes={['workforce']}><Invoices /></ProtectedRoute>} />
         
         {/* Institution Routes */}
         <Route path="/institution/marketplace" element={<ProtectedRoute allowedUserTypes={['institution']}><CredentialMarketplace /></ProtectedRoute>} />
@@ -350,6 +351,7 @@ function AppRoutes() {
         <Route path="/employer/documents" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDocuments /></ProtectedRoute>} />
         <Route path="/employer/time-off" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerTimeOffManagement /></ProtectedRoute>} />
         <Route path="/employer/support" element={<ProtectedRoute allowedUserTypes={['employer']}><Support /></ProtectedRoute>} />
+        <Route path="/employer/invoices" element={<ProtectedRoute allowedUserTypes={['employer']}><Invoices /></ProtectedRoute>} />
         
         {/* Institution Routes */}
         <Route path="/institution/dashboard" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDashboard /></ProtectedRoute>} />
@@ -368,6 +370,7 @@ function AppRoutes() {
         <Route path="/institution/settings/notifications" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionNotificationSettings /></ProtectedRoute>} />
         <Route path="/institution/documents" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDocuments /></ProtectedRoute>} />
         <Route path="/institution/support" element={<ProtectedRoute allowedUserTypes={['institution']}><Support /></ProtectedRoute>} />
+        <Route path="/institution/invoices" element={<ProtectedRoute allowedUserTypes={['institution']}><Invoices /></ProtectedRoute>} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -406,6 +409,8 @@ function AppRoutes() {
         <Route path="/admin/reported-issues" element={<ProtectedRoute allowedUserTypes={['admin']}><ReportedIssues /></ProtectedRoute>} />
         <Route path="/admin/audit-logs" element={<ProtectedRoute allowedUserTypes={['admin']}><AuditLogs /></ProtectedRoute>} />
         <Route path="/admin/notification-settings" element={<ProtectedRoute allowedUserTypes={['admin']}><NotificationSettings /></ProtectedRoute>} />
+        <Route path="/admin/invoices" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminInvoices /></ProtectedRoute>} />
+        <Route path="/admin/partners" element={<ProtectedRoute allowedUserTypes={['admin']}><PartnerManagement /></ProtectedRoute>} />
         
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
