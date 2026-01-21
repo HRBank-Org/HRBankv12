@@ -8,41 +8,44 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  Briefcase,
+  Package,
   Building2,
   Calendar,
-  Eye,
   Copy,
   RefreshCw,
   Globe,
-  Users,
+  MapPin,
   X,
   Key,
   Shield,
-  ExternalLink
+  Clock,
+  Users
 } from 'lucide-react';
 
 const PartnerManagement = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [partners, setPartners] = useState([]);
-  const [partnerJobs, setPartnerJobs] = useState([]);
+  const [territories, setTerritories] = useState([]);
+  const [workOrders, setWorkOrders] = useState([]);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showCredentialsModal, setShowCredentialsModal] = useState(null);
+  const [showTerritoryModal, setShowTerritoryModal] = useState(false);
   const [activeTab, setActiveTab] = useState('partners');
 
   useEffect(() => {
     if (activeTab === 'partners') {
       loadPartners();
+    } else if (activeTab === 'territories') {
+      loadTerritories();
     } else {
-      loadPartnerJobs();
+      loadWorkOrders();
     }
   }, [activeTab]);
 
   const loadPartners = async () => {
     try {
       setLoading(true);
-      // This needs admin key - in production, the backend should verify admin token instead
       const res = await api.get('/api/partner/list', {
         headers: { 'X-Admin-Key': 'hrbank_admin_secret' }
       });
@@ -56,15 +59,29 @@ const PartnerManagement = () => {
     }
   };
 
-  const loadPartnerJobs = async () => {
+  const loadTerritories = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/api/partner/public/jobs?limit=100');
+      const res = await api.get('/api/partner/fsa-territories', {
+        headers: { 'X-Admin-Key': 'hrbank_admin_secret' }
+      });
       if (res.data.success) {
-        setPartnerJobs(res.data.data.jobs);
+        setTerritories(res.data.data.territories || []);
       }
     } catch (error) {
-      console.error('Failed to load partner jobs:', error);
+      console.error('Failed to load territories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadWorkOrders = async () => {
+    try {
+      setLoading(true);
+      // For admin view, we'd need an admin endpoint - for now show empty
+      setWorkOrders([]);
+    } catch (error) {
+      console.error('Failed to load work orders:', error);
     } finally {
       setLoading(false);
     }
@@ -88,19 +105,29 @@ const PartnerManagement = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">API Partner Management</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Partner Management</h1>
               <p className="text-gray-600 text-sm mt-1">
-                Manage external platform integrations and partner job postings
+                Manage CleanGrid integration and FSA territory assignments
               </p>
             </div>
-            <button
-              onClick={() => setShowRegisterModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-              data-testid="register-partner-btn"
-            >
-              <Plus className="w-4 h-4" />
-              Register Partner
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowTerritoryModal(true)}
+                className="flex items-center gap-2 px-4 py-2 border border-orange-600 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
+                data-testid="assign-territory-btn"
+              >
+                <MapPin className="w-4 h-4" />
+                Assign FSA Territory
+              </button>
+              <button
+                onClick={() => setShowRegisterModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                data-testid="register-partner-btn"
+              >
+                <Plus className="w-4 h-4" />
+                Register Partner
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -117,14 +144,25 @@ const PartnerManagement = () => {
               </div>
             </button>
             <button
-              onClick={() => setActiveTab('jobs')}
+              onClick={() => setActiveTab('territories')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                activeTab === 'jobs' ? 'bg-orange-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+                activeTab === 'territories' ? 'bg-orange-600 text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <div className="flex items-center gap-2">
-                <Briefcase className="w-4 h-4" />
-                Partner Jobs ({partnerJobs.length})
+                <MapPin className="w-4 h-4" />
+                FSA Territories ({territories.length})
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                activeTab === 'orders' ? 'bg-orange-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                Work Orders
               </div>
             </button>
           </div>
@@ -140,7 +178,7 @@ const PartnerManagement = () => {
                 <div className="text-center py-12 px-4">
                   <Link2 className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                   <h3 className="text-lg font-medium text-gray-900 mb-1">No Partners Registered</h3>
-                  <p className="text-gray-500">Register your first API partner to get started.</p>
+                  <p className="text-gray-500">Register CleanGrid or other partners to receive work orders.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -150,7 +188,7 @@ const PartnerManagement = () => {
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Partner</th>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Contact</th>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Status</th>
-                        <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Jobs</th>
+                        <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Orders</th>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Registered</th>
                         <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Actions</th>
                       </tr>
@@ -185,9 +223,14 @@ const PartnerManagement = () => {
                             </span>
                           </td>
                           <td className="px-4 py-3 text-center">
-                            <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold text-sm">
-                              {partner.jobs_forwarded || 0}
-                            </span>
+                            <div className="flex flex-col items-center">
+                              <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold text-sm">
+                                {partner.work_orders_received || 0}
+                              </span>
+                              <span className="text-xs text-gray-500 mt-1">
+                                {partner.work_orders_completed || 0} done
+                              </span>
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <p className="text-sm text-gray-600">{formatDate(partner.created_date)}</p>
@@ -209,63 +252,42 @@ const PartnerManagement = () => {
                   </table>
                 </div>
               )
-            ) : (
-              partnerJobs.length === 0 ? (
+            ) : activeTab === 'territories' ? (
+              territories.length === 0 ? (
                 <div className="text-center py-12 px-4">
-                  <Briefcase className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">No Partner Jobs</h3>
-                  <p className="text-gray-500">Jobs forwarded by partners will appear here.</p>
+                  <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">No Territories Assigned</h3>
+                  <p className="text-gray-500">Assign FSA territories to franchisee employers to route work orders.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50 border-b">
                       <tr>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Job</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Partner</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Location</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Type</th>
-                        <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Applications</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">FSA</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Franchisee</th>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Status</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Assigned</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {partnerJobs.map(job => (
-                        <tr key={job.hrbank_job_id} className="hover:bg-gray-50">
+                      {territories.map(territory => (
+                        <tr key={territory.fsa} className="hover:bg-gray-50">
                           <td className="px-4 py-3">
-                            <p className="font-semibold text-gray-900">{job.title}</p>
-                            <p className="text-sm text-gray-500">{job.company_name}</p>
+                            <span className="font-mono font-bold text-lg text-orange-600">{territory.fsa}</span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">
-                              <Link2 className="w-3 h-3" />
-                              {job.partner_name}
+                            <p className="font-medium text-gray-900">{territory.employer_name || 'Unknown'}</p>
+                            <p className="text-xs text-gray-500">{territory.employer_id}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                              <CheckCircle className="w-3 h-3" />
+                              {territory.status}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-gray-600">{job.location_city}, {job.location_province}</p>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs capitalize">
-                              {job.job_type?.replace('_', ' ')}
-                            </span>
-                            {job.is_coop_eligible && (
-                              <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">
-                                Co-op
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold text-sm">
-                              {job.applications_count || 0}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                              job.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-                            }`}>
-                              {job.status}
-                            </span>
+                            <p className="text-sm text-gray-600">{formatDate(territory.assigned_date)}</p>
                           </td>
                         </tr>
                       ))}
@@ -273,6 +295,13 @@ const PartnerManagement = () => {
                   </table>
                 </div>
               )
+            ) : (
+              <div className="text-center py-12 px-4">
+                <Package className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                <h3 className="text-lg font-medium text-gray-900 mb-1">Work Orders View</h3>
+                <p className="text-gray-500">Work orders are managed by franchisees in their employer dashboard.</p>
+                <p className="text-sm text-gray-400 mt-2">Go to Employer Dashboard → Work Orders to view and manage.</p>
+              </div>
             )}
           </div>
         </div>
@@ -295,6 +324,17 @@ const PartnerManagement = () => {
         <CredentialsModal
           partner={showCredentialsModal}
           onClose={() => setShowCredentialsModal(null)}
+        />
+      )}
+
+      {/* Territory Assignment Modal */}
+      {showTerritoryModal && (
+        <TerritoryModal
+          onClose={() => setShowTerritoryModal(false)}
+          onSuccess={() => {
+            setShowTerritoryModal(false);
+            loadTerritories();
+          }}
         />
       )}
     </div>
@@ -375,7 +415,7 @@ const RegisterPartnerModal = ({ onClose, onSuccess }) => {
               placeholder="https://partner.com/webhook/hrbank"
               data-testid="partner-webhook-input"
             />
-            <p className="text-xs text-gray-500 mt-1">URL to receive application updates</p>
+            <p className="text-xs text-gray-500 mt-1">URL to receive status updates</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -403,6 +443,113 @@ const RegisterPartnerModal = ({ onClose, onSuccess }) => {
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               Register Partner
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const TerritoryModal = ({ onClose, onSuccess }) => {
+  const [loading, setLoading] = useState(false);
+  const [employers, setEmployers] = useState([]);
+  const [formData, setFormData] = useState({
+    fsa: '',
+    employer_id: ''
+  });
+
+  useEffect(() => {
+    loadEmployers();
+  }, []);
+
+  const loadEmployers = async () => {
+    try {
+      const res = await api.get('/api/admin/employers');
+      if (res.data.success) {
+        setEmployers(res.data.data.employers || []);
+      }
+    } catch (error) {
+      console.error('Failed to load employers:', error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.fsa || !formData.employer_id) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post('/api/partner/fsa-territory/assign', formData, {
+        headers: { 'X-Admin-Key': 'hrbank_admin_secret' }
+      });
+      onSuccess();
+    } catch (error) {
+      console.error('Failed to assign territory:', error);
+      alert(error.response?.data?.detail || 'Failed to assign territory');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-xl font-bold text-gray-900">Assign FSA Territory</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">FSA Code *</label>
+            <input
+              type="text"
+              value={formData.fsa}
+              onChange={(e) => setFormData(prev => ({ ...prev, fsa: e.target.value.toUpperCase() }))}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono text-lg"
+              placeholder="N9A"
+              maxLength={3}
+              data-testid="fsa-input"
+            />
+            <p className="text-xs text-gray-500 mt-1">First 3 characters of postal code (e.g., N9A, N8H)</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Franchisee Employer *</label>
+            <select
+              value={formData.employer_id}
+              onChange={(e) => setFormData(prev => ({ ...prev, employer_id: e.target.value }))}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              data-testid="employer-select"
+            >
+              <option value="">Select franchisee...</option>
+              {employers.map(emp => (
+                <option key={emp.user_id} value={emp.user_id}>
+                  {emp.company_name || emp.email}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border rounded-lg font-medium hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 disabled:opacity-50"
+              data-testid="submit-territory-btn"
+            >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              Assign Territory
             </button>
           </div>
         </form>
@@ -439,7 +586,7 @@ const CredentialsModal = ({ partner, onClose }) => {
         </div>
         <div className="p-6 space-y-4">
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
-            <strong>Important:</strong> Store these credentials securely. The API key and webhook secret are shown only once during registration.
+            <strong>Important:</strong> Store these credentials securely. Share with the partner for webhook integration.
           </div>
           
           <div>
@@ -496,15 +643,15 @@ const CredentialsModal = ({ partner, onClose }) => {
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded font-mono text-xs">POST</span>
-                <code className="text-gray-600">/api/partner/jobs/forward</code>
+                <code className="text-gray-600">/api/partner/work-orders</code>
               </div>
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded font-mono text-xs">GET</span>
-                <code className="text-gray-600">/api/partner/jobs</code>
+                <code className="text-gray-600">/api/partner/work-orders</code>
               </div>
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded font-mono text-xs">GET</span>
-                <code className="text-gray-600">/api/partner/applications</code>
+                <code className="text-gray-600">/api/partner/work-orders/:id</code>
               </div>
             </div>
           </div>
