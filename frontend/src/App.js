@@ -165,6 +165,7 @@ import WorkforceManagement from './pages/employer/WorkforceManagement';
 import RosterManagement from './pages/employer/RosterManagement';
 import RosterDetail from './pages/employer/RosterDetail';
 import Payroll from './pages/employer/Payroll';
+import WorkOrders from './pages/employer/WorkOrders';
 
 // Institution pages (old imports removed, using new system)
 
