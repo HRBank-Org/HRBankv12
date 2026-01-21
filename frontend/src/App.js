@@ -254,7 +254,6 @@ function AppRoutes() {
         <Route path="/pending-approval" element={<PendingApproval />} />
         
         {/* Legal Pages */}
-        <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         
         {/* Workforce Routes */}
