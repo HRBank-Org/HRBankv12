@@ -233,7 +233,7 @@ const PartnerManagement = () => {
                   </table>
                 </div>
               )
-            ) : activeTab === 'orders' ? (
+            ) : (
               <div className="text-center py-12 px-4">
                 <Package className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                 <h3 className="text-lg font-medium text-gray-900 mb-1">Work Orders View</h3>
