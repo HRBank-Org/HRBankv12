@@ -704,9 +704,31 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
                 tax_description=transaction.get("tax_description", "Tax"),
                 total_cad=transaction.get("total_amount_cad", pending["price_cad"]),
                 credential_id=credential_id,
-                verification_url=f"https://supportiq-1.preview.emergentagent.com/verify/{credential_id}",
+                verification_url=f"https://www.hrbank.ca/verify/{credential_id}",
                 paid_at=datetime.now(timezone.utc).isoformat()
             )
+    except Exception as e:
+        print(f"Failed to send payment receipt email: {e}")
+    
+    # Create invoice for credential purchase
+    try:
+        from routes.invoices import create_credential_invoice
+        
+        transaction = await db.payment_transactions.find_one(
+            {"session_id": session_id},
+            {"_id": 0}
+        )
+        
+        await create_credential_invoice(
+            user_id=user_id,
+            credential_name=pending["credential_name"],
+            institution_name=pending["institution_name"],
+            price=pending["price_cad"],
+            province=transaction.get("province", "ON") if transaction else "ON",
+            stripe_payment_id=session_id
+        )
+    except Exception as e:
+        print(f"Failed to create invoice: {e}")
     except Exception as e:
         print(f"Failed to send payment receipt email: {e}")
     
