@@ -273,6 +273,58 @@ Complete multi-user support ticket system with:
 - Some seeded users missing password_hash field
 - OTP delivery may require Twilio geo-permissions configuration
 
+## Recently Completed (January 21, 2026)
+
+### Invoicing System Frontend ✅
+Complete invoice management interface for all user types:
+
+**User Features (Workforce, Employer, Institution):**
+- Invoice list page at `/{user_type}/invoices`
+- Summary cards showing Total Revenue, Pending Amount, Paid/Pending/Overdue counts
+- Filter invoices by status (Paid, Sent, Overdue, Draft, Cancelled)
+- Detailed invoice modal with line items, tax breakdown (GST/PST/HST)
+- PDF download button for each invoice
+- Navigation links added to all user sidebars
+
+**Admin Features:**
+- Admin Invoice Management page at `/admin/invoices`
+- All user invoice visibility with customer type filter
+- Mark invoices as Paid or Cancelled
+- View invoice details with full line items and tax calculation
+- Download PDF invoices
+
+### Partner API Frontend ✅
+Complete partner management interface for admins:
+
+**Partner Management Page (`/admin/partners`):**
+- View all registered API partners (like CleanGrid)
+- See partner status, jobs forwarded count, registration date
+- Register new partners with modal form
+- View partner credentials (Partner ID, API Key, Webhook Secret)
+- Tab for viewing all partner-forwarded jobs
+
+**Partner Jobs on Job Board:**
+- New "Partner Jobs" tab on Find Jobs page (`/workforce/find-jobs`)
+- Jobs displayed with partner badge (e.g., "CleanGrid")
+- Co-op Eligible badge for qualifying positions
+- Full job details: company, location, pay rate, skills
+- Apply Now button with application count
+- Link to view job on partner site (if available)
+
+### Public Pages UI Cleanup ✅
+Updated all public legal/info pages:
+- Replaced "Sign In" button with "Back to Home" link
+- Updated logo from emoji to actual HR Bank logo image
+- Affected pages: Privacy, About, Contact, FAQ, Help, Leaderboard
+- Removed duplicate route conflict for `/privacy`
+
+**Files Created/Modified:**
+- `/app/frontend/src/pages/admin/Invoices.jsx` - Admin invoice management
+- `/app/frontend/src/pages/admin/PartnerManagement.jsx` - Partner management
+- `/app/frontend/src/pages/workforce/FindJobs.jsx` - Added partner jobs tab
+- `/app/frontend/src/pages/public/*.jsx` - Updated headers on all public pages
+- `/app/frontend/src/components/layout/*Sidebar.jsx` - Added Invoice navigation
+
 ## Deployment Notes
 - Production: hrbank.ca (AWS Lightsail)
 - Local Docker builds should be done outside OneDrive
