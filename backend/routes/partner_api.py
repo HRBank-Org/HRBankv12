@@ -499,6 +499,7 @@ async def get_franchisee_work_orders(
 @router.post("/employer/work-orders/{order_id}/accept")
 async def accept_work_order(
     order_id: str,
+    background_tasks: BackgroundTasks,
     employer_id: str = Header(..., alias="X-Employer-ID")
 ):
     """Franchisee accepts a work order"""
@@ -509,14 +510,32 @@ async def accept_work_order(
     if order["status"] != "pending":
         raise HTTPException(status_code=400, detail=f"Cannot accept order in {order['status']} status")
     
+    now = datetime.now(timezone.utc).isoformat()
+    
     await db.work_orders.update_one(
         {"hrbank_order_id": order_id},
         {"$set": {
             "status": "accepted",
-            "accepted_date": datetime.now(timezone.utc).isoformat(),
-            "updated_date": datetime.now(timezone.utc).isoformat()
+            "accepted_date": now,
+            "updated_date": now
         }}
     )
+    
+    # Notify CleanGrid: work_order.accepted
+    partner = await db.partners.find_one({"partner_id": order["partner_id"]})
+    if partner and partner.get("webhook_url"):
+        background_tasks.add_task(
+            send_webhook,
+            partner["webhook_url"],
+            {
+                "event": "work_order.accepted",
+                "cleangrid_booking_id": order["external_order_id"],
+                "hrbank_order_id": order_id,
+                "franchisee_email": order.get("franchisee_email"),
+                "accepted_at": now
+            },
+            partner.get("webhook_secret", "")
+        )
     
     return {"success": True, "message": "Work order accepted"}
 
