@@ -29,7 +29,9 @@ import {
   AlertTriangle,
   CheckCircle,
   Activity,
-  FileWarning
+  FileWarning,
+  Receipt,
+  Link2
 } from 'lucide-react';
 
 const SuperAdminSidebar = () => {
@@ -161,6 +163,18 @@ const SuperAdminSidebar = () => {
           label: 'Institution Payouts',
           icon: DollarSign,
           path: '/admin/institution-payouts',
+          badge: null
+        },
+        {
+          label: 'Invoices',
+          icon: Receipt,
+          path: '/admin/invoices',
+          badge: null
+        },
+        {
+          label: 'API Partners',
+          icon: Link2,
+          path: '/admin/partners',
           badge: null
         }
       ]
