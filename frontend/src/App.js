@@ -259,6 +259,11 @@ function AppRoutes() {
         <Route path="/auth/google/callback" element={<GoogleCallback />} />
         <Route path="/pending-approval" element={<PendingApproval />} />
         
+        {/* WorkPassport Routes (Global) */}
+        <Route path="/workpassport/signup" element={<WorkPassportSignup />} />
+        <Route path="/workpassport/dashboard" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/passport/:shareToken" element={<WorkPassportPublicProfile />} />
+        
         {/* Legal Pages */}
         <Route path="/terms" element={<TermsOfService />} />
         
