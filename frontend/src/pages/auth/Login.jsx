@@ -92,6 +92,8 @@ const LoginForm = () => {
         navigate('/institution/dashboard');
       } else if (user_type === 'admin') {
         navigate('/admin/super-dashboard');
+      } else if (user_type === 'workpassport') {
+        navigate('/workpassport/dashboard');
       }
     } catch (err) {
       setError(err.error?.message || err.detail || 'Login failed. Please check your credentials.');
