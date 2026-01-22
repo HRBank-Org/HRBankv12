@@ -12,6 +12,11 @@ import VerifyOTP from './pages/auth/VerifyOTP';
 import GoogleCallback from './pages/auth/GoogleCallback';
 import PendingApproval from './pages/auth/PendingApproval';
 
+// WorkPassport pages
+import WorkPassportSignup from './pages/workpassport/Signup';
+import WorkPassportDashboard from './pages/workpassport/Dashboard';
+import WorkPassportPublicProfile from './pages/workpassport/PublicProfile';
+
 // Landing & Common
 import LandingPage from './pages/LandingPage';
 import InstitutionsLanding from './pages/landing/InstitutionsLanding';
