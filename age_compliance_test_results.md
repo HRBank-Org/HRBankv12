@@ -6,7 +6,7 @@
 
 ## Feature Under Test: Age Compliance feature in Workforce Onboarding flow
 
-**Test URL:** https://careernexus-3.preview.emergentagent.com
+**Test URL:** https://skills-passport.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!

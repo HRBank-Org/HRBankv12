@@ -1,70 +1,74 @@
 <analysis>**original_problem_statement:**
-The user initially requested assistance with deploying the application to AWS Lightsail, which involved resolving complex DNS and SSL issues. This led to a series of feature requests, including: updating workplace addresses, adding a co-op/volunteer feature for job roles, fixing role type naming ambiguity, adding Google Analytics tracking, and then building a partner API for job forwarding (for a partner named CleanGrid) and a comprehensive invoicing system with PDF generation.
+The user initially requested assistance with deploying the application to AWS Lightsail, which led to a series of feature requests: updating workplace addresses, adding a co-op/volunteer feature, fixing role type naming ambiguity, adding Google Analytics tracking, building a partner API for job forwarding (for a partner named CleanGrid), and creating a comprehensive invoicing system with PDF generation.
+
+During implementation, the user corrected a fundamental misunderstanding: the CleanGrid integration was meant to be a work order dispatch system for franchisees, not a public job board. The user then requested the creation of a comprehensive demo employer account in the production database. Most recently, the user asked for a strategic recommendation on making the WorkPassport and Institutions features available globally, shifting from a Canada-only model. The agent proposed a new architecture to split users into WorkPassport (global, for credentials) and Workforce (regional, for jobs) and began implementation.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application now includes a complete, multi-user support ticket system that has been fully implemented and tested. The employer account () is populated with 12 staff members and 147 shifts. Key enhancements to the roles feature include updating all workplace addresses to the Windsor-Essex area and adding a Co-op/Volunteer Eligible toggle. The backend has been extended with a new webhook-based Partner API for job forwarding and a full-featured Invoicing system capable of generating PDF invoices with provincial tax calculations. Google Analytics tracking has been added to the frontend. The deployment process has been streamlined to a local Docker build-and-push workflow to accommodate the low-memory AWS Lightsail environment.
+The application features a React frontend, FastAPI backend, and MongoDB database. Key functionalities include a full support ticket system, an invoicing system with PDF generation, and Google Analytics. The CleanGrid partner integration has been correctly re-implemented as a two-way webhook-based work order dispatch system, allowing franchisees to receive and manage work orders in their dashboard.
+
+The implementation of the new global WorkPassport feature has begun. This includes a new  user type, backend routes, and frontend pages for signup and a user dashboard. The login page has been updated to handle this new user type.
 
 **Last working item**:
--   **Last item agent was working:** Building the frontend UI for the newly created Partner API and Invoice System. The agent created the initial file  but has not implemented the UI yet.
+-   **Last item agent was working:** Implementing the WorkPassport feature for global credential management. After creating a new  user and logging in, the application failed to redirect to the . The agent was in the process of debugging this redirection failure when the session ended.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** both. Use the  to verify the new UI pages as they are built. Once the feature is complete, use the  for comprehensive end-to-end testing of the invoice and partner job functionalities.
+-   **Which testing method agent to use?** Frontend testing agent. First, manually debug the redirect issue using the  tool to inspect . After fixing, use the  to verify the dashboard loads. Finally, use the  for a comprehensive test of the full WorkPassport feature set once developed.
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- There are no active issues.
+-   **Issue 1: Login redirect not working for 'workpassport' user type (P0)**
 
 **Issues Detail:**
-- N/A
+-   **Issue 1: Login redirect not working for 'workpassport' user type**
+    -   **Attempted fixes:** The agent confirmed that the  user can be created via the API and that the  API call successfully returns a token. The  file was updated to redirect to . However, the redirect does not happen.
+    -   **Next debug checklist:**
+        1.  Inspect  to verify if  is included as an  for the dashboard route.
+        2.  Review  to ensure the route for  is correctly configured and wrapped by .
+    -   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker for the entire WorkPassport feature. Fixing it will allow users to access their dashboard after login, which is the main entry point for managing their credentials.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend
+    -   **Blocked on other issue:** None
 
 **In progress Task List**:
--   **Task 1: Build Frontend for Invoicing and Partner API (P0)**
-    -   **Where to resume:** Start by implementing the UI in .
-        -   **Next Steps:**
-            1.  Flesh out  to list invoices for the logged-in user ().
-            2.  Create a detailed invoice view with a PDF download button ().
-            3.  Create an admin dashboard for managing all invoices ().
-            4.  Update the  to include routes for these new pages.
-            5.  Add navigation links in user and admin sidebars to access the invoice history.
-            6.  Integrate jobs from partners into the main job board, possibly with a From Partner tag.
-    -   **What will be achieved with this?** This will make the new invoicing and partner job features accessible to users and admins through a functional user interface.
+-   **Task 1: Complete International Expansion (WorkPassport Feature) (P0)**
+    -   **Where to resume:** Debug and fix the login redirect issue for the  user type, starting with .
+    -   **What will be achieved with this?** This will establish the foundation for the global credentialing system, separating it from the region-locked job marketplace and enabling a worldwide user acquisition strategy.
     -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** both
-    -   **Blocked on something:** None
+    -   **Should Test frontend/backend/both after fix?** Both
+    -   **Blocked on something:** The login redirect issue (Issue 1).
+-   **Task 2: Create Demo Employer Data in Production (P1)**
+    -   **Where to resume:** The agent created a seed script at  and is awaiting user input on how to execute it.
+    -   **What will be achieved with this?** The user's production environment will be populated with a realistic demo employer account for presentations and testing.
+    -   **Status:** BLOCKED (waiting on user to either provide the production MongoDB Atlas connection string or approve running the script on their server).
+    -   **Should Test frontend/backend/both after fix?** Backend and Frontend
+    -   **Blocked on something:** User decision.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-  - **P1: Final User Verification:** After the invoice and partner API frontend is complete, ask the user to verify all recently added major features: the Support Ticket system, the Co-op/Volunteer roles, and the new Invoicing system.
+  - **P1: Final User Verification:** After the WorkPassport feature is complete, ask the user to verify all recently added major features: the corrected CleanGrid Work Order system, the Invoicing system, and the new WorkPassport flow.
 
 - **Future Tasks (Inherited Backlog):**
-  - Enhance Admin Management with a map visualization for province/zone assignment.
   - Build the Franchise Management UI.
   - Implement full internationalization (i18n).
   - Address technical debt (Dashboard Performance,  warning,  usages).
-  - Pursue full SOC2 compliance (non-technical steps).
+  - Pursue SOC2 compliance.
 
 **Completed work in this session**
-- **Full Support Ticket System:** Implemented and tested a complete backend and frontend for user and admin support tickets.
-- **Test Data Population:** Populated the employer account with active staff and shifts.
-- **Role & Shift Enhancements:**
-    - Updated all workplace addresses to the Windsor-Essex area.
-    - Added a Co-op/Volunteer Eligible checkbox and corresponding logic to the Roles feature.
-    - Resolved naming confusion by refactoring  in roles to .
-- **Deployment & Infrastructure:**
-    - Guided the user to fix DNS and SSL issues for the root domain on AWS Lightsail.
-    - Migrated the deployment workflow to a stable local Docker build and push process to handle the low-RAM server.
-    - Added Google Analytics tracking (ID: G-3M7LFTZPSG).
-- **Backend for Partner API & Invoicing:**
-    - Built a webhook-based Partner API for CleanGrid to forward jobs.
-    - Built a comprehensive Invoicing system with PDF generation () and provincial tax calculations.
-    - All new backend endpoints were tested successfully using curl.
+- **CleanGrid Integration Rework:** The partner integration was completely rebuilt from a public job board into a work order dispatch system. This included creating new backend logic for routing work orders to franchisees via email, implementing two-way webhooks for status updates, and building a new  page.
+- **Invoice & Partner API Frontend:** The initial frontend for the invoice system was built and tested.
+- **Public Pages Cleanup:** Corrected an issue where public-facing pages (e.g., Privacy, About) had a Sign In button, replacing it with a Back to Home link and fixing a related routing bug.
+- **WorkPassport Feature Foundation:**
+    - Created the  user type and corresponding backend API routes.
+    - Developed initial frontend pages for Signup, Dashboard, and a Public Profile.
+    - Updated the main login page to support the new user type.
 
 **Earlier issues found/mentioned but not fixed**
 -   **Issue 1: OTP Delivery Complaints**
-    -   **Debug checklist:** The user previously reported that some users are not receiving OTPs. The underlying services (SendGrid/Twilio) are functional. The issue is likely on the user's end (spam filters) or related to carrier permissions. The agreed-upon next step is to add more detailed logging for OTP send attempts if the user reports this issue again.
-    -   **Why to solve this issue and what will be achieved with this?** This is a critical issue for user onboarding and login. Adding logs will help diagnose the exact point of failure.
+    -   **Debug checklist:** The user previously reported that some users are not receiving OTPs. The agreed-upon next step is to add more detailed logging for OTP send attempts if the user reports this issue again, as the underlying services are functional.
+    -   **Why to solve this issue and what will be achieved with this?** This is a critical issue for user onboarding. Enhanced logging will help diagnose the exact point of failure.
     -   **Should Test frontend/backend/both after fix:** Backend
     -   **Is recurring issue?** Y
 
@@ -75,85 +79,84 @@ The application now includes a complete, multi-user support ticket system that h
 
 
 **Key Technical Concepts**
-- **Webhook Integration:** Built a backend to receive job data from external partners via webhooks, validated with a shared secret.
-- **PDF Generation:** Used the  library to dynamically generate professional, multi-page PDF invoices with tax calculations.
-- **Docker Workflow:** Established a stable workflow of building Docker images on a local machine and pushing them to Docker Hub to deploy on a low-memory AWS Lightsail server. This is the required process for future deployments.
-- **DNS & SSL Management:** Successfully troubleshot and resolved complex DNS issues for a load-balanced site, ensuring both root and  domains work correctly with SSL.
+- **Work Order Dispatch System:** The architecture was shifted from a public job board to a private dispatch system where webhooks deliver work orders from partners (like CleanGrid) directly to specific franchisee dashboards.
+- **Two-Way Webhooks:** The system now sends status updates (, , ) back to the originating partner via webhook callbacks, enabling synchronized state.
+- **Strategic User Type Splitting:** The user base is being segregated into a global WorkPassport for credential management and a region-locked Workforce for employment to support international expansion while maintaining regional compliance.
 
 **key DB schema**
 -   **New Collections:**
-    -   : Stores API credentials for external partners like CleanGrid. Fields: , , , .
-    -   : Stores jobs received from partners. Fields: , , .
-    -   : Stores generated invoices. Fields: , , , , , , .
+    -   : Stores partner work orders with status and assignment details.
+    -   : Stores profiles for the new global user type.
 -   **Modified Collections:**
-    -   : Added  (String) and  (Boolean) fields.
+    -   : Added  to the  enum.
+    -   : Schema updated to support two-way webhook callbacks.
 
 **changes in tech stack**
--   **reportlab:** Added to  for PDF generation.
--   **Node.js 20:** The frontend  was updated to use  to resolve dependency issues.
+-   No new technologies were added in this session.
 
 **All files of reference**
--    (File to start working on)
--    (Backend for the new UI)
--    (Backend for the new UI)
--    (A local file the user modified, reflects the change to Node 20)
--    (On the Lightsail server, contains all production credentials)
+-    (Suspected file for the current bug)
+-    (Routing definitions)
+-    (Login logic)
+-    (Backend for the new feature)
+-    (Script for populating production data)
 
 **Areas that need refactoring**:
-- Technical debt from previous sessions remains: consolidate duplicate  files and replace deprecated  and  warnings.
+- Technical debt remains: Consolidate duplicate  files and replace deprecated  and  warnings.
 
 **key api endpoints**
--   : Allows a partner to send a job posting.
--   : Fetches invoices for the logged-in user.
--   : Generates and returns a PDF invoice.
--   : (Admin only) Registers a new API partner and returns credentials.
+-   : Corrected webhook endpoint for partners to send work orders.
+-   : Endpoints (, , , ) for employers to manage work orders and trigger callbacks.
+-   : Creates a new global WorkPassport user.
+-   : Public endpoint to view a WorkPassport profile.
 
 **Critical Info for New Agent**
--   **The immediate task is to build the frontend UI for the Invoicing and Partner API systems.** Start with .
--   **The user's deployment environment on AWS Lightsail is low-memory.** All future deployments **must** follow the local Docker build -> push to Docker Hub -> pull on server workflow. Do not attempt to run yarn run v1.22.22
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command. on the server.
--   The user's local codebase is at . Guide them through commands compatible with their Windows PowerShell environment. They have Node.js and Docker Desktop installed.
--   The user is now adept at the Docker deployment workflow. All production credentials are in a  file on the Lightsail instance, which is used when running the backend container.
+-   **Your immediate task is to fix the login redirect for the 'workpassport' user type.** Investigate  as the primary suspect.
+-   Once the redirect is fixed, continue building out the WorkPassport feature, including the dashboard and public profile functionality.
+-   A task to seed the user's production database with demo data is blocked, awaiting the user's decision on execution method (sharing the Atlas connection string or running the provided script on their server).
+-   The CleanGrid integration has been completely re-architected into a work order dispatch system. This change is approved and has been tested. Do not revert to the old job board model.
 
 **documents and test reports created in this job**
--    (Updated with all new features)
--    (Test report for the Support Ticket System)
+-    (Updated)
+-    (New script to populate production data)
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User:**  - **Status: IN PROGRESS.** Approval to build the frontend for the invoice and partner API systems.
-9.  **User:**  - **Status: COMPLETE.** Approval to build the webhook-based partner API and the invoicing system.
-8.  **User:**  - **Status: COMPLETE.** Inquiry about API credentials and invoicing, which triggered the new feature development.
-7.  **User:**  - **Status: COMPLETE.** Confirmation that the site is back online after the final Docker deployment.
-6.  **User:**  - **Status: COMPLETE.** User had a local issue, which took the site down temporarily.
-5.  **User:**  - **Status: COMPLETE.** User confirmed they successfully fixed the root domain DNS issue.
-4.  **User:**  - **Status: COMPLETE.** User reporting trouble with the Lightsail DNS interface.
-3.  **User:**  - **Status: COMPLETE.** User providing a screenshot of their DNS settings for debugging.
-2.  **User:**  - **Status: COMPLETE.** User was confused about registering a domain vs. creating a hosted zone.
-1.  **User:**  - **Status: COMPLETE.** User asked for guidance on DNS and deployment after saving code.
+10. ****: Approval to implement the global WorkPassport feature. (Status: IN PROGRESS)
+9.  **User Inquiry**: Asked for a recommendation on making the platform global. (Status: COMPLETE)
+8.  **User Message**: Stated they thought they had already shared the production database URL. (Status: COMPLETE)
+7.  **User Request**: Asked for a demo employer account with full data to be created in the production database. (Status: IN PROGRESS/BLOCKED)
+6.  **User Issue**: Reported invalid credentials on the live server with test data. (Status: COMPLETE)
+5.  **User Clarification**: Explained that CleanGrid, not HR Bank, manages FSA-to-franchisee assignments. (Status: COMPLETE)
+4.  **User Confusion**: Mentioned a missing database, then clarified it was for a different project. (Status: COMPLETE)
+3.  **User Feedback**: Pointed out the fundamental error in the CleanGrid integration logic. (Status: COMPLETE)
+2.  ****: Approval to rebuild the CleanGrid integration. (Status: COMPLETE)
+1.  **User Resource**: Shared a GitHub repository for reference. (Status: COMPLETE)
 
 **Project Health Check:**
--   **Broken:** None. The application is stable and running on the user's AWS Lightsail instance.
+-   **Broken:** The login redirect for the new  user type is non-functional.
 -   **Mocked:** None.
 
 **3rd Party Integrations**
--   **SendGrid:** For email notifications.
--   **Twilio:** For SMS notifications.
--   **Google OAuth:** For user login.
--   **Stripe:** For payments.
--   **MongoDB Atlas:** Cloud-hosted database.
--   **Google Analytics:** For website traffic analysis.
+-   **SendGrid:** Email notifications.
+-   **Twilio:** SMS notifications.
+-   **Google OAuth:** User login.
+-   **Stripe:** Payments.
+-   **MongoDB Atlas:** Production cloud database.
+-   **Google Analytics:** Website traffic analysis.
+-   **CleanGrid (Custom Partner):** A two-way webhook integration for work order dispatch.
 
 **Testing status**
--   **Testing agent used after significant changes:** YES (for the support ticket system).
+-   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None
 -   **Known regressions:** None
 
 **Credentials to test flow:**
 -   **Workforce:**  / 
--   **Workforce (Alex):**  / 
 -   **Employer:**  / 
 -   **Admin:**  / 
+-   **WorkPassport (newly created):**  / 
 
 **What agent forgot to execute**
-- The agent correctly planned to build the frontend for the invoice and partner API systems but only created a single placeholder file. The full UI implementation, including new pages, routes, and navigation links, is pending.</analysis>
+- The previous agent failed to properly diagnose the login redirect issue, stopping short of investigating the  component, which is a common cause for such bugs.
+- The agent made a significant error by calling  after implementing the CleanGrid integration based on a wrong assumption, requiring a major rework after user intervention.</analysis>
