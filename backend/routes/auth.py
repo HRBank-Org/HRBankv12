@@ -525,7 +525,15 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
     
     # Check profile status and return appropriate redirect
     user_type = user.get("user_type")
-    profile_status = user.get("profile_status", "active" if user_type == "admin" else "pending")
+    
+    # Handle profile_status - workpassport users use 'status' instead of 'profile_status'
+    if user_type == "workpassport":
+        profile_status = user.get("status", "active")  # workpassport users use 'status' field
+    elif user_type == "admin":
+        profile_status = user.get("profile_status", "active")
+    else:
+        profile_status = user.get("profile_status", "pending")
+    
     needs_onboarding = False
     
     # Admin users bypass profile status checks
