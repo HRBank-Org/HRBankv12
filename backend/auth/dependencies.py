@@ -33,10 +33,18 @@ async def get_current_user(
     
     # Fetch user from database
     user = await db.users.find_one({"user_id": user_id})
-    if not user or user.get("profile_status") != "active":
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or inactive"
+        )
+    
+    # Check status - some user types use 'status', others use 'profile_status'
+    user_status = user.get("profile_status") or user.get("status")
+    if user_status not in ["active", None]:  # None allows newly created users without explicit status
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User account is not active"
         )
     
     return user
