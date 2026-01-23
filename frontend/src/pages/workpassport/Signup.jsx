@@ -1,88 +1,112 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FiArrowLeft, FiGlobe, FiAward, FiShare2, FiCheck, FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '../../utils/api';
-import {
-  Globe,
-  Mail,
-  Lock,
-  User,
-  MapPin,
-  ArrowRight,
-  CheckCircle,
-  Shield,
-  Award,
-  Briefcase,
-  Loader2
-} from 'lucide-react';
 
-// Country list (top countries first)
 const COUNTRIES = [
-  { code: 'CA', name: 'Canada' },
-  { code: 'US', name: 'United States' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'AU', name: 'Australia' },
-  { code: 'IN', name: 'India' },
-  { code: 'PH', name: 'Philippines' },
-  { code: 'AE', name: 'United Arab Emirates' },
-  { code: 'SG', name: 'Singapore' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'FR', name: 'France' },
-  { code: 'NL', name: 'Netherlands' },
-  { code: 'IE', name: 'Ireland' },
-  { code: 'NZ', name: 'New Zealand' },
-  { code: 'ZA', name: 'South Africa' },
-  { code: 'NG', name: 'Nigeria' },
-  { code: 'KE', name: 'Kenya' },
-  { code: 'PK', name: 'Pakistan' },
-  { code: 'BD', name: 'Bangladesh' },
-  { code: 'MX', name: 'Mexico' },
-  { code: 'BR', name: 'Brazil' },
-  // Add more as needed
-].sort((a, b) => a.name.localeCompare(b.name));
+  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+  { code: 'US', name: 'United States', flag: '🇺🇸' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+  { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
+  { code: 'IN', name: 'India', flag: '🇮🇳' },
+  { code: 'PH', name: 'Philippines', flag: '🇵🇭' },
+  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
+  { code: 'PK', name: 'Pakistan', flag: '🇵🇰' },
+  { code: 'BD', name: 'Bangladesh', flag: '🇧🇩' },
+  { code: 'MX', name: 'Mexico', flag: '🇲🇽' },
+  { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+  { code: 'FR', name: 'France', flag: '🇫🇷' },
+  { code: 'IT', name: 'Italy', flag: '🇮🇹' },
+  { code: 'ES', name: 'Spain', flag: '🇪🇸' },
+  { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
+  { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
+  { code: 'JP', name: 'Japan', flag: '🇯🇵' },
+  { code: 'KR', name: 'South Korea', flag: '🇰🇷' },
+  { code: 'CN', name: 'China', flag: '🇨🇳' },
+  { code: 'ZA', name: 'South Africa', flag: '🇿🇦' },
+  { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
+  { code: 'GH', name: 'Ghana', flag: '🇬🇭' },
+  { code: 'OTHER', name: 'Other', flag: '🌍' }
+];
 
 const WorkPassportSignup = () => {
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     password: '',
-    confirm_password: '',
     country: '',
     city: ''
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [result, setResult] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
     setError('');
+  };
 
-    if (formData.password !== formData.confirm_password) {
-      setError('Passwords do not match');
-      return;
+  const validateStep1 = () => {
+    if (!formData.full_name.trim()) {
+      setError('Please enter your full name');
+      return false;
     }
-
+    if (!formData.email.trim() || !formData.email.includes('@')) {
+      setError('Please enter a valid email address');
+      return false;
+    }
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters');
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep2 = () => {
+    if (!formData.country) {
+      setError('Please select your country');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (step === 1) {
+      if (validateStep1()) {
+        setStep(2);
+      }
       return;
     }
 
+    if (!validateStep2()) return;
+
+    setLoading(true);
+    setError('');
+
     try {
-      setLoading(true);
-      const res = await api.post('/api/workpassport/register', {
-        full_name: formData.full_name,
-        email: formData.email,
+      const response = await api.post('/api/workpassport/register', {
+        email: formData.email.toLowerCase(),
         password: formData.password,
+        full_name: formData.full_name,
         country: formData.country,
         city: formData.city || null
       });
 
-      if (res.data.success) {
-        setSuccess(true);
-        setTimeout(() => {
-          navigate('/login', { state: { message: 'WorkPassport created! Please sign in.' } });
-        }, 2000);
+      if (response.data.success) {
+        setResult(response.data.data);
+        setStep(3);
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed. Please try again.');
@@ -91,216 +115,256 @@ const WorkPassportSignup = () => {
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">WorkPassport Created!</h2>
-          <p className="text-gray-600 mb-4">Redirecting you to sign in...</p>
-          <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
-        </div>
-      </div>
-    );
-  }
+  const features = [
+    { icon: FiAward, title: 'Verified Credentials', desc: 'Store and verify your certificates, licenses, and qualifications' },
+    { icon: FiGlobe, title: 'Global Recognition', desc: 'Share your credentials with employers worldwide' },
+    { icon: FiShare2, title: 'Instant Sharing', desc: 'Generate a shareable link or QR code for your profile' }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Header */}
-      <nav className="px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/logo192.png" alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <span className="font-bold text-xl text-white">WorkPassport™</span>
-          </Link>
-          <Link to="/login" className="text-white/70 hover:text-white text-sm">
-            Already have an account? Sign in
-          </Link>
-        </div>
-      </nav>
+      <div className="px-6 py-4">
+        <button
+          onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)}
+          className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
+        >
+          <FiArrowLeft size={20} />
+          <span>Back</span>
+        </button>
+      </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left - Benefits */}
-          <div className="text-white">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 rounded-full text-blue-300 text-sm mb-6">
-              <Globe className="w-4 h-4" />
-              Available Worldwide
+          {/* Left - Form */}
+          <div className="bg-white rounded-3xl p-8 shadow-2xl">
+            {/* Progress Indicator */}
+            <div className="flex items-center gap-3 mb-8">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    step >= s 
+                      ? 'bg-cyan-500 text-white' 
+                      : 'bg-gray-200 text-gray-500'
+                  }`}>
+                    {step > s ? <FiCheck /> : s}
+                  </div>
+                  {s < 3 && (
+                    <div className={`w-12 h-1 rounded ${
+                      step > s ? 'bg-cyan-500' : 'bg-gray-200'
+                    }`} />
+                  )}
+                </div>
+              ))}
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-              Your Global
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> Credential Passport</span>
-            </h1>
-            <p className="text-lg text-white/70 mb-8">
-              Build a verified credential portfolio that travels with you. 
-              Get credentials verified by institutions worldwide and share with employers anywhere.
-            </p>
 
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">Verified Credentials</h3>
-                  <p className="text-sm text-white/60">Get your certificates, licenses, and skills verified by institutions</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                  <Award className="w-5 h-5 text-cyan-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">Blockchain Secured</h3>
-                  <p className="text-sm text-white/60">Credentials are immutably recorded and instantly verifiable</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                  <Briefcase className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">Share Anywhere</h3>
-                  <p className="text-sm text-white/60">One link to share your verified profile with any employer globally</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            {step === 1 && (
+              <>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Your WorkPassport</h2>
+                <p className="text-gray-600 mb-6">Join millions building their verified work identity</p>
 
-          {/* Right - Form */}
-          <div className="bg-white rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Your WorkPassport</h2>
-            <p className="text-gray-600 mb-6">Free forever. No credit card required.</p>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                      {error}
+                    </div>
+                  )}
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                {error}
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      name="full_name"
+                      value={formData.full_name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                      placeholder="John Smith"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none pr-12"
+                        placeholder="At least 8 characters"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all"
+                  >
+                    Continue
+                  </button>
+                </form>
+
+                <p className="text-center text-gray-600 mt-6">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-cyan-600 hover:underline font-medium">
+                    Sign In
+                  </Link>
+                </p>
+              </>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.full_name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="John Smith"
-                    required
-                    data-testid="fullname-input"
-                  />
-                </div>
-              </div>
+            {step === 2 && (
+              <>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Where are you located?</h2>
+                <p className="text-gray-600 mb-6">This helps us provide region-specific features</p>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="you@example.com"
-                    required
-                    data-testid="email-input"
-                  />
-                </div>
-              </div>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                      {error}
+                    </div>
+                  )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                  <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                     <select
+                      name="country"
                       value={formData.country}
-                      onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
-                      required
-                      data-testid="country-select"
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none appearance-none bg-white"
                     >
-                      <option value="">Select...</option>
-                      {COUNTRIES.map(c => (
-                        <option key={c.code} value={c.code}>{c.name}</option>
+                      <option value="">Select your country</option>
+                      {COUNTRIES.map(country => (
+                        <option key={country.code} value={country.code}>
+                          {country.flag} {country.name}
+                        </option>
                       ))}
                     </select>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City (Optional)</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">City (Optional)</label>
                     <input
                       type="text"
+                      name="city"
                       value={formData.city}
-                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Toronto"
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                      placeholder="e.g., Toronto, London, Dubai"
                     />
                   </div>
+
+                  {formData.country === 'CA' && (
+                    <div className="p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                      <p className="text-sm text-purple-800 font-medium mb-1">🇨🇦 Canadian Resident?</p>
+                      <p className="text-sm text-purple-700">
+                        After creating your WorkPassport, you can upgrade to a full Workforce account to access job matching and get hired by Canadian employers!
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all disabled:opacity-50"
+                  >
+                    {loading ? 'Creating Account...' : 'Create WorkPassport'}
+                  </button>
+                </form>
+              </>
+            )}
+
+            {step === 3 && result && (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <FiCheck size={40} className="text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to WorkPassport!</h2>
+                <p className="text-gray-600 mb-6">Your global work identity has been created</p>
+
+                <div className="bg-gray-100 rounded-xl p-4 mb-6">
+                  <p className="text-sm text-gray-500 mb-1">Your Passport ID</p>
+                  <p className="text-xl font-mono font-bold text-gray-900">{result.passport_id}</p>
+                </div>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all"
+                  >
+                    Sign In to Your Account
+                  </button>
+                  <p className="text-sm text-gray-500">
+                    Check your email to verify your account
+                  </p>
                 </div>
               </div>
+            )}
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Min. 8 characters"
-                    required
-                    data-testid="password-input"
-                  />
+          {/* Right - Features */}
+          <div className="text-white space-y-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-4">
+                Your Global
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+                  Work Identity
+                </span>
+              </h1>
+              <p className="text-xl text-white/70">
+                WorkPassport helps you build a verified credential portfolio that employers trust worldwide.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <feature.icon size={24} className="text-cyan-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">{feature.title}</h3>
+                    <p className="text-white/60">{feature.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-6 bg-white/10 rounded-2xl backdrop-blur-sm">
+              <p className="text-white/80 text-sm">
+                "WorkPassport made it easy to share my certifications with potential employers. 
+                Got hired within 2 weeks of creating my profile!"
+              </p>
+              <div className="flex items-center gap-3 mt-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center font-bold">
+                  M
+                </div>
+                <div>
+                  <p className="font-medium">Maria S.</p>
+                  <p className="text-sm text-white/60">Healthcare Professional, UAE</p>
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="password"
-                    value={formData.confirm_password}
-                    onChange={(e) => setFormData(prev => ({ ...prev, confirm_password: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Confirm password"
-                    required
-                    data-testid="confirm-password-input"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all disabled:opacity-50"
-                data-testid="signup-btn"
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    Create WorkPassport
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
-            </form>
-
-            <p className="text-xs text-gray-500 text-center mt-4">
-              By creating an account, you agree to our{' '}
-              <Link to="/terms" className="text-blue-600 hover:underline">Terms</Link> and{' '}
-              <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
-            </p>
+            </div>
           </div>
         </div>
       </div>
