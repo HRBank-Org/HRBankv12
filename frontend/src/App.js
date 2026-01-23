@@ -264,6 +264,17 @@ function AppRoutes() {
         {/* WorkPassport Routes (Global) */}
         <Route path="/workpassport/signup" element={<WorkPassportSignup />} />
         <Route path="/workpassport/dashboard" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/occupations" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportOccupations /></ProtectedRoute>} />
+        <Route path="/workpassport/occupations/create" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportOccupations /></ProtectedRoute>} />
+        <Route path="/workpassport/credentials" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/credentials/add" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/career" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/courses" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/public-profile" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/share" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/settings" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/support" element={<ProtectedRoute allowedUserTypes={['workpassport']}><Support /></ProtectedRoute>} />
+        <Route path="/workpassport/upgrade" element={<ProtectedRoute allowedUserTypes={['workpassport']}><UpgradeToWorkforce /></ProtectedRoute>} />
         <Route path="/passport/:shareToken" element={<WorkPassportPublicProfile />} />
         
         {/* Legal Pages */}
