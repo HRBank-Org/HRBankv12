@@ -714,3 +714,142 @@ async def institution_verify_credential_request(
     })
     
     return {"success": True, "message": message}
+
+
+
+# ============== WorkPassport Occupations ==============
+
+class OccupationProfile(BaseModel):
+    """Occupation profile for WorkPassport users"""
+    occupation_title: str
+    years_of_experience: int = 0
+    skill_level: str = "intermediate"  # beginner, intermediate, advanced, expert
+    description: Optional[str] = None
+    skills: List[str] = []
+
+
+@router.get("/occupations")
+async def get_user_occupations(
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """Get all occupation profiles for a WorkPassport user"""
+    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    occupations = await db.workpassport_occupations.find(
+        {"user_id": user_id},
+        {"_id": 0}
+    ).to_list(50)
+    
+    return {
+        "success": True,
+        "data": {
+            "occupations": occupations,
+            "total": len(occupations)
+        }
+    }
+
+
+@router.post("/occupations")
+async def create_occupation(
+    data: OccupationProfile,
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """Create a new occupation profile"""
+    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    occupation_id = gen_id("occ")
+    
+    occupation = {
+        "occupation_id": occupation_id,
+        "user_id": user_id,
+        "passport_id": profile["passport_id"],
+        "occupation_title": data.occupation_title,
+        "years_of_experience": data.years_of_experience,
+        "skill_level": data.skill_level,
+        "description": data.description,
+        "skills": data.skills,
+        "created_date": now,
+        "updated_date": now
+    }
+    
+    await db.workpassport_occupations.insert_one(occupation)
+    
+    # Update profile stats
+    await db.workpassport_profiles.update_one(
+        {"user_id": user_id},
+        {"$inc": {"occupation_count": 1}}
+    )
+    
+    return {
+        "success": True,
+        "data": {"occupation_id": occupation_id},
+        "message": "Occupation profile created successfully"
+    }
+
+
+@router.put("/occupations/{occupation_id}")
+async def update_occupation(
+    occupation_id: str,
+    data: OccupationProfile,
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """Update an existing occupation profile"""
+    occupation = await db.workpassport_occupations.find_one({
+        "occupation_id": occupation_id,
+        "user_id": user_id
+    })
+    
+    if not occupation:
+        raise HTTPException(status_code=404, detail="Occupation not found")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    
+    await db.workpassport_occupations.update_one(
+        {"occupation_id": occupation_id},
+        {"$set": {
+            "occupation_title": data.occupation_title,
+            "years_of_experience": data.years_of_experience,
+            "skill_level": data.skill_level,
+            "description": data.description,
+            "skills": data.skills,
+            "updated_date": now
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Occupation profile updated successfully"
+    }
+
+
+@router.delete("/occupations/{occupation_id}")
+async def delete_occupation(
+    occupation_id: str,
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """Delete an occupation profile"""
+    occupation = await db.workpassport_occupations.find_one({
+        "occupation_id": occupation_id,
+        "user_id": user_id
+    })
+    
+    if not occupation:
+        raise HTTPException(status_code=404, detail="Occupation not found")
+    
+    await db.workpassport_occupations.delete_one({"occupation_id": occupation_id})
+    
+    # Update profile stats
+    await db.workpassport_profiles.update_one(
+        {"user_id": user_id},
+        {"$inc": {"occupation_count": -1}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Occupation profile deleted successfully"
+    }
