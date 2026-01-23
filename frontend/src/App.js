@@ -16,6 +16,8 @@ import PendingApproval from './pages/auth/PendingApproval';
 import WorkPassportSignup from './pages/workpassport/Signup';
 import WorkPassportDashboard from './pages/workpassport/Dashboard';
 import WorkPassportPublicProfile from './pages/workpassport/PublicProfile';
+import WorkPassportOccupations from './pages/workpassport/Occupations';
+import UpgradeToWorkforce from './pages/workpassport/UpgradeToWorkforce';
 
 // Landing & Common
 import LandingPage from './pages/LandingPage';
