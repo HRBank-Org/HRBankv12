@@ -219,6 +219,7 @@ const EmmaChat = () => {
     if (user.user_type === 'workforce') return 'Workforce Assistant';
     if (user.user_type === 'employer') return 'Employer Assistant';
     if (user.user_type === 'institution') return 'Institution Assistant';
+    if (user.user_type === 'workpassport') return 'Career Guide';
     return 'HR Bank Assistant';
   };
 
