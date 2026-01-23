@@ -373,7 +373,7 @@ const EmmaChat = () => {
       {/* Input Area */}
       <div className="p-4 bg-white border-t">
         <form onSubmit={sendMessage} className="flex items-center gap-2">
-          {user.user_type === 'workforce' && (
+          {(user.user_type === 'workforce' || user.user_type === 'workpassport') && (
             <>
               <input
                 type="file"
