@@ -19,6 +19,7 @@ import WorkPassportPublicProfile from './pages/workpassport/PublicProfile';
 import WorkPassportOccupations from './pages/workpassport/Occupations';
 import UpgradeToWorkforce from './pages/workpassport/UpgradeToWorkforce';
 import WorkPassportSettings from './pages/workpassport/Settings';
+import WorkPassportJobs from './pages/workpassport/Jobs';
 
 // Landing & Common
 import LandingPage from './pages/LandingPage';
