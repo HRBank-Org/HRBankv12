@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiGlobe, FiAward, FiShare2, FiCheck, FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '../../utils/api';
+import LinkedInButton from '../../components/auth/LinkedInButton';
 
 const COUNTRIES = [
   { code: 'CA', name: 'Canada', flag: '🇨🇦' },
