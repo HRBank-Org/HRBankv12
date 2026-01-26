@@ -182,6 +182,16 @@ const LoginForm = () => {
             </span>
           </button>
 
+          {/* LinkedIn Sign-In - Only for WorkPassport/Workforce */}
+          {selectedUserType === 'workforce' && (
+            <div className="mb-4">
+              <LinkedInButton 
+                mode="login" 
+                redirectAfter="/workpassport/dashboard"
+              />
+            </div>
+          )}
+
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
