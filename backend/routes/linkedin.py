@@ -82,11 +82,8 @@ async def linkedin_authorize(
         "expires_at": datetime.now(timezone.utc).isoformat()
     })
     
-    # LinkedIn OAuth scopes - use basic scopes available by default
-    # For Sign In with LinkedIn using OpenID Connect (requires approval):
-    # scopes = "openid profile email"
-    # For basic OAuth (available by default):
-    scopes = "r_liteprofile r_emailaddress"
+    # LinkedIn OAuth scopes - OpenID Connect (Sign In with LinkedIn)
+    scopes = "openid profile email"
     
     auth_url = (
         f"{LINKEDIN_AUTH_URL}?"
