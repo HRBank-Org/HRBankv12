@@ -117,9 +117,9 @@ const LinkedInProfileCard = ({ onImportComplete }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] p-4 text-white">
+      <div className="bg-[#0A66C2] p-4 text-white">
         <div className="flex items-center gap-3">
-          <FiLinkedin size={24} />
+          <LinkedInLogo className="w-6 h-6" color="white" />
           <div>
             <h3 className="font-semibold">LinkedIn Integration</h3>
             <p className="text-sm text-white/80">Import your professional profile</p>
