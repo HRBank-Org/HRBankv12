@@ -1,8 +1,9 @@
 /* eslint-disable no-restricted-globals */
 
 // Service Worker for HR Bank PWA - Enhanced Version
-const CACHE_NAME = 'hrbank-v2';
-const DYNAMIC_CACHE = 'hrbank-dynamic-v1';
+// Cache version updated to force refresh of all cached assets
+const CACHE_NAME = 'hrbank-v3';
+const DYNAMIC_CACHE = 'hrbank-dynamic-v2';
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
