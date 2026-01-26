@@ -1,0 +1,32 @@
+{
+  "short_name": "WorkPassport",
+  "name": "WorkPassport by HR Bank",
+  "description": "Your Global Work Identity - Build a verified credential portfolio that employers trust worldwide",
+  "icons": [
+    {
+      "src": "/work-passport-seal.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/workpassport/dashboard",
+  "display": "standalone",
+  "theme_color": "#0A66C2",
+  "background_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "scope": "/workpassport/",
+  "categories": ["business", "productivity"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
