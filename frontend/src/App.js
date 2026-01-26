@@ -143,6 +143,9 @@ import PaymentSuccess from './pages/workforce/PaymentSuccess';
 import CredentialMarketplace from './pages/institution/CredentialMarketplace';
 import PayoutsDashboard from './pages/institution/PayoutsDashboard';
 
+// LinkedIn OAuth
+import LinkedInCallback from './pages/auth/LinkedInCallback';
+
 // Employer pages
 import EmployerDashboard from './pages/employer/DashboardNew';
 import EmployerHome from './pages/employer/Home';
