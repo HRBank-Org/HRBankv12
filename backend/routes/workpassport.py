@@ -808,10 +808,18 @@ async def create_occupation(
     data: OccupationProfile,
     user_id: str = Header(..., alias="X-User-ID")
 ):
-    """Create a new occupation profile"""
+    """Create a new occupation profile (max 3 allowed)"""
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Check occupation limit (same as Workforce - max 3)
+    existing_count = await db.workpassport_occupations.count_documents({"user_id": user_id})
+    if existing_count >= 3:
+        raise HTTPException(
+            status_code=400, 
+            detail="Maximum of 3 occupation profiles allowed. Please delete an existing one to add a new one."
+        )
     
     now = datetime.now(timezone.utc).isoformat()
     occupation_id = gen_id("occ")
