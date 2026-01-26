@@ -164,6 +164,27 @@ const WorkPassportSignup = () => {
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Your WorkPassport</h2>
                 <p className="text-gray-600 mb-6">Join millions building their verified work identity</p>
 
+                {/* LinkedIn Sign Up - Primary Option */}
+                <div className="mb-6">
+                  <LinkedInButton 
+                    mode="signup" 
+                    redirectAfter="/workpassport/dashboard"
+                  />
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Instantly import your profile from LinkedIn
+                  </p>
+                </div>
+
+                {/* Divider */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-gray-500">or sign up with email</span>
+                  </div>
+                </div>
+
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
