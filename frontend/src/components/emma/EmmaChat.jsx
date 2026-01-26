@@ -99,6 +99,10 @@ const EmmaChat = () => {
         };
         setMessages(prev => [...prev, emmaMessage]);
         setOnboardingProgress(response.data.data.onboarding_progress || 0);
+        
+        // Check for LinkedIn actions in the response
+        const messageText = response.data.data.message;
+        handleLinkedInActions(messageText);
       }
     } catch (error) {
       console.error('Failed to send message:', error);
