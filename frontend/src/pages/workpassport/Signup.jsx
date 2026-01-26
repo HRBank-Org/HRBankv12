@@ -347,23 +347,18 @@ const WorkPassportSignup = () => {
           {/* Right - Features */}
           <div className="text-white space-y-8">
             <div>
-              {/* WorkPassport Logo */}
-              <div className="flex items-center gap-4 mb-6">
+              <h1 className="text-4xl font-bold mb-4 flex items-center gap-4">
                 <img 
                   src="/work-passport-seal.png" 
                   alt="WorkPassport" 
-                  className="w-20 h-20 object-contain"
+                  className="h-12 w-auto object-contain"
+                  style={{ height: '1.15em' }}
                 />
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold">WorkPassport</span>
-                  <span className="text-cyan-400 text-sm">by HR Bank</span>
-                </div>
-              </div>
-              
-              <h1 className="text-4xl font-bold mb-4">
-                Your Global
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-                  Work Identity
+                <span>
+                  Your Global
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+                    Work Identity
+                  </span>
                 </span>
               </h1>
               <p className="text-xl text-white/70">
