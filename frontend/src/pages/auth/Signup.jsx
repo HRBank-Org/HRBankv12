@@ -198,7 +198,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
             onClick={googleAvailable ? handleGoogleSignup : undefined}
             type="button"
             disabled={!googleAvailable}
-            className={`w-full flex items-center justify-center gap-3 px-4 py-3 border-2 rounded-lg transition-colors mb-6 ${
+            className={`w-full flex items-center justify-center gap-3 px-4 py-3 border-2 rounded-lg transition-colors mb-4 ${
               googleAvailable 
                 ? 'border-gray-300 hover:bg-gray-50 cursor-pointer' 
                 : 'border-gray-200 bg-gray-100 cursor-not-allowed'
@@ -214,6 +214,16 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
               {googleAvailable ? 'Sign up with Google' : 'Google Sign-up Unavailable'}
             </span>
           </button>
+
+          {/* LinkedIn Sign-Up Button - Only for WorkPassport */}
+          {selectedUserType === 'workforce' && (
+            <div className="mb-4">
+              <LinkedInButton 
+                mode="signup" 
+                redirectAfter="/workpassport/dashboard"
+              />
+            </div>
+          )}
 
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
