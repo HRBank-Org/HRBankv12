@@ -207,6 +207,58 @@ async def get_share_link(user_id: str = Header(..., alias="X-User-ID")):
     }
 
 
+class ProfileUpdate(BaseModel):
+    """Profile update request"""
+    full_name: Optional[str] = None
+    country: Optional[str] = None
+    city: Optional[str] = None
+    phone: Optional[str] = None
+    bio: Optional[str] = None
+    profile_visibility: Optional[str] = None
+
+
+@router.put("/profile")
+async def update_profile(
+    data: ProfileUpdate,
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """Update WorkPassport profile"""
+    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Build update dict with only provided fields
+    update_data = {"updated_date": now}
+    
+    if data.full_name is not None:
+        update_data["full_name"] = data.full_name
+    if data.country is not None:
+        update_data["country"] = data.country
+    if data.city is not None:
+        update_data["city"] = data.city
+    if data.phone is not None:
+        update_data["phone"] = data.phone
+    if data.bio is not None:
+        update_data["bio"] = data.bio
+    if data.profile_visibility is not None:
+        if data.profile_visibility not in ["public", "employers", "private"]:
+            raise HTTPException(status_code=400, detail="Invalid visibility option")
+        update_data["profile_visibility"] = data.profile_visibility
+    
+    await db.workpassport_profiles.update_one(
+        {"user_id": user_id},
+        {"$set": update_data}
+    )
+    
+    return {
+        "success": True,
+        "message": "Profile updated successfully"
+    }
+
+
+
 # ============== Credentials ==============
 
 @router.get("/credentials")
