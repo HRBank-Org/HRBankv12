@@ -28,8 +28,7 @@ JWT_SECRET = os.environ.get("JWT_SECRET", "your-secret-key")
 # LinkedIn API endpoints
 LINKEDIN_AUTH_URL = "https://www.linkedin.com/oauth/v2/authorization"
 LINKEDIN_TOKEN_URL = "https://www.linkedin.com/oauth/v2/accessToken"
-LINKEDIN_PROFILE_URL = "https://api.linkedin.com/v2/me"
-LINKEDIN_EMAIL_URL = "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))"
+LINKEDIN_USERINFO_URL = "https://api.linkedin.com/v2/userinfo"
 
 
 def gen_id(prefix=""):
