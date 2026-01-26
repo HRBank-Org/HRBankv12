@@ -136,7 +136,7 @@ import ManageOccupations from './pages/admin/ManageOccupations';
 import ManageCertifications from './pages/admin/ManageCertifications';
 import WorkforceTimeOff from './pages/workforce/TimeOff';
 import EmployerTimeOffManagement from './pages/employer/TimeOffManagement';
-import WorkPassportSettings from './pages/workforce/WorkPassportSettings';
+import WorkforceWorkPassportSettings from './pages/workforce/WorkPassportSettings';
 import PendingCredentials from './pages/workforce/PendingCredentials';
 import PaymentSuccess from './pages/workforce/PaymentSuccess';
 
