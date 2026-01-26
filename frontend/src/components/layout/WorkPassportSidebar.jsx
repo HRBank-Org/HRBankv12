@@ -69,6 +69,13 @@ const WorkPassportSidebar = () => {
     },
     {
       type: 'item',
+      label: 'Job Opportunities',
+      icon: FiBriefcase,
+      path: '/workpassport/jobs',
+      badge: isCanadian ? null : 'Preview'
+    },
+    {
+      type: 'item',
       label: 'Career Guidance',
       icon: FiTrendingUp,
       path: '/workpassport/career'
