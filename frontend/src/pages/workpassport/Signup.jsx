@@ -351,8 +351,8 @@ const WorkPassportSignup = () => {
                 <img 
                   src="/work-passport-seal.png" 
                   alt="WorkPassport" 
-                  className="h-12 w-auto object-contain"
-                  style={{ height: '1.15em' }}
+                  className="object-contain flex-shrink-0"
+                  style={{ height: '2.4em', width: 'auto' }}
                 />
                 <span>
                   Your Global
