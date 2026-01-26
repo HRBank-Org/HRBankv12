@@ -199,6 +199,54 @@ const EmmaChat = () => {
     return formatted;
   };
 
+  // Handle LinkedIn actions from Emma's responses
+  const handleLinkedInActions = async (messageText) => {
+    // Check for connect_linkedin action
+    if (messageText.includes('"action": "connect_linkedin"') || messageText.includes('connect_linkedin')) {
+      try {
+        const response = await api.post('/api/emma/linkedin-action', {
+          action: 'connect_linkedin'
+        });
+        
+        if (response.data.success && response.data.data.url) {
+          // Show LinkedIn connect button
+          const linkedinMessage = {
+            role: 'assistant',
+            content: '🔗 Click below to connect your LinkedIn account:',
+            timestamp: new Date().toISOString(),
+            linkedinAction: {
+              type: 'connect',
+              url: response.data.data.url
+            }
+          };
+          setMessages(prev => [...prev, linkedinMessage]);
+        }
+      } catch (error) {
+        console.error('LinkedIn action error:', error);
+      }
+    }
+    
+    // Check for sync_linkedin_profile action
+    if (messageText.includes('"action": "sync_linkedin_profile"') || messageText.includes('sync_linkedin_profile')) {
+      try {
+        const response = await api.post('/api/emma/linkedin-action', {
+          action: 'sync_linkedin_profile'
+        });
+        
+        if (response.data.success) {
+          const syncMessage = {
+            role: 'assistant',
+            content: `✅ ${response.data.data.message}`,
+            timestamp: new Date().toISOString()
+          };
+          setMessages(prev => [...prev, syncMessage]);
+        }
+      } catch (error) {
+        console.error('LinkedIn sync error:', error);
+      }
+    }
+  };
+
   const handleMinimize = () => {
     setIsOpen(false);
     setIsMinimized(true);
