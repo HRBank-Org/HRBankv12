@@ -231,7 +231,7 @@ const LinkedInProfileCard = ({ onImportComplete }) => {
           /* Not Connected State */
           <div className="text-center py-4">
             <div className="w-16 h-16 bg-[#0A66C2]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiLinkedin size={32} className="text-[#0A66C2]" />
+              <LinkedInLogo className="w-8 h-8" color="#0A66C2" />
             </div>
             <h4 className="font-semibold text-gray-900 mb-2">Connect Your LinkedIn</h4>
             <p className="text-sm text-gray-600 mb-4">
@@ -241,7 +241,7 @@ const LinkedInProfileCard = ({ onImportComplete }) => {
               onClick={handleConnect}
               className="w-full flex items-center justify-center gap-2 py-3 bg-[#0A66C2] text-white rounded-lg hover:bg-[#004182] transition-colors"
             >
-              <FiLinkedin />
+              <LinkedInLogo className="w-5 h-5" color="white" />
               Connect LinkedIn
             </button>
           </div>
