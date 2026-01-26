@@ -143,17 +143,10 @@ async def linkedin_callback(
     if not access_token:
         raise HTTPException(status_code=400, detail="No access token received")
     
-    # Fetch user profile from LinkedIn (using legacy v2 API)
+    # Fetch user profile from LinkedIn (OpenID Connect userinfo endpoint)
     async with httpx.AsyncClient() as client:
-        # Get basic profile
         profile_response = await client.get(
-            LINKEDIN_PROFILE_URL,
-            headers={"Authorization": f"Bearer {access_token}"}
-        )
-        
-        # Get email address separately
-        email_response = await client.get(
-            LINKEDIN_EMAIL_URL,
+            LINKEDIN_USERINFO_URL,
             headers={"Authorization": f"Bearer {access_token}"}
         )
     
@@ -163,32 +156,13 @@ async def linkedin_callback(
     
     linkedin_profile = profile_response.json()
     
-    # Extract email from separate endpoint
-    email = None
-    if email_response.status_code == 200:
-        email_data = email_response.json()
-        elements = email_data.get("elements", [])
-        if elements:
-            email = elements[0].get("handle~", {}).get("emailAddress")
-    
-    # Extract profile data (v2 API format)
-    linkedin_id = linkedin_profile.get("id")
-    first_name = linkedin_profile.get("localizedFirstName", "")
-    last_name = linkedin_profile.get("localizedLastName", "")
-    full_name = f"{first_name} {last_name}".strip()
-    
-    # Get profile picture URL
-    picture = None
-    profile_picture = linkedin_profile.get("profilePicture", {})
-    display_image = profile_picture.get("displayImage~", {})
-    elements = display_image.get("elements", [])
-    if elements:
-        # Get the largest image
-        for element in reversed(elements):
-            identifiers = element.get("identifiers", [])
-            if identifiers:
-                picture = identifiers[0].get("identifier")
-                break
+    # Extract profile data (OpenID Connect format)
+    linkedin_id = linkedin_profile.get("sub")  # LinkedIn user ID
+    email = linkedin_profile.get("email")
+    first_name = linkedin_profile.get("given_name", "")
+    last_name = linkedin_profile.get("family_name", "")
+    full_name = f"{first_name} {last_name}".strip() or linkedin_profile.get("name", "")
+    picture = linkedin_profile.get("picture")
     
     if not email:
         raise HTTPException(status_code=400, detail="Email not provided by LinkedIn")
