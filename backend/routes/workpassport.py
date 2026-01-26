@@ -913,3 +913,244 @@ async def delete_occupation(
         "success": True,
         "message": "Occupation profile deleted successfully"
     }
+
+
+
+# ============== Job Viewing for WorkPassport Users ==============
+
+@router.get("/jobs")
+async def view_available_jobs(
+    user_id: str = Header(..., alias="X-User-ID"),
+    location: Optional[str] = None,
+    occupation: Optional[str] = None,
+    page: int = 1,
+    limit: int = 20
+):
+    """
+    View job postings available in Canada.
+    WorkPassport users can view jobs but must upgrade to Workforce to apply.
+    """
+    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    is_canadian = profile.get("country") == "CA"
+    
+    # Build query for active jobs
+    query = {"status": "active"}
+    
+    if location:
+        query["$or"] = [
+            {"city": {"$regex": location, "$options": "i"}},
+            {"province": {"$regex": location, "$options": "i"}}
+        ]
+    
+    if occupation:
+        query["position_title"] = {"$regex": occupation, "$options": "i"}
+    
+    # Get jobs from the jobs collection
+    skip = (page - 1) * limit
+    jobs = await db.jobs.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
+    total = await db.jobs.count_documents(query)
+    
+    # Add upgrade prompt info
+    for job in jobs:
+        job["can_apply"] = False
+        job["upgrade_required"] = True
+        if is_canadian:
+            job["upgrade_message"] = "Upgrade to Workforce to apply for this job"
+        else:
+            job["upgrade_message"] = "This job requires Canadian work authorization. Upgrade to Workforce if you have work eligibility."
+    
+    return {
+        "success": True,
+        "data": {
+            "jobs": jobs,
+            "total": total,
+            "page": page,
+            "pages": (total + limit - 1) // limit,
+            "user_country": profile.get("country"),
+            "can_apply_directly": False,
+            "upgrade_info": {
+                "required": True,
+                "is_canadian": is_canadian,
+                "message": "Upgrade to a Workforce account to apply for jobs, manage shifts, and access payroll features." if is_canadian else "Job marketplace features are currently available for Canadian workers. Build your credential portfolio to prepare for when we expand to your region."
+            }
+        }
+    }
+
+
+@router.get("/jobs/{job_id}")
+async def view_job_details(
+    job_id: str,
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """
+    View detailed job posting.
+    WorkPassport users see job details but with upgrade prompt.
+    """
+    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    job = await db.jobs.find_one({"job_id": job_id}, {"_id": 0})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Get employer info
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": job.get("employer_id")},
+        {"_id": 0, "company_name": 1, "logo_url": 1, "city": 1, "province": 1}
+    )
+    
+    is_canadian = profile.get("country") == "CA"
+    
+    # Track job view
+    await db.workpassport_profiles.update_one(
+        {"user_id": user_id},
+        {"$inc": {"jobs_viewed": 1}}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "job": job,
+            "employer": employer,
+            "can_apply": False,
+            "upgrade_required": True,
+            "upgrade_info": {
+                "is_canadian": is_canadian,
+                "title": "Upgrade to Apply" if is_canadian else "Coming Soon to Your Region",
+                "message": "To apply for this job, you need a Workforce account which requires Canadian work eligibility verification." if is_canadian else "Job applications are currently available for Canadian workers. We're expanding to more regions soon!",
+                "cta_text": "Upgrade to Workforce" if is_canadian else "Build Your Portfolio",
+                "cta_link": "/workpassport/upgrade" if is_canadian else "/workpassport/credentials"
+            }
+        }
+    }
+
+
+# ============== Credential System (Shared with Workforce) ==============
+
+@router.get("/credentials")
+async def get_workpassport_credentials(
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """
+    Get all credentials for WorkPassport user.
+    Uses the same credential system as Workforce.
+    """
+    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Query both workpassport_credentials and workforce_credentials (for migrated users)
+    credentials = await db.workpassport_credentials.find(
+        {"user_id": user_id},
+        {"_id": 0}
+    ).to_list(100)
+    
+    # Also check workforce_credentials for users who might have upgraded/downgraded
+    workforce_creds = await db.workforce_credentials.find(
+        {"workforce_id": user_id},
+        {"_id": 0}
+    ).to_list(100)
+    
+    # Combine and dedupe by credential_id
+    all_creds = {c.get("credential_id"): c for c in credentials}
+    for wc in workforce_creds:
+        if wc.get("credential_id") not in all_creds:
+            all_creds[wc.get("credential_id")] = wc
+    
+    combined_credentials = list(all_creds.values())
+    
+    # Calculate summary
+    summary = {
+        "total": len(combined_credentials),
+        "verified": len([c for c in combined_credentials if c.get("status") == "verified"]),
+        "pending": len([c for c in combined_credentials if c.get("status") == "pending"]),
+        "self_reported": len([c for c in combined_credentials if c.get("status") == "self_reported"])
+    }
+    
+    return {
+        "success": True,
+        "data": {
+            "credentials": combined_credentials,
+            "summary": summary
+        }
+    }
+
+
+@router.post("/credentials")
+async def submit_workpassport_credential(
+    data: CredentialRequest,
+    user_id: str = Header(..., alias="X-User-ID")
+):
+    """
+    Submit a credential for verification.
+    Same process as Workforce - can be verified by institutions.
+    """
+    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    credential_id = gen_id("cred")
+    
+    # Check if institution exists and is a partner
+    institution = await db.institution_profiles.find_one(
+        {"institution_id": data.institution_id},
+        {"_id": 0, "institution_name": 1}
+    )
+    
+    if institution:
+        status = "pending"
+        verification_message = "Your credential has been submitted for verification by the institution."
+    else:
+        status = "self_reported"
+        verification_message = "Credential added as self-reported. Connect with a verified institution to get it verified."
+    
+    credential = {
+        "credential_id": credential_id,
+        "user_id": user_id,
+        "passport_id": profile["passport_id"],
+        "institution_id": data.institution_id,
+        "institution_name": institution.get("institution_name") if institution else "Self-Reported",
+        "credential_type": data.credential_type,
+        "credential_name": data.credential_name,
+        "external_credential_id": data.credential_id,
+        "issue_date": data.issue_date,
+        "expiry_date": data.expiry_date,
+        "supporting_documents": data.supporting_documents,
+        "status": status,
+        "submitted_date": now,
+        "created_date": now
+    }
+    
+    await db.workpassport_credentials.insert_one(credential)
+    
+    # If institution exists, create verification request
+    if institution:
+        verification_request = {
+            "request_id": gen_id("vreq"),
+            "user_id": user_id,
+            "credential_id": credential_id,
+            "institution_id": data.institution_id,
+            "status": "pending",
+            "requested_date": now
+        }
+        await db.credential_verification_requests.insert_one(verification_request)
+    
+    # Update profile credential count
+    await db.workpassport_profiles.update_one(
+        {"user_id": user_id},
+        {"$inc": {"total_credentials": 1}}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "credential_id": credential_id,
+            "status": status
+        },
+        "message": verification_message
+    }
