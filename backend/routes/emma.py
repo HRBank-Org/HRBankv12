@@ -613,6 +613,154 @@ async def reset_conversation(
     }
 
 
+@router.post("/linkedin-action")
+async def execute_linkedin_action(
+    request: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Execute LinkedIn-related actions triggered by Emma"""
+    if current_user['user_type'] != 'workpassport':
+        raise HTTPException(status_code=403, detail="LinkedIn actions are only available for WorkPassport users")
+    
+    db = await get_database()
+    action = request.get("action")
+    
+    if action == "connect_linkedin":
+        # Return the LinkedIn authorization URL
+        linkedin_client_id = os.getenv("LINKEDIN_CLIENT_ID")
+        linkedin_redirect_uri = os.getenv("LINKEDIN_REDIRECT_URI")
+        
+        if not linkedin_client_id:
+            raise HTTPException(status_code=503, detail="LinkedIn integration not configured")
+        
+        import uuid as uuid_module
+        state = uuid_module.uuid4().hex
+        
+        # Store state for CSRF protection
+        await db.oauth_states.insert_one({
+            "state": state,
+            "redirect_after": "/workpassport/dashboard",
+            "link_to_user": current_user['user_id'],
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        
+        auth_url = (
+            f"https://www.linkedin.com/oauth/v2/authorization?"
+            f"response_type=code&"
+            f"client_id={linkedin_client_id}&"
+            f"redirect_uri={linkedin_redirect_uri}&"
+            f"state={state}&"
+            f"scope=openid%20profile%20email"
+        )
+        
+        return {
+            "success": True,
+            "data": {
+                "action": "redirect",
+                "url": auth_url,
+                "message": "Click the link to connect your LinkedIn account"
+            }
+        }
+    
+    elif action == "sync_linkedin_profile":
+        # Sync LinkedIn profile data
+        linkedin_data = await db.linkedin_imports.find_one({"user_id": current_user['user_id']})
+        
+        if not linkedin_data:
+            return {
+                "success": False,
+                "data": {
+                    "action": "connect_required",
+                    "message": "Please connect your LinkedIn account first"
+                }
+            }
+        
+        profile = linkedin_data.get("profile_data", {})
+        now = datetime.now(timezone.utc).isoformat()
+        
+        # Update WorkPassport profile with LinkedIn data
+        update_data = {
+            "linkedin_connected": True,
+            "updated_date": now
+        }
+        
+        full_name = ""
+        if profile.get("given_name") and profile.get("family_name"):
+            full_name = f"{profile['given_name']} {profile['family_name']}"
+            update_data["full_name"] = full_name
+        elif profile.get("name"):
+            full_name = profile["name"]
+            update_data["full_name"] = full_name
+        
+        if profile.get("picture"):
+            update_data["profile_picture"] = profile["picture"]
+        
+        await db.workpassport_profiles.update_one(
+            {"user_id": current_user['user_id']},
+            {"$set": update_data}
+        )
+        
+        return {
+            "success": True,
+            "data": {
+                "action": "profile_updated",
+                "imported": {
+                    "full_name": full_name,
+                    "picture": profile.get("picture"),
+                    "email": profile.get("email")
+                },
+                "message": f"Profile synced! Welcome, {full_name}!"
+            }
+        }
+    
+    elif action == "create_occupation_from_linkedin":
+        # Create an occupation profile from LinkedIn work experience
+        job_title = request.get("job_title", "")
+        company = request.get("company", "")
+        years = request.get("years", 0)
+        
+        if not job_title:
+            raise HTTPException(status_code=400, detail="Job title is required")
+        
+        profile = await db.workpassport_profiles.find_one({"user_id": current_user['user_id']})
+        if not profile:
+            raise HTTPException(status_code=404, detail="Profile not found")
+        
+        import uuid as uuid_module
+        now = datetime.now(timezone.utc).isoformat()
+        occupation_id = f"occ_{uuid_module.uuid4().hex[:12]}"
+        
+        occupation = {
+            "occupation_id": occupation_id,
+            "user_id": current_user['user_id'],
+            "passport_id": profile["passport_id"],
+            "occupation_title": job_title,
+            "years_of_experience": years,
+            "skill_level": "intermediate" if years < 3 else "advanced" if years < 7 else "expert",
+            "description": f"Experience at {company}" if company else None,
+            "skills": [],
+            "source": "linkedin_import",
+            "created_date": now,
+            "updated_date": now
+        }
+        
+        await db.workpassport_occupations.insert_one(occupation)
+        
+        return {
+            "success": True,
+            "data": {
+                "action": "occupation_created",
+                "occupation_id": occupation_id,
+                "message": f"Created occupation profile: {job_title}"
+            }
+        }
+    
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown action: {action}")
+
+
+
+
 def calculate_onboarding_progress(context: OnboardingContext) -> int:
     """Calculate onboarding completion percentage"""
     progress = 0
