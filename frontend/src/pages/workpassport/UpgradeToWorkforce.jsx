@@ -22,6 +22,13 @@ const UpgradeToWorkforce = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   
+  // Redirect non-Canadian users - Workforce is Canada-only
+  useEffect(() => {
+    if (user?.profile?.country && user.profile.country !== 'CA') {
+      navigate('/workpassport/dashboard');
+    }
+  }, [user, navigate]);
+  
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
