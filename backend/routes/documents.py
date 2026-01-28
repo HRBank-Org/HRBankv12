@@ -53,8 +53,12 @@ async def get_required_document_types(
     current_user: dict = Depends(get_current_user),
     db = Depends(get_db)
 ):
-    """Get required document types for current user"""
-    document_types = get_document_types(current_user["user_type"])
+    """Get required document types for current user based on their country"""
+    document_types = await get_document_types_for_user(
+        current_user["user_type"], 
+        current_user["user_id"],
+        db
+    )
     
     return {
         "success": True,
