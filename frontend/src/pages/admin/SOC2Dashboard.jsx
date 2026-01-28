@@ -138,7 +138,13 @@ const SOC2Dashboard = () => {
                   </div>
                   <p className="text-2xl font-bold capitalize">{comp.status}</p>
                   {comp.latency_ms && <p className="text-sm opacity-75">{comp.latency_ms}ms latency</p>}
-                  {comp.active_sessions !== undefined && <p className="text-sm opacity-75">{comp.active_sessions} sessions</p>}
+                  {comp.active_sessions !== undefined && (
+                    <p className="text-sm opacity-75">
+                      {typeof comp.active_sessions === 'object' 
+                        ? comp.active_sessions?.total || 0 
+                        : comp.active_sessions} sessions
+                    </p>
+                  )}
                   {comp.locked_accounts !== undefined && <p className="text-sm opacity-75">{comp.locked_accounts} locked</p>}
                 </div>
               ))}
