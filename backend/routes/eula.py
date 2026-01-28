@@ -978,3 +978,142 @@ async def get_eula_history(
             "total_count": len(acceptances)
         }
     }
+
+
+# ==================== INSTITUTION PARTNERSHIP AGREEMENT ====================
+
+@router.get("/partnership-agreement", response_model=Dict)
+async def get_partnership_agreement(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get Institution Partnership Agreement (for institution users only)
+    """
+    if current_user["user_type"] != "institution":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Partnership Agreement is only for institution accounts"
+        )
+    
+    from models.partnership_agreement import INSTITUTION_PARTNERSHIP_AGREEMENT, INSTITUTION_PARTNERSHIP_SHORT_SUMMARY
+    
+    # Check if already accepted
+    acceptance = await db.partnership_agreements.find_one({
+        "institution_id": current_user["user_id"],
+        "agreement_version": "1.0",
+        "accepted": True
+    })
+    
+    return {
+        "success": True,
+        "data": {
+            "accepted": bool(acceptance),
+            "acceptance_date": acceptance.get("accepted_date") if acceptance else None,
+            "agreement_content": INSTITUTION_PARTNERSHIP_AGREEMENT,
+            "summary": INSTITUTION_PARTNERSHIP_SHORT_SUMMARY,
+            "version": "1.0"
+        }
+    }
+
+
+@router.post("/partnership-agreement/accept", response_model=Dict)
+async def accept_partnership_agreement(
+    request: Request,
+    signatory_name: str = None,
+    signatory_title: str = None,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Accept Institution Partnership Agreement
+    Requires authorized signatory information
+    """
+    if current_user["user_type"] != "institution":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Partnership Agreement is only for institution accounts"
+        )
+    
+    # Get request body
+    try:
+        body = await request.json()
+        signatory_name = body.get("signatory_name", signatory_name)
+        signatory_title = body.get("signatory_title", signatory_title)
+    except:
+        pass
+    
+    if not signatory_name or not signatory_title:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Signatory name and title are required to accept the Partnership Agreement"
+        )
+    
+    # Check if already accepted
+    existing = await db.partnership_agreements.find_one({
+        "institution_id": current_user["user_id"],
+        "agreement_version": "1.0"
+    })
+    
+    if existing:
+        return {
+            "success": True,
+            "message": "Partnership Agreement already accepted",
+            "data": {
+                "acceptance_date": existing.get("accepted_date"),
+                "signatory": existing.get("signatory_name")
+            }
+        }
+    
+    # Get institution profile
+    profile = await db.institution_profiles.find_one({"institution_id": current_user["user_id"]})
+    institution_name = profile.get("institution_name", "Unknown Institution") if profile else "Unknown Institution"
+    
+    # Create acceptance record
+    now = datetime.now(timezone.utc)
+    acceptance_record = {
+        "agreement_id": f"PA-{uuid.uuid4().hex[:12].upper()}",
+        "institution_id": current_user["user_id"],
+        "institution_name": institution_name,
+        "signatory_name": signatory_name,
+        "signatory_title": signatory_title,
+        "signatory_email": current_user.get("email"),
+        "agreement_version": "1.0",
+        "accepted": True,
+        "accepted_date": now.isoformat(),
+        "ip_address": request.client.host if request.client else None,
+        "user_agent": request.headers.get("user-agent", ""),
+        "created_at": now.isoformat()
+    }
+    
+    await db.partnership_agreements.insert_one(acceptance_record)
+    
+    # Log the acceptance
+    try:
+        from services.audit_logger import audit_logger, AuditEventType
+        await audit_logger.log(
+            event_type=AuditEventType.DOCUMENT_UPDATED,
+            actor_id=current_user["user_id"],
+            action="partnership_agreement_accepted",
+            resource_type="partnership_agreement",
+            resource_id=acceptance_record["agreement_id"],
+            description=f"Partnership Agreement accepted by {signatory_name} ({signatory_title})",
+            metadata={
+                "institution_name": institution_name,
+                "signatory": signatory_name,
+                "signatory_title": signatory_title
+            }
+        )
+    except Exception as e:
+        print(f"Failed to log partnership acceptance: {e}")
+    
+    return {
+        "success": True,
+        "data": {
+            "agreement_id": acceptance_record["agreement_id"],
+            "accepted_date": acceptance_record["accepted_date"],
+            "signatory_name": signatory_name,
+            "signatory_title": signatory_title
+        },
+        "message": "Partnership Agreement accepted successfully. Thank you for partnering with HR Bank!"
+    }
