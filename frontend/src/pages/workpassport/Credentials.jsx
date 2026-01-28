@@ -442,55 +442,6 @@ const WorkPassportCredentials = () => {
                   </div>
                 ))}
               </div>
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <FiCalendar size={14} />
-                              Issued: {formatDate(credential.issue_date)}
-                            </span>
-                            {credential.expiry_date && (
-                              <span className="flex items-center gap-1">
-                                <FiClock size={14} />
-                                Expires: {formatDate(credential.expiry_date)}
-                              </span>
-                            )}
-                          </div>
-                          {credential.blockchain_transaction_hash && (
-                            <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
-                              <BlockchainIcon className="w-3 h-3" />
-                              <span className="font-mono truncate max-w-xs">
-                                {credential.blockchain_transaction_hash}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Action Buttons */}
-                      <div className="flex items-center gap-2 ml-4">
-                        <button
-                          onClick={() => addToLinkedIn(credential)}
-                          className="flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white rounded-lg hover:bg-[#004182] transition-colors text-sm font-medium"
-                          title="Add to LinkedIn Profile"
-                          data-testid={`add-linkedin-${credential.credential_id}`}
-                        >
-                          <LinkedInLogo className="w-4 h-4" />
-                          Add to LinkedIn
-                        </button>
-                        <button
-                          onClick={() => window.open(credential.verification_url || `/verify/${credential.credential_id}`, '_blank')}
-                          className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                          title="View verification page"
-                        >
-                          <FiExternalLink size={16} />
-                          Verify
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             )}
           </div>
 
