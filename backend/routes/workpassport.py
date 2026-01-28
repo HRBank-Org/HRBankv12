@@ -10,7 +10,10 @@ from datetime import datetime, timezone, timedelta
 from database import db
 import uuid
 import hashlib
+import logging
 from passlib.context import CryptContext
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/workpassport", tags=["WorkPassport"])
 
