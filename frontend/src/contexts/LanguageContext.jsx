@@ -32,20 +32,23 @@ const getInitialLanguage = () => {
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguageState] = useState(getInitialLanguage);
 
-  // Update localStorage when language changes
+  // Update localStorage and document direction when language changes
   const setLanguage = (lang) => {
     if (LANGUAGES[lang]) {
       localStorage.setItem('language', lang);
       setLanguageState(lang);
       // Update HTML lang attribute for accessibility
       document.documentElement.lang = lang;
+      // Update direction for RTL languages
+      document.documentElement.dir = LANGUAGES[lang].rtl ? 'rtl' : 'ltr';
     }
   };
 
-  // Set initial HTML lang attribute
+  // Set initial HTML lang and direction attributes
   useEffect(() => {
     document.documentElement.lang = language;
-  }, []);
+    document.documentElement.dir = LANGUAGES[language]?.rtl ? 'rtl' : 'ltr';
+  }, [language]);
 
   // Translation function
   const t = (key, params = {}) => {
