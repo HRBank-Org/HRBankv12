@@ -10,7 +10,7 @@ from bson import ObjectId
 import uuid
 
 from auth.dependencies import get_current_user, require_role
-from config.database import get_db
+from database import db
 
 router = APIRouter(prefix="/fundraisers", tags=["Fundraisers"])
 
