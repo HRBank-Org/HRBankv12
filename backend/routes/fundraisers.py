@@ -378,8 +378,10 @@ async def donate_to_fundraiser(
             }
         }
         
-    except stripe.error.StripeError as e:
+    except stripe.StripeError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Payment processing error: {str(e)}")
 
 @router.post("/webhook/donation-complete")
 async def handle_donation_webhook(
