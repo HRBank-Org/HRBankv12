@@ -40,13 +40,14 @@ HR Bank has implemented comprehensive security controls aligned with SOC2 Trust 
 |---------|--------|----------------|
 | Internal security communications | ✅ | Audit logging system |
 | External breach notification | ✅ | Documented in privacy policy |
-| Security awareness training | ⚠️ | Needs documentation |
+| Security awareness training | ✅ | `/app/docs/security-awareness-training.md` |
 
 ### CC3.0 - Risk Assessment
 
 | Control | Status | Implementation |
 |---------|--------|----------------|
 | Risk identification process | ✅ | Security controls service |
+| Privacy Impact Assessment | ✅ | `/app/docs/privacy-impact-assessment.md` |
 | Vulnerability assessments | ⚠️ | Needs regular schedule |
 | Third-party risk management | ✅ | Stripe, SendGrid, Twilio reviewed |
 
