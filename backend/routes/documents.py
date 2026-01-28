@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import Dict, List
 from datetime import datetime, timedelta, timezone
 from auth.dependencies import get_current_user
-from models.documents import Document, WORKFORCE_DOCUMENT_TYPES, EMPLOYER_DOCUMENT_TYPES, INSTITUTION_DOCUMENT_TYPES
+from models.documents import Document, WORKFORCE_DOCUMENT_TYPES, EMPLOYER_DOCUMENT_TYPES, INSTITUTION_DOCUMENT_TYPES, get_institution_document_types
 import base64
 import os
 
@@ -12,12 +12,25 @@ def get_db():
     from server import db
     return db
 
+async def get_document_types_for_user(user_type: str, user_id: str, db) -> dict:
+    """Get document types for user type, considering country for institutions"""
+    if user_type == 'workforce':
+        return WORKFORCE_DOCUMENT_TYPES
+    elif user_type == 'employer':
+        return EMPLOYER_DOCUMENT_TYPES
+    elif user_type == 'institution':
+        # Check institution's country
+        profile = await db.institution_profiles.find_one({"institution_id": user_id})
+        country = profile.get("country") if profile else None
+        return get_institution_document_types(country)
+    return {}
+
 def get_document_types(user_type: str):
-    """Get document types for user type"""
+    """Get document types for user type (legacy function for non-institution types)"""
     type_map = {
         'workforce': WORKFORCE_DOCUMENT_TYPES,
         'employer': EMPLOYER_DOCUMENT_TYPES,
-        'institution': INSTITUTION_DOCUMENT_TYPES
+        'institution': INSTITUTION_DOCUMENT_TYPES  # Default Canadian
     }
     return type_map.get(user_type, {})
 
