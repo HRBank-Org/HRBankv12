@@ -279,6 +279,79 @@ class SessionManager:
             logger.info(f"Cleaned up {result.modified_count} expired sessions")
         
         return result.modified_count
+    
+    async def cleanup_inactive_sessions(self, inactive_minutes: int = 60) -> int:
+        """
+        Clean up sessions with no activity for specified duration.
+        This helps prevent misuse from stale sessions.
+        
+        Args:
+            inactive_minutes: Minutes of inactivity before session is terminated
+            
+        Returns:
+            Number of sessions cleaned up
+        """
+        now = datetime.now(timezone.utc)
+        cutoff_time = now - timedelta(minutes=inactive_minutes)
+        
+        result = await self.db.active_sessions.update_many(
+            {
+                "is_active": True,
+                "last_activity": {"$lt": cutoff_time.isoformat()}
+            },
+            {
+                "$set": {
+                    "is_active": False,
+                    "terminated_at": now.isoformat(),
+                    "termination_reason": "inactivity_timeout"
+                }
+            }
+        )
+        
+        if result.modified_count > 0:
+            logger.info(f"Cleaned up {result.modified_count} inactive sessions (>{inactive_minutes} min inactivity)")
+            
+            # Log security event
+            try:
+                from services.audit_logger import audit_logger, AuditEventType
+                await audit_logger.log(
+                    event_type=AuditEventType.AUTH_SESSION_REVOKED,
+                    action="bulk_session_cleanup",
+                    description=f"Terminated {result.modified_count} inactive sessions",
+                    metadata={
+                        "sessions_terminated": result.modified_count,
+                        "inactivity_threshold_minutes": inactive_minutes
+                    }
+                )
+            except Exception as e:
+                logger.error(f"Failed to log session cleanup: {e}")
+        
+        return result.modified_count
+    
+    async def run_security_cleanup(self) -> dict:
+        """
+        Run comprehensive security session cleanup.
+        Call this periodically (e.g., every 15 minutes) to maintain security.
+        
+        Returns:
+            Summary of cleanup actions
+        """
+        results = {
+            "expired_sessions": 0,
+            "inactive_sessions": 0,
+            "total_cleaned": 0,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Clean expired sessions
+        results["expired_sessions"] = await self.cleanup_expired_sessions()
+        
+        # Clean inactive sessions (no activity for 60 minutes)
+        results["inactive_sessions"] = await self.cleanup_inactive_sessions(inactive_minutes=60)
+        
+        results["total_cleaned"] = results["expired_sessions"] + results["inactive_sessions"]
+        
+        return results
 
 
 # Singleton instance
