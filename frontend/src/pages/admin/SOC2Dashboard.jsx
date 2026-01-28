@@ -156,7 +156,9 @@ const SOC2Dashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Active Sessions</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {securityStatus?.active_sessions || 0}
+                  {typeof securityStatus?.active_sessions === 'object' 
+                    ? securityStatus?.active_sessions?.total || 0 
+                    : securityStatus?.active_sessions || 0}
                 </p>
               </div>
             </div>
