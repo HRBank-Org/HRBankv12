@@ -375,7 +375,7 @@ async def get_my_purchased_credentials(
 async def initiate_credential_payment(
     request: Request,
     payment_data: PaymentInitiate,
-    current_user: dict = Depends(require_role("workforce")),
+    current_user: dict = Depends(require_role("workforce", "workpassport")),
     db = Depends(get_db)
 ):
     """Initiate Stripe payment for a pending credential with tax"""
