@@ -166,6 +166,12 @@ const SuperAdminSidebar = () => {
           badge: null
         },
         {
+          label: 'Partnership Agreements',
+          icon: FileText,
+          path: '/admin/partnership-agreements',
+          badge: null
+        },
+        {
           label: 'Invoices',
           icon: Receipt,
           path: '/admin/invoices',
