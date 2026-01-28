@@ -1073,3 +1073,176 @@ async def get_session_statistics(
             "termination_reasons": {r["_id"]: r["count"] for r in termination_reasons if r["_id"]}
         }
     }
+
+
+# ==================== PARTNERSHIP AGREEMENTS ====================
+
+@router.get("/partnership-agreements", response_model=Dict)
+async def get_all_partnership_agreements(
+    status: str = None,  # "signed", "pending"
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """
+    Get all institution partnership agreements for super admin review.
+    Shows both signed and pending (institutions that haven't signed yet).
+    """
+    # Get all institutions
+    institutions = await db.users.find(
+        {"user_type": "institution", "is_active": True},
+        {"_id": 0, "user_id": 1, "email": 1, "created_at": 1}
+    ).to_list(None)
+    
+    # Get all partnership agreements
+    agreements = await db.partnership_agreements.find(
+        {},
+        {"_id": 0}
+    ).to_list(None)
+    
+    # Create a map of institution_id -> agreement
+    agreement_map = {a["institution_id"]: a for a in agreements}
+    
+    # Get institution profiles for names
+    profiles = await db.institution_profiles.find(
+        {},
+        {"_id": 0, "institution_id": 1, "institution_name": 1, "contact_name": 1, "contact_email": 1, "country": 1}
+    ).to_list(None)
+    profile_map = {p["institution_id"]: p for p in profiles}
+    
+    result = []
+    signed_count = 0
+    pending_count = 0
+    
+    for inst in institutions:
+        inst_id = inst["user_id"]
+        agreement = agreement_map.get(inst_id)
+        profile = profile_map.get(inst_id, {})
+        
+        entry = {
+            "institution_id": inst_id,
+            "institution_name": profile.get("institution_name", "Unknown Institution"),
+            "contact_name": profile.get("contact_name", ""),
+            "contact_email": inst.get("email", profile.get("contact_email", "")),
+            "country": profile.get("country", "Unknown"),
+            "account_created": inst.get("created_at"),
+            "status": "signed" if agreement else "pending",
+            "agreement": None
+        }
+        
+        if agreement:
+            signed_count += 1
+            entry["agreement"] = {
+                "agreement_id": agreement.get("agreement_id"),
+                "signatory_name": agreement.get("signatory_name"),
+                "signatory_title": agreement.get("signatory_title"),
+                "signatory_email": agreement.get("signatory_email"),
+                "accepted_date": agreement.get("accepted_date"),
+                "ip_address": agreement.get("ip_address"),
+                "version": agreement.get("agreement_version", "1.0")
+            }
+        else:
+            pending_count += 1
+        
+        # Filter by status if specified
+        if status:
+            if status == "signed" and entry["status"] == "signed":
+                result.append(entry)
+            elif status == "pending" and entry["status"] == "pending":
+                result.append(entry)
+        else:
+            result.append(entry)
+    
+    # Sort: pending first, then by date
+    result.sort(key=lambda x: (x["status"] == "signed", x.get("account_created") or ""))
+    
+    return {
+        "success": True,
+        "data": {
+            "agreements": result,
+            "summary": {
+                "total_institutions": len(institutions),
+                "signed": signed_count,
+                "pending": pending_count,
+                "signing_rate": round((signed_count / len(institutions) * 100) if institutions else 0, 1)
+            }
+        }
+    }
+
+
+@router.get("/partnership-agreements/{institution_id}", response_model=Dict)
+async def get_institution_agreement_details(
+    institution_id: str,
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Get detailed partnership agreement for a specific institution"""
+    # Get institution
+    institution = await db.users.find_one(
+        {"user_id": institution_id, "user_type": "institution"},
+        {"_id": 0}
+    )
+    
+    if not institution:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Institution not found"
+        )
+    
+    # Get profile
+    profile = await db.institution_profiles.find_one(
+        {"institution_id": institution_id},
+        {"_id": 0}
+    )
+    
+    # Get agreement
+    agreement = await db.partnership_agreements.find_one(
+        {"institution_id": institution_id},
+        {"_id": 0}
+    )
+    
+    # Get EULA acceptance
+    eula = await db.eula_acceptances.find_one(
+        {"user_id": institution_id, "eula_type": "institution"},
+        {"_id": 0}
+    )
+    
+    # Get credential stats
+    credentials_issued = await db.credentials.count_documents({"issuer_id": institution_id})
+    
+    # Get fundraiser stats
+    fundraisers = await db.fundraisers.find(
+        {"institution_id": institution_id},
+        {"_id": 0, "fundraiser_id": 1, "raised_amount": 1, "status": 1}
+    ).to_list(None)
+    
+    total_raised = sum(f.get("raised_amount", 0) for f in fundraisers)
+    
+    return {
+        "success": True,
+        "data": {
+            "institution": {
+                "user_id": institution_id,
+                "email": institution.get("email"),
+                "institution_name": profile.get("institution_name") if profile else "Unknown",
+                "contact_name": profile.get("contact_name") if profile else "",
+                "contact_email": profile.get("contact_email") if profile else "",
+                "country": profile.get("country") if profile else "Unknown",
+                "account_created": institution.get("created_at"),
+                "is_active": institution.get("is_active", True)
+            },
+            "partnership_agreement": {
+                "status": "signed" if agreement else "pending",
+                "details": agreement if agreement else None
+            },
+            "eula_acceptance": {
+                "status": "accepted" if eula else "pending",
+                "accepted_date": eula.get("accepted_date") if eula else None
+            },
+            "activity_stats": {
+                "credentials_issued": credentials_issued,
+                "fundraisers_created": len(fundraisers),
+                "total_funds_raised": total_raised
+            }
+        }
+    }
+
