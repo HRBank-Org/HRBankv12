@@ -493,7 +493,7 @@ async def initiate_credential_payment(
 async def get_payment_status(
     request: Request,
     session_id: str,
-    current_user: dict = Depends(require_role("workforce")),
+    current_user: dict = Depends(require_role("workforce", "workpassport")),
     db = Depends(get_db)
 ):
     """Check payment status and process if successful"""
