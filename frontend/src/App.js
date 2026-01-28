@@ -278,7 +278,7 @@ function AppRoutes() {
         <Route path="/workpassport/credentials/add" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportCredentials /></ProtectedRoute>} />
         <Route path="/workpassport/career" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
         <Route path="/workpassport/courses" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
-        <Route path="/workpassport/public-profile" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportPublicProfile /></ProtectedRoute>} />
+        <Route path="/workpassport/public-profile" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportProfilePreview /></ProtectedRoute>} />
         <Route path="/workpassport/share" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
         <Route path="/workpassport/settings" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportSettings /></ProtectedRoute>} />
         <Route path="/workpassport/support" element={<ProtectedRoute allowedUserTypes={['workpassport']}><Support /></ProtectedRoute>} />
