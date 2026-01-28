@@ -84,7 +84,7 @@ export const LanguageProvider = ({ children }) => {
     setLanguage,
     t,
     languages: LANGUAGES,
-    isRTL: false // Add RTL support later if needed (Arabic, Hebrew)
+    isRTL: LANGUAGES[language]?.rtl || false
   };
 
   return (
