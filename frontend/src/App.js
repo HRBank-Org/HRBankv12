@@ -67,6 +67,7 @@ import ClassDetails from './pages/institution/ClassDetails';
 import VerificationRequests from './pages/institution/VerificationRequests';
 import ManageCredentials from './pages/institution/ManageCredentials';
 import InstitutionFundraisers from './pages/institution/Fundraisers';
+import InstitutionPartnershipAgreement from './pages/institution/PartnershipAgreement';
 import AdminManageCredentials from './pages/admin/ManageCredentials';
 import ManageOccupationCertifications from './pages/admin/ManageOccupationCertifications';
 import IssueCredential from './pages/institution/IssueCredential';
