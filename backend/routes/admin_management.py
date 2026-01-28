@@ -1100,14 +1100,14 @@ async def get_all_partnership_agreements(
     ).to_list(None)
     
     # Create a map of institution_id -> agreement
-    agreement_map = {a["institution_id"]: a for a in agreements}
+    agreement_map = {a["institution_id"]: a for a in agreements if a.get("institution_id")}
     
     # Get institution profiles for names
     profiles = await db.institution_profiles.find(
         {},
         {"_id": 0, "institution_id": 1, "institution_name": 1, "contact_name": 1, "contact_email": 1, "country": 1}
     ).to_list(None)
-    profile_map = {p["institution_id"]: p for p in profiles}
+    profile_map = {p["institution_id"]: p for p in profiles if p.get("institution_id")}
     
     result = []
     signed_count = 0
