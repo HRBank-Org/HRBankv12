@@ -331,6 +331,15 @@ const WorkPassportSignup = () => {
                   <p className="text-xl font-mono font-bold text-gray-900">{result.passport_id}</p>
                 </div>
 
+                {/* Email Verification Notice */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                  <p className="text-sm text-blue-800 font-medium mb-1">📧 Check Your Email</p>
+                  <p className="text-sm text-blue-700">
+                    We sent a verification link to <strong>{formData.email}</strong>. 
+                    Click the link to verify your email and unlock all features.
+                  </p>
+                </div>
+
                 <div className="space-y-3">
                   <button
                     onClick={() => navigate('/login')}
@@ -338,9 +347,19 @@ const WorkPassportSignup = () => {
                   >
                     Sign In to Your Account
                   </button>
-                  <p className="text-sm text-gray-500">
-                    Check your email to verify your account
-                  </p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.post(`/api/workpassport/resend-verification?email=${encodeURIComponent(formData.email)}`);
+                        alert('Verification email sent! Check your inbox.');
+                      } catch (err) {
+                        alert('Failed to resend verification email. Please try again.');
+                      }
+                    }}
+                    className="w-full py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all text-sm"
+                  >
+                    Didn't receive it? Resend Verification Email
+                  </button>
                 </div>
               </div>
             )}
