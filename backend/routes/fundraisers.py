@@ -14,6 +14,9 @@ from database import db
 
 router = APIRouter(prefix="/fundraisers", tags=["Fundraisers"])
 
+# Platform fee configuration (HR Bank receives 5% of donations)
+PLATFORM_FEE_PERCENTAGE = 0.05  # 5%
+
 # ============================================
 # Models
 # ============================================
@@ -402,17 +405,24 @@ async def handle_donation_webhook(
         if existing:
             return {"success": True, "message": "Donation already recorded"}
         
-        # Record donation
+        # Record donation with platform fee calculation
         donation_id = f"DON-{uuid.uuid4().hex[:12].upper()}"
         now = datetime.now(timezone.utc).isoformat()
-        amount = session.amount_total / 100  # Convert from cents
+        gross_amount = session.amount_total / 100  # Convert from cents
+        
+        # Calculate platform fee (5%)
+        platform_fee = round(gross_amount * PLATFORM_FEE_PERCENTAGE, 2)
+        net_amount = round(gross_amount - platform_fee, 2)
         
         donation = {
             "donation_id": donation_id,
             "fundraiser_id": fundraiser_id,
             "donor_id": metadata.get("donor_id"),
             "donor_name": metadata.get("donor_name", "Anonymous"),
-            "amount": amount,
+            "gross_amount": gross_amount,  # Total paid by donor
+            "platform_fee": platform_fee,  # 5% to HR Bank
+            "net_amount": net_amount,       # 95% to institution
+            "amount": net_amount,           # For backward compatibility
             "message": metadata.get("message"),
             "anonymous": metadata.get("anonymous") == "True",
             "stripe_session_id": session_id,
@@ -422,11 +432,16 @@ async def handle_donation_webhook(
         
         await db.fundraiser_donations.insert_one(donation)
         
-        # Update fundraiser totals
+        # Update fundraiser totals (use net_amount for institution's view)
         await db.fundraisers.update_one(
             {"fundraiser_id": fundraiser_id},
             {
-                "$inc": {"raised_amount": amount, "donor_count": 1},
+                "$inc": {
+                    "raised_amount": net_amount,  # Net amount for institution
+                    "gross_raised_amount": gross_amount,  # Total paid by donors
+                    "platform_fees_total": platform_fee,  # Platform revenue
+                    "donor_count": 1
+                },
                 "$set": {"updated_at": now}
             }
         )
@@ -439,8 +454,13 @@ async def handle_donation_webhook(
                 "user_id": fundraiser["institution_id"],
                 "type": "donation_received",
                 "title": "New Donation Received!",
-                "message": f"${amount:.2f} donated to '{fundraiser['title']}'",
-                "data": {"fundraiser_id": fundraiser_id, "amount": amount},
+                "message": f"${gross_amount:.2f} donated to '{fundraiser['title']}' (${net_amount:.2f} after platform fee)",
+                "data": {
+                    "fundraiser_id": fundraiser_id, 
+                    "gross_amount": gross_amount,
+                    "net_amount": net_amount,
+                    "platform_fee": platform_fee
+                },
                 "read": False,
                 "created_at": now
             })
@@ -449,7 +469,9 @@ async def handle_donation_webhook(
             "success": True,
             "data": {
                 "donation_id": donation_id,
-                "amount": amount
+                "gross_amount": gross_amount,
+                "platform_fee": platform_fee,
+                "net_amount": net_amount
             },
             "message": "Donation recorded successfully"
         }
