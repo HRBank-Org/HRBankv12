@@ -27,6 +27,16 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### Institution Partnership Agreement UI Complete ✅ (Jan 28, 2026)
+- **Partnership Agreement Page**: `/institution/partnership-agreement`
+  - View key partnership terms summary (Revenue Share 50%/95%, Responsibilities, Data & Privacy, Termination)
+  - Expandable full agreement text with all 10 articles
+  - Signatory name and title input fields for formal acceptance
+  - Green confirmation state after acceptance with timestamp
+  - Action buttons to Issue Credentials or Create Fundraiser
+- **Dashboard Integration**: Quick Action card on Institution Dashboard
+- **Backend API**: `GET/POST /api/eula/partnership-agreement` endpoints with audit logging
+
 ### Fundraiser UI Complete ✅ (Jan 28, 2026)
 - **Institution Fundraisers Page**: `/institution/fundraisers` with full CRUD operations
   - Create new fundraisers with title, description, goal amount, min donation, media, end date
