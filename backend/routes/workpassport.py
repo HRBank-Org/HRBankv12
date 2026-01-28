@@ -266,19 +266,19 @@ async def get_my_credentials(
     status: Optional[str] = None,
     user_id: str = Header(..., alias="X-User-ID")
 ):
-    """Get all credentials for current user"""
-    query = {"user_id": user_id}
+    """Get all blockchain-verified credentials for current user"""
+    # Query blockchain_credentials - the unified collection for all verified credentials
+    query = {"worker_id": user_id}
     if status:
         query["status"] = status
     
-    credentials = await db.workpassport_credentials.find(
+    credentials = await db.blockchain_credentials.find(
         query, {"_id": 0}
     ).sort("issue_date", -1).to_list(100)
     
     # Group by status
-    verified = [c for c in credentials if c.get("status") == "verified"]
+    verified = [c for c in credentials if c.get("status") in ["verified", "issued"]]
     pending = [c for c in credentials if c.get("status") == "pending"]
-    rejected = [c for c in credentials if c.get("status") == "rejected"]
     
     return {
         "success": True,
@@ -287,8 +287,7 @@ async def get_my_credentials(
             "summary": {
                 "total": len(credentials),
                 "verified": len(verified),
-                "pending": len(pending),
-                "rejected": len(rejected)
+                "pending": len(pending)
             }
         }
     }
