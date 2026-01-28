@@ -27,6 +27,15 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### Fundraiser Feature ✅ (Jan 28, 2026)
+- **Institution Fundraiser Management**: Create, list, update, delete campaigns
+- **Graduate/WorkPassport Access**: Users can view fundraisers from credential-issuing institutions
+- **5% Platform Fee**: HR Bank receives 5% of all donations
+- **Progress Bars**: Visual display of raised amount vs goal
+- **Stripe Integration**: Donation checkout via existing Stripe
+- **Donation Tracking**: gross_amount, net_amount, platform_fee per donation
+- **Test Coverage**: 82% backend, 100% frontend
+
 ### WorkPassport Global Credentials System ✅ (Jan 28, 2026)
 - **Unified Credential Model**: All credentials stored in `blockchain_credentials` collection
 - **No Self-Reported Credentials**: Removed to maintain trust and verification integrity
@@ -36,9 +45,10 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - **Country-Based Features**: Workforce upgrade only available for Canadian users
 
 ### Internationalization (i18n) ✅ (Jan 28, 2026)
-- **Languages Supported**: English, French, Spanish, Portuguese, Chinese
+- **Languages Supported**: English, French, Spanish, Portuguese, Chinese, Arabic, Hindi
 - **Translation System**: JSON-based with LanguageContext React provider
 - **Language Selector**: Compact dropdown in header for all pages
+- **RTL Support**: Full support for Arabic and Hebrew
 - **Browser Detection**: Auto-detects user's browser language on first visit
 
 ### UI/UX Improvements ✅ (Jan 28, 2026)
@@ -51,6 +61,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - **Removed unused bcrypt import** in `/app/backend/auth/password.py`
 - **Fixed deprecated utcnow()** - Replaced with `datetime.now(timezone.utc)`
 - **Removed legacy workpassport_credentials collection** - Unified to blockchain_credentials
+- **Fixed stripe.error.StripeError** - Updated to stripe.StripeError for newer library
 
 ### Authentication System ✅
 - Dual OTP verification (Email via SendGrid, SMS via Twilio)
@@ -67,6 +78,45 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - IPFS storage for credential metadata
 
 ## Data Models
+
+### fundraisers Collection (NEW)
+```json
+{
+  "fundraiser_id": "FUND-xxx",
+  "institution_id": "usr_xxx",
+  "institution_name": "string",
+  "title": "string",
+  "description": "string",
+  "goal_amount": 50000.0,
+  "min_donation": 10.0,
+  "raised_amount": 0.0,          // Net to institution (95%)
+  "gross_raised_amount": 0.0,    // Total from donors
+  "platform_fees_total": 0.0,    // 5% to HR Bank
+  "donor_count": 0,
+  "platform_fee_percentage": 5.0,
+  "is_active": true,
+  "media_url": "optional url",
+  "media_type": "image|video",
+  "end_date": "optional ISO date"
+}
+```
+
+### fundraiser_donations Collection (NEW)
+```json
+{
+  "donation_id": "DON-xxx",
+  "fundraiser_id": "FUND-xxx",
+  "donor_id": "wp_xxx",
+  "donor_name": "string",
+  "gross_amount": 100.0,
+  "platform_fee": 5.0,
+  "net_amount": 95.0,
+  "message": "optional",
+  "anonymous": false,
+  "stripe_session_id": "cs_xxx",
+  "stripe_payment_intent": "pi_xxx"
+}
+```
 
 ### blockchain_credentials (Unified Collection)
 ```json
@@ -88,6 +138,17 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## API Endpoints
 
+### Fundraisers (NEW)
+- `POST /api/fundraisers/create` - Create fundraiser (Institution only)
+- `GET /api/fundraisers/institution/list` - List institution's fundraisers
+- `GET /api/fundraisers/institution/{id}` - Get fundraiser details with donations
+- `PUT /api/fundraisers/institution/{id}` - Update fundraiser
+- `DELETE /api/fundraisers/institution/{id}` - Delete fundraiser
+- `GET /api/fundraisers/my-institutions` - Get fundraisers from user's institutions
+- `GET /api/fundraisers/public/{id}` - Get public fundraiser details
+- `POST /api/fundraisers/donate/{id}` - Initiate donation (creates Stripe checkout)
+- `POST /api/fundraisers/webhook/donation-complete` - Process completed donation
+
 ### WorkPassport
 - `POST /api/workpassport/register` - Create WorkPassport account
 - `GET /api/workpassport/profile` - Get user profile
@@ -108,20 +169,20 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 ## Backlog
 
 ### P0 - Critical
-- None currently
+- **STRIPE API KEY EXPIRED**: Update STRIPE_SECRET_KEY in backend/.env with valid key
 
 ### P1 - High Priority
-- Deploy WorkPassport v2 to AWS Lightsail
+- **OTP/Signup Issues**: Investigate user-reported signup failures on AWS deployment
+- Deploy updates to AWS Lightsail
 - Populate sample job data for WorkPassport users
-- Final user verification of all features
 
 ### P2 - Medium Priority
 - Create Demo Employer Data in Production
-- Enhanced OTP delivery logging
+- Expand i18n translations across the application
+- Final user verification & regression testing
 
 ### P3 - Future
 - Build Franchise Management UI
-- Full RTL language support (Arabic, Hebrew)
 - SOC2 compliance certification
 - Multi-region deployment
 
@@ -131,41 +192,60 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 ├── backend/
 │   ├── auth/
 │   │   ├── dependencies.py
-│   │   └── password.py (bcrypt import removed)
+│   │   └── password.py
 │   ├── routes/
 │   │   ├── auth.py
 │   │   ├── credential_payments.py
+│   │   ├── fundraisers.py (NEW)
 │   │   ├── linkedin.py
-│   │   ├── workpassport.py (unified credentials)
-│   │   └── workforce.py (utcnow fixed)
-│   └── services/
-│       └── blockchain_service.py
+│   │   ├── workpassport.py
+│   │   └── workforce.py
+│   ├── services/
+│   │   └── blockchain_service.py
+│   └── tests/
+│       └── test_fundraisers.py (NEW)
 └── frontend/
     └── src/
         ├── contexts/
-        │   └── LanguageContext.jsx (NEW)
+        │   └── LanguageContext.jsx
         ├── i18n/
-        │   └── translations.json (NEW)
+        │   └── translations.json
         ├── components/
         │   ├── common/
-        │   │   └── LanguageSelector.jsx (NEW)
+        │   │   └── LanguageSelector.jsx
         │   └── layout/
-        │       ├── WorkPassportHeader.jsx (i18n added)
-        │       └── WorkPassportSidebar.jsx (cleaned up)
+        │       ├── WorkPassportHeader.jsx
+        │       └── WorkPassportSidebar.jsx
         └── pages/
             ├── auth/
-            │   └── Login.jsx (i18n added)
+            │   └── Login.jsx
+            ├── donation/
+            │   ├── DonationSuccess.jsx (NEW)
+            │   └── DonationCancelled.jsx (NEW)
+            ├── institution/
+            │   └── Fundraisers.jsx (NEW)
             └── workpassport/
-                ├── Credentials.jsx (background images)
-                ├── ProfilePreview.jsx (NEW)
-                └── Signup.jsx (i18n added)
+                ├── Credentials.jsx
+                ├── Fundraisers.jsx (NEW)
+                ├── ProfilePreview.jsx
+                └── Signup.jsx
 ```
 
 ## Credentials & Test Accounts
-- **WorkPassport**: `work.passport@test.com` / `TestPass123!`
+- **Institution**: `test@institution.com` / `TestPass123!`
+- **WorkPassport**: `test@workpassport.com` / `TestPass123!`
 - **Workforce**: `test@workforce.com` / `TestPass123!`
 - **Employer**: `test@employer.com` / `TestPass123!`
 - **Admin**: `test@admin.com` / `TestPass123!`
+
+## Third-Party Integrations
+- **Stripe**: Payments for credentials and donations (KEY EXPIRED - needs renewal)
+- **SendGrid**: Email notifications
+- **Twilio**: SMS notifications
+- **Google OAuth**: User login
+- **LinkedIn OAuth**: Social login and "Add to Profile"
+- **MongoDB Atlas**: Production cloud database
+- **Google Analytics**: Website traffic analysis
 
 ---
 *Last Updated: January 28, 2026*
