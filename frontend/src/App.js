@@ -453,6 +453,10 @@ function AppRoutes() {
         <Route path="/admin/invoices" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminInvoices /></ProtectedRoute>} />
         <Route path="/admin/partners" element={<ProtectedRoute allowedUserTypes={['admin']}><PartnerManagement /></ProtectedRoute>} />
         
+        {/* Donation Success/Cancel Routes */}
+        <Route path="/donation/success" element={<DonationSuccess />} />
+        <Route path="/donation/cancelled" element={<DonationCancelled />} />
+        
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
