@@ -112,8 +112,8 @@ const LoginForm = () => {
 
   return (
     <div className="min-h-screen flex flex-col px-4" style={{ backgroundColor: theme.bgColor }}>
-      {/* Back Button */}
-      <div className="pt-4 px-4">
+      {/* Top Bar - Back Button & Language */}
+      <div className="pt-4 px-4 flex justify-between items-center">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
@@ -121,6 +121,7 @@ const LoginForm = () => {
           <FiArrowLeft size={20} />
           <span>Back</span>
         </button>
+        <LanguageSelector variant="compact" />
       </div>
       
       <div className="flex-1 flex items-center justify-center">
