@@ -279,7 +279,12 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - ~~**Fundraiser UI**: Complete - Institution and WorkPassport pages working~~
 - ~~**Emma AI**: Verified - Chat widget with GPT-4o-mini responses working~~
 - ~~**Institution Partnership Agreement UI**: Complete - Full UI with acceptance flow~~
-- **Blockchain Integration**: BLOCKED - Awaiting Pinata API keys and deployed smart contract address from user
+- ~~**Blockchain Integration**: Configured - Pinata IPFS working, Polygon RPC connected~~
+  - ✅ Pinata API keys configured and verified
+  - ✅ Infura Polygon RPC configured and connected
+  - ✅ Credentials upload to IPFS successfully
+  - ⚠️ **On-chain minting needs MATIC**: Issuer wallet `0x8a9C7F6656F111e5ab7Dc14a3681C72a68C485a8` has 0 MATIC balance
+  - To enable full on-chain minting, send at least 0.1 MATIC to the issuer wallet
 
 ### P1 - High Priority
 - Populate sample job data for WorkPassport users
