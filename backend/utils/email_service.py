@@ -135,9 +135,8 @@ class EmailService:
         
         return await self.send_email(to_email, subject, html_content, plain_content)
     
-    async def send_password_reset_email(self, to_email: str, full_name: str, reset_token: str):
+    async def send_password_reset_email(self, to_email: str, full_name: str, reset_link: str):
         """Send password reset email"""
-        reset_link = f"{os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')}/reset-password?token={reset_token}"
         
         subject = "Reset Your HR Bank Password"
         
