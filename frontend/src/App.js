@@ -274,6 +274,7 @@ function AppRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/auth/google/callback" element={<GoogleCallback />} />
         <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
         <Route path="/pending-approval" element={<PendingApproval />} />
