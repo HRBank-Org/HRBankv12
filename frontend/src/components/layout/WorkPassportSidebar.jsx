@@ -71,6 +71,16 @@ const WorkPassportSidebar = () => {
     },
     {
       type: 'category',
+      label: 'Community'
+    },
+    {
+      type: 'item',
+      label: 'Fundraisers',
+      icon: FiHeart,
+      path: '/workpassport/fundraisers'
+    },
+    {
+      type: 'category',
       label: 'Profile'
     },
     {
