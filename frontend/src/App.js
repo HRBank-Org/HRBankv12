@@ -152,6 +152,7 @@ import PaymentSuccess from './pages/workforce/PaymentSuccess';
 // Institution pages
 import CredentialMarketplace from './pages/institution/CredentialMarketplace';
 import PayoutsDashboard from './pages/institution/PayoutsDashboard';
+import FinancialSummary from './pages/institution/FinancialSummary';
 
 // LinkedIn OAuth
 import LinkedInCallback from './pages/auth/LinkedInCallback';
