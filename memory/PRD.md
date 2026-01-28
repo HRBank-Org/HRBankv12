@@ -298,14 +298,15 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
   - Documentation: `/app/docs/demo-credentials.md`
 
 ### P2 - Medium Priority
-- **Vulnerability Scanning**: Implement automated security scans
-- **CI/CD Pipeline**: Formalize deployment process
-- **Privacy Impact Assessments**: Document PIA process
-- Create Demo Employer Data in Production
-- Expand i18n translations across the application
-- Final user verification & regression testing
+- ~~Security awareness training documentation~~ ✅ Complete
+- ~~Privacy Impact Assessment documentation~~ ✅ Complete  
+- ~~Public status page~~ ✅ Complete `/status`
+- Formal SLA documentation
+- Capacity planning documentation
+- CI/CD pipeline formalization
+- Vulnerability scanning automation
 
-### P3 - Future
+### P3 - Low Priority (Post Type I)
 - Build Franchise Management UI
 - SOC2 Type II Audit (external auditor)
 - Multi-region deployment
