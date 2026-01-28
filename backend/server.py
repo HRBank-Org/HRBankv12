@@ -81,6 +81,100 @@ async def health_check():
             "error": str(e)
         }
 
+@app.get("/api/health/detailed")
+async def detailed_health_check():
+    """
+    SOC2-compliant detailed health check for monitoring and availability tracking.
+    Returns comprehensive system status including all components.
+    """
+    from datetime import datetime, timezone
+    import platform
+    
+    status = {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "service": "HR Bank API",
+        "version": "1.0.0",
+        "environment": os.environ.get("ENVIRONMENT", "production"),
+        "components": {}
+    }
+    
+    # Database check
+    try:
+        start = datetime.now(timezone.utc)
+        await db.command("ping")
+        latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+        status["components"]["database"] = {
+            "status": "healthy",
+            "type": "MongoDB",
+            "latency_ms": round(latency, 2)
+        }
+    except Exception as e:
+        status["status"] = "degraded"
+        status["components"]["database"] = {
+            "status": "unhealthy",
+            "error": str(e)
+        }
+    
+    # Session service check
+    try:
+        from services.session_manager import session_manager
+        session_counts = await session_manager.get_active_sessions_count()
+        status["components"]["sessions"] = {
+            "status": "healthy",
+            "active_sessions": session_counts
+        }
+    except Exception as e:
+        status["components"]["sessions"] = {
+            "status": "degraded",
+            "error": str(e)
+        }
+    
+    # Audit logging check
+    try:
+        recent_logs = await db.audit_logs.count_documents({})
+        status["components"]["audit_logging"] = {
+            "status": "healthy",
+            "total_logs": recent_logs
+        }
+    except Exception as e:
+        status["components"]["audit_logging"] = {
+            "status": "degraded",
+            "error": str(e)
+        }
+    
+    # Security controls check
+    try:
+        locked_accounts = await db.account_lockouts.count_documents({})
+        status["components"]["security"] = {
+            "status": "healthy",
+            "locked_accounts": locked_accounts
+        }
+    except Exception as e:
+        status["components"]["security"] = {
+            "status": "degraded",
+            "error": str(e)
+        }
+    
+    # System metrics
+    status["system"] = {
+        "python_version": platform.python_version(),
+        "platform": platform.system(),
+        "architecture": platform.machine()
+    }
+    
+    # Check if any component is unhealthy
+    unhealthy_components = [
+        k for k, v in status["components"].items() 
+        if v.get("status") != "healthy"
+    ]
+    
+    if unhealthy_components:
+        status["status"] = "degraded"
+        status["unhealthy_components"] = unhealthy_components
+    
+    return status
+
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.model_dump()
