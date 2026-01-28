@@ -24,7 +24,16 @@ class UserCreate(BaseModel):
     password: str
     user_type: Literal['workforce', 'employer', 'institution']
     full_name: str = Field(..., min_length=2, max_length=100)
-    phone: str = Field(..., pattern=r'^\+1-\d{3}-\d{3}-\d{4}$')
+    phone: Optional[str] = Field(None, pattern=r'^\+1-\d{3}-\d{3}-\d{4}$')
+    country: Optional[str] = None  # For international institutions
+    
+    @validator('phone', always=True)
+    def validate_phone_requirement(cls, v, values):
+        """Phone is required for workforce/employer, optional for institution"""
+        user_type = values.get('user_type')
+        if user_type in ['workforce', 'employer'] and not v:
+            raise ValueError('Phone number is required for workforce and employer accounts')
+        return v
     
     @validator('password')
     def validate_password(cls, v):
