@@ -427,6 +427,7 @@ function AppRoutes() {
         <Route path="/admin/analytics" element={<ProtectedRoute allowedUserTypes={['admin']}><Analytics /></ProtectedRoute>} />
         <Route path="/admin/soc2" element={<ProtectedRoute allowedUserTypes={['admin']}><SOC2Dashboard /></ProtectedRoute>} />
         <Route path="/admin/compliance" element={<ProtectedRoute allowedUserTypes={['admin']}><SOC2Dashboard /></ProtectedRoute>} />
+        <Route path="/admin/revenue" element={<ProtectedRoute allowedUserTypes={['admin']}><RevenueDashboard /></ProtectedRoute>} />
         <Route path="/admin/document-review" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentReview /></ProtectedRoute>} />
         <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageAdmins /></ProtectedRoute>} />
         <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageZones /></ProtectedRoute>} />
