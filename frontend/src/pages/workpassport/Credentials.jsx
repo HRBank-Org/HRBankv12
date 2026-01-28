@@ -330,34 +330,118 @@ const WorkPassportCredentials = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className="grid gap-6">
                 {filteredCredentials.map((credential) => (
                   <div 
                     key={credential.credential_id}
-                    className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                    className="rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all overflow-hidden"
                     data-testid={`credential-card-${credential.credential_id}`}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <FiShield className="text-white" size={24} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-1">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {credential.credential_name}
-                            </h3>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
-                              <FiCheckCircle size={12} />
-                              Blockchain Verified
-                            </span>
+                    {/* Certificate Preview with Background */}
+                    {credential.credential_background_url ? (
+                      <div 
+                        className="relative h-48 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${credential.credential_background_url})` }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                          <div className="flex items-center gap-2 mb-1">
+                            <FiCheckCircle size={16} className="text-green-400" />
+                            <span className="text-xs font-medium bg-green-500/80 px-2 py-0.5 rounded">Blockchain Verified</span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-2">
-                            Issued by <span className="font-medium">{credential.institution_name}</span>
-                          </p>
+                          <h3 className="text-xl font-bold">{credential.credential_name}</h3>
+                          <p className="text-sm text-gray-200">{credential.institution_name}</p>
+                        </div>
+                        {credential.institution_logo && (
+                          <img 
+                            src={credential.institution_logo} 
+                            alt="" 
+                            className="absolute top-4 right-4 w-16 h-16 object-contain bg-white rounded-lg p-2"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <FiCheckCircle size={16} className="text-green-400" />
+                              <span className="text-xs font-medium text-green-400 bg-green-500/20 px-2 py-0.5 rounded">Blockchain Verified</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-white">{credential.credential_name}</h3>
+                            <p className="text-gray-300">{credential.institution_name}</p>
+                          </div>
+                          {credential.institution_logo ? (
+                            <img 
+                              src={credential.institution_logo} 
+                              alt="" 
+                              className="w-16 h-16 object-contain bg-white rounded-lg p-2"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                              <FiShield className="text-white" size={24} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Credential Details */}
+                    <div className="bg-white p-5">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
                           {credential.program_name && (
-                            <p className="text-gray-500 text-sm mb-2">
+                            <p className="text-gray-600 text-sm mb-2">
                               Program: {credential.program_name}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <FiCalendar size={14} />
+                              Issued: {formatDate(credential.issue_date)}
+                            </span>
+                            {credential.expiry_date && (
+                              <span className="flex items-center gap-1">
+                                <FiClock size={14} />
+                                Expires: {formatDate(credential.expiry_date)}
+                              </span>
+                            )}
+                          </div>
+                          {credential.blockchain_transaction_hash && (
+                            <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                              <BlockchainIcon className="w-3 h-3" />
+                              <span className="font-mono truncate max-w-xs">
+                                {credential.blockchain_transaction_hash}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 ml-4">
+                          <button
+                            onClick={() => addToLinkedIn(credential)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white rounded-lg hover:bg-[#004182] transition-colors text-sm font-medium"
+                            title="Add to LinkedIn Profile"
+                            data-testid={`add-linkedin-${credential.credential_id}`}
+                          >
+                            <LinkedInLogo className="w-4 h-4" />
+                            Add to LinkedIn
+                          </button>
+                          <button
+                            onClick={() => window.open(credential.verification_url || `/verify/${credential.credential_id}`, '_blank')}
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                            title="View verification page"
+                          >
+                            <FiExternalLink size={16} />
+                            Verify
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
                             </p>
                           )}
                           <div className="flex items-center gap-4 text-sm text-gray-500">
