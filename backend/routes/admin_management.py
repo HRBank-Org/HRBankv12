@@ -976,6 +976,38 @@ async def get_revenue_overview(
     return {
         "success": True,
         "data": {
+            # Totals
+            "total_revenue": round(total_platform_revenue, 2),
+            "revenue_growth": 0,  # TODO: Calculate vs previous period
+            
+            # Credential breakdown
+            "credential_revenue": round(credential_total, 2),
+            "credential_platform_share": round(credential_platform_share, 2),
+            "credential_institution_share": round(credential_institution_share, 2),
+            "credentials_sold": len(credentials),
+            
+            # Fundraiser breakdown
+            "fundraiser_gross_revenue": round(fundraiser_gross, 2),
+            "fundraiser_platform_fees": round(fundraiser_platform_fees, 2),
+            "fundraiser_institution_share": round(fundraiser_institution_share, 2),
+            "total_donations": len(donations),
+            
+            # Workforce breakdown
+            "workforce_revenue": round(workforce_revenue, 2),
+            "shifts_completed": completed_shifts,
+            
+            # Counts
+            "total_users": total_users,
+            "total_institutions": total_institutions,
+            "active_employers": active_employers,
+            "active_workers": active_workers,
+            "active_fundraisers": active_fundraisers,
+            "avg_credential_price": round(avg_credential_price, 2),
+            
+            # Top performers
+            "top_institutions": top_institutions
+        }
+    }
 
 
 # ==================== SECURITY SESSION MANAGEMENT ====================
