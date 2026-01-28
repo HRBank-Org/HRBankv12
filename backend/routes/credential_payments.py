@@ -140,7 +140,7 @@ async def issue_pending_credential(
     # Get institution info
     institution = await db.institution_profiles.find_one(
         {"institution_id": current_user["user_id"]},
-        {"_id": 0, "institution_name": 1, "logo_url": 1}
+        {"_id": 0, "institution_name": 1, "logo_url": 1, "credential_background_url": 1}
     )
     
     # Check if recipient has an account
@@ -149,6 +149,9 @@ async def issue_pending_credential(
         {"_id": 0, "user_id": 1, "user_type": 1}
     )
     
+    # Use credential-specific background or institution default
+    background_url = credential.credential_background_url or (institution.get("credential_background_url") if institution else None)
+    
     # Create pending credential
     pending_id = f"PEND-{uuid.uuid4().hex[:12].upper()}"
     pending_credential = {
@@ -156,6 +159,7 @@ async def issue_pending_credential(
         "institution_id": current_user["user_id"],
         "institution_name": institution.get("institution_name", "Unknown Institution") if institution else "Unknown Institution",
         "institution_logo": institution.get("logo_url") if institution else None,
+        "credential_background_url": background_url,
         "recipient_email": credential.recipient_email.lower(),
         "recipient_name": credential.recipient_name,
         "student_id": credential.student_id,
