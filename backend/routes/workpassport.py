@@ -357,16 +357,25 @@ async def verify_credential(passport_id: str, credential_id: str):
     Public endpoint for employers to verify a credential.
     Returns verification status and details.
     """
-    credential = await db.workpassport_credentials.find_one(
-        {"passport_id": passport_id, "credential_id": credential_id},
-        {"_id": 0, "supporting_documents": 0}
+    # First check blockchain_credentials (new unified collection)
+    credential = await db.blockchain_credentials.find_one(
+        {"credential_id": credential_id},
+        {"_id": 0}
     )
+    
+    # Fallback to legacy workpassport_credentials for older credentials
+    if not credential:
+        credential = await db.workpassport_credentials.find_one(
+            {"passport_id": passport_id, "credential_id": credential_id},
+            {"_id": 0, "supporting_documents": 0}
+        )
     
     if not credential:
         raise HTTPException(status_code=404, detail="Credential not found")
     
     # Increment verification count
-    await db.workpassport_credentials.update_one(
+    collection = db.blockchain_credentials if "worker_id" in credential else db.workpassport_credentials
+    await collection.update_one(
         {"credential_id": credential_id},
         {"$inc": {"verification_count": 1}}
     )
@@ -380,7 +389,7 @@ async def verify_credential(passport_id: str, credential_id: str):
         "ip_hash": None  # Could hash requester IP for analytics
     })
     
-    is_valid = credential.get("status") == "verified"
+    is_valid = credential.get("status") in ["verified", "issued"]
     is_expired = False
     if credential.get("expiry_date"):
         try:
@@ -401,7 +410,9 @@ async def verify_credential(passport_id: str, credential_id: str):
             "expiry_date": credential.get("expiry_date"),
             "is_expired": is_expired,
             "verified_date": credential.get("verified_date"),
-            "blockchain_hash": credential.get("blockchain_hash")
+            "blockchain_hash": credential.get("credential_hash") or credential.get("blockchain_hash"),
+            "blockchain_tx": credential.get("blockchain_transaction_hash"),
+            "ipfs_url": credential.get("ipfs_url")
         }
     }
 
