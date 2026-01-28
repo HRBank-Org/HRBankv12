@@ -1124,7 +1124,7 @@ async def get_all_partnership_agreements(
             "contact_name": profile.get("contact_name", ""),
             "contact_email": inst.get("email", profile.get("contact_email", "")),
             "country": profile.get("country", "Unknown"),
-            "account_created": inst.get("created_at"),
+            "account_created": inst.get("created_at") or inst.get("created_date"),
             "status": "signed" if agreement else "pending",
             "agreement": None
         }
