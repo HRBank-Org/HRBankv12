@@ -22,7 +22,10 @@ export const AuthProvider = ({ children }) => {
         }
       });
       // Store complete user data including profile
-      setUser(response.data.data);
+      const userData = response.data.data;
+      setUser(userData);
+      // Also store in localStorage for API interceptor
+      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       // Token invalid or expired
       logout();
