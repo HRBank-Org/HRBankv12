@@ -810,7 +810,9 @@ async def forgot_password(request: Request, data: ForgotPasswordRequest, db: Asy
         from utils.email_service import EmailService
         email_service = EmailService()
         
-        frontend_url = os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')
+        frontend_url = os.environ.get('FRONTEND_URL')
+        if not frontend_url:
+            raise HTTPException(status_code=500, detail="FRONTEND_URL not configured")
         reset_link = f"{frontend_url}/reset-password?token={reset_token}"
         
         await email_service.send_password_reset_email(
