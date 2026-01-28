@@ -174,6 +174,32 @@ async def detailed_health_check():
         status["unhealthy_components"] = unhealthy_components
     
     return status
+            "locked_accounts": locked_accounts
+        }
+    except Exception as e:
+        status["components"]["security"] = {
+            "status": "degraded",
+            "error": str(e)
+        }
+    
+    # System metrics
+    status["system"] = {
+        "python_version": platform.python_version(),
+        "platform": platform.system(),
+        "architecture": platform.machine()
+    }
+    
+    # Check if any component is unhealthy
+    unhealthy_components = [
+        k for k, v in status["components"].items() 
+        if v.get("status") != "healthy"
+    ]
+    
+    if unhealthy_components:
+        status["status"] = "degraded"
+        status["unhealthy_components"] = unhealthy_components
+    
+    return status
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
