@@ -11,7 +11,8 @@ import {
   FiChevronRight,
   FiTrendingUp,
   FiBook,
-  FiUsers
+  FiUsers,
+  FiHeart
 } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
