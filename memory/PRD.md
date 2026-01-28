@@ -288,8 +288,14 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
   - 📄 Documentation: `/app/docs/blockchain-configuration.md`
 
 ### P1 - High Priority
-- **Deploy to AWS Lightsail** ← READY
-- Populate sample job data for WorkPassport users
+- ~~**Deploy to AWS Lightsail**~~ ← READY
+- ~~**Populate Sample Data**~~ ← COMPLETE
+  - St. Clair College (Institution)
+  - Loose Goose Hospitality (Employer, 3 locations)
+  - 10 WorkPassport users with credentials
+  - 30 Workforce users with shifts
+  - 1,370 shifts across 2 months
+  - Documentation: `/app/docs/demo-credentials.md`
 
 ### P2 - Medium Priority
 - **Vulnerability Scanning**: Implement automated security scans
