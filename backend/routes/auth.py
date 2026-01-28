@@ -594,6 +594,9 @@ async def verify_email(token: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     Verify email with token from email link
     """
+    import os
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')
+    
     # Find verification record
     verification = await db.email_verifications.find_one({
         "verification_token": token,
@@ -601,34 +604,45 @@ async def verify_email(token: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     })
     
     if not verification:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired verification token"
+        # Redirect to frontend with error
+        return RedirectResponse(
+            url=f"{frontend_url}/login?error=invalid_token",
+            status_code=302
         )
     
     # Check if expired
     expires_at = datetime.fromisoformat(verification["expires_at"])
     if datetime.now(timezone.utc) > expires_at:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Verification token expired"
+        return RedirectResponse(
+            url=f"{frontend_url}/login?error=token_expired",
+            status_code=302
         )
     
     # Mark email as verified
     await db.users.update_one(
         {"user_id": verification["user_id"]},
-        {"$set": {"email_verified": True, "profile_status": "active"}}
+        {"$set": {"email_verified": True}}
     )
+    
+    # Check user type to determine if we should also set profile_status to active
+    user = await db.users.find_one({"user_id": verification["user_id"]})
+    if user and user.get("user_type") == "workpassport":
+        # WorkPassport users are active immediately after email verification
+        await db.users.update_one(
+            {"user_id": verification["user_id"]},
+            {"$set": {"status": "active"}}
+        )
     
     await db.email_verifications.update_one(
         {"verification_token": token},
-        {"$set": {"verified": True}}
+        {"$set": {"verified": True, "verified_at": datetime.now(timezone.utc).isoformat()}}
     )
     
-    return {
-        "success": True,
-        "message": "Email verified successfully"
-    }
+    # Redirect to login with success message
+    return RedirectResponse(
+        url=f"{frontend_url}/login?verified=true",
+        status_code=302
+    )
 
 @router.post("/logout")
 async def logout():
