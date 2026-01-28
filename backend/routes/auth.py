@@ -718,6 +718,143 @@ async def change_password(
         "message": "Password changed successfully"
     }
 
+# ============================================
+# Password Reset Flow
+# ============================================
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+@router.post("/forgot-password")
+@limiter.limit("5/minute")
+async def forgot_password(request: Request, data: ForgotPasswordRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Initiate password reset - sends email with reset link
+    """
+    import os
+    
+    # Find user by email
+    user = await db.users.find_one({"email": data.email.lower()})
+    
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"success": True, "message": "If an account exists with this email, you will receive a password reset link."}
+    
+    # Generate reset token
+    reset_token = uuid.uuid4().hex
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store reset token
+    await db.password_resets.update_one(
+        {"user_id": user["user_id"]},
+        {
+            "$set": {
+                "user_id": user["user_id"],
+                "email": data.email.lower(),
+                "token": reset_token,
+                "expires_at": expires_at.isoformat(),
+                "used": False,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+        },
+        upsert=True
+    )
+    
+    # Get user's name
+    profile = None
+    user_type = user.get("user_type")
+    if user_type == "workforce":
+        profile = await db.workforce_profiles.find_one({"workforce_id": user["user_id"]})
+    elif user_type == "employer":
+        profile = await db.employer_profiles.find_one({"employer_id": user["user_id"]})
+    elif user_type == "institution":
+        profile = await db.institution_profiles.find_one({"institution_id": user["user_id"]})
+    elif user_type == "workpassport":
+        profile = await db.workpassport_profiles.find_one({"user_id": user["user_id"]})
+    
+    full_name = profile.get("full_name", "User") if profile else "User"
+    
+    # Send reset email
+    try:
+        from utils.email_service import EmailService
+        email_service = EmailService()
+        
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')
+        reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+        
+        await email_service.send_password_reset_email(
+            to_email=data.email.lower(),
+            full_name=full_name,
+            reset_link=reset_link
+        )
+        logger.info(f"Password reset email sent to {data.email}")
+    except Exception as e:
+        logger.error(f"Failed to send password reset email: {e}")
+        # Still return success to prevent enumeration
+    
+    return {"success": True, "message": "If an account exists with this email, you will receive a password reset link."}
+
+@router.post("/reset-password")
+@limiter.limit("5/minute")
+async def reset_password(request: Request, data: ResetPasswordRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Reset password using token from email
+    """
+    # Find reset token
+    reset_record = await db.password_resets.find_one({
+        "token": data.token,
+        "used": False
+    })
+    
+    if not reset_record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset link"
+        )
+    
+    # Check if expired
+    expires_at = datetime.fromisoformat(reset_record["expires_at"])
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset link has expired. Please request a new one."
+        )
+    
+    # Validate new password
+    if len(data.new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters long"
+        )
+    
+    # Update password
+    new_password_hash = hash_password(data.new_password)
+    
+    await db.users.update_one(
+        {"user_id": reset_record["user_id"]},
+        {
+            "$set": {
+                "password_hash": new_password_hash,
+                "password_updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    # Mark token as used
+    await db.password_resets.update_one(
+        {"token": data.token},
+        {"$set": {"used": True, "used_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    # Log the password reset
+    logger.info(f"Password reset completed for user {reset_record['user_id']}")
+    
+    return {"success": True, "message": "Password reset successfully. You can now log in with your new password."}
+
 @router.get("/google/status")
 async def google_oauth_status():
     """Check if Google OAuth is configured"""
