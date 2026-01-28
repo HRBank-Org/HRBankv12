@@ -110,6 +110,7 @@ import AuditLogs from './pages/admin/AuditLogs';
 import NotificationSettings from './pages/admin/NotificationSettings';
 import AdminInvoices from './pages/admin/Invoices';
 import PartnerManagement from './pages/admin/PartnerManagement';
+import AdminPartnershipAgreements from './pages/admin/PartnershipAgreements';
 import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
 import WorkerComplianceOnboarding from './pages/workforce/WorkerComplianceOnboarding';
 import Analytics from './pages/admin/Analytics';
