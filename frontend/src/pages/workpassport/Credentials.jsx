@@ -5,7 +5,6 @@ import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
 import api from '../../utils/api';
 import { 
   FiAward, 
-  FiPlus, 
   FiCheckCircle, 
   FiClock, 
   FiAlertCircle,
@@ -13,9 +12,10 @@ import {
   FiCalendar,
   FiSearch,
   FiFilter,
-  FiX,
-  FiUpload,
-  FiFileText
+  FiShield,
+  FiDollarSign,
+  FiArrowRight,
+  FiLink
 } from 'react-icons/fi';
 
 // LinkedIn Logo SVG Component
@@ -25,23 +25,25 @@ const LinkedInLogo = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
+// Blockchain Icon
+const BlockchainIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" />
+    <rect x="14" y="14" width="7" height="7" rx="1" />
+    <path d="M10 6.5h4M6.5 10v4M17.5 10v4M10 17.5h4" />
+  </svg>
+);
+
 const WorkPassportCredentials = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [credentials, setCredentials] = useState([]);
-  const [summary, setSummary] = useState({ total: 0, verified: 0, pending: 0 });
+  const [pendingCredentials, setPendingCredentials] = useState([]);
+  const [summary, setSummary] = useState({ total: 0, verified: 0, pending_payment: 0 });
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addingCredential, setAddingCredential] = useState(false);
-  const [newCredential, setNewCredential] = useState({
-    credential_name: '',
-    credential_type: 'certificate',
-    institution_name: '',
-    description: '',
-    issue_date: '',
-    expiry_date: ''
-  });
 
   useEffect(() => {
     loadCredentials();
@@ -49,10 +51,22 @@ const WorkPassportCredentials = () => {
 
   const loadCredentials = async () => {
     try {
-      const response = await api.get('/api/workpassport/credentials');
-      const data = response.data.data;
-      setCredentials(data.credentials || []);
-      setSummary(data.summary || { total: 0, verified: 0, pending: 0 });
+      // Load verified blockchain credentials
+      const [verifiedRes, pendingRes] = await Promise.all([
+        api.get('/api/workpassport/credentials').catch(() => ({ data: { data: { credentials: [] } } })),
+        api.get('/api/credential-payments/my-pending').catch(() => ({ data: { data: { pending_credentials: [] } } }))
+      ]);
+      
+      const verified = verifiedRes.data.data?.credentials?.filter(c => c.status === 'verified') || [];
+      const pending = pendingRes.data.data?.pending_credentials || [];
+      
+      setCredentials(verified);
+      setPendingCredentials(pending);
+      setSummary({
+        total: verified.length + pending.length,
+        verified: verified.length,
+        pending_payment: pending.length
+      });
     } catch (error) {
       console.error('Failed to load credentials:', error);
     } finally {
@@ -61,7 +75,11 @@ const WorkPassportCredentials = () => {
   };
 
   const addToLinkedIn = (credential) => {
-    // Build LinkedIn Add to Profile URL
+    // Only allow verified credentials to be added to LinkedIn
+    if (credential.status !== 'verified' && credential.status !== 'issued') {
+      return;
+    }
+
     const params = new URLSearchParams();
     params.set('startTask', 'CERTIFICATION_NAME');
     params.set('name', credential.credential_name);
@@ -82,85 +100,30 @@ const WorkPassportCredentials = () => {
       params.set('expirationMonth', (expiryDate.getMonth() + 1).toString());
     }
     
-    // Verification URL - this creates the backlink to WorkPassport
-    const verifyUrl = `${window.location.origin}/verify/${credential.credential_id}`;
+    // Verification URL - blockchain verified link
+    const verifyUrl = credential.verification_url || `${window.location.origin}/verify/${credential.credential_id}`;
     params.set('certUrl', verifyUrl);
     params.set('certId', credential.credential_id);
     
     window.open(`https://www.linkedin.com/profile/add?${params.toString()}`, '_blank');
   };
 
-  const handleAddCredential = async (e) => {
-    e.preventDefault();
-    if (!newCredential.credential_name.trim()) return;
-    
-    setAddingCredential(true);
+  const initiatePayment = async (pendingCredential) => {
     try {
-      await api.post('/api/workpassport/credentials/add-self', newCredential);
-      await loadCredentials();
-      setShowAddModal(false);
-      setNewCredential({
-        credential_name: '',
-        credential_type: 'certificate',
-        institution_name: '',
-        description: '',
-        issue_date: '',
-        expiry_date: ''
+      const response = await api.post('/api/credential-payments/initiate-payment', {
+        pending_credential_id: pendingCredential.pending_credential_id,
+        origin_url: window.location.origin,
+        province: 'ON' // Could be dynamic based on user profile
       });
+      
+      if (response.data.success && response.data.data.checkout_url) {
+        window.location.href = response.data.data.checkout_url;
+      }
     } catch (error) {
-      console.error('Failed to add credential:', error);
-    } finally {
-      setAddingCredential(false);
+      console.error('Failed to initiate payment:', error);
+      alert('Failed to initiate payment. Please try again.');
     }
   };
-
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case 'verified':
-        return { 
-          label: 'Verified', 
-          color: 'bg-green-100 text-green-700 border-green-200',
-          icon: FiCheckCircle,
-          canAddToLinkedIn: true
-        };
-      case 'pending':
-        return { 
-          label: 'Pending Review', 
-          color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-          icon: FiClock,
-          canAddToLinkedIn: false
-        };
-      case 'self_reported':
-        return { 
-          label: 'Self-Reported', 
-          color: 'bg-blue-100 text-blue-700 border-blue-200',
-          icon: FiFileText,
-          canAddToLinkedIn: true // Allow adding self-reported too
-        };
-      case 'rejected':
-        return { 
-          label: 'Rejected', 
-          color: 'bg-red-100 text-red-700 border-red-200',
-          icon: FiAlertCircle,
-          canAddToLinkedIn: false
-        };
-      default:
-        return { 
-          label: status || 'Unknown', 
-          color: 'bg-gray-100 text-gray-700 border-gray-200',
-          icon: FiAward,
-          canAddToLinkedIn: false
-        };
-    }
-  };
-
-  const filteredCredentials = credentials.filter(cred => {
-    const matchesFilter = filter === 'all' || cred.status === filter;
-    const matchesSearch = !searchTerm || 
-      cred.credential_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cred.institution_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
@@ -170,6 +133,27 @@ const WorkPassportCredentials = () => {
       day: 'numeric'
     });
   };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency: 'CAD'
+    }).format(price);
+  };
+
+  const filteredCredentials = credentials.filter(cred => {
+    const matchesSearch = !searchTerm || 
+      cred.credential_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cred.institution_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
+
+  const filteredPending = pendingCredentials.filter(cred => {
+    const matchesSearch = !searchTerm || 
+      cred.credential_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cred.institution_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
 
   if (loading) {
     return (
@@ -191,16 +175,16 @@ const WorkPassportCredentials = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-1">My Credentials</h1>
               <p className="text-gray-600">
-                Manage your verified certifications and qualifications
+                Blockchain-verified credentials from trusted institutions
               </p>
             </div>
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => navigate('/institutions')}
               className="flex items-center gap-2 px-5 py-2.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-medium"
-              data-testid="add-credential-btn"
+              data-testid="find-institutions-btn"
             >
-              <FiPlus size={18} />
-              Add Credential
+              <FiSearch size={18} />
+              Find Institutions
             </button>
           </div>
         </div>
@@ -211,8 +195,30 @@ const WorkPassportCredentials = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                  <FiCheckCircle className="text-green-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Verified Credentials</p>
+                  <p className="text-2xl font-bold text-gray-900">{summary.verified}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                  <FiDollarSign className="text-orange-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Awaiting Payment</p>
+                  <p className="text-2xl font-bold text-gray-900">{summary.pending_payment}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
-                  <FiAward className="text-cyan-600" size={24} />
+                  <BlockchainIcon className="text-cyan-600" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Total Credentials</p>
@@ -220,31 +226,9 @@ const WorkPassportCredentials = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                  <FiCheckCircle className="text-green-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Verified</p>
-                  <p className="text-2xl font-bold text-gray-900">{summary.verified}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                  <FiClock className="text-yellow-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900">{summary.pending}</p>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Search and Filter */}
+          {/* Search */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -257,53 +241,97 @@ const WorkPassportCredentials = () => {
                 data-testid="credential-search"
               />
             </div>
-            <div className="flex gap-2">
-              {['all', 'verified', 'pending', 'self_reported'].map((filterOption) => (
-                <button
-                  key={filterOption}
-                  onClick={() => setFilter(filterOption)}
-                  className={`px-4 py-2.5 rounded-lg font-medium transition-colors ${
-                    filter === filterOption
-                      ? 'bg-cyan-500 text-white'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                  }`}
-                  data-testid={`filter-${filterOption}`}
-                >
-                  {filterOption === 'all' ? 'All' : 
-                   filterOption === 'self_reported' ? 'Self-Reported' :
-                   filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* Credentials List */}
-          {filteredCredentials.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 text-center shadow-sm">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FiAward className="text-gray-400" size={32} />
+          {/* Pending Payment Section */}
+          {filteredPending.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <FiDollarSign className="text-orange-500" />
+                Credentials Awaiting Payment
+              </h2>
+              <div className="grid gap-4">
+                {filteredPending.map((credential) => (
+                  <div 
+                    key={credential.pending_credential_id}
+                    className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border-2 border-orange-200"
+                    data-testid={`pending-credential-${credential.pending_credential_id}`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <FiClock className="text-orange-600" size={24} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {credential.credential_name}
+                            </h3>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200">
+                              <FiDollarSign size={12} />
+                              Payment Required
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-2">
+                            Issued by <span className="font-medium">{credential.institution_name}</span>
+                          </p>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <FiCalendar size={14} />
+                              Issued: {formatDate(credential.issue_date)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col items-end gap-2 ml-4">
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-gray-900">{formatPrice(credential.price_cad)}</p>
+                          <p className="text-xs text-gray-500">+ applicable taxes</p>
+                        </div>
+                        <button
+                          onClick={() => initiatePayment(credential)}
+                          className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                          data-testid={`pay-credential-${credential.pending_credential_id}`}
+                        >
+                          Claim Credential
+                          <FiArrowRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No credentials found</h3>
-              <p className="text-gray-500 mb-6">
-                {searchTerm || filter !== 'all' 
-                  ? 'Try adjusting your search or filters'
-                  : 'Start building your credential portfolio'}
-              </p>
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-medium"
-              >
-                <FiPlus size={18} />
-                Add Your First Credential
-              </button>
             </div>
-          ) : (
-            <div className="grid gap-4">
-              {filteredCredentials.map((credential) => {
-                const statusConfig = getStatusConfig(credential.status);
-                const StatusIcon = statusConfig.icon;
-                
-                return (
+          )}
+
+          {/* Verified Credentials Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FiShield className="text-green-500" />
+              Verified Credentials
+            </h2>
+            
+            {filteredCredentials.length === 0 ? (
+              <div className="bg-white rounded-2xl p-12 text-center shadow-sm">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FiAward className="text-gray-400" size={32} />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No verified credentials yet</h3>
+                <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                  Get your credentials verified by trusted institutions. Once verified, they're secured on the blockchain and can be shared on LinkedIn.
+                </p>
+                <button
+                  onClick={() => navigate('/institutions')}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-medium"
+                >
+                  <FiSearch size={18} />
+                  Browse Institutions
+                </button>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {filteredCredentials.map((credential) => (
                   <div 
                     key={credential.credential_id}
                     className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
@@ -311,25 +339,25 @@ const WorkPassportCredentials = () => {
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-4 flex-1">
-                        <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <FiAward className="text-white" size={24} />
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <FiShield className="text-white" size={24} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-1">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                            <h3 className="text-lg font-semibold text-gray-900">
                               {credential.credential_name}
                             </h3>
-                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${statusConfig.color}`}>
-                              <StatusIcon size={12} />
-                              {statusConfig.label}
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
+                              <FiCheckCircle size={12} />
+                              Blockchain Verified
                             </span>
                           </div>
                           <p className="text-gray-600 text-sm mb-2">
-                            {credential.institution_name || 'Self-Reported'}
+                            Issued by <span className="font-medium">{credential.institution_name}</span>
                           </p>
-                          {credential.description && (
-                            <p className="text-gray-500 text-sm mb-3 line-clamp-2">
-                              {credential.description}
+                          {credential.program_name && (
+                            <p className="text-gray-500 text-sm mb-2">
+                              Program: {credential.program_name}
                             </p>
                           )}
                           <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -344,39 +372,78 @@ const WorkPassportCredentials = () => {
                               </span>
                             )}
                           </div>
+                          {credential.blockchain_transaction_hash && (
+                            <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                              <BlockchainIcon className="w-3 h-3" />
+                              <span className="font-mono truncate max-w-xs">
+                                {credential.blockchain_transaction_hash}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
                       {/* Action Buttons */}
                       <div className="flex items-center gap-2 ml-4">
-                        {statusConfig.canAddToLinkedIn && (
-                          <button
-                            onClick={() => addToLinkedIn(credential)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white rounded-lg hover:bg-[#004182] transition-colors text-sm font-medium"
-                            title="Add to LinkedIn Profile"
-                            data-testid={`add-linkedin-${credential.credential_id}`}
-                          >
-                            <LinkedInLogo className="w-4 h-4" />
-                            Add to LinkedIn
-                          </button>
-                        )}
-                        {credential.status === 'verified' && (
-                          <button
-                            onClick={() => window.open(`/verify/${credential.credential_id}`, '_blank')}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                            title="View verification page"
-                          >
-                            <FiExternalLink size={16} />
-                            View
-                          </button>
-                        )}
+                        <button
+                          onClick={() => addToLinkedIn(credential)}
+                          className="flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white rounded-lg hover:bg-[#004182] transition-colors text-sm font-medium"
+                          title="Add to LinkedIn Profile"
+                          data-testid={`add-linkedin-${credential.credential_id}`}
+                        >
+                          <LinkedInLogo className="w-4 h-4" />
+                          Add to LinkedIn
+                        </button>
+                        <button
+                          onClick={() => window.open(credential.verification_url || `/verify/${credential.credential_id}`, '_blank')}
+                          className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                          title="View verification page"
+                        >
+                          <FiExternalLink size={16} />
+                          Verify
+                        </button>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* How It Works Banner */}
+          <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-8 text-white">
+            <h3 className="text-xl font-bold mb-4">How Credential Verification Works</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">1</div>
+                <div>
+                  <p className="font-medium mb-1">Institution Issues</p>
+                  <p className="text-sm text-gray-400">Your school or training provider issues your credential</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">2</div>
+                <div>
+                  <p className="font-medium mb-1">You Pay & Claim</p>
+                  <p className="text-sm text-gray-400">Pay the verification fee to claim your credential</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">3</div>
+                <div>
+                  <p className="font-medium mb-1">Blockchain Secured</p>
+                  <p className="text-sm text-gray-400">Your credential is permanently recorded on the blockchain</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">4</div>
+                <div>
+                  <p className="font-medium mb-1">Share Anywhere</p>
+                  <p className="text-sm text-gray-400">Add to LinkedIn, share with employers worldwide</p>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
 
           {/* LinkedIn Info Banner */}
           <div className="mt-8 bg-gradient-to-r from-[#0A66C2] to-[#004182] rounded-2xl p-6 text-white">
@@ -385,141 +452,16 @@ const WorkPassportCredentials = () => {
                 <LinkedInLogo className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-1">Boost Your Professional Profile</h3>
+                <h3 className="text-lg font-semibold mb-1">Stand Out on LinkedIn</h3>
                 <p className="text-blue-100 text-sm">
-                  Add your verified credentials to LinkedIn with one click. Employers searching LinkedIn will see your certifications with verification links back to WorkPassport.
+                  Unlike self-reported credentials, your blockchain-verified credentials include a verification link. 
+                  Employers can instantly confirm your qualifications are real.
                 </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Add Credential Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Add Credential</h2>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <FiX size={20} />
-                </button>
-              </div>
-              <p className="text-gray-500 text-sm mt-1">
-                Add a self-reported credential. You can request verification later.
-              </p>
-            </div>
-            
-            <form onSubmit={handleAddCredential} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Credential Name *
-                </label>
-                <input
-                  type="text"
-                  value={newCredential.credential_name}
-                  onChange={(e) => setNewCredential(prev => ({ ...prev, credential_name: e.target.value }))}
-                  placeholder="e.g., Food Safety Certificate"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  required
-                  data-testid="credential-name-input"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type
-                </label>
-                <select
-                  value={newCredential.credential_type}
-                  onChange={(e) => setNewCredential(prev => ({ ...prev, credential_type: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                >
-                  <option value="certificate">Certificate</option>
-                  <option value="license">License</option>
-                  <option value="degree">Degree</option>
-                  <option value="diploma">Diploma</option>
-                  <option value="course">Course Completion</option>
-                  <option value="badge">Digital Badge</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Issuing Institution
-                </label>
-                <input
-                  type="text"
-                  value={newCredential.institution_name}
-                  onChange={(e) => setNewCredential(prev => ({ ...prev, institution_name: e.target.value }))}
-                  placeholder="e.g., National Food Safety Institute"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={newCredential.description}
-                  onChange={(e) => setNewCredential(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Brief description of the credential..."
-                  rows={3}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Issue Date
-                  </label>
-                  <input
-                    type="date"
-                    value={newCredential.issue_date}
-                    onChange={(e) => setNewCredential(prev => ({ ...prev, issue_date: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Expiry Date
-                  </label>
-                  <input
-                    type="date"
-                    value={newCredential.expiry_date}
-                    onChange={(e) => setNewCredential(prev => ({ ...prev, expiry_date: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={addingCredential || !newCredential.credential_name.trim()}
-                  className="flex-1 px-4 py-2.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  data-testid="submit-credential-btn"
-                >
-                  {addingCredential ? 'Adding...' : 'Add Credential'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
