@@ -48,7 +48,6 @@ class DonationCreate(BaseModel):
 async def create_fundraiser(
     data: FundraiserCreate,
     current_user: dict = Depends(require_role("institution")),
-    db = Depends(get_db)
 ):
     """Create a new fundraiser (institution only)"""
     institution_id = current_user["user_id"]
@@ -99,7 +98,6 @@ async def create_fundraiser(
 @router.get("/institution/list")
 async def get_institution_fundraisers(
     current_user: dict = Depends(require_role("institution")),
-    db = Depends(get_db)
 ):
     """Get all fundraisers for the current institution"""
     fundraisers = await db.fundraisers.find(
@@ -119,7 +117,6 @@ async def get_institution_fundraisers(
 async def get_fundraiser_details(
     fundraiser_id: str,
     current_user: dict = Depends(require_role("institution")),
-    db = Depends(get_db)
 ):
     """Get detailed fundraiser info including donors (institution only)"""
     fundraiser = await db.fundraisers.find_one(
@@ -150,7 +147,6 @@ async def update_fundraiser(
     fundraiser_id: str,
     data: FundraiserUpdate,
     current_user: dict = Depends(require_role("institution")),
-    db = Depends(get_db)
 ):
     """Update a fundraiser"""
     update_data = {k: v for k, v in data.dict().items() if v is not None}
@@ -170,7 +166,6 @@ async def update_fundraiser(
 async def delete_fundraiser(
     fundraiser_id: str,
     current_user: dict = Depends(require_role("institution")),
-    db = Depends(get_db)
 ):
     """Delete a fundraiser"""
     result = await db.fundraisers.delete_one(
@@ -188,7 +183,6 @@ async def delete_fundraiser(
 @router.get("/my-institutions")
 async def get_my_institution_fundraisers(
     current_user: dict = Depends(require_role("workforce", "workpassport")),
-    db = Depends(get_db)
 ):
     """Get active fundraisers from institutions where user has credentials"""
     user_id = current_user["user_id"]
@@ -248,7 +242,6 @@ async def get_my_institution_fundraisers(
 async def get_public_fundraiser(
     fundraiser_id: str,
     current_user: dict = Depends(require_role("workforce", "workpassport")),
-    db = Depends(get_db)
 ):
     """Get a single fundraiser (must have credential from that institution)"""
     user_id = current_user["user_id"]
@@ -296,7 +289,6 @@ async def donate_to_fundraiser(
     fundraiser_id: str,
     data: DonationCreate,
     current_user: dict = Depends(require_role("workforce", "workpassport")),
-    db = Depends(get_db)
 ):
     """Make a donation to a fundraiser using Stripe"""
     import stripe
@@ -386,7 +378,6 @@ async def donate_to_fundraiser(
 @router.post("/webhook/donation-complete")
 async def handle_donation_webhook(
     session_id: str,
-    db = Depends(get_db)
 ):
     """Process completed donation (called after Stripe webhook or success redirect)"""
     import stripe
