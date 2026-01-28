@@ -328,6 +328,27 @@ async def startup_tasks():
         logger.info("Document expiry scheduler initialized successfully")
     except Exception as e:
         logger.error(f"Failed to start document expiry scheduler: {str(e)}")
+    
+    # Start session cleanup scheduler
+    try:
+        import asyncio
+        from services.session_manager import session_manager
+        
+        async def session_cleanup_task():
+            """Run session cleanup every 15 minutes"""
+            while True:
+                try:
+                    await asyncio.sleep(900)  # 15 minutes
+                    results = await session_manager.run_security_cleanup()
+                    if results["total_cleaned"] > 0:
+                        logger.info(f"Session cleanup: {results['total_cleaned']} stale sessions removed")
+                except Exception as e:
+                    logger.error(f"Session cleanup error: {e}")
+        
+        asyncio.create_task(session_cleanup_task())
+        logger.info("Session cleanup scheduler initialized (runs every 15 minutes)")
+    except Exception as e:
+        logger.error(f"Failed to start session cleanup scheduler: {str(e)}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
