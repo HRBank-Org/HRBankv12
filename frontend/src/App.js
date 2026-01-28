@@ -20,6 +20,7 @@ import WorkPassportOccupations from './pages/workpassport/Occupations';
 import UpgradeToWorkforce from './pages/workpassport/UpgradeToWorkforce';
 import WorkPassportSettings from './pages/workpassport/Settings';
 import WorkPassportJobs from './pages/workpassport/Jobs';
+import WorkPassportCredentials from './pages/workpassport/Credentials';
 
 // Landing & Common
 import LandingPage from './pages/LandingPage';
