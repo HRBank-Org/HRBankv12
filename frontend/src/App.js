@@ -31,7 +31,6 @@ import InstitutionsLanding from './pages/landing/InstitutionsLanding';
 import EmployersLanding from './pages/landing/EmployersLanding';
 import PublicJobsPage from './pages/PublicJobsPage';
 import SubdomainPortal from './pages/SubdomainPortal';
-import ForgotPassword from './pages/ForgotPassword';
 import { isSubdomainPortal } from './utils/subdomainDetector';
 
 // Workforce pages
