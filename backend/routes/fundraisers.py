@@ -79,8 +79,11 @@ async def create_fundraiser(
         "media_url": data.media_url,
         "media_type": data.media_type,
         "end_date": data.end_date,
-        "raised_amount": 0.0,
+        "raised_amount": 0.0,           # Net amount to institution
+        "gross_raised_amount": 0.0,     # Total from donors
+        "platform_fees_total": 0.0,     # Platform fees collected
         "donor_count": 0,
+        "platform_fee_percentage": PLATFORM_FEE_PERCENTAGE * 100,  # Store as 5 (percent)
         "is_active": True,
         "created_at": now,
         "updated_at": now
