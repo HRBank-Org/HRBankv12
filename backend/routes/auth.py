@@ -51,13 +51,14 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
             detail="Email already registered"
         )
     
-    # Check if phone already exists
-    existing_phone = await db.users.find_one({"phone": user_data.phone})
-    if existing_phone:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Phone number already registered"
-        )
+    # Check if phone already exists (only if phone provided)
+    if user_data.phone:
+        existing_phone = await db.users.find_one({"phone": user_data.phone})
+        if existing_phone:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Phone number already registered"
+            )
     
     # Create user
     user_id = f"usr_{uuid.uuid4().hex[:12]}"
