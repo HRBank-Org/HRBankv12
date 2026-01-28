@@ -16,6 +16,7 @@ const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleAvailable, setGoogleAvailable] = useState(true);
   const [selectedUserType, setSelectedUserType] = useState('workforce');
@@ -24,10 +25,21 @@ const LoginForm = () => {
   const theme = useTheme();
   const [searchParams] = useSearchParams();
 
-  // Check for OAuth error and set initial user type from URL
+  // Check for OAuth error, verification status, and set initial user type from URL
   React.useEffect(() => {
-    if (searchParams.get('error') === 'google_auth_failed') {
+    // Handle errors
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'google_auth_failed') {
       setError('Google sign-in failed. Please try again or use email/password.');
+    } else if (errorParam === 'invalid_token') {
+      setError('Invalid or expired verification link. Please request a new one.');
+    } else if (errorParam === 'token_expired') {
+      setError('Verification link has expired. Please request a new one.');
+    }
+    
+    // Handle success
+    if (searchParams.get('verified') === 'true') {
+      setSuccess('Email verified successfully! You can now log in.');
     }
     
     // Set user type from URL parameter
