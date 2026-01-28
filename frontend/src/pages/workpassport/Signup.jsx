@@ -126,7 +126,7 @@ const WorkPassportSignup = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Header */}
-      <div className="px-6 py-4">
+      <div className="px-6 py-4 flex justify-between items-center">
         <button
           onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)}
           className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
@@ -134,6 +134,7 @@ const WorkPassportSignup = () => {
           <FiArrowLeft size={20} />
           <span>Back</span>
         </button>
+        <LanguageSelector variant="compact" className="text-white" />
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
