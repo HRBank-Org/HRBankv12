@@ -339,10 +339,10 @@ async def get_my_pending_credentials(
 
 @router.get("/my-purchased")
 async def get_my_purchased_credentials(
-    current_user: dict = Depends(require_role("workforce")),
+    current_user: dict = Depends(require_role("workforce", "workpassport")),
     db = Depends(get_db)
 ):
-    """Get all credentials purchased by workforce"""
+    """Get all credentials purchased by user"""
     user = await db.users.find_one(
         {"user_id": current_user["user_id"]},
         {"_id": 0, "email": 1}
