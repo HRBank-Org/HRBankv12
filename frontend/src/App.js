@@ -303,6 +303,7 @@ function AppRoutes() {
         
         {/* Legal Pages */}
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/status" element={<StatusPage />} />
         
         {/* Workforce Routes */}
         <Route path="/workforce/onboarding" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceOnboarding /></ProtectedRoute>} />
