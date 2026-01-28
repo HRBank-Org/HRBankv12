@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from typing import Dict
-from datetime import datetime
+from datetime import datetime, timezone
+import uuid
 from auth.dependencies import get_current_user
 from models.eula import EULAAcceptance, EULADocument
 
