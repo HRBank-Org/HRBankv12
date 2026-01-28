@@ -288,11 +288,11 @@ async def get_institution_payouts(
     }
 
 # ============================================
-# Workforce Endpoints
+# Workforce & WorkPassport Endpoints
 # ============================================
 @router.get("/my-pending")
 async def get_my_pending_credentials(
-    current_user: dict = Depends(require_role("workforce")),
+    current_user: dict = Depends(require_role("workforce", "workpassport")),
     db = Depends(get_db)
 ):
     """Get all pending credentials waiting for payment"""
