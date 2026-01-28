@@ -397,7 +397,7 @@ async def get_public_profile(share_token: str):
     profile = await db.workpassport_profiles.find_one(
         {"share_token": share_token},
         {"_id": 0, "user_id": 0, "share_token": 0}  # Hide sensitive fields
-400|    )
+    )
     
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
