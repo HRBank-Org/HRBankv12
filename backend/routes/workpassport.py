@@ -293,91 +293,10 @@ async def get_my_credentials(
     }
 
 
-@router.post("/credentials/request")
-async def request_credential_verification(
-    request: CredentialRequest,
-    user_id: str = Header(..., alias="X-User-ID")
-):
-    """
-    Request credential verification from an institution.
-    Institution will review and verify/reject.
-    """
-    # Verify institution exists
-    institution = await db.institution_profiles.find_one(
-        {"user_id": request.institution_id, "status": "active"}
-    )
-    if not institution:
-        raise HTTPException(status_code=404, detail="Institution not found")
-    
-    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
-    if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
-    
-    now = datetime.now(timezone.utc).isoformat()
-    credential_id = gen_id("cred")
-    
-    credential = {
-        "credential_id": credential_id,
-        "user_id": user_id,
-        "passport_id": profile["passport_id"],
-        "institution_id": request.institution_id,
-        "institution_name": institution.get("institution_name", ""),
-        
-        "credential_type": request.credential_type,
-        "credential_name": request.credential_name,
-        "issue_date": request.issue_date,
-        "expiry_date": request.expiry_date,
-        "external_credential_id": request.credential_id,
-        "supporting_documents": request.supporting_documents,
-        
-        # Verification
-        "status": "pending",  # pending, verified, rejected
-        "verified_date": None,
-        "verified_by": None,
-        "rejection_reason": None,
-        
-        # Blockchain (for verified credentials)
-        "blockchain_hash": None,
-        "blockchain_tx": None,
-        
-        # Tracking
-        "verification_count": 0,  # Times this credential was verified by employers
-        
-        "created_date": now,
-        "updated_date": now
-    }
-    
-    await db.workpassport_credentials.insert_one(credential)
-    
-    # Update profile stats
-    await db.workpassport_profiles.update_one(
-        {"user_id": user_id},
-        {
-            "$inc": {"total_credentials": 1, "pending_credentials": 1},
-            "$set": {"updated_date": now}
-        }
-    )
-    
-    # Notify institution
-    await db.notifications.insert_one({
-        "notification_id": gen_id("notif"),
-        "user_id": request.institution_id,
-        "type": "credential_verification_request",
-        "title": "New Credential Verification Request",
-        "message": f"{profile['full_name']} is requesting verification for: {request.credential_name}",
-        "data": {"credential_id": credential_id, "requester_id": user_id},
-        "read": False,
-        "created_date": now
-    })
-    
-    return {
-        "success": True,
-        "data": {
-            "credential_id": credential_id,
-            "status": "pending",
-            "message": f"Verification request sent to {institution.get('institution_name')}"
-        }
-    }
+# DEPRECATED: User-initiated credential request removed
+# All credentials must now be issued by institutions via /credential-payments/issue-pending
+# This ensures trust - institutions decide who gets credentials, not users claiming them
+# @router.post("/credentials/request") - REMOVED
 
 
 # DEPRECATED: Self-reported credentials removed to maintain trust and verification integrity
