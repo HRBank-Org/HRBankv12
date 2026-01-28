@@ -153,28 +153,51 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
         print(f"{'='*50}\n")
     
     # Send Phone OTP via Twilio (don't fail signup if SMS fails)
-    try:
-        from services.sms_service import send_sms, format_phone_e164
-        formatted_phone = format_phone_e164(user_data.phone)
-        if formatted_phone:
-            sms_result = await send_sms(
-                formatted_phone,
-                f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
-            )
-            if not sms_result.get("success"):
-                logger.warning(f"Failed to send SMS OTP to {user_data.phone}: {sms_result.get('error')}")
+    # Note: Phone is optional for institutions
+    phone_otp_sent = False
+    if user_data.phone:
+        try:
+            from services.sms_service import send_sms, format_phone_e164
+            formatted_phone = format_phone_e164(user_data.phone)
+            if formatted_phone:
+                sms_result = await send_sms(
+                    formatted_phone,
+                    f"Your HR Bank verification code is: {phone_otp}. Valid for 10 minutes."
+                )
+                if sms_result.get("success"):
+                    phone_otp_sent = True
+                else:
+                    logger.warning(f"Failed to send SMS OTP to {user_data.phone}: {sms_result.get('error')}")
+                    print(f"\n{'='*50}")
+                    print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
+                    print(f"{'='*50}\n")
+            else:
                 print(f"\n{'='*50}")
                 print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
                 print(f"{'='*50}\n")
-        else:
+        except Exception as e:
+            logger.error(f"Error sending SMS OTP: {str(e)}")
             print(f"\n{'='*50}")
             print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
             print(f"{'='*50}\n")
-    except Exception as e:
-        logger.error(f"Error sending SMS OTP: {str(e)}")
-        print(f"\n{'='*50}")
-        print(f"📱 PHONE OTP for {user_data.phone}: {phone_otp}")
-        print(f"{'='*50}\n")
+    else:
+        # No phone provided (institution without phone)
+        # Mark phone as pre-verified since it's not required
+        if user_data.user_type == "institution":
+            await db.signup_otps.update_one(
+                {"user_id": user_id},
+                {"$set": {"phone_verified": True}}
+            )
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"phone_verified": True}}
+            )
+    
+    # Determine verification message
+    if user_data.phone:
+        verification_msg = "Please verify your email and phone with the OTPs sent."
+    else:
+        verification_msg = "Please verify your email with the OTP sent."
     
     return {
         "success": True,
@@ -184,9 +207,10 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
             "phone": user_data.phone,
             "user_type": user_data.user_type,
             "requires_verification": True,
-            "message": "Please verify your email and phone with the OTPs sent."
+            "requires_phone_verification": bool(user_data.phone),
+            "message": verification_msg
         },
-        "message": "Account created. Please verify your email and phone."
+        "message": f"Account created. {verification_msg}"
     }
 
 
