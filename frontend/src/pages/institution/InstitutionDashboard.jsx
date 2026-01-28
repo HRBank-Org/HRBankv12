@@ -403,6 +403,13 @@ const InstitutionDashboard = () => {
               color="#ec4899"
             />
             <QuickActionCard
+              icon="📜"
+              title="Partnership Agreement"
+              description="View and accept partnership terms"
+              onClick={() => navigate('/institution/partnership-agreement')}
+              color="#6366f1"
+            />
+            <QuickActionCard
               icon="📄"
               title="Upload Transcripts"
               description="Process transcripts with AI extraction"
