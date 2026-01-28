@@ -469,6 +469,28 @@ async def handle_donation_webhook(
                 "read": False,
                 "created_at": now
             })
+            
+            # Send email notification to institution
+            try:
+                # Get institution user and profile
+                institution_user = await db.users.find_one({"user_id": fundraiser["institution_id"]})
+                if institution_user and institution_user.get("email"):
+                    from utils.email_service import EmailService
+                    email_service = EmailService()
+                    
+                    await email_service.send_donation_notification_email(
+                        to_email=institution_user["email"],
+                        institution_name=fundraiser.get("institution_name", "Your Institution"),
+                        donor_name=metadata.get("donor_name", "Anonymous"),
+                        amount=gross_amount,
+                        net_amount=net_amount,
+                        fundraiser_title=fundraiser["title"],
+                        message=metadata.get("message")
+                    )
+                    logger.info(f"Donation notification email sent to {institution_user['email']}")
+            except Exception as email_error:
+                logger.error(f"Failed to send donation notification email: {email_error}")
+                # Don't fail the webhook if email fails
         
         return {
             "success": True,
