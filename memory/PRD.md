@@ -27,6 +27,16 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### SOC2 Compliance Framework ✅ (Jan 28, 2026)
+- **Audit Logging**: Comprehensive event tracking with 30+ event types, tamper-evident checksums, 7-year retention
+- **Security Controls**: Account lockout (5 attempts), rate limiting, suspicious activity detection
+- **Session Management**: 8-hour timeout, max 5 concurrent sessions, forced logout capability
+- **Encryption**: Field-level encryption for PII (AES-256/Fernet), optional AWS KMS integration
+- **Data Retention**: PIPEDA-compliant export/deletion, retention schedules, anonymization
+- **Consent Management**: Required/optional consent tracking with versioning
+- **Compliance Dashboard**: `/admin/soc2` - Real-time security monitoring for admins
+- **Documentation**: Security policies, incident response playbook, SOC2 readiness assessment
+
 ### Fundraiser Feature ✅ (Jan 28, 2026)
 - **Institution Fundraiser Management**: Create, list, update, delete campaigns
 - **Graduate/WorkPassport Access**: Users can view fundraisers from credential-issuing institutions
