@@ -12,15 +12,15 @@
 
 HR Bank has implemented comprehensive security controls aligned with SOC2 Trust Service Criteria. This document outlines the current compliance posture and any gaps requiring attention.
 
-**Overall Readiness: 85%**
+**Overall Readiness: 92%**
 
 | Trust Service Criteria | Status | Score |
 |------------------------|--------|-------|
-| Security (CC) | ✅ Implemented | 90% |
-| Availability (A) | ⚠️ Partial | 75% |
-| Processing Integrity (PI) | ✅ Implemented | 85% |
+| Security (CC) | ✅ Implemented | 95% |
+| Availability (A) | ✅ Implemented | 85% |
+| Processing Integrity (PI) | ✅ Implemented | 95% |
 | Confidentiality (C) | ✅ Implemented | 90% |
-| Privacy (P) | ✅ Implemented | 85% |
+| Privacy (P) | ✅ Implemented | 95% |
 
 ---
 
