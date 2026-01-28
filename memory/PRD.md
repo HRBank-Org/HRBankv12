@@ -27,6 +27,28 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### Super Admin Revenue Dashboard ✅ (Jan 28, 2026)
+- **Unified Revenue View**: `/admin/revenue` with all revenue streams
+- **Credential Revenue**: Total + 50/50 platform-institution split
+- **Fundraiser Revenue**: Gross donations + 5% platform fees + net to institutions
+- **Workforce Revenue**: Shift-based platform fees
+- **Top Institutions**: Leaderboard by total revenue generated
+- **User & Engagement Stats**: Total users, institutions, active fundraisers
+
+### Session Security Hardening ✅ (Jan 28, 2026)
+- **Inactive Session Cleanup**: Sessions with 60+ minutes inactivity auto-terminated
+- **Scheduled Cleanup**: Runs every 15 minutes via background task
+- **Admin Controls**: Manual cleanup trigger at `/api/admin/security/cleanup-sessions`
+- **Session Statistics**: `/api/admin/security/session-stats` for monitoring
+- **Audit Logging**: All bulk session terminations logged for SOC2
+
+### International Institution Support ✅ (Jan 28, 2026)
+- **Differentiated Document Requirements**:
+  - **Canadian Institutions**: Business Registration + Registrar ID + Accreditation (optional)
+  - **International Institutions**: Institution Registration + Contact Person ID + Official Letterhead + Accreditation (optional)
+- **No SMS Requirement**: International institutions can sign up with email-only verification
+- **Flexible but Secure**: Letterhead requirement ensures authorization without country-specific docs
+
 ### Password Reset Flow ✅ (Jan 28, 2026)
 - **Forgot Password**: Email with reset link (1-hour expiry)
 - **Reset Password**: Token-based password reset with validation
