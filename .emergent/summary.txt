@@ -1,202 +1,190 @@
 <analysis>**original_problem_statement:**
-The user initially requested assistance with deploying the application to AWS Lightsail, which led to a series of feature requests: updating workplace addresses, adding a co-op/volunteer feature, fixing role type naming ambiguity, adding Google Analytics tracking, building a partner API for job forwarding (for a partner named CleanGrid), and creating a comprehensive invoicing system with PDF generation.
+The user initially requested assistance with deploying the application to AWS Lightsail, which evolved into a series of feature requests including updating workplace addresses, adding a co-op/volunteer feature, fixing role type naming ambiguity, adding Google Analytics, building a partner API for job forwarding (for a partner named CleanGrid), and creating a comprehensive invoicing system with PDF generation.
 
-The core of the project then shifted to a major strategic pivot: making the application's WorkPassport and Institutions features available globally. This involved separating the user base into WorkPassport (global, for credentials) and Workforce (Canada-only, for jobs). The user has since provided detailed feedback to refine this new WorkPassport feature, requesting a redesign to match the Workforce look and feel, a simplified signup process, and integration with LinkedIn for easier user adoption.
+The project then pivoted to making the WorkPassport feature global, which involved separating the user base into WorkPassport (global, for credentials) and Workforce (Canada-only, for jobs). Subsequent requests focused on refining the WorkPassport, including a UI/UX redesign to match the Workforce aesthetic, simplifying signup, and integrating LinkedIn.
+
+In this session, the user requested:
+1.  To ensure the Upgrade to Workforce flow is only available to Canadian users.
+2.  To add a LinkedIn Add to Profile feature for credentials, which led to a major strategic shift.
+3.  To remove self-reported credentials and enforce a single, paid, institution-verified credential model to differentiate from LinkedIn.
+4.  To fix broken sidebar links in the WorkPassport dashboard.
+5.  To allow institutions to add a background image to credentials.
+6.  To investigate and fix account signup/OTP issues reported by users on the AWS deployment.
+7.  To implement internationalization (i18n) to support global users, specifically adding Arabic and Hindi.
+8.  To resolve technical debt (,  warnings).
+9.  To build a new fundraising system for institutions to create campaigns for their graduates.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React (frontend) and FastAPI (backend) with a MongoDB database. It includes a support ticket system, an invoicing system, a corrected work-order dispatch system for partners (CleanGrid), and Google Analytics.
+The application is a full-stack React/FastAPI app with a MongoDB database.
 
-The WorkPassport feature has been significantly built out and redesigned. It now functions as a lite version of the main Workforce account, sharing the same data structures for credentials and occupational profiles. The UI/UX has been overhauled to match the Workforce design, featuring a new sidebar, header, and dashboard. A simplified signup flow has been implemented to reduce friction.
-
-Crucially, a comprehensive LinkedIn integration has been added, allowing users to sign up and log in with their LinkedIn accounts. The AI assistant, Emma, has also been updated to guide users through connecting their LinkedIn profiles and importing their data.
+The key recent updates include:
+-   **Credential System Overhaul:** The application has moved to a single, unified credential model. The  collection has been removed. All credentials are now stored in , must be issued by an institution, and require payment for verification. The UI/UX has been completely rewritten to support this new flow, removing all self-reporting options.
+-   **Internationalization (i18n):** A language provider and translation system have been implemented, supporting 7 languages (English, French, Spanish, Portuguese, Chinese, Arabic, Hindi) with full RTL support for Arabic. A language selector is present on login/signup pages and in the main user dashboard.
+-   **LinkedIn Integration:** An Add to Profile button is available on verified credentials, allowing users to add them to their LinkedIn profile with a verification link back to the WorkPassport.
+-   **UI/UX Fixes:** Broken links in the WorkPassport sidebar have been fixed, and a new Profile Preview page was created to handle logged-in users viewing their own public profile.
+-   **Credential Background Images:** Institutions can now specify a background image URL when issuing a credential, which is displayed on the credential card for a more authentic look.
+-   **Fundraising Feature (Scaffolding):** Backend routes and frontend pages for a new fundraising system have been created, but the core logic is not yet implemented.
 
 **Last working item**:
--   **Last item agent was working:** Conducting a comprehensive, page-by-page assessment of the newly redesigned WorkPassport feature to prepare for deployment and identify any remaining issues or technical debt. The agent was reviewing the dashboard when the session was interrupted.
+-   **Last item agent was working:** Building a new fundraising system for institutions. The agent created the initial file structure: backend routes (), frontend pages for institutions () and graduates (), and wired them into  and . A bug in the new backend file was fixed, and the services were verified to be running.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** Frontend testing agent. First, continue the manual page-by-page assessment using the . After the manual review and fixing any minor issues, use the  for a full regression test of the WorkPassport and LinkedIn flows before deployment.
+-   **Which testing method agent to use?** Both. The backend API needs to be fully implemented and tested with . The frontend flow requires the  to test creating a fundraiser (as an institution) and viewing/donating to it (as a graduate).
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: LinkedIn login fails with refused to connect error (P0)**
--   **Issue 2: WorkPassport dashboard Share Profile URL is hardcoded (P1)**
--   **Issue 3: Create Demo Employer Data in Production (P2)**
--   **Issue 4: OTP Delivery Complaints (P3)**
+-   **Issue 1: OTP/Account Signup Failures (P0)**
+-   **Issue 2: Create Demo Employer Data in Production (P2)**
 
 **Issues Detail:**
--   **Issue 1: LinkedIn login fails with refused to connect error**
-    -   **Attempted fixes:** The agent verified that the backend generates the correct authorization URL. The agent switched between legacy and OpenID Connect scopes, but the issue persists. The conclusion is that this is a configuration problem within the user's LinkedIn Developer Portal.
+-   **Issue 1: OTP/Account Signup Failures**
+    -   **Attempted fixes:** Enhanced logging was added to the OTP verification flow in  and the SMS service. The root cause is still unknown.
     -   **Next debug checklist:**
-        1.  Instruct the user to log in to their LinkedIn Developer Portal.
-        2.  Verify that the Sign in with LinkedIn using OpenID Connect product is added and active for the app.
-        3.  Confirm that the Authorized Redirect URI  is listed *exactly* as written, with no typos or extra slashes.
-    -   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker for the entire LinkedIn integration feature, which is a key part of the user adoption strategy.
-    -   **Status:** BLOCKED
-    -   **Is recurring issue?** N
+        1.  Review logs from the AWS production environment to find specific errors related to signup or OTP delivery (email or SMS).
+        2.  Check SendGrid and Twilio API response logs for bounced emails or failed SMS messages.
+        3.  Manually test the full signup flow for both Workforce (with OTP) and WorkPassport (simpler flow) to reproduce the issue.
+    -   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker for user acquisition and is preventing redeployment. Fixing it will ensure new users can successfully join the platform.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** Both
-    -   **Blocked on other issue:** User action required in LinkedIn Developer Portal.
+    -   **Blocked on other issue:** None
 
--   **Issue 2: WorkPassport dashboard Share Profile URL is hardcoded**
-    -   **Attempted fixes:** None. The issue was identified during the page-by-page assessment.
-    -   **Next debug checklist:**
-        1.  View .
-        2.  Locate the component responsible for rendering the shareable URL.
-        3.  Replace the hardcoded  URL with a dynamic URL constructed from .
-    -   **Why fix this issue and what will be achieved with the fix?** Fixes a bug that makes the profile sharing feature non-functional on the preview/production environment.
-    -   **Status:** NOT STARTED
-    -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Frontend
-
--   **Issue 3: Create Demo Employer Data in Production**
+-   **Issue 2: Create Demo Employer Data in Production**
     -   **Attempted fixes:** A seed script was created at .
-    -   **Next debug checklist:** Awaiting user decision on execution method.
+    -   **Next debug checklist:** Awaiting user decision on the execution method for the production environment.
     -   **Why fix this issue and what will be achieved with this?** The user's production environment will be populated with a realistic demo employer account for presentations and testing.
     -   **Status:** BLOCKED
     -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Both
+    -   **Should Test frontend/backend/both after fix?** Backend
     -   **Blocked on other issue:** User decision.
 
--   **Issue 4: OTP Delivery Complaints**
-    -   **Attempted fixes:** None in this session.
-    -   **Next debug checklist:** Add more detailed logging for OTP send attempts if the user reports the issue again.
-    -   **Why fix this issue and what will be achieved with this?** This is a critical issue for user onboarding. Enhanced logging will help diagnose the exact point of failure.
-    -   **Status:** NOT STARTED
-    -   **Is recurring issue?** Y
-    -   **Should Test frontend/backend/both after fix?** Backend
-
 **In progress Task List**:
--   **Task 1: Complete Comprehensive Assessment of WorkPassport (P0)**
-    -   **Where to resume:** Continue the page-by-page review of the WorkPassport feature. The agent last assessed the Dashboard and Occupations pages. Next pages to review: Credentials, Jobs, Settings, and the Upgrade to Workforce flow.
-    -   **What will be achieved with this?** A full quality assurance check of the new feature set before presenting it to the user for final verification and deployment.
+-   **Task 1: Complete Fundraiser Feature (P0)**
+    -   **Where to resume:** The backend file  is mostly a shell. The core logic for CRUD operations (Create, Read, Update, Delete fundraisers) and donation processing needs to be built. This includes defining Pydantic models for fundraisers and donations and implementing the Stripe payment flow for donations. The frontend pages ( and ) need to be implemented to consume these APIs.
+    -   **What will be achieved with this?** Institutions will be able to create fundraising campaigns, and their graduates will be able to view and contribute to them via Stripe, providing a new engagement and revenue stream.
     -   **Status:** IN PROGRESS
     -   **Should Test frontend/backend/both after fix?** Both
     -   **Blocked on something:** None.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-  - **P1: Deploy WorkPassport v2:** Once the assessment is complete and all P0/P1 issues are resolved, deploy the new implementation.
-  - **P1: Populate Sample Job Data:** Add sample job data to demonstrate the Job Opportunities page for WorkPassport users.
-  - **P1: Final User Verification:** Ask the user to verify all recently added major features: the redesigned WorkPassport flow and the LinkedIn integration.
+    - **P1: Populate Sample Job Data:** Add sample job data to demonstrate the Job Opportunities page for WorkPassport users.
+    - **P1: Expand i18n Translations:** The i18n framework is in place, but translations are needed for all UI text across the application.
+    - **P2: Final User Verification & Redeployment:** Once the fundraiser feature and signup issues are resolved, conduct a full regression test and prepare for redeployment.
 
 - **Future Tasks (Inherited Backlog):**
-  - Build the Franchise Management UI.
-  - Implement full internationalization (i18n).
-  - Address technical debt ( warning,  usages).
-  - Pursue SOC2 compliance.
+    - Build the Franchise Management UI.
+    - Pursue SOC2 compliance.
 
 **Completed work in this session**
-- **WorkPassport Login Redirect Fixed:** Resolved a critical backend bug that prevented  users from logging in by adding support for the new user type in , , and .
-- **WorkPassport Feature Redesign:** Completely overhauled the WorkPassport UI/UX to align with the Workforce design. This included a new , a simplified , and new pages for , , , and .
-- **LinkedIn Integration Implemented:**
-    - Added Sign in/up with LinkedIn buttons to all authentication pages (, ).
-    - Created backend routes () and frontend components (, ) to handle the full OAuth 2.0 flow.
-    - Added an integration card in  for managing the LinkedIn connection.
-- **AI Assistant (Emma) Enhanced:** Updated  and  to guide users through connecting their LinkedIn account and parsing their profile data.
-- **Data Model Inheritance:** Updated  to ensure WorkPassport users share the same backend logic for credentials and occupations as Workforce users, including a 3-occupation limit.
-- **PWA Cache Busting:** Fixed an issue where PWA users saw outdated content by versioning the service worker () to force a cache refresh.
-- **UI/UX Polish:** Iteratively adjusted the WorkPassport signup page logo size and placement based on specific user feedback.
+-   **Credential System Overhaul:** Completely removed the self-reported credential model. The system is now unified under , requiring institution issuance and payment for verification. Legacy backend endpoints were removed, and the frontend was rewritten to support the new flow.
+-   **Internationalization (i18n) Implemented:** Added a translation system supporting 7 languages (including Arabic and Hindi) with full RTL support. A language selector component was added to key authentication pages and the user header.
+-   **WorkPassport Sidebar Links Fixed:** Repaired broken sidebar links and created a  component to correctly handle users viewing their own public profile.
+-   **Credential Background Image Feature:** Implemented functionality for institutions to add a custom background image to digital credentials, which is then displayed on the frontend.
+-   **Technical Debt Resolved:** Replaced all deprecated  calls with  and removed an unused  import.
+-   **Authentication Flow Fixes:**
+    -   Resolved a bug where frontend API calls were failing by ensuring the  header was correctly passed from the frontend. This involved persisting the user object in localStorage.
+    -   Added enhanced logging to OTP and SMS services to help diagnose signup issues.
+-   **WorkPassport Country Guard:** Ensured the Upgrade to Workforce flow is hidden and inaccessible for non-Canadian users.
+-   **Fundraiser Feature Scaffolding:** Created the necessary backend and frontend files to begin development of the new fundraiser feature.
 
 **Earlier issues found/mentioned but not fixed**
--   **Issue 1: Technical Debt**
-    -   **Debug checklist:**  for , , and identify duplicate  files.
-    -   **Why to solve this issue and what will be achieved with this?** Improves code quality, security, and maintainability.
-    -   **Should Test frontend/backend/both after fix:** Backend
-    -   **Is recurring issue?** Y
+-   None in this session. All identified issues were either resolved or are listed in the pending issues list.
 
 **Known issue recurrence from previous fork**
-- None.
+-   **Issue recurrence in previous fork:** OTP Delivery Complaints
+-   **Recurrence count:** 2
+-   **Status:** IN PROGRESS
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Feature Inheritance:** WorkPassport acts as a lite version of the Workforce user type, sharing backend logic for credentials and occupations while having a distinct frontend experience.
--   **OAuth 2.0 Integration (LinkedIn):** Implemented the full authorization code grant flow for social login, enabling user signup/login and providing a token for future API calls.
--   **Conditional UI/UX:** The application now displays an Upgrade to Workforce prompt conditionally based on the user's country (specifically 'CA'), guiding them through a different user journey.
--   **AI-Driven Actions:** The Emma chatbot was enhanced to trigger frontend actions (e.g., opening the LinkedIn auth flow) from within the chat interface, creating a more interactive user experience.
--   **PWA Cache Busting:** Force-updated the Progressive Web App for all users by incrementing the cache version name in , ensuring new features are not hidden by stale assets.
+-   **Strategic Refactoring:** Pivoted the entire credential model from a free/self-reported system to a paid/institution-verified one, removing legacy code and unifying data structures.
+-   **Internationalization (i18n) & RTL:** Implemented a scalable translation system using React Context, supporting both Left-to-Right and Right-to-Left languages.
+-   **API Authentication:** Corrected a flawed authentication pattern by ensuring a consistent  header was sent with every authenticated frontend request.
+-   **Dynamic UI Rendering:** Implemented conditional rendering for features like the credential background image and the country-specific Upgrade button.
 
 **key DB schema**
--   **users:** Logic was heavily modified to differentiate between  and other user types, particularly in how status is handled ( vs. ).
--   **workpassport_profiles:** This collection stores the main profile data for the global user type.
--   **occupations, credentials:** These collections are now shared between  and  users. Logic was added to enforce a 3-occupation limit for all users.
+-   **workpassport_credentials:** This collection is now **DEPRECATED and REMOVED**.
+-   **blockchain_credentials:** This is the **single source of truth** for all credentials. It now contains fields like .
+-   **fundraisers:** (New - Not yet implemented) Will store fundraiser details: , , , , , etc.
+-   **fundraiser_donations:** (New - Not yet implemented) Will store individual donations: , , , , etc.
 
 **changes in tech stack**
--   No new technologies added, but a significant integration with the LinkedIn API via OAuth 2.0 was implemented using Python's  library on the backend.
+-   No new technologies were added, but the  pattern was implemented manually using React Context for internationalization.
 
 **All files of reference**
--    (Core backend logic for LinkedIn OAuth)
--    (Modified for LinkedIn button)
--    (Redesigned with LinkedIn button and new branding)
--    (The main hub for the new feature)
--    (Contains the LinkedIn connection management UI)
--    (Used for PWA cache busting)
--    (Contains the core logic for the WorkPassport feature)
--    (Contains the AI logic for LinkedIn integration)
+-    (Heavily modified to remove self-reporting and unify credentials)
+-    (Updated to be the primary flow for creating credentials)
+-    (New file for the fundraiser feature)
+-    (Completely rewritten for the new credential model)
+-    (Core of the new i18n system)
+-    (Stores all UI text for different languages)
+-    (Modified to inject the  header)
+-    (Modified to persist user data for the header)
 
 **Areas that need refactoring**:
--   The hardcoded  share URL in  needs to be made dynamic.
--   Technical debt remains: Consolidate duplicate  files and replace deprecated  and  warnings.
+-   The new fundraising endpoints in  need to be secured with proper authentication dependencies () to ensure only authorized users (institutions or graduates) can perform actions.
 
 **key api endpoints**
--   : Initiates the LinkedIn OAuth flow by redirecting the user to LinkedIn.
--   : Handles the callback from LinkedIn after user authorization, exchanges the code for an access token, and creates/logs in the user.
--   : An endpoint for Emma to handle LinkedIn-related tasks initiated from the chat.
--   : Allows WorkPassport users to view job listings.
--   : Allows a WorkPassport user to update their profile information.
--   : Creates an occupation profile, now with a limit of 3 per user.
+-   : (To be built) Create a new fundraiser (Institution only).
+-   : (To be built) List all fundraisers for a graduate's institutions.
+-   : (To be built) Process a donation via Stripe.
+-   : (Existing) The new canonical endpoint for an institution to issue a credential that awaits user payment.
+-   : (Updated) Reads a user's credentials from the unified  collection.
+-   : (Existing) Handles signup for WorkPassport users (no OTP).
 
 **Critical Info for New Agent**
--   **Your immediate blocker is the LinkedIn login failure.** This is almost certainly a configuration issue in the user's LinkedIn Developer Portal. You must guide the user to check their Redirect URIs and ensure the Sign in with LinkedIn using OpenID Connect product is enabled.
--   **Your main task is to resume the page-by-page assessment of the WorkPassport feature.** Once the LinkedIn issue is resolved, log in as  and continue testing each page (, , , etc.) using the  tool.
--   Address the minor issues found during the assessment, like the hardcoded share URL on the dashboard.
--   The user wants to deploy this new version soon, so the goal is to stabilize and verify the current feature set.
+-   **The credential system has been fundamentally changed.** Do not attempt to use  or any self-reporting logic. The new, canonical flow is: Institution issues a pending credential -> User pays -> Credential becomes verified and is stored in .
+-   Your immediate tasks are to **(1) build out the fundraiser feature** and **(2) fix the signup/OTP issues** reported on the AWS deployment. The user wants to redeploy, and the signup issue is a major blocker.
+-   The internationalization (i18n) framework is in place. When adding new frontend text, ensure it is added to  and accessed via the  hook's  function.
 
 **documents and test reports created in this job**
--    (Updated with plans for WorkPassport testing)
--   
+-    (Updated with completed tasks and future backlog)
 
 **Last 10 User Messages and any pending HUMAN messages**
-10.  - User requested the routing for the signup page and asked for a logo to be added. (Status: COMPLETE)
-9.   - User reported that PWA was showing an outdated version of the site. (Status: COMPLETE, fixed with cache busting)
-8.   - Specific UI feedback on the logo placement. (Status: COMPLETE)
-7.   - Further UI feedback on the logo size. (Status: COMPLETE)
-6.   - User provided screenshots showing the LinkedIn button was missing on the general  page. (Status: COMPLETE, button was added)
-5.   - User reported the critical LinkedIn login failure. (Status: IN PROGRESS/BLOCKED)
-4.   - User approved moving forward and requested a full assessment of the WorkPassport feature before deployment. (Status: IN PROGRESS)
-3.   - User reported not seeing the LinkedIn buttons. (Status: COMPLETE, fixed with a frontend restart and was a caching issue)
-2.   - User provided critical direction to make WorkPassport a lite version of Workforce, sharing data models. (Status: COMPLETE)
-1.   - User requested UI and functionality improvements for the LinkedIn integration. (Status: COMPLETE)
+10.  - User requested the new fundraiser feature. (Status: IN PROGRESS)
+9.   - Agent confirmed the RTL implementation was successful. (Status: COMPLETE)
+8.   - User requested additional languages. (Status: COMPLETE)
+7.   - User reported a critical bug, requested i18n, and tech debt cleanup. (Status: IN PROGRESS)
+6.   - User gave permission to remove all legacy code. (Status: COMPLETE)
+5.   - User prompted the agent to unify the credential database collections. (Status: COMPLETE)
+4.   - User confirmed the decision to remove the self-reported credential feature. (Status: COMPLETE)
+3.   - User provided key strategic direction to differentiate from LinkedIn by focusing exclusively on verified credentials. (Status: COMPLETE)
+2.   - User asked a question that triggered the major credential system refactor. (Status: COMPLETE)
+1.   - User approved implementing the LinkedIn Add to Profile feature. (Status: COMPLETE)
 
 **Project Health Check:**
--   **Broken:** The LinkedIn OAuth flow is non-functional due to a refused to connect error, which is an external configuration issue on LinkedIn's side.
+-   **Broken:** User reports of account signup/OTP issues on the live AWS deployment are a critical, unresolved problem.
 -   **Mocked:** None.
 
 **3rd Party Integrations**
--   **SendGrid:** Email notifications.
--   **Twilio:** SMS notifications.
+-   **SendGrid:** Email notifications (part of the suspected signup issue).
+-   **Twilio:** SMS notifications (part of the suspected signup issue).
 -   **Google OAuth:** User login.
--   **Stripe:** Payments.
+-   **Stripe:** Payments (will be extended for the new fundraiser feature).
 -   **MongoDB Atlas:** Production cloud database.
 -   **Google Analytics:** Website traffic analysis.
 -   **CleanGrid (Custom Partner):** A two-way webhook integration for work order dispatch.
--   **LinkedIn:** Social login/signup and profile data import via OAuth 2.0.
+-   **LinkedIn:** Social login/signup and Add to Profile for credentials.
 
 **Testing status**
--   **Testing agent used after significant changes:** NO (Agent updated  but did not run the testing agent).
+-   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None
--   **Known regressions:** None
+-   **Known regressions:** Potential account signup/OTP issues on the live environment.
 
 **Credentials to test flow:**
 -   **WorkPassport (primary test account):**  / 
 -   **Workforce:**  / 
 -   **Employer:**  / 
 -   **Admin:**  / 
+-   **Institution:** No default test account specified, will need to be created.
 
 **What agent forgot to execute**
-- The agent identified the refused to connect LinkedIn error as an external configuration issue but did not provide the user with a clear, step-by-step checklist to resolve it in their LinkedIn Developer Portal.
-- The agent identified the hardcoded  URL for profile sharing on the dashboard but did not fix it.
-- The comprehensive assessment of the WorkPassport feature was started but not completed.</analysis>
+-   The agent did not add authentication/authorization checks to the newly created fundraiser endpoints in .
+-   The agent created placeholder pages for the fundraiser feature but did not implement any of the core logic.
+-   The agent identified the recurring OTP issue but has not yet been able to diagnose the root cause, only adding more logging.</analysis>

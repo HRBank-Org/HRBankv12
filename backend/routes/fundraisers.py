@@ -336,7 +336,7 @@ async def donate_to_fundraiser(
     
     # Create Stripe checkout session
     try:
-        origin_url = os.environ.get("FRONTEND_URL", "https://skills-passport.preview.emergentagent.com")
+        origin_url = os.environ.get("FRONTEND_URL", "https://credvault-14.preview.emergentagent.com")
         
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
