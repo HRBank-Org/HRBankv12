@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 import { FiArrowLeft } from 'react-icons/fi';
 import LinkedInButton from '../../components/auth/LinkedInButton';
+import LanguageSelector from '../../components/common/LanguageSelector';
 
 const USER_TYPES = [
   { value: 'workforce', label: 'WorkPassport™' },
