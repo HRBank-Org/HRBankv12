@@ -58,7 +58,7 @@ const WorkPassportDashboard = () => {
     try {
       setLoading(true);
       
-      const [profileRes, credentialsRes, occupationsRes] = await Promise.all([
+      const [profileRes, credentialsRes, occupationsRes, pendingPaymentsRes] = await Promise.all([
         api.get('/api/workpassport/profile', {
           headers: { 'X-User-ID': user.user_id }
         }).catch(() => ({ data: { success: false } })),
@@ -67,7 +67,8 @@ const WorkPassportDashboard = () => {
         }).catch(() => ({ data: { data: { credentials: [], summary: {} } } })),
         api.get('/api/workpassport/occupations', {
           headers: { 'X-User-ID': user.user_id }
-        }).catch(() => ({ data: { data: { occupations: [] } } }))
+        }).catch(() => ({ data: { data: { occupations: [] } } })),
+        api.get('/api/credential-payments/my-pending').catch(() => ({ data: { data: { pending_credentials: [] } } }))
       ]);
 
       if (profileRes.data.success) {
@@ -76,15 +77,20 @@ const WorkPassportDashboard = () => {
       
       const creds = credentialsRes.data.data?.credentials || [];
       const summary = credentialsRes.data.data?.summary || {};
-      setCredentials(creds);
+      // Only show verified credentials (not self-reported)
+      const verifiedCreds = creds.filter(c => c.status === 'verified' || c.status === 'issued');
+      setCredentials(verifiedCreds);
       
       const occs = occupationsRes.data.data?.occupations || [];
       setOccupations(occs);
+      
+      // Pending credentials awaiting payment
+      const pendingPayments = pendingPaymentsRes.data.data?.pending_credentials || [];
 
       setStats({
-        totalCredentials: summary.total || creds.length,
-        verifiedCredentials: summary.verified || creds.filter(c => c.status === 'verified').length,
-        pendingCredentials: summary.pending || creds.filter(c => c.status === 'pending').length,
+        totalCredentials: verifiedCreds.length + pendingPayments.length,
+        verifiedCredentials: verifiedCreds.length,
+        pendingCredentials: pendingPayments.length, // Now shows credentials awaiting payment
         profileViews: profileRes.data.data?.profile?.profile_views || 0,
         occupationCount: occs.length
       });
