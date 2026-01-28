@@ -161,22 +161,22 @@ const WorkPassportDashboard = () => {
               </p>
             </div>
 
-            {/* Pending Verification */}
+            {/* Awaiting Payment */}
             <div 
               className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
               onClick={() => navigate('/workpassport/credentials')}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
-                  <FiClock size={24} className="text-yellow-600" />
+                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                  <FiClock size={24} className="text-orange-600" />
                 </div>
               </div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Pending Verification</h3>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">Awaiting Payment</h3>
               <div className="text-3xl font-bold text-gray-900 mb-1">
                 {stats.pendingCredentials}
               </div>
               <p className="text-sm text-gray-500">
-                awaiting review
+                credentials to claim
               </p>
             </div>
 
