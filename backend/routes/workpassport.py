@@ -381,57 +381,10 @@ async def request_credential_verification(
     }
 
 
-@router.post("/credentials/add-self")
-async def add_self_reported_credential(
-    data: dict,
-    user_id: str = Header(..., alias="X-User-ID")
-):
-    """
-    Add a self-reported credential (unverified).
-    User can later request verification from an institution.
-    """
-    profile = await db.workpassport_profiles.find_one({"user_id": user_id})
-    if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
-    
-    now = datetime.now(timezone.utc).isoformat()
-    credential_id = gen_id("cred")
-    
-    credential = {
-        "credential_id": credential_id,
-        "user_id": user_id,
-        "passport_id": profile["passport_id"],
-        "institution_id": None,  # Self-reported
-        "institution_name": data.get("institution_name", "Self-Reported"),
-        
-        "credential_type": data.get("credential_type", "certificate"),
-        "credential_name": data["credential_name"],
-        "description": data.get("description"),
-        "issue_date": data.get("issue_date"),
-        "expiry_date": data.get("expiry_date"),
-        
-        "status": "self_reported",  # Not verified
-        "verified_date": None,
-        
-        "created_date": now,
-        "updated_date": now
-    }
-    
-    await db.workpassport_credentials.insert_one(credential)
-    
-    await db.workpassport_profiles.update_one(
-        {"user_id": user_id},
-        {"$inc": {"total_credentials": 1}, "$set": {"updated_date": now}}
-    )
-    
-    return {
-        "success": True,
-        "data": {
-            "credential_id": credential_id,
-            "status": "self_reported",
-            "message": "Credential added. Request verification from an institution to get it verified."
-        }
-    }
+# DEPRECATED: Self-reported credentials removed to maintain trust and verification integrity
+# All credentials must now be issued by verified institutions
+# @router.post("/credentials/add-self") - REMOVED
+# Users should get credentials from institutions via /credential-payments/issue-pending
 
 
 # ============== Public Profile & Verification ==============
