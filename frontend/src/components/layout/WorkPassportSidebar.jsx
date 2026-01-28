@@ -58,12 +58,6 @@ const WorkPassportSidebar = () => {
       path: '/workpassport/occupations'
     },
     {
-      type: 'item',
-      label: 'Find Institutions',
-      icon: FiUsers,
-      path: '/institutions'
-    },
-    {
       type: 'category',
       label: 'Career'
     },
@@ -73,18 +67,6 @@ const WorkPassportSidebar = () => {
       icon: FiBriefcase,
       path: '/workpassport/jobs',
       badge: isCanadian ? null : 'Preview'
-    },
-    {
-      type: 'item',
-      label: 'Career Guidance',
-      icon: FiTrendingUp,
-      path: '/workpassport/career'
-    },
-    {
-      type: 'item',
-      label: 'Courses',
-      icon: FiBook,
-      path: '/workpassport/courses'
     },
     {
       type: 'category',
