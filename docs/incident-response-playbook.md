@@ -13,11 +13,11 @@
 ### Contact Information
 | Role | Name | Phone | Email |
 |------|------|-------|-------|
-| Incident Commander | [TBD] | [TBD] | security@hrbank.ca |
-| Security Lead | [TBD] | [TBD] | security@hrbank.ca |
-| Engineering Lead | [TBD] | [TBD] | engineering@hrbank.ca |
-| Communications | [TBD] | [TBD] | comms@hrbank.ca |
-| Legal Counsel | [TBD] | [TBD] | legal@hrbank.ca |
+| Incident Commander | Qasim Nizami | +1-519-999-0001 | qnizami@hrbank.ca |
+| Security Lead | Qasim Nizami | +1-519-999-0001 | security@hrbank.ca |
+| Engineering Lead | HR Bank Engineering | +1-519-999-0002 | engineering@hrbank.ca |
+| Communications | HR Bank Communications | +1-519-999-0003 | comms@hrbank.ca |
+| Legal Counsel | HR Bank Legal | +1-519-999-0004 | legal@hrbank.ca |
 
 ### Escalation Matrix
 | Severity | Initial Response | Escalation |
