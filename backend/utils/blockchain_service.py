@@ -301,7 +301,7 @@ class BlockchainService:
             gas_cost_matic = float(self.w3.from_wei(gas_cost_wei, 'ether'))
             
             return {
-                "transaction_hash": tx_hash.hex(),
+                "transaction_hash": tx_hash.hex() if tx_hash.hex().startswith('0x') else '0x' + tx_hash.hex(),
                 "block_number": receipt['blockNumber'],
                 "ipfs_url": ipfs_url,
                 "ipfs_gateway_url": self.get_ipfs_gateway_url(ipfs_url),
@@ -310,7 +310,7 @@ class BlockchainService:
                 "gas_used": gas_used,
                 "status": "confirmed",
                 "network": self.network_config["name"],
-                "explorer_url": f"{self.network_config['explorer']}/tx/{tx_hash.hex()}",
+                "explorer_url": f"{self.network_config['explorer']}/tx/0x{tx_hash.hex().replace('0x', '')}",
                 "confirmation_time": datetime.now(timezone.utc).isoformat(),
                 "on_chain": True
             }
