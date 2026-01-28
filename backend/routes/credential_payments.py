@@ -63,6 +63,7 @@ class PendingCredentialCreate(BaseModel):
     issue_date: str
     expiry_date: Optional[str] = None
     additional_details: Optional[Dict] = None
+    credential_background_url: Optional[str] = None  # Custom certificate background image
 
 class PaymentInitiate(BaseModel):
     """Initiate payment for a pending credential"""
