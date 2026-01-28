@@ -397,7 +397,7 @@ async def get_public_profile(share_token: str):
     profile = await db.workpassport_profiles.find_one(
         {"share_token": share_token},
         {"_id": 0, "user_id": 0, "share_token": 0}  # Hide sensitive fields
-    )
+400|    )
     
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -405,10 +405,16 @@ async def get_public_profile(share_token: str):
     if profile.get("profile_visibility") == "private":
         raise HTTPException(status_code=403, detail="This profile is private")
     
-    # Get verified credentials only for public view
-    credentials = await db.workpassport_credentials.find(
-        {"passport_id": profile["passport_id"], "status": "verified"},
-        {"_id": 0, "user_id": 0, "supporting_documents": 0}
+    # Get user_id from profile to find their blockchain credentials
+    full_profile = await db.workpassport_profiles.find_one(
+        {"passport_id": profile["passport_id"]},
+        {"user_id": 1}
+    )
+    
+    # Get verified blockchain credentials for public view
+    credentials = await db.blockchain_credentials.find(
+        {"worker_id": full_profile["user_id"], "status": {"$in": ["verified", "issued"]}},
+        {"_id": 0, "worker_id": 0}
     ).to_list(50)
     
     # Increment view count
