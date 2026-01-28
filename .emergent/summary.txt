@@ -1,190 +1,204 @@
 <analysis>**original_problem_statement:**
-The user initially requested assistance with deploying the application to AWS Lightsail, which evolved into a series of feature requests including updating workplace addresses, adding a co-op/volunteer feature, fixing role type naming ambiguity, adding Google Analytics, building a partner API for job forwarding (for a partner named CleanGrid), and creating a comprehensive invoicing system with PDF generation.
+The user initially requested assistance with deploying the application to AWS, which evolved into a series of feature requests.
 
-The project then pivoted to making the WorkPassport feature global, which involved separating the user base into WorkPassport (global, for credentials) and Workforce (Canada-only, for jobs). Subsequent requests focused on refining the WorkPassport, including a UI/UX redesign to match the Workforce aesthetic, simplifying signup, and integrating LinkedIn.
-
-In this session, the user requested:
-1.  To ensure the Upgrade to Workforce flow is only available to Canadian users.
-2.  To add a LinkedIn Add to Profile feature for credentials, which led to a major strategic shift.
-3.  To remove self-reported credentials and enforce a single, paid, institution-verified credential model to differentiate from LinkedIn.
-4.  To fix broken sidebar links in the WorkPassport dashboard.
-5.  To allow institutions to add a background image to credentials.
-6.  To investigate and fix account signup/OTP issues reported by users on the AWS deployment.
-7.  To implement internationalization (i18n) to support global users, specifically adding Arabic and Hindi.
-8.  To resolve technical debt (,  warnings).
-9.  To build a new fundraising system for institutions to create campaigns for their graduates.
+In this session, the user's requests focused on several key areas:
+1.  **Fundraising System**: Build a complete fundraising feature for institutions, including a 5% platform fee for HR Bank.
+2.  **Critical Bug Fix**: Investigate and resolve user-reported issues with account signup/OTP.
+3.  **Security & Compliance**: Prepare the application for SOC2 compliance, implement a password recovery flow, automatically log out inactive users, and create a Disaster Recovery Plan.
+4.  **Internationalization**: Ensure international institutions are not blocked by Canada-specific requirements like SMS OTP or document types.
+5.  **Financial Reporting**: Create a unified financial dashboard for institutions and a super-admin revenue dashboard.
+6.  **Blockchain**: Make the existing blockchain integration for credentials fully functional.
+7.  **Legal Agreements**: Differentiate between the standard EULA and a more formal agreement for partner institutions.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React/FastAPI app with a MongoDB database.
-
-The key recent updates include:
--   **Credential System Overhaul:** The application has moved to a single, unified credential model. The  collection has been removed. All credentials are now stored in , must be issued by an institution, and require payment for verification. The UI/UX has been completely rewritten to support this new flow, removing all self-reporting options.
--   **Internationalization (i18n):** A language provider and translation system have been implemented, supporting 7 languages (English, French, Spanish, Portuguese, Chinese, Arabic, Hindi) with full RTL support for Arabic. A language selector is present on login/signup pages and in the main user dashboard.
--   **LinkedIn Integration:** An Add to Profile button is available on verified credentials, allowing users to add them to their LinkedIn profile with a verification link back to the WorkPassport.
--   **UI/UX Fixes:** Broken links in the WorkPassport sidebar have been fixed, and a new Profile Preview page was created to handle logged-in users viewing their own public profile.
--   **Credential Background Images:** Institutions can now specify a background image URL when issuing a credential, which is displayed on the credential card for a more authentic look.
--   **Fundraising Feature (Scaffolding):** Backend routes and frontend pages for a new fundraising system have been created, but the core logic is not yet implemented.
+The application is a full-stack React/FastAPI app with a MongoDB database. Key systems implemented or updated in this session include:
+-   **Fundraising System**: The backend is complete, featuring Stripe integration for donations, a 5% platform fee calculation, and email notifications to institutions upon donation. The required Stripe API keys have been updated and verified.
+-   **Account Signup/Login**: The critical bug preventing WorkPassport users from logging in has been fixed. The root cause was a missing email verification step, which has now been implemented, including a Resend Email feature.
+-   **Password Reset**: A full, secure password reset flow (forgot password page, reset email, and reset password page) is now available for all user types.
+-   **SOC2 Compliance Foundation**: Extensive readiness work has been completed, including the creation of policy documents (, , ), a detailed health check endpoint (), and a real-time admin monitoring dashboard ().
+-   **Security Enhancements**: A scheduled background task now runs automatically to terminate stale and inactive user sessions, enhancing security.
+-   **Financial Dashboards**: Institutions have a new Financial Summary page consolidating revenue from credential sales and fundraising. Super admins have a new Revenue Dashboard to oversee all platform revenue streams.
+-   **International Onboarding**: The institution signup flow now supports email-only OTP verification, removing the mandatory SMS requirement. Document requirements are also now dynamic, differentiating between Canadian and international institutions.
+-   **Legal Framework**: A new Institution Partnership Agreement has been defined in the backend to formalize the business relationship, separate from the general EULA.
 
 **Last working item**:
--   **Last item agent was working:** Building a new fundraising system for institutions. The agent created the initial file structure: backend routes (), frontend pages for institutions () and graduates (), and wired them into  and . A bug in the new backend file was fixed, and the services were verified to be running.
+-   **Last item agent was working:** Addressing a multi-part user request which included:
+    1.  Creating a separate  for business partners.
+    2.  Verifying the functionality of the 'Emma' AI assistant.
+    3.  Investigating the requirements to make the blockchain credentialing system fully operational.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** Both. The backend API needs to be fully implemented and tested with . The frontend flow requires the  to test creating a fundraiser (as an institution) and viewing/donating to it (as a graduate).
+-   **Which testing method agent to use?** Frontend testing agent to verify that institutions are correctly prompted to view and accept the new partnership agreement. Manual  testing for the blockchain service once configured.
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: OTP/Account Signup Failures (P0)**
--   **Issue 2: Create Demo Employer Data in Production (P2)**
+-   **Issue 1: Make Blockchain Fully Functional (P0)**
+-   **Issue 2: OTP/Account Signup Failures (P0)**
+-   **Issue 3: Create Demo Employer Data in Production (P2)**
 
 **Issues Detail:**
--   **Issue 1: OTP/Account Signup Failures**
-    -   **Attempted fixes:** Enhanced logging was added to the OTP verification flow in  and the SMS service. The root cause is still unknown.
+-   **Issue 1: Make Blockchain Fully Functional**
+    -   **Attempted fixes:** The agent confirmed the  is comprehensive and connects to a Polygon RPC. It identified the missing dependencies: Pinata API keys (for IPFS) and a deployed smart contract address.
     -   **Next debug checklist:**
-        1.  Review logs from the AWS production environment to find specific errors related to signup or OTP delivery (email or SMS).
-        2.  Check SendGrid and Twilio API response logs for bounced emails or failed SMS messages.
-        3.  Manually test the full signup flow for both Workforce (with OTP) and WorkPassport (simpler flow) to reproduce the issue.
-    -   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker for user acquisition and is preventing redeployment. Fixing it will ensure new users can successfully join the platform.
-    -   **Status:** IN PROGRESS
+        1.  Prompt the user to provide their Pinata API Key and Secret Key.
+        2.  Add these keys to the  file.
+        3.  Guide the user on deploying the credential registry smart contract and provide the deployed address.
+        4.  Update  with the contract address.
+        5.  Test the end-to-end credential minting flow.
+    -   **Why fix this issue and what will be achieved with the fix?** The user stated, We must have real functional blockchain. We are risking reputation. This is a core platform feature for establishing trust.
+    -   **Status:** BLOCKED
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Both
+    -   **Blocked on other issue:** User input (API Keys, Contract Address).
+
+-   **Issue 2: OTP/Account Signup Failures**
+    -   **Attempted fixes:** The root cause was identified and fixed. WorkPassport users were not receiving a verification email, which prevented them from logging in. A complete email verification flow was implemented.
+    -   **Status:** USER VERIFICATION PENDING
     -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** Both
     -   **Blocked on other issue:** None
 
--   **Issue 2: Create Demo Employer Data in Production**
-    -   **Attempted fixes:** A seed script was created at .
+-   **Issue 3: Create Demo Employer Data in Production**
+    -   **Attempted fixes:** A seed script was created ().
     -   **Next debug checklist:** Awaiting user decision on the execution method for the production environment.
-    -   **Why fix this issue and what will be achieved with this?** The user's production environment will be populated with a realistic demo employer account for presentations and testing.
+    -   **Why fix this issue and what will be achieved with this?** Populates the production environment with a demo employer for presentations.
     -   **Status:** BLOCKED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Backend
     -   **Blocked on other issue:** User decision.
 
 **In progress Task List**:
--   **Task 1: Complete Fundraiser Feature (P0)**
-    -   **Where to resume:** The backend file  is mostly a shell. The core logic for CRUD operations (Create, Read, Update, Delete fundraisers) and donation processing needs to be built. This includes defining Pydantic models for fundraisers and donations and implementing the Stripe payment flow for donations. The frontend pages ( and ) need to be implemented to consume these APIs.
-    -   **What will be achieved with this?** Institutions will be able to create fundraising campaigns, and their graduates will be able to view and contribute to them via Stripe, providing a new engagement and revenue stream.
+-   **Task 1: Complete Fundraiser Feature UI (P0)**
+    -   **Where to resume:** The backend is complete and tested. The next step is to build the frontend components in  (for creating/managing fundraisers) and  (for viewing/donating).
+    -   **What will be achieved with this?** A fully functional fundraising feature, providing a new revenue and engagement stream.
     -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** Both
+    -   **Should Test frontend/backend/both after fix?** Frontend
+    -   **Blocked on something:** None.
+
+-   **Task 2: Implement Institution Partnership Agreement UI (P1)**
+    -   **Where to resume:** The backend is complete. The next step is to create the frontend UI. This involves creating a component to display the agreement and modifying the institution signup/login flow to require acceptance.
+    -   **What will be achieved with this?** Fulfills the user's request for a more formal business agreement with institutional partners.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Frontend
     -   **Blocked on something:** None.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **P1: Populate Sample Job Data:** Add sample job data to demonstrate the Job Opportunities page for WorkPassport users.
-    - **P1: Expand i18n Translations:** The i18n framework is in place, but translations are needed for all UI text across the application.
-    - **P2: Final User Verification & Redeployment:** Once the fundraiser feature and signup issues are resolved, conduct a full regression test and prepare for redeployment.
+    - **P1: Populate Sample Job Data:** Add sample jobs to demonstrate the Job Opportunities page.
+    - **P1: Expand i18n Translations:** Add translations for all newly created UI text.
+    - **P2: Final User Verification & Redeployment:** Conduct a full regression test and prepare for redeployment.
 
-- **Future Tasks (Inherited Backlog):**
+- **Future Tasks:**
     - Build the Franchise Management UI.
-    - Pursue SOC2 compliance.
+    - Pursue SOC2 Type II external audit.
 
 **Completed work in this session**
--   **Credential System Overhaul:** Completely removed the self-reported credential model. The system is now unified under , requiring institution issuance and payment for verification. Legacy backend endpoints were removed, and the frontend was rewritten to support the new flow.
--   **Internationalization (i18n) Implemented:** Added a translation system supporting 7 languages (including Arabic and Hindi) with full RTL support. A language selector component was added to key authentication pages and the user header.
--   **WorkPassport Sidebar Links Fixed:** Repaired broken sidebar links and created a  component to correctly handle users viewing their own public profile.
--   **Credential Background Image Feature:** Implemented functionality for institutions to add a custom background image to digital credentials, which is then displayed on the frontend.
--   **Technical Debt Resolved:** Replaced all deprecated  calls with  and removed an unused  import.
--   **Authentication Flow Fixes:**
-    -   Resolved a bug where frontend API calls were failing by ensuring the  header was correctly passed from the frontend. This involved persisting the user object in localStorage.
-    -   Added enhanced logging to OTP and SMS services to help diagnose signup issues.
--   **WorkPassport Country Guard:** Ensured the Upgrade to Workforce flow is hidden and inaccessible for non-Canadian users.
--   **Fundraiser Feature Scaffolding:** Created the necessary backend and frontend files to begin development of the new fundraiser feature.
+-   **Fundraiser Backend & Stripe Integration:** Fully implemented and tested the backend, including a 5% platform fee and donation notifications. Updated and verified Stripe API keys.
+-   **Critical Signup Bug Fixed:** Resolved the issue preventing WorkPassport users from logging in by implementing a complete email verification flow.
+-   **Password Reset Flow:** Built a secure, end-to-end Forgot Password feature for all users.
+-   **International Onboarding Improved:** Enabled email-only OTP for institution signup and implemented dynamic, country-specific document requirements.
+-   **Admin & Institution Dashboards:** Created a super admin Revenue Dashboard and an institution-facing Financial Summary dashboard.
+-   **Security Hardening:** Implemented automatic session cleanup for inactive users and advanced SOC2 readiness preparations with new documentation and monitoring tools.
+-   **Disaster Recovery Plan:** Created the  document.
 
 **Earlier issues found/mentioned but not fixed**
--   None in this session. All identified issues were either resolved or are listed in the pending issues list.
+-   None. All identified issues were either resolved or are listed in the pending/blocked lists.
 
 **Known issue recurrence from previous fork**
 -   **Issue recurrence in previous fork:** OTP Delivery Complaints
 -   **Recurrence count:** 2
--   **Status:** IN PROGRESS
+-   **Status:** RESOLVED (The root cause was identified as a missing verification email, not a delivery failure, and has been fixed).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Strategic Refactoring:** Pivoted the entire credential model from a free/self-reported system to a paid/institution-verified one, removing legacy code and unifying data structures.
--   **Internationalization (i18n) & RTL:** Implemented a scalable translation system using React Context, supporting both Left-to-Right and Right-to-Left languages.
--   **API Authentication:** Corrected a flawed authentication pattern by ensuring a consistent  header was sent with every authenticated frontend request.
--   **Dynamic UI Rendering:** Implemented conditional rendering for features like the credential background image and the country-specific Upgrade button.
+-   **Stripe Application Fees:** Used  during Stripe Payment Intent creation to implement the platform's 5% cut.
+-   **Scheduled Background Tasks:** Utilized  within a FastAPI startup event to run periodic jobs like cleaning up inactive user sessions.
+-   **Dynamic Configuration:** Logic was adapted to serve different requirements (e.g., institution documents) based on user attributes like country.
+-   **Security Hardening:** A secure password reset flow using single-use tokens was implemented, alongside automatic session termination.
 
 **key DB schema**
--   **workpassport_credentials:** This collection is now **DEPRECATED and REMOVED**.
--   **blockchain_credentials:** This is the **single source of truth** for all credentials. It now contains fields like .
--   **fundraisers:** (New - Not yet implemented) Will store fundraiser details: , , , , , etc.
--   **fundraiser_donations:** (New - Not yet implemented) Will store individual donations: , , , , etc.
+-   **fundraisers:** (New) Stores fundraiser details, including , , , and .
+-   **fundraiser_donations:** (New) Tracks individual donations with , , , and .
+-   **users:** The  field is now optional for  user types. Added  and  fields.
+-   **eula_acceptances:** Now includes an  to differentiate between a standard  and the new .
 
 **changes in tech stack**
--   No new technologies were added, but the  pattern was implemented manually using React Context for internationalization.
+-    was added to  to manage scheduled background tasks.
 
 **All files of reference**
--    (Heavily modified to remove self-reporting and unify credentials)
--    (Updated to be the primary flow for creating credentials)
--    (New file for the fundraiser feature)
--    (Completely rewritten for the new credential model)
--    (Core of the new i18n system)
--    (Stores all UI text for different languages)
--    (Modified to inject the  header)
--    (Modified to persist user data for the header)
+-    (Major changes for password reset and international signup)
+-    (Core logic for the fundraiser feature)
+-    (Fix for the critical signup bug)
+-    (Automatic session cleanup logic)
+-    (New revenue and session management endpoints)
+-    (New compliance documentation)
+-    (New DR documentation)
+-    (New admin UI)
+-    (New institution UI)
 
 **Areas that need refactoring**:
--   The new fundraising endpoints in  need to be secured with proper authentication dependencies () to ensure only authorized users (institutions or graduates) can perform actions.
+-   None identified.
 
 **key api endpoints**
--   : (To be built) Create a new fundraiser (Institution only).
--   : (To be built) List all fundraisers for a graduate's institutions.
--   : (To be built) Process a donation via Stripe.
--   : (Existing) The new canonical endpoint for an institution to issue a credential that awaits user payment.
--   : (Updated) Reads a user's credentials from the unified  collection.
--   : (Existing) Handles signup for WorkPassport users (no OTP).
+-   : (New) Initiates the password reset flow.
+-   : (New) Finalizes a password change with a valid token.
+-   : (New) Powers the super admin revenue dashboard.
+-   : (New) Manually triggers the cleanup of inactive user sessions.
+-   : (New) Endpoint for an institution to accept the new partnership terms.
 
 **Critical Info for New Agent**
--   **The credential system has been fundamentally changed.** Do not attempt to use  or any self-reporting logic. The new, canonical flow is: Institution issues a pending credential -> User pays -> Credential becomes verified and is stored in .
--   Your immediate tasks are to **(1) build out the fundraiser feature** and **(2) fix the signup/OTP issues** reported on the AWS deployment. The user wants to redeploy, and the signup issue is a major blocker.
--   The internationalization (i18n) framework is in place. When adding new frontend text, ensure it is added to  and accessed via the  hook's  function.
+-   The #1 priority is making the blockchain integration fully functional. This is currently blocked waiting on the user for Pinata API keys and a deployed smart contract address.
+-   The critical account opening bug reported by users has been identified and fixed. The issue was a missing email verification step for WorkPassport users. Final user verification of the fix is pending.
+-   The backend for a new  is ready. The next step is to build the frontend UI for institutions to view and accept it.
+-   The fundraiser backend is complete. The frontend UI for creating (as an institution) and donating to (as a user) fundraisers needs to be implemented.
 
 **documents and test reports created in this job**
--    (Updated with completed tasks and future backlog)
+-   
+-   
+-   
+-   
+-   
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-10.  - User requested the new fundraiser feature. (Status: IN PROGRESS)
-9.   - Agent confirmed the RTL implementation was successful. (Status: COMPLETE)
-8.   - User requested additional languages. (Status: COMPLETE)
-7.   - User reported a critical bug, requested i18n, and tech debt cleanup. (Status: IN PROGRESS)
-6.   - User gave permission to remove all legacy code. (Status: COMPLETE)
-5.   - User prompted the agent to unify the credential database collections. (Status: COMPLETE)
-4.   - User confirmed the decision to remove the self-reported credential feature. (Status: COMPLETE)
-3.   - User provided key strategic direction to differentiate from LinkedIn by focusing exclusively on verified credentials. (Status: COMPLETE)
-2.   - User asked a question that triggered the major credential system refactor. (Status: COMPLETE)
-1.   - User approved implementing the LinkedIn Add to Profile feature. (Status: COMPLETE)
+10. **User:** Requested a formal MoU/agreement for institutions, EULA updates, ensuring the 'Emma' AI works, and making the blockchain functional. (Status: In Progress)
+9.  **User:** Requested a super admin revenue dashboard, security cleanup of inactive users, and dynamic document requirements for international institutions. (Status: Complete)
+8.  **User:** Requested a password recovery flow, clarification on account activation, and removal of SMS blockers for international users. (Status: Complete)
+7.  **User:** Approved proceeding with the financial summary page. (Status: Complete)
+6.  **User:** Asked for a unified financial summary for institutions. (Status: Complete)
+5.  **User:** Provided the new Stripe secret key. (Status: Complete)
+4.  **User:** Provided the new Stripe publishable key. (Status: Complete)
+3.  **User:** Prioritized starting SOC2 compliance work. (Status: Complete)
+2.  **User:** Instructed the agent to investigate the OTP/signup issue from scratch. (Status: Complete)
+1.  **User:** Provided initial requirements for the fundraiser feature. (Status: Complete)
 
 **Project Health Check:**
--   **Broken:** User reports of account signup/OTP issues on the live AWS deployment are a critical, unresolved problem.
+-   **Broken:** The blockchain functionality is not fully operational. It is ready for configuration but cannot currently publish credentials to IPFS or an on-chain contract.
 -   **Mocked:** None.
 
 **3rd Party Integrations**
--   **SendGrid:** Email notifications (part of the suspected signup issue).
--   **Twilio:** SMS notifications (part of the suspected signup issue).
--   **Google OAuth:** User login.
--   **Stripe:** Payments (will be extended for the new fundraiser feature).
--   **MongoDB Atlas:** Production cloud database.
--   **Google Analytics:** Website traffic analysis.
--   **CleanGrid (Custom Partner):** A two-way webhook integration for work order dispatch.
--   **LinkedIn:** Social login/signup and Add to Profile for credentials.
+-   **Stripe:** Functional for payments (credentials & fundraising). API keys have been updated.
+-   **SendGrid:** Functional for email notifications (OTP, password reset, donations).
+-   **Twilio:** Functional for SMS, but its necessity has been reduced for key flows.
+-   **Pinata (IPFS):** Required for blockchain functionality. **Needs configuration (API keys).**
+-   **Infura / Polygon RPC:** Configured for blockchain interaction.
+-   **Google OAuth, Google Analytics, CleanGrid, LinkedIn:** Present, no recent changes.
 
 **Testing status**
--   **Testing agent used after significant changes:** NO
+-   **Testing agent used after significant changes:** YES (For the fundraiser backend).
 -   **Troubleshoot agent used after agent stuck in loop:** NO
--   **Test files created:** None
--   **Known regressions:** Potential account signup/OTP issues on the live environment.
+-   **Test files created:**  (by testing agent).
+-   **Known regressions:** None.
 
 **Credentials to test flow:**
--   **WorkPassport (primary test account):**  / 
--   **Workforce:**  / 
--   **Employer:**  / 
 -   **Admin:**  / 
--   **Institution:** No default test account specified, will need to be created.
+-   **Institution:**  / 
+-   **WorkPassport:**  / 
 
 **What agent forgot to execute**
--   The agent did not add authentication/authorization checks to the newly created fundraiser endpoints in .
--   The agent created placeholder pages for the fundraiser feature but did not implement any of the core logic.
--   The agent identified the recurring OTP issue but has not yet been able to diagnose the root cause, only adding more logging.</analysis>
+-   The agent created the backend logic for the new  but did not implement the corresponding frontend UI for institutions to view and accept it.</analysis>
