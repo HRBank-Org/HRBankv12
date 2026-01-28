@@ -620,7 +620,9 @@ async def verify_email(token: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     Verify email with token from email link
     """
     import os
-    frontend_url = os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')
+    frontend_url = os.environ.get('FRONTEND_URL')
+    if not frontend_url:
+        raise HTTPException(status_code=500, detail="FRONTEND_URL not configured")
     
     # Find verification record
     verification = await db.email_verifications.find_one({
