@@ -5,11 +5,13 @@ const LanguageContext = createContext();
 
 // Supported languages
 export const LANGUAGES = {
-  en: { name: 'English', nativeName: 'English', flag: '🇺🇸' },
-  fr: { name: 'French', nativeName: 'Français', flag: '🇫🇷' },
-  es: { name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
-  pt: { name: 'Portuguese', nativeName: 'Português', flag: '🇧🇷' },
-  zh: { name: 'Chinese', nativeName: '中文', flag: '🇨🇳' }
+  en: { name: 'English', nativeName: 'English', flag: '🇺🇸', rtl: false },
+  fr: { name: 'French', nativeName: 'Français', flag: '🇫🇷', rtl: false },
+  es: { name: 'Spanish', nativeName: 'Español', flag: '🇪🇸', rtl: false },
+  pt: { name: 'Portuguese', nativeName: 'Português', flag: '🇧🇷', rtl: false },
+  zh: { name: 'Chinese', nativeName: '中文', flag: '🇨🇳', rtl: false },
+  ar: { name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦', rtl: true },
+  hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳', rtl: false }
 };
 
 // Detect browser language
