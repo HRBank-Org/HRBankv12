@@ -183,17 +183,22 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ### P1 - High Priority
 - **OTP/Signup Issues**: Investigate user-reported signup failures on AWS deployment
+- **Disaster Recovery Plan**: Document DR procedures and test annually
+- **Penetration Testing**: Schedule annual security assessment
 - Deploy updates to AWS Lightsail
 - Populate sample job data for WorkPassport users
 
 ### P2 - Medium Priority
+- **Vulnerability Scanning**: Implement automated security scans
+- **CI/CD Pipeline**: Formalize deployment process
+- **Privacy Impact Assessments**: Document PIA process
 - Create Demo Employer Data in Production
 - Expand i18n translations across the application
 - Final user verification & regression testing
 
 ### P3 - Future
 - Build Franchise Management UI
-- SOC2 compliance certification
+- SOC2 Type II Audit (external auditor)
 - Multi-region deployment
 
 ## File Structure
