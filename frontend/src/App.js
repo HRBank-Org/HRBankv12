@@ -125,6 +125,8 @@ import Contact from './pages/public/Contact';
 import Privacy from './pages/public/Privacy';
 import FAQ from './pages/public/FAQ';
 import Help from './pages/public/Help';
+import DonationSuccess from './pages/donation/DonationSuccess';
+import DonationCancelled from './pages/donation/DonationCancelled';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import MyTasks from './pages/workforce/MyTasks';
