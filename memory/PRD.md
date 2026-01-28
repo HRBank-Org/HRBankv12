@@ -27,6 +27,16 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### OTP/Signup Issue Fixed ✅ (Jan 28, 2026)
+- **Root Cause**: WorkPassport registration was not sending verification emails (TODO comment was never implemented)
+- **Fix**: Implemented email verification flow for WorkPassport users
+  - Verification email sent on signup via SendGrid
+  - Email verification endpoint (`/api/auth/verify-email`) now redirects to login with success message
+  - Login page shows success/error messages based on verification status
+  - "Resend Verification Email" button added to WorkPassport signup success page
+  - New endpoint: `POST /api/workpassport/resend-verification?email=xxx`
+- **Workforce OTP Flow**: Already working correctly (dual Email + SMS verification)
+
 ### SOC2 Compliance Framework ✅ (Jan 28, 2026)
 - **Audit Logging**: Comprehensive event tracking with 30+ event types, tamper-evident checksums, 7-year retention
 - **Security Controls**: Account lockout (5 attempts), rate limiting, suspicious activity detection
