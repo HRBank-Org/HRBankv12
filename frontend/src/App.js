@@ -273,8 +273,8 @@ function AppRoutes() {
         <Route path="/workpassport/dashboard" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
         <Route path="/workpassport/occupations" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportOccupations /></ProtectedRoute>} />
         <Route path="/workpassport/occupations/create" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportOccupations /></ProtectedRoute>} />
-        <Route path="/workpassport/credentials" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
-        <Route path="/workpassport/credentials/add" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
+        <Route path="/workpassport/credentials" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportCredentials /></ProtectedRoute>} />
+        <Route path="/workpassport/credentials/add" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportCredentials /></ProtectedRoute>} />
         <Route path="/workpassport/career" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
         <Route path="/workpassport/courses" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
         <Route path="/workpassport/public-profile" element={<ProtectedRoute allowedUserTypes={['workpassport']}><WorkPassportDashboard /></ProtectedRoute>} />
