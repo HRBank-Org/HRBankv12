@@ -27,6 +27,28 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### Fundraiser UI Complete ✅ (Jan 28, 2026)
+- **Institution Fundraisers Page**: `/institution/fundraisers` with full CRUD operations
+  - Create new fundraisers with title, description, goal amount, min donation, media, end date
+  - View all fundraisers with stats (Active Campaigns, Total Raised, Total Donors)
+  - Toggle fundraiser active/inactive status
+  - Delete fundraisers
+- **WorkPassport Fundraisers Page**: `/workpassport/fundraisers`
+  - View fundraisers from credential-issuing institutions
+  - Donation modal with quick amounts ($10, $25, $50, $100) and custom amount
+  - Optional message and anonymous donation option
+  - Progress bars showing raised amount vs goal
+- **Stripe Integration**: Donations via Stripe Checkout with 5% platform fee
+- **Success/Cancel Pages**: `/donation/success` and `/donation/cancelled` with proper data-testid
+
+### Emma AI Assistant Verified ✅ (Jan 28, 2026)
+- **Chat Widget**: Floating widget on all authenticated pages (except admin)
+- **AI Responses**: GPT-4o-mini via emergentintegrations library
+- **Multilingual Support**: Responses in user's preferred language
+- **Profile Completion Tracking**: Progress bar with onboarding guidance
+- **LinkedIn Integration**: Can trigger LinkedIn OAuth connection from chat
+- **Resume Parsing**: Upload and parse resumes for workforce users
+
 ### Super Admin Revenue Dashboard ✅ (Jan 28, 2026)
 - **Unified Revenue View**: `/admin/revenue` with all revenue streams
 - **Credential Revenue**: Total + 50/50 platform-institution split
