@@ -256,12 +256,14 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ### P0 - Critical
 - ~~**OTP/Signup Issues**: Fixed - WorkPassport email verification was not being sent~~
+- ~~**Fundraiser UI**: Complete - Institution and WorkPassport pages working~~
+- ~~**Emma AI**: Verified - Chat widget with GPT-4o-mini responses working~~
+- **Blockchain Integration**: BLOCKED - Awaiting Pinata API keys and deployed smart contract address from user
 
 ### P1 - High Priority
-- **Disaster Recovery Plan**: Document DR procedures and test annually
-- **Penetration Testing**: Schedule annual security assessment
-- Deploy updates to AWS Lightsail
+- **Institution Partnership Agreement UI**: Backend ready, needs frontend
 - Populate sample job data for WorkPassport users
+- Deploy updates to AWS Lightsail
 
 ### P2 - Medium Priority
 - **Vulnerability Scanning**: Implement automated security scans
