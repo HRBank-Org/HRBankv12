@@ -141,7 +141,36 @@ async def register_workpassport(data: WorkPassportSignup):
     }
     await db.workpassport_profiles.insert_one(profile)
     
-    # TODO: Send verification email
+    # Send verification email
+    try:
+        from utils.email_service import EmailService
+        email_service = EmailService()
+        
+        # Generate verification token
+        verification_token = uuid.uuid4().hex
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+        
+        # Store verification token
+        await db.email_verifications.insert_one({
+            "user_id": user_id,
+            "email": data.email.lower(),
+            "token": verification_token,
+            "expires_at": expires_at.isoformat(),
+            "verified": False,
+            "created_at": now
+        })
+        
+        # Send email
+        await email_service.send_verification_email(
+            to_email=data.email.lower(),
+            full_name=data.full_name,
+            verification_token=verification_token
+        )
+        logger.info(f"Verification email sent to {data.email}")
+    except Exception as e:
+        logger.error(f"Failed to send verification email: {e}")
+        # Don't fail signup if email fails - log it for debugging
+        print(f"📧 Email verification link: /verify-email?token={verification_token}")
     
     return {
         "success": True,
