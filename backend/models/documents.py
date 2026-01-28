@@ -181,3 +181,67 @@ INSTITUTION_DOCUMENT_TYPES = {
         'activates_account': False
     }
 }
+
+# International institutions have lighter requirements
+# Required: Institution registration + Contact ID
+# Not required: Canadian-specific docs like BN, CRA numbers
+INSTITUTION_DOCUMENT_TYPES_INTERNATIONAL = {
+    'institution_registration': {
+        'name': 'Institution Registration',
+        'description': 'Official registration document from your country (educational license, incorporation certificate, government registration)',
+        'required': True,
+        'has_expiry': False,
+        'requires_file': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': False,
+        'activates_account': True,
+        'notes': 'Accepted formats: PDF, JPG, PNG. Document should show institution name, registration number, and issuing authority.'
+    },
+    'contact_person_id': {
+        'name': 'Contact Person ID',
+        'description': 'Valid government-issued photo ID of the primary contact person (passport preferred for international)',
+        'required': True,
+        'has_expiry': True,
+        'requires_file': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
+        'activates_account': True
+    },
+    'institutional_letterhead': {
+        'name': 'Official Letter/Letterhead',
+        'description': 'Official letter on institution letterhead confirming the contact person is authorized to represent the institution',
+        'required': True,
+        'has_expiry': False,
+        'requires_file': True,
+        'requires_issue_date': False,
+        'requires_expiry_date': False,
+        'activates_account': True,
+        'notes': 'Must be signed by an authorized signatory (Dean, President, Registrar)'
+    },
+    'accreditation': {
+        'name': 'Accreditation Certificate (Optional)',
+        'description': 'Educational/Professional accreditation from recognized accrediting body',
+        'required': False,
+        'has_expiry': True,
+        'requires_file': True,
+        'requires_issue_date': True,
+        'requires_expiry_date': True,
+        'activates_account': False
+    }
+}
+
+def get_institution_document_types(country: str = None) -> dict:
+    """
+    Get document types for institutions based on their country.
+    Canadian institutions have specific CRA requirements.
+    International institutions have more flexible requirements.
+    """
+    # List of countries that follow Canadian document requirements
+    canadian_regions = ['CA', 'CANADA']
+    
+    if country and country.upper() in canadian_regions:
+        return INSTITUTION_DOCUMENT_TYPES
+    else:
+        # International institutions get lighter requirements
+        return INSTITUTION_DOCUMENT_TYPES_INTERNATIONAL
+
