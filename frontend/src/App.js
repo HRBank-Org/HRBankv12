@@ -419,6 +419,7 @@ function AppRoutes() {
         <Route path="/institution/support" element={<ProtectedRoute allowedUserTypes={['institution']}><Support /></ProtectedRoute>} />
         <Route path="/institution/invoices" element={<ProtectedRoute allowedUserTypes={['institution']}><Invoices /></ProtectedRoute>} />
         <Route path="/institution/fundraisers" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionFundraisers /></ProtectedRoute>} />
+        <Route path="/institution/partnership-agreement" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionPartnershipAgreement /></ProtectedRoute>} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
