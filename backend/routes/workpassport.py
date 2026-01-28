@@ -185,6 +185,56 @@ async def register_workpassport(data: WorkPassportSignup):
 
 # ============== Profile Management ==============
 
+@router.post("/resend-verification")
+async def resend_verification_email(email: str = Query(...)):
+    """Resend verification email for WorkPassport users"""
+    user = await db.users.find_one({"email": email.lower(), "user_type": "workpassport"})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    if user.get("email_verified"):
+        raise HTTPException(status_code=400, detail="Email already verified")
+    
+    try:
+        from utils.email_service import EmailService
+        email_service = EmailService()
+        
+        # Get profile for name
+        profile = await db.workpassport_profiles.find_one({"user_id": user["user_id"]})
+        full_name = profile.get("full_name", "User") if profile else "User"
+        
+        # Generate new verification token
+        verification_token = uuid.uuid4().hex
+        now = datetime.now(timezone.utc)
+        expires_at = now + timedelta(hours=24)
+        
+        # Update or create verification record
+        await db.email_verifications.update_one(
+            {"user_id": user["user_id"]},
+            {
+                "$set": {
+                    "verification_token": verification_token,
+                    "expires_at": expires_at.isoformat(),
+                    "verified": False,
+                    "updated_at": now.isoformat()
+                }
+            },
+            upsert=True
+        )
+        
+        # Send email
+        await email_service.send_verification_email(
+            to_email=email.lower(),
+            full_name=full_name,
+            verification_token=verification_token
+        )
+        
+        return {"success": True, "message": "Verification email sent"}
+    except Exception as e:
+        logger.error(f"Failed to resend verification email: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
+
 @router.get("/profile")
 async def get_my_profile(user_id: str = Header(..., alias="X-User-ID")):
     """Get current user's WorkPassport profile"""
