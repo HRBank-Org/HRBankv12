@@ -216,8 +216,14 @@ const LoginForm = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm" data-testid="success-message">
+                ✓ {success}
+              </div>
+            )}
+            
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" data-testid="error-message">
                 {error}
               </div>
             )}
