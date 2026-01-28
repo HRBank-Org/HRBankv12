@@ -5,7 +5,7 @@
 - **Effective Date:** January 28, 2026
 - **Owner:** Engineering & Operations Team
 - **Review Frequency:** Annual (or after any disaster event)
-- **Last Tested:** TBD (Schedule first DR test)
+- **Last Tested:** Scheduled for Q1 2026
 
 ---
 
