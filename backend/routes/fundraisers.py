@@ -8,9 +8,12 @@ from typing import Optional, List
 from datetime import datetime, timezone
 from bson import ObjectId
 import uuid
+import logging
 
 from auth.dependencies import get_current_user, require_role
 from database import db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/fundraisers", tags=["Fundraisers"])
 
