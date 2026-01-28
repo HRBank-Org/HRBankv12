@@ -392,7 +392,7 @@ async def get_my_shifts(
     from datetime import datetime as dt
     
     if not date:
-        date = dt.utcnow().strftime('%Y-%m-%d')
+        date = dt.now(timezone.utc).strftime('%Y-%m-%d')
     
     # Find shifts for this worker on this date (date field is stored as YYYY-MM-DD string)
     shifts = await db.calendar_shifts.find({
@@ -433,7 +433,7 @@ async def get_task_completions(
     from datetime import datetime as dt
     
     if not date:
-        date = dt.utcnow().strftime('%Y-%m-%d')
+        date = dt.now(timezone.utc).strftime('%Y-%m-%d')
     
     # Find all shifts for this date (date field is stored as YYYY-MM-DD string)
     shifts = await db.calendar_shifts.find({
