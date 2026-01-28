@@ -132,6 +132,7 @@ import DonationSuccess from './pages/donation/DonationSuccess';
 import DonationCancelled from './pages/donation/DonationCancelled';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
+import StatusPage from './pages/StatusPage';
 import WorkforceCalendar from './pages/workforce/WorkforceCalendar';
 import MyShifts from './pages/workforce/MyShifts';
 import MyTasks from './pages/workforce/MyTasks';
