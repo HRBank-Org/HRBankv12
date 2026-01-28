@@ -27,6 +27,28 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### Password Reset Flow ✅ (Jan 28, 2026)
+- **Forgot Password**: Email with reset link (1-hour expiry)
+- **Reset Password**: Token-based password reset with validation
+- **Frontend Pages**: `/forgot-password` and `/reset-password` pages
+- **Rate Limited**: 5 requests per minute to prevent abuse
+
+### International Institution Support ✅ (Jan 28, 2026)
+- **Phone Now Optional**: Institutions can sign up with email-only verification
+- **Email OTP Only**: International institutions no longer blocked by SMS requirement
+- **Country Field**: Added optional country field for institution profiles
+
+### Donation Email Notifications ✅ (Jan 28, 2026)
+- **Real-time Notifications**: Institutions receive email when donations are made
+- **Rich Email Template**: Shows donor name, amount, net amount after fees, and optional message
+- **Non-blocking**: Email failures don't affect donation processing
+
+### Disaster Recovery Plan ✅ (Jan 28, 2026)
+- **Complete DR Documentation**: `/app/docs/disaster-recovery-plan.md`
+- **Recovery Objectives**: RTO 4 hours, RPO 1 hour
+- **4 Disaster Scenarios**: Database failure, infrastructure failure, security breach, third-party failure
+- **Testing Schedule**: Quarterly tabletop, monthly backup restore, annual full drill
+
 ### OTP/Signup Issue Fixed ✅ (Jan 28, 2026)
 - **Root Cause**: WorkPassport registration was not sending verification emails (TODO comment was never implemented)
 - **Fix**: Implemented email verification flow for WorkPassport users
