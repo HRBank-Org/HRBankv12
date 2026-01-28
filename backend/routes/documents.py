@@ -94,8 +94,12 @@ async def get_my_documents(
                 )
                 doc["verification_status"] = "expired"
     
-    # Get document types
-    document_types = get_document_types(current_user["user_type"])
+    # Get document types based on user type and country
+    document_types = await get_document_types_for_user(
+        current_user["user_type"],
+        current_user["user_id"],
+        db
+    )
     
     # Calculate compliance
     required_types = [k for k, v in document_types.items() if v.get('required')]
