@@ -389,6 +389,20 @@ const InstitutionDashboard = () => {
               color="#10b981"
             />
             <QuickActionCard
+              icon="📊"
+              title="Financial Summary"
+              description="Credentials & fundraising revenue overview"
+              onClick={() => navigate('/institution/financials')}
+              color="#0ea5e9"
+            />
+            <QuickActionCard
+              icon="❤️"
+              title="Fundraisers"
+              description="Create campaigns for your graduates"
+              onClick={() => navigate('/institution/fundraisers')}
+              color="#ec4899"
+            />
+            <QuickActionCard
               icon="📄"
               title="Upload Transcripts"
               description="Process transcripts with AI extraction"
