@@ -346,6 +346,7 @@ function AppRoutes() {
         {/* Institution Routes */}
         <Route path="/institution/marketplace" element={<ProtectedRoute allowedUserTypes={['institution']}><CredentialMarketplace /></ProtectedRoute>} />
         <Route path="/institution/payouts" element={<ProtectedRoute allowedUserTypes={['institution']}><PayoutsDashboard /></ProtectedRoute>} />
+        <Route path="/institution/financials" element={<ProtectedRoute allowedUserTypes={['institution']}><FinancialSummary /></ProtectedRoute>} />
         
         {/* Employer Routes */}
         <Route path="/employer/home" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerHome /></ProtectedRoute>} />
