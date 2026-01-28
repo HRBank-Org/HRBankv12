@@ -108,9 +108,9 @@ HR Bank has implemented comprehensive security controls aligned with SOC2 Trust 
 
 | Control | Status | Implementation |
 |---------|--------|----------------|
-| System monitoring | ⚠️ | Basic health checks |
+| System monitoring | ✅ | Health checks + Status page `/status` |
 | Backup procedures | ✅ | MongoDB Atlas automated backups |
-| Disaster recovery plan | ❌ | Needs documentation |
+| Disaster recovery plan | ✅ | `/app/docs/disaster-recovery-plan.md` |
 | SLA definitions | ⚠️ | Needs formal SLAs |
 | Capacity planning | ⚠️ | Needs documentation |
 
