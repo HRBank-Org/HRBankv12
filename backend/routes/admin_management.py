@@ -1087,10 +1087,10 @@ async def get_all_partnership_agreements(
     Get all institution partnership agreements for super admin review.
     Shows both signed and pending (institutions that haven't signed yet).
     """
-    # Get all institutions
+    # Get all institutions (profile_status = active, not deleted)
     institutions = await db.users.find(
-        {"user_type": "institution", "is_active": True},
-        {"_id": 0, "user_id": 1, "email": 1, "created_at": 1}
+        {"user_type": "institution", "profile_status": "active", "deleted_at": None},
+        {"_id": 0, "user_id": 1, "email": 1, "created_at": 1, "created_date": 1}
     ).to_list(None)
     
     # Get all partnership agreements
