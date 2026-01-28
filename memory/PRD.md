@@ -179,10 +179,9 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 ## Backlog
 
 ### P0 - Critical
-- **STRIPE API KEY EXPIRED**: Update STRIPE_SECRET_KEY in backend/.env with valid key
+- ~~**OTP/Signup Issues**: Fixed - WorkPassport email verification was not being sent~~
 
 ### P1 - High Priority
-- **OTP/Signup Issues**: Investigate user-reported signup failures on AWS deployment
 - **Disaster Recovery Plan**: Document DR procedures and test annually
 - **Penetration Testing**: Schedule annual security assessment
 - Deploy updates to AWS Lightsail
