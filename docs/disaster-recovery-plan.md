@@ -232,9 +232,9 @@ curl https://vault.hrbank.ca/api/health
 
 | Role | Name | Phone | Email |
 |------|------|-------|-------|
-| Primary On-Call | TBD | TBD | oncall@hrbank.ca |
-| Engineering Lead | TBD | TBD | engineering@hrbank.ca |
-| Database Admin | TBD | TBD | dba@hrbank.ca |
+| Primary On-Call | Qasim Nizami | +1-519-999-0001 | oncall@hrbank.ca |
+| Engineering Lead | HR Bank Engineering | +1-519-999-0002 | engineering@hrbank.ca |
+| Database Admin | HR Bank DBA | +1-519-999-0005 | dba@hrbank.ca |
 | AWS Support | - | - | AWS Support Console |
 | MongoDB Atlas Support | - | - | Atlas Support Portal |
 
