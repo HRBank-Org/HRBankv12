@@ -154,7 +154,7 @@ async def register_workpassport(data: WorkPassportSignup):
         await db.email_verifications.insert_one({
             "user_id": user_id,
             "email": data.email.lower(),
-            "token": verification_token,
+            "verification_token": verification_token,
             "expires_at": expires_at.isoformat(),
             "verified": False,
             "created_at": now
