@@ -169,6 +169,74 @@ class EmailService:
         """
         
         return await self.send_email(to_email, subject, html_content)
+    
+    async def send_donation_notification_email(
+        self, 
+        to_email: str, 
+        institution_name: str, 
+        donor_name: str, 
+        amount: float, 
+        net_amount: float,
+        fundraiser_title: str,
+        message: str = None
+    ):
+        """Send email notification when institution receives a donation"""
+        subject = f"🎉 New Donation Received - ${amount:.2f}"
+        
+        message_section = ""
+        if message:
+            message_section = f"""
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #0ea5e9;">
+                <p style="color: #0369a1; font-style: italic; margin: 0;">"{message}"</p>
+                <p style="color: #64748b; font-size: 12px; margin: 5px 0 0 0;">- {donor_name}</p>
+            </div>
+            """
+        
+        html_content = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #ec4899, #f43f5e); padding: 30px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">💝 New Donation!</h1>
+            </div>
+            <div style="padding: 40px 30px; background: #ffffff;">
+                <p style="color: #333; font-size: 16px;">
+                    Great news, <strong>{institution_name}</strong>!
+                </p>
+                <p style="color: #666; font-size: 16px; line-height: 1.6;">
+                    You've received a donation for your fundraiser "<strong>{fundraiser_title}</strong>".
+                </p>
+                
+                <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin: 25px 0; text-align: center;">
+                    <p style="color: #64748b; font-size: 14px; margin: 0 0 5px 0;">Donation Amount</p>
+                    <p style="color: #10b981; font-size: 36px; font-weight: bold; margin: 0;">${amount:.2f}</p>
+                    <p style="color: #64748b; font-size: 12px; margin: 10px 0 0 0;">
+                        You receive: ${net_amount:.2f} (after 5% platform fee)
+                    </p>
+                </div>
+                
+                <div style="background: #f8fafc; border-radius: 8px; padding: 15px; margin: 15px 0;">
+                    <p style="color: #64748b; font-size: 14px; margin: 0;">
+                        <strong>From:</strong> {donor_name}
+                    </p>
+                </div>
+                
+                {message_section}
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="https://vault.hrbank.ca/institution/financials" 
+                       style="background: #ec4899; color: white; padding: 12px 30px; 
+                              text-decoration: none; border-radius: 8px; display: inline-block;
+                              font-weight: bold;">
+                        View Your Fundraisers
+                    </a>
+                </div>
+            </div>
+            <div style="background: #f5f5f5; padding: 20px; text-align: center; color: #999; font-size: 12px;">
+                <p>HR Bank - Empowering Education</p>
+            </div>
+        </div>
+        """
+        
+        return await self.send_email(to_email, subject, html_content)
 
 # Singleton instance
 email_service = EmailService()
