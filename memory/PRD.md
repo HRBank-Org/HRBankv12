@@ -27,6 +27,16 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### Super Admin Partnership Agreements Dashboard ✅ (Jan 28, 2026)
+- **Admin Page**: `/admin/partnership-agreements`
+  - Summary stats: Total Institutions, Signed count, Pending count, Signing Rate %
+  - Filterable table by status (All, Signed, Pending)
+  - Searchable by institution name, email, or signatory
+  - Export to CSV functionality
+  - View details modal with institution info, agreement status, EULA status, and activity stats
+- **Backend API**: `GET /api/admin/partnership-agreements` endpoint
+- **Sidebar Integration**: Link added to Business section in Super Admin sidebar
+
 ### Institution Partnership Agreement UI Complete ✅ (Jan 28, 2026)
 - **Partnership Agreement Page**: `/institution/partnership-agreement`
   - View key partnership terms summary (Revenue Share 50%/95%, Responsibilities, Data & Privacy, Termination)
