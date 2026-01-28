@@ -814,3 +814,198 @@ async def get_platform_analytics(
             "certifications_demand": top_certifications
         }
     }
+
+
+# ==================== REVENUE OVERVIEW ====================
+
+@router.get("/revenue/overview", response_model=Dict)
+async def get_revenue_overview(
+    days: str = "30",
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get comprehensive platform revenue overview including:
+    - Credential verification revenue (50/50 split)
+    - Fundraiser donations (5% platform fee)
+    - Workforce/shift revenue
+    - Top performing institutions
+    """
+    from datetime import timedelta
+    
+    # Calculate date range
+    if days == "all":
+        start_date = None
+    else:
+        days_int = int(days)
+        start_date = datetime.now(timezone.utc) - timedelta(days=days_int)
+    
+    # Build date filter
+    date_filter = {}
+    if start_date:
+        date_filter = {"$gte": start_date.isoformat()}
+    
+    # ===== CREDENTIAL REVENUE =====
+    credential_query = {"status": "verified"}
+    if start_date:
+        credential_query["paid_at"] = date_filter
+    
+    credentials = await db.blockchain_credentials.find(
+        credential_query,
+        {"_id": 0, "payment_info": 1, "institution_id": 1, "institution_name": 1}
+    ).to_list(None)
+    
+    credential_total = 0
+    credential_platform_share = 0
+    credential_institution_share = 0
+    institution_revenue = {}
+    
+    for cred in credentials:
+        payment = cred.get("payment_info", {})
+        amount = payment.get("amount_cad", 0)
+        credential_total += amount
+        # 50/50 split
+        platform = amount * 0.5
+        institution = amount * 0.5
+        credential_platform_share += platform
+        credential_institution_share += institution
+        
+        # Track by institution
+        inst_id = cred.get("institution_id")
+        if inst_id:
+            if inst_id not in institution_revenue:
+                institution_revenue[inst_id] = {
+                    "institution_name": cred.get("institution_name", "Unknown"),
+                    "credential_revenue": 0,
+                    "credentials_sold": 0,
+                    "donation_revenue": 0,
+                    "donations_received": 0
+                }
+            institution_revenue[inst_id]["credential_revenue"] += institution
+            institution_revenue[inst_id]["credentials_sold"] += 1
+    
+    # ===== FUNDRAISER REVENUE =====
+    donation_query = {}
+    if start_date:
+        donation_query["created_at"] = date_filter
+    
+    donations = await db.fundraiser_donations.find(
+        donation_query,
+        {"_id": 0, "gross_amount": 1, "platform_fee": 1, "net_amount": 1, "fundraiser_id": 1}
+    ).to_list(None)
+    
+    fundraiser_gross = 0
+    fundraiser_platform_fees = 0
+    fundraiser_institution_share = 0
+    
+    # Get fundraiser to institution mapping
+    fundraiser_inst_map = {}
+    fundraisers = await db.fundraisers.find({}, {"_id": 0, "fundraiser_id": 1, "institution_id": 1, "institution_name": 1}).to_list(None)
+    for f in fundraisers:
+        fundraiser_inst_map[f["fundraiser_id"]] = {
+            "institution_id": f["institution_id"],
+            "institution_name": f.get("institution_name", "Unknown")
+        }
+    
+    for donation in donations:
+        gross = donation.get("gross_amount", 0)
+        fee = donation.get("platform_fee", 0)
+        net = donation.get("net_amount", 0)
+        
+        fundraiser_gross += gross
+        fundraiser_platform_fees += fee
+        fundraiser_institution_share += net
+        
+        # Track by institution
+        f_id = donation.get("fundraiser_id")
+        if f_id and f_id in fundraiser_inst_map:
+            inst_id = fundraiser_inst_map[f_id]["institution_id"]
+            if inst_id not in institution_revenue:
+                institution_revenue[inst_id] = {
+                    "institution_name": fundraiser_inst_map[f_id]["institution_name"],
+                    "credential_revenue": 0,
+                    "credentials_sold": 0,
+                    "donation_revenue": 0,
+                    "donations_received": 0
+                }
+            institution_revenue[inst_id]["donation_revenue"] += net
+            institution_revenue[inst_id]["donations_received"] += 1
+    
+    # ===== WORKFORCE REVENUE (placeholder - based on shifts) =====
+    shift_query = {"status": "completed"}
+    if start_date:
+        shift_query["completed_at"] = date_filter
+    
+    completed_shifts = await db.shifts.count_documents(shift_query)
+    # Estimate $2/hour platform fee on shifts
+    workforce_revenue = completed_shifts * 2 * 4  # Assuming 4-hour average shift
+    
+    # ===== USER COUNTS =====
+    total_users = await db.users.count_documents({})
+    total_institutions = await db.users.count_documents({"user_type": "institution"})
+    active_employers = await db.users.count_documents({"user_type": "employer", "profile_status": "active"})
+    active_workers = await db.users.count_documents({"user_type": "workforce", "profile_status": "active"})
+    
+    # Active fundraisers
+    active_fundraisers = await db.fundraisers.count_documents({"is_active": True})
+    
+    # Average credential price
+    avg_credential_price = credential_total / len(credentials) if credentials else 0
+    
+    # ===== TOP INSTITUTIONS =====
+    top_institutions = []
+    for inst_id, data in sorted(
+        institution_revenue.items(),
+        key=lambda x: x[1]["credential_revenue"] + x[1]["donation_revenue"],
+        reverse=True
+    )[:10]:
+        top_institutions.append({
+            "institution_id": inst_id,
+            "institution_name": data["institution_name"],
+            "credential_revenue": round(data["credential_revenue"], 2),
+            "credentials_sold": data["credentials_sold"],
+            "donation_revenue": round(data["donation_revenue"], 2),
+            "donations_received": data["donations_received"],
+            "total_revenue": round(data["credential_revenue"] + data["donation_revenue"], 2)
+        })
+    
+    # ===== CALCULATE TOTAL PLATFORM REVENUE =====
+    # Platform revenue = credential platform share (50%) + fundraiser fees (5%) + workforce fees
+    total_platform_revenue = credential_platform_share + fundraiser_platform_fees + workforce_revenue
+    
+    return {
+        "success": True,
+        "data": {
+            # Totals
+            "total_revenue": round(total_platform_revenue, 2),
+            "revenue_growth": 0,  # TODO: Calculate vs previous period
+            
+            # Credential breakdown
+            "credential_revenue": round(credential_total, 2),
+            "credential_platform_share": round(credential_platform_share, 2),
+            "credential_institution_share": round(credential_institution_share, 2),
+            "credentials_sold": len(credentials),
+            
+            # Fundraiser breakdown
+            "fundraiser_gross_revenue": round(fundraiser_gross, 2),
+            "fundraiser_platform_fees": round(fundraiser_platform_fees, 2),
+            "fundraiser_institution_share": round(fundraiser_institution_share, 2),
+            "total_donations": len(donations),
+            
+            # Workforce breakdown
+            "workforce_revenue": round(workforce_revenue, 2),
+            "shifts_completed": completed_shifts,
+            
+            # Counts
+            "total_users": total_users,
+            "total_institutions": total_institutions,
+            "active_employers": active_employers,
+            "active_workers": active_workers,
+            "active_fundraisers": active_fundraisers,
+            "avg_credential_price": round(avg_credential_price, 2),
+            
+            # Top performers
+            "top_institutions": top_institutions
+        }
+    }
+
