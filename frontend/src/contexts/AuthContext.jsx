@@ -73,7 +73,9 @@ export const AuthProvider = ({ children }) => {
           }
         });
         // Store complete user data including profile
-        setUser(profileResponse.data.data);
+        const userData = profileResponse.data.data;
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
       } catch (profileError) {
         console.warn('Failed to fetch user profile:', profileError);
         // Don't logout on profile fetch failure during login
