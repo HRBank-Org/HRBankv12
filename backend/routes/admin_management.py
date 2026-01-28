@@ -976,6 +976,72 @@ async def get_revenue_overview(
     return {
         "success": True,
         "data": {
+
+
+# ==================== SECURITY SESSION MANAGEMENT ====================
+
+@router.post("/security/cleanup-sessions", response_model=Dict)
+async def cleanup_stale_sessions(
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """
+    Manually trigger session cleanup for security.
+    Removes expired and inactive sessions across all user types.
+    """
+    from services.session_manager import session_manager
+    
+    results = await session_manager.run_security_cleanup()
+    
+    return {
+        "success": True,
+        "message": f"Cleaned up {results['total_cleaned']} stale sessions",
+        "data": results
+    }
+
+@router.get("/security/session-stats", response_model=Dict)
+async def get_session_statistics(
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """
+    Get comprehensive session statistics for security monitoring.
+    """
+    from services.session_manager import session_manager
+    
+    # Active sessions by user type
+    active_counts = await session_manager.get_active_sessions_count()
+    
+    # Total sessions
+    total_sessions = await db.active_sessions.count_documents({})
+    active_sessions = await db.active_sessions.count_documents({"is_active": True})
+    
+    # Recent terminations
+    one_hour_ago = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+    recent_terminations = await db.active_sessions.count_documents({
+        "is_active": False,
+        "terminated_at": {"$gte": one_hour_ago}
+    })
+    
+    # Sessions by termination reason
+    pipeline = [
+        {"$match": {"is_active": False}},
+        {"$group": {"_id": "$termination_reason", "count": {"$sum": 1}}}
+    ]
+    termination_reasons = await db.active_sessions.aggregate(pipeline).to_list(length=20)
+    
+    return {
+        "success": True,
+        "data": {
+            "active_sessions": active_counts,
+            "total_sessions": total_sessions,
+            "active_count": active_sessions,
+            "inactive_count": total_sessions - active_sessions,
+            "recent_terminations_1h": recent_terminations,
+            "termination_reasons": {r["_id"]: r["count"] for r in termination_reasons if r["_id"]}
+        }
+    }
+
             # Totals
             "total_revenue": round(total_platform_revenue, 2),
             "revenue_growth": 0,  # TODO: Calculate vs previous period
