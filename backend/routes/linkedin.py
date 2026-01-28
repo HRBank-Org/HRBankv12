@@ -409,8 +409,8 @@ async def share_to_linkedin(
     if not user or not user.get("linkedin_access_token"):
         raise HTTPException(status_code=400, detail="LinkedIn not connected")
     
-    # Get credential details
-    credential = await db.workpassport_credentials.find_one({"credential_id": credential_id})
+    # Get credential details from blockchain_credentials
+    credential = await db.blockchain_credentials.find_one({"credential_id": credential_id})
     if not credential:
         raise HTTPException(status_code=404, detail="Credential not found")
     
