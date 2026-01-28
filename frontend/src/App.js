@@ -113,6 +113,7 @@ import PartnerManagement from './pages/admin/PartnerManagement';
 import ComplianceOnboarding from './pages/employer/ComplianceOnboarding';
 import WorkerComplianceOnboarding from './pages/workforce/WorkerComplianceOnboarding';
 import Analytics from './pages/admin/Analytics';
+import SOC2Dashboard from './pages/admin/SOC2Dashboard';
 import AdminSettings from './pages/admin/Settings';
 import InstitutionDirectory from './pages/admin/InstitutionDirectory';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
