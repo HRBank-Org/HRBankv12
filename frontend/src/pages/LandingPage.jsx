@@ -63,7 +63,7 @@ const LandingPage = () => {
                 Employers <span className="text-orange-500 text-xs">(Beta)</span>
               </Link>
               <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Jobs
+                Work Opportunities
               </Link>
             </div>
             <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="main-landing-signin">
@@ -99,17 +99,17 @@ const LandingPage = () => {
         <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full text-green-400 text-sm font-semibold mb-6 border border-green-500/30">
             <span className="animate-pulse w-2 h-2 bg-green-400 rounded-full" />
-            100% Free for Workers
+            The Standard for Workforce Trust
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Your Skills.
+            Proof Replaces
             <br />
-            <span className="text-amber-400">Verified.</span>
+            <span className="text-amber-400">Claims.</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Build a WorkPassport™ that proves what you can do. Carry your credentials, experience, and ratings wherever you go.
+            HR Bank turns workforce credibility into a verifiable, portable standard — so employers hire with confidence, and workers prove themselves without hype or connections.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -490,6 +490,210 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Real Operations, Real Jobs Section */}
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-[#1a2d42] to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 rounded-full text-amber-400 text-sm font-medium mb-4">
+                <Briefcase className="w-4 h-4" />
+                Not a Job Board
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                Real Work.
+                <br />
+                <span className="text-amber-400">Not Listings.</span>
+              </h2>
+              
+              <p className="text-lg text-gray-300 mb-6 leading-relaxed">
+                Unlike job boards where anyone can post a position &quot;out of nowhere,&quot; HR Bank work opportunities 
+                come from <strong className="text-white">real, verified employers</strong> with actual operations — 
+                shifts, schedules, and accountability already set up on the platform.
+              </p>
+              
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <span className="text-red-400 font-bold text-lg mt-0.5">✕</span>
+                  <div>
+                    <p className="text-red-400 font-medium">Traditional Job Boards</p>
+                    <p className="text-gray-400 text-sm">Anyone posts anything. Ghost jobs. Spam listings. No accountability.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-green-400 font-medium">HR Bank Work Opportunities</p>
+                    <p className="text-gray-400 text-sm">Generated from real operational needs. Verified employers. Matched by occupation.</p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-gray-400 text-sm">
+                When the system detects a real need — like a shift that needs coverage — it generates that opportunity 
+                in context and matches it to onboarded workers. Faster staffing. More reliable hours. A fairer market.
+              </p>
+            </div>
+
+            {/* Visual: How jobs flow */}
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+              <h3 className="text-white font-bold text-lg mb-6 text-center">How Work Opportunities Flow</h3>
+              
+              <div className="space-y-4">
+                {/* Step 1 */}
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">1</div>
+                  <div className="flex-1 bg-slate-700/50 rounded-lg p-3">
+                    <p className="text-white text-sm font-medium">Employer sets up real operations</p>
+                    <p className="text-gray-400 text-xs">Workplaces, shifts, schedules, tasks</p>
+                  </div>
+                </div>
+                
+                {/* Arrow */}
+                <div className="flex justify-center">
+                  <ChevronRight className="w-6 h-6 text-amber-400 rotate-90" />
+                </div>
+                
+                {/* Step 2 */}
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">2</div>
+                  <div className="flex-1 bg-slate-700/50 rounded-lg p-3">
+                    <p className="text-white text-sm font-medium">System detects operational need</p>
+                    <p className="text-gray-400 text-xs">Shift needs coverage, role needs filling</p>
+                  </div>
+                </div>
+                
+                {/* Arrow */}
+                <div className="flex justify-center">
+                  <ChevronRight className="w-6 h-6 text-amber-400 rotate-90" />
+                </div>
+                
+                {/* Step 3 */}
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">3</div>
+                  <div className="flex-1 bg-slate-700/50 rounded-lg p-3">
+                    <p className="text-white text-sm font-medium">Matched to verified workers</p>
+                    <p className="text-gray-400 text-xs">By occupation, credentials, availability</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <p className="text-green-400 text-sm text-center font-medium">
+                  Result: Every opportunity is real. Every match is qualified.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Infrastructure Ecosystem */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#30496d]/10 rounded-full text-[#30496d] text-sm font-medium mb-4">
+              <Globe className="w-4 h-4" />
+              Trust Infrastructure
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              One Network. Verified on All Sides.
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              HR Bank isn&apos;t three separate products — it&apos;s a single trust infrastructure where 
+              verified workers meet verified employers, powered by institution-issued credentials.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {/* Workers */}
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 border border-amber-200 relative">
+              <div className="absolute -top-3 left-6 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                WORKERS
+              </div>
+              <div className="pt-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Prove, Don&apos;t Claim</h3>
+                <ul className="space-y-2 text-gray-600 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                    Blockchain-verified credentials
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                    Employer-confirmed work history
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                    Portable reputation that travels
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Employers */}
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200 relative">
+              <div className="absolute -top-3 left-6 bg-[#ff5f00] text-white text-xs font-bold px-3 py-1 rounded-full">
+                EMPLOYERS
+              </div>
+              <div className="pt-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Hire with Confidence</h3>
+                <ul className="space-y-2 text-gray-600 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#ff5f00]" />
+                    Access pre-verified talent pool
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#ff5f00]" />
+                    Real credentials, instant verification
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#ff5f00]" />
+                    Workforce ops infrastructure built-in
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Institutions */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200 relative">
+              <div className="absolute -top-3 left-6 bg-[#30496d] text-white text-xs font-bold px-3 py-1 rounded-full">
+                INSTITUTIONS
+              </div>
+              <div className="pt-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Issue the Currency</h3>
+                <ul className="space-y-2 text-gray-600 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#30496d]" />
+                    Blockchain-secured credentials
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#30496d]" />
+                    Eliminate verification burden
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#30496d]" />
+                    Revenue from credential issuance
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Central trust flow */}
+          <div className="bg-gradient-to-r from-slate-100 to-slate-200 rounded-2xl p-8 text-center">
+            <p className="text-lg text-gray-700 mb-4">
+              <strong className="text-gray-900">The result:</strong> A market where trust is standardized — 
+              like currency. No more friction from unverifiable claims. No more fraud from fake credentials. 
+              No more bias from connections over competence.
+            </p>
+            <p className="text-[#30496d] font-semibold">
+              Proof replaces claims. Trust becomes portable. The playing field levels.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Privacy Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -592,7 +796,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <img src={LOGOS.master} alt="HR Bank" className="h-8 w-auto mb-4" />
-              <p className="text-sm">The workforce platform where your experience travels with you.</p>
+              <p className="text-sm">The standard for trust in employment.</p>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">For Workers</h4>
