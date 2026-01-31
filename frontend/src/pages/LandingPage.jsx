@@ -801,7 +801,7 @@ const LandingPage = () => {
             <div>
               <h4 className="text-white font-semibold mb-4">For Workers</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/jobs" className="hover:text-white transition-colors">Browse Jobs</Link></li>
+                <li><Link to="/jobs" className="hover:text-white transition-colors">Work Opportunities</Link></li>
                 <li><Link to="/signup?type=workforce" className="hover:text-white transition-colors">Create Passport</Link></li>
                 <li><Link to="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link></li>
               </ul>

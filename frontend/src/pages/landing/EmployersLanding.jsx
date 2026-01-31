@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { 
   Building2, Shield, Clock, Users, CheckCircle2, ChevronRight, 
   DollarSign, MapPin, Smartphone, BarChart3, Zap, Calendar,
-  ClipboardList, UserCheck, AlertTriangle, Star, Play
+  ClipboardList, UserCheck, AlertTriangle, Star, Play, Award
 } from 'lucide-react';
 import { LOGOS } from '../../utils/logoUtils';
 import LoginModal from '../../components/auth/LoginModal';
@@ -36,7 +36,7 @@ const EmployersLanding = () => {
                 Employers <span className="text-orange-500 text-xs">(Beta)</span>
               </Link>
               <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Jobs
+                Work Opportunities
               </Link>
             </div>
             <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="employer-landing-signin">
@@ -71,18 +71,20 @@ const EmployersLanding = () => {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff5f00] rounded-full text-white text-sm font-semibold mb-6">
               <Zap className="w-4 h-4" />
-              Beta Program — Early Access
+              Trust Infrastructure for Employers
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Workforce Operations.
+              Access Ready-to-Work
               <br />
-              <span className="text-[#ff5f00]">Simplified.</span>
+              <span className="text-[#ff5f00]">People. With Proof.</span>
             </h1>
             
             <p className="text-xl text-gray-200 mb-8 leading-relaxed">
-              Manage your existing team&apos;s attendance, timesheets, and scheduling — all from your phone. 
-              Built for multi-location businesses who need real oversight without being on-site 24/7.
+              Stop hiring from unverifiable resumes. HR Bank gives you access to workers with 
+              <strong className="text-white"> blockchain-verified credentials</strong> and 
+              <strong className="text-white"> employer-confirmed work history</strong> — 
+              plus the operations infrastructure to manage them.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -98,7 +100,7 @@ const EmployersLanding = () => {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => document.getElementById('sample-dashboard').scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })}
                 className="bg-white/10 border-white/30 text-white hover:bg-white/20 h-14 px-8 text-lg"
               >
                 <Play className="mr-2 w-5 h-5" />
@@ -109,56 +111,59 @@ const EmployersLanding = () => {
         </div>
       </section>
 
-      {/* What This Is / What This Isn't */}
-      <section className="py-16 bg-gray-50">
+      {/* Trust Advantage Section */}
+      <section className="py-16 bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Why Trust Infrastructure Matters
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Traditional hiring runs on claims. HR Bank runs on proof.
+            </p>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white rounded-2xl p-8 border border-gray-200">
-              <div className="flex items-center gap-2 text-green-600 font-semibold mb-6">
-                <CheckCircle2 className="w-6 h-6" />
-                What This Is
+            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
+              <div className="flex items-center gap-2 text-red-400 font-semibold mb-4">
+                <AlertTriangle className="w-6 h-6" />
+                The Old Way
               </div>
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {[
-                  'Attendance tracking for your existing team',
-                  'GPS-verified clock in/out',
-                  'Multi-location management from one dashboard',
-                  'Timesheet approval and payroll prep',
-                  'Shift scheduling and calendar',
-                  'Task assignment and tracking'
+                  'Resumes anyone can fabricate',
+                  'References that may not answer',
+                  'Credentials you can\'t verify quickly',
+                  'No proof of actual work performance',
+                  'Bias toward connections over competence'
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">{item}</span>
+                    <span className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0">✕</span>
+                    <span className="text-gray-300">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 border border-gray-200">
-              <div className="flex items-center gap-2 text-gray-500 font-semibold mb-6">
-                <AlertTriangle className="w-6 h-6" />
-                What This Isn&apos;t (Yet)
+            <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6">
+              <div className="flex items-center gap-2 text-green-400 font-semibold mb-4">
+                <Shield className="w-6 h-6" />
+                HR Bank Way
               </div>
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {[
-                  'Not a job board or hiring marketplace',
-                  'Not a staffing agency replacement',
-                  'Not for finding new candidates',
-                  'Hiring features coming in future phases'
+                  'Blockchain-verified credentials from real institutions',
+                  'Work history confirmed by previous employers',
+                  'Instant verification — no phone calls needed',
+                  'Real ratings and attendance records',
+                  'Proof replaces claims — hire on merit'
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0">—</span>
-                    <span className="text-gray-500">{item}</span>
+                    <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-300">{item}</span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <p className="text-blue-800 text-sm">
-                  <strong>Beta focus:</strong> Perfect the workforce operations tools first. 
-                  Hiring marketplace features will be added based on beta feedback.
-                </p>
-              </div>
             </div>
           </div>
         </div>
