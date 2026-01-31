@@ -56,7 +56,7 @@ const InstitutionsLanding = () => {
                 Employers <span className="text-orange-500 text-xs">(Beta)</span>
               </Link>
               <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Jobs
+                Work Opportunities
               </Link>
             </div>
             <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="institution-landing-signin">
@@ -72,22 +72,22 @@ const InstitutionsLanding = () => {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 rounded-full text-blue-300 text-sm font-semibold mb-6">
               <Building2 className="w-4 h-4" />
-              For All Regulated Training Providers
+              Issue the Currency of Trust
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-              Issue Blockchain Credentials.
+              Your Credentials.
               <br />
-              <span className="text-amber-400">Prove Authenticity Forever.</span>
+              <span className="text-amber-400">Their Currency.</span>
             </h1>
             
             <p className="text-xl text-gray-300 mb-4 leading-relaxed">
-              Whether you&apos;re a university, college, or specialized training provider — 
-              if your credentials are regulated, you can issue them on the blockchain.
+              HR Bank standardizes trust in employment the way a central bank standardizes currency. 
+              As an institution, you issue the credentials that make this possible.
             </p>
             <p className="text-lg text-gray-400 mb-8">
-              From degrees to forklift certifications, WHMIS to food safety — every credential 
-              your students earn becomes tamper-proof and instantly verifiable.
+              From degrees to forklift certifications — every credential you issue becomes 
+              tamper-proof, instantly verifiable, and trusted by employers across the network.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -494,7 +494,7 @@ const InstitutionsLanding = () => {
       {/* Footer */}
       <footer className="bg-slate-900 text-gray-400 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm">© 2025 HR Bank. All rights reserved.</p>
+          <p className="text-sm">© 2025 HR Bank. The standard for trust in employment.</p>
           <div className="flex justify-center gap-6 mt-4 text-sm">
             <Link to="/privacy" className="hover:text-white">Privacy</Link>
             <Link to="/about" className="hover:text-white">About</Link>
