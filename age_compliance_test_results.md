@@ -6,7 +6,7 @@
 
 ## Feature Under Test: Age Compliance feature in Workforce Onboarding flow
 
-**Test URL:** https://hrbank-fundraise.preview.emergentagent.com
+**Test URL:** https://hrinfra.preview.emergentagent.com
 
 **Test Credentials:**
 - Workforce: alex.johnson@email.com / Demo123!
