@@ -32,6 +32,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
   - Hero: "Proof Replaces Claims." - conveys trust standard, not just verified skills
   - New "Real Work. Not Listings." section explaining how jobs originate from real operations
   - New "Trust Infrastructure Ecosystem" section showing workers/employers/institutions network
+  - **NEW: Animated Trust Flow Diagram** - Shows credential journey: Institution → Worker → Employer with floating icons and flow animations
   - Footer tagline: "The standard for trust in employment."
   - Navigation: "Jobs" renamed to "Work Opportunities"
 - **Employers Landing Page (EmployersLanding.jsx)**:
