@@ -795,6 +795,14 @@ const LandingPage = () => {
             </div>
           </div>
 
+          {/* Animated Trust Flow */}
+          <div className="mb-12">
+            <h3 className="text-center text-lg font-semibold text-gray-700 mb-6">
+              See How Trust Flows
+            </h3>
+            <TrustFlowAnimation />
+          </div>
+
           {/* Central trust flow */}
           <div className="bg-gradient-to-r from-slate-100 to-slate-200 rounded-2xl p-8 text-center">
             <p className="text-lg text-gray-700 mb-4">
