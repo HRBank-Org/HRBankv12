@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { 
   ChevronRight, Shield, CheckCircle2, Star, Play, Zap,
-  Globe, Clock, Award, FileCheck, QrCode, Briefcase
+  Globe, Clock, Award, FileCheck, QrCode, Briefcase,
+  Building2, Users, Verified, ArrowRight
 } from 'lucide-react';
 import { LOGOS } from '../utils/logoUtils';
 import EmmaLandingChat from '../components/emma/EmmaLandingChat';
@@ -11,6 +12,120 @@ import LoginModal from '../components/auth/LoginModal';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+// Animated Trust Flow Component
+const TrustFlowAnimation = () => {
+  return (
+    <div className="relative py-8">
+      {/* Flow Container */}
+      <div className="flex items-center justify-center gap-4 md:gap-8 relative">
+        
+        {/* Institution Node */}
+        <div className="flex flex-col items-center z-10">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#30496d] to-[#1a2d42] flex items-center justify-center shadow-lg animate-pulse-slow">
+            <Building2 className="w-10 h-10 md:w-12 md:h-12 text-white" />
+          </div>
+          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">Institution</p>
+          <p className="text-xs text-gray-500">Issues Credential</p>
+        </div>
+
+        {/* Animated Arrow 1 */}
+        <div className="relative w-16 md:w-24 h-12 flex items-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="h-0.5 w-full bg-gradient-to-r from-[#30496d] to-amber-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-flow-right" />
+            </div>
+          </div>
+          <div className="absolute right-0 transform translate-x-1">
+            <ArrowRight className="w-5 h-5 text-amber-500" />
+          </div>
+          {/* Floating credential */}
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3 animate-float-credential">
+            <div className="w-8 h-6 bg-gradient-to-r from-amber-400 to-amber-500 rounded shadow-md flex items-center justify-center">
+              <Shield className="w-4 h-4 text-white" />
+            </div>
+          </div>
+        </div>
+
+        {/* Worker Node */}
+        <div className="flex flex-col items-center z-10">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
+            <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
+          </div>
+          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">Worker</p>
+          <p className="text-xs text-gray-500">Carries Proof</p>
+        </div>
+
+        {/* Animated Arrow 2 */}
+        <div className="relative w-16 md:w-24 h-12 flex items-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="h-0.5 w-full bg-gradient-to-r from-amber-500 to-green-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-flow-right delay-500" />
+            </div>
+          </div>
+          <div className="absolute right-0 transform translate-x-1">
+            <ArrowRight className="w-5 h-5 text-green-500" />
+          </div>
+          {/* Floating QR code */}
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3 animate-float-credential delay-300">
+            <div className="w-8 h-6 bg-white rounded shadow-md flex items-center justify-center border border-gray-200">
+              <QrCode className="w-4 h-4 text-gray-700" />
+            </div>
+          </div>
+        </div>
+
+        {/* Employer Node */}
+        <div className="flex flex-col items-center z-10">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+            <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12 text-white" />
+          </div>
+          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">Employer</p>
+          <p className="text-xs text-gray-500">Verifies Instantly</p>
+        </div>
+      </div>
+
+      {/* Blockchain verification badge */}
+      <div className="flex justify-center mt-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full border border-purple-200">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <span className="text-sm font-medium text-gray-700">Secured on Polygon Blockchain</span>
+          <Shield className="w-4 h-4 text-purple-600" />
+        </div>
+      </div>
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes flow-right {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+        @keyframes float-credential {
+          0%, 100% { transform: translateX(-50%) translateY(0); }
+          50% { transform: translateX(-50%) translateY(-8px); }
+        }
+        @keyframes pulse-slow {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        .animate-flow-right {
+          animation: flow-right 2s ease-in-out infinite;
+        }
+        .animate-float-credential {
+          animation: float-credential 2s ease-in-out infinite;
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 3s ease-in-out infinite;
+        }
+        .delay-300 {
+          animation-delay: 0.3s;
+        }
+        .delay-500 {
+          animation-delay: 0.5s;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const LandingPage = () => {
   const navigate = useNavigate();
