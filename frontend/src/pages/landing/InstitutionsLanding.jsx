@@ -113,6 +113,61 @@ const InstitutionsLanding = () => {
         </div>
       </section>
 
+      {/* Trust Infrastructure Role Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                You&apos;re the Foundation of Trust
+              </h2>
+              <p className="text-lg text-gray-600 mb-6">
+                Today, hiring runs on unverifiable &quot;notes&quot; — resumes, claims, PDFs that anyone can fabricate. 
+                This creates friction, fraud risk, and bias that hurts everyone.
+              </p>
+              <p className="text-lg text-gray-600 mb-6">
+                <strong className="text-gray-900">HR Bank changes this.</strong> We&apos;re building infrastructure 
+                where workforce credibility becomes a verifiable, portable standard. And institutions like you 
+                are the ones who issue that standard.
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <p className="text-amber-800">
+                  <strong>Think of it like currency:</strong> A central bank doesn&apos;t print money for itself — 
+                  it enables trusted exchange across an economy. Your credentials do the same for employment.
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-6">
+              <h3 className="font-bold text-gray-900 mb-4 text-center">How It Works</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
+                  <div className="w-10 h-10 bg-[#30496d] rounded-full flex items-center justify-center text-white font-bold">1</div>
+                  <div>
+                    <p className="font-medium text-gray-900">You issue credentials</p>
+                    <p className="text-gray-500 text-sm">Secured on blockchain, instantly verifiable</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
+                  <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                  <div>
+                    <p className="font-medium text-gray-900">Workers carry them</p>
+                    <p className="text-gray-500 text-sm">In their WorkPassport™, wherever they go</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
+                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                  <div>
+                    <p className="font-medium text-gray-900">Employers trust them</p>
+                    <p className="text-gray-500 text-sm">Instant verification, no phone calls</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Who Can Join Section */}
       <section className="py-16 bg-gradient-to-r from-emerald-50 to-cyan-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
