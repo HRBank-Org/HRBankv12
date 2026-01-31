@@ -169,6 +169,81 @@ const EmployersLanding = () => {
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Operations + Trust. One Platform.
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Not just workforce management — a trust infrastructure where your operational needs 
+              generate real work opportunities matched to verified workers.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <div className="bg-white rounded-2xl p-8 border border-gray-200">
+              <div className="flex items-center gap-2 text-green-600 font-semibold mb-6">
+                <CheckCircle2 className="w-6 h-6" />
+                What You Get
+              </div>
+              <ul className="space-y-4">
+                {[
+                  'Access to workers with verified credentials',
+                  'GPS-verified attendance tracking',
+                  'Multi-location management from one dashboard',
+                  'Timesheet approval and payroll prep',
+                  'Shift scheduling that generates real opportunities',
+                  'Task assignment and accountability'
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 border border-gray-200">
+              <div className="flex items-center gap-2 text-[#ff5f00] font-semibold mb-6">
+                <Award className="w-6 h-6" />
+                How Jobs Flow From Operations
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-[#ff5f00] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">1</div>
+                  <div>
+                    <p className="font-medium text-gray-900">You set up real operations</p>
+                    <p className="text-gray-500 text-sm">Workplaces, shifts, schedules, requirements</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-[#ff5f00] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">2</div>
+                  <div>
+                    <p className="font-medium text-gray-900">System detects staffing needs</p>
+                    <p className="text-gray-500 text-sm">Shift needs coverage? Role needs filling?</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-[#ff5f00] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">3</div>
+                  <div>
+                    <p className="font-medium text-gray-900">Matched to verified workers</p>
+                    <p className="text-gray-500 text-sm">By credentials, occupation, availability</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-green-800 text-sm">
+                  <strong>Result:</strong> Real operational needs → Real verified matches. 
+                  No ghost jobs. No unqualified applicants.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Sample Dashboard Section */}
       <section id="sample-dashboard" className="py-20 bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -423,7 +498,7 @@ const EmployersLanding = () => {
       {/* Footer */}
       <footer className="bg-slate-900 text-gray-400 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm">© 2025 HR Bank. All rights reserved.</p>
+          <p className="text-sm">© 2025 HR Bank. The standard for trust in employment.</p>
           <div className="flex justify-center gap-6 mt-4 text-sm">
             <Link to="/privacy" className="hover:text-white">Privacy</Link>
             <Link to="/about" className="hover:text-white">About</Link>
