@@ -27,6 +27,22 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (January 2026)
 
+### Landing Page "Trust Infrastructure" Messaging Redesign ✅ (Jan 31, 2026)
+- **Main Landing Page (LandingPage.jsx)**:
+  - Hero: "Proof Replaces Claims." - conveys trust standard, not just verified skills
+  - New "Real Work. Not Listings." section explaining how jobs originate from real operations
+  - New "Trust Infrastructure Ecosystem" section showing workers/employers/institutions network
+  - Footer tagline: "The standard for trust in employment."
+  - Navigation: "Jobs" renamed to "Work Opportunities"
+- **Employers Landing Page (EmployersLanding.jsx)**:
+  - Hero: "Access Ready-to-Work People. With Proof." - emphasizes trust, not just ops
+  - New "Why Trust Infrastructure Matters" section contrasting old way vs HR Bank
+  - New "Operations + Trust. One Platform." section explaining job flow from operations
+- **Institutions Landing Page (InstitutionsLanding.jsx)**:
+  - Hero: "Your Credentials. Their Currency." - positions institutions as trust issuers
+  - New "You're the Foundation of Trust" section with central bank analogy
+  - Badge: "Issue the Currency of Trust"
+
 ### Super Admin Partnership Agreements Dashboard ✅ (Jan 28, 2026)
 - **Admin Page**: `/admin/partnership-agreements`
   - Summary stats: Total Institutions, Signed count, Pending count, Signing Rate %
