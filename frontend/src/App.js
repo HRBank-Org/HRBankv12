@@ -363,6 +363,10 @@ function AppRoutes() {
         <Route path="/employer/roster" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerRoster /></ProtectedRoute>} />
         <Route path="/employer/payroll" element={<ProtectedRoute allowedUserTypes={['employer']}><Payroll /></ProtectedRoute>} />
         <Route path="/employer/work-orders" element={<ProtectedRoute allowedUserTypes={['employer']}><WorkOrders /></ProtectedRoute>} />
+        <Route path="/employer/field-service" element={<ProtectedRoute allowedUserTypes={['employer']}><FieldServiceRoutes /></ProtectedRoute>} />
+        <Route path="/employer/field-service/routes/new" element={<ProtectedRoute allowedUserTypes={['employer']}><CreateFieldServiceRoute /></ProtectedRoute>} />
+        <Route path="/employer/field-service/routes/:routeId" element={<ProtectedRoute allowedUserTypes={['employer']}><RouteDetailView /></ProtectedRoute>} />
+        <Route path="/employer/field-service/routes/:routeId/tracking" element={<ProtectedRoute allowedUserTypes={['employer']}><RouteDetailView /></ProtectedRoute>} />
         <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
         <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDashboard /></ProtectedRoute>} />
         <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerNotifications /></ProtectedRoute>} />
