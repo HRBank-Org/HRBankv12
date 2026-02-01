@@ -576,7 +576,6 @@ async def complete_route(
         "message": "Route completed - shift record created",
         "compliance_warnings": compliance_result.warnings if compliance_result.warnings else None
     }
-    }
 
 
 @router.post("/routes/{route_id}/pause")
