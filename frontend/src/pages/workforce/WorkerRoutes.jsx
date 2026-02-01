@@ -123,68 +123,8 @@ const WorkerRoutes = () => {
     fetchRoutes();
   }, [fetchRoutes]);
 
-  const RouteCard = ({ route }) => {
-    const Icon = routeTypeIcons[route.route_type] || MapPin;
-    const statusColor = statusColors[route.status] || statusColors.scheduled;
-    const completedStops = route.stops?.filter(s => s.status === 'completed').length || 0;
-    const totalStops = route.stops?.length || 0;
-    const isActive = route.status === 'in_progress';
-
-    return (
-      <Card 
-        className={`cursor-pointer transition-all ${isActive ? 'border-2 border-green-500 shadow-lg' : 'hover:shadow-md'}`}
-        onClick={() => navigate(`/workforce/routes/${route.route_id}`)}
-        data-testid={`worker-route-${route.route_id}`}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                isActive ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
-              }`}>
-                <Icon className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">{route.route_name}</h3>
-                <p className="text-sm text-gray-500 capitalize">{route.route_type.replace('_', ' ')}</p>
-              </div>
-            </div>
-            <Badge className={statusColor}>{route.status.replace('_', ' ')}</Badge>
-          </div>
-
-          {/* Progress */}
-          <div className="mb-3">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-600">{completedStops} of {totalStops} stops</span>
-              <span className="font-medium">{Math.round(route.completion_percentage || 0)}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full transition-all ${isActive ? 'bg-green-500' : 'bg-blue-500'}`}
-                style={{ width: `${route.completion_percentage || 0}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Clock className="w-4 h-4" />
-              <span>{new Date(route.scheduled_start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-            <div className="flex items-center gap-1 text-gray-500">
-              <MapPin className="w-4 h-4" />
-              <span>{route.estimated_distance_km || 0} km</span>
-            </div>
-          </div>
-
-          {isActive && (
-            <Button className="w-full mt-3 bg-green-500 hover:bg-green-600">
-              Continue Route <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
-        </CardContent>
-      </Card>
-    );
+  const handleNavigate = (routeId) => {
+    navigate(`/workforce/routes/${routeId}`);
   };
 
   if (loading) {
