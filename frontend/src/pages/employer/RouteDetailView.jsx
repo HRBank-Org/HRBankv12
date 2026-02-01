@@ -327,7 +327,13 @@ const RouteDetailView = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {route.stops?.map((stop, i) => (
-              <StopCard key={stop.stop_id} stop={stop} index={i} />
+              <StopCard 
+                key={stop.stop_id} 
+                stop={stop} 
+                index={i} 
+                currentStopIndex={route.current_stop_index}
+                routeStatus={route.status}
+              />
             ))}
           </CardContent>
         </Card>
