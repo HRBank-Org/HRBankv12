@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiHome, FiCalendar, FiBriefcase, FiSearch, FiClock, FiFileText, FiSettings, FiCheckSquare, FiChevronRight, FiAward, FiDollarSign, FiNavigation, FiSun, FiShare2, FiGlobe, FiHelpCircle, FiCreditCard, FiTruck } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage, LANGUAGES } from '../../contexts/LanguageContext';
 
 const WorkforceSidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
