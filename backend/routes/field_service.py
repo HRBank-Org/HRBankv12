@@ -210,7 +210,7 @@ async def get_routes(
     date: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: dict = Depends(require_role(['employer', 'workforce']))
+    current_user: dict = Depends(require_role("employer", "workforce"))
 ):
     """Get routes with filters"""
     db = await get_database()
