@@ -36,6 +36,8 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 | Field Service Module | ✅ Built & Tested |
 | i18n (EN/FR/ES/PT) | ✅ Complete |
 | Deployment Docs | ✅ Complete |
+| Labor Compliance | ✅ Complete |
+| Language Selector (Global) | ✅ Complete |
 
 ### Remaining for Official Launch
 - [ ] Penetration testing → Update SOC2 badge to "Certified"
@@ -44,6 +46,42 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 ---
 
 ## What's Been Implemented (February 2026)
+
+### Labor Compliance System ✅ (Feb 1, 2026)
+- **Service** (`/app/backend/services/labor_compliance.py`):
+  - Provincial labor standards (Ontario, BC, Alberta, Quebec)
+  - Ontario defaults: 8h standard day, 13h max, 48h weekly max, 44h overtime threshold
+  - Automatic break scheduling (30 min after every 5 hours)
+  - Route duration validation against labor standards
+  - Weekly hours tracking per worker
+- **Route Compliance**:
+  - Routes exceeding 13 hours are BLOCKED
+  - Routes exceeding 8 hours trigger warnings
+  - Breaks auto-suggested for routes > 5 hours
+  - Worker weekly hours checked before assignment
+- **Auto-Shift Creation**:
+  - Route completion automatically creates shift record
+  - Shift stored in `route_shifts` collection
+  - Includes: billable hours, break time, overtime calculation
+  - Links shift to route for payroll processing
+- **API Endpoints**:
+  - `GET /api/field-service/compliance/standards` - Get provincial labor standards
+  - `POST /api/field-service/compliance/validate-route` - Validate route duration
+  - `GET /api/field-service/compliance/worker/{id}/hours` - Get worker's weekly hours
+  - `GET /api/field-service/shifts/route-based` - Get route-based shifts for payroll
+
+### Global Language Selector ✅ (Feb 1, 2026)
+- Added language selector to 5 locations:
+  1. **Main Landing Page** - Header nav (dropdown)
+  2. **Employer Landing Page** - Header nav (dropdown)
+  3. **Institutions Landing Page** - Header nav (dropdown)
+  4. **Employer Dashboard Sidebar** - Footer (expandable menu)
+  5. **Worker Dashboard Sidebar** - Footer (expandable menu)
+- Features:
+  - Auto-detects browser locale on first visit
+  - Persists preference to localStorage
+  - Shows native language names and flags
+  - Supports RTL for Arabic
 
 ### Production Deployment Documentation ✅ (Feb 1, 2026)
 - **Deployment Checklist** (`/app/docs/DEPLOYMENT_CHECKLIST.md`):
