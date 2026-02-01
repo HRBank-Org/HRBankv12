@@ -130,4 +130,16 @@
 
 ---
 
+---
+
+## 🚚 Field Service Test Accounts
+
+### Workers with Test Routes Assigned
+| Name | Email | Password | Assigned Routes |
+|------|-------|----------|-----------------|
+| Emily Chen | emily.chen@email.com | Test123! | Healthcare, Delivery |
+| Tyler Johnson | tyler.johnson@email.com | Test123! | Maintenance, Security Patrol |
+| Priya Sharma | priya.sharma@email.com | Test123! | Cleaning |
+
 *Generated: January 28, 2026*
+*Updated: February 1, 2026 - Added Field Service test accounts*
