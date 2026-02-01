@@ -58,6 +58,25 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - **SOC2 Readiness**: Updated to 100%
 - **Ready for External Audit**: All documentation, controls, and testing complete
 
+### Field Service Routes System ✅ (Feb 1, 2026)
+- **Backend API** (`/app/backend/routes/field_service.py`):
+  - Full CRUD for routes with nested stops and tasks
+  - Route types: delivery, security_patrol, cleaning, healthcare, field_sales, maintenance
+  - GPS tracking with breadcrumbs and geofence verification
+  - Beginning/Ending tasks + tasks at each stop
+  - Route lifecycle: scheduled → in_progress → completed
+  - Live dashboard for active routes
+  - Route templates for reusability
+- **Frontend Pages**:
+  - `FieldServiceRoutes.jsx`: Route list with live dashboard, filters, and cards
+  - `CreateFieldServiceRoute.jsx`: Route builder with stops, tasks, worker assignment
+  - `RouteDetailView.jsx`: Full route view with stops, tasks, verification status
+- **Data Model**:
+  - `field_service_routes` collection with nested stops array
+  - GPS breadcrumbs for route tracking
+  - Stop verification (GPS, photos, signatures)
+  - Task completion tracking with proof
+
 ### Super Admin Partnership Agreements Dashboard ✅ (Jan 28, 2026)
 - **Admin Page**: `/admin/partnership-agreements`
   - Summary stats: Total Institutions, Signed count, Pending count, Signing Rate %
