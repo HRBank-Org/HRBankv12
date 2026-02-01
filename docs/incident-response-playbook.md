@@ -2,357 +2,350 @@
 
 ## Document Control
 - **Version:** 1.0
-- **Effective Date:** January 28, 2026
-- **Owner:** Security Team
+- **Effective Date:** January 31, 2026
+- **Owner:** Security & Engineering Team
 - **Review Frequency:** Quarterly
+- **Classification:** Internal
 
 ---
 
-## 1. Incident Response Team
+## 1. Incident Classification
 
-### Contact Information
-| Role | Name | Phone | Email |
-|------|------|-------|-------|
-| Incident Commander | Qasim Nizami | +1-519-999-0001 | qnizami@hrbank.ca |
-| Security Lead | Qasim Nizami | +1-519-999-0001 | security@hrbank.ca |
-| Engineering Lead | HR Bank Engineering | +1-519-999-0002 | engineering@hrbank.ca |
-| Communications | HR Bank Communications | +1-519-999-0003 | comms@hrbank.ca |
-| Legal Counsel | HR Bank Legal | +1-519-999-0004 | legal@hrbank.ca |
+### Severity Levels
 
-### Escalation Matrix
-| Severity | Initial Response | Escalation |
-|----------|-----------------|------------|
-| Critical | Security Lead (15 min) | CEO + Legal (1 hour) |
-| High | Security Lead (1 hour) | CTO (4 hours) |
-| Medium | On-call Engineer (4 hours) | Security Lead (24 hours) |
-| Low | Ticket System (24 hours) | Engineering Lead (72 hours) |
+| Level | Name | Description | Response Time | Examples |
+|-------|------|-------------|---------------|----------|
+| SEV-1 | Critical | Complete service outage or data breach | 15 minutes | Database down, security breach, all users affected |
+| SEV-2 | High | Major feature unavailable, data at risk | 30 minutes | Payment processing down, auth failures, partial outage |
+| SEV-3 | Medium | Degraded service, workaround available | 2 hours | Slow performance, minor feature broken, email delays |
+| SEV-4 | Low | Minor issue, no user impact | 24 hours | UI bugs, documentation errors, non-critical logs |
 
 ---
 
-## 2. Incident Classification
+## 2. Incident Response Team
 
-### 2.1 Severity Levels
+### Roles
 
-#### CRITICAL (P0)
-- Confirmed data breach
-- Active intrusion/compromise
-- Ransomware/malware infection
-- Complete system outage
-- **Response Time:** 15 minutes
+| Role | Responsibility | Backup |
+|------|----------------|--------|
+| **Incident Commander (IC)** | Coordinates response, makes decisions | Engineering Lead |
+| **Technical Lead** | Diagnoses and implements fix | Senior Developer |
+| **Communications Lead** | Internal/external updates | Product Manager |
+| **Scribe** | Documents timeline and actions | Any team member |
 
-#### HIGH (P1)
-- Unauthorized access detected
-- Credential compromise suspected
-- DDoS attack
-- Partial system outage
-- **Response Time:** 1 hour
-
-#### MEDIUM (P2)
-- Policy violation detected
-- Suspicious activity patterns
-- Failed penetration attempt
-- Vulnerability discovered
-- **Response Time:** 4 hours
-
-#### LOW (P3)
-- Security misconfigurations
-- Minor policy violations
-- False positive alerts
-- **Response Time:** 24 hours
+### On-Call Rotation
+- Primary: Check PagerDuty schedule
+- Escalation: After 15 minutes without response
 
 ---
 
 ## 3. Incident Response Phases
 
-### Phase 1: Detection & Identification
+### Phase 1: Detection & Triage (0-15 minutes)
 
-**Automated Detection Sources:**
-- Audit log alerts (`/api/compliance/audit-logs`)
-- Failed login monitoring (5+ failures = lockout)
-- Rate limiting alerts
-- Anomaly detection in security_controls.py
+```
+[ ] Alert received (monitoring, user report, automated)
+[ ] Acknowledge alert within 5 minutes
+[ ] Assess severity level
+[ ] Assign Incident Commander
+[ ] Create incident channel (#incident-YYYY-MM-DD)
+[ ] Page appropriate team members
+[ ] Begin incident timeline documentation
+```
 
-**Manual Detection:**
-- User reports via support tickets
-- Security team monitoring
-- Third-party notifications
+### Phase 2: Containment (15-60 minutes)
 
-**Initial Assessment Checklist:**
-- [ ] What systems/data are affected?
-- [ ] Is the incident ongoing?
-- [ ] What is the potential impact?
-- [ ] Who needs to be notified?
-- [ ] What evidence should be preserved?
+```
+[ ] Identify affected systems/users
+[ ] Implement immediate containment:
+    [ ] Enable maintenance mode if needed
+    [ ] Isolate compromised systems
+    [ ] Revoke compromised credentials
+[ ] Preserve evidence (logs, snapshots)
+[ ] Communicate status to stakeholders
+```
 
-### Phase 2: Containment
+### Phase 3: Eradication (1-4 hours)
 
-**Immediate Actions:**
+```
+[ ] Identify root cause
+[ ] Develop remediation plan
+[ ] Implement fix
+[ ] Test fix in staging (if possible)
+[ ] Deploy fix to production
+[ ] Verify fix resolves issue
+```
+
+### Phase 4: Recovery (4-24 hours)
+
+```
+[ ] Restore affected systems
+[ ] Verify data integrity
+[ ] Re-enable user access
+[ ] Monitor for recurrence
+[ ] Update status page
+[ ] Notify affected users
+```
+
+### Phase 5: Post-Incident (24-72 hours)
+
+```
+[ ] Schedule post-mortem meeting
+[ ] Complete incident report
+[ ] Identify preventive measures
+[ ] Create action items with owners
+[ ] Update runbooks/documentation
+[ ] Close incident
+```
+
+---
+
+## 4. Communication Templates
+
+### Internal - Incident Declared
+```
+🚨 INCIDENT DECLARED - SEV-[X]
+
+Issue: [Brief description]
+Impact: [Who/what is affected]
+Status: Investigating
+IC: [Name]
+Channel: #incident-YYYY-MM-DD
+
+Updates every [15/30/60] minutes
+```
+
+### Internal - Status Update
+```
+📊 INCIDENT UPDATE - SEV-[X]
+
+Time: [HH:MM UTC]
+Status: [Investigating/Identified/Implementing Fix/Monitoring]
+Update: [What changed]
+ETA: [Estimated resolution time]
+Next update: [Time]
+```
+
+### Internal - Resolved
+```
+✅ INCIDENT RESOLVED - SEV-[X]
+
+Duration: [X hours Y minutes]
+Root Cause: [Brief description]
+Resolution: [What fixed it]
+Impact: [Users affected, data impact]
+Post-mortem: [Date/Time]
+```
+
+### External - Status Page
+```
+[Investigating] We are aware of issues affecting [service].
+We are actively investigating and will provide updates.
+
+[Identified] The issue has been identified. Our team is implementing a fix.
+Expected resolution: [Time estimate]
+
+[Resolved] This incident has been resolved. All services are operating normally.
+We apologize for any inconvenience.
+```
+
+---
+
+## 5. Runbooks by Incident Type
+
+### 5.1 Database Connectivity Failure
+
+**Detection:** API returns 500 errors, "database connection failed" in logs
+
+**Steps:**
+1. Check MongoDB Atlas status: https://status.mongodb.com
+2. Verify Atlas dashboard: https://cloud.mongodb.com
+3. Check IP whitelist hasn't changed
+4. Verify MONGO_URL environment variable
+5. Restart backend: `sudo supervisorctl restart backend`
+6. If Atlas issue, enable maintenance mode
+7. For data corruption, initiate PITR recovery
+
+### 5.2 Authentication Failure (Mass Logout)
+
+**Detection:** Multiple users reporting login failures, JWT validation errors
+
+**Steps:**
+1. Check JWT secret hasn't changed
+2. Verify Google OAuth credentials valid
+3. Check session cleanup didn't terminate valid sessions
+4. Review recent deployments for auth changes
+5. If compromised, rotate JWT secret and force re-login
+
+### 5.3 Payment Processing Failure
+
+**Detection:** Stripe webhook errors, payment completion failures
+
+**Steps:**
+1. Check Stripe status: https://status.stripe.com
+2. Verify Stripe API keys haven't been rotated
+3. Check webhook signature verification
+4. Enable payment queue (graceful degradation)
+5. Monitor for Stripe recovery
+6. Process queued payments after restoration
+
+### 5.4 Security Breach / Unauthorized Access
+
+**Detection:** Unusual audit log patterns, external notification, user reports
+
+**Steps:**
+1. **IMMEDIATELY**: Activate incident response team
+2. Isolate: Disable external API access if needed
+3. Terminate all sessions: `POST /api/admin/security/cleanup-sessions`
+4. Revoke OAuth tokens
+5. Reset database credentials
+6. Review audit logs: `GET /api/compliance/audit-logs`
+7. Identify scope of access
+8. Notify legal/compliance
+9. Prepare breach notification (72 hours for PIPEDA)
+10. Engage forensics if needed
+
+### 5.5 High CPU/Memory Usage
+
+**Detection:** Slow response times, monitoring alerts
+
+**Steps:**
+1. Check system resources: `top`, `htop`
+2. Check supervisor processes: `sudo supervisorctl status`
+3. Review recent traffic patterns
+4. Check for infinite loops in logs
+5. Restart affected service
+6. Scale if needed
+
+### 5.6 Third-Party Service Degradation
+
+**Detection:** Specific feature failures, third-party errors in logs
+
+| Service | Status Page | Degradation Action |
+|---------|------------|-------------------|
+| SendGrid | status.sendgrid.com | Queue emails for retry |
+| Twilio | status.twilio.com | Use email-only OTP |
+| Stripe | status.stripe.com | Queue payments |
+| MongoDB Atlas | status.mongodb.com | Enable maintenance mode |
+
+---
+
+## 6. Contact Information
+
+### Internal Contacts
+| Role | Contact Method |
+|------|---------------|
+| Engineering | Slack #engineering |
+| Security | Slack #security |
+| Leadership | Slack #leadership + Phone |
+
+### External Contacts
+| Service | Support URL |
+|---------|------------|
+| AWS Support | AWS Console |
+| MongoDB Atlas | cloud.mongodb.com/support |
+| Stripe | dashboard.stripe.com/support |
+| SendGrid | sendgrid.com/support |
+
+### Emergency Contacts
+| Situation | Contact |
+|-----------|---------|
+| Legal counsel | [Company legal contact] |
+| PR/Communications | [PR contact] |
+| Cyber insurance | [Insurance provider] |
+
+---
+
+## 7. Post-Incident Report Template
+
+```markdown
+# Post-Incident Report: [Title]
+
+## Summary
+- **Incident ID:** INC-YYYY-MM-DD-XXX
+- **Severity:** SEV-X
+- **Duration:** X hours Y minutes
+- **Impact:** [Users/systems affected]
+
+## Timeline
+| Time (UTC) | Event |
+|------------|-------|
+| HH:MM | [Event description] |
+
+## Root Cause
+[Detailed explanation of why the incident occurred]
+
+## Resolution
+[What was done to fix it]
+
+## Impact Assessment
+- Users affected: X
+- Data impact: [None/Minimal/Significant]
+- Financial impact: [Estimated]
+- Reputation impact: [Assessment]
+
+## What Went Well
+- [Point 1]
+- [Point 2]
+
+## What Could Be Improved
+- [Point 1]
+- [Point 2]
+
+## Action Items
+| Priority | Action | Owner | Due Date |
+|----------|--------|-------|----------|
+| High | [Action] | [Name] | [Date] |
+
+## Lessons Learned
+[Key takeaways]
+```
+
+---
+
+## 8. Compliance Requirements
+
+### PIPEDA Breach Notification
+- **Timeline:** Report to Privacy Commissioner within 72 hours if real risk of significant harm
+- **Content:** Nature of breach, PII involved, steps taken, contact info
+- **Records:** Keep records of all breaches for 24 months
+
+### SOC2 Incident Documentation
+- All SEV-1 and SEV-2 incidents must be documented
+- Post-incident reports retained for 7 years
+- Evidence of remediation required
+
+---
+
+## Appendix: Quick Reference Commands
 
 ```bash
-# Force logout compromised user
-curl -X POST "$API/api/compliance/admin/terminate-user-sessions/{user_id}" \
+# Check service status
+sudo supervisorctl status
+
+# Restart services
+sudo supervisorctl restart backend
+sudo supervisorctl restart frontend
+
+# View recent logs
+tail -n 200 /var/log/supervisor/backend.err.log
+
+# Check database connectivity
+curl -s http://localhost:8001/api/health | python3 -c "import sys,json; print(json.load(sys.stdin))"
+
+# Force terminate all sessions (emergency)
+curl -X POST "$API_URL/api/admin/security/cleanup-sessions" \
   -H "Authorization: Bearer $ADMIN_TOKEN"
 
-# Lock compromised account
-# (Account auto-locks after 5 failed attempts, or via direct DB update)
+# Check system resources
+top -bn1 | head -20
 
-# Check active sessions
-curl "$API/api/compliance/security/status" \
-  -H "Authorization: Bearer $ADMIN_TOKEN"
-```
-
-**Containment Strategies:**
-
-| Incident Type | Containment Action |
-|--------------|-------------------|
-| Credential Compromise | Force logout, password reset, session termination |
-| Data Breach | Isolate affected systems, revoke API keys |
-| DDoS Attack | Enable rate limiting, block IPs |
-| Malware | Isolate infected systems, disconnect from network |
-| Insider Threat | Suspend account, revoke access |
-
-### Phase 3: Eradication
-
-**Root Cause Analysis:**
-1. Review audit logs for incident timeline
-2. Analyze attack vectors
-3. Identify all affected systems
-4. Document findings
-
-**Remediation Actions:**
-- Patch vulnerabilities
-- Reset all potentially compromised credentials
-- Update firewall/security rules
-- Remove malicious code/access
-
-### Phase 4: Recovery
-
-**System Recovery Checklist:**
-- [ ] Verify system integrity
-- [ ] Restore from clean backups if needed
-- [ ] Re-enable disabled services
-- [ ] Verify security controls active
-- [ ] Monitor for recurrence
-
-**Recovery Verification:**
-```bash
-# Verify system health
-curl "$API/api/health"
-
-# Check security status
-curl "$API/api/compliance/security/status" \
-  -H "Authorization: Bearer $ADMIN_TOKEN"
-
-# Review recent audit logs
-curl "$API/api/compliance/audit-logs?severity=error&limit=100" \
-  -H "Authorization: Bearer $ADMIN_TOKEN"
-```
-
-### Phase 5: Post-Incident
-
-**Post-Incident Report Template:**
-1. Executive Summary
-2. Incident Timeline
-3. Root Cause Analysis
-4. Impact Assessment
-5. Response Actions
-6. Lessons Learned
-7. Recommendations
-
-**Improvement Actions:**
-- Update detection rules
-- Enhance monitoring
-- Revise policies if needed
-- Conduct additional training
-- Schedule follow-up review
-
----
-
-## 4. Specific Incident Playbooks
-
-### 4.1 Credential Compromise
-
-**Indicators:**
-- Multiple failed login attempts
-- Login from unusual location
-- Unauthorized data access
-- User reports suspicious activity
-
-**Response Steps:**
-1. Terminate all user sessions
-2. Lock the account
-3. Reset password via secure channel
-4. Review audit logs for unauthorized actions
-5. Check for data exfiltration
-6. Notify user of compromise
-7. Enable additional MFA if not active
-
-### 4.2 Data Breach
-
-**Indicators:**
-- Unusual data exports
-- Bulk API access patterns
-- Unauthorized database queries
-- External reports of data exposure
-
-**Response Steps:**
-1. Identify scope of breach
-2. Preserve evidence (audit logs, access logs)
-3. Contain further exposure
-4. Assess regulatory notification requirements
-5. Prepare customer notifications
-6. Engage legal counsel
-7. File regulatory reports (within 72 hours)
-
-### 4.3 DDoS Attack
-
-**Indicators:**
-- Rate limit exceeded alerts
-- Unusual traffic patterns
-- Service degradation
-- API timeout errors
-
-**Response Steps:**
-1. Enable aggressive rate limiting
-2. Block attacking IPs
-3. Scale infrastructure if needed
-4. Engage CDN/DDoS protection
-5. Monitor for secondary attacks
-6. Document attack patterns
-
-### 4.4 Insider Threat
-
-**Indicators:**
-- Unusual data access patterns
-- Access outside normal hours
-- Data exports to personal accounts
-- Policy violations
-
-**Response Steps:**
-1. Do not alert the individual
-2. Preserve evidence
-3. Review all access logs
-4. Engage HR and Legal
-5. Suspend access when authorized
-6. Conduct forensic investigation
-7. Document for potential legal action
-
----
-
-## 5. Communication Templates
-
-### Internal Notification
-```
-Subject: [SEVERITY] Security Incident - [Brief Description]
-
-Team,
-
-A security incident has been detected requiring immediate attention.
-
-Severity: [CRITICAL/HIGH/MEDIUM/LOW]
-Time Detected: [TIMESTAMP]
-Systems Affected: [LIST]
-Initial Assessment: [BRIEF DESCRIPTION]
-
-Current Status: [INVESTIGATING/CONTAINED/RESOLVED]
-
-Action Required: [SPECIFIC ACTIONS]
-
-Incident Commander: [NAME]
-Next Update: [TIME]
-```
-
-### Customer Notification (Data Breach)
-```
-Subject: Important Security Notice from HR Bank
-
-Dear [CUSTOMER NAME],
-
-We are writing to inform you of a security incident that may have 
-affected your information.
-
-What Happened:
-[BRIEF, CLEAR DESCRIPTION]
-
-What Information Was Involved:
-[SPECIFIC DATA TYPES]
-
-What We Are Doing:
-[REMEDIATION STEPS]
-
-What You Can Do:
-[RECOMMENDED ACTIONS]
-
-For More Information:
-[CONTACT DETAILS]
-
-We sincerely apologize for any inconvenience and are committed to 
-protecting your information.
-
-HR Bank Security Team
+# Health check
+curl -s "$API_URL/api/health/detailed"
 ```
 
 ---
 
-## 6. Regulatory Reporting
-
-### PIPEDA Requirements
-- Report to Privacy Commissioner within 72 hours
-- Document the breach
-- Notify affected individuals
-- Maintain records for 24 months
-
-### Report Contents:
-- Description of the breach
-- Date/time of breach
-- Types of information involved
-- Number of individuals affected
-- Steps taken to reduce harm
-- Contact for questions
-
----
-
-## 7. Evidence Preservation
-
-### Data to Preserve:
-- [ ] Audit logs (export immediately)
-- [ ] System logs
-- [ ] Network traffic logs
-- [ ] Database query logs
-- [ ] User session data
-- [ ] Email communications
-- [ ] Screenshots of indicators
-
-### Preservation Commands:
-```bash
-# Export audit logs
-curl "$API/api/compliance/audit-logs?start_date=YYYY-MM-DD&limit=10000" \
-  -H "Authorization: Bearer $ADMIN_TOKEN" > incident_audit_logs.json
-
-# Export security events
-curl "$API/api/compliance/audit-logs?event_type=security&limit=10000" \
-  -H "Authorization: Bearer $ADMIN_TOKEN" > security_events.json
-```
-
----
-
-## 8. Post-Incident Checklist
-
-- [ ] Incident report completed
-- [ ] Root cause identified
-- [ ] Remediation actions implemented
-- [ ] Customer notifications sent (if required)
-- [ ] Regulatory reports filed (if required)
-- [ ] Lessons learned documented
-- [ ] Policies updated if needed
-- [ ] Team debriefing conducted
-- [ ] Monitoring enhanced
-- [ ] Follow-up review scheduled
-
----
-
-## Revision History
-
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-01-28 | Security Team | Initial version |
+*Document Version: 1.0*
+*Last Updated: January 31, 2026*
+*Next Review: April 30, 2026*
