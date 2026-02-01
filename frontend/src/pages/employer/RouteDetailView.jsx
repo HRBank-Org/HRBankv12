@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, MapPin, Clock, User, CheckCircle2, Circle,
   AlertTriangle, Navigation, Phone, Camera, FileSignature,
-  ChevronRight, Play, Pause, SkipForward, RefreshCw
+  Play, RefreshCw
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -26,6 +26,120 @@ const stopStatusColors = {
   arrived: 'bg-amber-100 text-amber-600',
   completed: 'bg-green-100 text-green-600',
   skipped: 'bg-red-100 text-red-600'
+};
+
+// TaskItem component - defined outside main component
+const TaskItem = ({ task }) => (
+  <div className={`flex items-center gap-3 p-2 rounded ${task.completed ? 'bg-green-50' : 'bg-gray-50'}`}>
+    {task.completed ? (
+      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+    ) : (
+      <Circle className="w-5 h-5 text-gray-300 flex-shrink-0" />
+    )}
+    <div className="flex-1">
+      <p className={`text-sm ${task.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+        {task.title}
+      </p>
+      {task.task_type !== 'checklist' && (
+        <span className="text-xs text-gray-400 capitalize">{task.task_type.replace('_', ' ')}</span>
+      )}
+    </div>
+    {task.completed && task.completed_at && (
+      <span className="text-xs text-gray-400">
+        {new Date(task.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      </span>
+    )}
+  </div>
+);
+
+// StopCard component - defined outside main component
+const StopCard = ({ stop, index, currentStopIndex, routeStatus }) => {
+  const statusColor = stopStatusColors[stop.status] || stopStatusColors.pending;
+  const isActive = currentStopIndex === index && routeStatus === 'in_progress';
+  
+  return (
+    <div 
+      className={`border rounded-lg p-4 ${isActive ? 'border-[#ff5f00] bg-orange-50' : 'bg-white'}`}
+      data-testid={`stop-${stop.stop_id}`}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+            stop.status === 'completed' ? 'bg-green-500 text-white' :
+            stop.status === 'skipped' ? 'bg-red-500 text-white' :
+            isActive ? 'bg-[#ff5f00] text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
+            {stop.status === 'completed' ? '✓' : stop.status === 'skipped' ? '✕' : index + 1}
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-900">{stop.stop_name || `Stop ${index + 1}`}</h4>
+            <p className="text-sm text-gray-500">{stop.location?.address}</p>
+          </div>
+        </div>
+        <Badge className={statusColor}>{stop.status}</Badge>
+      </div>
+
+      {(stop.customer_name || stop.customer_phone) && (
+        <div className="flex items-center gap-4 mb-3 text-sm">
+          {stop.customer_name && (
+            <span className="flex items-center gap-1 text-gray-600">
+              <User className="w-4 h-4" /> {stop.customer_name}
+            </span>
+          )}
+          {stop.customer_phone && (
+            <a href={`tel:${stop.customer_phone}`} className="flex items-center gap-1 text-blue-600">
+              <Phone className="w-4 h-4" /> {stop.customer_phone}
+            </a>
+          )}
+        </div>
+      )}
+
+      <div className="flex gap-4 mb-3 text-sm text-gray-500">
+        {stop.actual_arrival && (
+          <span>Arrived: {new Date(stop.actual_arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        )}
+        {stop.actual_departure && (
+          <span>Left: {new Date(stop.actual_departure).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        )}
+        <span>Est. Duration: {stop.estimated_duration_minutes} min</span>
+      </div>
+
+      {stop.verification && (stop.verification.gps_confirmed || stop.verification.photo_proof?.length > 0 || stop.verification.signature) && (
+        <div className="flex gap-2 mb-3">
+          {stop.verification.gps_confirmed && (
+            <Badge variant="outline" className="text-green-600 border-green-600">
+              <MapPin className="w-3 h-3 mr-1" /> GPS Verified
+            </Badge>
+          )}
+          {stop.verification.photo_proof?.length > 0 && (
+            <Badge variant="outline" className="text-blue-600 border-blue-600">
+              <Camera className="w-3 h-3 mr-1" /> {stop.verification.photo_proof.length} Photo(s)
+            </Badge>
+          )}
+          {stop.verification.signature && (
+            <Badge variant="outline" className="text-purple-600 border-purple-600">
+              <FileSignature className="w-3 h-3 mr-1" /> Signed
+            </Badge>
+          )}
+        </div>
+      )}
+
+      {stop.skip_reason && (
+        <div className="p-2 bg-red-50 rounded text-sm text-red-600 mb-3">
+          Skip reason: {stop.skip_reason}
+        </div>
+      )}
+
+      {stop.tasks && stop.tasks.length > 0 && (
+        <div className="border-t pt-3 space-y-1">
+          <p className="text-xs font-medium text-gray-500 uppercase mb-2">Tasks</p>
+          {stop.tasks.map((task, i) => (
+            <TaskItem key={i} task={task} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const RouteDetailView = () => {
