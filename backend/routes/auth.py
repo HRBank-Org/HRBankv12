@@ -570,10 +570,10 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
             # Check if onboarding is completed
             if user_type == "employer":
                 profile = await db.employer_profiles.find_one({"employer_id": user["user_id"]})
-                needs_onboarding = not profile.get("onboarding_completed", False)
+                needs_onboarding = not profile.get("onboarding_completed", False) if profile else True
             elif user_type == "workforce":
                 profile = await db.workforce_profiles.find_one({"workforce_id": user["user_id"]})
-                needs_onboarding = not profile.get("onboarding_completed", False)
+                needs_onboarding = not profile.get("onboarding_completed", False) if profile else True
         
         # Check if account is suspended
         if profile_status == "suspended":
