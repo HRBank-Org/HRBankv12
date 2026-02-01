@@ -58,7 +58,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - **SOC2 Readiness**: Updated to 100%
 - **Ready for External Audit**: All documentation, controls, and testing complete
 
-### Field Service Routes System ✅ (Feb 1, 2026)
+### Field Service Routes System ✅ (Feb 1, 2026) - FULLY TESTED
 - **Backend API** (`/app/backend/routes/field_service.py`):
   - Full CRUD for routes with nested stops and tasks
   - Route types: delivery, security_patrol, cleaning, healthcare, field_sales, maintenance
@@ -67,6 +67,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
   - Route lifecycle: scheduled → in_progress → completed
   - Live dashboard for active routes
   - Route templates for reusability
+  - **Role-based filtering**: Workers see only their assigned routes
 - **Employer Frontend**:
   - `FieldServiceRoutes.jsx`: Route list with live dashboard, filters, and cards
   - `CreateFieldServiceRoute.jsx`: Route builder with stops, tasks, worker assignment
@@ -81,11 +82,22 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
     - Complete tasks at each stop
     - Skip stops with reason
     - Complete route
+- **Sample Data Created**:
+  - 6 routes total (5 for today, 1 for tomorrow)
+  - Route types: 2 delivery, 1 security patrol, 1 cleaning, 1 healthcare, 1 maintenance
+  - Assigned to: Emily Chen (2), Tyler Johnson (2), Priya Sharma (1), 1 unassigned
+  - Each route has realistic stops with GPS coordinates (Windsor, ON area)
+  - Tasks include: checklists, photo proof, signatures, forms, QR scans
 - **Data Model**:
   - `field_service_routes` collection with nested stops array
   - GPS breadcrumbs for route tracking
   - Stop verification (GPS, photos, signatures)
   - Task completion tracking with proof
+- **Test Credentials**:
+  - Employer: `hr@loosegoose.ca` / `LooseGoose2026!`
+  - Worker Emily: `emily.chen@email.com` / `Test123!`
+  - Worker Tyler: `tyler.johnson@email.com` / `Test123!`
+  - Worker Priya: `priya.sharma@email.com` / `Test123!`
 
 ### Super Admin Partnership Agreements Dashboard ✅ (Jan 28, 2026)
 - **Admin Page**: `/admin/partnership-agreements`
