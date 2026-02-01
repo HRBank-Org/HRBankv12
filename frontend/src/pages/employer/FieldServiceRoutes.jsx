@@ -249,8 +249,12 @@ const FieldServiceRoutes = () => {
     }
   };
 
-  const handleViewRoute = (routeId) => {
-    navigate(`/employer/field-service/routes/${routeId}`);
+  const handleViewRoute = (routeId, isLive = false) => {
+    if (isLive) {
+      navigate(`/employer/field-service/routes/${routeId}/tracking`);
+    } else {
+      navigate(`/employer/field-service/routes/${routeId}`);
+    }
   };
 
   const handleEditRoute = (routeId) => {
