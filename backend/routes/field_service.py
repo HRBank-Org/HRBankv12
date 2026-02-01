@@ -479,8 +479,11 @@ async def complete_route(
     route_id: str,
     current_user: dict = Depends(require_role("workforce"))
 ):
-    """Worker completes a route"""
+    """Worker completes a route - auto-creates shift record"""
     db = await get_database()
+    
+    # Import compliance service
+    from services.labor_compliance import create_shift_from_route
     
     route = await db.field_service_routes.find_one({
         "route_id": route_id,
@@ -530,6 +533,7 @@ async def complete_route(
             breadcrumbs[i+1]["lat"], breadcrumbs[i+1]["lng"]
         )
     
+    # Update route to completed
     await db.field_service_routes.update_one(
         {"route_id": route_id},
         {"$set": {
@@ -542,12 +546,36 @@ async def complete_route(
         }}
     )
     
+    # Get updated route
     updated_route = await db.field_service_routes.find_one({"route_id": route_id})
+    
+    # AUTO-CREATE SHIFT RECORD from completed route
+    shift_record, compliance_result = create_shift_from_route(updated_route, province="ON")
+    
+    # Store the shift record
+    await db.route_shifts.insert_one(shift_record)
+    
+    # Link shift to route
+    await db.field_service_routes.update_one(
+        {"route_id": route_id},
+        {"$set": {"linked_shift_id": shift_record["shift_id"]}}
+    )
     
     return {
         "success": True,
-        "data": {"route": serialize_route(updated_route)},
-        "message": "Route completed successfully"
+        "data": {
+            "route": serialize_route(updated_route),
+            "shift": {
+                "shift_id": shift_record["shift_id"],
+                "total_hours": shift_record["total_duration_hours"],
+                "billable_hours": shift_record["billable_hours"],
+                "overtime_hours": shift_record["overtime_hours"],
+                "breaks": shift_record["breaks_taken"]
+            }
+        },
+        "message": "Route completed - shift record created",
+        "compliance_warnings": compliance_result.warnings if compliance_result.warnings else None
+    }
     }
 
 
