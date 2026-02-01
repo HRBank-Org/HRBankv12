@@ -102,6 +102,15 @@ const RouteCard = ({ route, onDelete, onView, onEdit }) => {
           <Button size="sm" variant="outline" className="flex-1" onClick={() => onView(route.route_id)}>
             <Eye className="w-4 h-4 mr-1" /> View
           </Button>
+          {route.status === 'in_progress' && (
+            <Button 
+              size="sm" 
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => onView(route.route_id, true)}
+            >
+              <MapPin className="w-4 h-4 mr-1" /> Live
+            </Button>
+          )}
           {route.status === 'scheduled' && (
             <>
               <Button size="sm" variant="outline" onClick={() => onEdit(route.route_id)}>
