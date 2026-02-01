@@ -160,7 +160,7 @@ HR Bank has implemented comprehensive security controls aligned with SOC2 Trust 
 | Consent management | ✅ | `services/consent_manager.py` |
 | Data subject rights | ✅ | Export, deletion endpoints |
 | Data retention policy | ✅ | `services/data_retention.py` |
-| Privacy impact assessments | ⚠️ | Needs documentation |
+| Privacy impact assessments | ✅ | `/app/docs/privacy-impact-assessment.md` |
 
 ---
 
