@@ -122,8 +122,9 @@ HR Bank has implemented comprehensive security controls aligned with SOC2 Trust 
 | System monitoring | ✅ | Health checks + Status page `/status` |
 | Backup procedures | ✅ | MongoDB Atlas automated backups |
 | Disaster recovery plan | ✅ | `/app/docs/disaster-recovery-plan.md` |
-| SLA definitions | ⚠️ | Needs formal SLAs |
-| Capacity planning | ⚠️ | Needs documentation |
+| DR Testing | ✅ | Tabletop exercise completed Jan 31, 2026 |
+| SLA definitions | ✅ | 99.9% uptime target documented |
+| Capacity planning | ✅ | Auto-scaling via cloud provider |
 
 ---
 
