@@ -342,6 +342,18 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - SOC2 Type II Audit (external auditor)
 - Multi-region deployment
 
+### P4 - Future Roadmap
+- **SAP Integration** (Planned)
+  - Target: SAP SuccessFactors (Cloud HCM)
+  - Data Sync Options:
+    - HR Bank → SAP: Verified credentials, timesheets/attendance
+    - SAP → HR Bank: Employee master data, org structure
+  - Use Cases:
+    - Employers push verified worker credentials to SAP
+    - Sync timesheets from HR Bank to SAP Payroll
+  - Implementation: API-based integration via SAP OData/REST APIs
+  - Status: Requirements gathered, awaiting prioritization
+
 ## File Structure
 ```
 /app
