@@ -223,7 +223,7 @@ const FieldServiceRoutes = () => {
     if (!window.confirm('Are you sure you want to delete this route?')) return;
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`${API}/api/field-service/routes/${routeId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
