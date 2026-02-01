@@ -1620,3 +1620,144 @@ async def preview_route_optimization(
         apply=False,
         current_user=current_user
     )
+
+
+
+# ============================================
+# LABOR COMPLIANCE ENDPOINTS
+# ============================================
+
+@router.get("/compliance/worker/{worker_id}/hours")
+async def get_worker_weekly_hours(
+    worker_id: str,
+    week_start: Optional[str] = Query(None, description="Week start date (YYYY-MM-DD)"),
+    current_user: dict = Depends(require_role("employer"))
+):
+    """
+    Get worker's hours for the current or specified week.
+    Includes regular hours, overtime, and remaining capacity.
+    """
+    db = await get_database()
+    from services.labor_compliance import get_worker_hours_this_week, get_labor_standards
+    
+    # Parse week start if provided
+    week_start_dt = None
+    if week_start:
+        week_start_dt = datetime.strptime(week_start, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    
+    weekly_hours = await get_worker_hours_this_week(db, worker_id, week_start_dt)
+    standards = get_labor_standards("ON")
+    
+    return {
+        "success": True,
+        "data": {
+            "worker_id": worker_id,
+            "hours": weekly_hours,
+            "standards": {
+                "province": "ON",
+                "max_hours_week": standards["max_hours_week"],
+                "overtime_threshold": standards["overtime_threshold_week"],
+                "overtime_multiplier": standards["overtime_multiplier"]
+            }
+        }
+    }
+
+
+@router.post("/compliance/validate-route")
+async def validate_route_compliance(
+    estimated_duration_minutes: int = Query(..., description="Estimated route duration in minutes"),
+    worker_id: Optional[str] = Query(None, description="Worker ID to check weekly hours"),
+    scheduled_date: Optional[str] = Query(None, description="Scheduled date (YYYY-MM-DD)"),
+    province: str = Query("ON", description="Province code"),
+    current_user: dict = Depends(require_role("employer"))
+):
+    """
+    Validate if a route duration is compliant with labor standards.
+    Optionally check against worker's weekly hours.
+    """
+    db = await get_database()
+    from services.labor_compliance import validate_route_duration, check_route_assignment_compliance
+    
+    if worker_id and scheduled_date:
+        result = await check_route_assignment_compliance(
+            db, worker_id, estimated_duration_minutes, scheduled_date, province
+        )
+    else:
+        result = validate_route_duration(estimated_duration_minutes, province)
+    
+    return {
+        "success": True,
+        "data": result.to_dict()
+    }
+
+
+@router.get("/compliance/standards")
+async def get_labor_standards_info(
+    province: str = Query("ON", description="Province code"),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get labor standards for a province"""
+    from services.labor_compliance import get_labor_standards, LABOR_STANDARDS
+    
+    if province.upper() == "ALL":
+        return {
+            "success": True,
+            "data": {
+                "standards": {k: v for k, v in LABOR_STANDARDS.items() if k != "DEFAULT"}
+            }
+        }
+    
+    standards = get_labor_standards(province)
+    return {
+        "success": True,
+        "data": {
+            "province": province.upper(),
+            "standards": standards
+        }
+    }
+
+
+@router.get("/shifts/route-based")
+async def get_route_shifts(
+    worker_id: Optional[str] = None,
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    status: Optional[str] = Query(None, description="pending, approved, paid"),
+    current_user: dict = Depends(require_role("employer"))
+):
+    """Get route-based shift records for payroll processing"""
+    db = await get_database()
+    
+    query = {"employer_id": current_user["user_id"]}
+    
+    if worker_id:
+        query["worker_id"] = worker_id
+    
+    if start_date:
+        query["shift_date"] = {"$gte": start_date}
+    if end_date:
+        if "shift_date" in query:
+            query["shift_date"]["$lte"] = end_date
+        else:
+            query["shift_date"] = {"$lte": end_date}
+    
+    if status:
+        query["payroll_status"] = status
+    
+    shifts = await db.route_shifts.find(query, {"_id": 0}).sort("shift_date", -1).to_list(100)
+    
+    # Calculate totals
+    total_hours = sum(s.get("billable_hours", 0) for s in shifts)
+    total_overtime = sum(s.get("overtime_hours", 0) for s in shifts)
+    
+    return {
+        "success": True,
+        "data": {
+            "shifts": shifts,
+            "summary": {
+                "count": len(shifts),
+                "total_billable_hours": round(total_hours, 2),
+                "total_overtime_hours": round(total_overtime, 2)
+            }
+        }
+    }
