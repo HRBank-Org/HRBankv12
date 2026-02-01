@@ -594,6 +594,67 @@ const EmployersLanding = () => {
         </div>
       </section>
 
+      {/* SOC2 Compliance Section */}
+      <section className="py-16 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full text-green-400 text-sm font-semibold mb-4">
+              <Shield className="w-4 h-4" />
+              Enterprise-Grade Security
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-4">
+              SOC2 Type II Ready
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Your workforce data is protected by the same security standards used by Fortune 500 companies.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-5 gap-4 mb-8">
+            {[
+              { label: 'Security', icon: Shield, desc: 'Access controls, encryption, monitoring' },
+              { label: 'Availability', icon: Clock, desc: '99.9% uptime SLA, DR tested' },
+              { label: 'Processing', icon: Zap, desc: 'Data validation, audit trails' },
+              { label: 'Confidentiality', icon: Building2, desc: 'Role-based access, encryption' },
+              { label: 'Privacy', icon: UserCheck, desc: 'PIPEDA compliant, consent mgmt' }
+            ].map((item, i) => (
+              <div key={i} className="bg-white/5 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
+                <div className="w-10 h-10 mx-auto bg-green-500/20 rounded-lg flex items-center justify-center mb-2">
+                  <item.icon className="w-5 h-5 text-green-400" />
+                </div>
+                <p className="text-white font-semibold text-sm mb-1">{item.label}</p>
+                <p className="text-gray-400 text-xs">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-gray-300">7-Year Audit Logs</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-gray-300">AES-256 Encryption</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-gray-300">MFA Authentication</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-gray-300">DR Plan Tested</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-gray-300">Incident Response Plan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-[#ff5f00] to-orange-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
