@@ -7,9 +7,11 @@ import { useLanguage, LANGUAGES } from '../../contexts/LanguageContext';
 const ModernSidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hovering, setHovering] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
+  const { language, setLanguage } = useLanguage();
   
   const showExpanded = isExpanded || hovering;
 
