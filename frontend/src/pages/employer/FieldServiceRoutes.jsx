@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Plus, MapPin, Clock, Users, ChevronRight, Play, Pause, 
-  CheckCircle2, AlertTriangle, Navigation, Truck, Shield,
-  Sparkles, Building2, Phone, Filter, Calendar, MoreVertical,
-  Eye, Edit, Trash2, Copy
+  Plus, MapPin, Clock, ChevronRight,
+  CheckCircle2, AlertTriangle, Truck, Shield,
+  Sparkles, Building2, Filter, Eye, Edit, Trash2
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -39,6 +38,128 @@ const statusColors = {
   completed: 'bg-green-100 text-green-700',
   cancelled: 'bg-red-100 text-red-700',
   paused: 'bg-yellow-100 text-yellow-700'
+};
+
+// RouteCard component - defined outside main component
+const RouteCard = ({ route, onDelete, onView, onEdit }) => {
+  const Icon = routeTypeIcons[route.route_type] || MapPin;
+  const typeColor = routeTypeColors[route.route_type] || routeTypeColors.custom;
+  const statusColor = statusColors[route.status] || statusColors.scheduled;
+  
+  const completedStops = route.stops?.filter(s => s.status === 'completed').length || 0;
+  const totalStops = route.stops?.length || 0;
+
+  return (
+    <Card className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`route-card-${route.route_id}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-lg ${typeColor} flex items-center justify-center`}>
+              <Icon className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">{route.route_name}</h3>
+              <p className="text-sm text-gray-500">{route.worker_name || 'Unassigned'}</p>
+            </div>
+          </div>
+          <Badge className={statusColor}>{route.status.replace('_', ' ')}</Badge>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mb-3">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-900">{totalStops}</p>
+            <p className="text-xs text-gray-500">Stops</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-900">{Math.round(route.completion_percentage || 0)}%</p>
+            <p className="text-xs text-gray-500">Complete</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-900">{route.estimated_distance_km || 0}</p>
+            <p className="text-xs text-gray-500">km</p>
+          </div>
+        </div>
+
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+          <div 
+            className="bg-green-500 h-2 rounded-full transition-all"
+            style={{ width: `${route.completion_percentage || 0}%` }}
+          />
+        </div>
+
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <div className="flex items-center gap-1">
+            <Clock className="w-4 h-4" />
+            <span>{new Date(route.scheduled_start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <MapPin className="w-4 h-4" />
+            <span>{completedStops}/{totalStops} stops</span>
+          </div>
+        </div>
+
+        <div className="flex gap-2 mt-3 pt-3 border-t">
+          <Button size="sm" variant="outline" className="flex-1" onClick={() => onView(route.route_id)}>
+            <Eye className="w-4 h-4 mr-1" /> View
+          </Button>
+          {route.status === 'scheduled' && (
+            <>
+              <Button size="sm" variant="outline" onClick={() => onEdit(route.route_id)}>
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-red-600 hover:bg-red-50"
+                onClick={() => onDelete(route.route_id)}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// LiveRouteCard component - defined outside main component
+const LiveRouteCard = ({ route, onNavigate }) => {
+  const Icon = routeTypeIcons[route.route_type] || MapPin;
+  const timeStatusColor = {
+    on_schedule: 'text-green-600',
+    behind_schedule: 'text-red-600',
+    ahead_of_schedule: 'text-blue-600'
+  }[route.time_status] || 'text-gray-600';
+
+  return (
+    <div 
+      className="flex items-center gap-4 p-3 bg-white rounded-lg border hover:shadow-sm cursor-pointer"
+      onClick={() => onNavigate(route.route_id)}
+      data-testid={`live-route-${route.route_id}`}
+    >
+      <div className={`w-3 h-3 rounded-full ${route.status === 'in_progress' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
+      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+        <Icon className="w-5 h-5 text-gray-600" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-medium text-gray-900 truncate">{route.route_name}</p>
+        <p className="text-sm text-gray-500">{route.worker_name}</p>
+      </div>
+      <div className="text-right">
+        <p className="font-bold text-gray-900">Stop {route.current_stop}/{route.total_stops}</p>
+        <p className={`text-sm ${timeStatusColor}`}>
+          {route.time_status.replace('_', ' ')}
+        </p>
+      </div>
+      <div className="w-16">
+        <div className="text-center">
+          <p className="text-lg font-bold text-gray-900">{Math.round(route.completion_percentage)}%</p>
+        </div>
+      </div>
+      <ChevronRight className="w-5 h-5 text-gray-400" />
+    </div>
+  );
 };
 
 const FieldServiceRoutes = () => {
@@ -94,7 +215,6 @@ const FieldServiceRoutes = () => {
     fetchRoutes();
     fetchLiveDashboard();
     
-    // Refresh live data every 30 seconds
     const interval = setInterval(fetchLiveDashboard, 30000);
     return () => clearInterval(interval);
   }, [fetchRoutes, fetchLiveDashboard]);
@@ -120,134 +240,16 @@ const FieldServiceRoutes = () => {
     }
   };
 
-  const RouteCard = ({ route }) => {
-    const Icon = routeTypeIcons[route.route_type] || MapPin;
-    const typeColor = routeTypeColors[route.route_type] || routeTypeColors.custom;
-    const statusColor = statusColors[route.status] || statusColors.scheduled;
-    
-    const completedStops = route.stops?.filter(s => s.status === 'completed').length || 0;
-    const totalStops = route.stops?.length || 0;
-
-    return (
-      <Card className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`route-card-${route.route_id}`}>
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg ${typeColor} flex items-center justify-center`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">{route.route_name}</h3>
-                <p className="text-sm text-gray-500">{route.worker_name || 'Unassigned'}</p>
-              </div>
-            </div>
-            <Badge className={statusColor}>{route.status.replace('_', ' ')}</Badge>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 mb-3">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{totalStops}</p>
-              <p className="text-xs text-gray-500">Stops</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{Math.round(route.completion_percentage || 0)}%</p>
-              <p className="text-xs text-gray-500">Complete</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{route.estimated_distance_km || 0}</p>
-              <p className="text-xs text-gray-500">km</p>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-            <div 
-              className="bg-green-500 h-2 rounded-full transition-all"
-              style={{ width: `${route.completion_percentage || 0}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              <span>{new Date(route.scheduled_start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4" />
-              <span>{completedStops}/{totalStops} stops</span>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mt-3 pt-3 border-t">
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1"
-              onClick={() => navigate(`/employer/field-service/routes/${route.route_id}`)}
-            >
-              <Eye className="w-4 h-4 mr-1" /> View
-            </Button>
-            {route.status === 'scheduled' && (
-              <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => navigate(`/employer/field-service/routes/${route.route_id}/edit`)}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-red-600 hover:bg-red-50"
-                  onClick={() => deleteRoute(route.route_id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    );
+  const handleViewRoute = (routeId) => {
+    navigate(`/employer/field-service/routes/${routeId}`);
   };
 
-  const LiveRouteCard = ({ route }) => {
-    const Icon = routeTypeIcons[route.route_type] || MapPin;
-    const timeStatusColor = {
-      on_schedule: 'text-green-600',
-      behind_schedule: 'text-red-600',
-      ahead_of_schedule: 'text-blue-600'
-    }[route.time_status] || 'text-gray-600';
+  const handleEditRoute = (routeId) => {
+    navigate(`/employer/field-service/routes/${routeId}/edit`);
+  };
 
-    return (
-      <div 
-        className="flex items-center gap-4 p-3 bg-white rounded-lg border hover:shadow-sm cursor-pointer"
-        onClick={() => navigate(`/employer/field-service/routes/${route.route_id}/tracking`)}
-        data-testid={`live-route-${route.route_id}`}
-      >
-        <div className={`w-3 h-3 rounded-full ${route.status === 'in_progress' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
-        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-          <Icon className="w-5 h-5 text-gray-600" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-gray-900 truncate">{route.route_name}</p>
-          <p className="text-sm text-gray-500">{route.worker_name}</p>
-        </div>
-        <div className="text-right">
-          <p className="font-bold text-gray-900">Stop {route.current_stop}/{route.total_stops}</p>
-          <p className={`text-sm ${timeStatusColor}`}>
-            {route.time_status.replace('_', ' ')}
-          </p>
-        </div>
-        <div className="w-16">
-          <div className="text-center">
-            <p className="text-lg font-bold text-gray-900">{Math.round(route.completion_percentage)}%</p>
-          </div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-gray-400" />
-      </div>
-    );
+  const handleLiveRouteNavigate = (routeId) => {
+    navigate(`/employer/field-service/routes/${routeId}/tracking`);
   };
 
   return (
@@ -292,7 +294,11 @@ const FieldServiceRoutes = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               {liveData.active_routes.map(route => (
-                <LiveRouteCard key={route.route_id} route={route} />
+                <LiveRouteCard 
+                  key={route.route_id} 
+                  route={route} 
+                  onNavigate={handleLiveRouteNavigate}
+                />
               ))}
             </CardContent>
           </Card>
@@ -359,7 +365,13 @@ const FieldServiceRoutes = () => {
         ) : routes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {routes.map(route => (
-              <RouteCard key={route.route_id} route={route} />
+              <RouteCard 
+                key={route.route_id} 
+                route={route}
+                onDelete={deleteRoute}
+                onView={handleViewRoute}
+                onEdit={handleEditRoute}
+              />
             ))}
           </div>
         ) : (
