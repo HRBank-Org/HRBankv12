@@ -192,6 +192,9 @@ import RosterManagement from './pages/employer/RosterManagement';
 import RosterDetail from './pages/employer/RosterDetail';
 import Payroll from './pages/employer/Payroll';
 import WorkOrders from './pages/employer/WorkOrders';
+import FieldServiceRoutes from './pages/employer/FieldServiceRoutes';
+import CreateFieldServiceRoute from './pages/employer/CreateFieldServiceRoute';
+import RouteDetailView from './pages/employer/RouteDetailView';
 
 // Institution pages (old imports removed, using new system)
 
