@@ -9,6 +9,7 @@ import {
 import { LOGOS } from '../../utils/logoUtils';
 import api from '../../utils/api';
 import LoginModal from '../../components/auth/LoginModal';
+import LanguageSelector from '../../components/common/LanguageSelector';
 
 const InstitutionsLanding = () => {
   const navigate = useNavigate();
