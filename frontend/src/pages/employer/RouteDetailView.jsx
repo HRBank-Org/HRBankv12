@@ -149,6 +149,9 @@ const RouteDetailView = () => {
   const [route, setRoute] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tracking, setTracking] = useState(null);
+  const [showOptimize, setShowOptimize] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
+  const [optimizationResult, setOptimizationResult] = useState(null);
 
   const fetchRoute = useCallback(async () => {
     try {
