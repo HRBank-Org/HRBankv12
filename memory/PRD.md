@@ -354,6 +354,19 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
   - Implementation: API-based integration via SAP OData/REST APIs
   - Status: Requirements gathered, awaiting prioritization
 
+- **Occupation Score System** (Planned)
+  - Purpose: Quantify trust per occupation (aligns with "standardize trust" mission)
+  - Score Components:
+    - Verified Credentials (30%) - blockchain-secured proof
+    - Hours Worked (25%) - employer-confirmed experience
+    - Employer Ratings (20%) - performance feedback
+    - Credential Freshness (15%) - current vs expired
+    - Work History Depth (10%) - consistency, employers count
+  - Output: Per-occupation score (e.g., "Line Cook: 87/100")
+  - Benefits: Gamification for workers, quick quality assessment for employers
+  - Open Questions: Public vs tiered badges, matching priority impact
+  - Status: Analyzed, awaiting prioritization
+
 ## File Structure
 ```
 /app
