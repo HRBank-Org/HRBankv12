@@ -1431,7 +1431,7 @@ async def optimize_route_stops(
     - nearest_neighbor: Fast, good results for most cases
     - 2opt: Better results but slower, refines nearest neighbor result
     """
-    db = get_database()
+    db = await get_database()
     
     # Verify route exists and belongs to employer
     route = await db.field_service_routes.find_one({
