@@ -348,6 +348,8 @@ function AppRoutes() {
         <Route path="/workforce/credentials/verify" element={<ProtectedRoute allowedUserTypes={['workforce']}><CredentialVerification /></ProtectedRoute>} />
         <Route path="/workforce/credentials/pending" element={<ProtectedRoute allowedUserTypes={['workforce']}><PendingCredentials /></ProtectedRoute>} />
         <Route path="/workforce/credentials/payment-success" element={<ProtectedRoute allowedUserTypes={['workforce']}><PaymentSuccess /></ProtectedRoute>} />
+        <Route path="/workforce/routes" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkerRoutes /></ProtectedRoute>} />
+        <Route path="/workforce/routes/:routeId" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkerRouteExecution /></ProtectedRoute>} />
         <Route path="/workforce/credentials" element={<ProtectedRoute allowedUserTypes={['workforce']}><MyCredentials /></ProtectedRoute>} />
         <Route path="/workforce/time-off" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceTimeOff /></ProtectedRoute>} />
         <Route path="/workforce/work-passport" element={<ProtectedRoute allowedUserTypes={['workforce']}><WorkforceWorkPassportSettings /></ProtectedRoute>} />
