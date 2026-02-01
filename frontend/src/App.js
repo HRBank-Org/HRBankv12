@@ -153,6 +153,8 @@ import EmployerTimeOffManagement from './pages/employer/TimeOffManagement';
 import WorkforceWorkPassportSettings from './pages/workforce/WorkPassportSettings';
 import PendingCredentials from './pages/workforce/PendingCredentials';
 import PaymentSuccess from './pages/workforce/PaymentSuccess';
+import WorkerRoutes from './pages/workforce/WorkerRoutes';
+import WorkerRouteExecution from './pages/workforce/WorkerRouteExecution';
 
 // Institution pages
 import CredentialMarketplace from './pages/institution/CredentialMarketplace';
