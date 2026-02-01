@@ -841,6 +841,41 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* SOC2 Compliance Badge Section */}
+      <section className="py-12 bg-gradient-to-r from-[#30496d] to-slate-800">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-green-500/20 rounded-2xl flex items-center justify-center">
+                <Shield className="w-8 h-8 text-green-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-xl font-bold text-white">SOC2 Type II Ready</h3>
+                  <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs font-semibold">VERIFIED</span>
+                </div>
+                <p className="text-gray-300 text-sm">
+                  Enterprise-grade security protecting your credentials and data
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              {[
+                { label: 'Encrypted', icon: '🔐' },
+                { label: '7-Year Audit', icon: '📋' },
+                { label: 'PIPEDA Compliant', icon: '🇨🇦' },
+                { label: 'MFA Protected', icon: '🛡️' }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
+                  <span>{item.icon}</span>
+                  <span className="text-white text-sm font-medium">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Partner Logos Carousel - Only show if we have partners */}
       {partnerLogos.length > 0 && (
         <section className="py-12 bg-gray-50">
