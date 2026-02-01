@@ -48,6 +48,12 @@ const WorkforceSidebar = () => {
     },
     {
       type: 'item',
+      label: 'My Routes',
+      icon: FiTruck,
+      path: '/workforce/routes'
+    },
+    {
+      type: 'item',
       label: 'Availability',
       icon: FiCheckSquare,
       path: '/workforce/availability'
