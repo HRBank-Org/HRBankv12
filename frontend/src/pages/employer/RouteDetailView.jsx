@@ -152,7 +152,7 @@ const RouteDetailView = () => {
 
   const fetchRoute = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`${API}/api/field-service/routes/${routeId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -172,7 +172,7 @@ const RouteDetailView = () => {
     if (!route || route.status !== 'in_progress') return;
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`${API}/api/field-service/routes/${routeId}/tracking`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

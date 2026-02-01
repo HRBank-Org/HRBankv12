@@ -97,7 +97,7 @@ const CreateFieldServiceRoute = () => {
 
   const fetchWorkers = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`${API}/api/employer/workforce`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -112,7 +112,7 @@ const CreateFieldServiceRoute = () => {
 
   const fetchWorkplaces = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`${API}/api/employer/workplaces`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -252,7 +252,7 @@ const CreateFieldServiceRoute = () => {
     setSaving(true);
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       
       // Build scheduled datetime
       const scheduledStart = `${route.scheduled_date}T${route.scheduled_start_time}:00`;
