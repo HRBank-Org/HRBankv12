@@ -1280,3 +1280,251 @@ async def get_live_routes_dashboard(
             }
         }
     }
+
+
+
+# ============================================
+# ROUTE OPTIMIZATION
+# ============================================
+
+def calculate_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    """Calculate distance between two points using Haversine formula (in km)"""
+    import math
+    R = 6371  # Earth's radius in km
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    delta_lat = math.radians(lat2 - lat1)
+    delta_lng = math.radians(lng2 - lng1)
+    
+    a = math.sin(delta_lat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lng/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    return R * c
+
+
+def optimize_route_nearest_neighbor(stops: list, start_lat: float = None, start_lng: float = None) -> tuple:
+    """
+    Optimize stop order using nearest neighbor algorithm.
+    Returns optimized stops list and total distance.
+    """
+    if len(stops) <= 1:
+        return stops, 0.0
+    
+    # Filter stops with valid coordinates
+    valid_stops = [s for s in stops if s.get('location', {}).get('lat') and s.get('location', {}).get('lng')]
+    if len(valid_stops) <= 1:
+        return stops, 0.0
+    
+    # Starting point (use first stop if not provided)
+    if start_lat is None or start_lng is None:
+        start_lat = valid_stops[0]['location']['lat']
+        start_lng = valid_stops[0]['location']['lng']
+    
+    # Nearest neighbor algorithm
+    unvisited = valid_stops.copy()
+    optimized = []
+    current_lat, current_lng = start_lat, start_lng
+    total_distance = 0.0
+    
+    while unvisited:
+        # Find nearest unvisited stop
+        nearest = None
+        nearest_dist = float('inf')
+        
+        for stop in unvisited:
+            stop_lat = stop['location']['lat']
+            stop_lng = stop['location']['lng']
+            dist = calculate_distance(current_lat, current_lng, stop_lat, stop_lng)
+            
+            if dist < nearest_dist:
+                nearest_dist = dist
+                nearest = stop
+        
+        if nearest:
+            optimized.append(nearest)
+            total_distance += nearest_dist
+            current_lat = nearest['location']['lat']
+            current_lng = nearest['location']['lng']
+            unvisited.remove(nearest)
+    
+    # Update sequence_order
+    for i, stop in enumerate(optimized):
+        stop['sequence_order'] = i
+    
+    return optimized, round(total_distance, 2)
+
+
+def optimize_route_2opt(stops: list) -> tuple:
+    """
+    Improve route using 2-opt algorithm after nearest neighbor.
+    Iteratively removes crossing paths.
+    """
+    if len(stops) <= 3:
+        return stops, sum_route_distance(stops)
+    
+    def route_distance(route):
+        total = 0.0
+        for i in range(len(route) - 1):
+            loc1 = route[i].get('location', {})
+            loc2 = route[i + 1].get('location', {})
+            if loc1.get('lat') and loc2.get('lat'):
+                total += calculate_distance(loc1['lat'], loc1['lng'], loc2['lat'], loc2['lng'])
+        return total
+    
+    def two_opt_swap(route, i, k):
+        new_route = route[:i] + route[i:k+1][::-1] + route[k+1:]
+        return new_route
+    
+    best_route = stops.copy()
+    best_distance = route_distance(best_route)
+    improved = True
+    
+    iterations = 0
+    max_iterations = 100
+    
+    while improved and iterations < max_iterations:
+        improved = False
+        iterations += 1
+        
+        for i in range(1, len(best_route) - 1):
+            for k in range(i + 1, len(best_route)):
+                new_route = two_opt_swap(best_route, i, k)
+                new_distance = route_distance(new_route)
+                
+                if new_distance < best_distance:
+                    best_route = new_route
+                    best_distance = new_distance
+                    improved = True
+                    break
+            if improved:
+                break
+    
+    # Update sequence_order
+    for i, stop in enumerate(best_route):
+        stop['sequence_order'] = i
+    
+    return best_route, round(best_distance, 2)
+
+
+def sum_route_distance(stops: list) -> float:
+    """Calculate total distance for a route."""
+    total = 0.0
+    for i in range(len(stops) - 1):
+        loc1 = stops[i].get('location', {})
+        loc2 = stops[i + 1].get('location', {})
+        if loc1.get('lat') and loc2.get('lat'):
+            total += calculate_distance(loc1['lat'], loc1['lng'], loc2['lat'], loc2['lng'])
+    return round(total, 2)
+
+
+@router.post("/routes/{route_id}/optimize")
+async def optimize_route_stops(
+    route_id: str,
+    start_lat: float = Query(None, description="Starting latitude"),
+    start_lng: float = Query(None, description="Starting longitude"),
+    algorithm: str = Query("2opt", description="Algorithm: nearest_neighbor or 2opt"),
+    apply: bool = Query(False, description="Apply optimization to the route"),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Optimize stop order for a route to minimize travel distance.
+    
+    Algorithms:
+    - nearest_neighbor: Fast, good results for most cases
+    - 2opt: Better results but slower, refines nearest neighbor result
+    """
+    db = get_database()
+    
+    # Verify route exists and belongs to employer
+    route = await db.field_service_routes.find_one({
+        "route_id": route_id,
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not route:
+        raise HTTPException(status_code=404, detail="Route not found")
+    
+    if route.get("status") not in ["scheduled", "pending"]:
+        raise HTTPException(
+            status_code=400, 
+            detail="Can only optimize routes that haven't started yet"
+        )
+    
+    stops = route.get("stops", [])
+    if len(stops) <= 1:
+        return {
+            "success": True,
+            "data": {
+                "message": "Route has only one stop, no optimization needed",
+                "original_distance": 0,
+                "optimized_distance": 0,
+                "savings_km": 0,
+                "savings_percent": 0
+            }
+        }
+    
+    # Calculate original distance
+    original_distance = sum_route_distance(stops)
+    
+    # Run optimization
+    if algorithm == "2opt":
+        # First run nearest neighbor, then improve with 2-opt
+        nn_stops, _ = optimize_route_nearest_neighbor(stops, start_lat, start_lng)
+        optimized_stops, optimized_distance = optimize_route_2opt(nn_stops)
+    else:
+        optimized_stops, optimized_distance = optimize_route_nearest_neighbor(stops, start_lat, start_lng)
+    
+    savings_km = original_distance - optimized_distance
+    savings_percent = (savings_km / original_distance * 100) if original_distance > 0 else 0
+    
+    result = {
+        "success": True,
+        "data": {
+            "algorithm": algorithm,
+            "original_distance_km": original_distance,
+            "optimized_distance_km": optimized_distance,
+            "savings_km": round(savings_km, 2),
+            "savings_percent": round(savings_percent, 1),
+            "original_order": [s.get("stop_name", f"Stop {i+1}") for i, s in enumerate(stops)],
+            "optimized_order": [s.get("stop_name", f"Stop {i+1}") for i, s in enumerate(optimized_stops)],
+            "applied": False
+        }
+    }
+    
+    # Apply optimization if requested
+    if apply:
+        now = datetime.now(timezone.utc).isoformat()
+        await db.field_service_routes.update_one(
+            {"route_id": route_id},
+            {
+                "$set": {
+                    "stops": optimized_stops,
+                    "estimated_distance_km": optimized_distance,
+                    "updated_at": now,
+                    "optimization_applied": True,
+                    "optimization_algorithm": algorithm,
+                    "optimization_savings_km": round(savings_km, 2)
+                }
+            }
+        )
+        result["data"]["applied"] = True
+        result["data"]["message"] = f"Route optimized! Saved {round(savings_km, 2)} km ({round(savings_percent, 1)}%)"
+    
+    return result
+
+
+@router.get("/routes/{route_id}/optimize/preview")
+async def preview_route_optimization(
+    route_id: str,
+    start_lat: float = Query(None),
+    start_lng: float = Query(None),
+    current_user: dict = Depends(get_current_user)
+):
+    """Preview route optimization without applying changes."""
+    return await optimize_route_stops(
+        route_id=route_id,
+        start_lat=start_lat,
+        start_lng=start_lng,
+        algorithm="2opt",
+        apply=False,
+        current_user=current_user
+    )
