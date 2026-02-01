@@ -371,7 +371,7 @@ function AppRoutes() {
         <Route path="/employer/field-service" element={<ProtectedRoute allowedUserTypes={['employer']}><FieldServiceRoutes /></ProtectedRoute>} />
         <Route path="/employer/field-service/routes/new" element={<ProtectedRoute allowedUserTypes={['employer']}><CreateFieldServiceRoute /></ProtectedRoute>} />
         <Route path="/employer/field-service/routes/:routeId" element={<ProtectedRoute allowedUserTypes={['employer']}><RouteDetailView /></ProtectedRoute>} />
-        <Route path="/employer/field-service/routes/:routeId/tracking" element={<ProtectedRoute allowedUserTypes={['employer']}><RouteDetailView /></ProtectedRoute>} />
+        <Route path="/employer/field-service/routes/:routeId/tracking" element={<ProtectedRoute allowedUserTypes={['employer']}><LiveRouteTracking /></ProtectedRoute>} />
         <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
         <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDashboard /></ProtectedRoute>} />
         <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerNotifications /></ProtectedRoute>} />
