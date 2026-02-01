@@ -244,6 +244,126 @@ const EmployersLanding = () => {
         </div>
       </section>
 
+      {/* NEW: Field Service Operations Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full text-green-600 text-sm font-medium mb-4">
+                <MapPin className="w-4 h-4" />
+                Field Service Operations
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                Route-Based Work.
+                <br />
+                <span className="text-[#ff5f00]">Optimized & Tracked.</span>
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-8">
+                Perfect for delivery, security patrol, cleaning services, healthcare visits, and maintenance calls. 
+                Create routes, assign stops, and track workers in real-time — all from one dashboard.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                {[
+                  { icon: Zap, title: 'Route Optimization', desc: 'AI calculates shortest path between stops — save up to 37% on travel' },
+                  { icon: MapPin, title: 'Live GPS Tracking', desc: 'See worker location in real-time on interactive map' },
+                  { icon: ClipboardList, title: 'Task Management', desc: 'Assign tasks per stop — checklists, photos, signatures' },
+                  { icon: Shield, title: 'Proof of Service', desc: 'GPS verification, timestamped photos, digital signatures' }
+                ].map((item, i) => (
+                  <div key={i} className="bg-gray-50 rounded-xl p-4">
+                    <div className="w-10 h-10 bg-[#ff5f00]/10 rounded-lg flex items-center justify-center mb-3">
+                      <item.icon className="w-5 h-5 text-[#ff5f00]" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
+                    <p className="text-gray-500 text-xs">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {['Delivery', 'Security Patrol', 'Cleaning', 'Healthcare', 'Maintenance', 'Field Sales'].map((industry, i) => (
+                  <span key={i} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                    {industry}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Field Service Dashboard Preview */}
+            <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-white font-bold">Live Route Tracking</p>
+                  <p className="text-gray-400 text-sm">Downtown Delivery Route</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  <span className="text-green-400 text-sm">Live</span>
+                </div>
+              </div>
+
+              {/* Mini Map Placeholder */}
+              <div className="bg-slate-700 rounded-lg h-40 mb-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-600 to-slate-800">
+                  {/* Simulated route line */}
+                  <svg className="absolute inset-0 w-full h-full">
+                    <path 
+                      d="M 30 120 Q 80 80 120 90 T 180 60 T 240 80 T 280 40" 
+                      stroke="#ff5f00" 
+                      strokeWidth="3" 
+                      fill="none"
+                      strokeDasharray="5,5"
+                      className="animate-pulse"
+                    />
+                    <circle cx="30" cy="120" r="8" fill="#22c55e" />
+                    <circle cx="120" cy="90" r="6" fill="#22c55e" />
+                    <circle cx="180" cy="60" r="8" fill="#ff5f00" className="animate-pulse" />
+                    <circle cx="240" cy="80" r="6" fill="#6b7280" />
+                    <circle cx="280" cy="40" r="6" fill="#6b7280" />
+                  </svg>
+                  <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded px-2 py-1">
+                    <span className="text-white text-xs">3/5 stops completed</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Route Stats */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="bg-slate-700/50 rounded-lg p-2 text-center">
+                  <p className="text-green-400 font-bold">60%</p>
+                  <p className="text-gray-400 text-xs">Complete</p>
+                </div>
+                <div className="bg-slate-700/50 rounded-lg p-2 text-center">
+                  <p className="text-amber-400 font-bold">2.1 km</p>
+                  <p className="text-gray-400 text-xs">Remaining</p>
+                </div>
+                <div className="bg-slate-700/50 rounded-lg p-2 text-center">
+                  <p className="text-blue-400 font-bold">~25 min</p>
+                  <p className="text-gray-400 text-xs">ETA</p>
+                </div>
+              </div>
+
+              {/* Current Stop */}
+              <div className="bg-[#ff5f00]/20 border border-[#ff5f00]/30 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[#ff5f00] text-xs font-medium">CURRENT STOP</p>
+                    <p className="text-white font-medium text-sm">Tech Startup Inc</p>
+                    <p className="text-gray-400 text-xs">250 Pitt St W • 2 tasks remaining</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-gray-400 text-xs">Arrived</p>
+                    <p className="text-white text-sm">2:34 PM</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Sample Dashboard Section */}
       <section id="sample-dashboard" className="py-20 bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
