@@ -43,7 +43,7 @@ const ModernSidebar = () => {
     {
       type: 'item',
       label: 'Field Service',
-      icon: FiMapPin,
+      icon: FiTruck,
       path: '/employer/field-service'
     },
     {
