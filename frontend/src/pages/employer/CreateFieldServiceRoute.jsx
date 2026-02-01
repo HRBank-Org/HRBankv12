@@ -301,38 +301,6 @@ const CreateFieldServiceRoute = () => {
     }
   };
 
-  const TaskRow = ({ task, index, section, onUpdate, onRemove }) => (
-    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-      <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
-      <Input
-        placeholder="Task title"
-        value={task.title}
-        onChange={(e) => onUpdate(index, 'title', e.target.value)}
-        className="flex-1"
-      />
-      <select
-        value={task.task_type}
-        onChange={(e) => onUpdate(index, 'task_type', e.target.value)}
-        className="px-2 py-2 border rounded-lg text-sm"
-      >
-        {taskTypes.map(t => (
-          <option key={t.value} value={t.value}>{t.label}</option>
-        ))}
-      </select>
-      <label className="flex items-center gap-1 text-sm">
-        <input
-          type="checkbox"
-          checked={task.required}
-          onChange={(e) => onUpdate(index, 'required', e.target.checked)}
-        />
-        Required
-      </label>
-      <Button variant="ghost" size="sm" onClick={() => onRemove(index)}>
-        <X className="w-4 h-4 text-red-500" />
-      </Button>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
