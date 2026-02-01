@@ -69,8 +69,61 @@ async def create_route(
     request: CreateRouteRequest,
     current_user: dict = Depends(require_role("employer"))
 ):
-    """Create a new field service route"""
+    """Create a new field service route with labor compliance validation"""
     db = await get_database()
+    
+    # Import compliance service
+    from services.labor_compliance import (
+        validate_route_duration, 
+        check_route_assignment_compliance,
+        calculate_required_breaks
+    )
+    
+    # Calculate estimated duration from stops
+    estimated_duration_minutes = sum(
+        stop.get("estimated_duration_minutes", 15) 
+        for stop in request.stops
+    )
+    
+    # Add travel time estimate (average 5 min between stops)
+    estimated_duration_minutes += (len(request.stops) - 1) * 5
+    
+    # Validate route duration against labor standards
+    compliance_result = validate_route_duration(
+        estimated_duration_minutes,
+        province="ON"  # Default to Ontario, could be parameterized
+    )
+    
+    # Block if route exceeds absolute maximum
+    if not compliance_result.is_valid:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Route duration exceeds labor standards",
+                "errors": compliance_result.errors,
+                "estimated_duration_hours": compliance_result.estimated_duration_hours
+            }
+        )
+    
+    # If worker is assigned, check their weekly hours
+    if request.worker_id:
+        worker_compliance = await check_route_assignment_compliance(
+            db,
+            request.worker_id,
+            estimated_duration_minutes,
+            request.scheduled_date,
+            "ON"
+        )
+        
+        if not worker_compliance.is_valid:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "message": "Assigning this route would violate labor standards",
+                    "errors": worker_compliance.errors,
+                    "worker_hours_context": worker_compliance.to_dict()
+                }
+            )
     
     # Parse scheduled times
     scheduled_start = datetime.fromisoformat(request.scheduled_start_time.replace('Z', '+00:00'))
