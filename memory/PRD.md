@@ -99,6 +99,53 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
   - Worker Tyler: `tyler.johnson@email.com` / `Test123!`
   - Worker Priya: `priya.sharma@email.com` / `Test123!`
 
+### Route Optimization ✅ (Feb 1, 2026)
+- **Backend API** (`POST /api/field-service/routes/{route_id}/optimize`):
+  - Two algorithms: `nearest_neighbor` (fast) and `2opt` (better results)
+  - Haversine distance calculation for accurate GPS-based distances
+  - Preview mode (apply=false) and apply mode (apply=true)
+  - Returns: original distance, optimized distance, savings (km and %), stop order comparison
+  - Only available for `scheduled` routes with 3+ stops
+- **Frontend UI**:
+  - "Optimize" button on RouteDetailView for eligible routes
+  - Modal shows: original vs optimized distance, savings percentage, new stop order
+  - "Apply & Save X km" button to apply optimization
+  - "Optimized" badge shown on routes after optimization applied
+- **Results**:
+  - Downtown Windsor Lunch Deliveries: 37.5% savings (3.31km → 2.07km)
+  - Healthcare route: 1.6% savings (0.61km → 0.60km)
+
+### Real-Time GPS Tracking Visualization ✅ (Feb 1, 2026)
+- **Backend API** (`GET /api/field-service/routes/{route_id}/tracking`):
+  - Returns: route status, worker info, current stop index, completion %, GPS breadcrumbs
+  - Updates every 10 seconds during active routes
+- **LiveRouteTracking.jsx** (`/employer/field-service/routes/{routeId}/tracking`):
+  - Google Maps integration with route polyline
+  - Stop markers with status colors (green=completed, orange=current, gray=pending, red=skipped)
+  - Worker location marker with breadcrumb trail
+  - Map legend explaining status colors
+  - Worker info panel with real-time status
+  - Sidebar showing all stops with task progress bars
+  - Auto-refresh toggle (Live/Paused)
+  - Issue reporting section
+- **UI Integration**:
+  - "Live" button on route cards for in_progress routes
+  - "Live Tracking" button on RouteDetailView for in_progress routes
+
+### i18n Translations for Field Service ✅ (Feb 1, 2026)
+- Added `fieldService` section to `/app/frontend/src/i18n/translations.json`
+- **Languages**: English (en), French (fr)
+- **Coverage**:
+  - Page titles and navigation
+  - Route CRUD operations (create, edit, delete, duplicate)
+  - Stop and task management
+  - Route status labels (scheduled, in_progress, completed, paused, cancelled)
+  - Stop status labels (pending, in_transit, arrived, skipped)
+  - Route types (delivery, security_patrol, cleaning, healthcare, field_sales, maintenance)
+  - Task types (checklist, photo, signature, form, barcode_scan, notes)
+  - Optimization section (title, description, results, apply)
+  - Tracking section (live, lastUpdate, workerLocation, legend)
+
 ### Super Admin Partnership Agreements Dashboard ✅ (Jan 28, 2026)
 - **Admin Page**: `/admin/partnership-agreements`
   - Summary stats: Total Institutions, Signed count, Pending count, Signing Rate %
