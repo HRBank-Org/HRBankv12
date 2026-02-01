@@ -200,6 +200,56 @@ const RouteDetailView = () => {
     }
   }, [route?.status, fetchTracking]);
 
+  const handlePreviewOptimization = async () => {
+    setOptimizing(true);
+    setOptimizationResult(null);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API}/api/field-service/routes/${routeId}/optimize?algorithm=2opt&apply=false`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setOptimizationResult(data.data);
+        setShowOptimize(true);
+      } else {
+        toast({ title: 'Error', description: data.detail || 'Failed to optimize', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to optimize route', variant: 'destructive' });
+    } finally {
+      setOptimizing(false);
+    }
+  };
+
+  const handleApplyOptimization = async () => {
+    setOptimizing(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API}/api/field-service/routes/${routeId}/optimize?algorithm=2opt&apply=true`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success && data.data.applied) {
+        toast({ 
+          title: 'Route Optimized!', 
+          description: `Saved ${data.data.savings_km} km (${data.data.savings_percent}%)`,
+        });
+        setShowOptimize(false);
+        setOptimizationResult(null);
+        fetchRoute();
+      } else {
+        toast({ title: 'Error', description: data.detail || 'Failed to apply optimization', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to apply optimization', variant: 'destructive' });
+    } finally {
+      setOptimizing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
@@ -222,6 +272,66 @@ const RouteDetailView = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
+        {/* Optimization Modal */}
+        {showOptimize && optimizationResult && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4 shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Route Optimization</h2>
+                  <p className="text-sm text-gray-500">Minimize travel distance between stops</p>
+                </div>
+              </div>
+
+              {/* Results */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <p className="text-2xl font-bold text-gray-400 line-through">{optimizationResult.original_distance_km}</p>
+                  <p className="text-xs text-gray-500">Original (km)</p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <p className="text-2xl font-bold text-green-600">{optimizationResult.optimized_distance_km}</p>
+                  <p className="text-xs text-gray-500">Optimized (km)</p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 text-center">
+                  <p className="text-2xl font-bold text-blue-600">{optimizationResult.savings_percent}%</p>
+                  <p className="text-xs text-gray-500">Saved</p>
+                </div>
+              </div>
+
+              {/* Order comparison */}
+              <div className="mb-6">
+                <p className="text-sm font-medium text-gray-700 mb-2">New Stop Order:</p>
+                <div className="bg-gray-50 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                  {optimizationResult.optimized_order.map((stop, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <span className="w-6 h-6 bg-[#ff5f00] text-white rounded-full flex items-center justify-center text-xs font-bold">{i + 1}</span>
+                      <span className="text-gray-700">{stop}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1" onClick={() => setShowOptimize(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1 bg-[#ff5f00] hover:bg-[#e55500]" 
+                  onClick={handleApplyOptimization}
+                  disabled={optimizing || optimizationResult.savings_km <= 0}
+                >
+                  {optimizing ? 'Applying...' : `Apply & Save ${optimizationResult.savings_km} km`}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" onClick={() => navigate('/employer/field-service')}>
@@ -231,12 +341,38 @@ const RouteDetailView = () => {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-gray-900">{route.route_name}</h1>
               <Badge className={statusColors[route.status]}>{route.status.replace('_', ' ')}</Badge>
+              {route.optimization_applied && (
+                <Badge variant="outline" className="text-blue-600 border-blue-600">
+                  <Zap className="w-3 h-3 mr-1" /> Optimized
+                </Badge>
+              )}
             </div>
             <p className="text-gray-500">{route.route_type.replace('_', ' ')} • {route.scheduled_date}</p>
           </div>
-          <Button variant="outline" onClick={fetchRoute}>
-            <RefreshCw className="w-4 h-4 mr-2" /> Refresh
-          </Button>
+          <div className="flex gap-2">
+            {route.status === 'scheduled' && route.stops?.length > 2 && (
+              <Button 
+                variant="outline"
+                onClick={handlePreviewOptimization}
+                disabled={optimizing}
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <Route className="w-4 h-4 mr-2" />
+                {optimizing ? 'Optimizing...' : 'Optimize'}
+              </Button>
+            )}
+            {route.status === 'in_progress' && (
+              <Button 
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => navigate(`/employer/field-service/routes/${routeId}/tracking`)}
+              >
+                <Radio className="w-4 h-4 mr-2" /> Live Tracking
+              </Button>
+            )}
+            <Button variant="outline" onClick={fetchRoute}>
+              <RefreshCw className="w-4 h-4 mr-2" /> Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Summary Cards */}
