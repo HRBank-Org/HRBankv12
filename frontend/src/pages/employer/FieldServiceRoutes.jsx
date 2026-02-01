@@ -176,7 +176,7 @@ const FieldServiceRoutes = () => {
 
   const fetchRoutes = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const params = new URLSearchParams();
       if (filter.status) params.append('status', filter.status);
       if (filter.route_type) params.append('route_type', filter.route_type);
@@ -198,7 +198,7 @@ const FieldServiceRoutes = () => {
 
   const fetchLiveDashboard = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`${API}/api/field-service/dashboard/live`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
