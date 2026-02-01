@@ -67,7 +67,7 @@ def serialize_route(route: dict) -> dict:
 @router.post("/routes")
 async def create_route(
     request: CreateRouteRequest,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Create a new field service route"""
     db = await get_database()
@@ -278,7 +278,7 @@ async def get_route(
 async def update_route(
     route_id: str,
     update_data: dict,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Update route details"""
     db = await get_database()
@@ -326,7 +326,7 @@ async def update_route(
 @router.delete("/routes/{route_id}")
 async def delete_route(
     route_id: str,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Delete a route"""
     db = await get_database()
@@ -356,7 +356,7 @@ async def delete_route(
 async def start_route(
     route_id: str,
     gps_data: Optional[GPSUpdateRequest] = None,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Worker starts a route"""
     db = await get_database()
@@ -412,7 +412,7 @@ async def start_route(
 @router.post("/routes/{route_id}/complete")
 async def complete_route(
     route_id: str,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Worker completes a route"""
     db = await get_database()
@@ -490,7 +490,7 @@ async def complete_route(
 async def pause_route(
     route_id: str,
     reason: Optional[str] = None,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Pause an in-progress route"""
     db = await get_database()
@@ -531,7 +531,7 @@ async def pause_route(
 @router.post("/routes/{route_id}/resume")
 async def resume_route(
     route_id: str,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Resume a paused route"""
     db = await get_database()
@@ -564,7 +564,7 @@ async def resume_route(
 async def add_stop(
     route_id: str,
     request: AddStopRequest,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Add a stop to a route"""
     db = await get_database()
@@ -642,7 +642,7 @@ async def update_stop(
     route_id: str,
     stop_id: str,
     update_data: dict,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Update a stop"""
     db = await get_database()
@@ -694,7 +694,7 @@ async def update_stop(
 async def delete_stop(
     route_id: str,
     stop_id: str,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Remove a stop from route"""
     db = await get_database()
@@ -723,7 +723,7 @@ async def arrive_at_stop(
     route_id: str,
     stop_id: str,
     gps_data: GPSUpdateRequest,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Mark arrival at a stop with GPS verification"""
     db = await get_database()
@@ -812,7 +812,7 @@ async def complete_stop(
     route_id: str,
     stop_id: str,
     verification: Optional[Dict[str, Any]] = None,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Complete a stop after finishing all tasks"""
     db = await get_database()
@@ -886,7 +886,7 @@ async def skip_stop(
     route_id: str,
     stop_id: str,
     reason: str,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Skip a stop with reason"""
     db = await get_database()
@@ -940,7 +940,7 @@ async def complete_task(
     task_id: str,
     task_location: str = Query(..., description="beginning, ending, or stop_id"),
     request: Optional[CompleteTaskRequest] = None,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Complete a task in beginning, ending, or at a stop"""
     db = await get_database()
@@ -1029,7 +1029,7 @@ async def complete_task(
 async def update_gps_location(
     route_id: str,
     request: GPSUpdateRequest,
-    current_user: dict = Depends(require_role(['workforce']))
+    current_user: dict = Depends(require_role("workforce"))
 ):
     """Update GPS location (called periodically during route)"""
     db = await get_database()
@@ -1072,7 +1072,7 @@ async def update_gps_location(
 @router.get("/routes/{route_id}/tracking")
 async def get_route_tracking(
     route_id: str,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Get live tracking data for a route (employer view)"""
     db = await get_database()
@@ -1115,7 +1115,7 @@ async def get_route_tracking(
 @router.post("/templates")
 async def create_route_template(
     template_data: dict,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Create a reusable route template"""
     db = await get_database()
@@ -1150,7 +1150,7 @@ async def create_route_template(
 
 @router.get("/templates")
 async def get_route_templates(
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Get all route templates for employer"""
     db = await get_database()
@@ -1173,7 +1173,7 @@ async def get_route_templates(
 async def create_route_from_template(
     template_id: str,
     route_data: dict,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Create a route from a template"""
     db = await get_database()
@@ -1215,7 +1215,7 @@ async def create_route_from_template(
 @router.get("/dashboard/live")
 async def get_live_routes_dashboard(
     workplace_id: Optional[str] = None,
-    current_user: dict = Depends(require_role(['employer']))
+    current_user: dict = Depends(require_role("employer"))
 ):
     """Get dashboard view of all active routes"""
     db = await get_database()
