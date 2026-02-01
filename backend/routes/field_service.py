@@ -229,6 +229,7 @@ async def create_route(
         "actual_start_time": None,
         "actual_end_time": None,
         "estimated_distance_km": round(estimated_distance, 2),
+        "estimated_duration_minutes": estimated_duration_minutes,
         "actual_distance_km": 0.0,
         "beginning_tasks": beginning_tasks,
         "stops": stops,
@@ -241,6 +242,14 @@ async def create_route(
         "completion_percentage": 0.0,
         "route_notes": None,
         "issues_reported": [],
+        # Compliance info
+        "compliance": {
+            "validated": True,
+            "warnings": compliance_result.warnings,
+            "suggested_breaks": compliance_result.suggested_breaks,
+            "overtime_hours": compliance_result.overtime_hours,
+            "requires_worker_agreement": compliance_result.requires_agreement
+        },
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
@@ -249,7 +258,10 @@ async def create_route(
     
     return {
         "success": True,
-        "data": {"route": serialize_route(route)},
+        "data": {
+            "route": serialize_route(route),
+            "compliance": compliance_result.to_dict()
+        },
         "message": "Route created successfully"
     }
 
