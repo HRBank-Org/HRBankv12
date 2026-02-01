@@ -1,11 +1,12 @@
 # HR Bank Disaster Recovery Plan
 
 ## Document Control
-- **Version:** 1.0
+- **Version:** 1.1
 - **Effective Date:** January 28, 2026
+- **Last Updated:** January 31, 2026
 - **Owner:** Engineering & Operations Team
 - **Review Frequency:** Annual (or after any disaster event)
-- **Last Tested:** Scheduled for Q1 2026
+- **Last Tested:** January 31, 2026 (Tabletop Exercise - PASS)
 
 ---
 
