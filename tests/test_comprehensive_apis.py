@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://hrinfra.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://routemaster-app-3.preview.emergentagent.com')
 
 # Test credentials for different user types
 CREDENTIALS = {

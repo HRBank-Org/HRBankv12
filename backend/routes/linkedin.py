@@ -267,7 +267,7 @@ async def linkedin_callback(
     )
     
     # Redirect to frontend with token
-    frontend_url = os.environ.get("FRONTEND_URL", "https://hrinfra.preview.emergentagent.com")
+    frontend_url = os.environ.get("FRONTEND_URL", "https://routemaster-app-3.preview.emergentagent.com")
     redirect_url = f"{frontend_url}/auth/linkedin/callback?token={jwt_token}&redirect={redirect_after}"
     
     return RedirectResponse(url=redirect_url)
