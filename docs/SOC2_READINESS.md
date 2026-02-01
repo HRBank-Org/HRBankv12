@@ -94,9 +94,9 @@ HR Bank has implemented comprehensive security controls aligned with SOC2 Trust 
 
 | Control | Status | Implementation |
 |---------|--------|----------------|
-| Change management | ⚠️ | Git-based, needs formal process |
-| Incident response | ⚠️ | Needs documented playbook |
-| Business continuity | ⚠️ | MongoDB Atlas backups, needs DR plan |
+| Change management | ✅ | Git-based with PR reviews |
+| Incident response | ✅ | `/app/docs/incident-response-playbook.md` |
+| Business continuity | ✅ | DR Plan + Tabletop Test completed |
 
 ### CC8.0 - Change Management
 
