@@ -218,9 +218,9 @@ async def get_routes(
     query = {}
     
     # Role-based filtering
-    if current_user.get("role") == "employer":
+    if current_user.get("user_type") == "employer":
         query["employer_id"] = current_user["user_id"]
-    elif current_user.get("role") == "workforce":
+    elif current_user.get("user_type") == "workforce":
         query["worker_id"] = current_user["user_id"]
     
     if workplace_id:
