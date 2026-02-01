@@ -181,6 +181,7 @@ const LandingPage = () => {
               <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium">
                 Work Opportunities
               </Link>
+              <LanguageSelector variant="compact" />
             </div>
             <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="main-landing-signin">
               Sign In
