@@ -1244,7 +1244,6 @@ async def get_live_routes_dashboard(
             # Simple heuristic: if current time > scheduled + estimated duration, behind
             estimated_duration = route.get("estimated_duration_minutes", 0)
             if estimated_duration:
-                expected_end = scheduled + timedelta(minutes=estimated_duration)
                 progress_expected = min(100, ((now - scheduled).total_seconds() / 60 / estimated_duration) * 100)
                 actual_progress = calculate_route_completion(route)
                 
