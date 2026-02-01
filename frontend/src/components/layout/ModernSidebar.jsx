@@ -256,8 +256,42 @@ const ModernSidebar = () => {
           </div>
         </nav>
 
-        {/* Footer - Toggle Button (Optional) */}
-        <div className="border-t border-gray-700/50 p-4">
+        {/* Footer - Language & Toggle */}
+        <div className="border-t border-gray-700/50 p-4 space-y-2">
+          {/* Language Selector */}
+          <div className="relative">
+            <button
+              onClick={() => setShowLangMenu(!showLangMenu)}
+              className="w-full flex items-center p-2 rounded-lg hover:bg-gray-800/50 text-gray-400 hover:text-white transition-colors"
+            >
+              <FiGlobe size={20} className="flex-shrink-0" />
+              {showExpanded && (
+                <>
+                  <span className="ml-3 text-sm">{LANGUAGES[language]?.flag} {LANGUAGES[language]?.nativeName}</span>
+                  <FiChevronRight size={14} className={`ml-auto transition-transform ${showLangMenu ? 'rotate-90' : ''}`} />
+                </>
+              )}
+            </button>
+            
+            {showLangMenu && showExpanded && (
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-1 max-h-48 overflow-y-auto">
+                {Object.entries(LANGUAGES).map(([code, lang]) => (
+                  <button
+                    key={code}
+                    onClick={() => { setLanguage(code); setShowLangMenu(false); }}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-700 transition-colors ${
+                      language === code ? 'text-[#ff5f00] bg-gray-700/50' : 'text-gray-300'
+                    }`}
+                  >
+                    <span>{lang.flag}</span>
+                    <span>{lang.nativeName}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Toggle Button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-800/50 text-gray-400 hover:text-white transition-colors"
