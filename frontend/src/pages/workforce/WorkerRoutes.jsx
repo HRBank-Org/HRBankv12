@@ -163,7 +163,7 @@ const WorkerRoutes = () => {
         {routes.length > 0 ? (
           <div className="space-y-4">
             {routes.map(route => (
-              <RouteCard key={route.route_id} route={route} />
+              <RouteCard key={route.route_id} route={route} onNavigate={handleNavigate} />
             ))}
           </div>
         ) : (
