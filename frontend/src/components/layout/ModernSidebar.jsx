@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiCalendar, FiMapPin, FiUsers, FiUserCheck, FiClock, FiDollarSign, FiFileText, FiChevronRight, FiNavigation, FiSun, FiHelpCircle, FiCreditCard, FiPackage, FiTruck } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiMapPin, FiUsers, FiUserCheck, FiClock, FiDollarSign, FiFileText, FiChevronRight, FiNavigation, FiSun, FiHelpCircle, FiCreditCard, FiPackage, FiTruck, FiGlobe } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage, LANGUAGES } from '../../contexts/LanguageContext';
 
 const ModernSidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
