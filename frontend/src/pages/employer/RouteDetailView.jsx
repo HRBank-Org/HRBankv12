@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, MapPin, Clock, User, CheckCircle2, Circle,
   AlertTriangle, Navigation, Phone, Camera, FileSignature,
-  Play, RefreshCw
+  Play, RefreshCw, Route, Zap, ArrowRight, Radio
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
