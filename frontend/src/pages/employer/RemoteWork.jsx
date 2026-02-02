@@ -54,8 +54,10 @@ export default function RemoteWork() {
   });
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
 
   const fetchData = async () => {
     setLoading(true);
