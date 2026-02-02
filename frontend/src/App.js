@@ -201,6 +201,7 @@ import LiveRouteTracking from './pages/employer/LiveRouteTracking';
 import EmployerBilling from './pages/employer/EmployerBilling';
 import PayrollExport from './pages/employer/PayrollExport';
 import PayrollSync from './pages/employer/PayrollSync';
+import RemoteWork from './pages/employer/RemoteWork';
 
 // Institution pages (old imports removed, using new system)
 
