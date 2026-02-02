@@ -287,6 +287,7 @@ app.include_router(linkedin.router, prefix="/api", tags=["linkedin"])
 app.include_router(fundraisers.router, prefix="/api", tags=["fundraisers"])
 app.include_router(field_service.router, tags=["field_service"])
 app.include_router(employer_billing.router, tags=["employer_billing"])
+app.include_router(payroll_export.router, tags=["payroll_export"])
 
 # Stripe webhook at root /api level
 @app.post("/api/webhook/stripe")
