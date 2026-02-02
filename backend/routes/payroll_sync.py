@@ -329,10 +329,21 @@ async def _get_payroll_entries(
     entries = []
     for shift in shifts:
         worker = workers.get(shift.get("worker_id"), {})
-        workplace = workplaces.get(shift.get("workplace_id"), {})
+        workplace = workplaces.get(shift.get("workplace_id", shift.get("location_id")), {})
         
         # Calculate hours - support different field names
         regular_hours = shift.get("billable_hours", shift.get("hours_worked", shift.get("duration_hours", 0)))
+        
+        # Calculate from start_time/end_time if no hours field
+        if not regular_hours and shift.get("start_time") and shift.get("end_time"):
+            start = shift.get("start_time")
+            end = shift.get("end_time")
+            if hasattr(start, 'timestamp') and hasattr(end, 'timestamp'):
+                regular_hours = (end - start).total_seconds() / 3600
+                # Subtract break duration if present
+                break_mins = shift.get("break_duration", 0)
+                regular_hours -= break_mins / 60
+        
         overtime_hours = shift.get("overtime_hours", 0)
         if overtime_hours > 0:
             regular_hours = regular_hours - overtime_hours
@@ -355,13 +366,20 @@ async def _get_payroll_entries(
         if shift.get("source_type") == "route":
             work_type = "route_based"
         
+        # Get work date - handle multiple formats
+        work_date = shift.get("shift_date", shift.get("date", ""))
+        if not work_date and shift.get("start_time"):
+            start_time = shift.get("start_time")
+            if hasattr(start_time, 'strftime'):
+                work_date = start_time.strftime("%Y-%m-%d")
+        
         entry = PayrollEntry(
             employee_id=shift.get("worker_id", ""),
             employee_name=shift.get("worker_name", f"{worker.get('first_name', '')} {worker.get('last_name', '')}".strip()),
             employee_email=worker.get("email", ""),
             pay_period_start=start_date,
             pay_period_end=end_date,
-            work_date=shift.get("shift_date", shift.get("date", "")),
+            work_date=work_date,
             regular_hours=round(regular_hours, 2),
             overtime_hours=round(overtime_hours, 2),
             total_hours=round(total_hours, 2),
