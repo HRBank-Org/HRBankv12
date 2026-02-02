@@ -244,9 +244,10 @@ async def get_sync_status(
     # Get provider status
     providers = get_available_sync_providers()
     
-    # Get recent sync summary
+    # Get recent sync summary - exclude _id from response
     recent_syncs = await db.payroll_syncs.find(
-        {"employer_id": employer_id}
+        {"employer_id": employer_id},
+        {"_id": 0}
     ).sort("synced_at", -1).limit(10).to_list(10)
     
     # Calculate stats
