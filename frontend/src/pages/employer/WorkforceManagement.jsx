@@ -129,14 +129,12 @@ const WorkforceManagement = () => {
   };
   
   const handleCancelInvite = async (inviteId, inviteName) => {
-    console.log('Cancel clicked for:', inviteId, inviteName);
     setCancellingInvite(inviteId);
     try {
       await api.delete(`/api/employer/invitations/${inviteId}/cancel`);
-      console.log('Cancel successful');
       loadData();
     } catch (error) {
-      console.error('Cancel failed:', error);
+      console.error('Cancel invitation failed:', error);
       alert(error.response?.data?.detail || 'Failed to cancel invitation');
     } finally {
       setCancellingInvite(null);
