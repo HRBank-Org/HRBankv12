@@ -20,13 +20,17 @@ class WorkplaceRole(BaseModel):
     # on_site: Standard GPS clock-in at workplace location (Chef, Server, Manager)
     # route_based: Multi-stop tasks with GPS at each location (Delivery Driver, Cleaner)
     # continental: 12-hour rotating shifts with GPS at workplace (Security Guard)
-    work_type: str = "on_site"  # on_site, route_based, continental
+    # remote: Work from home with manual time tracking and deliverables (Developer, Designer)
+    work_type: str = "on_site"  # on_site, route_based, continental, remote
     
     # Continental Shift Config (only for work_type=continental)
     continental_config: Optional[Dict] = None  # {pattern, day_shift, night_shift, rotation_groups}
     
     # Route Config (only for work_type=route_based)
     route_config: Optional[Dict] = None  # {default_duration_hours, allow_recurring_routes}
+    
+    # Remote Config (only for work_type=remote)
+    remote_config: Optional[Dict] = None  # {requires_deliverables, default_deliverables, time_tracking: "manual"}
     
     # Co-op/Volunteer Program - For high school students
     coop_volunteer_eligible: bool = False  # If True, students can apply for co-op/volunteer hours
