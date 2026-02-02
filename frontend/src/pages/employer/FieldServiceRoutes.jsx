@@ -274,13 +274,22 @@ const FieldServiceRoutes = () => {
             <h1 className="text-2xl font-bold text-gray-900">Field Service Routes</h1>
             <p className="text-gray-500">Manage delivery, patrol, cleaning, and service routes</p>
           </div>
-          <Button 
-            onClick={() => navigate('/employer/field-service/routes/new')}
-            className="bg-[#ff5f00] hover:bg-[#e55500]"
-            data-testid="create-route-btn"
-          >
-            <Plus className="w-4 h-4 mr-2" /> Create Route
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/employer/field-service/billing')}
+              data-testid="billing-btn"
+            >
+              Billing
+            </Button>
+            <Button 
+              onClick={() => navigate('/employer/field-service/routes/new')}
+              className="bg-[#ff5f00] hover:bg-[#e55500]"
+              data-testid="create-route-btn"
+            >
+              <Plus className="w-4 h-4 mr-2" /> Create Route
+            </Button>
+          </div>
         </div>
 
         {/* Live Routes Dashboard */}
