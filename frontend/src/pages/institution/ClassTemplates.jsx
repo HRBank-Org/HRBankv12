@@ -29,7 +29,6 @@ const ClassTemplates = () => {
   const loadTemplates = async () => {
     try {
       const response = await api.get('/api/institution/class-templates');
-      console.log('Loaded templates:', response.data.data.templates);
       setTemplates(response.data.data.templates || []);
     } catch (error) {
       console.error('Failed to load templates:', error);
