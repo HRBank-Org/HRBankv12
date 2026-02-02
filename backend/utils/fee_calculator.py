@@ -22,7 +22,7 @@ async def get_provincial_minimum_wage(province_code: str) -> float:
             {"_id": 0, "minimum_wage": 1}
         )
         return wage['minimum_wage'] if wage else MINIMUM_WAGE
-    except:
+    except Exception:
         return MINIMUM_WAGE
 
 def calculate_fees(hourly_rate: float, minimum_rate: float = None, provincial_minimum: float = None) -> Dict:
