@@ -26,7 +26,6 @@ const FieldServiceBilling = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { t } = useTranslation();
   
   const [loading, setLoading] = useState(true);
   const [billingStatus, setBillingStatus] = useState(null);
