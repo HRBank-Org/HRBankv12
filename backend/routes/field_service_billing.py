@@ -712,7 +712,7 @@ async def _process_successful_payment(db, transaction: dict):
             transaction=transaction
         )
     except Exception as e:
-        print(f"Failed to create invoice: {e}")
+        logger.error(f"Failed to create field service invoice: {e}")
 
 
 # ============================================
