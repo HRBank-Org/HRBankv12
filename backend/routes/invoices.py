@@ -565,3 +565,52 @@ async def create_credential_invoice(
     )
     
     return invoice
+
+
+# ============== Integration with Field Service Billing ==============
+
+async def create_field_service_invoice(
+    employer_id: str,
+    transaction: dict
+) -> dict:
+    """
+    Create invoice for field service route billing.
+    Called from field_service_billing.py after successful payment.
+    """
+    is_bulk = transaction.get("is_bulk", False)
+    
+    if is_bulk:
+        routes_count = transaction.get("routes_count", len(transaction.get("route_ids", [])))
+        description = f"Field Service Routes ({routes_count} routes)"
+    else:
+        description = f"Field Service Route: {transaction.get('route_name', 'Route')} ({transaction.get('route_type', 'custom')})"
+    
+    line_items = [{
+        "description": description,
+        "quantity": transaction.get("routes_count", 1) if is_bulk else 1,
+        "unit_price": transaction.get("subtotal_cad", 0),
+        "amount": transaction.get("subtotal_cad", 0)
+    }]
+    
+    # Add platform fee as separate line item
+    if transaction.get("platform_fee_cad", 0) > 0:
+        line_items.append({
+            "description": "Platform Service Fee (15%)",
+            "quantity": 1,
+            "unit_price": transaction.get("platform_fee_cad", 0),
+            "amount": transaction.get("platform_fee_cad", 0)
+        })
+    
+    invoice = await create_invoice(
+        customer_id=employer_id,
+        customer_type="employer",
+        line_items=line_items,
+        province=transaction.get("province", "ON"),
+        notes=f"Field Service Billing - Transaction ID: {transaction.get('transaction_id', '')}",
+        due_days=0,
+        payment_id=transaction.get("session_id"),
+        auto_paid=True
+    )
+    
+    return invoice
+
