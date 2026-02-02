@@ -411,7 +411,7 @@ async def create_time_off_request(
         balance_check = {"type": "personal", "available": balance["personal_available"]}
     
     # Find affected shifts
-    affected_shifts = await db.calendar_shifts.find({
+    affected_shifts = await db.shifts.find({
         "employer_id": employer_id,
         "$or": [
             {"assigned_worker_id": current_user["user_id"]},
@@ -605,7 +605,7 @@ async def get_time_off_request_detail(
     
     # Get affected shift details
     if request.get("affected_shifts"):
-        shifts = await db.calendar_shifts.find(
+        shifts = await db.shifts.find(
             {"shift_id": {"$in": request["affected_shifts"]}},
             {"_id": 0, "shift_id": 1, "shift_date": 1, "start_time": 1, "end_time": 1, "workplace_name": 1}
         ).to_list(50)
@@ -705,7 +705,7 @@ async def approve_time_off_request(
     
     # Mark affected shifts as on_time_off
     if request.get("affected_shifts"):
-        await db.calendar_shifts.update_many(
+        await db.shifts.update_many(
             {"shift_id": {"$in": request["affected_shifts"]}},
             {
                 "$set": {
@@ -883,7 +883,7 @@ async def cancel_time_off_request(
         
         # Restore affected shifts
         if request.get("affected_shifts"):
-            await db.calendar_shifts.update_many(
+            await db.shifts.update_many(
                 {"shift_id": {"$in": request["affected_shifts"]}},
                 {
                     "$set": {"status": "published"},

@@ -25,7 +25,7 @@ async def check_missed_clock_ins(db):
     cutoff_time = (current_time - grace_period).isoformat()
     
     # Find active shifts without attendance records
-    active_shifts = await db.calendar_shifts.find({
+    active_shifts = await db.shifts.find({
         "start_time": {"$lte": cutoff_time},
         "end_time": {"$gte": current_time.isoformat()},
         "assigned_workers": {"$exists": True, "$ne": []}
@@ -123,7 +123,7 @@ async def get_todays_attendance(
     
     # Get all shifts for the target date
     # Check if start_time contains the date (handles different formats)
-    shifts = await db.calendar_shifts.find({
+    shifts = await db.shifts.find({
         "employer_id": current_user['user_id']
     }, {"_id": 0}).to_list(500)
     
@@ -280,7 +280,7 @@ async def get_shift_attendance(
     """Get live attendance for a specific shift"""
     db = await get_database()
     
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "employer_id": current_user['user_id']
     })

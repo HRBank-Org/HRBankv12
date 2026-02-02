@@ -395,7 +395,7 @@ async def get_my_shifts(
         date = dt.now(timezone.utc).strftime('%Y-%m-%d')
     
     # Find shifts for this worker on this date (date field is stored as YYYY-MM-DD string)
-    shifts = await db.calendar_shifts.find({
+    shifts = await db.shifts.find({
         "worker_id": current_user["user_id"],
         "date": date
     }, {"_id": 0}).to_list(1000)
@@ -436,7 +436,7 @@ async def get_task_completions(
         date = dt.now(timezone.utc).strftime('%Y-%m-%d')
     
     # Find all shifts for this date (date field is stored as YYYY-MM-DD string)
-    shifts = await db.calendar_shifts.find({
+    shifts = await db.shifts.find({
         "worker_id": current_user["user_id"],
         "date": date
     }, {"_id": 0, "shift_id": 1}).to_list(1000)
@@ -480,7 +480,7 @@ async def complete_task(
         )
     
     # Verify the shift belongs to this worker
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "worker_id": current_user["user_id"]
     })

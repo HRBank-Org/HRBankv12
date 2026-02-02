@@ -218,7 +218,7 @@ async def get_worker_kpis(
                     pass
         
         # Get assigned shifts this week for attendance rate
-        assigned_shifts_week = await db.calendar_shifts.count_documents({
+        assigned_shifts_week = await db.shifts.count_documents({
             "employer_id": employer_id,
             "assigned_workers": {"$elemMatch": {"worker_id": worker_id}},
             "start_time": {"$gte": week_start.isoformat(), "$lte": now.isoformat()}
@@ -226,7 +226,7 @@ async def get_worker_kpis(
         
         # Also check string format assigned_workers
         if assigned_shifts_week == 0:
-            assigned_shifts_week = await db.calendar_shifts.count_documents({
+            assigned_shifts_week = await db.shifts.count_documents({
                 "employer_id": employer_id,
                 "assigned_workers": worker_id,
                 "start_time": {"$gte": week_start.isoformat(), "$lte": now.isoformat()}
@@ -238,7 +238,7 @@ async def get_worker_kpis(
             attendance_rate = min(100, round((shifts_this_week / assigned_shifts_week) * 100, 1))
         
         # Check if worker is on duty today
-        today_shifts = await db.calendar_shifts.count_documents({
+        today_shifts = await db.shifts.count_documents({
             "employer_id": employer_id,
             "$or": [
                 {"assigned_workers": {"$elemMatch": {"worker_id": worker_id}}},

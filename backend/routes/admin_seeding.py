@@ -385,7 +385,7 @@ async def seed_demo_data(
             shift_date = today + timedelta(days=day_offset)
             
             # Morning shift
-            await db.calendar_shifts.insert_one({
+            await db.shifts.insert_one({
                 "shift_id": generate_id("shft"),
                 "employer_id": employer_user_id,
                 "workplace_id": workplaces[0]["workplace_id"],
@@ -402,7 +402,7 @@ async def seed_demo_data(
             shift_count += 1
             
             # Evening shift
-            await db.calendar_shifts.insert_one({
+            await db.shifts.insert_one({
                 "shift_id": generate_id("shft"),
                 "employer_id": employer_user_id,
                 "workplace_id": workplaces[0]["workplace_id"],

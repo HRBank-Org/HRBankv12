@@ -115,7 +115,7 @@ async def checkin_with_qr(
         raise HTTPException(status_code=400, detail="QR code has expired")
     
     # Verify shift exists and belongs to worker
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "assigned_workers.worker_id": worker_id
     }, {"_id": 0})

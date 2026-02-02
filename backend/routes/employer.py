@@ -190,7 +190,7 @@ async def get_my_shifts(
         all_shifts.append(shift)
     
     # 2. Get calendar_shifts (newer scheduling system)
-    calendar_shifts = await db.calendar_shifts.find(
+    calendar_shifts = await db.shifts.find(
         {"employer_id": current_user["user_id"]},
         {"_id": 0}
     ).to_list(100)
@@ -703,8 +703,8 @@ async def unassign_worker_from_shift(
     
     if not shift:
         # Try calendar_shifts collection
-        shift = await db.calendar_shifts.find_one({"shift_id": shift_id})
-        collection_name = "calendar_shifts"
+        shift = await db.shifts.find_one({"shift_id": shift_id})
+        collection_name = "shifts"
     
     if not shift:
         raise HTTPException(status_code=404, detail="Shift not found")
@@ -740,7 +740,7 @@ async def unassign_worker_from_shift(
         raise HTTPException(status_code=404, detail="Worker not found in shift")
     
     # Update the correct collection
-    collection = db.shifts if collection_name == "shifts" else db.calendar_shifts
+    collection = db.shifts if collection_name == "shifts" else db.shifts
     await collection.update_one(
         {"shift_id": shift_id},
         {"$set": {

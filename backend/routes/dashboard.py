@@ -77,7 +77,7 @@ async def get_dashboard_workforce(
         primary_occupation = max(occupations, key=lambda x: x.get("total_shifts_completed", 0)) if occupations else None
         
         # Find worker's primary workplace (from most recent shift assignment)
-        recent_shift = await db.calendar_shifts.find_one(
+        recent_shift = await db.shifts.find_one(
             {
                 "employer_id": employer_id,
                 "assigned_workers.worker_id": workforce_id
@@ -210,14 +210,14 @@ async def get_dashboard_stats(
     
     workplaces = []
     for wp in workplaces_raw:
-        active_shifts = await db.calendar_shifts.count_documents({
+        active_shifts = await db.shifts.count_documents({
             "employer_id": employer_id,
             "workplace_id": wp["workplace_id"],
             "start_time": {"$gte": now}
         })
         
         # Get workers assigned to this workplace (from recent shifts)
-        recent_shifts = await db.calendar_shifts.find({
+        recent_shifts = await db.shifts.find({
             "employer_id": employer_id,
             "workplace_id": wp["workplace_id"]
         }, {"_id": 0, "assigned_workers": 1}).limit(50).to_list(50)
@@ -258,7 +258,7 @@ async def get_dashboard_stats(
     today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     week_later = today + timedelta(days=7)
     
-    upcoming_shifts = await db.calendar_shifts.count_documents({
+    upcoming_shifts = await db.shifts.count_documents({
         "employer_id": employer_id,
         "start_time": {
             "$gte": today.isoformat(),
@@ -311,7 +311,7 @@ async def toggle_workplace_status(
         now = datetime.now(timezone.utc).isoformat()
         
         # Check for any future shifts at this workplace
-        active_shifts_count = await db.calendar_shifts.count_documents({
+        active_shifts_count = await db.shifts.count_documents({
             "employer_id": employer_id,
             "workplace_id": workplace_id,
             "start_time": {"$gte": now}
@@ -361,13 +361,13 @@ async def get_operational_kpis(
     # === SHIFTS (Standard + Continental) ===
     
     # Today's shifts
-    today_shifts = await db.calendar_shifts.find({
+    today_shifts = await db.shifts.find({
         "employer_id": employer_id,
         "shift_date": today_start.strftime("%Y-%m-%d")
     }, {"_id": 0}).to_list(500)
     
     # This week's shifts
-    week_shifts = await db.calendar_shifts.find({
+    week_shifts = await db.shifts.find({
         "employer_id": employer_id,
         "start_time": {
             "$gte": week_start.isoformat(),
