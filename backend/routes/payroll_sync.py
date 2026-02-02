@@ -283,16 +283,17 @@ async def _get_payroll_entries(
 ) -> List[PayrollEntry]:
     """Fetch and transform shifts to payroll entries"""
     
+    # Support both 'shift_date' and 'date' fields for compatibility
     query = {
         "employer_id": employer_id,
-        "shift_date": {
-            "$gte": start_date,
-            "$lte": end_date
-        },
+        "$or": [
+            {"shift_date": {"$gte": start_date, "$lte": end_date}},
+            {"date": {"$gte": start_date, "$lte": end_date}}
+        ],
         "status": {"$in": ["completed", "approved"]}
     }
     
-    cursor = db.shifts.find(query, {"_id": 0}).sort("shift_date", 1)
+    cursor = db.shifts.find(query, {"_id": 0}).sort([("shift_date", 1), ("date", 1)])
     if limit:
         cursor = cursor.limit(limit)
     
