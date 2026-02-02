@@ -733,9 +733,8 @@ async def unassign_worker_from_shift(
     if len(new_assigned_workers) == original_count:
         raise HTTPException(status_code=404, detail="Worker not found in shift")
     
-    # Update the correct collection
-    collection = db.shifts if collection_name == "shifts" else db.shifts
-    await collection.update_one(
+    # Update the shifts collection
+    await db.shifts.update_one(
         {"shift_id": shift_id},
         {"$set": {
             "assigned_workers": new_assigned_workers,
