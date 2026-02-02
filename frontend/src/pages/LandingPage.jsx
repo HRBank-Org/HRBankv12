@@ -9,7 +9,7 @@ import {
 import { LOGOS } from '../utils/logoUtils';
 import EmmaLandingChat from '../components/emma/EmmaLandingChat';
 import LoginModal from '../components/auth/LoginModal';
-import LanguageSelector from '../components/common/LanguageSelector';
+import LandingHeader from '../components/layout/LandingHeader';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
