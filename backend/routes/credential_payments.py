@@ -197,7 +197,7 @@ async def issue_pending_credential(
             issue_date=credential.issue_date
         )
     except Exception as e:
-        print(f"Failed to send credential email: {e}")
+        logger.error(f"Failed to send credential email: {e}")
     
     # If recipient has account, send them an in-app notification
     if recipient:
