@@ -461,6 +461,14 @@ async def get_operational_kpis(
         day_night = shift.get("day_night", "day")
         continental_groups[group][day_night] = continental_groups[group].get(day_night, 0) + 1
     
+    # === REMOTE WORK SPECIFIC ===
+    
+    remote_total_expected_hours = sum(s.get("duration_hours", 0) or s.get("expected_hours", 0) or 0 for s in remote_shifts_week)
+    remote_total_actual_hours = sum(s.get("actual_hours", 0) or 0 for s in remote_shifts_week)
+    remote_total_deliverables = sum(s.get("total_deliverables", 0) or 0 for s in remote_shifts_week)
+    remote_completed_deliverables = sum(s.get("completed_deliverables", 0) or 0 for s in remote_shifts_week)
+    remote_approved_deliverables = sum(s.get("approved_deliverables", 0) or 0 for s in remote_shifts_week)
+    
     # === ATTENDANCE RATE ===
     
     expected_today = sum(len(s.get("assigned_workers", [])) for s in today_shifts)
