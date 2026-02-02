@@ -8,6 +8,7 @@ Pricing Structure:
 - Platform fees:
   * Minimum wage jobs: $1/hour fee to employer only
   * Above minimum wage: $1/hour fee to BOTH worker and employer
+  * Route-based: +$0.25 per verified stop (covers GPS verification overhead)
 
 Work Types:
 - on_site: Standard GPS clock-in at workplace (Server, Chef, Cashier)
@@ -20,6 +21,7 @@ MINIMUM_WAGE = 17.60
 
 # Platform fee structure
 PLATFORM_FEE_PER_HOUR = 1.00
+PLATFORM_FEE_PER_STOP = 0.25  # Additional fee per verified stop (route-based only)
 
 # Default work type mappings by occupation title
 # Super-admin controlled - employers can override when creating roles
