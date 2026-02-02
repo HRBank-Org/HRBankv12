@@ -60,64 +60,48 @@ export default function RemoteWork() {
   }, [token]);
 
   const fetchData = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
-      await fetchShifts();
-      await fetchSummary();
-      await fetchWorkplaces();
-    } catch (err) {
-      console.error('Error fetching data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchShifts = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/remote-work/shifts`, {
+      // Fetch shifts
+      const shiftsRes = await fetch(`${API_URL}/api/remote-work/shifts`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (data.success) {
-        setShifts(data.data.shifts || []);
+      const shiftsData = await shiftsRes.json();
+      if (shiftsData.success) {
+        setShifts(shiftsData.data.shifts || []);
       }
-    } catch (err) {
-      console.error('Error fetching shifts:', err);
-      setShifts([]);
-    }
-  };
 
-  const fetchSummary = async () => {
-    try {
+      // Fetch summary
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 1);
       const endDate = new Date();
       endDate.setMonth(endDate.getMonth() + 1);
       
-      const res = await fetch(
+      const summaryRes = await fetch(
         `${API_URL}/api/remote-work/reports/summary?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const data = await res.json();
-      if (data.success) {
-        setSummary(data.data);
+      const summaryData = await summaryRes.json();
+      if (summaryData.success) {
+        setSummary(summaryData.data);
       }
-    } catch (err) {
-      console.error('Error fetching summary:', err);
-    }
-  };
 
-  const fetchWorkplaces = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/employer/workplaces`, {
+      // Fetch workplaces
+      const workplacesRes = await fetch(`${API_URL}/api/employer/workplaces`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (data.success) {
-        setWorkplaces(data.data.workplaces || []);
+      const workplacesData = await workplacesRes.json();
+      if (workplacesData.success) {
+        setWorkplaces(workplacesData.data.workplaces || []);
       }
     } catch (err) {
-      console.error('Error fetching workplaces:', err);
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
