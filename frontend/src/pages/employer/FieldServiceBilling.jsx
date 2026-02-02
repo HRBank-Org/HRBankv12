@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { 
   CreditCard, Receipt, CheckCircle2, Clock, AlertTriangle,
   DollarSign, TrendingUp, Route, Calendar, Building2,
