@@ -85,7 +85,8 @@ def calculate_shift_fees(
     minimum_rate: float = None, 
     provincial_minimum: float = None,
     work_type: str = "on_site",
-    stops_completed: int = 0
+    stops_completed: int = 0,
+    deliverables_completed: int = 0
 ) -> Dict:
     """
     Calculate total fees for a complete shift
@@ -95,8 +96,9 @@ def calculate_shift_fees(
         duration_hours: Number of hours worked
         minimum_rate: The occupation minimum rate
         provincial_minimum: The provincial minimum wage
-        work_type: Type of shift (on_site, continental, route_based)
+        work_type: Type of shift (on_site, continental, route_based, remote)
         stops_completed: Number of verified stops (for route_based only)
+        deliverables_completed: Number of approved deliverables (for remote only)
     
     Returns:
         Dictionary with total fee breakdown
@@ -109,12 +111,15 @@ def calculate_shift_fees(
     if work_type == "route_based" and stops_completed > 0:
         stop_fee_total = round(stops_completed * PLATFORM_FEE_PER_STOP, 2)
     
+    # Remote work uses same fee structure as on_site (just hourly, no stops)
+    # But we track deliverables for reporting purposes
+    
     platform_revenue_total = round(
         (hourly_fees["platform_revenue_per_hour"] * duration_hours) + stop_fee_total, 
         2
     )
     
-    return {
+    result = {
         **hourly_fees,
         "work_type": work_type,
         "duration_hours": round(duration_hours, 2),
@@ -127,6 +132,12 @@ def calculate_shift_fees(
         "employer_cost_total": round((hourly_fees["employer_pays"] * duration_hours) + stop_fee_total, 2),
         "platform_revenue_total": platform_revenue_total
     }
+    
+    # Add deliverables info for remote work
+    if work_type == "remote":
+        result["deliverables_completed"] = deliverables_completed
+    
+    return result
 
 def get_minimum_rate_for_occupation(occupation_title: str) -> float:
     """
