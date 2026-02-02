@@ -43,7 +43,6 @@ export default function EmployerBilling() {
 
   useEffect(() => {
     fetchBillingData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, token]);
 
   const formatCurrency = (amount) => {
