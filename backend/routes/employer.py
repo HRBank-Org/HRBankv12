@@ -695,16 +695,10 @@ async def unassign_worker_from_shift(
     current_user: dict = Depends(require_role("employer")),
     db = Depends(get_db)
 ):
-    """Remove a worker from a shift - checks both shifts and calendar_shifts collections"""
+    """Remove a worker from a shift"""
     
-    # Find shift - check both collections (legacy shifts and calendar_shifts)
+    # Find shift in unified shifts collection
     shift = await db.shifts.find_one({"shift_id": shift_id})
-    collection_name = "shifts"
-    
-    if not shift:
-        # Try calendar_shifts collection
-        shift = await db.shifts.find_one({"shift_id": shift_id})
-        collection_name = "shifts"
     
     if not shift:
         raise HTTPException(status_code=404, detail="Shift not found")
