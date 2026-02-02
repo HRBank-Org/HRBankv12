@@ -146,39 +146,19 @@ const PublicJobsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={LOGOS.master} alt="HR Bank" className="h-9 w-auto" />
-            </Link>
-            <div className="hidden md:flex items-center gap-6">
-              <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
-                WorkPassport™
-              </Link>
-              <Link to="/institutions" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Institutions
-              </Link>
-              <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Leaderboard
-              </Link>
-              <Link to="/employers" className="text-gray-600 hover:text-[#ff5f00] font-medium">
-                Employers <span className="text-orange-500 text-xs">(Beta)</span>
-              </Link>
-              <Link to="/jobs" className="text-[#30496d] font-semibold">
-                Jobs
-              </Link>
-            </div>
-            <Button variant="ghost" onClick={() => navigate('/login')} className="text-gray-700">
-              Sign In
-            </Button>
-          </div>
-        </div>
-      </header>
+      {/* Shared Navigation Header */}
+      <LandingHeader onSignInClick={() => setShowLoginModal(true)} />
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <LoginModal 
+          isOpen={showLoginModal} 
+          onClose={() => setShowLoginModal(false)} 
+        />
+      )}
 
       {/* Search Bar */}
-      <div className="bg-[#30496d] py-8">
+      <div className="bg-[#30496d] py-8 pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-bold text-white mb-4">Find Your Next Opportunity</h1>
           <div className="flex flex-col md:flex-row gap-3">
