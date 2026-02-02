@@ -25,8 +25,6 @@ const AdminLogin = () => {
         user_type: 'admin'
       });
 
-      console.log('Login response:', response);
-
       if (response.success) {
         // Verify it's an admin
         if (response.data.user_type === 'admin') {
