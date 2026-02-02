@@ -279,7 +279,7 @@ def create_shift_from_route(route: Dict, province: str = "ON") -> Tuple[Dict, Ro
     # Create shift record
     shift = {
         "shift_id": str(uuid.uuid4()),
-        "source_type": "field_service_route",
+        "source_type": "route",  # Unified: identifies this came from field service route
         "source_id": route.get("route_id"),
         "employer_id": route.get("employer_id"),
         "worker_id": route.get("worker_id"),
@@ -315,8 +315,7 @@ def create_shift_from_route(route: Dict, province: str = "ON") -> Tuple[Dict, Ro
         "status": "completed" if route.get("status") == "completed" else "in_progress",
         "payroll_status": "pending",  # To be processed in payroll
         
-        # Unified shift source
-        "source_type": "route",  # Identifies this came from field service route
+        # Work type
         "work_type": "route_based",
         
         # Metadata
