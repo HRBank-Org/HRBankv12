@@ -51,9 +51,12 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
             if cred.get('status') == 'verified':
                 worker_certifications.add(cred.get('credential_name', ''))
     
-    # Distance Score (35% weight) - HIGHEST PRIORITY
+    # Distance Score (35% weight for non-remote, 0% for remote) - HIGHEST PRIORITY
     # Closer is better: 0-5km = 100%, 5-10km = 90%, 10-15km = 75%, 15-20km = 60%, 20-25km = 40%, >25km = 0%
-    if distance_km <= 5:
+    # For remote jobs: Always 100% (location is irrelevant)
+    if is_remote:
+        distance_score = 100  # Remote jobs ignore proximity
+    elif distance_km <= 5:
         distance_score = 100
     elif distance_km <= 10:
         distance_score = 90
