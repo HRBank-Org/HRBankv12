@@ -164,7 +164,9 @@ async def create_calendar_shift(
         "standard_tasks": all_standard_tasks,  # Includes inherited + custom
         "custom_tasks": shift_data.get("custom_tasks", []),  # Additional shift-specific tasks
         "role_id": role_id,
-        "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.now(timezone.utc).strftime('%Y-%m-%d'),
+        "source": "calendar",  # Mark as calendar-sourced shift
+        "shift_type": shift_data.get("shift_type", "on_site")
     }
     
     await db.shifts.insert_one(shift)
