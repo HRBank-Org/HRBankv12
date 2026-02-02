@@ -61,7 +61,21 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (February 2026)
 
-### Payroll Sync API Integration ✅ (Feb 2, 2026) - NEW
+### Calendar Shifts Consolidation ✅ (Feb 2, 2026) - NEW
+Merged `calendar_shifts` collection into unified `shifts` collection with `source` field.
+
+**Migration Summary:**
+- Migrated 1,548 calendar shifts to unified `shifts` collection
+- Added `source` field: `"calendar"` for migrated shifts, `"direct"` for original shifts
+- Updated 15+ route files to use unified collection
+- Old `calendar_shifts` collection preserved for rollback if needed
+
+**Benefits:**
+- Single source of truth for all shifts
+- Simplified queries and data model
+- Easier payroll/reporting integration
+
+### Payroll Sync API Integration ✅ (Feb 2, 2026)
 Direct API integration with payroll providers (Gusto, Ceridian Dayforce, ADP) in **MOCK mode**.
 
 **Supported Providers:**
