@@ -580,7 +580,8 @@ async def get_payment_status(
     }
 
 async def process_successful_payment(db, pending_credential_id: str, user_id: str, session_id: str):
-    """Process a successful payment - create the credential (blockchain disabled for deployment)"""
+    """Process a successful payment - create the credential with blockchain verification"""
+    from utils.blockchain_service import blockchain_service
     
     # Get pending credential
     pending = await db.pending_credentials.find_one(
@@ -591,14 +592,38 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
     if not pending or pending.get("status") == "paid":
         return  # Already processed
     
-    # Create the credential (standard database-backed, blockchain disabled)
+    # Create the credential
     credential_id = f"HRBANK-{datetime.now().year}-{uuid.uuid4().hex[:6].upper()}"
     
-    # Note: Blockchain/IPFS functionality disabled for deployment
-    # Credentials are stored in database instead of blockchain
-    ipfs_hash = f"db_{credential_id}"  # Placeholder for non-blockchain storage
+    # Prepare credential metadata for IPFS
+    credential_metadata = {
+        "credential_id": credential_id,
+        "credential_name": pending["credential_name"],
+        "credential_type": pending["credential_type"],
+        "program_name": pending.get("program_name"),
+        "student_name": pending["recipient_name"],
+        "student_id": pending["student_id"],
+        "issue_date": pending["issue_date"],
+        "expiry_date": pending.get("expiry_date"),
+        "institution_id": pending["institution_id"],
+        "institution_name": pending.get("institution_name"),
+        "issued_to_user_id": user_id
+    }
     
-    # Create credential record (database-backed instead of blockchain)
+    # Upload to IPFS
+    ipfs_url = await blockchain_service.upload_to_ipfs(credential_metadata)
+    gateway_url = blockchain_service.get_ipfs_gateway_url(ipfs_url)
+    
+    # Mint credential on blockchain
+    blockchain_result = await blockchain_service.mint_credential({
+        "credential_id": credential_id,
+        "credential_hash": blockchain_service.hash_credential(credential_metadata),
+        "ipfs_url": ipfs_url,
+        "worker_id": user_id,
+        "institution_id": pending["institution_id"]
+    })
+    
+    # Create credential record with blockchain data
     blockchain_credential = {
         "credential_id": credential_id,
         "worker_id": user_id,
@@ -614,8 +639,8 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
         "expiry_date": pending.get("expiry_date"),
         "credential_type": pending["credential_type"],
         "status": "issued",
-        "ipfs_url": ipfs_result.get("ipfs_url"),
-        "ipfs_gateway_url": ipfs_result.get("gateway_url"),
+        "ipfs_url": ipfs_url,
+        "ipfs_gateway_url": gateway_url,
         "blockchain_transaction_hash": blockchain_result.get("transaction_hash"),
         "blockchain_token_id": blockchain_result.get("token_id"),
         "on_chain": blockchain_result.get("on_chain", False),
