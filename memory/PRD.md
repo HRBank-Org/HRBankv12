@@ -53,6 +53,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - [x] **Payroll Export System** (Phase 1 complete)
 - [x] **Payroll Sync System** (Phases 2-4 complete - MOCK mode)
 - [x] **Calendar Shifts Consolidation** (merged into shifts collection)
+- [x] **Remote Work Management** (4th shift type with deliverables)
 - [ ] Penetration testing by qualified vendor
 - [ ] Update SOC2 badge to "Certified" (next round)
 - [ ] Enable Google Maps billing for production
@@ -62,7 +63,42 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (February 2026)
 
-### Calendar Shifts Consolidation ✅ (Feb 2, 2026) - NEW
+### Remote Work (4th Shift Type) ✅ (Feb 2, 2026) - NEW
+Added remote/white-collar work type with deliverables-based tracking.
+
+**Shift Types Now Supported:**
+| Type | Description | Tracking | Proximity in Job Matching |
+|------|-------------|----------|--------------------------|
+| `on_site` | Traditional on-location work | Attendance/clock-in | ✅ Required |
+| `continental` | Extended shift patterns | Attendance | ✅ Required |
+| `route_based` | Field service with stops | Stops + Duration | ✅ Required |
+| `remote` | Work from home | Deliverables | ❌ Skipped |
+
+**Backend Implementation:**
+- `/app/backend/routes/remote_work.py` - Full CRUD for remote shifts & deliverables
+- Updated `/app/backend/routes/job_matching.py` - Proximity skipped for remote jobs
+- Updated `/app/backend/routes/workplace_roles.py` - Remote work type support
+- Updated `/app/backend/utils/fee_calculator.py` - Remote work billing
+
+**API Endpoints:**
+- `POST /api/remote-work/shifts` - Create remote shift with deliverables
+- `GET /api/remote-work/shifts` - List remote shifts
+- `PUT /api/remote-work/shifts/{id}/deliverables/{id}` - Update deliverable status
+- `POST /api/remote-work/worker/shifts/{id}/log-time` - Log hours worked
+- `GET /api/remote-work/reports/summary` - Remote work analytics
+
+**Frontend:**
+- `/app/frontend/src/pages/employer/RemoteWork.jsx` - Full management UI
+- Route: `/employer/remote-work`
+
+**Job Matching Changes:**
+For remote jobs, the matching algorithm redistributes weights:
+- Distance: 0% (ignored for remote)
+- Availability: 45% (increased from 35%)
+- Certifications: 35% (increased from 20%)
+- Skills: 20% (increased from 10%)
+
+### Calendar Shifts Consolidation ✅ (Feb 2, 2026)
 Merged `calendar_shifts` collection into unified `shifts` collection with `source` field.
 
 **Migration Summary:**
