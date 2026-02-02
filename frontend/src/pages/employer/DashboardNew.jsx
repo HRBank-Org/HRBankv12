@@ -849,7 +849,7 @@ const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
               <div className="text-sm text-blue-100 mb-1">Hours This Week</div>
               <div className="text-3xl font-bold">{operationalKpis.summary?.total_hours_this_week || 0}</div>
               <div className="text-xs text-blue-200 mt-1">
-                {operationalKpis.summary?.shift_hours_week || 0}h shifts + {operationalKpis.summary?.task_hours_week || 0}h tasks
+                {operationalKpis.summary?.shift_hours_week || 0}h on-site + {operationalKpis.summary?.remote_hours_week || 0}h remote
               </div>
             </div>
             <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white">
@@ -875,31 +875,31 @@ const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
               </div>
             </div>
             <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-4 text-white">
-              <div className="text-sm text-indigo-100 mb-1">Continental</div>
-              <div className="text-3xl font-bold">{operationalKpis.continental?.total_shifts_week || 0}</div>
-              <div className="text-xs text-indigo-200 mt-1">12h shifts this week</div>
+              <div className="text-sm text-indigo-100 mb-1">Remote Work</div>
+              <div className="text-3xl font-bold">{operationalKpis.remote?.total_shifts_week || 0}</div>
+              <div className="text-xs text-indigo-200 mt-1">{operationalKpis.remote?.deliverables?.completed || 0} deliverables done</div>
             </div>
           </div>
 
-          {/* Work Mode Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {/* Standard Shifts */}
+          {/* Work Mode Breakdown - All 4 Types */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {/* On-Site Shifts */}
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">🏢</span>
-                <h3 className="font-semibold text-gray-900">Standard Shifts</h3>
+                <h3 className="font-semibold text-gray-900">On-Site</h3>
               </div>
               <div className="text-2xl font-bold text-gray-900 mb-1">
-                {operationalKpis.shifts?.standard_shifts_week || 0}
+                {operationalKpis.shifts?.by_type?.on_site || 0}
               </div>
               <div className="text-sm text-gray-500">shifts this week</div>
             </div>
 
-            {/* Field Service */}
+            {/* Route-Based / Field Service */}
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">🚗</span>
-                <h3 className="font-semibold text-gray-900">Field Service</h3>
+                <h3 className="font-semibold text-gray-900">Route-Based</h3>
               </div>
               <div className="flex items-center gap-4">
                 <div>
@@ -921,19 +921,41 @@ const KPIsTab = ({ theme, navigate, pendingRatings, onRatingSuccess }) => {
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">🔄</span>
-                <h3 className="font-semibold text-gray-900">Continental (12h)</h3>
+                <h3 className="font-semibold text-gray-900">Continental</h3>
               </div>
-              {operationalKpis.continental?.rotation_groups && Object.keys(operationalKpis.continental.rotation_groups).length > 0 ? (
-                <div className="flex flex-wrap gap-2">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {operationalKpis.shifts?.by_type?.continental || 0}
+              </div>
+              <div className="text-sm text-gray-500">12h shifts this week</div>
+              {operationalKpis.continental?.rotation_groups && Object.keys(operationalKpis.continental.rotation_groups).length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
                   {Object.entries(operationalKpis.continental.rotation_groups).map(([group, counts]) => (
-                    <div key={group} className="px-3 py-1 bg-indigo-50 rounded-full text-sm">
-                      <span className="font-medium text-indigo-700">Group {group}:</span>
-                      <span className="ml-1 text-indigo-600">☀️{counts.day || 0} 🌙{counts.night || 0}</span>
-                    </div>
+                    <span key={group} className="px-2 py-0.5 bg-indigo-50 rounded-full text-xs text-indigo-700">
+                      {group}: ☀️{counts.day || 0} 🌙{counts.night || 0}
+                    </span>
                   ))}
                 </div>
-              ) : (
-                <div className="text-sm text-gray-500">No continental shifts this week</div>
+              )}
+            </div>
+
+            {/* Remote Work */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">🏠</span>
+                <h3 className="font-semibold text-gray-900">Remote</h3>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {operationalKpis.shifts?.by_type?.remote || 0}
+              </div>
+              <div className="text-sm text-gray-500">{operationalKpis.remote?.actual_hours || 0}h logged</div>
+              {operationalKpis.remote?.deliverables?.total > 0 && (
+                <div className="mt-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-green-600">{operationalKpis.remote.deliverables.approved || 0} approved</span>
+                    <span className="text-yellow-600">{operationalKpis.remote.deliverables.completed - (operationalKpis.remote.deliverables.approved || 0)} pending</span>
+                    <span className="text-gray-400">{operationalKpis.remote.deliverables.total - (operationalKpis.remote.deliverables.completed || 0)} todo</span>
+                  </div>
+                </div>
               )}
             </div>
           </div>
