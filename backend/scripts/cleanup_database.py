@@ -35,7 +35,7 @@ async def cleanup_database():
         'workplaces',
         'workplace_roles',
         'shifts',
-        'calendar_shifts',
+        
         'job_postings',
         'jobs',
         

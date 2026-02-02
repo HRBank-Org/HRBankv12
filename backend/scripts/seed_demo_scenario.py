@@ -472,7 +472,7 @@ async def seed_demo_scenario():
         })
     
     for shift in shifts:
-        await db.calendar_shifts.insert_one(shift)
+        await db.shifts.insert_one(shift)
     print(f"  ✅ {len(shifts)} shifts created for next 7 days")
     
     # ==========================================

@@ -128,16 +128,16 @@ async def create_indexes():
     # ============================================
     # CALENDAR SHIFTS
     # ============================================
-    print("\n📦 Collection: calendar_shifts")
+    print("\n📦 Collection: shifts")
     try:
-        await db.calendar_shifts.create_index("shift_id", unique=True)
-        await db.calendar_shifts.create_index("employer_id")
-        await db.calendar_shifts.create_index("workplace_id")
-        await db.calendar_shifts.create_index("assigned_worker_id")
-        await db.calendar_shifts.create_index("shift_date")
-        await db.calendar_shifts.create_index("status")
-        await db.calendar_shifts.create_index([("employer_id", 1), ("shift_date", 1)])
-        await db.calendar_shifts.create_index([("assigned_worker_id", 1), ("shift_date", 1)])
+        await db.shifts.create_index("shift_id", unique=True)
+        await db.shifts.create_index("employer_id")
+        await db.shifts.create_index("workplace_id")
+        await db.shifts.create_index("assigned_worker_id")
+        await db.shifts.create_index("shift_date")
+        await db.shifts.create_index("status")
+        await db.shifts.create_index([("employer_id", 1), ("shift_date", 1)])
+        await db.shifts.create_index([("assigned_worker_id", 1), ("shift_date", 1)])
         print("   ✓ Created indexes: shift_id, employer_id, workplace_id, assigned_worker_id, shift_date, status")
         indexes_created += 8
     except Exception as e:

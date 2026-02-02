@@ -69,7 +69,7 @@ async def seed_december_data():
     shifts_created = 0
     
     # Clear existing December shifts
-    await db.calendar_shifts.delete_many({
+    await db.shifts.delete_many({
         "employer_id": employer_id,
         "shift_date": {"$regex": "^2025-12"}
     })
@@ -96,7 +96,7 @@ async def seed_december_data():
             "assigned_workers": [w["workforce_id"] for w in workers[:3]],
             "created_at": shift_date.isoformat()
         }
-        await db.calendar_shifts.insert_one(morning_shift)
+        await db.shifts.insert_one(morning_shift)
         shifts_created += 1
         
         # Evening shift (On-Site)
@@ -116,7 +116,7 @@ async def seed_december_data():
             "assigned_workers": [w["workforce_id"] for w in workers[:4]],
             "created_at": shift_date.isoformat()
         }
-        await db.calendar_shifts.insert_one(evening_shift)
+        await db.shifts.insert_one(evening_shift)
         shifts_created += 1
         
         # Route-based delivery shift (every other day)
@@ -142,7 +142,7 @@ async def seed_december_data():
                 },
                 "created_at": shift_date.isoformat()
             }
-            await db.calendar_shifts.insert_one(route_shift)
+            await db.shifts.insert_one(route_shift)
             shifts_created += 1
         
         # Continental shift (weekends)
@@ -164,7 +164,7 @@ async def seed_december_data():
                 "break_duration_minutes": 60,
                 "created_at": shift_date.isoformat()
             }
-            await db.calendar_shifts.insert_one(continental_shift)
+            await db.shifts.insert_one(continental_shift)
             shifts_created += 1
     
     results["created"].append(f"Created {shifts_created} shifts for December")
@@ -181,7 +181,7 @@ async def seed_december_data():
     })
     
     # Get all completed shifts
-    completed_shifts = await db.calendar_shifts.find({
+    completed_shifts = await db.shifts.find({
         "employer_id": employer_id,
         "status": "completed"
     }).to_list(200)
