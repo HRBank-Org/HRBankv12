@@ -44,7 +44,7 @@ const TimeOff = () => {
         const empRes = await api.get('/api/workforce/me/employers');
         setEmployers(empRes.data.data?.employers || []);
       } catch (e) {
-        console.log('Could not load employers');
+        
       }
     } catch (error) {
       console.error('Failed to load time-off data:', error);

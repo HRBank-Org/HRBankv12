@@ -31,7 +31,7 @@ const ClockInOut = () => {
         const attendanceRes = await api.get(`/api/attendance/booking/${bookingId}/status`);
         setAttendance(attendanceRes.data.data.attendance);
       } catch (error) {
-        console.log('No attendance record yet');
+        
       }
     } catch (error) {
       console.error('Failed to load booking:', error);
@@ -126,7 +126,7 @@ const ClockInOut = () => {
         <BreakReminderBanner 
           workerId={user.user_id}
           shiftId={booking.shift_id}
-          onBreakTaken={() => console.log('Break taken')}
+          onBreakTaken={() => {}}
         />
       )}
       

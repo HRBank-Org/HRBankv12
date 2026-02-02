@@ -132,7 +132,7 @@ const ClockInOutNew = () => {
             const attRes = await api.get(`/api/attendance/shifts/${targetShift.shift_id}/clock-status`);
             setAttendance(attRes.data.data);
           } catch (error) {
-            console.log('No attendance record yet');
+            
           }
         }
       } catch (error) {

@@ -108,7 +108,7 @@ const WorkPassportSettings = () => {
           url: settings.profile_url
         });
       } catch (error) {
-        console.log('Share cancelled');
+        
       }
     } else {
       copyLink();
