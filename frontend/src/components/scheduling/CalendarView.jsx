@@ -175,9 +175,6 @@ const CalendarView = ({ embedded = false, initialWorkplace = 'all', setupComplet
 
       // Reload shifts to show updated position
       await loadData();
-      
-      // Show success message (optional)
-      console.log('Shift rescheduled successfully');
     } catch (error) {
       console.error('Failed to reschedule shift:', error);
       alert('Failed to reschedule shift. Please try again.');
