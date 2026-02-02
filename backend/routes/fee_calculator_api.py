@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query
 from typing import Dict
 from utils.fee_calculator import calculate_fees, calculate_shift_fees, get_minimum_rate_for_occupation, validate_hourly_rate, MINIMUM_WAGE, PLATFORM_FEE_PER_HOUR
+from utils.occupation_categories import PLATFORM_FEE_PER_STOP
 
 router = APIRouter(prefix="/api/fees", tags=["Fee Calculator"])
 
@@ -8,7 +9,9 @@ router = APIRouter(prefix="/api/fees", tags=["Fee Calculator"])
 async def calculate_fee_preview(
     hourly_rate: float = Query(..., description="Hourly rate to calculate fees for"),
     occupation: str = Query(None, description="Occupation title for minimum rate validation"),
-    duration_hours: float = Query(None, description="Duration in hours for shift total")
+    duration_hours: float = Query(None, description="Duration in hours for shift total"),
+    work_type: str = Query("on_site", description="Work type: on_site, continental, route_based"),
+    stops_completed: int = Query(0, description="Number of verified stops (route_based only)")
 ):
     """
     Calculate platform fees for a given hourly rate
@@ -20,7 +23,13 @@ async def calculate_fee_preview(
         minimum_rate = get_minimum_rate_for_occupation(occupation)
     
     if duration_hours:
-        result = calculate_shift_fees(hourly_rate, duration_hours, minimum_rate)
+        result = calculate_shift_fees(
+            hourly_rate, 
+            duration_hours, 
+            minimum_rate,
+            work_type=work_type,
+            stops_completed=stops_completed
+        )
     else:
         result = calculate_fees(hourly_rate, minimum_rate)
     
@@ -56,6 +65,7 @@ async def get_fee_structure():
         "data": {
             "minimum_wage": MINIMUM_WAGE,
             "platform_fee_per_hour": PLATFORM_FEE_PER_HOUR,
+            "platform_fee_per_stop": PLATFORM_FEE_PER_STOP,
             "fee_rules": {
                 "minimum_wage_jobs": {
                     "description": "Jobs paying minimum wage or occupation minimum",
@@ -68,13 +78,37 @@ async def get_fee_structure():
                     "worker_fee": PLATFORM_FEE_PER_HOUR,
                     "employer_fee": PLATFORM_FEE_PER_HOUR,
                     "total_platform_revenue": PLATFORM_FEE_PER_HOUR * 2
+                },
+                "route_based_addon": {
+                    "description": "Additional fee per verified stop (route-based shifts only)",
+                    "per_stop_fee": PLATFORM_FEE_PER_STOP,
+                    "applies_to": "employer",
+                    "covers": ["GPS verification", "Photo proof", "Signature capture", "Route optimization"]
+                }
+            },
+            "examples": {
+                "on_site_8hr_minimum_wage": {
+                    "hours": 8,
+                    "hourly_rate": MINIMUM_WAGE,
+                    "platform_fee": PLATFORM_FEE_PER_HOUR * 8,
+                    "breakdown": f"${PLATFORM_FEE_PER_HOUR}/hr × 8hr = ${PLATFORM_FEE_PER_HOUR * 8}"
+                },
+                "route_based_6hr_12stops": {
+                    "hours": 6,
+                    "stops": 12,
+                    "hourly_rate": 20.00,
+                    "hourly_fee": PLATFORM_FEE_PER_HOUR * 2 * 6,  # Both parties above min wage
+                    "stop_fee": PLATFORM_FEE_PER_STOP * 12,
+                    "total_platform_fee": (PLATFORM_FEE_PER_HOUR * 2 * 6) + (PLATFORM_FEE_PER_STOP * 12),
+                    "breakdown": f"(${PLATFORM_FEE_PER_HOUR}×2×6hr) + (${PLATFORM_FEE_PER_STOP}×12 stops) = ${(PLATFORM_FEE_PER_HOUR * 2 * 6) + (PLATFORM_FEE_PER_STOP * 12)}"
                 }
             },
             "notes": [
                 "Workers receive gross pay before platform fees",
                 "Payroll deductions (taxes, etc.) handled by payroll processors (ADP, Rippling)",
                 "Platform fees are per hour worked",
-                "Minimum wage is jurisdiction-specific (currently Ontario: $16.55/hour)"
+                "Route-based shifts include per-stop fee for GPS verification overhead",
+                "Minimum wage is jurisdiction-specific (currently Ontario: $17.60/hour)"
             ]
         }
     }
