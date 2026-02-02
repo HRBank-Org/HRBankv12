@@ -295,6 +295,20 @@ async def get_all_roles_kpis(
                 result = await db.service_tasks.aggregate(pipeline).to_list(1)
                 if result:
                     role_hours = (result[0].get("total_minutes", 0) or 0) / 60
+            elif shift_type == "remote":
+                # For remote work, get hours from shifts with deliverables tracking
+                pipeline = [
+                    {"$match": {
+                        "worker_id": {"$in": worker_ids},
+                        "employer_id": employer_id,
+                        "work_type": "remote",
+                        "start_date": {"$gte": week_start.strftime("%Y-%m-%d")}
+                    }},
+                    {"$group": {"_id": None, "total_hours": {"$sum": "$actual_hours"}}}
+                ]
+                result = await db.shifts.aggregate(pipeline).to_list(1)
+                if result:
+                    role_hours = result[0].get("total_hours", 0) or 0
         
         total_hours_week += role_hours
         
