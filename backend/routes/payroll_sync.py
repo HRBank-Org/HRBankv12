@@ -355,7 +355,7 @@ async def _get_payroll_entries(
             employee_email=worker.get("email", ""),
             pay_period_start=start_date,
             pay_period_end=end_date,
-            work_date=shift.get("shift_date", ""),
+            work_date=shift.get("shift_date", shift.get("date", "")),
             regular_hours=round(regular_hours, 2),
             overtime_hours=round(overtime_hours, 2),
             total_hours=round(total_hours, 2),
