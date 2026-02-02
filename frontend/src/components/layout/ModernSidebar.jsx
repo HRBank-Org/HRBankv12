@@ -101,6 +101,18 @@ const ModernSidebar = () => {
     },
     {
       type: 'item',
+      label: 'Payroll Export',
+      icon: FiUploadCloud,
+      path: '/employer/payroll-export'
+    },
+    {
+      type: 'item',
+      label: 'Payroll Sync',
+      icon: FiRefreshCw,
+      path: '/employer/payroll-sync'
+    },
+    {
+      type: 'item',
       label: 'Invoices',
       icon: FiCreditCard,
       path: '/employer/invoices'
