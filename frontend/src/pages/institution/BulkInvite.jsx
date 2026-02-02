@@ -105,7 +105,6 @@ const BulkInvite = () => {
         URL.revokeObjectURL(url);
       }, 100);
       
-      console.log('CSV template download triggered successfully');
       setMessage({ type: 'success', text: 'Template downloaded successfully!' });
       
       // Clear success message after 3 seconds
