@@ -484,9 +484,10 @@ async def get_operational_kpis(
         "success": True,
         "data": {
             "summary": {
-                "total_hours_this_week": round(total_shift_hours_week + total_task_hours_week, 1),
+                "total_hours_this_week": round(total_shift_hours_week + total_task_hours_week + remote_total_actual_hours, 1),
                 "shift_hours_week": round(total_shift_hours_week, 1),
                 "task_hours_week": round(total_task_hours_week, 1),
+                "remote_hours_week": round(remote_total_actual_hours, 1),
                 "active_workers": active_relationships,
                 "workers_on_duty_today": len(workers_on_duty_today),
                 "attendance_rate_today": attendance_rate
@@ -494,8 +495,12 @@ async def get_operational_kpis(
             "shifts": {
                 "today_count": len(today_shifts),
                 "week_total": len(week_shifts),
-                "standard_shifts_week": len(standard_shifts_week),
-                "continental_shifts_week": len(continental_shifts_week)
+                "by_type": {
+                    "on_site": len(standard_shifts_week),
+                    "continental": len(continental_shifts_week),
+                    "route_based": len(service_tasks),
+                    "remote": len(remote_shifts_week)
+                }
             },
             "field_service": {
                 "total_tasks_week": len(service_tasks),
@@ -507,6 +512,18 @@ async def get_operational_kpis(
             "continental": {
                 "rotation_groups": continental_groups,
                 "total_shifts_week": len(continental_shifts_week)
+            },
+            "remote": {
+                "total_shifts_week": len(remote_shifts_week),
+                "expected_hours": round(remote_total_expected_hours, 1),
+                "actual_hours": round(remote_total_actual_hours, 1),
+                "efficiency_rate": round(remote_total_actual_hours / remote_total_expected_hours * 100, 1) if remote_total_expected_hours > 0 else 0,
+                "deliverables": {
+                    "total": remote_total_deliverables,
+                    "completed": remote_completed_deliverables,
+                    "approved": remote_approved_deliverables,
+                    "completion_rate": round(remote_completed_deliverables / remote_total_deliverables * 100, 1) if remote_total_deliverables > 0 else 0
+                }
             },
             "period": {
                 "today": today_start.strftime("%Y-%m-%d"),
