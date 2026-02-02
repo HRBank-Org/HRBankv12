@@ -286,7 +286,6 @@ app.include_router(workpassport.router, prefix="/api", tags=["workpassport"])
 app.include_router(linkedin.router, prefix="/api", tags=["linkedin"])
 app.include_router(fundraisers.router, prefix="/api", tags=["fundraisers"])
 app.include_router(field_service.router, tags=["field_service"])
-app.include_router(field_service_billing.router, tags=["field_service_billing"])
 
 # Stripe webhook at root /api level
 @app.post("/api/webhook/stripe")
@@ -294,13 +293,6 @@ async def stripe_webhook_handler(request: Request):
     """Handle Stripe webhook events"""
     from routes.credential_payments import stripe_webhook
     return await stripe_webhook(request, db)
-
-# Field service billing webhook
-@app.post("/api/webhook/field-service-billing")
-async def field_service_billing_webhook_handler(request: Request):
-    """Handle Stripe webhook events for field service billing"""
-    from routes.field_service_billing import stripe_webhook
-    return await stripe_webhook(request)
 
 # Mount static files for uploaded photos
 from pathlib import Path
