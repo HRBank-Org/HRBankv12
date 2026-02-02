@@ -23,11 +23,9 @@ const WorkplacesNew = () => {
   const loadWorkplaces = async () => {
     try {
       const response = await api.get('/api/employer/workplaces');
-      console.log('Workplaces response:', response.data);
       if (response.data.success) {
         const workplacesData = response.data.data?.workplaces || response.data.workplaces || [];
         setWorkplaces(workplacesData);
-        console.log('Loaded workplaces:', workplacesData);
       }
     } catch (error) {
       console.error('Failed to load workplaces:', error);
