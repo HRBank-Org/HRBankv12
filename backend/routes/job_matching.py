@@ -200,7 +200,9 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
         'matched_skills': list(matched_skills),
         'missing_skills': list(required_skills - matched_skills),
         'matched_certifications': list(matched_certs),
-        'missing_certifications': list(required_certs - matched_certs)
+        'missing_certifications': list(required_certs - matched_certs),
+        'is_remote': is_remote,
+        'proximity_ignored': is_remote  # For transparency
     }
 
 # ============== EMPLOYER ENDPOINTS ==============
