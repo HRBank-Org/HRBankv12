@@ -277,7 +277,7 @@ const FieldServiceRoutes = () => {
           <div className="flex items-center gap-3">
             <Button 
               variant="outline"
-              onClick={() => navigate('/employer/field-service/billing')}
+              onClick={() => navigate('/employer/billing')}
               data-testid="billing-btn"
             >
               Billing
