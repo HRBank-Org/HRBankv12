@@ -17,7 +17,7 @@ const LandingHeader = ({ onSignInClick }) => {
     { path: '/institutions', label: 'Institutions' },
     { path: '/leaderboard', label: 'Leaderboard' },
     { path: '/employers', label: 'Employers', badge: 'Beta' },
-    { path: '/jobs', label: 'Work Opportunities' },
+    { path: '/jobs', label: 'Jobs' },
   ];
 
   const isActive = (item) => {
