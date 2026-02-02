@@ -375,9 +375,10 @@ async def get_operational_kpis(
         }
     }, {"_id": 0}).to_list(1000)
     
-    # Separate standard and continental
-    standard_shifts_week = [s for s in week_shifts if s.get("shift_type") != "continental"]
-    continental_shifts_week = [s for s in week_shifts if s.get("shift_type") == "continental"]
+    # Separate standard, continental, and remote
+    standard_shifts_week = [s for s in week_shifts if s.get("work_type") not in ["continental", "remote"] and s.get("shift_type") not in ["continental", "remote"]]
+    continental_shifts_week = [s for s in week_shifts if s.get("work_type") == "continental" or s.get("shift_type") == "continental"]
+    remote_shifts_week = [s for s in week_shifts if s.get("work_type") == "remote" or s.get("shift_type") == "remote"]
     
     # === ATTENDANCE ===
     
