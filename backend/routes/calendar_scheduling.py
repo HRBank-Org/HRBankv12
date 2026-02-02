@@ -185,6 +185,9 @@ async def create_calendar_shift(
     
     await db.shifts.insert_one(shift)
     
+    # Remove _id from response (MongoDB adds it)
+    shift.pop("_id", None)
+    
     # If recurring, create future shifts
     if shift["is_recurring"] and shift["recurrence_rule"]:
         await create_recurring_shifts(db, shift, current_user["user_id"])
