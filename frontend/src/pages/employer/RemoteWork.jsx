@@ -73,12 +73,17 @@ export default function RemoteWork() {
   };
 
   const fetchShifts = async () => {
-    const res = await fetch(`${API_URL}/api/remote-work/shifts`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    if (data.success) {
-      setShifts(data.data.shifts);
+    try {
+      const res = await fetch(`${API_URL}/api/remote-work/shifts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShifts(data.data.shifts || []);
+      }
+    } catch (err) {
+      console.error('Error fetching shifts:', err);
+      setShifts([]);
     }
   };
 
