@@ -7,6 +7,8 @@ import {
   ChevronRight, ChevronDown, Briefcase, X, Star
 } from 'lucide-react';
 import { LOGOS } from '../utils/logoUtils';
+import LandingHeader from '../components/layout/LandingHeader';
+import LoginModal from '../components/auth/LoginModal';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -18,6 +20,7 @@ const PublicJobsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [selectedJob, setSelectedJob] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [filters, setFilters] = useState({
     workType: '',
     industry: '',
