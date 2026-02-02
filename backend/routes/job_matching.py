@@ -175,13 +175,21 @@ def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupati
         skill_match_score = 100  # If no skills required, perfect match
         matched_skills = set()
     
-    # Calculate weighted total score with NEW priorities
-    total_score = (
-        distance_score * 0.35 +
-        availability_score * 0.35 +
-        cert_match_score * 0.20 +
-        skill_match_score * 0.10
-    )
+    # Calculate weighted total score with priorities
+    # For remote jobs, redistribute distance weight to other factors
+    if is_remote:
+        total_score = (
+            availability_score * 0.45 +  # More weight on availability
+            cert_match_score * 0.35 +     # More weight on certifications
+            skill_match_score * 0.20      # More weight on skills
+        )
+    else:
+        total_score = (
+            distance_score * 0.35 +
+            availability_score * 0.35 +
+            cert_match_score * 0.20 +
+            skill_match_score * 0.10
+        )
     
     return {
         'match_score': round(total_score, 1),
