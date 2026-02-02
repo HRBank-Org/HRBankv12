@@ -41,7 +41,8 @@ const PROVIDER_INFO = {
 
 export default function PayrollSync() {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { user } = useAuth();
+  const token = localStorage.getItem('access_token');
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(null);
   const [providers, setProviders] = useState([]);
