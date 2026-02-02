@@ -719,7 +719,7 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
                 paid_at=datetime.now(timezone.utc).isoformat()
             )
     except Exception as e:
-        print(f"Failed to send payment receipt email: {e}")
+        logger.error(f"Failed to send payment receipt email: {e}")
     
     # Create invoice for credential purchase
     try:
@@ -739,9 +739,7 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
             stripe_payment_id=session_id
         )
     except Exception as e:
-        print(f"Failed to create invoice: {e}")
-    except Exception as e:
-        print(f"Failed to send payment receipt email: {e}")
+        logger.error(f"Failed to create credential invoice: {e}")
     
     # Update institution stats
     await db.institution_profiles.update_one(
