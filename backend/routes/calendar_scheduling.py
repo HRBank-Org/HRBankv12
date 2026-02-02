@@ -23,8 +23,8 @@ async def test_get_shifts():
     """Test endpoint to verify shifts exist - NO AUTH"""
     db = await get_database()
     
-    count = await db.calendar_shifts.count_documents({})
-    sample = await db.calendar_shifts.find_one({})
+    count = await db.shifts.count_documents({})
+    sample = await db.shifts.find_one({})
     
     return {
         "success": True,
@@ -59,7 +59,7 @@ async def get_calendar_shifts(
     if workplace_id and workplace_id != "all":
         query["workplace_id"] = workplace_id
     
-    shifts = await db.calendar_shifts.find(query).sort("start_time", 1).to_list(1000)
+    shifts = await db.shifts.find(query).sort("start_time", 1).to_list(1000)
     
     # Calculate filled positions for each shift and remove MongoDB _id
     for shift in shifts:
@@ -167,7 +167,7 @@ async def create_calendar_shift(
         "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.now(timezone.utc).strftime('%Y-%m-%d')
     }
     
-    await db.calendar_shifts.insert_one(shift)
+    await db.shifts.insert_one(shift)
     
     # If recurring, create future shifts
     if shift["is_recurring"] and shift["recurrence_rule"]:
@@ -221,7 +221,7 @@ async def create_recurring_shifts(db, base_shift, employer_id):
         current += increment
     
     if recurring_shifts:
-        await db.calendar_shifts.insert_many(recurring_shifts)
+        await db.shifts.insert_many(recurring_shifts)
 
 # ============== UPDATE SHIFT ==============
 
@@ -235,7 +235,7 @@ async def update_calendar_shift(
     """Update a shift"""
     db = await get_database()
     
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "employer_id": current_user["user_id"]
     })
@@ -263,7 +263,7 @@ async def update_calendar_shift(
         end = datetime.fromisoformat(updates.get("end_time", shift["end_time"]).replace('Z', '+00:00'))
         update_data["duration_hours"] = (end - start).total_seconds() / 3600
     
-    await db.calendar_shifts.update_one(
+    await db.shifts.update_one(
         {"shift_id": shift_id},
         {"$set": update_data}
     )
@@ -318,7 +318,7 @@ async def delete_calendar_shift(
     """Delete a shift"""
     db = await get_database()
     
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "employer_id": current_user["user_id"]
     })
@@ -328,7 +328,7 @@ async def delete_calendar_shift(
     
     if delete_series and shift.get("parent_shift_id"):
         # Delete all in series
-        await db.calendar_shifts.delete_many({
+        await db.shifts.delete_many({
             "$or": [
                 {"shift_id": shift["parent_shift_id"]},
                 {"parent_shift_id": shift["parent_shift_id"]}
@@ -337,7 +337,7 @@ async def delete_calendar_shift(
         })
     else:
         # Delete just this shift
-        await db.calendar_shifts.delete_one({"shift_id": shift_id})
+        await db.shifts.delete_one({"shift_id": shift_id})
     
     return {
         "success": True,
@@ -354,7 +354,7 @@ async def get_available_workers(
     """Get available workers for a shift"""
     db = await get_database()
     
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "employer_id": current_user["user_id"]
     })
@@ -441,7 +441,7 @@ async def assign_worker(
     """Assign a worker to a shift"""
     db = await get_database()
     
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "employer_id": current_user["user_id"]
     })
@@ -484,7 +484,7 @@ async def assign_worker(
     }
     
     # Update shift
-    await db.calendar_shifts.update_one(
+    await db.shifts.update_one(
         {"shift_id": shift_id},
         {
             "$push": {"assigned_workers": assignment},
@@ -695,7 +695,7 @@ async def create_continental_pattern(
     
     # Bulk insert all shifts
     if shifts_created:
-        await db.calendar_shifts.insert_many(shifts_created)
+        await db.shifts.insert_many(shifts_created)
     
     # Group summary for response
     summary = {
@@ -725,7 +725,7 @@ async def unassign_worker(
     """Remove a worker from a shift"""
     db = await get_database()
     
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": shift_id,
         "employer_id": current_user["user_id"]
     })
@@ -734,7 +734,7 @@ async def unassign_worker(
         raise HTTPException(status_code=404, detail="Shift not found")
     
     # Remove worker
-    await db.calendar_shifts.update_one(
+    await db.shifts.update_one(
         {"shift_id": shift_id},
         {
             "$pull": {"assigned_workers": {"worker_id": worker_id}},
