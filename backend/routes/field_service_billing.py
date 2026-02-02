@@ -11,9 +11,12 @@ from pydantic import BaseModel, Field
 import uuid
 import os
 import stripe
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/field-service/billing", tags=["Field Service Billing"])
 
