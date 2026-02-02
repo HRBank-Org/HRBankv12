@@ -31,7 +31,8 @@ const STATUS_COLORS = {
 
 export default function RemoteWork() {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { user } = useAuth();
+  const token = localStorage.getItem('access_token');
   const [loading, setLoading] = useState(true);
   const [shifts, setShifts] = useState([]);
   const [summary, setSummary] = useState(null);
