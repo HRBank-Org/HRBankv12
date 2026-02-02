@@ -137,6 +137,11 @@ async def create_calendar_shift(
     # Merge inherited tasks with provided standard_tasks
     all_standard_tasks = list(set(inherited_tasks + shift_data.get("standard_tasks", [])))
     
+    # Get work_type from role if exists
+    work_type = shift_data.get("shift_type", "on_site")
+    if role:
+        work_type = role.get("work_type", work_type)
+    
     # Create shift
     shift = {
         "shift_id": str(uuid.uuid4()),
@@ -166,7 +171,15 @@ async def create_calendar_shift(
         "role_id": role_id,
         "date": shift_data["start_time"][:10] if shift_data.get("start_time") else datetime.now(timezone.utc).strftime('%Y-%m-%d'),
         "source": "calendar",  # Mark as calendar-sourced shift
-        "shift_type": shift_data.get("shift_type", "on_site")
+        "work_type": work_type,
+        "shift_type": work_type,
+        # Deliverables for remote work
+        "deliverables": shift_data.get("deliverables", []) if work_type == "remote" else [],
+        "total_deliverables": len(shift_data.get("deliverables", [])) if work_type == "remote" else 0,
+        "completed_deliverables": 0,
+        "approved_deliverables": 0,
+        # Remote attendance tracking (manual time, no GPS)
+        "attendance_type": "manual" if work_type == "remote" else "gps"
     }
     
     await db.shifts.insert_one(shift)
