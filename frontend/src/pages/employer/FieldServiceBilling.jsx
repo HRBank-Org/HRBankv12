@@ -3,14 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   CreditCard, Receipt, CheckCircle2, Clock, AlertTriangle,
   DollarSign, TrendingUp, Route, Calendar, Building2,
-  ChevronRight, Download, ExternalLink, RefreshCw, 
-  Truck, Shield, Sparkles, Wrench, BriefcaseIcon
+  RefreshCw, Truck, Shield, Sparkles, Wrench, BriefcaseIcon
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { useToast } from '../../hooks/use-toast';
-import { useTranslation } from 'react-i18next';
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
