@@ -321,7 +321,8 @@ async def get_all_roles_kpis(
                 "by_type": {
                     "on_site": len([r for r in roles if r.get("shift_type") == "on_site"]),
                     "route_based": len([r for r in roles if r.get("shift_type") == "route_based"]),
-                    "continental": len([r for r in roles if r.get("shift_type") == "continental"])
+                    "continental": len([r for r in roles if r.get("shift_type") == "continental"]),
+                    "remote": len([r for r in roles if r.get("shift_type") == "remote"])
                 }
             }
         }
