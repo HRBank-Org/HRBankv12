@@ -108,12 +108,16 @@ export default function RemoteWork() {
   };
 
   const fetchWorkplaces = async () => {
-    const res = await fetch(`${API_URL}/api/employer/workplaces`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    if (data.success) {
-      setWorkplaces(data.data.workplaces || []);
+    try {
+      const res = await fetch(`${API_URL}/api/employer/workplaces`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWorkplaces(data.data.workplaces || []);
+      }
+    } catch (err) {
+      console.error('Error fetching workplaces:', err);
     }
   };
 
