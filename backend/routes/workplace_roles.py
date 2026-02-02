@@ -1003,42 +1003,39 @@ async def auto_assign_worker_to_shifts(
         shift_id = shift.get("shift_id")
         assigned_workers = shift.get("assigned_workers", [])
         positions_needed = shift.get("positions_needed", 1)
-            
-            # Check if already at capacity
-            if len(assigned_workers) >= positions_needed:
-                continue
-            
-            # Check if worker already assigned to this shift
-            already_assigned = any(
-                (w.get("worker_id") == workforce_id if isinstance(w, dict) else w == workforce_id)
-                for w in assigned_workers
-            )
-            
-            if already_assigned:
-                continue
-            
-            # Assign the worker
-            new_assignment = {
-                "worker_id": workforce_id,
-                "worker_name": worker_name,
-                "status": "confirmed",
-                "assigned_at": now.isoformat(),
-                "auto_assigned": True,
-                "from_role_id": role_id
+        
+        # Check if already at capacity
+        if len(assigned_workers) >= positions_needed:
+            continue
+        
+        # Check if worker already assigned to this shift
+        already_assigned = any(
+            (w.get("worker_id") == workforce_id if isinstance(w, dict) else w == workforce_id)
+            for w in assigned_workers
+        )
+        
+        if already_assigned:
+            continue
+        
+        # Assign the worker
+        new_assignment = {
+            "worker_id": workforce_id,
+            "worker_name": worker_name,
+            "status": "confirmed",
+            "assigned_at": now.isoformat(),
+            "auto_assigned": True,
+            "from_role_id": role_id
+        }
+        
+        await db.shifts.update_one(
+            {"shift_id": shift_id},
+            {
+                "$push": {"assigned_workers": new_assignment},
+                "$inc": {"positions_filled": 1}
             }
-            
-            await collection.update_one(
-                {"shift_id": shift_id},
-                {
-                    "$push": {"assigned_workers": new_assignment},
-                    "$inc": {"positions_filled": 1}
-                }
-            )
-            
-            shifts_assigned += 1
-            
-            if shifts_assigned >= max_shifts:
-                break
+        )
+        
+        shifts_assigned += 1
         
         if shifts_assigned >= max_shifts:
             break
