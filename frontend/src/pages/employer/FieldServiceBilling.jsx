@@ -23,7 +23,6 @@ const routeTypeIcons = {
 };
 
 const FieldServiceBilling = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   
