@@ -88,18 +88,22 @@ export default function RemoteWork() {
   };
 
   const fetchSummary = async () => {
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 1);
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + 1);
-    
-    const res = await fetch(
-      `${API_URL}/api/remote-work/reports/summary?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    const data = await res.json();
-    if (data.success) {
-      setSummary(data.data);
+    try {
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - 1);
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1);
+      
+      const res = await fetch(
+        `${API_URL}/api/remote-work/reports/summary?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      if (data.success) {
+        setSummary(data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching summary:', err);
     }
   };
 
