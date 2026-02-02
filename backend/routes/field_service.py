@@ -1724,10 +1724,17 @@ async def get_route_shifts(
     status: Optional[str] = Query(None, description="pending, approved, paid"),
     current_user: dict = Depends(require_role("employer"))
 ):
-    """Get route-based shift records for payroll processing"""
+    """Get route-based shift records for payroll processing (from unified shifts collection)"""
     db = await get_database()
     
-    query = {"employer_id": current_user["user_id"]}
+    # Query unified shifts collection, filter by source_type=route or work_type=route_based
+    query = {
+        "employer_id": current_user["user_id"],
+        "$or": [
+            {"source_type": "route"},
+            {"work_type": "route_based"}
+        ]
+    }
     
     if worker_id:
         query["worker_id"] = worker_id
@@ -1743,11 +1750,16 @@ async def get_route_shifts(
     if status:
         query["payroll_status"] = status
     
-    shifts = await db.route_shifts.find(query, {"_id": 0}).sort("shift_date", -1).to_list(100)
+    shifts = await db.shifts.find(query, {"_id": 0}).sort("shift_date", -1).to_list(100)
     
-    # Calculate totals
+    # Calculate totals including platform fees
     total_hours = sum(s.get("billable_hours", 0) for s in shifts)
     total_overtime = sum(s.get("overtime_hours", 0) for s in shifts)
+    total_stops = sum(s.get("stops_completed", 0) for s in shifts)
+    total_platform_fees = sum(
+        s.get("fee_calculation", {}).get("platform_fee_total", 0) 
+        for s in shifts
+    )
     
     return {
         "success": True,
@@ -1756,7 +1768,9 @@ async def get_route_shifts(
             "summary": {
                 "count": len(shifts),
                 "total_billable_hours": round(total_hours, 2),
-                "total_overtime_hours": round(total_overtime, 2)
+                "total_overtime_hours": round(total_overtime, 2),
+                "total_stops_completed": total_stops,
+                "total_platform_fees": round(total_platform_fees, 2)
             }
         }
     }
