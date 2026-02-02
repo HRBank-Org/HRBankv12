@@ -968,8 +968,7 @@ async def auto_assign_worker_to_shifts(
     shift_type = role.get("shift_type", "on_site")
     position_title = role.get("role_name") or role.get("occupation_template")
     
-    # Build query to find matching open shifts
-    # Shifts can be in either 'shifts' or 'calendar_shifts' collection
+    # Build query to find matching open shifts in unified shifts collection
     shift_query = {
         "employer_id": employer_id,
         "start_time": {"$gte": now.isoformat()},  # Future shifts only
@@ -994,20 +993,16 @@ async def auto_assign_worker_to_shifts(
     
     shifts_assigned = 0
     
-    # Check both collections
-    for collection_name in ["shifts", "shifts"]:
-        collection = db[collection_name]
-        
-        # Find matching shifts
-        matching_shifts = await collection.find(
-            shift_query,
-            {"_id": 0, "shift_id": 1, "assigned_workers": 1, "positions_needed": 1}
-        ).limit(max_shifts).to_list(max_shifts)
-        
-        for shift in matching_shifts:
-            shift_id = shift.get("shift_id")
-            assigned_workers = shift.get("assigned_workers", [])
-            positions_needed = shift.get("positions_needed", 1)
+    # Query unified shifts collection
+    matching_shifts = await db.shifts.find(
+        shift_query,
+        {"_id": 0, "shift_id": 1, "assigned_workers": 1, "positions_needed": 1}
+    ).limit(max_shifts).to_list(max_shifts)
+    
+    for shift in matching_shifts:
+        shift_id = shift.get("shift_id")
+        assigned_workers = shift.get("assigned_workers", [])
+        positions_needed = shift.get("positions_needed", 1)
             
             # Check if already at capacity
             if len(assigned_workers) >= positions_needed:
