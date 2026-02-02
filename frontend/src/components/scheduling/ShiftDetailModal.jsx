@@ -11,24 +11,20 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
   const [confirmUnassign, setConfirmUnassign] = useState(null);
 
   const handleDelete = async () => {
-    console.log('🗑️ DELETE CLICKED - Shift ID:', shift.shift_id);
     setLoading(true);
     setError('');
     
     const deleteUrl = `/api/employer/shifts/${shift.shift_id}`;
-    console.log('🔄 Calling DELETE API:', deleteUrl);
 
     try {
-      const response = await api.delete(deleteUrl);
-      console.log('✅ DELETE SUCCESS:', response.data);
+      await api.delete(deleteUrl);
       setSuccessMessage('✅ Shift deleted successfully!');
       setTimeout(() => {
         onDelete();
         onClose();
       }, 1500);
     } catch (err) {
-      console.error('❌ DELETE FAILED:', err);
-      console.error('Error details:', err.response?.data);
+      console.error('Delete shift failed:', err);
       setError(err.response?.data?.detail || 'Failed to delete shift');
     } finally {
       setLoading(false);
@@ -37,8 +33,6 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
   };
 
   const handleUnassignWorker = async (workerId) => {
-    console.log('👤 UNASSIGN CLICKED - Worker ID:', workerId);
-    
     // Close dialog immediately to prevent re-trigger
     setConfirmUnassign(null);
     setLoading(true);
@@ -46,11 +40,9 @@ const ShiftDetailModal = ({ isOpen, onClose, shift, onUpdate, onDelete, onAssign
     setSuccessMessage('');
     
     const unassignUrl = `/api/employer/shifts/${shift.shift_id}/unassign/${workerId}`;
-    console.log('🔄 Calling UNASSIGN API:', unassignUrl);
 
     try {
-      const response = await api.delete(unassignUrl);
-      console.log('✅ UNASSIGN SUCCESS:', response.data);
+      await api.delete(unassignUrl);
       setSuccessMessage('✅ Worker removed successfully!');
       setLoading(false);
       
