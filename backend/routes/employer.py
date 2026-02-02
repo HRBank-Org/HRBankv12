@@ -189,7 +189,7 @@ async def get_my_shifts(
         shift["workplace_name"] = workplace_names.get(shift.get("workplace_id"), "Workplace")
         all_shifts.append(shift)
     
-    # 2. Get calendar_shifts (newer scheduling system)
+    # 2. Get calendar-sourced shifts (scheduling system)
     calendar_shifts = await db.shifts.find(
         {"employer_id": current_user["user_id"]},
         {"_id": 0}
