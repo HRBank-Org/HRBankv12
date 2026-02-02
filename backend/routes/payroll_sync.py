@@ -325,8 +325,8 @@ async def _get_payroll_entries(
         worker = workers.get(shift.get("worker_id"), {})
         workplace = workplaces.get(shift.get("workplace_id"), {})
         
-        # Calculate hours
-        regular_hours = shift.get("billable_hours", shift.get("hours_worked", 0))
+        # Calculate hours - support different field names
+        regular_hours = shift.get("billable_hours", shift.get("hours_worked", shift.get("duration_hours", 0)))
         overtime_hours = shift.get("overtime_hours", 0)
         if overtime_hours > 0:
             regular_hours = regular_hours - overtime_hours
