@@ -102,12 +102,13 @@ async def create_calendar_shift(
     # Inherit properties from role if role_id is provided
     inherited_tasks = []
     role_hourly_rate = None
+    role = None  # Initialize role
     role_id = shift_data.get("role_id")
     if role_id:
         role = await db.workplace_roles.find_one({
             "role_id": role_id,
             "employer_id": current_user["user_id"]
-        }, {"_id": 0, "generic_tasks": 1, "hourly_rate": 1, "pay_rate": 1})
+        }, {"_id": 0, "generic_tasks": 1, "hourly_rate": 1, "pay_rate": 1, "work_type": 1})
         
         if role:
             # Get role rate
