@@ -1374,3 +1374,321 @@ async def get_my_attendance_today(
         }
     }
 
+
+
+
+# ============== REMOTE WORK ATTENDANCE (Manual Time Tracking) ==============
+
+@router.post("/remote/clock-in", response_model=Dict)
+async def remote_clock_in(
+    clock_data: dict,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Manual clock-in for remote shifts (no GPS/QR required)
+    Remote workers can clock in from anywhere with just time tracking
+    """
+    shift_id = clock_data.get("shift_id")
+    notes = clock_data.get("notes", "")
+    
+    if not shift_id:
+        raise HTTPException(status_code=400, detail="shift_id is required")
+    
+    # Get shift
+    shift = await db.shifts.find_one({"shift_id": shift_id})
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Verify it's a remote shift
+    if shift.get("work_type") != "remote":
+        raise HTTPException(
+            status_code=400, 
+            detail="This endpoint is for remote shifts only. Use QR clock-in for on-site shifts."
+        )
+    
+    # Verify worker is assigned
+    worker_id = current_user["user_id"]
+    assigned = any(
+        (w.get("worker_id") == worker_id if isinstance(w, dict) else w == worker_id)
+        for w in shift.get("assigned_workers", [])
+    )
+    
+    if not assigned:
+        raise HTTPException(status_code=403, detail="You are not assigned to this shift")
+    
+    # Check if already clocked in
+    existing = await db.attendance.find_one({
+        "shift_id": shift_id,
+        "workforce_id": worker_id,
+        "clock_out_time": None  # Not clocked out yet
+    })
+    
+    if existing and existing.get("clock_in_time"):
+        raise HTTPException(status_code=409, detail="Already clocked in to this shift")
+    
+    # Get employer info
+    employer = await db.users.find_one(
+        {"user_id": shift.get("employer_id")},
+        {"_id": 0, "email": 1, "first_name": 1, "last_name": 1, "company_name": 1}
+    )
+    
+    # Create attendance record
+    attendance_id = f"att_remote_{datetime.now().strftime('%Y%m%d%H%M%S')}_{worker_id[:8]}"
+    attendance = {
+        "attendance_id": attendance_id,
+        "shift_id": shift_id,
+        "workforce_id": worker_id,
+        "employer_id": shift.get("employer_id"),
+        "clock_in_time": datetime.now(timezone.utc),
+        "clock_out_time": None,
+        "status": "clocked_in",
+        "attendance_type": "remote_manual",
+        "qr_code_scanned": False,
+        "geofence_verified": False,  # Not applicable for remote
+        "worker_location_at_clock_in": None,  # Not tracked for remote
+        "clock_in_notes": notes,
+        "is_late": False,  # Remote shifts are flexible
+        "minutes_late": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.attendance.insert_one(attendance)
+    
+    # Update shift status
+    await db.shifts.update_one(
+        {"shift_id": shift_id},
+        {"$set": {"status": "in_progress", "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "attendance_id": attendance_id,
+            "clock_in_time": attendance["clock_in_time"].isoformat(),
+            "shift_id": shift_id,
+            "status": "clocked_in",
+            "message": "Remote clock-in successful. Remember to log your deliverables."
+        }
+    }
+
+
+@router.post("/remote/clock-out", response_model=Dict)
+async def remote_clock_out(
+    clock_data: dict,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Manual clock-out for remote shifts
+    Calculates hours worked and updates timesheet
+    """
+    shift_id = clock_data.get("shift_id")
+    notes = clock_data.get("notes", "")
+    work_summary = clock_data.get("work_summary", "")
+    
+    if not shift_id:
+        raise HTTPException(status_code=400, detail="shift_id is required")
+    
+    worker_id = current_user["user_id"]
+    
+    # Find active attendance
+    attendance = await db.attendance.find_one({
+        "shift_id": shift_id,
+        "workforce_id": worker_id,
+        "clock_out_time": None
+    })
+    
+    if not attendance:
+        raise HTTPException(status_code=404, detail="No active clock-in found for this shift")
+    
+    # Calculate hours worked
+    clock_in_time = attendance.get("clock_in_time")
+    clock_out_time = datetime.now(timezone.utc)
+    
+    if isinstance(clock_in_time, str):
+        clock_in_time = datetime.fromisoformat(clock_in_time.replace('Z', '+00:00'))
+    
+    duration_seconds = (clock_out_time - clock_in_time).total_seconds()
+    hours_worked = round(duration_seconds / 3600, 2)
+    
+    # Update attendance
+    await db.attendance.update_one(
+        {"_id": attendance["_id"]},
+        {
+            "$set": {
+                "clock_out_time": clock_out_time,
+                "status": "completed",
+                "duration_hours": hours_worked,
+                "duration_minutes": int(duration_seconds / 60),
+                "clock_out_notes": notes,
+                "work_summary": work_summary,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    # Get shift to check deliverables
+    shift = await db.shifts.find_one({"shift_id": shift_id}, {"_id": 0})
+    
+    # Update shift with actual hours
+    current_hours = shift.get("actual_hours", 0) or 0
+    await db.shifts.update_one(
+        {"shift_id": shift_id},
+        {
+            "$set": {
+                "actual_hours": current_hours + hours_worked,
+                "billable_hours": current_hours + hours_worked,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    # Calculate deliverables status
+    deliverables = shift.get("deliverables", [])
+    completed = len([d for d in deliverables if d.get("status") in ["submitted", "approved"]])
+    total = len(deliverables)
+    
+    return {
+        "success": True,
+        "data": {
+            "attendance_id": attendance.get("attendance_id"),
+            "clock_in_time": clock_in_time.isoformat() if hasattr(clock_in_time, 'isoformat') else clock_in_time,
+            "clock_out_time": clock_out_time.isoformat(),
+            "hours_worked": hours_worked,
+            "shift_id": shift_id,
+            "status": "completed",
+            "deliverables_status": f"{completed}/{total} completed"
+        }
+    }
+
+
+@router.get("/remote/status/{shift_id}", response_model=Dict)
+async def get_remote_attendance_status(
+    shift_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """Get attendance status for a remote shift"""
+    worker_id = current_user["user_id"]
+    
+    # Get shift
+    shift = await db.shifts.find_one({"shift_id": shift_id}, {"_id": 0})
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    # Get attendance records
+    attendance_records = await db.attendance.find({
+        "shift_id": shift_id,
+        "workforce_id": worker_id
+    }, {"_id": 0}).to_list(100)
+    
+    # Calculate totals
+    total_hours = sum(a.get("duration_hours", 0) or 0 for a in attendance_records if a.get("status") == "completed")
+    active_session = next((a for a in attendance_records if a.get("clock_out_time") is None), None)
+    
+    return {
+        "success": True,
+        "data": {
+            "shift_id": shift_id,
+            "work_type": shift.get("work_type"),
+            "expected_hours": shift.get("duration_hours", 0),
+            "actual_hours": shift.get("actual_hours", 0),
+            "total_hours_logged": total_hours,
+            "is_clocked_in": active_session is not None,
+            "active_session": {
+                "attendance_id": active_session.get("attendance_id"),
+                "clock_in_time": active_session.get("clock_in_time")
+            } if active_session else None,
+            "sessions": len(attendance_records),
+            "deliverables": {
+                "total": shift.get("total_deliverables", 0),
+                "completed": shift.get("completed_deliverables", 0),
+                "approved": shift.get("approved_deliverables", 0)
+            }
+        }
+    }
+
+
+@router.post("/remote/log-time", response_model=Dict)
+async def log_remote_time(
+    log_data: dict,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Log time worked on a remote shift without clock in/out
+    Useful for workers who forgot to clock in or work in chunks
+    """
+    shift_id = log_data.get("shift_id")
+    hours = log_data.get("hours", 0)
+    date_worked = log_data.get("date", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+    description = log_data.get("description", "")
+    deliverable_id = log_data.get("deliverable_id")
+    
+    if not shift_id or hours <= 0:
+        raise HTTPException(status_code=400, detail="shift_id and hours are required")
+    
+    worker_id = current_user["user_id"]
+    
+    # Get shift
+    shift = await db.shifts.find_one({"shift_id": shift_id})
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    if shift.get("work_type") != "remote":
+        raise HTTPException(status_code=400, detail="Time logging only for remote shifts")
+    
+    # Verify assignment
+    assigned = any(
+        (w.get("worker_id") == worker_id if isinstance(w, dict) else w == worker_id)
+        for w in shift.get("assigned_workers", [])
+    )
+    
+    if not assigned:
+        raise HTTPException(status_code=403, detail="Not assigned to this shift")
+    
+    # Create time log entry
+    time_log = {
+        "log_id": f"tlog_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "shift_id": shift_id,
+        "worker_id": worker_id,
+        "hours": hours,
+        "date_worked": date_worked,
+        "description": description,
+        "deliverable_id": deliverable_id,
+        "logged_at": datetime.now(timezone.utc).isoformat(),
+        "status": "pending_approval"
+    }
+    
+    # Add to shift's time logs
+    await db.shifts.update_one(
+        {"shift_id": shift_id},
+        {
+            "$push": {"time_logs": time_log},
+            "$inc": {"actual_hours": hours, "billable_hours": hours},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    # If linked to deliverable, update deliverable actual hours
+    if deliverable_id:
+        deliverables = shift.get("deliverables", [])
+        for i, d in enumerate(deliverables):
+            if d.get("deliverable_id") == deliverable_id:
+                current_hours = d.get("actual_hours", 0) or 0
+                deliverables[i]["actual_hours"] = current_hours + hours
+                break
+        
+        await db.shifts.update_one(
+            {"shift_id": shift_id},
+            {"$set": {"deliverables": deliverables}}
+        )
+    
+    return {
+        "success": True,
+        "data": time_log,
+        "message": f"Logged {hours} hours for {date_worked}"
+    }
