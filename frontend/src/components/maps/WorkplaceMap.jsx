@@ -79,7 +79,6 @@ const WorkplaceMap = ({ workplaces, onMarkerClick }) => {
             
             // If full address fails, try just city/town
             if (!data || data.length === 0) {
-              console.log(`Full address not found for ${workplace.workplace_name}, trying city only...`);
               await new Promise(resolve => setTimeout(resolve, 1000));
               
               query = `${workplace.city}, ${workplace.province || 'Ontario'}, Canada`;
