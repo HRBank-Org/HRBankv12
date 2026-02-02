@@ -6,6 +6,7 @@ import {
   MapPin, TrendingUp, Search, Mail, CheckCircle,
   Globe, Star, ArrowRight, Sparkles, Zap, Target, ArrowLeft
 } from 'lucide-react';
+import { LOGOS } from '../../utils/logoUtils';
 
 const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
