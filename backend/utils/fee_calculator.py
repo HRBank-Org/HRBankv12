@@ -1,10 +1,14 @@
 """
 Platform Fee Calculator
 Handles pricing structure for the HR Bank platform
+
+Fee Model:
+- Hourly: $1/hour (all shift types)
+- Route-based bonus: +$0.25 per verified stop
 """
 
 from typing import Dict, Optional
-from utils.occupation_categories import MINIMUM_WAGE, PLATFORM_FEE_PER_HOUR
+from utils.occupation_categories import MINIMUM_WAGE, PLATFORM_FEE_PER_HOUR, PLATFORM_FEE_PER_STOP
 
 async def get_provincial_minimum_wage(province_code: str) -> float:
     """
@@ -75,7 +79,14 @@ def calculate_fees(hourly_rate: float, minimum_rate: float = None, provincial_mi
         "fee_structure": "employer_only" if is_minimum_wage else "both_parties"
     }
 
-def calculate_shift_fees(hourly_rate: float, duration_hours: float, minimum_rate: float = None, provincial_minimum: float = None) -> Dict:
+def calculate_shift_fees(
+    hourly_rate: float, 
+    duration_hours: float, 
+    minimum_rate: float = None, 
+    provincial_minimum: float = None,
+    work_type: str = "on_site",
+    stops_completed: int = 0
+) -> Dict:
     """
     Calculate total fees for a complete shift
     
@@ -84,6 +95,8 @@ def calculate_shift_fees(hourly_rate: float, duration_hours: float, minimum_rate
         duration_hours: Number of hours worked
         minimum_rate: The occupation minimum rate
         provincial_minimum: The provincial minimum wage
+        work_type: Type of shift (on_site, continental, route_based)
+        stops_completed: Number of verified stops (for route_based only)
     
     Returns:
         Dictionary with total fee breakdown
@@ -91,14 +104,28 @@ def calculate_shift_fees(hourly_rate: float, duration_hours: float, minimum_rate
     
     hourly_fees = calculate_fees(hourly_rate, minimum_rate, provincial_minimum)
     
+    # Calculate stop fees (only for route_based)
+    stop_fee_total = 0.00
+    if work_type == "route_based" and stops_completed > 0:
+        stop_fee_total = round(stops_completed * PLATFORM_FEE_PER_STOP, 2)
+    
+    platform_revenue_total = round(
+        (hourly_fees["platform_revenue_per_hour"] * duration_hours) + stop_fee_total, 
+        2
+    )
+    
     return {
         **hourly_fees,
+        "work_type": work_type,
         "duration_hours": round(duration_hours, 2),
+        "stops_completed": stops_completed,
+        "stop_fee_per_stop": PLATFORM_FEE_PER_STOP if work_type == "route_based" else 0,
+        "stop_fee_total": stop_fee_total,
         "worker_gross_total": round(hourly_rate * duration_hours, 2),
         "worker_fee_total": round(hourly_fees["worker_fee"] * duration_hours, 2),
         "worker_net_total": round(hourly_fees["worker_net"] * duration_hours, 2),
-        "employer_cost_total": round(hourly_fees["employer_pays"] * duration_hours, 2),
-        "platform_revenue_total": round(hourly_fees["platform_revenue_per_hour"] * duration_hours, 2)
+        "employer_cost_total": round((hourly_fees["employer_pays"] * duration_hours) + stop_fee_total, 2),
+        "platform_revenue_total": platform_revenue_total
     }
 
 def get_minimum_rate_for_occupation(occupation_title: str) -> float:
