@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { LOGOS } from '../../utils/logoUtils';
 import LoginModal from '../../components/auth/LoginModal';
-import LanguageSelector from '../../components/common/LanguageSelector';
+import LandingHeader from '../../components/layout/LandingHeader';
 
 const EmployersLanding = () => {
   const navigate = useNavigate();
