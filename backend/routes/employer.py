@@ -4,7 +4,7 @@ from auth.dependencies import get_current_user, require_role
 from utils.google_maps import google_maps_service
 from models.employer import Workplace, Shift, Role
 from typing import Dict, List
-from datetime import datetime, time, date
+from datetime import datetime, time, date, timezone
 import uuid
 
 router = APIRouter(prefix="/employer", tags=["Employer"])
