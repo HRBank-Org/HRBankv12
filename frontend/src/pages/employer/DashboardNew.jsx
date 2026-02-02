@@ -1087,8 +1087,8 @@ const FinancesTab = ({ theme, navigate }) => {
   const [adjustmentReason, setAdjustmentReason] = useState('');
 
   useEffect(() => {
-    console.log('FinancesTab useEffect triggered');
     loadFinanceData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, activeView]);
 
   const loadFinanceData = async () => {
@@ -1099,16 +1099,12 @@ const FinancesTab = ({ theme, navigate }) => {
 
       // Load weekly timesheets (pending approval)
       const timesheetsRes = await api.get('/api/employer/weekly-timesheets/pending');
-      console.log('Weekly Timesheets API Response:', timesheetsRes.data);
       const loadedTimesheets = timesheetsRes.data.data.timesheets || [];
-      console.log('Loaded weekly timesheets:', loadedTimesheets.length);
       setTimesheets(loadedTimesheets);
 
       // Load approved weekly timesheets for payroll tab
       const approvedRes = await api.get('/api/employer/weekly-timesheets/approved');
-      console.log('Approved Weekly Timesheets API Response:', approvedRes.data);
       const loadedApproved = approvedRes.data.data.timesheets || [];
-      console.log('Loaded approved weekly timesheets:', loadedApproved.length);
       setApprovedTimesheets(loadedApproved);
 
       // Load financial stats from timesheets
