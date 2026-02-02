@@ -965,7 +965,6 @@ async def auto_assign_worker_to_shifts(
     now = datetime.now(timezone.utc)
     role_id = role.get("role_id")
     workplace_id = role.get("workplace_id")
-    shift_type = role.get("shift_type", "on_site")
     position_title = role.get("role_name") or role.get("occupation_template")
     
     # Build query to find matching open shifts in unified shifts collection
