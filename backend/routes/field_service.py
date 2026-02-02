@@ -549,11 +549,11 @@ async def complete_route(
     # Get updated route
     updated_route = await db.field_service_routes.find_one({"route_id": route_id})
     
-    # AUTO-CREATE SHIFT RECORD from completed route
+    # AUTO-CREATE SHIFT RECORD from completed route (unified shifts collection)
     shift_record, compliance_result = create_shift_from_route(updated_route, province="ON")
     
-    # Store the shift record
-    await db.route_shifts.insert_one(shift_record)
+    # Store the shift record in UNIFIED shifts collection
+    await db.shifts.insert_one(shift_record)
     
     # Link shift to route
     await db.field_service_routes.update_one(
