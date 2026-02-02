@@ -173,11 +173,10 @@ const Leaderboard = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img 
-                src="/logo192.png" 
+                src={LOGOS.master} 
                 alt="HR Bank"
-                className="w-9 h-9 rounded-lg object-contain"
+                className="h-10 w-auto"
               />
-              <span className="font-bold text-white">HR Bank</span>
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className="text-white/70 hover:text-white font-medium">
