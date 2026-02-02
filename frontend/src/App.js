@@ -378,7 +378,6 @@ function AppRoutes() {
         <Route path="/employer/billing" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerBilling /></ProtectedRoute>} />
         <Route path="/employer/payroll-export" element={<ProtectedRoute allowedUserTypes={['employer']}><PayrollExport /></ProtectedRoute>} />
         <Route path="/employer/payroll-sync" element={<ProtectedRoute allowedUserTypes={['employer']}><PayrollSync /></ProtectedRoute>} />
-        <Route path="/employer/remote-work" element={<ProtectedRoute allowedUserTypes={['employer']}><RemoteWork /></ProtectedRoute>} />
         <Route path="/employer/onboarding" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerOnboarding /></ProtectedRoute>} />
         <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDashboard /></ProtectedRoute>} />
         <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerNotifications /></ProtectedRoute>} />
