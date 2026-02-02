@@ -84,12 +84,6 @@ const ModernSidebar = () => {
       path: '/employer/time-off'
     },
     {
-      type: 'item',
-      label: 'Remote Work',
-      icon: FiMonitor,
-      path: '/employer/remote-work'
-    },
-    {
       type: 'category',
       label: 'Finances'
     },
