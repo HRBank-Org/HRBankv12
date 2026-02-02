@@ -60,11 +60,11 @@ export default function RemoteWork() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      await Promise.all([
-        fetchShifts(),
-        fetchSummary(),
-        fetchWorkplaces()
-      ]);
+      await fetchShifts();
+      await fetchSummary();
+      await fetchWorkplaces();
+    } catch (err) {
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
