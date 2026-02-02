@@ -316,6 +316,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Security headers middleware for SOC2/Pentest compliance
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    """Add security headers to all responses"""
+    response = await call_next(request)
+    # Prevent MIME type sniffing
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    # Prevent clickjacking
+    response.headers["X-Frame-Options"] = "DENY"
+    # XSS protection (legacy browsers)
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    # Enforce HTTPS
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    # Control referrer information
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    # Restrict browser features
+    response.headers["Permissions-Policy"] = "geolocation=(self), microphone=(self), camera=(self)"
+    # Cache control for sensitive data
+    if "/api/" in str(request.url):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
+    return response
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
