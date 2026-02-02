@@ -220,7 +220,7 @@ app.include_router(invites.router, prefix="/api", tags=["invites"])
 app.include_router(tasks.router, prefix="/api", tags=["tasks"])
 app.include_router(notifications.router, prefix="/api", tags=["notifications"])
 app.include_router(payments.router, prefix="/api", tags=["payments"])
-app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockchain_credentials"])
+# app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockchain_credentials"])  # Disabled for deployment
 app.include_router(translation.router, prefix="/api", tags=["translation"])
 app.include_router(partner_logos.router, tags=["partner-logos"])
 app.include_router(calendar.router, tags=["calendar"])
