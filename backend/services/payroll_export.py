@@ -41,7 +41,7 @@ class PayrollEntry:
     gross_pay: float
     
     # Classification
-    work_type: str  # on_site, continental, route_based
+    work_type: str  # on_site, continental, route_based, remote
     department: str
     job_title: str
     
