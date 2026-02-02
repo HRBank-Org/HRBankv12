@@ -1110,7 +1110,6 @@ const FinancesTab = ({ theme, navigate }) => {
 
   useEffect(() => {
     loadFinanceData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, activeView]);
 
   const loadFinanceData = async () => {
