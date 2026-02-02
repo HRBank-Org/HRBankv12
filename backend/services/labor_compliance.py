@@ -315,9 +315,34 @@ def create_shift_from_route(route: Dict, province: str = "ON") -> Tuple[Dict, Ro
         "status": "completed" if route.get("status") == "completed" else "in_progress",
         "payroll_status": "pending",  # To be processed in payroll
         
+        # Unified shift source
+        "source_type": "route",  # Identifies this came from field service route
+        "work_type": "route_based",
+        
         # Metadata
         "created_at": datetime.now(timezone.utc).isoformat(),
         "created_from": "route_completion"
+    }
+    
+    # Calculate platform fees
+    from utils.fee_calculator import calculate_shift_fees
+    hourly_rate = route.get("hourly_rate", 20.00)  # Default if not specified
+    stops_completed = shift["stops_completed"]
+    
+    fee_calc = calculate_shift_fees(
+        hourly_rate=hourly_rate,
+        duration_hours=billable_hours,
+        work_type="route_based",
+        stops_completed=stops_completed
+    )
+    
+    shift["fee_calculation"] = {
+        "hourly_rate": hourly_rate,
+        "hourly_fee": fee_calc["platform_revenue_per_hour"],
+        "stop_fee_per_stop": fee_calc["stop_fee_per_stop"],
+        "stop_fee_total": fee_calc["stop_fee_total"],
+        "platform_fee_total": fee_calc["platform_revenue_total"],
+        "employer_cost_total": fee_calc["employer_cost_total"]
     }
     
     return shift, compliance
@@ -352,18 +377,8 @@ async def get_worker_hours_this_week(
     
     week_end = week_start + timedelta(days=7)
     
-    # Get shifts for this week
+    # Get ALL shifts (unified collection includes route-based via source_type)
     shifts = await db.shifts.find({
-        "worker_id": worker_id,
-        "shift_date": {
-            "$gte": week_start.strftime("%Y-%m-%d"),
-            "$lt": week_end.strftime("%Y-%m-%d")
-        },
-        "status": {"$in": ["completed", "approved"]}
-    }).to_list(100)
-    
-    # Get route-based shifts
-    route_shifts = await db.route_shifts.find({
         "worker_id": worker_id,
         "shift_date": {
             "$gte": week_start.strftime("%Y-%m-%d"),
@@ -375,10 +390,13 @@ async def get_worker_hours_this_week(
     total_hours = 0
     regular_hours = 0
     overtime_hours = 0
+    route_count = 0
     
-    for shift in shifts + route_shifts:
+    for shift in shifts:
         hours = shift.get("billable_hours", shift.get("hours_worked", 0))
         total_hours += hours
+        if shift.get("source_type") == "route" or shift.get("work_type") == "route_based":
+            route_count += 1
     
     standards = get_labor_standards("ON")  # Default to Ontario
     
@@ -395,7 +413,7 @@ async def get_worker_hours_this_week(
         "regular_hours": round(regular_hours, 2),
         "overtime_hours": round(overtime_hours, 2),
         "shifts_count": len(shifts),
-        "routes_count": len(route_shifts),
+        "routes_count": route_count,
         "max_hours_remaining": round(standards["max_hours_week"] - total_hours, 2),
         "overtime_threshold": standards["overtime_threshold_week"]
     }
