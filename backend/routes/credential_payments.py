@@ -580,8 +580,7 @@ async def get_payment_status(
     }
 
 async def process_successful_payment(db, pending_credential_id: str, user_id: str, session_id: str):
-    """Process a successful payment - create the blockchain credential"""
-    from utils.blockchain_service import blockchain_service
+    """Process a successful payment - create the credential (blockchain disabled for deployment)"""
     
     # Get pending credential
     pending = await db.pending_credentials.find_one(
@@ -592,33 +591,14 @@ async def process_successful_payment(db, pending_credential_id: str, user_id: st
     if not pending or pending.get("status") == "paid":
         return  # Already processed
     
-    # Create the blockchain credential
+    # Create the credential (standard database-backed, blockchain disabled)
     credential_id = f"HRBANK-{datetime.now().year}-{uuid.uuid4().hex[:6].upper()}"
     
-    # Upload to IPFS
-    ipfs_result = await blockchain_service.upload_to_ipfs({
-        "credential_id": credential_id,
-        "credential_name": pending["credential_name"],
-        "program_name": pending.get("program_name"),
-        "recipient_name": pending["recipient_name"],
-        "student_id": pending["student_id"],
-        "institution_id": pending["institution_id"],
-        "institution_name": pending["institution_name"],
-        "issue_date": pending["issue_date"],
-        "expiry_date": pending.get("expiry_date"),
-        "credential_type": pending["credential_type"],
-        "issued_at": datetime.now(timezone.utc).isoformat()
-    })
+    # Note: Blockchain/IPFS functionality disabled for deployment
+    # Credentials are stored in database instead of blockchain
+    ipfs_hash = f"db_{credential_id}"  # Placeholder for non-blockchain storage
     
-    # Mint on blockchain
-    blockchain_result = await blockchain_service.mint_credential({
-        "credential_id": credential_id,
-        "credential_hash": ipfs_result.get("ipfs_hash", ""),
-        "worker_id": user_id,
-        "institution_id": pending["institution_id"]
-    })
-    
-    # Create blockchain credential record
+    # Create credential record (database-backed instead of blockchain)
     blockchain_credential = {
         "credential_id": credential_id,
         "worker_id": user_id,
