@@ -23,7 +23,7 @@ class OccupationTemplate(BaseModel):
     # on_site: Standard GPS clock-in at workplace (Server, Chef, Cashier)
     # route_based: Multi-stop tasks with GPS at each location (Delivery Driver, Cleaner)
     # continental: 12-hour rotating shifts (Security Guard, Factory Worker)
-    default_work_type: str = "on_site"  # on_site, route_based, continental
+    default_work_type: str = "on_site"  # on_site, route_based, continental, remote
     
     # Rate suggestions by province
     suggested_rates: Dict[str, float] = Field(default_factory=dict)  # {"ON": 18.50, "BC": 19.00}
@@ -48,7 +48,7 @@ class OccupationTemplateCreate(BaseModel):
     occupation_title: str
     occupation_category: str
     description: Optional[str] = None
-    default_work_type: str = "on_site"  # on_site, route_based, continental
+    default_work_type: str = "on_site"  # on_site, route_based, continental, remote
     suggested_rates: Dict[str, float] = Field(default_factory=dict)
     required_certifications: List[str] = Field(default_factory=list)
     required_skills: List[str] = Field(default_factory=list)
