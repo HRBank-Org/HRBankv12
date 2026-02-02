@@ -282,18 +282,24 @@ async def _get_payroll_entries(
     limit: Optional[int] = None
 ) -> List[PayrollEntry]:
     """Fetch and transform shifts to payroll entries"""
+    from datetime import datetime as dt
     
-    # Support both 'shift_date' and 'date' fields for compatibility
+    # Parse date strings to datetime for comparison
+    start_dt = dt.fromisoformat(start_date)
+    end_dt = dt.fromisoformat(end_date + "T23:59:59")
+    
+    # Support multiple date formats: shift_date (string), date (string), start_time (datetime)
     query = {
         "employer_id": employer_id,
         "$or": [
             {"shift_date": {"$gte": start_date, "$lte": end_date}},
-            {"date": {"$gte": start_date, "$lte": end_date}}
+            {"date": {"$gte": start_date, "$lte": end_date}},
+            {"start_time": {"$gte": start_dt, "$lte": end_dt}}
         ],
         "status": {"$in": ["completed", "approved"]}
     }
     
-    cursor = db.shifts.find(query, {"_id": 0}).sort([("shift_date", 1), ("date", 1)])
+    cursor = db.shifts.find(query, {"_id": 0})
     if limit:
         cursor = cursor.limit(limit)
     
