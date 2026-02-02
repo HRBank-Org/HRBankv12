@@ -563,8 +563,8 @@ async def get_franchise_analytics(
         total_workforce += workforce_count
         
         # Shift counts
-        shifts = await db.calendar_shifts.count_documents({"employer_id": employer_id})
-        active = await db.calendar_shifts.count_documents({
+        shifts = await db.shifts.count_documents({"employer_id": employer_id})
+        active = await db.shifts.count_documents({
             "employer_id": employer_id,
             "status": {"$in": ["published", "assigned"]}
         })

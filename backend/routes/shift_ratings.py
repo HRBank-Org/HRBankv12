@@ -25,7 +25,7 @@ async def get_pending_ratings(
     now = datetime.now(timezone.utc).isoformat()
     
     # Get completed shifts (ended before now)
-    completed_shifts = await db.calendar_shifts.find({
+    completed_shifts = await db.shifts.find({
         "employer_id": employer_id,
         "end_time": {"$lt": now}
     }, {"_id": 0}).sort("end_time", -1).to_list(100)
@@ -91,7 +91,7 @@ async def submit_shift_rating(
     employer_id = current_user["user_id"]
     
     # Verify shift exists and belongs to employer
-    shift = await db.calendar_shifts.find_one({
+    shift = await db.shifts.find_one({
         "shift_id": rating_request.shift_id,
         "employer_id": employer_id
     }, {"_id": 0})

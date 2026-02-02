@@ -995,7 +995,7 @@ async def auto_assign_worker_to_shifts(
     shifts_assigned = 0
     
     # Check both collections
-    for collection_name in ["calendar_shifts", "shifts"]:
+    for collection_name in ["shifts", "shifts"]:
         collection = db[collection_name]
         
         # Find matching shifts
