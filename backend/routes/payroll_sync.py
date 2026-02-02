@@ -389,7 +389,7 @@ async def _get_payroll_entries(
             gross_pay=round(gross_pay, 2),
             work_type=work_type,
             department=shift.get("department", "General"),
-            job_title=shift.get("role_title", shift.get("job_title", "Worker")),
+            job_title=shift.get("role_title", shift.get("job_title", shift.get("role", "Worker"))),
             stops_completed=shift.get("stops_completed", 0),
             route_name=shift.get("route_name", ""),
             shift_id=shift.get("shift_id", ""),
