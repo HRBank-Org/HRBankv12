@@ -17,10 +17,6 @@ export default function EmployerBilling() {
   const [period, setPeriod] = useState('current_month');
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchBillingData();
-  }, [period]);
-
   const fetchBillingData = async () => {
     setLoading(true);
     try {
@@ -44,6 +40,11 @@ export default function EmployerBilling() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBillingData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, token]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-CA', {
