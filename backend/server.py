@@ -18,8 +18,7 @@ from utils.rate_limiter import limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 # Import routes
-from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, translation, partner_logos, calendar, workforce_management, eula, documents, admin_management, google_calendar, shift_scheduling, admin_occupations, admin_certifications, otp_verification, file_upload, validation, institution_classes, credential_verification, compliance, payroll, rosters, workforce_roster, emma, job_matching, admin_credentials, shift_management, calendar_scheduling, notification_preferences, time_off, live_attendance, dashboard, shift_ratings, qr_attendance, workplace_roles, employer_invitations, workforce_monitoring, fee_calculator_api, minimum_wage_admin, timesheets, payroll_management, weekly_timesheets, occupation_templates, admin_id_verification, workforce_profile_update, interviews, address, service_tasks, external_bookings, match_engine, admin_seeding, transcripts, auto_dispatch, super_admin, career_profile, credential_payments, stripe_connect, leaderboard, institution_directory, admin_document_expiry, support_tickets, partner_api, invoices, workpassport, linkedin, fundraisers, field_service, employer_billing, payroll_export, payroll_sync
-# Note: blockchain_credentials disabled for deployment - uses standard credential system instead
+from routes import auth, users, credentials, admin, workforce, employer, occupations, jobs, messaging, ratings, attendance, institutions, invites, tasks, notifications, payments, translation, partner_logos, calendar, workforce_management, eula, documents, admin_management, google_calendar, shift_scheduling, admin_occupations, admin_certifications, otp_verification, file_upload, validation, institution_classes, credential_verification, compliance, payroll, rosters, workforce_roster, emma, job_matching, admin_credentials, shift_management, calendar_scheduling, notification_preferences, time_off, live_attendance, dashboard, shift_ratings, qr_attendance, workplace_roles, employer_invitations, workforce_monitoring, fee_calculator_api, minimum_wage_admin, timesheets, payroll_management, weekly_timesheets, occupation_templates, admin_id_verification, workforce_profile_update, interviews, address, service_tasks, external_bookings, match_engine, admin_seeding, transcripts, auto_dispatch, super_admin, career_profile, credential_payments, stripe_connect, leaderboard, institution_directory, admin_document_expiry, support_tickets, partner_api, invoices, workpassport, linkedin, fundraisers, field_service, employer_billing, payroll_export, payroll_sync, blockchain_credentials
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -220,7 +219,7 @@ app.include_router(invites.router, prefix="/api", tags=["invites"])
 app.include_router(tasks.router, prefix="/api", tags=["tasks"])
 app.include_router(notifications.router, prefix="/api", tags=["notifications"])
 app.include_router(payments.router, prefix="/api", tags=["payments"])
-# app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockchain_credentials"])  # Disabled for deployment
+app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockchain_credentials"])
 app.include_router(translation.router, prefix="/api", tags=["translation"])
 app.include_router(partner_logos.router, tags=["partner-logos"])
 app.include_router(calendar.router, tags=["calendar"])
