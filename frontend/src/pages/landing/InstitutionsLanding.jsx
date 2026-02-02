@@ -36,37 +36,8 @@ const InstitutionsLanding = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={LOGOS.master} alt="HR Bank" className="h-10 w-auto" />
-            </Link>
-            <div className="hidden md:flex items-center gap-6">
-              <Link to="/" className="text-gray-600 hover:text-[#30496d] font-medium">
-                WorkPassport™
-              </Link>
-              <Link to="/institutions" className="text-[#30496d] font-semibold">
-                Institutions
-              </Link>
-              <Link to="/leaderboard" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Leaderboard
-              </Link>
-              <Link to="/employers" className="text-gray-600 hover:text-[#ff5f00] font-medium">
-                Employers <span className="text-orange-500 text-xs">(Beta)</span>
-              </Link>
-              <Link to="/jobs" className="text-gray-600 hover:text-[#30496d] font-medium">
-                Work Opportunities
-              </Link>
-              <LanguageSelector variant="compact" />
-            </div>
-            <Button variant="ghost" onClick={() => setShowLoginModal(true)} className="text-gray-700" data-testid="institution-landing-signin">
-              Sign In
-            </Button>
-          </div>
-        </div>
-      </nav>
+      {/* Shared Navigation Header */}
+      <LandingHeader onSignInClick={() => setShowLoginModal(true)} />
 
       {/* Hero Section */}
       <section className="pt-24 pb-20 bg-gradient-to-br from-[#30496d] via-[#1a2d42] to-slate-900">
