@@ -37,7 +37,7 @@ const FillPositions = () => {
         const invitesRes = await api.get(`/api/employer/invitations/pending?role_id=${roleId}`);
         setPendingInvites(invitesRes.data.data.invitations || []);
       } catch (err) {
-        console.log('No pending invites endpoint or no invites');
+        
         setPendingInvites([]);
       }
 
@@ -46,7 +46,7 @@ const FillPositions = () => {
         const unassignedRes = await api.get('/api/employer/workforce-management/unassigned');
         setUnassignedWorkers(unassignedRes.data.data.workers || []);
       } catch (err) {
-        console.log('No unassigned workers');
+        
         setUnassignedWorkers([]);
       }
 
@@ -55,7 +55,7 @@ const FillPositions = () => {
         const candidatesRes = await api.get(`/api/employer/workplace-roles/${roleId}/external-candidates?min_score=60`);
         setExternalCandidates(candidatesRes.data.data.candidates || []);
       } catch (err) {
-        console.log('No external candidates found');
+        
         setExternalCandidates([]);
       }
 
