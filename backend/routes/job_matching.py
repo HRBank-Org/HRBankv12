@@ -27,14 +27,18 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     
     return round(km, 1)
 
-def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupations: List[dict], distance_km: float) -> dict:
+def calculate_match_score(job: JobPosting, worker_profile: dict, worker_occupations: List[dict], distance_km: float, is_remote: bool = False) -> dict:
     """Calculate match score between job and worker
     
     Priority Order (as per user requirements):
-    1. Distance (35% weight) - Proximity is critical
+    1. Distance (35% weight) - Proximity is critical (SKIPPED FOR REMOTE JOBS)
     2. Availability (35% weight) - Worker must be available
     3. Certifications (20% weight) - Required credentials
     4. Skills (10% weight) - Nice to have but can be trained
+    
+    For remote jobs:
+    - Distance score is always 100 (location irrelevant)
+    - Weight redistributed: Availability 45%, Certifications 35%, Skills 20%
     """
     
     # Get all worker skills and certifications from occupations
