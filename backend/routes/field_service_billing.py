@@ -749,5 +749,5 @@ async def stripe_webhook(request: Request):
         
         return {"success": True, "received": True}
     except Exception as e:
-        print(f"Webhook error: {e}")
+        logger.error(f"Field service billing webhook error: {e}")
         return {"success": False, "error": str(e)}
