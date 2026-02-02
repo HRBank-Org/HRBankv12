@@ -266,6 +266,9 @@ async def post_job_to_matching_engine(
 async def run_matching_algorithm(db, job: JobPosting):
     """Run matching algorithm for a job posting"""
     
+    # Check if this is a remote job
+    is_remote = getattr(job, 'work_type', None) == 'remote' or getattr(job, 'shift_type', None) == 'remote'
+    
     # Get all active workforce members with approved profiles (limit to prevent memory issues)
     workforce_members = await db.workforce_profiles.find({
         'profile_status': 'active'
@@ -276,33 +279,37 @@ async def run_matching_algorithm(db, job: JobPosting):
     matches = []
     
     for worker in workforce_members:
-        # Skip if no coordinates
-        # Handle both coordinate formats: {lat, lng} and direct lat/long fields
-        worker_coords = worker.get('coordinates')
-        if not worker_coords:
-            # Try direct lat/long fields
-            worker_lat = worker.get('lat')
-            worker_lng = worker.get('long') or worker.get('lng')
-            if worker_lat is not None and worker_lng is not None:
-                worker_coords = {'lat': worker_lat, 'lng': worker_lng}
-        
-        job_coords = job.workplace_coordinates
-        if not job_coords:
-            # Try to get coordinates from workplace data
-            continue
-        
-        if not worker_coords or not job_coords:
-            continue
-        
-        # Calculate distance
-        distance_km = calculate_distance(
-            worker_coords['lat'], worker_coords['lng'],
-            job_coords['lat'], job_coords['lng']
-        )
-        
-        # Skip if outside max distance
-        if distance_km > job.max_distance_km:
-            continue
+        # For remote jobs, skip proximity check entirely
+        if is_remote:
+            distance_km = 0  # Not applicable for remote
+        else:
+            # Skip if no coordinates
+            # Handle both coordinate formats: {lat, lng} and direct lat/long fields
+            worker_coords = worker.get('coordinates')
+            if not worker_coords:
+                # Try direct lat/long fields
+                worker_lat = worker.get('lat')
+                worker_lng = worker.get('long') or worker.get('lng')
+                if worker_lat is not None and worker_lng is not None:
+                    worker_coords = {'lat': worker_lat, 'lng': worker_lng}
+            
+            job_coords = job.workplace_coordinates
+            if not job_coords:
+                # Try to get coordinates from workplace data
+                continue
+            
+            if not worker_coords or not job_coords:
+                continue
+            
+            # Calculate distance
+            distance_km = calculate_distance(
+                worker_coords['lat'], worker_coords['lng'],
+                job_coords['lat'], job_coords['lng']
+            )
+            
+            # Skip if outside max distance (not applicable for remote)
+            if distance_km > job.max_distance_km:
+                continue
         
         # Get worker's occupations
         worker_id = worker.get('user_id') or worker.get('workforce_id')
@@ -311,8 +318,8 @@ async def run_matching_algorithm(db, job: JobPosting):
             'active': True
         }).to_list(length=50)
         
-        # Calculate match score
-        match_data = calculate_match_score(job, worker, worker_occupations, distance_km)
+        # Calculate match score with is_remote flag
+        match_data = calculate_match_score(job, worker, worker_occupations, distance_km, is_remote=is_remote)
         
         # Only create match if score > 50%
         if match_data['match_score'] >= 50:
