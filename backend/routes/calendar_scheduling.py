@@ -761,3 +761,169 @@ async def unassign_worker(
         "success": True,
         "message": "Worker unassigned successfully"
     }
+
+
+
+# ============== DELIVERABLES MANAGEMENT (REMOTE SHIFTS) ==============
+
+@router.post("/shifts/{shift_id}/deliverables")
+async def add_deliverable_to_shift(
+    shift_id: str,
+    deliverable_data: dict,
+    current_user: dict = Depends(require_role('employer'))
+):
+    """Add a deliverable to a remote shift"""
+    db = await get_database()
+    
+    shift = await db.shifts.find_one({
+        "shift_id": shift_id,
+        "employer_id": current_user["user_id"]
+    })
+    
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    if shift.get("work_type") != "remote":
+        raise HTTPException(status_code=400, detail="Deliverables only supported for remote shifts")
+    
+    import uuid as uuid_lib
+    deliverable = {
+        "deliverable_id": f"del_{uuid_lib.uuid4().hex[:12]}",
+        "title": deliverable_data.get("title"),
+        "description": deliverable_data.get("description"),
+        "due_date": deliverable_data.get("due_date"),
+        "estimated_hours": deliverable_data.get("estimated_hours", 0),
+        "priority": deliverable_data.get("priority", "medium"),
+        "status": "pending",
+        "actual_hours": None,
+        "submission_notes": None,
+        "submitted_at": None,
+        "reviewed_at": None,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.shifts.update_one(
+        {"shift_id": shift_id},
+        {
+            "$push": {"deliverables": deliverable},
+            "$inc": {"total_deliverables": 1},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    return {
+        "success": True,
+        "data": deliverable,
+        "message": "Deliverable added"
+    }
+
+
+@router.put("/shifts/{shift_id}/deliverables/{deliverable_id}")
+async def update_deliverable(
+    shift_id: str,
+    deliverable_id: str,
+    update_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update a deliverable (worker submits, employer reviews)"""
+    db = await get_database()
+    
+    shift = await db.shifts.find_one({"shift_id": shift_id}, {"_id": 0})
+    
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    user_id = current_user["user_id"]
+    user_type = current_user.get("user_type")
+    
+    # Authorization
+    if user_type == "employer" and shift.get("employer_id") != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    if user_type == "workforce":
+        assigned = any(
+            (w.get("worker_id") == user_id if isinstance(w, dict) else w == user_id)
+            for w in shift.get("assigned_workers", [])
+        )
+        if not assigned:
+            raise HTTPException(status_code=403, detail="Not assigned to this shift")
+    
+    # Find and update deliverable
+    deliverables = shift.get("deliverables", [])
+    found = False
+    for i, d in enumerate(deliverables):
+        if d.get("deliverable_id") == deliverable_id:
+            # Worker can submit, employer can approve/reject
+            if user_type == "workforce":
+                if update_data.get("status") == "submitted":
+                    deliverables[i]["status"] = "submitted"
+                    deliverables[i]["submitted_at"] = datetime.now(timezone.utc).isoformat()
+                if update_data.get("actual_hours"):
+                    deliverables[i]["actual_hours"] = update_data["actual_hours"]
+                if update_data.get("submission_notes"):
+                    deliverables[i]["submission_notes"] = update_data["submission_notes"]
+            else:
+                # Employer can update any field
+                for key in ["status", "title", "description", "due_date", "priority", "reviewer_notes"]:
+                    if key in update_data:
+                        deliverables[i][key] = update_data[key]
+                if update_data.get("status") in ["approved", "rejected"]:
+                    deliverables[i]["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+            found = True
+            break
+    
+    if not found:
+        raise HTTPException(status_code=404, detail="Deliverable not found")
+    
+    # Recalculate counts
+    completed = len([d for d in deliverables if d.get("status") in ["submitted", "approved"]])
+    approved = len([d for d in deliverables if d.get("status") == "approved"])
+    
+    await db.shifts.update_one(
+        {"shift_id": shift_id},
+        {
+            "$set": {
+                "deliverables": deliverables,
+                "completed_deliverables": completed,
+                "approved_deliverables": approved,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    return {
+        "success": True,
+        "data": deliverables[i] if found else None,
+        "message": "Deliverable updated"
+    }
+
+
+@router.get("/shifts/{shift_id}/deliverables")
+async def get_shift_deliverables(
+    shift_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all deliverables for a shift"""
+    db = await get_database()
+    
+    shift = await db.shifts.find_one({"shift_id": shift_id}, {"_id": 0})
+    
+    if not shift:
+        raise HTTPException(status_code=404, detail="Shift not found")
+    
+    user_id = current_user["user_id"]
+    user_type = current_user.get("user_type")
+    
+    # Authorization check
+    if user_type == "employer" and shift.get("employer_id") != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    return {
+        "success": True,
+        "data": {
+            "deliverables": shift.get("deliverables", []),
+            "total": shift.get("total_deliverables", 0),
+            "completed": shift.get("completed_deliverables", 0),
+            "approved": shift.get("approved_deliverables", 0)
+        }
+    }
