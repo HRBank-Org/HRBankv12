@@ -531,6 +531,8 @@ const DocumentExpiryDashboard = () => {
         </div>
       )}
     </div>
+      </div>
+    </div>
   );
 };
 
