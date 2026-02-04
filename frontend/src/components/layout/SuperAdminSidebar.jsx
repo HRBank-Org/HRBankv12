@@ -122,17 +122,35 @@ const SuperAdminSidebar = () => {
           icon: Shield,
           path: '/admin/admins',
           badge: null
-        },
+        }
+      ]
+    },
+    {
+      id: 'platform',
+      label: 'Platform Config',
+      items: [
         {
-          label: 'Role Management',
-          icon: Key,
-          path: '/admin/roles',
+          label: 'Occupation Templates',
+          icon: Briefcase,
+          path: '/admin/manage-occupations',
           badge: null
         },
         {
-          label: 'Permissions',
-          icon: UserCog,
-          path: '/admin/permissions',
+          label: 'Occupation Certifications',
+          icon: FileCheck,
+          path: '/admin/occupation-certifications',
+          badge: null
+        },
+        {
+          label: 'Minimum Wage',
+          icon: DollarSign,
+          path: '/admin/minimum-wage',
+          badge: null
+        },
+        {
+          label: 'Zones & Regions',
+          icon: MapPin,
+          path: '/admin/zones',
           badge: null
         }
       ]
