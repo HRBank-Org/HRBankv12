@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 
 const LinkedInCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useAuth();
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(true);
 
@@ -15,6 +13,12 @@ const LinkedInCallback = () => {
         const token = searchParams.get('token');
         const redirect = searchParams.get('redirect') || '/workpassport/dashboard';
         const errorParam = searchParams.get('error');
+
+        console.log('[LinkedInCallback] Received params:', { 
+          hasToken: !!token, 
+          redirect,
+          error: errorParam 
+        });
 
         if (errorParam) {
           setError(errorParam);
@@ -28,36 +32,38 @@ const LinkedInCallback = () => {
           return;
         }
 
-        // Store token and update auth context
+        // Store token
         localStorage.setItem('access_token', token);
         
         // Decode token to get user info
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        
-        // Update auth context with user data
-        const userData = {
-          user_id: payload.user_id,
-          email: payload.email,
-          user_type: payload.user_type
-        };
-        
-        // Store in localStorage for AuthContext
-        localStorage.setItem('user', JSON.stringify(userData));
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const userData = {
+            user_id: payload.user_id,
+            email: payload.email,
+            user_type: payload.user_type
+          };
+          localStorage.setItem('user', JSON.stringify(userData));
+          console.log('[LinkedInCallback] User data stored:', userData);
+        } catch (decodeError) {
+          console.warn('[LinkedInCallback] Could not decode token:', decodeError);
+        }
 
-        // Small delay to ensure state updates
-        setTimeout(() => {
-          window.location.href = redirect;
-        }, 500);
+        console.log('[LinkedInCallback] Redirecting to:', redirect);
+        
+        // Use window.location.href for a clean redirect with full page reload
+        // This ensures AuthContext re-initializes with the new tokens
+        window.location.href = redirect;
 
       } catch (err) {
-        console.error('LinkedIn callback error:', err);
+        console.error('[LinkedInCallback] Error:', err);
         setError('Authentication failed. Please try again.');
         setProcessing(false);
       }
     };
 
     processCallback();
-  }, [searchParams, navigate]);
+  }, [searchParams]);
 
   if (error) {
     return (
@@ -73,6 +79,7 @@ const LinkedInCallback = () => {
           <button
             onClick={() => navigate('/login')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            data-testid="linkedin-callback-back-btn"
           >
             Back to Login
           </button>
