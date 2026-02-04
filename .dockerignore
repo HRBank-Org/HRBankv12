@@ -1,0 +1,60 @@
+# Git
+.git
+.gitignore
+
+# Node
+frontend/node_modules
+frontend/.env.local
+frontend/.env.development
+frontend/.env.test
+frontend/coverage
+frontend/.pnp
+frontend/.pnp.js
+
+# Python
+backend/__pycache__
+backend/*.pyc
+backend/*.pyo
+backend/.pytest_cache
+backend/.env
+backend/venv
+backend/.venv
+*.egg-info
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test reports
+test_reports/
+test_result.md
+
+# Documentation (keep only what's needed)
+docs/
+
+# Build artifacts
+*.tar.gz
+*.zip
+
+# Memory files
+memory/
+
+# Local uploads (will use volume mount)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
