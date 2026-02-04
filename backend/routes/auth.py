@@ -949,6 +949,9 @@ async def google_callback(
     """
     from auth.oauth_config import oauth
     
+    # Get user_type from session if available (preferred), otherwise use query param
+    user_type = request.session.pop('oauth_user_type', user_type)
+    
     try:
         # Get token from Google
         token = await oauth.google.authorize_access_token(request)
