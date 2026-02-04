@@ -928,7 +928,13 @@ async def google_login(request: Request, user_type: str = "workforce"):
         if 'hrbank.ca' in backend_url or 'preview.emergentagent.com' in backend_url:
             backend_url = backend_url.replace('http://', 'https://')
     
-    redirect_uri = f"{backend_url}/api/auth/google/callback?user_type={user_type}"
+    # Use exact redirect URI without query params (Google requires exact match)
+    # Pass user_type via state parameter instead
+    redirect_uri = f"{backend_url}/api/auth/google/callback"
+    
+    # Store user_type in session for callback
+    request.session['oauth_user_type'] = user_type
+    
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @router.get("/google/callback")
