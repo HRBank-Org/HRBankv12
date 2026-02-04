@@ -618,6 +618,7 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
             "user_type": user["user_type"],
             "profile_status": profile_status,
             "needs_onboarding": needs_onboarding,
+            "needs_documents": needs_documents,
             "access_token": access_token,
             "refresh_token": refresh_token,
             "expires_in": 86400,
