@@ -933,12 +933,13 @@ async def google_oauth_status():
     }
 
 @router.get("/google/login")
-async def google_login(request: Request, user_type: str = "workforce"):
+async def google_login(request: Request, user_type: str = "workforce", db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     Initiate Google OAuth login
     user_type: workforce, employer, or institution
     """
     import os
+    import secrets
     
     # Check if Google OAuth is configured
     if not os.environ.get('GOOGLE_OAUTH_CLIENT_ID') or not os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET'):
@@ -958,14 +959,25 @@ async def google_login(request: Request, user_type: str = "workforce"):
         if 'hrbank.ca' in backend_url or 'preview.emergentagent.com' in backend_url:
             backend_url = backend_url.replace('http://', 'https://')
     
-    # Use exact redirect URI without query params (Google requires exact match)
-    # Pass user_type via state parameter instead
     redirect_uri = f"{backend_url}/api/auth/google/callback"
     
-    # Store user_type in session for callback
-    request.session['oauth_user_type'] = user_type
+    # Generate a unique state token and store user_type in database
+    # This is more reliable than session across containers/proxies
+    state_token = secrets.token_urlsafe(32)
+    await db.oauth_states.insert_one({
+        "state": state_token,
+        "user_type": user_type,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()
+    })
     
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+    # Also store in session as backup
+    request.session['oauth_user_type'] = user_type
+    request.session['oauth_state'] = state_token
+    
+    logger.info(f"[Google OAuth] Initiating login for user_type={user_type}, redirect_uri={redirect_uri}")
+    
+    return await oauth.google.authorize_redirect(request, redirect_uri, state=state_token)
 
 @router.get("/google/callback")
 async def google_callback(
