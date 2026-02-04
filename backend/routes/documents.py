@@ -480,7 +480,7 @@ async def manual_expiry_check(
 ):
     """Manually trigger full document expiry check (admin only)"""
     # Verify admin permissions
-    if current_user.get("user_type") != "admin":
+    if current_user.get("user_type") not in ["admin", "super_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
