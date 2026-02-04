@@ -1030,8 +1030,9 @@ async def google_callback(
         existing_user = await db.users.find_one({"email": email})
         
         if existing_user:
-            # User exists - log them in
+            # User exists - log them in with their ORIGINAL user_type
             user_id = existing_user["user_id"]
+            user_type = existing_user["user_type"]  # Use existing user's type, not the OAuth request type
             
             # Update last login and activate account
             await db.users.update_one(
@@ -1043,6 +1044,7 @@ async def google_callback(
                     "profile_status": "active"
                 }}
             )
+            logger.info(f"[Google OAuth] Existing user logged in: {email} (type={user_type})")
         else:
             # Create new user
             user_id = f"usr_{uuid.uuid4().hex[:12]}"
