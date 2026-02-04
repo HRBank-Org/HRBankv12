@@ -1,293 +1,97 @@
 <analysis>**original_problem_statement:**
-The user's initial high-level goal was to make the application production-ready. This session expanded on that with several new objectives based on user feedback:
-1.  **Complete Payroll Integration:** Implement direct (mock) API integrations for Gusto, Ceridian Dayforce, and ADP, building on the previously created export framework.
-2.  **Consolidate Data Model:** Merge the redundant  collection into the primary  collection to unify the schema, a task identified in the previous session.
-3.  **Implement Remote Work:** Add a fourth shift type for remote/white-collar jobs, featuring deliverables-based reporting and manual, non-GPS-based time tracking. The user specifically requested this be integrated into the existing role/shift system rather than as a separate module.
-4.  **Create Unified Reporting:** Ensure the employer dashboard provides reporting for all four shift types (on-site, route-based, continental, and remote).
-5.  **Prepare for SOC2 Audit:** Develop a Request for Proposal (RFP) document to engage a SOC2 auditing firm.
-6.  **Prepare for Deployment:** Run a health check and address any blockers to make the application ready for deployment.
+The user's primary goal is to get their production application, deployed at , fully functional. The initial work focused on preparing for deployment to AWS Lightsail, but after deployment, several critical authentication issues emerged.
+
+The current objectives are:
+1.  **Fix Super Admin Login:** The super admin is unable to log in via the  page due to an Access Denied error.
+2.  **Fix OAuth Logins (Google & LinkedIn):** When a user attempts to sign in with Google or LinkedIn, they are authenticated by the provider but are then redirected back to the login page instead of being logged into the application.
+3.  **Fix General Signup & Login Flow:**
+    *   New user signups were failing or not sending verification emails.
+    *   Existing users who reset their passwords were not having their email verified, blocking them from logging in.
+    *   The user wants a specific authentication flow:  accounts should be active after email verification, while  accounts require manual admin activation after document submission.
+4.  **Complete Deployment of Fixes:** All code changes made to fix the above issues need to be successfully deployed to the user's AWS Lightsail environment.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React/FastAPI HR platform. The key functionalities are:
-- A unified shift management system for four work types: , , , and the newly added  type. The database schema has been consolidated, with all shifts residing in a single  collection, distinguished by a  or  field.
-- The  work type is fully integrated, allowing roles to be defined as remote, shifts to include a list of deliverables, and workers to clock in/out manually without GPS tracking.
-- A payroll system with two functionalities: a generic CSV export and a direct (mock) API sync for Gusto, Ceridian Dayforce, and ADP.
-- A unified employer dashboard that displays aggregated KPIs for all four shift types.
-- A complete security posture with hardened headers and cleaned-up debug logs.
-- A revised revenue model with a  platform fee plus a  fee for route-based work.
-- Documentation for a SOC2 Auditor RFP has been created.
-- The codebase has been prepared for deployment by commenting out an incompatible blockchain feature.
+The application is a full-stack React/FastAPI/MongoDB HR platform deployed on AWS Lightsail. The architecture consists of separate frontend and backend Docker containers running as Lightsail Container Services. An Ubuntu Lightsail instance acts as an NGINX reverse proxy, routing traffic from  to the respective containers. The production database is on MongoDB Atlas and has been populated with comprehensive sample data. Core features include multi-type shift management, payroll, and a blockchain-based credentialing system. However, all authentication flows (Admin, OAuth, general signup/login) are currently broken in the production environment.
 
 **Last working item**:
--   **Last item agent was working:** The agent was making the application deployment-ready by removing an incompatible blockchain feature. After the deployment agent identified this as a blocker, the agent commented out the router inclusion in  and the service import and usage in . The last action was to search for any remaining references to ensure the feature was fully disabled.
+-   **Last item agent was working:** Debugging the Super Admin login failure. The agent identified that the frontend code in  was incorrectly checking for a user type of  instead of accommodating . The agent applied a fix to this specific file. The next logical step was to fix a similar piece of code in another file.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** . After confirming all blockchain code is disabled, the next agent must re-run the  to verify the blocker is resolved and check for any other readiness issues.
+-   **Which testing method agent to use?** Frontend testing. The fix involves frontend code. The next agent should apply the remaining fix, then guide the user to rebuild and redeploy the frontend Docker image. Verification should be done by having the user attempt to log in at  and confirming they can access the admin dashboard.
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Finalize Disabling of Blockchain Feature (P0)**
-    -   **Attempted fixes:** The agent has commented out the  router in  and the usage within .
-    -   **Next debug checklist:** Run /app/backend/services/blockchain_credentials.py:    Service for issuing and verifying blockchain-backed credentials.
-/app/backend/services/blockchain_credentials.py:        Initialize the blockchain credential service.
-/app/backend/services/blockchain_credentials.py:        This hash represents the credential on the blockchain.
-/app/backend/services/blockchain_credentials.py:        Create a new blockchain credential.
-/app/backend/services/blockchain_credentials.py:            "blockchain_verified": False
-/app/backend/services/blockchain_credentials.py:        Register a credential hash on the blockchain.
-/app/backend/services/blockchain_credentials.py:        Verify a credential on the blockchain.
-/app/backend/services/blockchain_credentials.py:                "message": "Demo mode - would verify on blockchain",
-/app/backend/services/blockchain_credentials.py:                "verification_method": "blockchain",
-/app/backend/services/blockchain_credentials.py:_blockchain_service = None
-/app/backend/services/blockchain_credentials.py:def get_blockchain_service() -> BlockchainCredentialService:
-/app/backend/services/blockchain_credentials.py:    """Get or create the blockchain credential service instance."""
-/app/backend/services/blockchain_credentials.py:    global _blockchain_service
-/app/backend/services/blockchain_credentials.py:    if _blockchain_service is None:
-/app/backend/services/blockchain_credentials.py:        _blockchain_service = BlockchainCredentialService()
-/app/backend/services/blockchain_credentials.py:    return _blockchain_service
-/app/backend/services/institution_notification_service.py:                <li>Build their Work Passport with blockchain-verified achievements</li>
-/app/backend/services/data_retention.py:        "blockchain_credentials": DataRetentionPolicy(
-/app/backend/services/data_retention.py:            data_type="blockchain_credentials",
-/app/backend/services/data_retention.py:            ("blockchain_credentials", "holder_id"),
-/app/backend/services/data_retention.py:            ("blockchain_credentials", "holder_id", []),
-/app/backend/services/credential_email_service.py:                                                <li style="margin: 5px 0;">Permanently recorded on the blockchain</li>
-/app/backend/services/credential_email_service.py:                                    Thank you for your payment! Your credential has been issued and permanently recorded on the blockchain.
-/app/backend/services/credential_email_service.py:                                                ✅ Permanently recorded on the Polygon blockchain<br>
-/app/backend/scripts/check_credential_expiry.py:        expiring_credentials = await db.blockchain_credentials.find({
-/app/backend/scripts/check_credential_expiry.py:    expired = await db.blockchain_credentials.count_documents({
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_verified": True,
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_tx_hash": "0x" + "".join(random.choices("0123456789abcdef", k=64)),
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_verified": True,
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_tx_hash": "0x" + "".join(random.choices("0123456789abcdef", k=64)),
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_verified": True,
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_tx_hash": "0x" + "".join(random.choices("0123456789abcdef", k=64)),
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_verified": True,
-/app/backend/scripts/seed_complete_alex.py:            "blockchain_tx_hash": "0x" + "".join(random.choices("0123456789abcdef", k=64)),
-/app/backend/scripts/seed_complete_alex.py:    print(f"   - 4 Verified Credentials (blockchain)")
-/app/backend/scripts/seed_missing_alex.py:    await db.blockchain_credentials.delete_many({"worker_id": workforce_id})
-/app/backend/scripts/seed_missing_alex.py:    blockchain_creds = [
-/app/backend/scripts/seed_missing_alex.py:            "blockchain_status": "confirmed",
-/app/backend/scripts/seed_missing_alex.py:            "blockchain_status": "confirmed",
-/app/backend/scripts/seed_missing_alex.py:            "blockchain_status": "confirmed",
-/app/backend/scripts/seed_missing_alex.py:            "blockchain_status": "confirmed",
-/app/backend/scripts/seed_missing_alex.py:    for cred in blockchain_creds:
-/app/backend/scripts/seed_missing_alex.py:        await db.blockchain_credentials.insert_one(cred)
-/app/backend/scripts/seed_missing_alex.py:    print(f"   ✅ {len(blockchain_creds)} blockchain credentials created")
-/app/backend/scripts/seed_missing_alex.py:    await db.blockchain_credentials.create_index("worker_id")
-/app/backend/scripts/seed_missing_alex.py:    await db.blockchain_credentials.create_index("credential_id", unique=True)
-/app/backend/scripts/seed_windsor_data.py:        "blockchain_status": "confirmed",
-/app/backend/scripts/seed_local_dev.py:            "bio": "Experienced professional with blockchain-verified credentials.",
-/app/backend/scripts/create_indexes.py:    print("\n📦 Collection: blockchain_credentials")
-/app/backend/scripts/create_indexes.py:        await db.blockchain_credentials.create_index("credential_id", unique=True)
-/app/backend/scripts/create_indexes.py:        await db.blockchain_credentials.create_index("institution_id")
-/app/backend/scripts/create_indexes.py:        await db.blockchain_credentials.create_index("worker_id")
-/app/backend/scripts/create_indexes.py:        await db.blockchain_credentials.create_index("status")
-/app/backend/scripts/create_indexes.py:        await db.blockchain_credentials.create_index("credential_hash")
-/app/backend/scripts/create_indexes.py:        await db.blockchain_credentials.create_index("blockchain_transaction_hash", sparse=True)
-/app/backend/scripts/create_indexes.py:        await db.blockchain_credentials.create_index([("institution_id", 1), ("status", 1)])
-/app/backend/models/partnership_agreement.py:- Issue blockchain-verified digital credentials through the HR Bank platform
-/app/backend/models/partnership_agreement.py:- Credential data is stored on the Polygon blockchain (immutable)
-/app/backend/models/partnership_agreement.py:- Delete data upon termination (except blockchain records, which are immutable)
-/app/backend/models/partnership_agreement.py:- The blockchain credential technology
-/app/backend/models/partnership_agreement.py:- Existing credentials remain valid on the blockchain
-/app/backend/models/partnership_agreement.py:  • Credentials are stored on blockchain (immutable)
-/app/backend/models/blockchain_credentials.py:    blockchain_transaction_hash: Optional[str] = None
-/app/backend/models/blockchain_credentials.py:    blockchain_token_id: Optional[str] = None
-/app/backend/models/institution_classes.py:    blockchain_hash: str = Field(default_factory=lambda: f"0x{uuid.uuid4().hex}")
-/app/backend/models/institution_classes.py:    blockchain_url: Optional[str] = None
-/app/backend/routes/credential_payments.py:    """Process a successful payment - create the credential (blockchain disabled for deployment)"""
-/app/backend/routes/credential_payments.py:    # Create the credential (standard database-backed, blockchain disabled)
-/app/backend/routes/credential_payments.py:    # Credentials are stored in database instead of blockchain
-/app/backend/routes/credential_payments.py:    ipfs_hash = f"db_{credential_id}"  # Placeholder for non-blockchain storage
-/app/backend/routes/credential_payments.py:    # Create credential record (database-backed instead of blockchain)
-/app/backend/routes/credential_payments.py:    blockchain_credential = {
-/app/backend/routes/credential_payments.py:        "blockchain_transaction_hash": blockchain_result.get("transaction_hash"),
-/app/backend/routes/credential_payments.py:        "blockchain_token_id": blockchain_result.get("token_id"),
-/app/backend/routes/credential_payments.py:        "on_chain": blockchain_result.get("on_chain", False),
-/app/backend/routes/credential_payments.py:        "blockchain_status": blockchain_result.get("status"),
-/app/backend/routes/credential_payments.py:    await db.blockchain_credentials.insert_one(blockchain_credential)
-/app/backend/routes/credential_payments.py:        "message": f"Your {pending['credential_name']} has been issued and verified on the blockchain.",
-/app/backend/routes/blockchain_credentials.py:from models.blockchain_credentials import BlockchainCredential, CredentialTemplate, CredentialVerification
-/app/backend/routes/blockchain_credentials.py:from utils.blockchain_service import blockchain_service
-/app/backend/routes/blockchain_credentials.py:router = APIRouter(prefix="/blockchain-credentials", tags=["Blockchain Credentials"])
-/app/backend/routes/blockchain_credentials.py:async def issue_blockchain_credential(
-/app/backend/routes/blockchain_credentials.py:    Institution issues blockchain-verified credential
-/app/backend/routes/blockchain_credentials.py:    credential.verification_url = blockchain_service.generate_verification_url(credential.credential_id)
-/app/backend/routes/blockchain_credentials.py:    ipfs_url = await blockchain_service.upload_to_ipfs(metadata)
-/app/backend/routes/blockchain_credentials.py:    # Mint on blockchain
-/app/backend/routes/blockchain_credentials.py:    blockchain_result = await blockchain_service.mint_credential({
-/app/backend/routes/blockchain_credentials.py:    # Log blockchain result for debugging
-/app/backend/routes/blockchain_credentials.py:    print(f"🔗 Blockchain mint result: on_chain={blockchain_result.get('on_chain')}, status={blockchain_result.get('status')}")
-/app/backend/routes/blockchain_credentials.py:    credential.blockchain_transaction_hash = blockchain_result["transaction_hash"]
-/app/backend/routes/blockchain_credentials.py:    credential.blockchain_token_id = blockchain_result["token_id"]
-/app/backend/routes/blockchain_credentials.py:    # Save to database with blockchain details
-/app/backend/routes/blockchain_credentials.py:    credential_data["on_chain"] = blockchain_result.get("on_chain", False)
-/app/backend/routes/blockchain_credentials.py:    credential_data["blockchain_status"] = blockchain_result.get("status", "simulated")
-/app/backend/routes/blockchain_credentials.py:    credential_data["explorer_url"] = blockchain_result.get("explorer_url")
-/app/backend/routes/blockchain_credentials.py:    credential_data["gas_fee"] = blockchain_result.get("gas_fee", 0)
-/app/backend/routes/blockchain_credentials.py:    credential_data["block_number"] = blockchain_result.get("block_number", 0)
-/app/backend/routes/blockchain_credentials.py:    await db.blockchain_credentials.insert_one(credential_data)
-/app/backend/routes/blockchain_credentials.py:            "transaction_hash": credential.blockchain_transaction_hash,
-/app/backend/routes/blockchain_credentials.py:            "ipfs_gateway_url": blockchain_result.get("ipfs_gateway_url"),
-/app/backend/routes/blockchain_credentials.py:            "on_chain": blockchain_result.get("on_chain", False),
-/app/backend/routes/blockchain_credentials.py:            "blockchain_status": blockchain_result.get("status", "simulated"),
-/app/backend/routes/blockchain_credentials.py:            "explorer_url": blockchain_result.get("explorer_url"),
-/app/backend/routes/blockchain_credentials.py:            "gas_fee": blockchain_result.get("gas_fee", 0),
-/app/backend/routes/blockchain_credentials.py:            "block_number": blockchain_result.get("block_number", 0),
-/app/backend/routes/blockchain_credentials.py:            "network": blockchain_result.get("network", "Polygon Mainnet")
-/app/backend/routes/blockchain_credentials.py:        "message": "Credential issued successfully" + (" on blockchain" if blockchain_result.get("on_chain") else " (IPFS only - blockchain simulated)")
-/app/backend/routes/blockchain_credentials.py:    credential = await db.blockchain_credentials.find_one(
-/app/backend/routes/blockchain_credentials.py:    # Verify on blockchain
-/app/backend/routes/blockchain_credentials.py:    blockchain_status = await blockchain_service.verify_credential(credential.get("credential_hash", ""))
-/app/backend/routes/blockchain_credentials.py:    await db.blockchain_credentials.update_one(
-/app/backend/routes/blockchain_credentials.py:            "blockchain_verified": blockchain_status.get("is_valid", False),
-/app/backend/routes/blockchain_credentials.py:                "is_valid": blockchain_status.get("is_valid", False),
-/app/backend/routes/blockchain_credentials.py:                "is_registered": blockchain_status.get("is_registered", False),
-/app/backend/routes/blockchain_credentials.py:                "is_revoked": blockchain_status.get("is_revoked", False),
-/app/backend/routes/blockchain_credentials.py:                "network": blockchain_status.get("network", "polygon"),
-/app/backend/routes/blockchain_credentials.py:                "verification_method": blockchain_status.get("verification_method", "demo"),
-/app/backend/routes/blockchain_credentials.py:                "timestamp": blockchain_status.get("timestamp")
-/app/backend/routes/blockchain_credentials.py:    credential = await db.blockchain_credentials.find_one({"credential_id": credential_id})
-/app/backend/routes/blockchain_credentials.py:    # Revoke on blockchain
-/app/backend/routes/blockchain_credentials.py:    blockchain_result = await blockchain_service.revoke_credential(credential_id, reason)
-/app/backend/routes/blockchain_credentials.py:    await db.blockchain_credentials.update_one(
-/app/backend/routes/blockchain_credentials.py:            "revocation_tx": blockchain_result["transaction_hash"]
-/app/backend/routes/blockchain_credentials.py:        "message": "Credential revoked on blockchain"
-/app/backend/routes/blockchain_credentials.py:async def get_my_blockchain_credentials(
-/app/backend/routes/blockchain_credentials.py:    Get all blockchain credentials for current user (worker or institution)
-/app/backend/routes/blockchain_credentials.py:    credentials = await db.blockchain_credentials.find(
-/app/backend/routes/blockchain_credentials.py:    Get the status and details of a blockchain transaction.
-/app/backend/routes/blockchain_credentials.py:    Get the current blockchain network status and configuration.
-/app/backend/routes/blockchain_credentials.py:        status = blockchain_service.get_network_status()
-/app/backend/routes/blockchain_credentials.py:            balance = await blockchain_service.get_wallet_balance()
-/app/backend/routes/blockchain_credentials.py:        ipfs_url = await blockchain_service.upload_to_ipfs(test_metadata)
-/app/backend/routes/blockchain_credentials.py:        gateway_url = blockchain_service.get_ipfs_gateway_url(ipfs_url)
-/app/backend/routes/super_admin.py:    pending_credentials = await db.blockchain_credentials.count_documents({
-/app/backend/routes/eula.py:- Enables you to issue blockchain-based digital credentials to your students, graduates, and trainees
-/app/backend/routes/eula.py:- Provides tamper-proof, portable, and verifiable credentials using Polygon blockchain and IPFS storage
-/app/backend/routes/eula.py:- Issue blockchain-based digital credentials (certificates, diplomas, training completions, micro-credentials) to your students and graduates
-/app/backend/routes/eula.py:- Credentials are stored on the Polygon blockchain and IPFS (InterPlanetary File System)
-/app/backend/routes/eula.py:- HR Bank retains ownership of the blockchain infrastructure and verification technology
-/app/backend/routes/eula.py:- HR Bank is not liable for losses due to downtime, blockchain network failures, or IPFS storage issues
-/app/backend/routes/eula.py:- Credentials already issued (they remain on the blockchain)
-/app/backend/routes/eula.py:- Credentials already issued remain on the blockchain and are accessible to recipients
-/app/backend/routes/workpassport.py:    """Get all blockchain-verified credentials for current user"""
-/app/backend/routes/workpassport.py:    # Query blockchain_credentials - the unified collection for all verified credentials
-/app/backend/routes/workpassport.py:    credentials = await db.blockchain_credentials.find(
-/app/backend/routes/workpassport.py:    # Get user_id from profile to find their blockchain credentials
-/app/backend/routes/workpassport.py:    # Get verified blockchain credentials for public view
-/app/backend/routes/workpassport.py:    credentials = await db.blockchain_credentials.find(
-/app/backend/routes/workpassport.py:    credential = await db.blockchain_credentials.find_one(
-/app/backend/routes/workpassport.py:    await db.blockchain_credentials.update_one(
-/app/backend/routes/workpassport.py:            "blockchain_hash": credential.get("credential_hash"),
-/app/backend/routes/workpassport.py:            "blockchain_tx": credential.get("blockchain_transaction_hash"),
-/app/backend/routes/workpassport.py:# This ensures proper payment flow and blockchain verification
-/app/backend/routes/workpassport.py:# - All credentials stored in blockchain_credentials collection
-/app/backend/routes/fundraisers.py:    user_credentials = await db.blockchain_credentials.find(
-/app/backend/routes/fundraisers.py:    has_credential = await db.blockchain_credentials.find_one({
-/app/backend/routes/fundraisers.py:    has_credential = await db.blockchain_credentials.find_one({
-/app/backend/routes/linkedin.py:    # Get credential details from blockchain_credentials
-/app/backend/routes/linkedin.py:    credential = await db.blockchain_credentials.find_one({"credential_id": credential_id})
-/app/backend/routes/institution_directory.py:        counts = await db.blockchain_credentials.aggregate(pipeline).to_list(length=500)
-/app/backend/routes/emma.py:6. Help with blockchain-verified credentials
-/app/backend/routes/emma.py:- INSTITUTIONS: Transcript processing, blockchain credential issuance, student verification
-/app/backend/routes/emma.py:- BLOCKCHAIN CREDENTIALS: Verified credentials are secured on the Polygon blockchain. They cannot be forged and can be verified publicly by anyone using the credential ID.
-/app/backend/routes/emma.py:- Explain that credentials verified by institutions are secured on the blockchain
-/app/backend/routes/emma.py:- Each credential has a unique blockchain hash that proves authenticity
-/app/backend/routes/emma.py:- Credentials are minted as NFTs on the Polygon blockchain
-/app/backend/routes/emma.py:3. Credential is minted on blockchain with all details
-/app/backend/routes/admin_management.py:    credentials = await db.blockchain_credentials.find(
-/app/backend/routes/transcripts.py:Integrates with AI extraction and blockchain credential issuance.
-/app/backend/routes/transcripts.py:            "blockchain_credential_id": None,
-/app/backend/routes/transcripts.py:    if transcript.get("blockchain_credential_id"):
-/app/backend/routes/transcripts.py:    Issue a blockchain credential from transcript data.
-/app/backend/routes/transcripts.py:    if transcript.get("blockchain_credential_id"):
-/app/backend/routes/transcripts.py:        from routes.blockchain_credentials import issue_blockchain_credential
-/app/backend/routes/transcripts.py:        result = await issue_blockchain_credential(credential_data, current_user, db)
-/app/backend/routes/transcripts.py:                    "blockchain_credential_id": credential_id,
-/app/backend/routes/career_profile.py:    # Get blockchain credentials
-/app/backend/routes/career_profile.py:    blockchain_credentials = []
-/app/backend/routes/career_profile.py:        bc_creds = await db.blockchain_credentials.find(
-/app/backend/routes/career_profile.py:            blockchain_credentials.append({
-/app/backend/routes/career_profile.py:                "blockchain_status": cred.get("blockchain_status"),
-/app/backend/routes/career_profile.py:                blockchain_credentials[-1]["institution_name"] = inst.get("institution_name")
-/app/backend/routes/career_profile.py:    public_profile["blockchain_credentials"] = blockchain_credentials
-/app/backend/routes/career_profile.py:        "verified_credentials": len(blockchain_credentials),
-/app/backend/routes/career_profile.py:        "is_blockchain_verified": len(blockchain_credentials) > 0
-/app/backend/routes/leaderboard.py:    # Get all blockchain credentials (issued credentials)
-/app/backend/routes/leaderboard.py:    all_credentials = await db.blockchain_credentials.find(
-/app/backend/routes/leaderboard.py:    all_credentials = await db.blockchain_credentials.find(
-/app/backend/routes/leaderboard.py:    total_credentials = await db.blockchain_credentials.count_documents({"status": "issued"})
-/app/backend/routes/leaderboard.py:    recent_credentials = await db.blockchain_credentials.count_documents({
-/app/backend/routes/leaderboard.py:            "blockchain_network": "Polygon Mainnet"
-/app/backend/routes/leaderboard.py:            cred_count = await db.blockchain_credentials.count_documents({
-/app/backend/server.py:# Note: blockchain_credentials disabled for deployment - uses standard credential system instead
-/app/backend/server.py:# app.include_router(blockchain_credentials.router, prefix="/api", tags=["blockchain_credentials"])  # Disabled for deployment
-/app/backend/utils/rate_limiter.py:    "blockchain": "30/minute",  # Blockchain operations
-/app/backend/utils/rate_limiter.py:def blockchain_rate_limit():
-/app/backend/utils/rate_limiter.py:    """Rate limit for blockchain operations."""
-/app/backend/utils/rate_limiter.py:    return limiter.limit(RATE_LIMITS["blockchain"])
-/app/backend/utils/blockchain_service.py:    Production blockchain service for minting credential NFTs on Polygon Mainnet.
-/app/backend/utils/blockchain_service.py:        Mint credential as a transaction on Polygon blockchain.
-/app/backend/utils/blockchain_service.py:        Revoke credential on blockchain.
-/app/backend/utils/blockchain_service.py:        """Get blockchain explorer URL for transaction"""
-/app/backend/utils/blockchain_service.py:blockchain_service = BlockchainService() to ensure no active code references remain. The last check showed a reference in  which was then addressed, but a final verification is needed before re-running the deployment agent.
-    -   **Why fix this issue and what will be achieved with the fix?** This is a critical deployment blocker. Fixing it will allow the  to proceed and make the application deployable.
+-   **Issue 1: Super Admin Login Fails (P0)**
+-   **Issue 2: OAuth (Google & LinkedIn) Login Fails (P0)**
+-   **Issue 3: General Signup & Login Flow is Broken (P1)**
+
+**Issues Detail:**
+-   **Issue 1: Super Admin Login Fails (P0)**
+    -   **Attempted fixes:** The agent corrected the user type check in  to include .
+    -   **Next debug checklist:**
+        1.  Apply the same fix to , which contains similar restrictive logic.
+        2.  Guide the user to rebuild the frontend Docker image.
+        3.  Guide the user to push the new image to Docker Hub and redeploy it on AWS Lightsail.
+    -   **Why fix this issue and what will be achieved with the fix?** The super admin cannot access administrative functions. Fixing this is critical for managing the application.
     -   **Status:** IN PROGRESS
     -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Neither. Use the .
+    -   **Should Test frontend/backend/both after fix?** Frontend.
     -   **Blocked on other issue:** None.
 
+-   **Issue 2: OAuth (Google & LinkedIn) Login Fails (P0)**
+    -   **Attempted fixes:** The agent implemented several backend code changes to resolve this, including using the correct environment variables for redirect URIs, using the OAuth  parameter to pass data securely, and ensuring user accounts are set to  after a successful OAuth login.
+    -   **Next debug checklist:** The fixes exist in the agent's environment but have not been successfully deployed by the user. The next step is to guide the user through a full backend deployment cycle:
+        1.  Provide the user with the corrected content for  and .
+        2.  Guide the user to rebuild the  Docker image, ensuring the correct  with the  for  is used.
+        3.  Guide the user to push the image to Docker Hub and deploy the new version on Lightsail.
+    -   **Why fix this issue and what will be achieved with the fix?** Social logins are a primary entry point for users and are completely non-functional.
+    -   **Status:** IN PROGRESS (Deployment Pending)
+    -   **Is recurring issue?** Y (Deployment has failed multiple times due to user-side Docker build issues).
+    -   **Should Test frontend/backend/both after fix?** Both (End-to-end flow).
+    -   **Blocked on other issue:** None.
+
+-   **Issue 3: General Signup & Login Flow is Broken (P1)**
+    -   **Attempted fixes:** The agent modified  to:
+        1.  Set  upon successful password reset.
+        2.  Assign the correct initial  ( for WorkPassport,  for Workforce) upon signup.
+        3.  Add a  flag to the login response for Workforce users.
+    -   **Next debug checklist:** These fixes are part of the same backend code changes as Issue 2. The resolution is to successfully deploy the new backend image.
+    -   **Why fix this issue and what will be achieved with the fix?** Basic user account creation and management is failing, preventing user acquisition.
+    -   **Status:** IN PROGRESS (Deployment Pending)
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Backend.
+    -   **Blocked on other issue:** Issue 2 (same deployment action).
+
 **In progress Task List**:
--   None.
+-   **Task 1: Guide User Through Successful Backend and Frontend Redeployment (P0)**
+    -   **Where to resume:** The user is on a Windows machine using PowerShell. They need to be guided, step-by-step, to update their local code, rebuild both frontend and backend Docker images (using the correct Dockerfiles), push them to Docker Hub, and deploy the new versions on their AWS Lightsail container services.
+    -   **What will be achieved with this?** This will apply all pending fixes for OAuth, admin login, and the general signup/login flows, making the application's core authentication functional.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Both.
+    -   **Blocked on something:** Requires careful, sequential guidance for the user to execute commands correctly.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   **P0: Go Live & Vendor Penetration Test:** The user wants to deploy the application and then have a qualified vendor perform a penetration test.
-    -   **P0: Send SOC2 RFP to Auditors:** Use the generated RFP documents to engage with auditing firms.
-    -   **P1: Update SOC2 Badge:** After a successful pentest/audit, update the SOC2 Type II Ready badge to SOC2 Type II Certified.
-
+    -   **P0: Go Live & Vendor Penetration Test:** Once auth is stable, the user wants to consider the site live and schedule a penetration test.
+    -   **P1: Send SOC2 RFP to Auditors:** Engage with auditing firms using the generated RFP documents.
 -   **Future Tasks:**
+    -   Update the SOC2 Type II Ready badge to SOC2 Type II Certified after a successful audit.
     -   Build the Franchise Management UI.
     -   Develop an Occupation Score System for WorkPassport.
     -   Add support for multi-region deployment.
-    -   Drop the old  collection from the database after a verification period to ensure the migration was successful and has no side effects.
+    -   Drop the old  collection from the database.
 
 **Completed work in this session**
--   **Payroll Sync API Integration (Phases 2-4 - MOCK):**
-    -   Created a new  service and API routes (, ).
-    -   Implemented mock API sync functionality for Gusto, Ceridian Dayforce, and ADP.
-    -   Built a corresponding frontend page () for employers to manage syncs.
-    -   Thoroughly tested with the , which passed and applied a minor token-handling fix on the frontend.
-
--   **Data Model Consolidation:**
-    -   Migrated all data from the  collection to the main  collection, adding a  field.
-    -   Refactored all backend code (e.g., , ) to use the unified  collection.
-    -   Backfilled existing shifts with  to ensure all shifts have a source.
-    -   Created a migration script ().
-
--   **Remote Work (4th Shift Type) Implementation:**
-    -   Refactored the initial standalone implementation into the core system based on user feedback.
-    -   Added remote as a  option in .
-    -   Added a  array to the main shift schema in .
-    -   Implemented manual, non-GPS clock-in/out endpoints in  for remote workers.
-    -   Removed the temporary  page and  route.
-
--   **Unified Employer Dashboard:**
-    -   Updated the backend operational KPIs endpoint () in  to aggregate and return data for all four shift types, including remote work.
-    -   Updated the frontend dashboard () to display KPIs for all four work modes.
-
--   **SOC 2 Audit Preparation:**
-    -   Created a comprehensive RFP document ().
-    -   Created an executive summary of the RFP ().
-
--   **Deployment Preparation & Bug Fixes:**
-    -   Fixed an ESLint error () that was causing the frontend build to fail by removing incorrect disable comments.
-    -   Began addressing a deployment blocker by disabling an incompatible blockchain feature.
+-   **Restored Blockchain Functionality:** Re-enabled the blockchain feature that was mistakenly disabled.
+-   **Guided Full AWS Lightsail Deployment:** Successfully guided the user through a complex manual deployment of the entire application, including creating Dockerfiles, building/pushing images, and configuring an NGINX reverse proxy on a separate instance.
+-   **Populated Production Database:** Populated the user's production MongoDB Atlas database with extensive, realistic sample data for all major features (institutions, employers, users, credentials, shifts, etc.) and created the super admin user.
+-   **Fixed Email Sending:** Diagnosed that an invalid SendGrid API key was preventing email delivery, prompted the user for a new key, and verified it was working.
+-   **Implemented Auth Fixes (Code Level):** Wrote and refined the backend code to fix all identified issues with Google/LinkedIn OAuth and the general signup/login/password reset flows. These changes are ready for deployment.
 
 **Earlier issues found/mentioned but not fixed**
--   None. The previously identified issue of the redundant  collection was resolved in this session.
+-   None. All identified issues are captured in the Pending/In progress Issue list.
 
 **Known issue recurrence from previous fork**
 -   None.
@@ -296,87 +100,89 @@ The application is a full-stack React/FastAPI HR platform. The key functionaliti
 
 
 **Key Technical Concepts**
--   **Mock API Integration:** Implemented payroll sync functionality using a mock service that simulates API calls, including success/failure rates, without needing real credentials.
--   **Data Migration & Schema Unification:** Executed a scripted data migration () to move data from a legacy collection to a unified one, simplifying the data model.
--   **Feature Refactoring:** Re-architected a feature (remote work) from a standalone module into a deeply integrated part of the core system based on user feedback for a more cohesive UX.
--   **Adapter Pattern:** The payroll system uses this pattern to support multiple providers (Gusto, ADP, Dayforce) through a common interface, now extended for API syncs.
--   **Deployment Readiness:** Identified and mitigated a platform incompatibility (blockchain feature) by disabling the relevant code paths.
+-   **Manual AWS Lightsail Deployment:** The entire session revolved around guiding a user through a manual CLI-based deployment to AWS Lightsail, involving Docker, Docker Hub, Lightsail Containers, and a separate Lightsail Instance as a reverse proxy.
+-   **NGINX Reverse Proxy:** Configured and debugged an NGINX server to correctly route traffic from a public domain () to the internal HTTPS endpoints of the Lightsail container services, handling host headers and redirects.
+-   **OAuth 2.0 Production Debugging:** Performed a deep dive into debugging live OAuth 2.0 flows, identifying and fixing issues related to redirect URI mismatches (with and without query params), use of the  parameter, and incorrect user status handling upon login.
+-   **Production Database Management:** Directly connected to and manipulated a user's production MongoDB Atlas database to populate large amounts of sample data and fix user account statuses.
 
 **key DB schema**
--   **shifts**: This collection is the single source of truth for all work.
-    -    (string): New field indicating the origin of the shift (e.g., 'calendar', 'direct').
-    -    (string): Now includes 'remote' as a valid option.
-    -    (array): New field for  shifts, containing a list of deliverable objects .
--   **workplace_roles**:
-    -    (string): The enum now accepts 'remote'.
+-   No schema changes were made. Work involved inserting new data and updating fields like  and  on existing documents in the  collection.
 
 **changes in tech stack**
 -   None.
 
 **All files of reference**
--   : New service for handling mock payroll API syncs.
--   : New API routes for payroll sync.
--   : New frontend for payroll sync.
--   : Script to migrate  data.
--   : Modified to use the unified  collection and manage deliverables.
--   : Modified to add non-GPS manual clock-in/out for remote shifts.
--   : Modified to include remote work KPIs in the unified dashboard.
--   : Modified to display KPIs for all four work types.
--   : Modified to disable the  router.
--   : Modified to gracefully handle the disabled blockchain service.
--   : New RFP document for SOC2 auditors.
+-   : Contains the majority of the un-deployed fixes for Google OAuth, signup, login, and password reset.
+-   : Contains fixes for the LinkedIn OAuth flow.
+-   : Contains a partial fix for the admin login issue.
+-    & : The correct Dockerfiles needed for the user to successfully build their images.
 
 **Areas that need refactoring**:
--   The old  collection still exists in the database. It should be dropped after a verification period to confirm that the new unified  collection is working correctly without any regressions.
+-   The admin login logic in  and  is duplicated. This should be consolidated into a shared utility or context function to avoid similar bugs in the future.
 
 **key api endpoints**
--   : (New) Get list of available payroll sync providers.
--   : (New) Test connection to a mock payroll provider.
--   : (New) Run a mock payroll sync for a given provider and date range.
--   : (New) Add a deliverable to a remote shift.
--   : (New) Update a deliverable's status.
--   : (New) Manual clock-in for a remote worker.
--   : (New) Manual clock-out for a remote worker.
--   : (Updated) Now includes  work type in the KPI aggregation.
+-   : The endpoint for Super Admin login.
+-    & : The Google OAuth flow endpoints that were fixed but not deployed.
+-    & : The LinkedIn OAuth flow endpoints that were fixed but not deployed.
+-   : The user creation endpoint that was fixed but not deployed.
+-   : The main login endpoint that was fixed but not deployed.
+-   : The password reset endpoint that was fixed but not deployed.
 
 **Critical Info for New Agent**
--   **Deployment is the Priority:** The immediate task is to finalize deployment preparations. You must verify that all blockchain-related code is disabled and then re-run the . Do not start new features until the app is confirmed to be deployable.
--   **User Prefers Integration:** The user has shown a clear preference for integrating new features into the existing UI/UX flows rather than creating separate pages. When adding new functionality, always consider how it can be woven into the current system first.
--   **Mock Payroll is Complete:** The payroll sync functionality is implemented in  mode. This is the intended and completed state for this feature phase. Do not attempt to connect to live APIs.
+-   **Deployment is Manual and Fragile:** The user is deploying from their local Windows machine () via CLI. Your primary role will be to provide clear, step-by-step commands and file content. Be prepared for user-side errors like using wrong files or commands. All code fixes must be explicitly given to the user to copy into their local files.
+-   **Deploy Backend Fixes First:** The most critical pending action is deploying the backend changes. This will resolve the OAuth and general login issues. You must guide the user to rebuild and redeploy the  container.
+-   **Authentication is the Core Problem:** Do not get sidetracked by other features. The application is unusable for end-users and admins until the login, signup, and OAuth flows are fully functional in the production environment.
+-   **Credentials:** Super Admin:  / .
 
 **documents and test reports created in this job**
 -   
 -   
 -   
+-   
+-   A document containing credentials for the seeded database was provided to the user in the chat history.
 
 **Last 10 User Messages and any pending HUMAN messages**
--   10.  (Status: **Completed** - Agent created the RFP and executive summary.)
--   9.  (Status: **Completed** - Agent identified the ESLint error and fixed it across multiple files, enabling the frontend to build successfully.)
--   8.  (Status: **In Progress** - Agent ran the deployer, found a blocker, and is in the process of fixing it.)
--   7.  (Status: **Completed** - Agent verified the existing dashboard, updated the backend and frontend to include the new 'remote' work type, and confirmed it was working.)
--   6.  (Status: **Completed** - This was the confirmation to proceed with the refactoring of the 'remote' work feature.)
--   5.  (Status: **Completed** - User provided critical feedback, leading the agent to refactor the 'remote' work feature into the existing system.)
--   4.  (Status: **Completed** - This was the initial request to add the remote work feature.)
--   3.  (Status: **Completed** - Agent performed the data migration and refactored the code.)
--   2.  (Status: **Completed** - User confirmed that the payroll integrations should be implemented in mock mode.)
--   1.  (Status: **Completed** - Initial prompt to start the work.)
+1.  **User:** Super admin URL  redirects to login. (Status: **Addressed**. Agent found the correct URL is )
+2.  **User:** Admin login shows Access denied. (Status: **In Progress**. Agent identified the bug and partially fixed it).
+3.  **User:** What about my super admin credentials? (Status: **Addressed**. Agent confirmed the credentials).
+4.  **User:** After LinkedIn login, it bounces back. (Status: **In Progress**. Agent identified the root cause and implemented a fix that needs deployment).
+5.  **User:** What are my credentials after signing up with LinkedIn? (Status: **Addressed**. Agent explained login options).
+6.  **User:** Password reset flow has a loop. Ideal flow for WorkPassport vs Workforce explained. (Status: **In Progress**. Agent implemented fixes to match the desired flow, pending deployment).
+7.  **User:** General signup fails. (Status: **In Progress**. Agent diagnosed the issue and the fix is pending deployment).
+8.  **User:** I have the new SendGrid key. (Status: **Completed**. Agent tested and confirmed the new key works).
+9.  **User:** Can you check why emails aren't being sent? (Status: **Completed**. Agent found the SendGrid key was invalid).
+10. **User:** Populate production DB with sample data and create my super admin account. (Status: **Completed**. Agent seeded the database and created the account).
 
 **Project Health Check:**
--   **Broken:** None
--   **Mocked:** The Payroll Sync feature (Gusto, Ceridian, ADP) is intentionally mocked as per user requirements.
+-   **Broken:**
+    -   Google OAuth Login
+    -   LinkedIn OAuth Login
+    -   Super Admin Login
+    -   General User Signup & Login
+-   **Mocked:**
+    -   Payroll Sync (Gusto, Ceridian Dayforce, ADP)
 
 **3rd Party Integrations**
--   **Stripe:** Used for payment processing. (No change)
--   **Gusto, Ceridian Dayforce, ADP:** Mock API integrations have been built for payroll sync. The playbooks were retrieved in a previous session.
+-   **Stripe:** Payments
+-   **Google OAuth:** Authentication
+-   **LinkedIn OAuth:** Authentication
+-   **SendGrid:** Transactional Emails
+-   **MongoDB Atlas:** Production Database
+-   **Polygon/IPFS (Pinata/Infura):** Blockchain credentialing
 
 **Testing status**
--   **Testing agent used after significant changes:** YES. The  was used to test the Payroll Sync feature implementation. It passed all tests and applied a minor fix.
+-   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None
--   **Known regressions:** None
+-   **Known regressions:** The entire authentication system regressed after the initial deployment and is currently being fixed.
 
 **Credentials to test flow:**
--   Credentials for various user roles can be found in .
+-   **Super Admin:**
+    -   **URL:** 
+    -   **Email:** 
+    -   **Password:** 
+-   **Sample Users:** A large set of sample user credentials was generated and provided to the user during the database seeding phase.
 
 **What agent forgot to execute**
--   The agent was in the middle of verifying that all blockchain-related code was disabled. A final  is needed to ensure no references remain before re-running the .</analysis>
+-   The agent fixed the admin user type check in  but did not apply the same fix to the duplicate logic in .
+-   The agent has not yet successfully guided the user to deploy the critical backend fixes for the OAuth and general signup/login flows. This is the main piece of unfinished work that blocks all other progress.</analysis>
