@@ -1029,14 +1029,18 @@ async def google_callback(
         access_token = create_access_token(token_data)
         refresh_token = create_refresh_token(token_data)
         
-        # Redirect to frontend with tokens in URL - use dynamic origin
-        request_origin = str(request.base_url).rstrip('/')
-        callback_url = f"{request_origin}/auth/google/callback?access_token={access_token}&refresh_token={refresh_token}&user_type={user_type}"
+        # Redirect to frontend with tokens in URL - use FRONTEND_URL env var
+        frontend_url = os.environ.get('FRONTEND_URL', '').rstrip('/')
+        if not frontend_url:
+            frontend_url = str(request.base_url).rstrip('/')
+        callback_url = f"{frontend_url}/auth/google/callback?access_token={access_token}&refresh_token={refresh_token}&user_type={user_type}"
         
         return RedirectResponse(url=callback_url)
         
     except Exception:
-        # Redirect to login with error - use dynamic origin
-        request_origin = str(request.base_url).rstrip('/')
-        error_url = f"{request_origin}/login?error=google_auth_failed"
+        # Redirect to login with error - use FRONTEND_URL env var
+        frontend_url = os.environ.get('FRONTEND_URL', '').rstrip('/')
+        if not frontend_url:
+            frontend_url = str(request.base_url).rstrip('/')
+        error_url = f"{frontend_url}/login?error=google_auth_failed"
         return RedirectResponse(url=error_url)
