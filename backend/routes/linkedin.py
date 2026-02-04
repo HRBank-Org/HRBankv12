@@ -268,12 +268,14 @@ async def linkedin_callback(
     
     # Redirect to frontend with token
     frontend_url = os.environ.get("FRONTEND_URL")
+    print(f"[LinkedIn OAuth] FRONTEND_URL: {frontend_url}")
     if not frontend_url:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="FRONTEND_URL not configured"
         )
     redirect_url = f"{frontend_url}/auth/linkedin/callback?token={jwt_token}&redirect={redirect_after}"
+    print(f"[LinkedIn OAuth] Redirecting to: {redirect_url[:100]}...")
     
     return RedirectResponse(url=redirect_url)
 
