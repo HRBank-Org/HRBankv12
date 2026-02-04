@@ -212,18 +212,6 @@ const SuperAdminSidebar = () => {
           icon: BarChart3,
           path: '/admin/regional-stats',
           badge: null
-        },
-        {
-          label: 'Zones & Regions',
-          icon: MapPin,
-          path: '/admin/zones',
-          badge: null
-        },
-        {
-          label: 'Minimum Wage',
-          icon: DollarSign,
-          path: '/admin/minimum-wage',
-          badge: null
         }
       ]
     },
