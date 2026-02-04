@@ -1079,9 +1079,13 @@ async def google_callback(
             frontend_url = str(request.base_url).rstrip('/')
         callback_url = f"{frontend_url}/auth/google/callback?access_token={access_token}&refresh_token={refresh_token}&user_type={user_type}"
         
+        logger.info(f"[Google OAuth] Success for {email}, redirecting to: {callback_url[:80]}...")
         return RedirectResponse(url=callback_url)
         
-    except Exception:
+    except Exception as e:
+        # Log the actual error for debugging
+        logger.error(f"[Google OAuth] Error during callback: {str(e)}", exc_info=True)
+        
         # Redirect to login with error - use FRONTEND_URL env var
         frontend_url = os.environ.get('FRONTEND_URL', '').rstrip('/')
         if not frontend_url:
