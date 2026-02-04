@@ -276,7 +276,7 @@ async def get_admin_profile(
     db = Depends(get_db)
 ):
     """Get current admin's profile"""
-    if current_user.get("user_type") != "admin":
+    if current_user.get("user_type") not in ["admin", "super_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
