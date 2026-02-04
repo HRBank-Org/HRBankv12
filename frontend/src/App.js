@@ -444,47 +444,47 @@ function AppRoutes() {
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/minimum-wage" element={<ProtectedRoute allowedUserTypes={['admin']}><MinimumWageManager /></ProtectedRoute>} />
-        <Route path="/admin/analytics" element={<ProtectedRoute allowedUserTypes={['admin']}><Analytics /></ProtectedRoute>} />
-        <Route path="/admin/soc2" element={<ProtectedRoute allowedUserTypes={['admin']}><SOC2Dashboard /></ProtectedRoute>} />
-        <Route path="/admin/compliance" element={<ProtectedRoute allowedUserTypes={['admin']}><SOC2Dashboard /></ProtectedRoute>} />
-        <Route path="/admin/revenue" element={<ProtectedRoute allowedUserTypes={['admin']}><RevenueDashboard /></ProtectedRoute>} />
-        <Route path="/admin/document-review" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentReview /></ProtectedRoute>} />
-        <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageAdmins /></ProtectedRoute>} />
-        <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageZones /></ProtectedRoute>} />
-        <Route path="/admin/manage-credentials" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminManageCredentials /></ProtectedRoute>} />
-        <Route path="/admin/occupation-certifications" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageOccupationCertifications /></ProtectedRoute>} />
-        <Route path="/admin/wsib-verification" element={<ProtectedRoute allowedUserTypes={['admin']}><WSIBVerification /></ProtectedRoute>} />
-        <Route path="/admin/manage-occupations" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageOccupations /></ProtectedRoute>} />
-        <Route path="/admin/manage-certifications" element={<ProtectedRoute allowedUserTypes={['admin']}><ManageCertifications /></ProtectedRoute>} />
-        <Route path="/admin/settings" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminSettings /></ProtectedRoute>} />
-        <Route path="/admin/institution-directory" element={<ProtectedRoute allowedUserTypes={['admin']}><InstitutionDirectory /></ProtectedRoute>} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/minimum-wage" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><MinimumWageManager /></ProtectedRoute>} />
+        <Route path="/admin/analytics" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><Analytics /></ProtectedRoute>} />
+        <Route path="/admin/soc2" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SOC2Dashboard /></ProtectedRoute>} />
+        <Route path="/admin/compliance" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SOC2Dashboard /></ProtectedRoute>} />
+        <Route path="/admin/revenue" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><RevenueDashboard /></ProtectedRoute>} />
+        <Route path="/admin/document-review" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DocumentReview /></ProtectedRoute>} />
+        <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageAdmins /></ProtectedRoute>} />
+        <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageZones /></ProtectedRoute>} />
+        <Route path="/admin/manage-credentials" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminManageCredentials /></ProtectedRoute>} />
+        <Route path="/admin/occupation-certifications" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageOccupationCertifications /></ProtectedRoute>} />
+        <Route path="/admin/wsib-verification" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><WSIBVerification /></ProtectedRoute>} />
+        <Route path="/admin/manage-occupations" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageOccupations /></ProtectedRoute>} />
+        <Route path="/admin/manage-certifications" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageCertifications /></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminSettings /></ProtectedRoute>} />
+        <Route path="/admin/institution-directory" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><InstitutionDirectory /></ProtectedRoute>} />
         
         {/* Super Admin Routes */}
-        <Route path="/admin/super-dashboard" element={<ProtectedRoute allowedUserTypes={['admin']}><SuperAdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/activity" element={<ProtectedRoute allowedUserTypes={['admin']}><ActivityFeed /></ProtectedRoute>} />
-        <Route path="/admin/pending-activations" element={<ProtectedRoute allowedUserTypes={['admin']}><PendingActivations /></ProtectedRoute>} />
-        <Route path="/admin/users" element={<ProtectedRoute allowedUserTypes={['admin']}><AllUsers /></ProtectedRoute>} />
-        <Route path="/admin/credentials" element={<ProtectedRoute allowedUserTypes={['admin']}><CredentialReviews /></ProtectedRoute>} />
-        <Route path="/admin/documents" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentVerification /></ProtectedRoute>} />
-        <Route path="/admin/document-expiry" element={<ProtectedRoute allowedUserTypes={['admin']}><DocumentExpiryDashboard /></ProtectedRoute>} />
-        <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminManagement /></ProtectedRoute>} />
-        <Route path="/admin/roles" element={<ProtectedRoute allowedUserTypes={['admin']}><RoleManagement /></ProtectedRoute>} />
-        <Route path="/admin/permissions" element={<ProtectedRoute allowedUserTypes={['admin']}><Permissions /></ProtectedRoute>} />
-        <Route path="/admin/zones" element={<ProtectedRoute allowedUserTypes={['admin']}><ZoneManagement /></ProtectedRoute>} />
-        <Route path="/admin/regional-stats" element={<ProtectedRoute allowedUserTypes={['admin']}><RegionalDashboard /></ProtectedRoute>} />
-        <Route path="/admin/franchises" element={<ProtectedRoute allowedUserTypes={['admin']}><FranchiseManagement /></ProtectedRoute>} />
-        <Route path="/admin/employers" element={<ProtectedRoute allowedUserTypes={['admin']}><EmployersList /></ProtectedRoute>} />
-        <Route path="/admin/institutions" element={<ProtectedRoute allowedUserTypes={['admin']}><InstitutionsList /></ProtectedRoute>} />
-        <Route path="/admin/institution-payouts" element={<ProtectedRoute allowedUserTypes={['admin']}><InstitutionPayouts /></ProtectedRoute>} />
-        <Route path="/admin/partnership-agreements" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminPartnershipAgreements /></ProtectedRoute>} />
-        <Route path="/admin/support-tickets" element={<ProtectedRoute allowedUserTypes={['admin']}><SupportTickets /></ProtectedRoute>} />
-        <Route path="/admin/reported-issues" element={<ProtectedRoute allowedUserTypes={['admin']}><ReportedIssues /></ProtectedRoute>} />
-        <Route path="/admin/audit-logs" element={<ProtectedRoute allowedUserTypes={['admin']}><AuditLogs /></ProtectedRoute>} />
-        <Route path="/admin/notification-settings" element={<ProtectedRoute allowedUserTypes={['admin']}><NotificationSettings /></ProtectedRoute>} />
-        <Route path="/admin/invoices" element={<ProtectedRoute allowedUserTypes={['admin']}><AdminInvoices /></ProtectedRoute>} />
-        <Route path="/admin/partners" element={<ProtectedRoute allowedUserTypes={['admin']}><PartnerManagement /></ProtectedRoute>} />
+        <Route path="/admin/super-dashboard" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/activity" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ActivityFeed /></ProtectedRoute>} />
+        <Route path="/admin/pending-activations" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><PendingActivations /></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AllUsers /></ProtectedRoute>} />
+        <Route path="/admin/credentials" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><CredentialReviews /></ProtectedRoute>} />
+        <Route path="/admin/documents" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DocumentVerification /></ProtectedRoute>} />
+        <Route path="/admin/document-expiry" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DocumentExpiryDashboard /></ProtectedRoute>} />
+        <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminManagement /></ProtectedRoute>} />
+        <Route path="/admin/roles" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><RoleManagement /></ProtectedRoute>} />
+        <Route path="/admin/permissions" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><Permissions /></ProtectedRoute>} />
+        <Route path="/admin/zones" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ZoneManagement /></ProtectedRoute>} />
+        <Route path="/admin/regional-stats" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><RegionalDashboard /></ProtectedRoute>} />
+        <Route path="/admin/franchises" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><FranchiseManagement /></ProtectedRoute>} />
+        <Route path="/admin/employers" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><EmployersList /></ProtectedRoute>} />
+        <Route path="/admin/institutions" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><InstitutionsList /></ProtectedRoute>} />
+        <Route path="/admin/institution-payouts" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><InstitutionPayouts /></ProtectedRoute>} />
+        <Route path="/admin/partnership-agreements" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminPartnershipAgreements /></ProtectedRoute>} />
+        <Route path="/admin/support-tickets" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SupportTickets /></ProtectedRoute>} />
+        <Route path="/admin/reported-issues" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ReportedIssues /></ProtectedRoute>} />
+        <Route path="/admin/audit-logs" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AuditLogs /></ProtectedRoute>} />
+        <Route path="/admin/notification-settings" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><NotificationSettings /></ProtectedRoute>} />
+        <Route path="/admin/invoices" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminInvoices /></ProtectedRoute>} />
+        <Route path="/admin/partners" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><PartnerManagement /></ProtectedRoute>} />
         
         {/* Donation Success/Cancel Routes */}
         <Route path="/donation/success" element={<DonationSuccess />} />
