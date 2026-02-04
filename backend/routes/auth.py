@@ -64,13 +64,21 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
     user_id = f"usr_{uuid.uuid4().hex[:12]}"
     hashed_password = hash_password(user_data.password)
     
+    # Set initial status based on user type
+    # - workpassport: pending email verification, then active
+    # - workforce: pending email verification, then pending document verification (admin approval)
+    if user_data.user_type == "workpassport":
+        initial_status = "pending_email_verification"
+    else:
+        initial_status = "pending_email_verification"  # Same initial state, different next state after verification
+    
     user_doc = {
         "user_id": user_id,
         "email": user_data.email,
         "phone": user_data.phone,
         "password_hash": hashed_password,
         "user_type": user_data.user_type,
-        "profile_status": "pending_verification",  # New status: pending OTP verification
+        "profile_status": initial_status,
         "email_verified": False,
         "phone_verified": False,
         "mfa_enabled": False,
