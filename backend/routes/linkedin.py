@@ -267,7 +267,12 @@ async def linkedin_callback(
     )
     
     # Redirect to frontend with token
-    frontend_url = os.environ.get("FRONTEND_URL", "https://hr-payroll-ready.preview.emergentagent.com")
+    frontend_url = os.environ.get("FRONTEND_URL")
+    if not frontend_url:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="FRONTEND_URL not configured"
+        )
     redirect_url = f"{frontend_url}/auth/linkedin/callback?token={jwt_token}&redirect={redirect_after}"
     
     return RedirectResponse(url=redirect_url)
