@@ -387,7 +387,7 @@ async def get_invoice(
         raise HTTPException(status_code=404, detail="Invoice not found")
     
     # Check access
-    if invoice["customer_id"] != current_user["user_id"] and current_user.get("user_type") != "admin":
+    if invoice["customer_id"] != current_user["user_id"] and current_user.get("user_type") not in ["admin", "super_admin"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
     return {"success": True, "data": invoice}
@@ -405,7 +405,7 @@ async def download_invoice_pdf(
         raise HTTPException(status_code=404, detail="Invoice not found")
     
     # Check access
-    if invoice["customer_id"] != current_user["user_id"] and current_user.get("user_type") != "admin":
+    if invoice["customer_id"] != current_user["user_id"] and current_user.get("user_type") not in ["admin", "super_admin"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Generate PDF
