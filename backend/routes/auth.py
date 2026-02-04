@@ -549,8 +549,8 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
             detail="Invalid credentials"
         )
     
-    # Check if email is verified (admins bypass this check)
-    if user.get("user_type") != "admin" and not user.get("email_verified", False):
+    # Check if email is verified (admins and super_admins bypass this check)
+    if user.get("user_type") not in ["admin", "super_admin"] and not user.get("email_verified", False):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Please verify your email first"
@@ -562,7 +562,7 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
     # Handle profile_status - workpassport users use 'status' instead of 'profile_status'
     if user_type == "workpassport":
         profile_status = user.get("status", "active")  # workpassport users use 'status' field
-    elif user_type == "admin":
+    elif user_type in ["admin", "super_admin"]:
         profile_status = user.get("profile_status", "active")
     else:
         profile_status = user.get("profile_status", "pending")
@@ -570,8 +570,8 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
     needs_onboarding = False
     needs_documents = False
     
-    # Admin users bypass profile status checks
-    if user_type != "admin":
+    # Admin and super_admin users bypass profile status checks
+    if user_type not in ["admin", "super_admin"]:
         if profile_status == "pending_documents":
             # Workforce user needs to submit documents for verification
             needs_documents = True
