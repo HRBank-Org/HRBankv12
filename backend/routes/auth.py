@@ -568,11 +568,15 @@ async def login(request: Request, credentials: UserLogin, db: AsyncIOMotorDataba
         profile_status = user.get("profile_status", "pending")
     
     needs_onboarding = False
+    needs_documents = False
     
     # Admin users bypass profile status checks
     if user_type != "admin":
-        if profile_status == "pending":
-            # User is pending admin approval
+        if profile_status == "pending_documents":
+            # Workforce user needs to submit documents for verification
+            needs_documents = True
+        elif profile_status == "pending":
+            # User is pending admin approval (documents submitted, awaiting review)
             pass  # Frontend will redirect to pending page
         elif profile_status == "active":
             # Check if onboarding is completed
