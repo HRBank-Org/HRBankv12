@@ -43,6 +43,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 | Security Hardening | ✅ Complete |
 | Pentest Preparation | ✅ Complete |
 | **Console.log Cleanup** | ✅ Complete (30→1 remaining) |
+| **AWS Lightsail Deployment** | ✅ Ready |
 
 ### Go-Live Checklist
 - [x] Unified revenue model implemented
@@ -54,6 +55,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - [x] **Payroll Sync System** (Phases 2-4 complete - MOCK mode)
 - [x] **Calendar Shifts Consolidation** (merged into shifts collection)
 - [x] **Remote Work Management** (4th shift type with deliverables)
+- [x] **AWS Lightsail Deployment Files** (Docker, nginx, scripts)
 - [ ] Penetration testing by qualified vendor
 - [ ] Update SOC2 badge to "Certified" (next round)
 - [ ] Enable Google Maps billing for production
@@ -62,6 +64,55 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 ---
 
 ## What's Been Implemented (February 2026)
+
+### AWS Lightsail Deployment Preparation ✅ (Feb 4, 2026) - NEW
+Full Docker containerization and deployment scripts for AWS Lightsail.
+
+**Deployment Files Created:**
+| File | Purpose |
+|------|---------|
+| `/app/Dockerfile` | Multi-stage Docker build (frontend + backend) |
+| `/app/docker-compose.yml` | Local development with Docker Compose |
+| `/app/.dockerignore` | Optimized build excludes |
+| `/app/deploy/nginx.conf` | Nginx reverse proxy config |
+| `/app/deploy/supervisord.conf` | Process management |
+| `/app/deploy/deploy.sh` | Automated deployment script |
+| `/app/deploy/.env.template` | Environment variables template |
+| `/app/deploy/LIGHTSAIL_DEPLOYMENT.md` | Step-by-step deployment guide |
+
+**Key Features:**
+- Multi-stage Docker build (Node.js → Python slim)
+- Nginx reverse proxy with gzip compression
+- Health check endpoint for container orchestration
+- Supervisor process management (nginx + uvicorn)
+- Production-ready security headers
+
+**Blockchain Feature:**
+- ✅ Re-enabled and working (Polygon Mainnet)
+- Issuer wallet funded with ~1.97 MATIC
+- IPFS via Pinata configured
+- Cannot deploy to Emergent (no Web3 support)
+- **Recommended:** AWS Lightsail or similar
+
+**Estimated Monthly Costs:**
+| Service | Cost |
+|---------|------|
+| Lightsail Medium (1 node) | $40 |
+| MongoDB Atlas M10 | $57 |
+| **Total** | ~$97/month |
+
+**Deployment Commands:**
+```bash
+# Build, push, and deploy
+cd /app
+./deploy/deploy.sh all
+
+# Or step by step
+./deploy/deploy.sh build
+./deploy/deploy.sh push
+./deploy/deploy.sh deploy
+./deploy/deploy.sh status
+```
 
 ### Remote Work (4th Shift Type) ✅ (Feb 2, 2026) - NEW
 Added remote/white-collar work type with deliverables-based tracking.
