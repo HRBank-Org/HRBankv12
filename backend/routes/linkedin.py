@@ -178,7 +178,7 @@ async def linkedin_callback(
     })
     
     if existing_user:
-        # Update existing user with LinkedIn data
+        # Update existing user with LinkedIn data and activate account
         await db.users.update_one(
             {"_id": existing_user["_id"]},
             {"$set": {
@@ -186,7 +186,10 @@ async def linkedin_callback(
                 "linkedin_access_token": access_token,
                 "linkedin_profile": linkedin_profile,
                 "last_login": now,
-                "last_login_date": now
+                "last_login_date": now,
+                "email_verified": True,  # LinkedIn verifies email
+                "status": "active",
+                "profile_status": "active"
             }}
         )
         user_id = existing_user["user_id"]
