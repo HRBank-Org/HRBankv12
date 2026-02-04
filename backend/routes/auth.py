@@ -659,14 +659,28 @@ async def verify_email(token: str, db: AsyncIOMotorDatabase = Depends(get_db)):
         {"$set": {"email_verified": True}}
     )
     
-    # Check user type to determine if we should also set profile_status to active
+    # Check user type to determine profile_status after email verification
     user = await db.users.find_one({"user_id": verification["user_id"]})
-    if user and user.get("user_type") == "workpassport":
-        # WorkPassport users are active immediately after email verification
-        await db.users.update_one(
-            {"user_id": verification["user_id"]},
-            {"$set": {"status": "active"}}
-        )
+    if user:
+        user_type = user.get("user_type")
+        if user_type == "workpassport":
+            # WorkPassport users are ACTIVE immediately after email verification
+            await db.users.update_one(
+                {"user_id": verification["user_id"]},
+                {"$set": {"status": "active", "profile_status": "active"}}
+            )
+        elif user_type == "workforce":
+            # Workforce users need document verification next (admin approval)
+            await db.users.update_one(
+                {"user_id": verification["user_id"]},
+                {"$set": {"profile_status": "pending_documents"}}
+            )
+        else:
+            # Other user types (employer, institution) - active after email verification
+            await db.users.update_one(
+                {"user_id": verification["user_id"]},
+                {"$set": {"status": "active", "profile_status": "active"}}
+            )
     
     await db.email_verifications.update_one(
         {"verification_token": token},
