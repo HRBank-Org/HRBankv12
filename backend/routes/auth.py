@@ -860,7 +860,7 @@ async def reset_password(request: Request, data: ResetPasswordRequest, db: Async
             detail="Password must be at least 8 characters long"
         )
     
-    # Update password
+    # Update password and verify email (password reset proves email ownership)
     new_password_hash = hash_password(data.new_password)
     
     await db.users.update_one(
@@ -868,7 +868,10 @@ async def reset_password(request: Request, data: ResetPasswordRequest, db: Async
         {
             "$set": {
                 "password_hash": new_password_hash,
-                "password_updated_at": datetime.now(timezone.utc).isoformat()
+                "password_updated_at": datetime.now(timezone.utc).isoformat(),
+                "email_verified": True,  # Password reset proves email ownership
+                "status": "active",
+                "profile_status": "active"
             }
         }
     )
