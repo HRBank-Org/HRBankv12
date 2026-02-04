@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  hrbank:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL:-https://your-domain.com}
+    ports:
+      - "80:80"
+    environment:
+      # MongoDB
+      - MONGO_URL=${MONGO_URL}
+      - DB_NAME=${DB_NAME:-hrbank_db}
+      
+      # JWT & Security
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      
+      # URLs
+      - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
+      
+      # SendGrid Email
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL}
+      
+      # Google APIs
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - GOOGLE_DISTANCE_MATRIX_API_KEY=${GOOGLE_DISTANCE_MATRIX_API_KEY}
+      - GOOGLE_TIMEZONE_API_KEY=${GOOGLE_TIMEZONE_API_KEY}
+      
+      # Google OAuth
+      - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
+      - GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET}
+      - GOOGLE_OAUTH_REDIRECT_URI=${GOOGLE_OAUTH_REDIRECT_URI}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      
+      # Stripe
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      
+      # Twilio
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+      
+      # Blockchain (Polygon)
+      - ISSUER_WALLET_ADDRESS=${ISSUER_WALLET_ADDRESS}
+      - ISSUER_PRIVATE_KEY=${ISSUER_PRIVATE_KEY}
+      - BLOCKCHAIN_NETWORK=${BLOCKCHAIN_NETWORK:-polygon_mainnet}
+      - POLYGON_MAINNET_RPC_URL=${POLYGON_MAINNET_RPC_URL}
+      - INFURA_API_KEY=${INFURA_API_KEY}
+      
+      # IPFS (Pinata)
+      - PINATA_API_KEY=${PINATA_API_KEY}
+      - PINATA_SECRET_KEY=${PINATA_SECRET_KEY}
+      
+      # Push Notifications (VAPID)
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - VAPID_CLAIMS_EMAIL=${VAPID_CLAIMS_EMAIL}
+      
+      # LinkedIn OAuth
+      - LINKEDIN_CLIENT_ID=${LINKEDIN_CLIENT_ID}
+      - LINKEDIN_CLIENT_SECRET=${LINKEDIN_CLIENT_SECRET}
+      - LINKEDIN_REDIRECT_URI=${LINKEDIN_REDIRECT_URI}
+      
+      # Emergent LLM (for AI features)
+      - EMERGENT_LLM_KEY=${EMERGENT_LLM_KEY}
+    
+    volumes:
+      - uploads:/app/backend/uploads
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  uploads:
