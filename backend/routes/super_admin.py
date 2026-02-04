@@ -58,8 +58,8 @@ async def require_permission(permission: str, current_user: dict, db):
 
 
 def require_super_admin(current_user: dict = Depends(get_current_user)):
-    """Middleware to require super admin"""
-    if current_user.get("user_type") != "admin":
+    """Middleware to require super admin or admin"""
+    if current_user.get("user_type") not in ["admin", "super_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
