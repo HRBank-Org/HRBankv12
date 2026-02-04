@@ -26,8 +26,8 @@ const AdminLogin = () => {
       });
 
       if (response.success) {
-        // Verify it's an admin
-        if (response.data.user_type === 'admin') {
+        // Verify it's an admin or super_admin
+        if (response.data.user_type === 'admin' || response.data.user_type === 'super_admin') {
           // Small delay to ensure token is stored
           setTimeout(() => {
             navigate('/admin/super-dashboard');
