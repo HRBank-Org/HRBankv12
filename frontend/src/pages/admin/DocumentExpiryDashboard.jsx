@@ -123,14 +123,22 @@ const DocumentExpiryDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex min-h-screen bg-gray-50">
+        <SuperAdminSidebar />
+        <div className="flex-1 ml-[70px] lg:ml-[260px] p-6">
+          <div className="flex items-center justify-center h-64">
+            <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex min-h-screen bg-gray-50">
+      <SuperAdminSidebar />
+      <div className="flex-1 ml-[70px] lg:ml-[260px] p-6">
+        <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
