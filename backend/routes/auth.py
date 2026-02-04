@@ -982,6 +982,7 @@ async def google_login(request: Request, user_type: str = "workforce", db: Async
 @router.get("/google/callback")
 async def google_callback(
     request: Request,
+    state: str = None,
     user_type: str = "workforce",
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
@@ -991,8 +992,24 @@ async def google_callback(
     """
     from auth.oauth_config import oauth
     
-    # Get user_type from session if available (preferred), otherwise use query param
-    user_type = request.session.pop('oauth_user_type', user_type)
+    # Retrieve user_type from stored state (most reliable), session, or query param
+    if state:
+        stored_state = await db.oauth_states.find_one({"state": state})
+        if stored_state:
+            user_type = stored_state.get("user_type", user_type)
+            # Clean up used state
+            await db.oauth_states.delete_one({"state": state})
+            logger.info(f"[Google OAuth] Retrieved user_type={user_type} from stored state")
+        else:
+            logger.warning(f"[Google OAuth] State not found in DB, using session/query param")
+    
+    # Fallback to session
+    session_user_type = request.session.pop('oauth_user_type', None)
+    if session_user_type:
+        user_type = session_user_type
+        logger.info(f"[Google OAuth] Retrieved user_type={user_type} from session")
+    
+    logger.info(f"[Google OAuth] Processing callback for user_type={user_type}")
     
     try:
         # Get token from Google
