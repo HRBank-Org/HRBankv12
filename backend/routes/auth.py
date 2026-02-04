@@ -974,10 +974,15 @@ async def google_callback(
             # User exists - log them in
             user_id = existing_user["user_id"]
             
-            # Update last login
+            # Update last login and activate account
             await db.users.update_one(
                 {"user_id": user_id},
-                {"$set": {"last_login_date": datetime.now(timezone.utc).isoformat()}}
+                {"$set": {
+                    "last_login_date": datetime.now(timezone.utc).isoformat(),
+                    "email_verified": True,
+                    "status": "active",
+                    "profile_status": "active"
+                }}
             )
         else:
             # Create new user
