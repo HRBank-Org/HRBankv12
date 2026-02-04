@@ -444,7 +444,7 @@ async def get_platform_analytics(
     Get comprehensive platform analytics for CEO dashboard
     Revenue Model: $1/hour from workforce + $1/hour from employer = $2/hour total
     """
-    if current_user.get("user_type") != "admin":
+    if current_user.get("user_type") not in ["admin", "super_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
