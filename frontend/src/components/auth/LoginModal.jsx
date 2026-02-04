@@ -104,8 +104,8 @@ const LoginModal = ({ isOpen, onClose, userType = 'workforce' }) => {
       const response = await login(loginData);
       const { user_type, profile_status, needs_onboarding } = response.data;
 
-      // Admin access check
-      if (userType === 'admin' && user_type !== 'admin') {
+      // Admin access check - allow both 'admin' and 'super_admin' user types
+      if (userType === 'admin' && user_type !== 'admin' && user_type !== 'super_admin') {
         setError('Access denied. Admin credentials required.');
         setLoading(false);
         return;
