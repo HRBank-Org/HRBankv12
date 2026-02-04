@@ -65,7 +65,23 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (February 2026)
 
-### AWS Lightsail Deployment Preparation ✅ (Feb 4, 2026) - NEW
+### Authentication Fixes for Production ✅ (Feb 4, 2026) - NEW
+Fixed critical authentication issues blocking production deployment at hrbank.ca.
+
+**Issues Fixed:**
+| Issue | File | Fix |
+|-------|------|-----|
+| Super Admin Login "Access Denied" | `LoginModal.jsx` | Accept both `admin` and `super_admin` user types |
+| Google OAuth redirect loop | `auth.py` | Use `BACKEND_URL` env var, pass user_type via session |
+| LinkedIn OAuth redirect loop | `linkedin.py` | Set `profile_status: active` and `email_verified: true` |
+| Password reset blocking login | `auth.py` | Set `email_verified: true` after password reset |
+| Signup flow status | `auth.py` | Proper initial status for WorkPassport vs Workforce users |
+
+**Deployment Required:**
+All fixes are code-ready but require rebuilding and redeploying Docker images to AWS Lightsail.
+See `/app/DEPLOYMENT_INSTRUCTIONS.md` for step-by-step guide.
+
+### AWS Lightsail Deployment Preparation ✅ (Feb 4, 2026)
 Full Docker containerization and deployment scripts for AWS Lightsail.
 
 **Deployment Files Created:**
