@@ -919,15 +919,16 @@ async def google_login(request: Request, user_type: str = "workforce"):
     
     from auth.oauth_config import oauth
     
-    # Build redirect URI - force HTTPS for production
-    base_url = str(request.base_url)
-    # Replace http with https for production environments
-    if 'hrbank.ca' in base_url or 'preview.emergentagent.com' in base_url:
-        base_url = base_url.replace('http://', 'https://')
-    # Ensure no trailing slash issues
-    base_url = base_url.rstrip('/')
+    # Use BACKEND_URL environment variable for redirect URI
+    # This ensures correct URL when behind a reverse proxy
+    backend_url = os.environ.get('BACKEND_URL', '').rstrip('/')
+    if not backend_url:
+        # Fallback to request base_url if BACKEND_URL not set
+        backend_url = str(request.base_url).rstrip('/')
+        if 'hrbank.ca' in backend_url or 'preview.emergentagent.com' in backend_url:
+            backend_url = backend_url.replace('http://', 'https://')
     
-    redirect_uri = f"{base_url}/api/auth/google/callback?user_type={user_type}"
+    redirect_uri = f"{backend_url}/api/auth/google/callback?user_type={user_type}"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @router.get("/google/callback")
