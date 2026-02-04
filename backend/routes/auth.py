@@ -1054,6 +1054,7 @@ async def google_callback(
                 "email": email,
                 "password_hash": "",  # No password for OAuth users
                 "user_type": user_type,
+                "status": "active",  # For workpassport users
                 "profile_status": "active",  # Auto-activate OAuth users
                 "email_verified": True,  # Google verified the email
                 "mfa_enabled": False,
@@ -1065,6 +1066,7 @@ async def google_callback(
             }
             
             await db.users.insert_one(user_doc)
+            logger.info(f"[Google OAuth] New user created: {email} (type={user_type})")
             
             # Create profile based on user type
             profile_doc = {
