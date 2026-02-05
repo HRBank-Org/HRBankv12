@@ -712,23 +712,32 @@ async def activate_user_account(
         {
             "$set": {
                 "profile_status": "active",
+                "status": "active",
                 "activated_by": current_user["user_id"],
                 "activated_date": datetime.now(timezone.utc).isoformat()
             }
         }
     )
     
-    # Update profile status
+    # Update profile status - use correct ID field for each user type
+    user_type = user.get("user_type")
     profile_collection = {
         "workforce": "workforce_profiles",
         "employer": "employer_profiles",
         "institution": "institution_profiles"
-    }.get(user.get("user_type"))
+    }.get(user_type)
+    
+    id_field_map = {
+        "workforce": "workforce_id",
+        "employer": "employer_id",
+        "institution": "institution_id"
+    }
     
     if profile_collection:
+        id_field = id_field_map.get(user_type, "user_id")
         await db[profile_collection].update_one(
-            {"user_id": user_id},
-            {"$set": {"profile_status": "active"}}
+            {id_field: user_id},
+            {"$set": {"profile_status": "active", "status": "active"}}
         )
     
     # Log action
@@ -751,6 +760,38 @@ async def activate_user_account(
         "read": False,
         "created_date": datetime.now(timezone.utc).isoformat()
     })
+    
+    # Send activation email
+    try:
+        from utils.email_service import send_account_activated_email
+        import os
+        
+        # Get user's full name from profile
+        full_name = user.get("email", "User")  # Fallback to email
+        if profile_collection:
+            id_field = id_field_map.get(user_type, "user_id")
+            profile = await db[profile_collection].find_one({id_field: user_id}, {"_id": 0})
+            if profile:
+                full_name = profile.get("full_name") or profile.get("company_name") or profile.get("institution_name") or full_name
+        
+        frontend_url = os.environ.get("FRONTEND_URL", "https://hrbank.ca")
+        dashboard_urls = {
+            "workforce": f"{frontend_url}/workforce/dashboard",
+            "employer": f"{frontend_url}/employer/home",
+            "institution": f"{frontend_url}/institution/dashboard",
+            "workpassport": f"{frontend_url}/workpassport/dashboard"
+        }
+        login_url = dashboard_urls.get(user_type, f"{frontend_url}/login")
+        
+        await send_account_activated_email(
+            to_email=user.get("email"),
+            full_name=full_name,
+            user_type=user_type,
+            login_url=login_url
+        )
+    except Exception as e:
+        print(f"Failed to send activation email: {e}")
+        # Don't fail the activation if email fails
     
     return {
         "success": True,
