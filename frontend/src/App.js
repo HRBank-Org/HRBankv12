@@ -468,7 +468,7 @@ function AppRoutes() {
         <Route path="/admin/pending-activations" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><PendingActivations /></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AllUsers /></ProtectedRoute>} />
         <Route path="/admin/credentials" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><CredentialReviews /></ProtectedRoute>} />
-        <Route path="/admin/documents" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DocumentVerification /></ProtectedRoute>} />
+        <Route path="/admin/documents" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><IDVerification /></ProtectedRoute>} />
         <Route path="/admin/document-expiry" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DocumentExpiryDashboard /></ProtectedRoute>} />
         <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminManagement /></ProtectedRoute>} />
         <Route path="/admin/roles" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><RoleManagement /></ProtectedRoute>} />
