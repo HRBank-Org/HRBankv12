@@ -26,6 +26,7 @@ class UserCreate(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=100)
     phone: Optional[str] = Field(None, pattern=r'^\+1-\d{3}-\d{3}-\d{4}$')
     country: Optional[str] = None  # For international institutions
+    date_of_birth: Optional[str] = None  # Required for workforce, format: YYYY-MM-DD
     
     @validator('phone', always=True)
     def validate_phone_requirement(cls, v, values):
@@ -33,6 +34,28 @@ class UserCreate(BaseModel):
         user_type = values.get('user_type')
         if user_type in ['workforce', 'employer'] and not v:
             raise ValueError('Phone number is required for workforce and employer accounts')
+        return v
+    
+    @validator('date_of_birth', always=True)
+    def validate_age_requirement(cls, v, values):
+        """Date of birth required for workforce, must be at least 16 years old"""
+        user_type = values.get('user_type')
+        if user_type == 'workforce':
+            if not v:
+                raise ValueError('Date of birth is required for workforce accounts')
+            try:
+                from datetime import datetime
+                dob = datetime.strptime(v, '%Y-%m-%d')
+                today = datetime.now()
+                age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                if age < 16:
+                    raise ValueError('You must be at least 16 years old to create a workforce account')
+                if age > 100:
+                    raise ValueError('Invalid date of birth')
+            except ValueError as e:
+                if 'does not match format' in str(e):
+                    raise ValueError('Date of birth must be in YYYY-MM-DD format')
+                raise e
         return v
     
     @validator('password')
