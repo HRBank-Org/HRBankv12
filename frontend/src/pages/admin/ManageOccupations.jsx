@@ -460,6 +460,7 @@ const ManageOccupations = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
