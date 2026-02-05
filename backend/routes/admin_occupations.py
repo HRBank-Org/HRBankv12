@@ -459,9 +459,10 @@ async def migrate_occupations_to_object_format(
     
     return {
         "success": True,
-        "message": f"Migration complete! Migrated {migrated_count} occupations, {already_migrated_count} already in object format",
+        "message": f"Migration complete! Migrated {migrated_count} new occupations, updated {updated_count} with certifications, {already_migrated_count - updated_count} already had certifications",
         "data": {
             "migrated_count": migrated_count,
+            "updated_with_certifications": updated_count,
             "already_migrated": already_migrated_count,
             "total_occupations": migrated_count + already_migrated_count
         }
