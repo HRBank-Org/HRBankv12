@@ -1,7 +1,7 @@
 # HR Bank Frontend Dockerfile
 # Build: docker build -f Dockerfile.frontend --build-arg REACT_APP_BACKEND_URL=https://hrbank.ca -t qnizami/hrbank-frontend .
 
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
