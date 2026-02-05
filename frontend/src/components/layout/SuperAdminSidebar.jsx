@@ -99,6 +99,13 @@ const SuperAdminSidebar = () => {
           badgeColor: 'bg-blue-500'
         },
         {
+          label: 'Insurance Review',
+          icon: FileCheck,
+          path: '/admin/insurance-review',
+          badge: 'insurance',
+          badgeColor: 'bg-green-500'
+        },
+        {
           label: 'Document Expiry',
           icon: FileWarning,
           path: '/admin/document-expiry',
