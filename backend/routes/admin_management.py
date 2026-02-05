@@ -305,7 +305,8 @@ async def get_admin_profile(
                 "created_date": user.get("created_date", datetime.now(timezone.utc).isoformat())
             }
             await db.admins.insert_one(admin)
-            del admin["_id"] if "_id" in admin else None
+            if "_id" in admin:
+                del admin["_id"]
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
