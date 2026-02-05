@@ -312,12 +312,13 @@ async def migrate_occupations_to_object_format(
     """
     
     # Check if super admin
-    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
-    if not admin or not admin.get("is_super_admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Super Admins can run migrations"
-        )
+    if current_user.get("user_type") != "super_admin":
+        admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+        if not admin or not admin.get("is_super_admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Super Admins can run migrations"
+            )
     
     # Smart matching rules - map occupation titles to certification names
     # This matches common occupation names to their typical certifications
