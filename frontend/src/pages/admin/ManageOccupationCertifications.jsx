@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserHeader from '../../components/common/UserHeader';
+import GenericHeader from '../../components/layout/GenericHeader';
+import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 
 const ManageOccupationCertifications = () => {
@@ -147,13 +148,11 @@ const ManageOccupationCertifications = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <UserHeader 
-        onBackClick={() => navigate('/admin/dashboard')}
-        showBack={true}
-        title="Manage Occupation Certifications"
-      />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <GenericHeader />
+      <div className="flex">
+        <SuperAdminSidebar />
+        <main className="flex-1 lg:ml-[260px] transition-all duration-300 p-6">
+          <div className="max-w-7xl mx-auto">
         {message.text && !showEditModal && (
           <div className={`rounded-lg p-4 mb-6 whitespace-pre-line ${
             message.type === 'success' 
@@ -243,7 +242,9 @@ const ManageOccupationCertifications = () => {
             </div>
           </div>
         ))}
-      </main>
+          </div>
+        </main>
+      </div>
 
       {/* Edit Modal */}
       {showEditModal && selectedOccupation && (
