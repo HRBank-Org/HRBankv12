@@ -396,6 +396,10 @@ async def update_admin_profile(
         user_updates["full_name"] = updates["full_name"]
     if "phone" in updates:
         user_updates["phone"] = updates["phone"]
+    if "profile_image" in updates:
+        user_updates["profile_image"] = updates["profile_image"]
+    if "avatar" in updates:
+        user_updates["avatar"] = updates["avatar"]
     
     if user_updates:
         await db.users.update_one(
