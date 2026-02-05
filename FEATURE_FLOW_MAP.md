@@ -9,6 +9,125 @@ This document maps each admin function to its corresponding flows across all 4 a
 
 ---
 
+## COMPLIANCE & REGULATORY STATUS
+
+### Age Compliance
+| Area | Status | Notes |
+|------|--------|-------|
+| Date of Birth Collection | ❌ **MISSING** | No DOB field in signup or profiles |
+| Age Verification | ❌ **MISSING** | No minimum age check (16/18) |
+| Youth Worker Restrictions | ❌ **MISSING** | No special rules for workers under 18 |
+
+**RECOMMENDATION:** Add DOB field to workforce signup, verify age >= 16 for general work, >= 18 for certain industries (alcohol, cannabis, etc.)
+
+### Minimum Wage Compliance ✅
+| Area | Status | Notes |
+|------|--------|-------|
+| Provincial Min Wage Database | ✅ Working | `/api/admin/minimum-wage` |
+| Rate Validation | ✅ Working | `validate-rate` endpoint |
+| Admin Management | ✅ Working | `MinimumWageManager.jsx` |
+| Enforcement on Shift Creation | ⬜ To Verify | Check if employer rate < min wage is blocked |
+
+**PROVINCES COVERED:** ON ($16.55), BC ($16.75), AB ($15.00), QC ($15.25), MB, SK, NS, NB, NL, PE, YT, NT, NU
+
+### Labor Law Compliance ✅
+| Area | Status | Notes |
+|------|--------|-------|
+| Max Hours Per Day | ✅ Working | 8-13 hours depending on province |
+| Max Hours Per Week | ✅ Working | 44-50 hours depending on province |
+| Overtime Calculations | ✅ Working | 1.5x after threshold |
+| Mandatory Breaks | ✅ Working | 30 min break after 5 hours |
+| Rest Between Shifts | ✅ Working | 8-11 hours minimum |
+| Weekly Rest Day | ✅ Working | 24-32 hours weekly rest |
+
+**FILE:** `/app/backend/services/labor_compliance.py`
+
+### Provincial Tax Compliance ✅
+| Province | Tax Type | Rate | Status |
+|----------|----------|------|--------|
+| ON | HST | 13% | ✅ |
+| BC | GST+PST | 5%+7% | ✅ |
+| AB | GST | 5% | ✅ |
+| QC | GST+QST | 5%+9.975% | ✅ |
+| MB | GST+PST | 5%+7% | ✅ |
+| SK | GST+PST | 5%+6% | ✅ |
+| NS | HST | 15% | ✅ |
+| NB | HST | 15% | ✅ |
+| NL | HST | 15% | ✅ |
+| PE | HST | 15% | ✅ |
+| YT/NT/NU | GST | 5% | ✅ |
+
+**FILE:** `/app/backend/utils/canadian_taxes.py`
+
+### Digital Services Tax ✅
+| Area | Status | Notes |
+|------|--------|-------|
+| Platform Fee | ✅ Working | 25% platform fee on credentials |
+| Tax on Digital Sales | ✅ Working | GST/HST applied to credential purchases |
+| Tax Remittance Tracking | ✅ Working | Breakdown shows government portion |
+| Institution Payout | ✅ Working | 75% to institution after fees |
+
+### Occupational Profiles ✅
+| Area | Status | Notes |
+|------|--------|-------|
+| Industry Categories | ✅ Working | Manage via admin |
+| Occupation Titles | ✅ Working | Linked to industries |
+| Required Certifications | ✅ Working | Linked to occupations |
+| Work Types | ✅ Working | Full-time, Part-time, Contract |
+
+**ADMIN PAGE:** `ManageOccupations.jsx`, `ManageOccupationCertifications.jsx`
+
+---
+
+## NOTIFICATION SYSTEM
+
+### Email Notifications ✅
+| Email Type | Status | Template |
+|------------|--------|----------|
+| Verification Email | ✅ Working | `send_verification_email` |
+| OTP Email | ✅ Working | `send_otp_email` |
+| Password Reset | ✅ Working | `send_password_reset_email` |
+| Support Ticket Response | ✅ Working | `send_ticket_response_email` |
+| Credential Invite | ✅ Working | `send_credential_invite_email` |
+| Institution Invite | ✅ Working | `send_institution_invite_email` |
+| Account Activation | ❌ **MISSING** | No email when admin activates account |
+| Shift Assignment | ❌ **MISSING** | No email when assigned to shift |
+| Document Expiry Warning | ❌ **MISSING** | No email for expiring documents |
+| Payroll Ready | ❌ **MISSING** | No email when pay is ready |
+
+### Push Notifications ⬜
+| Area | Status | Notes |
+|------|--------|-------|
+| Push Service | ✅ Exists | `/app/backend/utils/push_notifications.py` |
+| Browser Push | ⬜ To Verify | Check if integrated |
+| Mobile Push | ⬜ To Verify | Check if configured |
+
+### In-App Notifications ✅
+| Area | Status | Notes |
+|------|--------|-------|
+| Notification API | ✅ Working | `/api/notifications` |
+| Mark as Read | ✅ Working | `/api/notifications/{id}/read` |
+| Notification Bell | ⬜ To Verify | Check UI integration |
+
+---
+
+## SUPPORT TICKET SYSTEM ✅
+
+### Ticket Management
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Create Ticket | ✅ Working | All user types |
+| View Own Tickets | ✅ Working | Filter by status |
+| Admin View All | ✅ Working | `/api/support/admin/tickets` |
+| Respond to Ticket | ✅ Working | Admin and user |
+| Close Ticket | ✅ Working | Admin |
+| Ticket Categories | ✅ Working | `/api/support/categories` |
+| Ticket Stats | ✅ Working | `/api/support/admin/stats` |
+
+**ADMIN PAGE:** `SupportTickets.jsx`
+
+---
+
 ## 1. ACCOUNT MANAGEMENT
 
 ### 1.1 Account Activations (Admin)
