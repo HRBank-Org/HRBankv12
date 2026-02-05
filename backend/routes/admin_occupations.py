@@ -125,13 +125,14 @@ async def delete_occupation_category(
 ):
     """Delete an occupation category (Super Admin only)"""
     
-    # Check if super admin (check admins collection, not admin_profiles)
-    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
-    if not admin or not admin.get("is_super_admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Super Admins can delete categories"
-        )
+    # Check if super admin
+    if current_user.get("user_type") != "super_admin":
+        admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+        if not admin or not admin.get("is_super_admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Super Admins can delete categories"
+            )
     
     # Load existing categories
     categories = read_categories_file()
@@ -161,13 +162,14 @@ async def add_occupation_to_category(
 ):
     """Add an occupation to a category (Super Admin only)"""
     
-    # Check if super admin (check admins collection, not admin_profiles)
-    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
-    if not admin or not admin.get("is_super_admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Super Admins can add occupations"
-        )
+    # Check if super admin
+    if current_user.get("user_type") != "super_admin":
+        admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+        if not admin or not admin.get("is_super_admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Super Admins can add occupations"
+            )
     
     category = data.get('category')
     occupation_title = data.get('occupation')
