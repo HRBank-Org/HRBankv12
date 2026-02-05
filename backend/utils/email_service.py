@@ -306,3 +306,111 @@ async def send_ticket_response_email(to_email: str, user_name: str, ticket_id: s
 
 # Add the method to the EmailService class as well
 EmailService.send_ticket_response_email = lambda self, to_email, user_name, ticket_id, subject, response_preview: send_ticket_response_email(to_email, user_name, ticket_id, subject, response_preview)
+
+
+async def send_credential_invite_email(to_email: str, institution_name: str, credential_name: str, invite_link: str):
+    """Send email invitation to claim a credential by creating a WorkPassport account"""
+    email_subject = f"🎓 {institution_name} has issued you a credential!"
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">WorkPassport</h1>
+            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">by HR Bank</p>
+        </div>
+        <div style="padding: 40px 30px; background: #ffffff;">
+            <h2 style="color: #1e3a5f; margin-bottom: 20px;">You've received a credential! 🎓</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                <strong>{institution_name}</strong> has issued you a blockchain-verified credential:
+            </p>
+            <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; border: 2px solid #cbd5e1;">
+                <p style="color: #64748b; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Credential</p>
+                <p style="font-size: 22px; font-weight: 700; color: #1e3a5f; margin: 0;">{credential_name}</p>
+                <p style="color: #64748b; font-size: 14px; margin: 10px 0 0 0;">Issued by {institution_name}</p>
+            </div>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                Create your free WorkPassport account to claim this credential. Your WorkPassport is a secure, 
+                blockchain-verified digital wallet for all your professional credentials.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{invite_link}" 
+                   style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 18px 50px; 
+                          text-decoration: none; border-radius: 8px; display: inline-block;
+                          font-weight: bold; font-size: 16px; box-shadow: 0 4px 14px rgba(30, 58, 95, 0.3);">
+                    Claim Your Credential
+                </a>
+            </div>
+            <div style="background: #fef3c7; border-radius: 8px; padding: 15px; margin: 25px 0;">
+                <p style="color: #92400e; font-size: 14px; margin: 0;">
+                    ⚡ <strong>Important:</strong> Use this email address ({to_email}) when signing up to automatically link your credential.
+                </p>
+            </div>
+        </div>
+        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                WorkPassport by HR Bank | Blockchain-verified credentials
+            </p>
+            <p style="color: #64748b; font-size: 11px; margin: 10px 0 0 0;">
+                hrbank.ca
+            </p>
+        </div>
+    </div>
+    """
+    
+    plain_content = f"""
+    You've received a credential from {institution_name}!
+    
+    Credential: {credential_name}
+    
+    Create your free WorkPassport account to claim this credential:
+    {invite_link}
+    
+    Important: Use this email address ({to_email}) when signing up to automatically link your credential.
+    
+    WorkPassport by HR Bank
+    hrbank.ca
+    """
+    
+    return await email_service.send_email(to_email, email_subject, html_content, plain_content)
+
+
+async def send_institution_invite_email(to_email: str, requester_name: str, credential_type: str, invite_link: str):
+    """Send email invitation to an institution to sign up and verify a credential"""
+    email_subject = f"Credential verification request from {requester_name}"
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">HR Bank</h1>
+            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">Institution Portal</p>
+        </div>
+        <div style="padding: 40px 30px; background: #ffffff;">
+            <h2 style="color: #1e3a5f; margin-bottom: 20px;">Credential Verification Request 📋</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                <strong>{requester_name}</strong> has requested verification of a credential from your institution.
+            </p>
+            <div style="background: #f8fafc; border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 4px solid #1e3a5f;">
+                <p style="color: #64748b; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Requested Credential</p>
+                <p style="font-size: 18px; font-weight: 600; color: #1e3a5f; margin: 0;">{credential_type}</p>
+            </div>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                Join HR Bank's Institution Portal to verify credentials and issue blockchain-verified certificates to your students and alumni.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{invite_link}" 
+                   style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 18px 50px; 
+                          text-decoration: none; border-radius: 8px; display: inline-block;
+                          font-weight: bold; font-size: 16px;">
+                    Register Your Institution
+                </a>
+            </div>
+        </div>
+        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                HR Bank - Empowering Workforce Verification
+            </p>
+        </div>
+    </div>
+    """
+    
+    return await email_service.send_email(to_email, email_subject, html_content)
