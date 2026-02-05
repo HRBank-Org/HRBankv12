@@ -443,14 +443,9 @@ function AppRoutes() {
         <Route path="/admin/soc2" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SOC2Dashboard /></ProtectedRoute>} />
         <Route path="/admin/compliance" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SOC2Dashboard /></ProtectedRoute>} />
         <Route path="/admin/revenue" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><RevenueDashboard /></ProtectedRoute>} />
-        <Route path="/admin/document-review" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DocumentReview /></ProtectedRoute>} />
-        <Route path="/admin/manage-admins" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageAdmins /></ProtectedRoute>} />
-        <Route path="/admin/manage-zones" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageZones /></ProtectedRoute>} />
         <Route path="/admin/manage-credentials" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminManageCredentials /></ProtectedRoute>} />
         <Route path="/admin/occupation-certifications" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageOccupationCertifications /></ProtectedRoute>} />
-        <Route path="/admin/wsib-verification" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><WSIBVerification /></ProtectedRoute>} />
         <Route path="/admin/manage-occupations" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageOccupations /></ProtectedRoute>} />
-        <Route path="/admin/manage-certifications" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ManageCertifications /></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminSettings /></ProtectedRoute>} />
         <Route path="/admin/institution-directory" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><InstitutionDirectory /></ProtectedRoute>} />
         
@@ -459,12 +454,9 @@ function AppRoutes() {
         <Route path="/admin/activity" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ActivityFeed /></ProtectedRoute>} />
         <Route path="/admin/pending-activations" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><PendingActivations /></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AllUsers /></ProtectedRoute>} />
-        <Route path="/admin/credentials" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><CredentialReviews /></ProtectedRoute>} />
         <Route path="/admin/documents" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><IDVerification /></ProtectedRoute>} />
         <Route path="/admin/document-expiry" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DocumentExpiryDashboard /></ProtectedRoute>} />
         <Route path="/admin/admins" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminManagement /></ProtectedRoute>} />
-        <Route path="/admin/roles" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><RoleManagement /></ProtectedRoute>} />
-        <Route path="/admin/permissions" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><Permissions /></ProtectedRoute>} />
         <Route path="/admin/zones" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ZoneManagement /></ProtectedRoute>} />
         <Route path="/admin/regional-stats" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><RegionalDashboard /></ProtectedRoute>} />
         <Route path="/admin/franchises" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><FranchiseManagement /></ProtectedRoute>} />
