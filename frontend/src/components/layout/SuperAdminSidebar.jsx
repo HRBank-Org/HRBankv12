@@ -245,6 +245,18 @@ const SuperAdminSidebar = () => {
           badge: null
         },
         {
+          label: 'Revenue Dashboard',
+          icon: DollarSign,
+          path: '/admin/revenue',
+          badge: null
+        },
+        {
+          label: 'SOC2 Compliance',
+          icon: Shield,
+          path: '/admin/soc2',
+          badge: null
+        },
+        {
           label: 'Audit Logs',
           icon: Clock,
           path: '/admin/audit-logs',
