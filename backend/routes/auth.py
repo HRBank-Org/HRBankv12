@@ -349,6 +349,112 @@ async def verify_signup_otp(request: Request, otp_data: VerifyOTPRequest, db: As
     }
 
 
+async def claim_pending_credentials(user_id: str, email: str, db):
+    """
+    Claim any pending credentials issued to this email address.
+    Issues them on blockchain and links to user account.
+    """
+    from utils.blockchain_service import blockchain_service
+    
+    # Find pending credentials for this email
+    pending_creds = await db.pending_credentials.find({
+        "recipient_email": email.lower(),
+        "status": "pending_signup"
+    }).to_list(None)
+    
+    claimed_count = 0
+    for pending in pending_creds:
+        try:
+            # Create the actual blockchain credential
+            from models.blockchain_credentials import BlockchainCredential
+            
+            credential = BlockchainCredential(
+                worker_id=user_id,
+                institution_id=pending["institution_id"],
+                credential_template_id=pending.get("credential_template_id", ""),
+                credential_name=pending.get("credential_name"),
+                program_name=pending.get("program_name"),
+                issue_date=pending.get("issue_date"),
+                expiry_date=pending.get("expiry_date"),
+                student_name=pending.get("student_name"),
+                student_id=pending.get("student_id"),
+                grade_gpa=pending.get("grade_gpa"),
+                additional_details=pending.get("additional_details", {})
+            )
+            
+            credential.credential_hash = credential.generate_credential_hash()
+            credential.verification_url = blockchain_service.generate_verification_url(credential.credential_id)
+            
+            # Upload to IPFS
+            metadata = {
+                "credential_id": credential.credential_id,
+                "credential_name": credential.credential_name,
+                "program_name": credential.program_name,
+                "student_name": credential.student_name,
+                "issue_date": credential.issue_date,
+                "institution_id": credential.institution_id
+            }
+            
+            ipfs_url = await blockchain_service.upload_to_ipfs(metadata)
+            credential.ipfs_url = ipfs_url
+            
+            # Mint on blockchain
+            blockchain_result = await blockchain_service.mint_credential({
+                "credential_id": credential.credential_id,
+                "credential_hash": credential.credential_hash,
+                "ipfs_url": ipfs_url,
+                "worker_id": user_id,
+                "institution_id": credential.institution_id
+            })
+            
+            credential.blockchain_transaction_hash = blockchain_result["transaction_hash"]
+            credential.blockchain_token_id = blockchain_result["token_id"]
+            credential.status = "issued"
+            credential.issued_at = datetime.now(timezone.utc)
+            
+            # Generate QR code
+            import qrcode
+            import io
+            import base64
+            
+            qr = qrcode.QRCode(version=1, box_size=10, border=4)
+            qr.add_data(credential.verification_url)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            credential.qr_code_url = f"data:image/png;base64,{img_str}"
+            
+            # Save to database
+            credential_doc = credential.model_dump()
+            credential_doc["on_chain"] = blockchain_result.get("on_chain", False)
+            credential_doc["blockchain_status"] = blockchain_result.get("status", "simulated")
+            credential_doc["claimed_from_pending"] = pending["pending_credential_id"]
+            
+            await db.blockchain_credentials.insert_one(credential_doc)
+            
+            # Update pending credential status
+            await db.pending_credentials.update_one(
+                {"pending_credential_id": pending["pending_credential_id"]},
+                {"$set": {
+                    "status": "claimed",
+                    "claimed_by_user_id": user_id,
+                    "claimed_at": datetime.now(timezone.utc).isoformat(),
+                    "issued_credential_id": credential.credential_id
+                }}
+            )
+            
+            claimed_count += 1
+            
+        except Exception as e:
+            print(f"Error claiming pending credential {pending['pending_credential_id']}: {e}")
+            continue
+    
+    return claimed_count
+
+
 @router.post("/resend-signup-otp", response_model=Dict)
 @limiter.limit("3/minute")
 async def resend_signup_otp(request: Request, resend_data: ResendOTPRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
