@@ -673,7 +673,7 @@ async def get_platform_analytics(
     
     for workforce_id, stats in sorted_workforce:
         workforce_user = await db.users.find_one({"user_id": workforce_id})
-        workforce_profile = await db.workforce_profiles.find_one({"user_id": workforce_id})
+        workforce_profile = await db.workforce_profiles.find_one({"workforce_id": workforce_id})
         
         if workforce_user and workforce_profile:
             top_workforce_data.append({
@@ -721,7 +721,7 @@ async def get_platform_analytics(
     
     for employer_id, stats in sorted_employers:
         employer_user = await db.users.find_one({"user_id": employer_id})
-        employer_profile = await db.employer_profiles.find_one({"user_id": employer_id})
+        employer_profile = await db.employer_profiles.find_one({"employer_id": employer_id})
         
         if employer_user and employer_profile:
             top_employers_data.append({
