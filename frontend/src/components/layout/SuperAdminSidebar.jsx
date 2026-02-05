@@ -296,10 +296,10 @@ const SuperAdminSidebar = () => {
           console.error('Failed to fetch pending count:', e);
         }
 
-        // Fetch pending documents count
+        // Fetch pending documents count (ID verification)
         let documentsCount = 0;
         try {
-          const docsRes = await fetch(`${baseUrl}/api/admin/documents/pending?limit=1`, { headers });
+          const docsRes = await fetch(`${baseUrl}/api/admin/id-verification/pending`, { headers });
           if (docsRes.ok) {
             const data = await docsRes.json();
             documentsCount = data.data?.total || 0;
