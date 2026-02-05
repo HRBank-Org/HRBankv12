@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   const { user, logout } = useAuth();
 
   useEffect(() => {
-    if (user?.user_type !== 'admin') {
+    if (user?.user_type !== 'admin' && user?.user_type !== 'super_admin') {
       navigate('/admin/login');
       return;
     }
