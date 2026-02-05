@@ -111,6 +111,26 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ## What's Been Implemented (February 2026)
 
+### Admin Dashboard API Fixes ✅ (Feb 5, 2026) - NEW
+Fixed multiple API issues causing admin dashboard pages to show no data.
+
+**Issues Fixed:**
+| Issue | Root Cause | Fix |
+|-------|-----------|-----|
+| Sidebar badge counts failing | Calling wrong API endpoints | Updated to correct paths: `/api/admin/id-verification/pending`, `/api/support/admin/stats` |
+| All Users page empty | Using pending-activations endpoint | Changed to `/api/admin/users` endpoint |
+| ID Document Review 404 | Old endpoint path | Created new IDVerification.jsx using `/api/admin/id-verification/pending` |
+| Pending Activations 422 error | limit=500 exceeds API max of 100 | Changed to limit=100 |
+
+**Files Modified:**
+- `frontend/src/components/layout/SuperAdminSidebar.jsx` - Fixed API endpoints in badge count fetching
+- `frontend/src/pages/admin/AllUsers.jsx` - Use correct `/api/admin/users` endpoint
+- `frontend/src/pages/admin/PendingActivations.jsx` - Fixed limit=500 to limit=100
+- `frontend/src/pages/admin/IDVerification.jsx` - NEW: Created proper ID verification page
+- `frontend/src/App.js` - Updated route to use IDVerification component
+
+**Test Results:** All 12 API endpoints tested and working (100% pass rate)
+
 ### Authentication Fixes for Production ✅ (Feb 4, 2026) - NEW
 Fixed critical authentication issues blocking production deployment at hrbank.ca.
 
