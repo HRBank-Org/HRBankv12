@@ -70,18 +70,59 @@ Country-based access control for different user types.
 **API Endpoints:**
 - `GET /api/admin/geo-access/settings` - Get current geo-access settings
 - `POST /api/admin/geo-access/toggle-country` - Toggle country access
+- `GET /api/admin/geo-access/insurance-requirements` - Get insurance requirements by country
+- `PUT /api/admin/geo-access/insurance-requirements/{country}` - Update insurance requirement
+- `GET /api/admin/geo-access/insurance-submissions` - List employer insurance submissions
+- `POST /api/admin/geo-access/insurance-submissions/{id}/review` - Approve/reject submission
 
 **Frontend:**
-- `/app/frontend/src/pages/admin/GeoAccessSettings.jsx` - Full management UI
+- `/app/frontend/src/pages/admin/GeoAccessSettings.jsx` - Country access management UI
+- `/app/frontend/src/pages/admin/InsuranceReview.jsx` - Employer insurance review UI
 - Route: `/admin/geo-access` (Super Admin only)
-- Sidebar: Under "System" section
+- Route: `/admin/insurance-review` (Admin/Super Admin)
+- Sidebar: Under "System" section and "Account Management"
 
 **Features:**
 - Toggle switches for Admin and Employment access per country
+- Country-specific workers' insurance requirements (WSIB for Canada, Workers' Comp for US, etc.)
+- Admin review workflow for employer insurance submissions
 - Search/filter countries
 - Canada protection (cannot be disabled)
 - Settings stored in `platform_settings` collection
 - Audit logging for all changes
+
+### Employer Insurance Document System ✅ (Feb 6, 2026) - NEW
+Country-specific employer workers' insurance verification.
+
+**Default Requirements by Country:**
+| Country | Insurance Type |
+|---------|---------------|
+| Canada (CA) | WSIB Certificate |
+| United States (US) | Workers' Compensation Insurance |
+| United Kingdom (GB) | Employers' Liability Insurance |
+| Australia (AU) | WorkCover Certificate |
+
+**Backend Implementation:**
+- `/app/backend/routes/employer_insurance.py` - Employer-facing API
+
+**API Endpoints:**
+- `GET /api/employer/insurance/requirements` - Get requirements for employer's country
+- `POST /api/employer/insurance/submit` - Submit insurance document
+- `GET /api/employer/insurance/status` - Check submission status
+
+**Database Collections:**
+- `employer_insurance_docs` - Stores submissions with file data
+- `platform_settings` (insurance_requirements) - Country-specific requirements
+
+### Admin Dashboard Updates ✅ (Feb 6, 2026) - NEW
+Added missing dashboard links to sidebar.
+
+**New Sidebar Links:**
+- **Analytics & Reports Section:**
+  - Revenue Dashboard (`/admin/revenue`)
+  - SOC2 Compliance (`/admin/soc2`)
+- **Account Management Section:**
+  - Insurance Review (`/admin/insurance-review`)
 
 ### Admin Page Cleanup ✅ (Feb 6, 2026) - NEW
 Removed 10 unused/duplicate admin pages:
