@@ -17,75 +17,113 @@ OCCUPATION_CATEGORIES = {
         "occupations": [
             {
                 "title": "Server / Waiter / Waitress",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Line Cook",
-                "minimum_hourly_rate": 18.5
+                "minimum_hourly_rate": 18.5,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Prep Cook",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Dishwasher",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": []
             },
             {
                 "title": "Host / Hostess",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": []
             },
             {
                 "title": "Barista",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": [
+                    "Smart Serve Certificate",
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Fast Food Worker",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Food Runner",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Busser",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": []
             },
             {
                 "title": "Catering Staff",
-                "minimum_hourly_rate": 18.0
+                "minimum_hourly_rate": 18.0,
+                "required_certifications": []
             },
             {
                 "title": "Banquet Server",
-                "minimum_hourly_rate": 18.5
+                "minimum_hourly_rate": 18.5,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Hotel Front Desk",
-                "minimum_hourly_rate": 18.5
+                "minimum_hourly_rate": 18.5,
+                "required_certifications": []
             },
             {
                 "title": "Housekeeper",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": []
             },
             {
                 "title": "Concierge",
-                "minimum_hourly_rate": 19.5
+                "minimum_hourly_rate": 19.5,
+                "required_certifications": []
             },
             {
                 "title": "Room Attendant",
-                "minimum_hourly_rate": 17.6
+                "minimum_hourly_rate": 17.6,
+                "required_certifications": []
             },
             {
                 "title": "Event Staff",
-                "minimum_hourly_rate": 18.0
+                "minimum_hourly_rate": 18.0,
+                "required_certifications": []
             },
             {
                 "title": "Kitchen Manager",
-                "minimum_hourly_rate": 22.0
+                "minimum_hourly_rate": 22.0,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Restaurant Manager",
-                "minimum_hourly_rate": 24.0
+                "minimum_hourly_rate": 24.0,
+                "required_certifications": [
+                    "Food Handler Certificate",
+                    "Smart Serve Certificate"
+                ]
             },
             {
                 "title": "Bartender",
@@ -97,15 +135,22 @@ OCCUPATION_CATEGORIES = {
             },
             {
                 "title": "Chef",
-                "minimum_hourly_rate": 22.0
+                "minimum_hourly_rate": 22.0,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Sous Chef",
-                "minimum_hourly_rate": 20.0
+                "minimum_hourly_rate": 20.0,
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
             },
             {
                 "title": "Shift Supervisor",
-                "minimum_hourly_rate": 20.0
+                "minimum_hourly_rate": 20.0,
+                "required_certifications": []
             }
         ]
     },
