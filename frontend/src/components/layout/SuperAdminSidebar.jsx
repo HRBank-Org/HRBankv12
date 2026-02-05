@@ -71,12 +71,6 @@ const SuperAdminSidebar = () => {
           icon: Activity,
           path: '/admin/activity',
           badge: null
-        },
-        {
-          label: 'Admin Chat',
-          icon: MessageSquare,
-          path: '/admin/chat',
-          badge: null
         }
       ]
     },
@@ -121,6 +115,12 @@ const SuperAdminSidebar = () => {
           label: 'Admin Users',
           icon: Shield,
           path: '/admin/admins',
+          badge: null
+        },
+        {
+          label: 'Admin Messaging',
+          icon: MessageSquare,
+          path: '/admin/chat',
           badge: null
         }
       ]
