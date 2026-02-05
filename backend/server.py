@@ -335,6 +335,12 @@ async def add_security_headers(request: Request, call_next):
         response.headers["Pragma"] = "no-cache"
     return response
 
+
+# Geo-access control middleware
+from utils.geo_access import geo_access_middleware
+app.middleware("http")(geo_access_middleware)
+
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
