@@ -799,6 +799,171 @@ async def activate_user_account(
     }
 
 
+# ==================== SUSPEND/UNSUSPEND USER ====================
+
+@router.post("/suspend-user/{user_id}", response_model=Dict)
+async def suspend_user_account(
+    user_id: str,
+    data: dict = None,
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Suspend a user account"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    if admin and not admin.has_permission("can_suspend_users"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied: cannot suspend users"
+        )
+    
+    user = await db.users.find_one({"user_id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    reason = data.get("reason", "Account suspended by admin") if data else "Account suspended by admin"
+    
+    # Update user status
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "profile_status": "suspended",
+            "account_status": "suspended",
+            "suspended_at": datetime.now(timezone.utc).isoformat(),
+            "suspension_reason": reason
+        }}
+    )
+    
+    # Update profile collection
+    user_type = user.get("user_type")
+    profile_collections = {
+        "workforce": "workforce_profiles",
+        "employer": "employers",
+        "institution": "institutions"
+    }
+    
+    profile_collection = profile_collections.get(user_type)
+    if profile_collection:
+        id_field_map = {
+            "workforce": "workforce_id",
+            "employer": "employer_id",
+            "institution": "institution_id"
+        }
+        id_field = id_field_map.get(user_type, "user_id")
+        await db[profile_collection].update_one(
+            {id_field: user_id},
+            {"$set": {"profile_status": "suspended", "status": "suspended"}}
+        )
+    
+    # Log action
+    await db.admin_actions.insert_one({
+        "action_id": f"action_{uuid.uuid4().hex[:12]}",
+        "admin_id": current_user["user_id"],
+        "action_type": "user_suspension",
+        "target_user_id": user_id,
+        "notes": reason,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Create notification
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "type": "account_suspended",
+        "title": "Account Suspended",
+        "message": f"Your account has been suspended. Reason: {reason}",
+        "read": False,
+        "created_date": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "success": True,
+        "message": "User account suspended successfully"
+    }
+
+
+@router.post("/unsuspend-user/{user_id}", response_model=Dict)
+async def unsuspend_user_account(
+    user_id: str,
+    current_user: dict = Depends(require_super_admin),
+    db = Depends(get_db)
+):
+    """Unsuspend a user account"""
+    
+    admin = await get_admin_user(current_user["user_id"], db)
+    if admin and not admin.has_permission("can_suspend_users"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied: cannot unsuspend users"
+        )
+    
+    user = await db.users.find_one({"user_id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update user status
+    await db.users.update_one(
+        {"user_id": user_id},
+        {
+            "$set": {
+                "profile_status": "active",
+                "account_status": "active",
+                "unsuspended_at": datetime.now(timezone.utc).isoformat()
+            },
+            "$unset": {
+                "suspended_at": "",
+                "suspension_reason": ""
+            }
+        }
+    )
+    
+    # Update profile collection
+    user_type = user.get("user_type")
+    profile_collections = {
+        "workforce": "workforce_profiles",
+        "employer": "employers",
+        "institution": "institutions"
+    }
+    
+    profile_collection = profile_collections.get(user_type)
+    if profile_collection:
+        id_field_map = {
+            "workforce": "workforce_id",
+            "employer": "employer_id",
+            "institution": "institution_id"
+        }
+        id_field = id_field_map.get(user_type, "user_id")
+        await db[profile_collection].update_one(
+            {id_field: user_id},
+            {"$set": {"profile_status": "active", "status": "active"}}
+        )
+    
+    # Log action
+    await db.admin_actions.insert_one({
+        "action_id": f"action_{uuid.uuid4().hex[:12]}",
+        "admin_id": current_user["user_id"],
+        "action_type": "user_unsuspension",
+        "target_user_id": user_id,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Create notification
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "type": "account_unsuspended",
+        "title": "Account Restored",
+        "message": "Your account has been restored. You can now access all features.",
+        "read": False,
+        "created_date": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "success": True,
+        "message": "User account unsuspended successfully"
+    }
+
+
 # ==================== SUPPORT TICKETS ====================
 
 @router.get("/support-tickets", response_model=Dict)
