@@ -31,7 +31,7 @@ const AllUsers = () => {
       setLoading(true);
       const params = new URLSearchParams({ page, limit: 20 });
       if (userType !== 'all') params.append('user_type', userType);
-      if (statusFilter !== 'all') params.append('status', statusFilter);
+      if (statusFilter !== 'all') params.append('profile_status', statusFilter);
       
       const response = await api.get(`/api/admin/users?${params}`);
       setUsers(response.data.data.users || []);
