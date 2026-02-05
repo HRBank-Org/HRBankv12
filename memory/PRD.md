@@ -48,6 +48,53 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 | **Admin super_admin Fix (Feb 5)** | ✅ Code Ready - DEPLOYMENT PENDING |
 | **Age Verification (Feb 5)** | ✅ Added DOB field + min age 16 check |
 | **Admin Dashboard API Fixes (Feb 5)** | ✅ Complete - All pages loading data |
+| **Geo-Access Control (Feb 6)** | ✅ Complete - Country-based access management |
+| **Admin Page Cleanup (Feb 6)** | ✅ Removed 10 unused pages |
+
+---
+
+### Geo-Access Control System ✅ (Feb 6, 2026) - NEW
+Country-based access control for different user types.
+
+**Access Rules:**
+| User Type | Access Scope |
+|-----------|-------------|
+| Admin/Super Admin | Configurable countries (default: CA, AF, US, GB, IN, PK) |
+| Employer/Workforce | Employment countries only (default: Canada) |
+| WorkPassport/Institution | Worldwide (blockchain credentials) |
+
+**Backend Implementation:**
+- `/app/backend/routes/geo_access_admin.py` - API endpoints
+- `/app/backend/utils/geo_access.py` - Middleware for signup restrictions
+
+**API Endpoints:**
+- `GET /api/admin/geo-access/settings` - Get current geo-access settings
+- `POST /api/admin/geo-access/toggle-country` - Toggle country access
+
+**Frontend:**
+- `/app/frontend/src/pages/admin/GeoAccessSettings.jsx` - Full management UI
+- Route: `/admin/geo-access` (Super Admin only)
+- Sidebar: Under "System" section
+
+**Features:**
+- Toggle switches for Admin and Employment access per country
+- Search/filter countries
+- Canada protection (cannot be disabled)
+- Settings stored in `platform_settings` collection
+- Audit logging for all changes
+
+### Admin Page Cleanup ✅ (Feb 6, 2026) - NEW
+Removed 10 unused/duplicate admin pages:
+- `AdminDashboard.jsx` (replaced by SuperAdminDashboard)
+- `ManageAdmins.jsx` (duplicate of AdminManagement)
+- `ManageZones.jsx` (replaced by ZoneManagement)
+- `DocumentReview.jsx` (replaced by IDVerification)
+- `DocumentVerification.jsx` (not used)
+- `CredentialReviews.jsx` (not linked)
+- `RoleManagement.jsx` (not linked)
+- `Permissions.jsx` (not linked)
+- `ManageCertifications.jsx` (not linked)
+- `WSIBVerification.jsx` (not linked)
 
 ---
 
