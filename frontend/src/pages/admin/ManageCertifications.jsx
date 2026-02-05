@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GenericHeader from '../../components/layout/GenericHeader';
+import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 
 const ManageCertifications = () => {
@@ -106,33 +108,30 @@ const ManageCertifications = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/admin/dashboard')} className="text-gray-600 hover:text-gray-900">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Manage Standard Certifications</h1>
-                <p className="text-sm text-gray-600">Standardized certifications based on Canadian government standards</p>
+      <GenericHeader />
+      <div className="flex">
+        <SuperAdminSidebar />
+        <main className="flex-1 lg:ml-[260px] transition-all duration-300">
+          {/* Header */}
+          <div className="bg-white shadow">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Manage Standard Certifications</h1>
+                  <p className="text-sm text-gray-600">Standardized certifications based on Canadian government standards</p>
+                </div>
+                <button
+                  onClick={() => setShowCategoryModal(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Add Category
+                </button>
               </div>
             </div>
-            <button
-              onClick={() => setShowCategoryModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              + Add Category
-            </button>
           </div>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Content */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 gap-6">
           {categories.map((cat) => (
             <div key={cat.name} className="bg-white rounded-lg shadow-md p-6">
@@ -281,6 +280,8 @@ const ManageCertifications = () => {
           </div>
         </div>
       )}
+        </main>
+      </div>
     </div>
   );
 };
