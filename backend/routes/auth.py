@@ -774,18 +774,31 @@ async def verify_email(token: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     user = await db.users.find_one({"user_id": verification["user_id"]})
     if user:
         user_type = user.get("user_type")
+        user_email = user.get("email")
+        
         if user_type == "workpassport":
             # WorkPassport users are ACTIVE immediately after email verification
             await db.users.update_one(
                 {"user_id": verification["user_id"]},
                 {"$set": {"status": "active", "profile_status": "active"}}
             )
+            
+            # Claim any pending credentials issued to this email
+            claimed_count = await claim_pending_credentials(verification["user_id"], user_email, db)
+            if claimed_count > 0:
+                print(f"Claimed {claimed_count} pending credential(s) for {user_email}")
+                
         elif user_type == "workforce":
             # Workforce users need document verification next (admin approval)
             await db.users.update_one(
                 {"user_id": verification["user_id"]},
                 {"$set": {"profile_status": "pending_documents"}}
             )
+            
+            # Also claim pending credentials for workforce users
+            claimed_count = await claim_pending_credentials(verification["user_id"], user_email, db)
+            if claimed_count > 0:
+                print(f"Claimed {claimed_count} pending credential(s) for {user_email}")
         else:
             # Other user types (employer, institution) - active after email verification
             await db.users.update_one(
