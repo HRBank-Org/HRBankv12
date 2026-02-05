@@ -69,7 +69,7 @@ const PendingActivations = () => {
 
   const loadLocationStats = async () => {
     try {
-      const res = await api.get('/api/super-admin/pending-activations?limit=500');
+      const res = await api.get('/api/super-admin/pending-activations?limit=100');
       const allUsers = res.data.data.pending_users || [];
       
       // Calculate stats by province and city
