@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import GenericHeader from '../../components/layout/GenericHeader';
+import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 import { GraduationCap, Search, MapPin, Mail, CheckCircle, Clock } from 'lucide-react';
@@ -35,7 +35,7 @@ const InstitutionsList = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <GenericHeader />
+      <AdminHeader />
       <div className="flex">
         <SuperAdminSidebar />
         <main className="flex-1 lg:ml-[260px] pt-20 transition-all duration-300">

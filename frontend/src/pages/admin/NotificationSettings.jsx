@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import GenericHeader from '../../components/layout/GenericHeader';
+import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import { Bell, Mail, MessageSquare, Smartphone, Globe, ToggleLeft, ToggleRight } from 'lucide-react';
 import PushNotificationSettings from '../../components/common/PushNotificationSettings';
@@ -37,7 +37,7 @@ const NotificationSettings = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <GenericHeader />
+      <AdminHeader />
       <div className="flex">
         <SuperAdminSidebar />
         <main className="flex-1 lg:ml-[260px] pt-20 transition-all duration-300">
