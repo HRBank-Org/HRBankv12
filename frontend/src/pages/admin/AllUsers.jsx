@@ -24,9 +24,9 @@ const AllUsers = () => {
       const params = new URLSearchParams({ page, limit: 20 });
       if (userType !== 'all') params.append('user_type', userType);
       
-      const response = await api.get(`/api/super-admin/pending-activations?${params}`);
+      const response = await api.get(`/api/admin/users?${params}`);
       setUsers(response.data.data.users || []);
-      setTotal(response.data.data.total || 0);
+      setTotal(response.data.data.pagination?.total || 0);
     } catch (error) {
       console.error('Failed to load users:', error);
     } finally {
