@@ -636,8 +636,16 @@ async def get_pending_activations(
         }.get(user.get("user_type"))
         
         if profile_collection:
+            # Get the correct ID field based on user type
+            id_field_map = {
+                "workforce": "workforce_id",
+                "employer": "employer_id", 
+                "institution": "institution_id"
+            }
+            id_field = id_field_map.get(user.get("user_type"), "user_id")
+            
             profile = await db[profile_collection].find_one(
-                {"user_id": user["user_id"]},
+                {id_field: user["user_id"]},
                 {"_id": 0}
             )
             if profile:
