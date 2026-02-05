@@ -822,12 +822,13 @@ async def update_occupation_default_work_type(
     """
     
     # Check if super admin
-    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
-    if not admin or not admin.get("is_super_admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Super Admins can update default work types"
-        )
+    if current_user.get("user_type") != "super_admin":
+        admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+        if not admin or not admin.get("is_super_admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Super Admins can update default work types"
+            )
     
     new_work_type = data.get("default_work_type")
     
