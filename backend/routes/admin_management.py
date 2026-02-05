@@ -288,10 +288,29 @@ async def get_admin_profile(
     )
     
     if not admin:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Admin profile not found"
-        )
+        # Create admin profile from user record if it doesn't exist
+        user = await db.users.find_one({"user_id": current_user["user_id"]})
+        if user:
+            admin = {
+                "user_id": current_user["user_id"],
+                "email": user.get("email"),
+                "full_name": user.get("full_name", ""),
+                "first_name": user.get("first_name", ""),
+                "last_name": user.get("last_name", ""),
+                "phone": user.get("phone", ""),
+                "profile_image": user.get("profile_image", ""),
+                "is_super_admin": current_user.get("user_type") == "super_admin",
+                "assigned_zones": [],
+                "assigned_provinces": [],
+                "created_date": user.get("created_date", datetime.now(timezone.utc).isoformat())
+            }
+            await db.admins.insert_one(admin)
+            del admin["_id"] if "_id" in admin else None
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Admin profile not found"
+            )
     
     # Get zone details
     if admin.get("assigned_zones"):
