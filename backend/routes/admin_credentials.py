@@ -16,7 +16,7 @@ import uuid
 
 @router.get("/unassigned", response_model=Dict)
 async def get_unassigned_credentials(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get all credentials that haven't been assigned to an institution yet"""
@@ -72,7 +72,7 @@ async def get_unassigned_credentials(
 @router.get("/institutions/search", response_model=Dict)
 async def search_institutions(
     query: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Search for institutions by name for credential assignment"""
@@ -98,7 +98,7 @@ async def search_institutions(
 @router.post("/assign", response_model=Dict)
 async def assign_credential_to_institution(
     assignment_data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -154,7 +154,7 @@ async def assign_credential_to_institution(
 
 @router.post("/auto-assign-by-name", response_model=Dict)
 async def auto_assign_by_institution_name(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -231,7 +231,7 @@ async def auto_assign_by_institution_name(
 
 @router.post("/seed-credential-types", response_model=Dict)
 async def seed_credential_types(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -459,7 +459,7 @@ async def seed_credential_types(
 
 @router.delete("/clear-credential-types", response_model=Dict)
 async def clear_credential_types(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """

@@ -520,7 +520,7 @@ async def admin_list_tickets(
     search: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(30, le=100),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Admin: List all support tickets with filters"""
@@ -587,7 +587,7 @@ async def admin_list_tickets(
 @router.get("/admin/tickets/{ticket_id}")
 async def admin_get_ticket(
     ticket_id: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Admin: Get full ticket details"""
@@ -611,7 +611,7 @@ async def admin_reply_to_ticket(
     ticket_id: str,
     reply_data: TicketReplyRequest,
     is_internal: bool = Query(False, description="Internal note (not visible to user)"),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Admin: Reply to a support ticket"""
@@ -697,7 +697,7 @@ async def admin_update_ticket(
     status: Optional[str] = Query(None),
     priority: Optional[str] = Query(None),
     assign_to: Optional[str] = Query(None),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Admin: Update ticket status, priority, or assignment"""
@@ -770,7 +770,7 @@ async def admin_update_ticket(
 
 @router.get("/admin/stats")
 async def admin_ticket_stats(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Admin: Get ticket statistics"""

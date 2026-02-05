@@ -105,7 +105,7 @@ async def get_template_details(
 @router.post("/admin/create", response_model=Dict)
 async def create_occupation_template(
     template_data: OccupationTemplateCreate,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -150,7 +150,7 @@ async def create_occupation_template(
 async def update_occupation_template(
     template_id: str,
     update_data: OccupationTemplateUpdate,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -185,7 +185,7 @@ async def update_occupation_template(
 @router.delete("/admin/{template_id}", response_model=Dict)
 async def deactivate_occupation_template(
     template_id: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -217,7 +217,7 @@ async def deactivate_occupation_template(
 @router.get("/admin/list-all", response_model=Dict)
 async def admin_list_all_templates(
     include_inactive: bool = Query(False, description="Include inactive templates"),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -241,7 +241,7 @@ async def admin_list_all_templates(
 
 @router.post("/admin/seed-defaults", response_model=Dict)
 async def seed_default_templates(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """

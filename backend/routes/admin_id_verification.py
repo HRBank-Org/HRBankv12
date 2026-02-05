@@ -22,7 +22,7 @@ class IDVerificationDecision(BaseModel):
 
 @router.get("/pending", response_model=Dict)
 async def get_pending_verifications(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -69,7 +69,7 @@ async def get_pending_verifications(
 async def verify_worker_id(
     user_id: str,
     decision: IDVerificationDecision,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -172,7 +172,7 @@ async def verify_worker_id(
 
 @router.get("/verified", response_model=Dict)
 async def get_verified_workers(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -206,7 +206,7 @@ async def get_verified_workers(
 async def unlock_address_for_update(
     user_id: str,
     reason: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -266,7 +266,7 @@ async def update_workforce_address(
     postal_code: str,
     lat: float,
     long: float,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """

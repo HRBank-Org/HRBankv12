@@ -50,7 +50,7 @@ def get_all_occupations():
 
 @router.get("/manage", response_model=Dict)
 async def get_occupation_categories_admin(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get all occupation categories for admin management"""
@@ -67,7 +67,7 @@ async def get_occupation_categories_admin(
 @router.post("/categories", response_model=Dict)
 async def add_occupation_category(
     category_data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Add a new occupation category (Super Admin only)"""
@@ -118,7 +118,7 @@ async def add_occupation_category(
 @router.delete("/categories/{category_name}", response_model=Dict)
 async def delete_occupation_category(
     category_name: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Delete an occupation category (Super Admin only)"""
@@ -154,7 +154,7 @@ async def delete_occupation_category(
 @router.post("/add", response_model=Dict)
 async def add_occupation_to_category(
     data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Add an occupation to a category (Super Admin only)"""
@@ -240,7 +240,7 @@ async def add_occupation_to_category(
 @router.delete("/remove", response_model=Dict)
 async def remove_occupation_from_category(
     data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Remove an occupation from a category (Super Admin only)"""
@@ -298,7 +298,7 @@ async def remove_occupation_from_category(
 
 @router.post("/migrate-to-object-format", response_model=Dict)
 async def migrate_occupations_to_object_format(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -443,7 +443,7 @@ async def migrate_occupations_to_object_format(
 @router.put("/update-certifications", response_model=Dict)
 async def update_occupation_certifications(
     data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -806,7 +806,7 @@ async def get_occupation_default_work_type(
 async def update_occupation_default_work_type(
     occupation_title: str,
     data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """

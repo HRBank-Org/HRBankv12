@@ -64,7 +64,7 @@ def search_certifications(query):
 
 @router.get("/list", response_model=Dict)
 async def get_all_certifications_list(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get all standard certifications organized by category"""
@@ -118,7 +118,7 @@ async def search_certifications(
 @router.post("/categories", response_model=Dict)
 async def add_certification_category(
     category_data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Add a new certification category (Super Admin only)"""
@@ -169,7 +169,7 @@ async def add_certification_category(
 @router.post("/add", response_model=Dict)
 async def add_certification_to_category(
     data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Add a certification to a category (Super Admin only)"""
@@ -222,7 +222,7 @@ async def add_certification_to_category(
 @router.delete("/remove", response_model=Dict)
 async def remove_certification(
     data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Remove a certification from a category (Super Admin only)"""

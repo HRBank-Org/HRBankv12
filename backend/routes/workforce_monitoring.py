@@ -13,7 +13,7 @@ def get_db():
 
 @router.post("/check-inactive-workers", response_model=Dict)
 async def check_inactive_workers(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -149,7 +149,7 @@ async def check_inactive_workers(
 
 @router.post("/check-incomplete-profiles", response_model=Dict)
 async def check_incomplete_profiles(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """

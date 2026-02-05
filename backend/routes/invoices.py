@@ -445,7 +445,7 @@ async def get_tax_rates(province: str):
 @router.post("/admin/create")
 async def admin_create_invoice(
     invoice_data: InvoiceCreate,
-    current_user: dict = Depends(require_role("admin"))
+    current_user: dict = Depends(require_role("admin", "super_admin"))
 ):
     """Create invoice manually (Admin only)"""
     line_items = [item.dict() for item in invoice_data.line_items]
@@ -476,7 +476,7 @@ async def admin_list_invoices(
     customer_type: Optional[str] = None,
     limit: int = 100,
     offset: int = 0,
-    current_user: dict = Depends(require_role("admin"))
+    current_user: dict = Depends(require_role("admin", "super_admin"))
 ):
     """List all invoices (Admin only)"""
     query = {}
@@ -513,7 +513,7 @@ async def admin_list_invoices(
 async def admin_update_invoice_status(
     invoice_id: str,
     status: str,
-    current_user: dict = Depends(require_role("admin"))
+    current_user: dict = Depends(require_role("admin", "super_admin"))
 ):
     """Update invoice status (Admin only)"""
     valid_statuses = ["draft", "sent", "paid", "overdue", "cancelled"]

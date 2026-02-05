@@ -293,7 +293,7 @@ async def get_audit_logs(
     severity: Optional[str] = None,
     page: int = Query(1, ge=1),
     limit: int = Query(50, le=200),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get audit logs (admin only)"""
@@ -352,7 +352,7 @@ async def get_audit_logs(
 
 @router.get("/audit-logs/event-types")
 async def get_audit_event_types(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get list of audit event types"""
@@ -369,7 +369,7 @@ async def get_audit_event_types(
 @router.get("/audit-logs/summary")
 async def get_audit_summary(
     days: int = Query(7, ge=1, le=90),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get audit log summary statistics"""
@@ -414,7 +414,7 @@ async def get_audit_summary(
 
 @router.get("/security/status")
 async def get_security_status(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get overall security status"""
@@ -457,7 +457,7 @@ async def get_security_status(
 @router.post("/admin/unlock-account/{email}")
 async def admin_unlock_account(
     email: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Manually unlock a locked account"""
@@ -477,7 +477,7 @@ async def admin_unlock_account(
 @router.post("/admin/terminate-user-sessions/{user_id}")
 async def admin_terminate_user_sessions(
     user_id: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Force logout a user from all sessions"""

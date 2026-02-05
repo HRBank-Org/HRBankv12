@@ -803,7 +803,7 @@ async def stripe_webhook(
 # ============================================
 @router.get("/admin/revenue-report")
 async def get_admin_revenue_report(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get platform revenue report (admin only)"""

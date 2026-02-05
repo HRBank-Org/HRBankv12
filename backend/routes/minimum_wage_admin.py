@@ -30,7 +30,7 @@ CANADIAN_PROVINCES = {
 
 @router.post("/initialize", response_model=Dict)
 async def initialize_minimum_wages(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -123,7 +123,7 @@ async def get_province_minimum_wage(
 @router.put("/update", response_model=Dict)
 async def update_minimum_wage(
     update_data: MinimumWageUpdate,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -194,7 +194,7 @@ async def update_minimum_wage(
 @router.get("/history/{province_code}", response_model=Dict)
 async def get_minimum_wage_history(
     province_code: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
