@@ -10,12 +10,204 @@ from datetime import datetime, timedelta, timezone
 import qrcode
 import io
 import base64
+import uuid
+import secrets
 
 router = APIRouter(prefix="/blockchain-credentials", tags=["Blockchain Credentials"])
 
 def get_db():
     from server import db
     return db
+
+
+@router.post("/issue-by-email", response_model=Dict, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
+async def issue_credential_by_email(
+    request: Request,
+    credential_data: dict,
+    current_user: dict = Depends(require_role("institution")),
+    db = Depends(get_db)
+):
+    """
+    Institution issues credential by student email.
+    - If email matches existing WorkPassport/Workforce account → credential linked immediately
+    - If no account → create pending credential with invite token, send email invite
+    """
+    recipient_email = credential_data.get("recipient_email", "").lower().strip()
+    
+    if not recipient_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recipient email is required"
+        )
+    
+    # Check if user with this email exists
+    existing_user = await db.users.find_one(
+        {"email": recipient_email, "user_type": {"$in": ["workpassport", "workforce"]}},
+        {"_id": 0, "user_id": 1, "email": 1, "user_type": 1}
+    )
+    
+    if existing_user:
+        # User exists - issue credential directly to their account
+        credential_data["worker_id"] = existing_user["user_id"]
+        credential_data["recipient_user_id"] = existing_user["user_id"]
+        credential_data["status"] = "issued"
+        
+        # Call the regular issue endpoint logic
+        return await _issue_credential_internal(credential_data, current_user, db, request)
+    else:
+        # User doesn't exist - create pending credential with invite token
+        invite_token = secrets.token_urlsafe(32)
+        
+        pending_credential = {
+            "pending_credential_id": f"pc_{uuid.uuid4().hex[:12]}",
+            "recipient_email": recipient_email,
+            "institution_id": current_user["user_id"],
+            "credential_name": credential_data.get("credential_name"),
+            "program_name": credential_data.get("program_name"),
+            "student_name": credential_data.get("student_name"),
+            "student_id": credential_data.get("student_id"),
+            "grade_gpa": credential_data.get("grade_gpa"),
+            "issue_date": credential_data.get("issue_date", datetime.now(timezone.utc).isoformat()),
+            "expiry_date": credential_data.get("expiry_date"),
+            "credential_template_id": credential_data.get("credential_template_id"),
+            "additional_details": credential_data.get("additional_details", {}),
+            "invite_token": invite_token,
+            "status": "pending_signup",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.pending_credentials.insert_one(pending_credential)
+        
+        # Get institution name for the email
+        institution = await db.institution_profiles.find_one(
+            {"institution_id": current_user["user_id"]},
+            {"_id": 0, "institution_name": 1}
+        )
+        institution_name = institution.get("institution_name", "Institution") if institution else "Institution"
+        
+        # Send invite email
+        try:
+            from utils.email_service import send_credential_invite_email
+            import os
+            frontend_url = os.environ.get("FRONTEND_URL", "https://hrbank.ca")
+            invite_link = f"{frontend_url}/signup?token={invite_token}&email={recipient_email}&type=workpassport"
+            
+            await send_credential_invite_email(
+                to_email=recipient_email,
+                institution_name=institution_name,
+                credential_name=credential_data.get("credential_name", "Credential"),
+                invite_link=invite_link
+            )
+        except Exception as e:
+            print(f"Failed to send invite email: {e}")
+        
+        return {
+            "success": True,
+            "data": {
+                "pending_credential_id": pending_credential["pending_credential_id"],
+                "status": "pending_signup",
+                "recipient_email": recipient_email,
+                "invite_sent": True
+            },
+            "message": f"Credential pending. Invite sent to {recipient_email} to create their WorkPassport account."
+        }
+
+
+async def _issue_credential_internal(credential_data: dict, current_user: dict, db, request: Request):
+    """Internal function to issue credential (shared logic)"""
+    # Parse dates as ISO strings
+    issue_date_str = credential_data.get("issue_date", datetime.now(timezone.utc).isoformat())
+    if isinstance(issue_date_str, str) and 'T' in issue_date_str:
+        issue_date_str = issue_date_str.split('T')[0]
+    
+    expiry_date_str = None
+    if credential_data.get("expiry_date"):
+        expiry_date_str = credential_data.get("expiry_date")
+        if isinstance(expiry_date_str, str) and 'T' in expiry_date_str:
+            expiry_date_str = expiry_date_str.split('T')[0]
+    
+    credential = BlockchainCredential(
+        worker_id=credential_data.get("worker_id", ""),
+        institution_id=current_user["user_id"],
+        credential_template_id=credential_data.get("credential_template_id", ""),
+        credential_name=credential_data.get("credential_name"),
+        program_name=credential_data.get("program_name"),
+        issue_date=issue_date_str,
+        expiry_date=expiry_date_str,
+        student_name=credential_data.get("student_name"),
+        student_id=credential_data.get("student_id"),
+        grade_gpa=credential_data.get("grade_gpa"),
+        additional_details=credential_data.get("additional_details", {})
+    )
+    
+    credential.credential_hash = credential.generate_credential_hash()
+    credential.verification_url = blockchain_service.generate_verification_url(credential.credential_id)
+    
+    metadata = {
+        "credential_id": credential.credential_id,
+        "credential_name": credential.credential_name,
+        "program_name": credential.program_name,
+        "student_name": credential.student_name,
+        "issue_date": credential.issue_date,
+        "institution_id": credential.institution_id
+    }
+    
+    ipfs_url = await blockchain_service.upload_to_ipfs(metadata)
+    credential.ipfs_url = ipfs_url
+    
+    blockchain_result = await blockchain_service.mint_credential({
+        "credential_id": credential.credential_id,
+        "credential_hash": credential.credential_hash,
+        "ipfs_url": ipfs_url,
+        "worker_id": credential.worker_id,
+        "institution_id": credential.institution_id
+    })
+    
+    credential.blockchain_transaction_hash = blockchain_result["transaction_hash"]
+    credential.blockchain_token_id = blockchain_result["token_id"]
+    credential.status = "issued"
+    credential.issued_at = datetime.now(timezone.utc)
+    
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(credential.verification_url)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    img_str = base64.b64encode(buffer.getvalue()).decode()
+    
+    credential.qr_code_url = f"data:image/png;base64,{img_str}"
+    
+    credential_doc = credential.model_dump()
+    credential_doc["on_chain"] = blockchain_result.get("on_chain", False)
+    credential_doc["blockchain_status"] = blockchain_result.get("status", "simulated")
+    credential_doc["explorer_url"] = blockchain_result.get("explorer_url")
+    credential_doc["gas_fee"] = blockchain_result.get("gas_fee", 0)
+    credential_doc["block_number"] = blockchain_result.get("block_number", 0)
+    
+    await db.blockchain_credentials.insert_one(credential_doc)
+    
+    await db.institution_profiles.update_one(
+        {"institution_id": current_user["user_id"]},
+        {"$inc": {"total_credentials_issued": 1}}
+    )
+    
+    return {
+        "success": True,
+        "data": {
+            "credential_id": credential.credential_id,
+            "transaction_hash": credential.blockchain_transaction_hash,
+            "ipfs_url": credential.ipfs_url,
+            "verification_url": credential.verification_url,
+            "qr_code": credential.qr_code_url,
+            "on_chain": blockchain_result.get("on_chain", False),
+            "blockchain_status": blockchain_result.get("status", "simulated")
+        },
+        "message": "Credential issued successfully"
+    }
+
 
 @router.post("/issue", response_model=Dict, status_code=status.HTTP_201_CREATED)
 @limiter.limit("30/minute")  # Rate limit: 30 credential issuances per minute
