@@ -20,7 +20,7 @@ def get_db():
 
 @router.get("/summary")
 async def get_expiry_summary(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get summary of document expiry status across the platform"""
@@ -41,7 +41,7 @@ async def get_expiring_documents(
     document_type: Optional[str] = Query(None, description="Filter by document type"),
     page: int = Query(1, ge=1),
     limit: int = Query(50, le=200),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get list of documents expiring within specified days"""
@@ -78,7 +78,7 @@ async def get_expired_documents(
     user_type: Optional[str] = Query(None, description="Filter by user type"),
     page: int = Query(1, ge=1),
     limit: int = Query(50, le=200),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get list of expired documents"""
@@ -108,7 +108,7 @@ async def get_expired_documents(
 
 @router.get("/document-types")
 async def get_document_types_config(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get configuration of document types and their expiry requirements"""
@@ -131,7 +131,7 @@ async def get_document_types_config(
 @router.post("/trigger-reminders")
 async def trigger_expiry_reminders(
     send_sms: bool = Query(True, description="Also send SMS reminders"),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Manually trigger expiry reminder processing"""
@@ -162,7 +162,7 @@ async def trigger_expiry_reminders(
 async def send_single_reminder(
     document_id: str,
     send_sms: bool = Query(True, description="Also send SMS"),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Send reminder for a specific document"""
@@ -227,7 +227,7 @@ async def send_single_reminder(
 @router.get("/user/{user_id}/documents")
 async def get_user_documents_expiry(
     user_id: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get all documents for a specific user with expiry info"""
@@ -291,7 +291,7 @@ async def get_user_documents_expiry(
 async def get_restricted_accounts(
     page: int = Query(1, ge=1),
     limit: int = Query(50, le=200),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Get accounts restricted due to expired documents"""
@@ -347,7 +347,7 @@ async def get_restricted_accounts(
 @router.post("/unrestrict-account/{user_id}")
 async def unrestrict_account(
     user_id: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """Manually unrestrict an account (admin override)"""
