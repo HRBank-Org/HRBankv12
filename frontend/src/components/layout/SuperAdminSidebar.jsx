@@ -263,6 +263,12 @@ const SuperAdminSidebar = () => {
           badge: null
         },
         {
+          label: 'Geo-Access Control',
+          icon: Globe,
+          path: '/admin/geo-access',
+          badge: null
+        },
+        {
           label: 'Notifications',
           icon: Bell,
           path: '/admin/notification-settings',
