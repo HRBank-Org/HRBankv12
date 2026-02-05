@@ -72,13 +72,15 @@ async def add_occupation_category(
 ):
     """Add a new occupation category (Super Admin only)"""
     
-    # Check if super admin (check admins collection, not admin_profiles)
-    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
-    if not admin or not admin.get("is_super_admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Super Admins can add categories"
-        )
+    # Check if super admin - check user_type from current_user
+    if current_user.get("user_type") != "super_admin":
+        # Also check admins collection as fallback
+        admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+        if not admin or not admin.get("is_super_admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Super Admins can add categories"
+            )
     
     name = category_data.get('name')
     icon = category_data.get('icon', '📋')
