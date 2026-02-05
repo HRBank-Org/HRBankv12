@@ -327,10 +327,10 @@ const SuperAdminSidebar = () => {
         // Fetch support tickets count
         let ticketsCount = 0;
         try {
-          const ticketsRes = await fetch(`${baseUrl}/api/support/tickets/stats`, { headers });
+          const ticketsRes = await fetch(`${baseUrl}/api/support/admin/stats`, { headers });
           if (ticketsRes.ok) {
             const data = await ticketsRes.json();
-            ticketsCount = data.data?.open_tickets || 0;
+            ticketsCount = (data.data?.by_status?.open || 0) + (data.data?.by_status?.in_progress || 0);
           }
         } catch (e) {
           console.error('Failed to fetch tickets count:', e);
