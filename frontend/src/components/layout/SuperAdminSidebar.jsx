@@ -266,10 +266,10 @@ const SuperAdminSidebar = () => {
     }
   ];
 
-  // Mock badge counts (would come from API in real app)
+  // Badge counts from API
   const [badgeCounts, setBadgeCounts] = useState({
     pending: 0,
-    credentials: 0,
+    documents: 0,
     tickets: 0,
     expiring: 0
   });
@@ -278,32 +278,68 @@ const SuperAdminSidebar = () => {
     // Fetch badge counts from API
     const fetchCounts = async () => {
       try {
-        // Fetch expiring documents count
-        const token = localStorage.getItem('token');
-        let expiringCount = 0;
-        
-        if (token) {
-          try {
-            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/document-expiry/summary`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-              const data = await response.json();
-              if (data.success) {
-                expiringCount = (data.data.expired || 0) + 
-                               (data.data.expiring_today || 0) + 
-                               (data.data.expiring_7_days || 0);
-              }
-            }
-          } catch (e) {
-            console.error('Failed to fetch expiry counts:', e);
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+
+        const headers = { 'Authorization': `Bearer ${token}` };
+        const baseUrl = process.env.REACT_APP_BACKEND_URL;
+
+        // Fetch pending activations count
+        let pendingCount = 0;
+        try {
+          const pendingRes = await fetch(`${baseUrl}/api/super-admin/pending-activations?limit=1`, { headers });
+          if (pendingRes.ok) {
+            const data = await pendingRes.json();
+            pendingCount = data.data?.total || 0;
           }
+        } catch (e) {
+          console.error('Failed to fetch pending count:', e);
+        }
+
+        // Fetch pending documents count
+        let documentsCount = 0;
+        try {
+          const docsRes = await fetch(`${baseUrl}/api/admin/documents/pending?limit=1`, { headers });
+          if (docsRes.ok) {
+            const data = await docsRes.json();
+            documentsCount = data.data?.total || 0;
+          }
+        } catch (e) {
+          console.error('Failed to fetch documents count:', e);
+        }
+
+        // Fetch expiring documents count
+        let expiringCount = 0;
+        try {
+          const expiryRes = await fetch(`${baseUrl}/api/admin/document-expiry/summary`, { headers });
+          if (expiryRes.ok) {
+            const data = await expiryRes.json();
+            if (data.success) {
+              expiringCount = (data.data.expired || 0) + 
+                             (data.data.expiring_today || 0) + 
+                             (data.data.expiring_7_days || 0);
+            }
+          }
+        } catch (e) {
+          console.error('Failed to fetch expiry counts:', e);
+        }
+
+        // Fetch support tickets count
+        let ticketsCount = 0;
+        try {
+          const ticketsRes = await fetch(`${baseUrl}/api/support/tickets/stats`, { headers });
+          if (ticketsRes.ok) {
+            const data = await ticketsRes.json();
+            ticketsCount = data.data?.open_tickets || 0;
+          }
+        } catch (e) {
+          console.error('Failed to fetch tickets count:', e);
         }
         
         setBadgeCounts({
-          pending: 81,
-          credentials: 12,
-          tickets: 5,
+          pending: pendingCount,
+          documents: documentsCount,
+          tickets: ticketsCount,
           expiring: expiringCount
         });
       } catch (error) {
