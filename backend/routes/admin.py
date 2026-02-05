@@ -17,7 +17,7 @@ async def get_all_users(
     profile_status: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -56,7 +56,7 @@ async def get_all_users(
 async def update_user_status(
     user_id: str,
     status_data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -104,7 +104,7 @@ async def update_user_status(
 
 @router.get("/institutions/pending", response_model=Dict)
 async def get_pending_institutions(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -145,7 +145,7 @@ async def verify_institution(
     institution_id: str,
     approved: bool,
     notes: Optional[str] = None,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -194,7 +194,7 @@ async def verify_institution(
 
 @router.get("/stats/platform", response_model=Dict)
 async def get_platform_stats(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -221,7 +221,7 @@ async def get_platform_stats(
 @router.post("/credential-types", response_model=Dict, status_code=status.HTTP_201_CREATED)
 async def create_credential_type(
     credential_data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -249,7 +249,7 @@ async def create_credential_type(
 
 @router.get("/credentials/pending-approval", response_model=Dict)
 async def get_pending_credentials(
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -300,7 +300,7 @@ async def get_pending_credentials(
 @router.post("/credentials/{credential_id}/approve", response_model=Dict)
 async def approve_credential(
     credential_id: str,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
@@ -355,7 +355,7 @@ async def approve_credential(
 async def reject_credential(
     credential_id: str,
     rejection_data: dict,
-    current_user: dict = Depends(require_role("admin")),
+    current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
 ):
     """
