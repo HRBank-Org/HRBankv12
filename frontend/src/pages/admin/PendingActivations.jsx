@@ -192,7 +192,7 @@ const PendingActivations = () => {
       <GenericHeader />
       <div className="flex">
         <SuperAdminSidebar />
-        <main className="flex-1 p-6 lg:ml-64">
+        <main className="flex-1 p-6 lg:ml-[260px] pt-20">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
