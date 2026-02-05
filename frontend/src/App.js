@@ -473,6 +473,7 @@ function AppRoutes() {
         <Route path="/admin/partners" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><PartnerManagement /></ProtectedRoute>} />
         <Route path="/admin/chat" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminChat /></ProtectedRoute>} />
         <Route path="/admin/geo-access" element={<ProtectedRoute allowedUserTypes={['super_admin']}><GeoAccessSettings /></ProtectedRoute>} />
+        <Route path="/admin/insurance-review" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><InsuranceReview /></ProtectedRoute>} />
         
         {/* Donation Success/Cancel Routes */}
         <Route path="/donation/success" element={<DonationSuccess />} />
