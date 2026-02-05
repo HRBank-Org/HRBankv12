@@ -1,166 +1,138 @@
 <analysis>**original_problem_statement:**
-The user's primary goal is to get their production application, deployed at , fully functional. The initial work focused on preparing for deployment to AWS Lightsail, but after deployment, several critical authentication issues emerged.
+The user's primary goal is to get their production application, deployed at , fully functional. The initial work focused on fixing critical authentication issues for the Super Admin, OAuth (Google & LinkedIn), and general signup/login flows.
 
-The current objectives are:
-1.  **Fix Super Admin Login:** The super admin is unable to log in via the  page due to an Access Denied error.
-2.  **Fix OAuth Logins (Google & LinkedIn):** When a user attempts to sign in with Google or LinkedIn, they are authenticated by the provider but are then redirected back to the login page instead of being logged into the application.
-3.  **Fix General Signup & Login Flow:**
-    *   New user signups were failing or not sending verification emails.
-    *   Existing users who reset their passwords were not having their email verified, blocking them from logging in.
-    *   The user wants a specific authentication flow:  accounts should be active after email verification, while  accounts require manual admin activation after document submission.
-4.  **Complete Deployment of Fixes:** All code changes made to fix the above issues need to be successfully deployed to the user's AWS Lightsail environment.
+After successfully fixing the super admin login, the focus has shifted to fixing the admin dashboard itself. The user (, a ) can log in, but most admin pages (like Account Activations, All Users, ID Document Review) are empty or not loading data. The user has also requested a redesign of the admin sidebar to improve usability, clarification on the credential issuance workflow, and a full audit/fix of compliance-related features (age verification, labor laws, taxes, notifications).
+
+The current objective is to perform a comprehensive sprint to fix all identified issues on the admin dashboard and related backend APIs, then provide the user with a single, consolidated set of files and deployment instructions.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React/FastAPI/MongoDB HR platform deployed on AWS Lightsail. The architecture consists of separate frontend and backend Docker containers running as Lightsail Container Services. An Ubuntu Lightsail instance acts as an NGINX reverse proxy, routing traffic from  to the respective containers. The production database is on MongoDB Atlas and has been populated with comprehensive sample data. Core features include multi-type shift management, payroll, and a blockchain-based credentialing system. However, all authentication flows (Admin, OAuth, general signup/login) are currently broken in the production environment.
+The application is a full-stack React/FastAPI/MongoDB HR platform deployed on AWS Lightsail. The architecture uses separate frontend and backend Docker containers. The production database is on MongoDB Atlas. While the super admin can now log in, the admin dashboard is largely non-functional. The latest deployed versions are  and . These versions have introduced several new API errors that are preventing data from being displayed on the admin pages. The user performs all Docker builds and deployments manually from their local Windows machine and has repeatedly faced issues with build caches, incorrect Node versions, and out-of-sync lockfiles.
 
 **Last working item**:
--   **Last item agent was working:** Debugging the Super Admin login failure. The agent identified that the frontend code in  was incorrectly checking for a user type of  instead of accommodating . The agent applied a fix to this specific file. The next logical step was to fix a similar piece of code in another file.
+-   **Last item agent was working:** Debugging a series of new API errors that appeared after the user deployed the latest code. The user's browser console shows that critical endpoints for the admin dashboard are failing.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** Frontend testing. The fix involves frontend code. The next agent should apply the remaining fix, then guide the user to rebuild and redeploy the frontend Docker image. Verification should be done by having the user attempt to log in at  and confirming they can access the admin dashboard.
--   **User Testing Done:** N
+-   **Which testing method agent to use?** Backend testing agent. The core problems are API errors (, , ) originating from the backend. The next agent must investigate the backend code and logs for each failing endpoint to diagnose and fix the root cause.
+-   **User Testing Done:** Y (User confirmed the latest deployment is live but reported that the admin pages are still not loading data and provided console logs showing API failures).
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Super Admin Login Fails (P0)**
--   **Issue 2: OAuth (Google & LinkedIn) Login Fails (P0)**
--   **Issue 3: General Signup & Login Flow is Broken (P1)**
+-   **Issue 1: Multiple Admin API endpoints are failing in production (P0)**
+-   **Issue 2: Sidebar badge counts are failing to fetch (P1)**
+-   **Issue 3: PostHog analytics integration is failing (P2)**
 
 **Issues Detail:**
--   **Issue 1: Super Admin Login Fails (P0)**
-    -   **Attempted fixes:** The agent corrected the user type check in  to include .
+-   **Issue 1: Multiple Admin API endpoints are failing in production (P0)**
+    -   **Attempted fixes:** None yet for these specific errors. Previous work focused on getting the user to log in.
     -   **Next debug checklist:**
-        1.  Apply the same fix to , which contains similar restrictive logic.
-        2.  Guide the user to rebuild the frontend Docker image.
-        3.  Guide the user to push the new image to Docker Hub and redeploy it on AWS Lightsail.
-    -   **Why fix this issue and what will be achieved with the fix?** The super admin cannot access administrative functions. Fixing this is critical for managing the application.
-    -   **Status:** IN PROGRESS
+        1.  **For  on :** This is a validation error. Inspect the Pydantic models used by this endpoint in . The data being sent or returned does not match the expected schema. Check if query parameters are being handled correctly.
+        2.  **For  on :** The endpoint does not exist. This is likely because the user requested Document Verification be renamed to ID Document Review, but the frontend is still calling the old URL. Find the correct backend endpoint (e.g., ) and update the frontend API call in the relevant component.
+        3.  **For  on :** This is a permission error. The  role is being denied access. Find the  or permission dependency for this route in  and update it to accept .
+    -   **Why fix this issue and what will be achieved with the fix?** The admin dashboard is unusable without these core APIs. Fixing them will allow the user to manage account activations, review documents, and see platform statistics.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** Y (Permission issues for the  role have been a recurring problem).
+    -   **Should Test frontend/backend/both after fix?** Backend.
+    -   **Blocked on other issue:** None.
+
+-   **Issue 2: Sidebar badge counts are failing to fetch (P1)**
+    -   **Attempted fixes:** The agent changed the sidebar to fetch counts from APIs instead of using hardcoded values.
+    -   **Next debug checklist:**
+        1.  Investigate the Response body is already used error in  (around lines 302 and 330).
+        2.  This error typically means a  response is being read twice. Check the custom  wrapper or the  hooks in the sidebar. The fix is to  the response if it needs to be read multiple times (e.g., ).
+    -   **Why fix this issue and what will be achieved with the fix?** To provide real-time data counts on the admin sidebar, which is critical for the user's workflow.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend.
+    -   **Blocked on other issue:** Issue 1 (The badge count APIs are also failing with 403/404 errors, which must be fixed first).
+
+-   **Issue 3: PostHog analytics integration is failing (P2)**
+    -   **Attempted fixes:** None.
+    -   **Next debug checklist:**
+        1.  The console shows CORS errors and a missing .
+        2.  Verify the  is present in the user's production environment variables on Lightsail.
+        3.  Check the PostHog configuration in  or a similar entry point file.
+    -   **Why fix this issue and what will be achieved with the fix?** Enables product analytics. This is lower priority than fixing the core admin functionality.
+    -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Frontend.
     -   **Blocked on other issue:** None.
 
--   **Issue 2: OAuth (Google & LinkedIn) Login Fails (P0)**
-    -   **Attempted fixes:** The agent implemented several backend code changes to resolve this, including using the correct environment variables for redirect URIs, using the OAuth  parameter to pass data securely, and ensuring user accounts are set to  after a successful OAuth login.
-    -   **Next debug checklist:** The fixes exist in the agent's environment but have not been successfully deployed by the user. The next step is to guide the user through a full backend deployment cycle:
-        1.  Provide the user with the corrected content for  and .
-        2.  Guide the user to rebuild the  Docker image, ensuring the correct  with the  for  is used.
-        3.  Guide the user to push the image to Docker Hub and deploy the new version on Lightsail.
-    -   **Why fix this issue and what will be achieved with the fix?** Social logins are a primary entry point for users and are completely non-functional.
-    -   **Status:** IN PROGRESS (Deployment Pending)
-    -   **Is recurring issue?** Y (Deployment has failed multiple times due to user-side Docker build issues).
-    -   **Should Test frontend/backend/both after fix?** Both (End-to-end flow).
-    -   **Blocked on other issue:** None.
-
--   **Issue 3: General Signup & Login Flow is Broken (P1)**
-    -   **Attempted fixes:** The agent modified  to:
-        1.  Set  upon successful password reset.
-        2.  Assign the correct initial  ( for WorkPassport,  for Workforce) upon signup.
-        3.  Add a  flag to the login response for Workforce users.
-    -   **Next debug checklist:** These fixes are part of the same backend code changes as Issue 2. The resolution is to successfully deploy the new backend image.
-    -   **Why fix this issue and what will be achieved with the fix?** Basic user account creation and management is failing, preventing user acquisition.
-    -   **Status:** IN PROGRESS (Deployment Pending)
-    -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Backend.
-    -   **Blocked on other issue:** Issue 2 (same deployment action).
-
-**In progress Task List**:
--   **Task 1: Guide User Through Successful Backend and Frontend Redeployment (P0)**
-    -   **Where to resume:** The user is on a Windows machine using PowerShell. They need to be guided, step-by-step, to update their local code, rebuild both frontend and backend Docker images (using the correct Dockerfiles), push them to Docker Hub, and deploy the new versions on their AWS Lightsail container services.
-    -   **What will be achieved with this?** This will apply all pending fixes for OAuth, admin login, and the general signup/login flows, making the application's core authentication functional.
-    -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** Both.
-    -   **Blocked on something:** Requires careful, sequential guidance for the user to execute commands correctly.
-
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   **P0: Go Live & Vendor Penetration Test:** Once auth is stable, the user wants to consider the site live and schedule a penetration test.
-    -   **P1: Send SOC2 RFP to Auditors:** Engage with auditing firms using the generated RFP documents.
+    -   **P0: Finalize and Deploy All Fixes:** Package all pending fixes for the admin dashboard into new  backend and  frontend Docker images for the user to deploy.
+    -   **P1: Consolidate Admin Management UI:** User requested to consolidate , , and  into a single, unified interface. The redundant pages were removed from the sidebar, but a proper UI consolidation/refactor is still pending.
+    -   **P1: Add Sidebars to Missing Admin Pages:** Several admin pages are still missing the . A full audit and fix is needed for pages like  and .
 -   **Future Tasks:**
-    -   Update the SOC2 Type II Ready badge to SOC2 Type II Certified after a successful audit.
-    -   Build the Franchise Management UI.
-    -   Develop an Occupation Score System for WorkPassport.
-    -   Add support for multi-region deployment.
-    -   Drop the old  collection from the database.
+    -   Go Live & Vendor Penetration Test.
+    -   Send SOC2 RFP to Auditors.
+    -   Build Franchise Management UI.
+    -   Develop Occupation Score System.
+    -   Clean up orphaned code identified in .
+    -   Drop old  collection from the database.
 
 **Completed work in this session**
--   **Restored Blockchain Functionality:** Re-enabled the blockchain feature that was mistakenly disabled.
--   **Guided Full AWS Lightsail Deployment:** Successfully guided the user through a complex manual deployment of the entire application, including creating Dockerfiles, building/pushing images, and configuring an NGINX reverse proxy on a separate instance.
--   **Populated Production Database:** Populated the user's production MongoDB Atlas database with extensive, realistic sample data for all major features (institutions, employers, users, credentials, shifts, etc.) and created the super admin user.
--   **Fixed Email Sending:** Diagnosed that an invalid SendGrid API key was preventing email delivery, prompted the user for a new key, and verified it was working.
--   **Implemented Auth Fixes (Code Level):** Wrote and refined the backend code to fix all identified issues with Google/LinkedIn OAuth and the general signup/login/password reset flows. These changes are ready for deployment.
-
-**Earlier issues found/mentioned but not fixed**
--   None. All identified issues are captured in the Pending/In progress Issue list.
-
-**Known issue recurrence from previous fork**
--   None.
+-   **Super Admin Login Fixed:** Successfully fixed the super admin login flow by correcting  checks in  and adding the role to all protected routes in .
+-   **Comprehensive  Backend Fixes:** Audited and fixed dozens of backend endpoints to ensure the  user type has correct permissions.
+-   **Admin Sidebar Refactored:** Reorganized  to remove redundant pages and add missing ones (, ) under a new Platform Config section.
+-   **New Credential Issuance Flow Implemented:** Created a new backend flow for institutions to issue credentials via email, including invite tokens for new users and auto-claiming logic on signup.
+-   **Compliance Features Added:** Added  to the user model for age verification and created email notifications for account activation.
+-   **Resolved User's Docker Build/Deployment Issues:** Guided the user through numerous Docker build problems, including  mismatches, incorrect Node.js versions in Dockerfiles, using , and deploying to the wrong Lightsail service.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Manual AWS Lightsail Deployment:** The entire session revolved around guiding a user through a manual CLI-based deployment to AWS Lightsail, involving Docker, Docker Hub, Lightsail Containers, and a separate Lightsail Instance as a reverse proxy.
--   **NGINX Reverse Proxy:** Configured and debugged an NGINX server to correctly route traffic from a public domain () to the internal HTTPS endpoints of the Lightsail container services, handling host headers and redirects.
--   **OAuth 2.0 Production Debugging:** Performed a deep dive into debugging live OAuth 2.0 flows, identifying and fixing issues related to redirect URI mismatches (with and without query params), use of the  parameter, and incorrect user status handling upon login.
--   **Production Database Management:** Directly connected to and manipulated a user's production MongoDB Atlas database to populate large amounts of sample data and fix user account statuses.
+-   **Manual AWS Lightsail Deployment:** The user performs all deployments manually via CLI/console, requiring clear, step-by-step guidance.
+-   **Docker Build Debugging:** Common user-side issues include file caching,  mismatches, and incorrect Node.js versions.
+-   **Role-Based Access Control (RBAC):** Fixing systemic issues where code was hardcoded for  and failed for .
 
 **key DB schema**
--   No schema changes were made. Work involved inserting new data and updating fields like  and  on existing documents in the  collection.
-
-**changes in tech stack**
--   None.
+-   : Added  field.
+-   A new logic for  was added, linking credentials to an email and an  before a user signs up.
 
 **All files of reference**
--   : Contains the majority of the un-deployed fixes for Google OAuth, signup, login, and password reset.
--   : Contains fixes for the LinkedIn OAuth flow.
--   : Contains a partial fix for the admin login issue.
--    & : The correct Dockerfiles needed for the user to successfully build their images.
+-   : Contains the logic for the failing  endpoint.
+-   : Contains the logic for the failing  endpoint.
+-   : Contains the failing badge count logic.
+-    & : The user frequently has issues with these files. Ensure they have the correct Node version () and pip index URL.
 
 **Areas that need refactoring**:
--   The admin login logic in  and  is duplicated. This should be consolidated into a shared utility or context function to avoid similar bugs in the future.
-
-**key api endpoints**
--   : The endpoint for Super Admin login.
--    & : The Google OAuth flow endpoints that were fixed but not deployed.
--    & : The LinkedIn OAuth flow endpoints that were fixed but not deployed.
--   : The user creation endpoint that was fixed but not deployed.
--   : The main login endpoint that was fixed but not deployed.
--   : The password reset endpoint that was fixed but not deployed.
+-   The user has requested consolidation of the various admin management pages (, , etc.) into a single unified UI.
+-   Many admin pages are still missing the  component and need to be updated for a consistent layout.
 
 **Critical Info for New Agent**
--   **Deployment is Manual and Fragile:** The user is deploying from their local Windows machine () via CLI. Your primary role will be to provide clear, step-by-step commands and file content. Be prepared for user-side errors like using wrong files or commands. All code fixes must be explicitly given to the user to copy into their local files.
--   **Deploy Backend Fixes First:** The most critical pending action is deploying the backend changes. This will resolve the OAuth and general login issues. You must guide the user to rebuild and redeploy the  container.
--   **Authentication is the Core Problem:** Do not get sidetracked by other features. The application is unusable for end-users and admins until the login, signup, and OAuth flows are fully functional in the production environment.
--   **Credentials:** Super Admin:  / .
+-   **User performs all deployments manually.** Provide clear, copy-pasteable commands for PowerShell and be prepared to debug user-side Docker and AWS errors.
+-   **The  vs  permission issue is systemic.** A  error on an admin page is almost certainly another missed check.
+-   **The user's production DB (Atlas) has the real data.** Bugs on  may not be reproducible in the agent's environment if they are data-dependent.
+-   **The user prefers a sprint model:** batch a comprehensive set of fixes, then provide a single set of deployment instructions.
+-   **The current failing deployment is  (frontend) and  (backend).** The next successful deployment should be  and  respectively.
 
 **documents and test reports created in this job**
 -   
--   
--   
--   
--   A document containing credentials for the seeded database was provided to the user in the chat history.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** Super admin URL  redirects to login. (Status: **Addressed**. Agent found the correct URL is )
-2.  **User:** Admin login shows Access denied. (Status: **In Progress**. Agent identified the bug and partially fixed it).
-3.  **User:** What about my super admin credentials? (Status: **Addressed**. Agent confirmed the credentials).
-4.  **User:** After LinkedIn login, it bounces back. (Status: **In Progress**. Agent identified the root cause and implemented a fix that needs deployment).
-5.  **User:** What are my credentials after signing up with LinkedIn? (Status: **Addressed**. Agent explained login options).
-6.  **User:** Password reset flow has a loop. Ideal flow for WorkPassport vs Workforce explained. (Status: **In Progress**. Agent implemented fixes to match the desired flow, pending deployment).
-7.  **User:** General signup fails. (Status: **In Progress**. Agent diagnosed the issue and the fix is pending deployment).
-8.  **User:** I have the new SendGrid key. (Status: **Completed**. Agent tested and confirmed the new key works).
-9.  **User:** Can you check why emails aren't being sent? (Status: **Completed**. Agent found the SendGrid key was invalid).
-10. **User:** Populate production DB with sample data and create my super admin account. (Status: **Completed**. Agent seeded the database and created the account).
+1.  **User:** Reports backend build failed due to missing  index URL. (Resolved)
+2.  **User:**  and  are now live. (Completed)
+3.  **User:** Reports no pending users are listed, All users doesn't load, and other admin pages are empty. (In Progress)
+4.  **User:** Provides browser console logs showing multiple API errors (422, 404, 403). (Pending)
+5.  **User:** Asks which Dockerfile to preserve when updating the codebase. (Addressed)
+6.  **User:** Reports PowerShell error when using . (Addressed)
+7.  **User:** Reports frontend build failed due to Node version incompatibility. (Resolved, but recurring)
+8.  **User:** Reports backend build failed again for . (Resolved, but recurring)
+9.  **User:** Tries to run a  command in PowerShell instead of editing the Dockerfile. (Addressed)
+10. **User:** Reports AWS Lightsail  error . (Addressed as a temporary AWS issue)
 
 **Project Health Check:**
 -   **Broken:**
-    -   Google OAuth Login
-    -   LinkedIn OAuth Login
-    -   Super Admin Login
-    -   General User Signup & Login
+    -   Admin Account Activations page (API returns 422).
+    -   Admin All Users page (API likely failing).
+    -   Admin ID Document Review page (API returns 404).
+    -   Admin sidebar badge counts (APIs failing + frontend clone error).
+    -   Admin support ticket stats (API returns 403).
+    -   PostHog Analytics integration.
 -   **Mocked:**
-    -   Payroll Sync (Gusto, Ceridian Dayforce, ADP)
+    -   Payroll Sync (Gusto, Ceridian, ADP).
 
 **3rd Party Integrations**
 -   **Stripe:** Payments
@@ -169,20 +141,21 @@ The application is a full-stack React/FastAPI/MongoDB HR platform deployed on AW
 -   **SendGrid:** Transactional Emails
 -   **MongoDB Atlas:** Production Database
 -   **Polygon/IPFS (Pinata/Infura):** Blockchain credentialing
+-   **PostHog:** Analytics (currently broken)
 
 **Testing status**
 -   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None
--   **Known regressions:** The entire authentication system regressed after the initial deployment and is currently being fixed.
+-   **Known regressions:** After fixing the main login, many admin pages regressed and are now non-functional due to deeper API and permission issues.
 
 **Credentials to test flow:**
 -   **Super Admin:**
     -   **URL:** 
     -   **Email:** 
     -   **Password:** 
--   **Sample Users:** A large set of sample user credentials was generated and provided to the user during the database seeding phase.
 
 **What agent forgot to execute**
--   The agent fixed the admin user type check in  but did not apply the same fix to the duplicate logic in .
--   The agent has not yet successfully guided the user to deploy the critical backend fixes for the OAuth and general signup/login flows. This is the main piece of unfinished work that blocks all other progress.</analysis>
+-   The agent identified a Response body is already used error for the sidebar badge counts but did not implement a fix.
+-   The agent did not address the failing PostHog integration.
+-   The agent did not add the  to all the identified missing pages, only a few. A full audit and fix is still needed.</analysis>

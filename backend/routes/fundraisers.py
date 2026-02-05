@@ -345,7 +345,7 @@ async def donate_to_fundraiser(
     
     # Create Stripe checkout session
     try:
-        origin_url = os.environ.get("FRONTEND_URL", "https://authflow-hrbank.preview.emergentagent.com")
+        origin_url = os.environ.get("FRONTEND_URL", "https://admin-ui-revamp-10.preview.emergentagent.com")
         
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
