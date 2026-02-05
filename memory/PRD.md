@@ -45,6 +45,48 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 | **Console.log Cleanup** | ✅ Complete (30→1 remaining) |
 | **AWS Lightsail Deployment** | ✅ Ready |
 | **OAuth Fix (Feb 4, 2026)** | ✅ Code Ready - DEPLOYMENT PENDING |
+| **Admin super_admin Fix (Feb 5)** | ✅ Code Ready - DEPLOYMENT PENDING |
+| **Age Verification (Feb 5)** | ✅ Added DOB field + min age 16 check |
+
+---
+
+## COMPLIANCE & REGULATORY STATUS (Feb 5, 2026)
+
+### Age Compliance ✅ (NEW)
+- Date of Birth field added to workforce signup
+- Minimum age verification: 16 years old
+- Age calculated and validated on signup
+
+### Minimum Wage Compliance ✅
+- All 13 provinces/territories covered
+- Admin can update rates
+- Validation on shift creation
+
+### Labor Law Compliance ✅
+- Max hours per day/week by province
+- Overtime calculations (1.5x)
+- Mandatory breaks (30 min after 5 hours)
+- Rest between shifts (8-11 hours)
+- Weekly rest day (24-32 hours)
+
+### Provincial Tax Compliance ✅
+- GST/HST/PST/QST by province
+- Digital services tax on credentials
+- Tax breakdown in all transactions
+
+### Email Notifications ✅ (ENHANCED Feb 5)
+- ✅ Verification Email
+- ✅ OTP Email  
+- ✅ Password Reset
+- ✅ Support Ticket Response
+- ✅ Credential Invite
+- ✅ Institution Invite
+- ✅ **Account Activation** (NEW)
+- ✅ **Shift Assignment** (NEW)
+- ✅ **Document Expiry Warning** (NEW)
+- ✅ **Payroll Ready** (NEW)
+
+---
 
 ### Go-Live Checklist
 - [x] Unified revenue model implemented
@@ -57,6 +99,9 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - [x] **Calendar Shifts Consolidation** (merged into shifts collection)
 - [x] **Remote Work Management** (4th shift type with deliverables)
 - [x] **AWS Lightsail Deployment Files** (Docker, nginx, scripts)
+- [x] **Admin super_admin support** (all routes updated)
+- [x] **Age verification** (16+ for workforce)
+- [x] **Account activation emails** (sends on admin approval)
 - [ ] Penetration testing by qualified vendor
 - [ ] Update SOC2 badge to "Certified" (next round)
 - [ ] Enable Google Maps billing for production
