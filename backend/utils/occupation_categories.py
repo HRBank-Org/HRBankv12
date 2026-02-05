@@ -1,449 +1,1238 @@
 """
 Comprehensive occupation categories and titles for HR Bank
 Organized by industry sectors with common job titles
-
-Pricing Structure:
-- Super-admin sets minimum rates per occupation
-- Workers receive gross pay (deductions handled by payroll processors)
-- Platform fees:
-  * Minimum wage jobs: $1/hour fee to employer only
-  * Above minimum wage: $1/hour fee to BOTH worker and employer
-  * Route-based: +$0.25 per verified stop (covers GPS verification overhead)
-
-Work Types:
-- on_site: Standard GPS clock-in at workplace (Server, Chef, Cashier)
-- route_based: Multi-stop tasks with GPS at each location (Delivery Driver, Cleaner)
-- continental: 12-hour rotating shifts (Security Guard, Factory Worker)
 """
-
-# Ontario minimum wage (effective October 1, 2025)
-MINIMUM_WAGE = 17.60
-
-# Platform fee structure
-PLATFORM_FEE_PER_HOUR = 1.00
-PLATFORM_FEE_PER_STOP = 0.25  # Additional fee per verified stop (route-based only)
-
-# Default work type mappings by occupation title
-# Super-admin controlled - employers can override when creating roles
-DEFAULT_WORK_TYPES = {
-    # Continental (12-hour rotating shifts)
-    "Security Guard": "continental",
-    "Security Officer": "continental",
-    "Fire Watch": "continental",
-    "Concierge Security": "continental",
-    "Mobile Patrol Officer": "continental",
-    "CCTV Operator": "continental",
-    "Access Control Officer": "continental",
-    "Site Supervisor": "continental",
-    "Production Worker": "continental",
-    "Assembly Line Worker": "continental",
-    "Machine Operator": "continental",
-    
-    # Route-based (multi-stop GPS tracking)
-    "Delivery Driver": "route_based",
-    "Courier": "route_based",
-    "Food Delivery Driver": "route_based",
-    "Truck Driver": "route_based",
-    "Mover": "route_based",
-    "Shuttle Driver": "route_based",
-    "Residential Cleaner": "route_based",
-    "Airbnb Cleaner": "route_based",
-    "Home Care Aide": "route_based",
-    "Caregiver": "route_based",
-    "Personal Support Worker (PSW)": "route_based",
-    "Pest Control Technician": "route_based",
-    "Pool Maintenance Technician": "route_based",
-    "Snow Removal Operator": "route_based",
-    "Christmas Light Installer": "route_based",
-    
-    # All others default to on_site
-}
-
-def get_default_work_type(occupation_title: str) -> str:
-    """
-    Get the default work type for an occupation.
-    Returns 'on_site' if no specific mapping exists.
-    """
-    # Exact match first
-    if occupation_title in DEFAULT_WORK_TYPES:
-        return DEFAULT_WORK_TYPES[occupation_title]
-    
-    # Partial match for variations
-    title_lower = occupation_title.lower()
-    
-    # Security roles -> continental
-    if any(kw in title_lower for kw in ["security", "guard", "patrol", "fire watch"]):
-        return "continental"
-    
-    # Delivery/driver roles -> route_based
-    if any(kw in title_lower for kw in ["delivery", "courier", "driver", "mover"]):
-        return "route_based"
-    
-    # Home service roles -> route_based
-    if any(kw in title_lower for kw in ["home care", "home aide", "residential clean", "airbnb"]):
-        return "route_based"
-    
-    # Default to on_site
-    return "on_site"
 
 OCCUPATION_CATEGORIES = {
     "Food & Hospitality": {
         "icon": "🍽️",
         "description": "Restaurants, hotels, catering, events",
         "occupations": [
-            {"title": "Server / Waiter / Waitress", "minimum_hourly_rate": 17.60},
-            {"title": "Line Cook", "minimum_hourly_rate": 18.50},
-            {"title": "Prep Cook", "minimum_hourly_rate": 17.60},
-            {"title": "Dishwasher", "minimum_hourly_rate": 17.60},
-            {"title": "Host / Hostess", "minimum_hourly_rate": 17.60},
-            {"title": "Barista", "minimum_hourly_rate": 17.60},
-            {"title": "Fast Food Worker", "minimum_hourly_rate": 17.60},
-            {"title": "Food Runner", "minimum_hourly_rate": 17.60},
-            {"title": "Busser", "minimum_hourly_rate": 17.60},
-            {"title": "Catering Staff", "minimum_hourly_rate": 18.00},
-            {"title": "Banquet Server", "minimum_hourly_rate": 18.50},
-            {"title": "Hotel Front Desk", "minimum_hourly_rate": 18.50},
-            {"title": "Housekeeper", "minimum_hourly_rate": 17.60},
-            {"title": "Concierge", "minimum_hourly_rate": 19.50},
-            {"title": "Room Attendant", "minimum_hourly_rate": 17.60},
-            {"title": "Event Staff", "minimum_hourly_rate": 18.00},
-            {"title": "Kitchen Manager", "minimum_hourly_rate": 22.00},
-            {"title": "Restaurant Manager", "minimum_hourly_rate": 24.00},
+            {
+                "title": "Server / Waiter / Waitress",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Line Cook",
+                "minimum_hourly_rate": 18.5
+            },
+            {
+                "title": "Prep Cook",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Dishwasher",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Host / Hostess",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Barista",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Fast Food Worker",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Food Runner",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Busser",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Catering Staff",
+                "minimum_hourly_rate": 18.0
+            },
+            {
+                "title": "Banquet Server",
+                "minimum_hourly_rate": 18.5
+            },
+            {
+                "title": "Hotel Front Desk",
+                "minimum_hourly_rate": 18.5
+            },
+            {
+                "title": "Housekeeper",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Concierge",
+                "minimum_hourly_rate": 19.5
+            },
+            {
+                "title": "Room Attendant",
+                "minimum_hourly_rate": 17.6
+            },
+            {
+                "title": "Event Staff",
+                "minimum_hourly_rate": 18.0
+            },
+            {
+                "title": "Kitchen Manager",
+                "minimum_hourly_rate": 22.0
+            },
+            {
+                "title": "Restaurant Manager",
+                "minimum_hourly_rate": 24.0
+            },
             {
                 "title": "Bartender",
-                "minimum_hourly_rate": 18.00,
+                "minimum_hourly_rate": 18.0,
                 "required_certifications": [
                     "Smart Serve Ontario",
                     "Safe Food Handling Certificate"
                 ]
             },
-            {"title": "Chef", "minimum_hourly_rate": 22.00},
-            {"title": "Sous Chef", "minimum_hourly_rate": 20.00},
-            {"title": "Shift Supervisor", "minimum_hourly_rate": 20.00}
+            {
+                "title": "Chef",
+                "minimum_hourly_rate": 22.0
+            },
+            {
+                "title": "Sous Chef",
+                "minimum_hourly_rate": 20.0
+            },
+            {
+                "title": "Shift Supervisor",
+                "minimum_hourly_rate": 20.0
+            }
         ]
     },
     "Retail & Grocery": {
         "icon": "🛒",
         "description": "Stores, supermarkets, pharmacies",
         "occupations": [
-            "Cashier",
-            "Sales Associate",
-            "Stock Clerk",
-            "Grocery Clerk",
-            "Pharmacy Assistant",
-            "Store Manager",
-            "Assistant Manager",
-            "Customer Service Representative",
-            "Receiving Clerk",
-            "Inventory Clerk",
-            "Visual Merchandiser",
-            "Loss Prevention",
-            "Department Supervisor",
-            "Produce Clerk",
-            "Deli Clerk",
-            "Bakery Clerk",
-            "Meat Clerk",
-            "Floral Associate"
+            {
+                "title": "Cashier",
+                "required_certifications": []
+            },
+            {
+                "title": "Sales Associate",
+                "required_certifications": []
+            },
+            {
+                "title": "Stock Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Grocery Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Pharmacy Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Store Manager",
+                "required_certifications": []
+            },
+            {
+                "title": "Assistant Manager",
+                "required_certifications": []
+            },
+            {
+                "title": "Customer Service Representative",
+                "required_certifications": []
+            },
+            {
+                "title": "Receiving Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Inventory Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Visual Merchandiser",
+                "required_certifications": []
+            },
+            {
+                "title": "Loss Prevention",
+                "required_certifications": []
+            },
+            {
+                "title": "Department Supervisor",
+                "required_certifications": []
+            },
+            {
+                "title": "Produce Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Deli Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Bakery Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Meat Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Floral Associate",
+                "required_certifications": []
+            }
         ]
     },
     "Healthcare & Personal Care": {
         "icon": "🏥",
         "description": "Nursing, home care, clinics",
         "occupations": [
-            "Personal Support Worker (PSW)",
-            "Registered Nurse (RN)",
-            "Licensed Practical Nurse (LPN)",
-            "Caregiver",
-            "Home Care Aide",
-            "Dental Assistant",
-            "Dental Hygienist",
-            "Medical Office Assistant",
-            "Pharmacy Technician",
-            "Physiotherapy Assistant",
-            "Registered Massage Therapist (RMT)",
-            "Chiropractor Assistant",
-            "Veterinary Assistant",
-            "Veterinary Technician",
-            "Lab Technician",
-            "Phlebotomist",
-            "Recreation Aide",
-            "Dietary Aide"
+            {
+                "title": "Personal Support Worker (PSW)",
+                "required_certifications": [
+                    "Personal Support Worker (PSW) Certificate",
+                    "CPR/First Aid Certification"
+                ]
+            },
+            {
+                "title": "Registered Nurse (RN)",
+                "required_certifications": [
+                    "Registered Nurse (RN)",
+                    "CPR/First Aid Certification"
+                ]
+            },
+            {
+                "title": "Licensed Practical Nurse (LPN)",
+                "required_certifications": [
+                    "Registered Practical Nurse (RPN)",
+                    "CPR/First Aid Certification"
+                ]
+            },
+            {
+                "title": "Caregiver",
+                "required_certifications": [
+                    "Personal Support Worker (PSW) Certificate",
+                    "CPR/First Aid Certification"
+                ]
+            },
+            {
+                "title": "Home Care Aide",
+                "required_certifications": [
+                    "Personal Support Worker (PSW) Certificate",
+                    "CPR/First Aid Certification"
+                ]
+            },
+            {
+                "title": "Dental Assistant",
+                "required_certifications": [
+                    "Ontario College Certificate"
+                ]
+            },
+            {
+                "title": "Dental Hygienist",
+                "required_certifications": [
+                    "Ontario College Diploma"
+                ]
+            },
+            {
+                "title": "Medical Office Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Pharmacy Technician",
+                "required_certifications": [
+                    "Ontario College Diploma"
+                ]
+            },
+            {
+                "title": "Physiotherapy Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Registered Massage Therapist (RMT)",
+                "required_certifications": [
+                    "Ontario College Diploma"
+                ]
+            },
+            {
+                "title": "Chiropractor Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Veterinary Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Veterinary Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Lab Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Phlebotomist",
+                "required_certifications": []
+            },
+            {
+                "title": "Recreation Aide",
+                "required_certifications": []
+            },
+            {
+                "title": "Dietary Aide",
+                "required_certifications": []
+            }
         ]
     },
     "Cleaning & Janitorial": {
         "icon": "🧹",
         "description": "Commercial & residential cleaning",
         "occupations": [
-            "Janitor",
-            "Cleaner",
-            "Housekeeper",
-            "Office Cleaner",
-            "Building Cleaner",
-            "Window Cleaner",
-            "Carpet Cleaner",
-            "Floor Technician",
-            "Disinfection Specialist",
-            "Post-Construction Cleaner",
-            "Residential Cleaner",
-            "Commercial Cleaner",
-            "Custodian",
-            "Maintenance Cleaner",
-            "Airbnb Cleaner"
+            {
+                "title": "Janitor",
+                "required_certifications": []
+            },
+            {
+                "title": "Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Housekeeper",
+                "required_certifications": []
+            },
+            {
+                "title": "Office Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Building Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Window Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Carpet Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Floor Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Disinfection Specialist",
+                "required_certifications": []
+            },
+            {
+                "title": "Post-Construction Cleaner",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate",
+                    "Working at Heights Certificate"
+                ]
+            },
+            {
+                "title": "Residential Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Commercial Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Custodian",
+                "required_certifications": []
+            },
+            {
+                "title": "Maintenance Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Airbnb Cleaner",
+                "required_certifications": []
+            }
         ]
     },
     "Security & Safety": {
         "icon": "🛡️",
         "description": "Security guards, loss prevention",
         "occupations": [
-            "Security Guard",
-            "Security Officer",
-            "Loss Prevention Officer",
-            "Event Security",
-            "Construction Site Security",
-            "Retail Security",
-            "Parking Enforcement Officer",
-            "Traffic Control Person",
-            "Fire Watch",
-            "Concierge Security",
-            "Mobile Patrol Officer",
-            "CCTV Operator",
-            "Access Control Officer",
-            "Site Supervisor"
+            {
+                "title": "Security Guard",
+                "required_certifications": [
+                    "Security Guard License"
+                ]
+            },
+            {
+                "title": "Security Officer",
+                "required_certifications": [
+                    "Security Guard License"
+                ]
+            },
+            {
+                "title": "Loss Prevention Officer",
+                "required_certifications": []
+            },
+            {
+                "title": "Event Security",
+                "required_certifications": [
+                    "Security Guard License"
+                ]
+            },
+            {
+                "title": "Construction Site Security",
+                "required_certifications": [
+                    "Security Guard License"
+                ]
+            },
+            {
+                "title": "Retail Security",
+                "required_certifications": [
+                    "Security Guard License"
+                ]
+            },
+            {
+                "title": "Parking Enforcement Officer",
+                "required_certifications": []
+            },
+            {
+                "title": "Traffic Control Person",
+                "required_certifications": []
+            },
+            {
+                "title": "Fire Watch",
+                "required_certifications": []
+            },
+            {
+                "title": "Concierge Security",
+                "required_certifications": [
+                    "Security Guard License"
+                ]
+            },
+            {
+                "title": "Mobile Patrol Officer",
+                "required_certifications": []
+            },
+            {
+                "title": "CCTV Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Access Control Officer",
+                "required_certifications": []
+            },
+            {
+                "title": "Site Supervisor",
+                "required_certifications": []
+            }
         ]
     },
     "Property Management & Maintenance": {
         "icon": "🏢",
         "description": "Building maintenance, landscaping",
         "occupations": [
-            "Property Manager",
-            "Building Superintendent",
-            "Maintenance Worker",
-            "Handyman",
-            "HVAC Technician",
-            "Plumber",
-            "Electrician",
-            "Landscaper",
-            "Groundskeeper",
-            "Snow Removal Operator",
-            "Lawn Care Technician",
-            "Pool Maintenance Technician",
-            "Pest Control Technician",
-            "Elevator Mechanic",
-            "Painter",
-            "General Laborer"
+            {
+                "title": "Property Manager",
+                "required_certifications": []
+            },
+            {
+                "title": "Building Superintendent",
+                "required_certifications": []
+            },
+            {
+                "title": "Maintenance Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Handyman",
+                "required_certifications": []
+            },
+            {
+                "title": "HVAC Technician",
+                "required_certifications": [
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "Plumber",
+                "required_certifications": [
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "Electrician",
+                "required_certifications": [
+                    "Electrical License",
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "Landscaper",
+                "required_certifications": []
+            },
+            {
+                "title": "Groundskeeper",
+                "required_certifications": []
+            },
+            {
+                "title": "Snow Removal Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Lawn Care Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Pool Maintenance Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Pest Control Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Elevator Mechanic",
+                "required_certifications": []
+            },
+            {
+                "title": "Painter",
+                "required_certifications": []
+            },
+            {
+                "title": "General Laborer",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate",
+                    "Working at Heights Certificate"
+                ]
+            }
         ]
     },
     "Construction & Trades": {
         "icon": "🔨",
         "description": "Construction, electrical, plumbing",
         "occupations": [
-            "General Laborer",
-            "Construction Worker",
-            "Electrician",
-            "Plumber",
-            "HVAC Technician",
-            "Carpenter",
-            "Drywall Installer",
-            "Flooring Installer",
-            "Roofer",
-            "Concrete Worker",
-            "Demolition Worker",
-            "Scaffolder",
-            "Welder",
-            "Painter",
-            "Mason",
-            "Foreman",
-            "Site Supervisor",
-            "Heavy Equipment Operator"
+            {
+                "title": "General Laborer",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate",
+                    "Working at Heights Certificate"
+                ]
+            },
+            {
+                "title": "Construction Worker",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate",
+                    "Working at Heights Certificate"
+                ]
+            },
+            {
+                "title": "Electrician",
+                "required_certifications": [
+                    "Electrical License",
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "Plumber",
+                "required_certifications": [
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "HVAC Technician",
+                "required_certifications": [
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "Carpenter",
+                "required_certifications": [
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "Drywall Installer",
+                "required_certifications": []
+            },
+            {
+                "title": "Flooring Installer",
+                "required_certifications": []
+            },
+            {
+                "title": "Roofer",
+                "required_certifications": []
+            },
+            {
+                "title": "Concrete Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Demolition Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Scaffolder",
+                "required_certifications": []
+            },
+            {
+                "title": "Welder",
+                "required_certifications": [
+                    "Certificate of Qualification (Red Seal)"
+                ]
+            },
+            {
+                "title": "Painter",
+                "required_certifications": []
+            },
+            {
+                "title": "Mason",
+                "required_certifications": []
+            },
+            {
+                "title": "Foreman",
+                "required_certifications": []
+            },
+            {
+                "title": "Site Supervisor",
+                "required_certifications": []
+            },
+            {
+                "title": "Heavy Equipment Operator",
+                "required_certifications": []
+            }
         ]
     },
     "Transportation & Logistics": {
         "icon": "🚚",
         "description": "Delivery, moving, warehouse",
         "occupations": [
-            "Delivery Driver",
-            "Courier",
-            "Truck Driver",
-            "Mover",
-            "Warehouse Worker",
-            "Forklift Operator",
-            "Order Picker",
-            "Packer",
-            "Shipper / Receiver",
-            "Dock Worker",
-            "Material Handler",
-            "Logistics Coordinator",
-            "Dispatch Coordinator",
-            "Shuttle Driver",
-            "Taxi Driver",
-            "Limousine Driver",
-            "Food Delivery Driver"
+            {
+                "title": "Delivery Driver",
+                "required_certifications": [
+                    "Ontario Driver's License (G)"
+                ]
+            },
+            {
+                "title": "Courier",
+                "required_certifications": []
+            },
+            {
+                "title": "Truck Driver",
+                "required_certifications": [
+                    "Commercial Driver's License (AZ)"
+                ]
+            },
+            {
+                "title": "Mover",
+                "required_certifications": []
+            },
+            {
+                "title": "Warehouse Worker",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate",
+                    "Forklift Operator Certificate"
+                ]
+            },
+            {
+                "title": "Forklift Operator",
+                "required_certifications": [
+                    "Forklift Operator Certificate",
+                    "WHMIS 2015 Certificate"
+                ]
+            },
+            {
+                "title": "Order Picker",
+                "required_certifications": []
+            },
+            {
+                "title": "Packer",
+                "required_certifications": []
+            },
+            {
+                "title": "Shipper / Receiver",
+                "required_certifications": []
+            },
+            {
+                "title": "Dock Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Material Handler",
+                "required_certifications": []
+            },
+            {
+                "title": "Logistics Coordinator",
+                "required_certifications": []
+            },
+            {
+                "title": "Dispatch Coordinator",
+                "required_certifications": []
+            },
+            {
+                "title": "Shuttle Driver",
+                "required_certifications": [
+                    "Ontario Driver's License (G)"
+                ]
+            },
+            {
+                "title": "Taxi Driver",
+                "required_certifications": [
+                    "Ontario Driver's License (G)"
+                ]
+            },
+            {
+                "title": "Limousine Driver",
+                "required_certifications": [
+                    "Ontario Driver's License (G)"
+                ]
+            },
+            {
+                "title": "Food Delivery Driver",
+                "required_certifications": [
+                    "Food Handler Certificate"
+                ]
+            }
         ]
     },
     "Agriculture & Greenhouses": {
         "icon": "🌱",
         "description": "Farms, greenhouses, nurseries",
         "occupations": [
-            "Greenhouse Worker",
-            "Farm Worker",
-            "Harvest Worker",
-            "Packer",
-            "Sorter",
-            "Plant Care Worker",
-            "Nursery Worker",
-            "Livestock Worker",
-            "Dairy Farm Worker",
-            "Poultry Farm Worker",
-            "Aquaculture Worker",
-            "Winery Worker",
-            "Irrigation Technician",
-            "Equipment Operator",
-            "Farm Supervisor"
+            {
+                "title": "Greenhouse Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Farm Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Harvest Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Packer",
+                "required_certifications": []
+            },
+            {
+                "title": "Sorter",
+                "required_certifications": []
+            },
+            {
+                "title": "Plant Care Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Nursery Worker",
+                "required_certifications": [
+                    "CPR/First Aid Certification"
+                ]
+            },
+            {
+                "title": "Livestock Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Dairy Farm Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Poultry Farm Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Aquaculture Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Winery Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Irrigation Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Equipment Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Farm Supervisor",
+                "required_certifications": []
+            }
         ]
     },
     "Education & Childcare": {
         "icon": "📚",
         "description": "Daycares, schools, camps",
         "occupations": [
-            "Childcare Worker",
-            "Daycare Teacher",
-            "Early Childhood Educator (ECE)",
-            "Teaching Assistant",
-            "Tutor",
-            "Camp Counselor",
-            "After-School Program Leader",
-            "Recreation Instructor",
-            "Lifeguard",
-            "Swim Instructor",
-            "Sports Coach",
-            "Dance Instructor",
-            "Martial Arts Instructor",
-            "Music Teacher",
-            "Art Instructor",
-            "Educational Assistant"
+            {
+                "title": "Childcare Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Daycare Teacher",
+                "required_certifications": []
+            },
+            {
+                "title": "Early Childhood Educator (ECE)",
+                "required_certifications": []
+            },
+            {
+                "title": "Teaching Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Tutor",
+                "required_certifications": []
+            },
+            {
+                "title": "Camp Counselor",
+                "required_certifications": []
+            },
+            {
+                "title": "After-School Program Leader",
+                "required_certifications": []
+            },
+            {
+                "title": "Recreation Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Lifeguard",
+                "required_certifications": [
+                    "Security Guard License"
+                ]
+            },
+            {
+                "title": "Swim Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Sports Coach",
+                "required_certifications": []
+            },
+            {
+                "title": "Dance Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Martial Arts Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Music Teacher",
+                "required_certifications": []
+            },
+            {
+                "title": "Art Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Educational Assistant",
+                "required_certifications": []
+            }
         ]
     },
     "Entertainment & Recreation": {
         "icon": "🎭",
         "description": "Theaters, parks, sports facilities",
         "occupations": [
-            "Movie Theater Attendant",
-            "Usher",
-            "Ticket Sales",
-            "Concession Worker",
-            "Bowling Alley Attendant",
-            "Arcade Attendant",
-            "Amusement Park Attendant",
-            "Ride Operator",
-            "Ski Lift Operator",
-            "Ski Instructor",
-            "Golf Course Attendant",
-            "Fitness Instructor",
-            "Personal Trainer",
-            "Yoga Instructor",
-            "Front Desk Attendant",
-            "Recreation Leader",
-            "Event Coordinator"
+            {
+                "title": "Movie Theater Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Usher",
+                "required_certifications": []
+            },
+            {
+                "title": "Ticket Sales",
+                "required_certifications": []
+            },
+            {
+                "title": "Concession Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Bowling Alley Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Arcade Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Amusement Park Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Ride Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Ski Lift Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Ski Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Golf Course Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Fitness Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Personal Trainer",
+                "required_certifications": []
+            },
+            {
+                "title": "Yoga Instructor",
+                "required_certifications": []
+            },
+            {
+                "title": "Front Desk Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Recreation Leader",
+                "required_certifications": []
+            },
+            {
+                "title": "Event Coordinator",
+                "required_certifications": []
+            }
         ]
     },
     "Manufacturing & Industrial": {
         "icon": "🏭",
         "description": "Factories, warehouses, assembly",
         "occupations": [
-            "Production Worker",
-            "Assembly Line Worker",
-            "Machine Operator",
-            "Packaging Worker",
-            "Quality Control Inspector",
-            "Forklift Operator",
-            "Warehouse Associate",
-            "Material Handler",
-            "Picker / Packer",
-            "Shipper / Receiver",
-            "Maintenance Technician",
-            "Industrial Cleaner",
-            "Production Supervisor",
-            "Team Lead"
+            {
+                "title": "Production Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Assembly Line Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Machine Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Packaging Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Quality Control Inspector",
+                "required_certifications": []
+            },
+            {
+                "title": "Forklift Operator",
+                "required_certifications": [
+                    "Forklift Operator Certificate",
+                    "WHMIS 2015 Certificate"
+                ]
+            },
+            {
+                "title": "Warehouse Associate",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate"
+                ]
+            },
+            {
+                "title": "Material Handler",
+                "required_certifications": []
+            },
+            {
+                "title": "Picker / Packer",
+                "required_certifications": []
+            },
+            {
+                "title": "Shipper / Receiver",
+                "required_certifications": []
+            },
+            {
+                "title": "Maintenance Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Industrial Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Production Supervisor",
+                "required_certifications": []
+            },
+            {
+                "title": "Team Lead",
+                "required_certifications": []
+            }
         ]
     },
     "Government & Municipal": {
         "icon": "🏛️",
         "description": "City services, public works",
         "occupations": [
-            "Parks Worker",
-            "Recreation Leader",
-            "Library Assistant",
-            "Public Works Laborer",
-            "Road Maintenance Worker",
-            "Transit Operator",
-            "Bus Driver",
-            "Waste Collection Worker",
-            "Recycling Worker",
-            "Bylaw Officer",
-            "Community Program Coordinator",
-            "Facility Attendant",
-            "Pool Operator",
-            "Arena Attendant"
+            {
+                "title": "Parks Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Recreation Leader",
+                "required_certifications": []
+            },
+            {
+                "title": "Library Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Public Works Laborer",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate",
+                    "Working at Heights Certificate"
+                ]
+            },
+            {
+                "title": "Road Maintenance Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Transit Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Bus Driver",
+                "required_certifications": [
+                    "Ontario Driver's License (G)"
+                ]
+            },
+            {
+                "title": "Waste Collection Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Recycling Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Bylaw Officer",
+                "required_certifications": []
+            },
+            {
+                "title": "Community Program Coordinator",
+                "required_certifications": []
+            },
+            {
+                "title": "Facility Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Pool Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Arena Attendant",
+                "required_certifications": []
+            }
         ]
     },
     "Professional Services": {
         "icon": "💼",
         "description": "Call centers, IT support, staffing",
         "occupations": [
-            "Customer Service Representative",
-            "Call Center Agent",
-            "Tech Support Specialist",
-            "Help Desk Technician",
-            "IT Support Technician",
-            "Data Entry Clerk",
-            "Administrative Assistant",
-            "Receptionist",
-            "Brand Ambassador",
-            "Event Staff",
-            "Promotional Staff",
-            "Market Research Interviewer",
-            "Sales Representative",
-            "Telemarketer"
+            {
+                "title": "Customer Service Representative",
+                "required_certifications": []
+            },
+            {
+                "title": "Call Center Agent",
+                "required_certifications": []
+            },
+            {
+                "title": "Tech Support Specialist",
+                "required_certifications": []
+            },
+            {
+                "title": "Help Desk Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "IT Support Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Data Entry Clerk",
+                "required_certifications": []
+            },
+            {
+                "title": "Administrative Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Receptionist",
+                "required_certifications": []
+            },
+            {
+                "title": "Brand Ambassador",
+                "required_certifications": []
+            },
+            {
+                "title": "Event Staff",
+                "required_certifications": []
+            },
+            {
+                "title": "Promotional Staff",
+                "required_certifications": []
+            },
+            {
+                "title": "Market Research Interviewer",
+                "required_certifications": []
+            },
+            {
+                "title": "Sales Representative",
+                "required_certifications": []
+            },
+            {
+                "title": "Telemarketer",
+                "required_certifications": []
+            }
         ]
     },
     "Personal Services": {
         "icon": "💇",
         "description": "Salons, spas, personal care",
         "occupations": [
-            "Hair Stylist",
-            "Barber",
-            "Salon Assistant",
-            "Receptionist",
-            "Nail Technician",
-            "Esthetician",
-            "Massage Therapist",
-            "Spa Attendant",
-            "Tanning Salon Attendant",
-            "Dry Cleaner",
-            "Laundry Attendant",
-            "Car Wash Attendant",
-            "Auto Detailer",
-            "Kennel Attendant",
-            "Pet Groomer"
+            {
+                "title": "Hair Stylist",
+                "required_certifications": []
+            },
+            {
+                "title": "Barber",
+                "required_certifications": [
+                    "Smart Serve Certificate",
+                    "Food Handler Certificate"
+                ]
+            },
+            {
+                "title": "Salon Assistant",
+                "required_certifications": []
+            },
+            {
+                "title": "Receptionist",
+                "required_certifications": []
+            },
+            {
+                "title": "Nail Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Esthetician",
+                "required_certifications": []
+            },
+            {
+                "title": "Massage Therapist",
+                "required_certifications": []
+            },
+            {
+                "title": "Spa Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Tanning Salon Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Dry Cleaner",
+                "required_certifications": []
+            },
+            {
+                "title": "Laundry Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Car Wash Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Auto Detailer",
+                "required_certifications": []
+            },
+            {
+                "title": "Kennel Attendant",
+                "required_certifications": []
+            },
+            {
+                "title": "Pet Groomer",
+                "required_certifications": []
+            }
         ]
     },
     "Emergency & Seasonal": {
         "icon": "❄️",
         "description": "Snow removal, disaster response",
         "occupations": [
-            "Snow Removal Operator",
-            "Snow Shoveler",
-            "Plow Driver",
-            "Salt Truck Driver",
-            "Disaster Cleanup Worker",
-            "Restoration Technician",
-            "Water Damage Technician",
-            "Mold Remediation Specialist",
-            "Seasonal Decorator",
-            "Christmas Light Installer",
-            "Event Setup Crew",
-            "Festival Vendor",
-            "Seasonal Laborer"
+            {
+                "title": "Snow Removal Operator",
+                "required_certifications": []
+            },
+            {
+                "title": "Snow Shoveler",
+                "required_certifications": []
+            },
+            {
+                "title": "Plow Driver",
+                "required_certifications": [
+                    "Ontario Driver's License (G)"
+                ]
+            },
+            {
+                "title": "Salt Truck Driver",
+                "required_certifications": [
+                    "Commercial Driver's License (AZ)"
+                ]
+            },
+            {
+                "title": "Disaster Cleanup Worker",
+                "required_certifications": []
+            },
+            {
+                "title": "Restoration Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Water Damage Technician",
+                "required_certifications": []
+            },
+            {
+                "title": "Mold Remediation Specialist",
+                "required_certifications": []
+            },
+            {
+                "title": "Seasonal Decorator",
+                "required_certifications": []
+            },
+            {
+                "title": "Christmas Light Installer",
+                "required_certifications": []
+            },
+            {
+                "title": "Event Setup Crew",
+                "required_certifications": []
+            },
+            {
+                "title": "Festival Vendor",
+                "required_certifications": []
+            },
+            {
+                "title": "Seasonal Laborer",
+                "required_certifications": [
+                    "WHMIS 2015 Certificate",
+                    "Working at Heights Certificate"
+                ]
+            }
         ]
     }
 }
