@@ -462,12 +462,13 @@ async def update_occupation_certifications(
     """
     
     # Check if super admin
-    admin = await db.admins.find_one({"user_id": current_user["user_id"]})
-    if not admin or not admin.get("is_super_admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Super Admins can update certifications"
-        )
+    if current_user.get("user_type") != "super_admin":
+        admin = await db.admins.find_one({"user_id": current_user["user_id"]})
+        if not admin or not admin.get("is_super_admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Super Admins can update certifications"
+            )
     
     category = data.get('category')
     occupation_title = data.get('occupation_title')
