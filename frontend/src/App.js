@@ -445,7 +445,7 @@ function AppRoutes() {
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SuperAdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/minimum-wage" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><MinimumWageManager /></ProtectedRoute>} />
         <Route path="/admin/analytics" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><Analytics /></ProtectedRoute>} />
         <Route path="/admin/soc2" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SOC2Dashboard /></ProtectedRoute>} />
