@@ -328,7 +328,7 @@ async def update_admin_profile(
         )
     
     # Only allow updating certain fields
-    allowed_fields = ["full_name", "phone", "first_name", "last_name"]
+    allowed_fields = ["full_name", "phone", "first_name", "last_name", "profile_image", "avatar", "bio"]
     updates = {}
     
     for field in allowed_fields:
