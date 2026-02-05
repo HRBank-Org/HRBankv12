@@ -12,9 +12,11 @@ const AdminHeader = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [adminProfile, setAdminProfile] = useState(null);
 
   useEffect(() => {
     fetchNotificationCount();
+    fetchAdminProfile();
   }, []);
 
   const fetchNotificationCount = async () => {
@@ -28,6 +30,17 @@ const AdminHeader = () => {
     }
   };
 
+  const fetchAdminProfile = async () => {
+    try {
+      const res = await api.get('/api/admin/my-profile');
+      if (res.data.success) {
+        setAdminProfile(res.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch admin profile:', error);
+    }
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -37,6 +50,10 @@ const AdminHeader = () => {
     }
   };
 
+  const displayName = adminProfile?.full_name || user?.full_name || user?.email?.split('@')[0] || 'Admin';
+  const profileImage = adminProfile?.profile_image || user?.profile_image;
+  const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
   return (
     <header 
       className="fixed top-0 right-0 z-30 shadow-sm transition-all duration-300 bg-white border-b"
@@ -45,13 +62,27 @@ const AdminHeader = () => {
       }}
     >
       <div className="flex items-center justify-between px-6 py-3">
-        {/* Left: Page Title / Breadcrumb */}
+        {/* Left: Welcome Message with Photo */}
         <div className="flex items-center gap-4">
+          {/* Admin Photo */}
+          {profileImage ? (
+            <img 
+              src={profileImage}
+              alt={displayName}
+              className="w-10 h-10 rounded-full object-cover border-2 border-orange-200"
+            />
+          ) : (
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm border-2 border-orange-200"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              {initials}
+            </div>
+          )}
+          
           <div>
-            <h1 className="text-lg font-semibold text-gray-900">Admin Panel</h1>
-            <p className="text-sm text-gray-500">
-              Welcome, {user?.full_name || user?.email?.split('@')[0] || 'Admin'}
-            </p>
+            <p className="text-sm text-gray-500">Welcome back,</p>
+            <h1 className="text-lg font-semibold text-gray-900">{displayName}</h1>
           </div>
         </div>
 
@@ -102,16 +133,6 @@ const AdminHeader = () => {
           >
             <HelpCircle size={20} />
           </button>
-
-          {/* User Avatar */}
-          <div className="flex items-center gap-2 pl-3 border-l">
-            <div 
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white font-medium text-sm"
-              style={{ backgroundColor: theme.primaryColor }}
-            >
-              {user?.full_name?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || 'A'}
-            </div>
-          </div>
         </div>
       </div>
     </header>
