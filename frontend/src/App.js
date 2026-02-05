@@ -102,6 +102,7 @@ import AllUsers from './pages/admin/AllUsers';
 import CredentialReviews from './pages/admin/CredentialReviews';
 import InstitutionPayouts from './pages/admin/InstitutionPayouts';
 import DocumentVerification from './pages/admin/DocumentVerification';
+import IDVerification from './pages/admin/IDVerification';
 import Permissions from './pages/admin/Permissions';
 import EmployersList from './pages/admin/EmployersList';
 import InstitutionsList from './pages/admin/InstitutionsList';
