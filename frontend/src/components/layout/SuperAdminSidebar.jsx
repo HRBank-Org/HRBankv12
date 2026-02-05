@@ -76,10 +76,10 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'users',
-      label: 'User Management',
+      label: 'Account Management',
       items: [
         {
-          label: 'Pending Activations',
+          label: 'Account Activations',
           icon: UserCheck,
           path: '/admin/pending-activations',
           badge: 'pending',
@@ -92,17 +92,11 @@ const SuperAdminSidebar = () => {
           badge: null
         },
         {
-          label: 'Credential Reviews',
-          icon: FileCheck,
-          path: '/admin/credentials',
-          badge: 'credentials',
-          badgeColor: 'bg-blue-500'
-        },
-        {
-          label: 'Document Verification',
+          label: 'ID Document Review',
           icon: FileText,
           path: '/admin/documents',
-          badge: null
+          badge: 'documents',
+          badgeColor: 'bg-blue-500'
         },
         {
           label: 'Document Expiry',
