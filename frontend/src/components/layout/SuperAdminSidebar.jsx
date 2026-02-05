@@ -302,7 +302,8 @@ const SuperAdminSidebar = () => {
     pending: 0,
     documents: 0,
     tickets: 0,
-    expiring: 0
+    expiring: 0,
+    insurance: 0
   });
 
   useEffect(() => {
