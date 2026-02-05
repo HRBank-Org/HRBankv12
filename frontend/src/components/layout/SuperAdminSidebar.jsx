@@ -366,12 +366,25 @@ const SuperAdminSidebar = () => {
         } catch (e) {
           console.error('Failed to fetch tickets count:', e);
         }
+
+        // Fetch pending insurance submissions count
+        let insuranceCount = 0;
+        try {
+          const insuranceRes = await fetch(`${baseUrl}/api/admin/geo-access/insurance-submissions?status=pending`, { headers });
+          if (insuranceRes.ok) {
+            const data = await insuranceRes.json();
+            insuranceCount = data.data?.status_counts?.pending || 0;
+          }
+        } catch (e) {
+          console.error('Failed to fetch insurance count:', e);
+        }
         
         setBadgeCounts({
           pending: pendingCount,
           documents: documentsCount,
           tickets: ticketsCount,
-          expiring: expiringCount
+          expiring: expiringCount,
+          insurance: insuranceCount
         });
       } catch (error) {
         console.error('Failed to fetch badge counts:', error);
