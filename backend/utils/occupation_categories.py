@@ -3,6 +3,13 @@ Comprehensive occupation categories and titles for HR Bank
 Organized by industry sectors with common job titles
 """
 
+# Platform-wide minimum wage (Ontario default)
+MINIMUM_WAGE = 17.20
+
+# Platform fee structure
+PLATFORM_FEE_PER_HOUR = 1.00  # $1.00 per worked hour
+PLATFORM_FEE_PER_STOP = 0.25  # $0.25 per stop for route-based workers
+
 OCCUPATION_CATEGORIES = {
     "Food & Hospitality": {
         "icon": "🍽️",
