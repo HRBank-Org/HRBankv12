@@ -151,7 +151,7 @@ const ManageOccupationCertifications = () => {
       <GenericHeader />
       <div className="flex">
         <SuperAdminSidebar />
-        <main className="flex-1 lg:ml-[260px] transition-all duration-300 p-6">
+        <main className="flex-1 lg:ml-[260px] pt-20 transition-all duration-300 p-6">
           <div className="max-w-7xl mx-auto">
         {message.text && !showEditModal && (
           <div className={`rounded-lg p-4 mb-6 whitespace-pre-line ${

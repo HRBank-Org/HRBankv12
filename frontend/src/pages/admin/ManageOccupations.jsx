@@ -164,7 +164,7 @@ const ManageOccupations = () => {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <SuperAdminSidebar />
-        <div className="flex-1 ml-[70px] lg:ml-[260px] flex items-center justify-center">
+        <div className="flex-1 ml-[70px] lg:ml-[260px] pt-20 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       </div>
@@ -174,7 +174,7 @@ const ManageOccupations = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <SuperAdminSidebar />
-      <div className="flex-1 ml-[70px] lg:ml-[260px]">
+      <div className="flex-1 ml-[70px] lg:ml-[260px] pt-20">
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
