@@ -291,7 +291,9 @@ async def get_admin_profile(
         # Create admin profile from user record if it doesn't exist
         user = await db.users.find_one({"user_id": current_user["user_id"]})
         if user:
+            is_super = current_user.get("user_type") == "super_admin"
             admin = {
+                "admin_id": f"adm_{uuid.uuid4().hex[:12]}",
                 "user_id": current_user["user_id"],
                 "email": user.get("email"),
                 "full_name": user.get("full_name", ""),
@@ -299,7 +301,8 @@ async def get_admin_profile(
                 "last_name": user.get("last_name", ""),
                 "phone": user.get("phone", ""),
                 "profile_image": user.get("profile_image", ""),
-                "is_super_admin": current_user.get("user_type") == "super_admin",
+                "role": "super_admin" if is_super else "customer_service",
+                "is_super_admin": is_super,
                 "assigned_zones": [],
                 "assigned_provinces": [],
                 "created_date": user.get("created_date", datetime.now(timezone.utc).isoformat())
