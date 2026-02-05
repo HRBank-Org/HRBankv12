@@ -4,6 +4,7 @@ from datetime import datetime, timezone, timedelta
 from auth.dependencies import get_current_user
 from models.admin import Admin, Zone
 from passlib.context import CryptContext
+import uuid
 
 router = APIRouter(prefix="/api/admin", tags=["Admin Management"])
 
