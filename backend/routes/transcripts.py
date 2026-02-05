@@ -201,7 +201,7 @@ async def list_transcripts(
         query["institution_id"] = user_id
     elif user_type == "workforce":
         query["workforce_id"] = user_id
-    elif user_type == "admin":
+    elif user_type in ["admin", "super_admin"]:
         pass  # Admin can see all
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")

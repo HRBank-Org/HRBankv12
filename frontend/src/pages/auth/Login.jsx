@@ -104,7 +104,7 @@ const LoginForm = () => {
         navigate('/employer/home');
       } else if (user_type === 'institution') {
         navigate('/institution/dashboard');
-      } else if (user_type === 'admin') {
+      } else if (user_type === 'admin' || user_type === 'super_admin') {
         navigate('/admin/super-dashboard');
       } else if (user_type === 'workpassport') {
         navigate('/workpassport/dashboard');
