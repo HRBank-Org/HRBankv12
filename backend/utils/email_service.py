@@ -414,3 +414,198 @@ async def send_institution_invite_email(to_email: str, requester_name: str, cred
     """
     
     return await email_service.send_email(to_email, email_subject, html_content)
+
+
+
+async def send_account_activated_email(to_email: str, full_name: str, user_type: str, login_url: str):
+    """Send email notification when admin activates a user's account"""
+    email_subject = "🎉 Your HR Bank Account is Now Active!"
+    
+    dashboard_map = {
+        "workforce": "Workforce Dashboard",
+        "employer": "Employer Portal",
+        "institution": "Institution Portal",
+        "workpassport": "WorkPassport"
+    }
+    dashboard_name = dashboard_map.get(user_type, "Dashboard")
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">HR Bank</h1>
+            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">Account Activated</p>
+        </div>
+        <div style="padding: 40px 30px; background: #ffffff;">
+            <h2 style="color: #1e3a5f; margin-bottom: 20px;">Welcome, {full_name}! 🎉</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                Great news! Your HR Bank account has been reviewed and <strong>activated</strong>. 
+                You now have full access to your {dashboard_name}.
+            </p>
+            <div style="background: #f0fdf4; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid #22c55e;">
+                <p style="color: #166534; font-size: 16px; margin: 0; font-weight: 600;">
+                    ✅ Account Status: Active
+                </p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{login_url}" 
+                   style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 18px 50px; 
+                          text-decoration: none; border-radius: 8px; display: inline-block;
+                          font-weight: bold; font-size: 16px; box-shadow: 0 4px 14px rgba(30, 58, 95, 0.3);">
+                    Go to {dashboard_name}
+                </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                If you have any questions, our support team is here to help. Simply reply to this email 
+                or visit our help center.
+            </p>
+        </div>
+        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                HR Bank - Empowering the Modern Workforce
+            </p>
+        </div>
+    </div>
+    """
+    
+    plain_content = f"""
+    Welcome, {full_name}!
+    
+    Great news! Your HR Bank account has been reviewed and activated.
+    You now have full access to your {dashboard_name}.
+    
+    Account Status: Active
+    
+    Log in here: {login_url}
+    
+    HR Bank
+    """
+    
+    return await email_service.send_email(to_email, email_subject, html_content, plain_content)
+
+
+async def send_shift_assignment_email(to_email: str, worker_name: str, shift_details: dict):
+    """Send email notification when a worker is assigned to a shift"""
+    email_subject = f"📅 New Shift Assignment: {shift_details.get('title', 'Shift')}"
+    
+    shift_date = shift_details.get('date', 'TBD')
+    start_time = shift_details.get('start_time', 'TBD')
+    end_time = shift_details.get('end_time', 'TBD')
+    location = shift_details.get('location', 'TBD')
+    employer_name = shift_details.get('employer_name', 'Employer')
+    hourly_rate = shift_details.get('hourly_rate', 'TBD')
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">HR Bank</h1>
+            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">Shift Assignment</p>
+        </div>
+        <div style="padding: 40px 30px; background: #ffffff;">
+            <h2 style="color: #1e3a5f; margin-bottom: 20px;">Hi {worker_name}! 📅</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                You've been assigned to a new shift with <strong>{employer_name}</strong>.
+            </p>
+            <div style="background: #f8fafc; border-radius: 12px; padding: 25px; margin: 25px 0; border: 1px solid #e2e8f0;">
+                <h3 style="color: #1e3a5f; margin: 0 0 15px 0; font-size: 18px;">Shift Details</h3>
+                <table style="width: 100%; font-size: 14px; color: #4b5563;">
+                    <tr><td style="padding: 8px 0;"><strong>Date:</strong></td><td>{shift_date}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Time:</strong></td><td>{start_time} - {end_time}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Location:</strong></td><td>{location}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Rate:</strong></td><td>${hourly_rate}/hr</td></tr>
+                </table>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://hrbank.ca/workforce/my-shifts" 
+                   style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 15px 40px; 
+                          text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+                    View Shift Details
+                </a>
+            </div>
+        </div>
+        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">HR Bank</p>
+        </div>
+    </div>
+    """
+    
+    return await email_service.send_email(to_email, email_subject, html_content)
+
+
+async def send_document_expiry_warning_email(to_email: str, user_name: str, document_name: str, expiry_date: str, days_remaining: int):
+    """Send email warning when a document is about to expire"""
+    urgency = "⚠️" if days_remaining <= 7 else "📋"
+    urgency_color = "#dc2626" if days_remaining <= 7 else "#f59e0b"
+    
+    email_subject = f"{urgency} Document Expiring Soon: {document_name}"
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">HR Bank</h1>
+            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">Document Reminder</p>
+        </div>
+        <div style="padding: 40px 30px; background: #ffffff;">
+            <h2 style="color: #1e3a5f; margin-bottom: 20px;">Hi {user_name},</h2>
+            <div style="background: #fef3c7; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid {urgency_color};">
+                <p style="color: #92400e; font-size: 16px; margin: 0;">
+                    <strong>{document_name}</strong> expires in <strong>{days_remaining} day(s)</strong>
+                </p>
+                <p style="color: #92400e; font-size: 14px; margin: 10px 0 0 0;">
+                    Expiry Date: {expiry_date}
+                </p>
+            </div>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                Please renew your document before it expires to maintain your active status and 
+                continue receiving shift assignments.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://hrbank.ca/workforce/documents" 
+                   style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 15px 40px; 
+                          text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+                    Upload Renewed Document
+                </a>
+            </div>
+        </div>
+        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">HR Bank</p>
+        </div>
+    </div>
+    """
+    
+    return await email_service.send_email(to_email, email_subject, html_content)
+
+
+async def send_payroll_ready_email(to_email: str, worker_name: str, pay_period: str, amount: float):
+    """Send email notification when payroll is processed and ready"""
+    email_subject = f"💰 Your Pay is Ready: {pay_period}"
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">HR Bank</h1>
+            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">Payment Notification</p>
+        </div>
+        <div style="padding: 40px 30px; background: #ffffff;">
+            <h2 style="color: #1e3a5f; margin-bottom: 20px;">Hi {worker_name}! 💰</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                Your payment for <strong>{pay_period}</strong> has been processed.
+            </p>
+            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+                <p style="color: #166534; font-size: 14px; margin: 0 0 5px 0;">Amount Paid</p>
+                <p style="color: #166534; font-size: 36px; font-weight: bold; margin: 0;">${amount:.2f} CAD</p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://hrbank.ca/workforce/wallet" 
+                   style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 15px 40px; 
+                          text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+                    View Pay Details
+                </a>
+            </div>
+        </div>
+        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">HR Bank</p>
+        </div>
+    </div>
+    """
+    
+    return await email_service.send_email(to_email, email_subject, html_content)
