@@ -377,6 +377,44 @@ async def migrate_occupations_to_object_format(
     
     migrated_count = 0
     already_migrated_count = 0
+    updated_count = 0
+    
+    # Helper function to get certifications for an occupation title
+    def get_certifications_for_title(occupation_title):
+        # Exact match
+        if occupation_title in smart_matches:
+            return smart_matches[occupation_title]
+        
+        # Partial match - check if any keyword matches
+        title_lower = occupation_title.lower()
+        
+        if "nurse" in title_lower or "rn" in title_lower:
+            return ["CPR/First Aid Certification"]
+        elif "psw" in title_lower or "support worker" in title_lower:
+            return ["Personal Support Worker (PSW) Certificate"]
+        elif "cook" in title_lower or "chef" in title_lower or "food" in title_lower:
+            return ["Food Handler Certificate"]
+        elif "bartender" in title_lower or "bar" in title_lower:
+            return ["Smart Serve Certificate", "Food Handler Certificate"]
+        elif "server" in title_lower or "waiter" in title_lower or "waitress" in title_lower:
+            return ["Food Handler Certificate"]
+        elif "security" in title_lower or "guard" in title_lower:
+            return ["Security Guard License"]
+        elif "electrician" in title_lower:
+            return ["Electrical License"]
+        elif "driver" in title_lower:
+            if "truck" in title_lower or "commercial" in title_lower:
+                return ["Commercial Driver's License (AZ)"]
+            else:
+                return ["Ontario Driver's License (G)"]
+        elif "forklift" in title_lower:
+            return ["Forklift Operator Certificate"]
+        elif "construction" in title_lower or "laborer" in title_lower:
+            return ["WHMIS 2015 Certificate", "Working at Heights Certificate"]
+        elif "warehouse" in title_lower:
+            return ["WHMIS 2015 Certificate"]
+        
+        return []
     
     # Process each category
     for category_name, category_data in categories.items():
@@ -386,47 +424,24 @@ async def migrate_occupations_to_object_format(
         for occ in occupations_list:
             # Check if already in object format
             if isinstance(occ, dict):
+                occupation_title = occ.get("title", "")
+                existing_certs = occ.get("required_certifications", [])
+                
+                # If no certifications, try to add them via smart matching
+                if not existing_certs:
+                    smart_certs = get_certifications_for_title(occupation_title)
+                    if smart_certs:
+                        occ["required_certifications"] = smart_certs
+                        updated_count += 1
+                    else:
+                        occ["required_certifications"] = []
+                
                 already_migrated_count += 1
                 new_occupations.append(occ)
             else:
                 # It's a string - migrate it
                 occupation_title = occ
-                
-                # Smart match certifications
-                required_certs = []
-                
-                # Exact match
-                if occupation_title in smart_matches:
-                    required_certs = smart_matches[occupation_title]
-                else:
-                    # Partial match - check if any keyword matches
-                    title_lower = occupation_title.lower()
-                    
-                    if "nurse" in title_lower or "rn" in title_lower:
-                        required_certs = ["CPR/First Aid Certification"]
-                    elif "psw" in title_lower or "support worker" in title_lower:
-                        required_certs = ["Personal Support Worker (PSW) Certificate"]
-                    elif "cook" in title_lower or "chef" in title_lower or "food" in title_lower:
-                        required_certs = ["Food Handler Certificate"]
-                    elif "bartender" in title_lower or "bar" in title_lower:
-                        required_certs = ["Smart Serve Certificate", "Food Handler Certificate"]
-                    elif "server" in title_lower or "waiter" in title_lower or "waitress" in title_lower:
-                        required_certs = ["Food Handler Certificate"]
-                    elif "security" in title_lower or "guard" in title_lower:
-                        required_certs = ["Security Guard License"]
-                    elif "electrician" in title_lower:
-                        required_certs = ["Electrical License"]
-                    elif "driver" in title_lower:
-                        if "truck" in title_lower or "commercial" in title_lower:
-                            required_certs = ["Commercial Driver's License (AZ)"]
-                        else:
-                            required_certs = ["Ontario Driver's License (G)"]
-                    elif "forklift" in title_lower:
-                        required_certs = ["Forklift Operator Certificate"]
-                    elif "construction" in title_lower or "laborer" in title_lower:
-                        required_certs = ["WHMIS 2015 Certificate", "Working at Heights Certificate"]
-                    elif "warehouse" in title_lower:
-                        required_certs = ["WHMIS 2015 Certificate"]
+                required_certs = get_certifications_for_title(occupation_title)
                 
                 # Create object format
                 occupation_obj = {
