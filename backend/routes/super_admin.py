@@ -692,13 +692,14 @@ async def activate_user_account(
 ):
     """Activate a pending user account"""
     
-    admin = await get_admin_user(current_user["user_id"], db)
-    # Super admins bypass permission checks, regular admins need specific permission
-    if admin and current_user.get("user_type") != "super_admin" and not admin.has_permission("can_activate_users"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Permission denied: cannot activate users"
-        )
+    # Super admins can always activate users
+    if current_user.get("user_type") != "super_admin":
+        admin = await get_admin_user(current_user["user_id"], db)
+        if admin and not admin.has_permission("can_activate_users"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission denied: cannot activate users"
+            )
     
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     if not user:
