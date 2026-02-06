@@ -412,6 +412,7 @@ function AppRoutes() {
         <Route path="/employer/notifications" element={<ProtectedRoute allowedUserTypes={['employer']}><Notifications /></ProtectedRoute>} />
         <Route path="/employer/settings" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerSettings /></ProtectedRoute>} />
         <Route path="/employer/documents" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerDocuments /></ProtectedRoute>} />
+        <Route path="/employer/insurance" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerInsuranceUpload /></ProtectedRoute>} />
         <Route path="/employer/time-off" element={<ProtectedRoute allowedUserTypes={['employer']}><EmployerTimeOffManagement /></ProtectedRoute>} />
         <Route path="/employer/support" element={<ProtectedRoute allowedUserTypes={['employer']}><Support /></ProtectedRoute>} />
         <Route path="/employer/invoices" element={<ProtectedRoute allowedUserTypes={['employer']}><Invoices /></ProtectedRoute>} />
