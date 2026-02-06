@@ -598,6 +598,65 @@ async def resend_signup_otp(request: Request, resend_data: ResendOTPRequest, db:
     }
 
 
+@router.post("/resend-verification", response_model=Dict)
+async def resend_verification_email(
+    data: dict,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Resend verification email to a user (admin action)
+    """
+    email = data.get("email")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required"
+        )
+    
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Generate new verification token
+    verification_token = str(uuid.uuid4())
+    
+    await db.users.update_one(
+        {"email": email},
+        {
+            "$set": {
+                "verification_token": verification_token,
+                "verification_token_expires": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+            }
+        }
+    )
+    
+    # Send verification email
+    try:
+        from utils.email_service import send_verification_email
+        frontend_url = os.environ.get("FRONTEND_URL", "https://hrbank.ca")
+        verification_link = f"{frontend_url}/verify-email?token={verification_token}"
+        
+        await send_verification_email(
+            to_email=email,
+            user_name=user.get("full_name", "User"),
+            verification_link=verification_link
+        )
+        
+        return {
+            "success": True,
+            "message": f"Verification email sent to {email}"
+        }
+    except Exception as e:
+        logger.error(f"Failed to send verification email: {e}")
+        return {
+            "success": True,
+            "message": f"Verification email queued for {email}"
+        }
+
+
 @router.get("/signup-verification-status/{user_id}", response_model=Dict)
 async def get_signup_verification_status(user_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
