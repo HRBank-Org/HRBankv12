@@ -149,8 +149,10 @@
             })(document, window.posthog || []);
             // PostHog initialization with error handling
             try {
-                if (window.REACT_APP_POSTHOG_KEY && window.REACT_APP_POSTHOG_KEY !== '%REACT_APP_POSTHOG_KEY%') {
-                    posthog.init(window.REACT_APP_POSTHOG_KEY, {
+                var phKey = window.REACT_APP_POSTHOG_KEY;
+                var isPlaceholder = phKey && phKey.indexOf('%') === 0;
+                if (phKey && !isPlaceholder) {
+                    posthog.init(phKey, {
                         api_host: "https://us.i.posthog.com",
                         person_profiles: "identified_only",
                         autocapture: true,
