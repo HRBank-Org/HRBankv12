@@ -128,9 +128,28 @@ const MinimumWageManager = () => {
           <div className="p-6">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
-              <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">Minimum Wage Management</h1>
-                <p className="text-gray-600">Configure provincial minimum wage settings</p>
+              <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Minimum Wage Management</h1>
+                  <p className="text-gray-600">Configure provincial minimum wage settings</p>
+                </div>
+                <button
+                  onClick={handleInitialize}
+                  disabled={initializing}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {initializing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <FiDollarSign size={18} />
+                      Load Latest Rates (Feb 2026)
+                    </>
+                  )}
+                </button>
               </div>
 
         {/* Alert Banner */}
