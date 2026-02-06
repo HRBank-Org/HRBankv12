@@ -39,6 +39,24 @@ const MinimumWageManager = () => {
     }
   };
 
+  const handleInitialize = async () => {
+    if (!window.confirm('This will update all provinces with the latest Canadian minimum wage rates (Feb 2026). Continue?')) {
+      return;
+    }
+    
+    setInitializing(true);
+    try {
+      const res = await api.post('/api/admin/minimum-wages/initialize');
+      alert(res.data.message || 'Minimum wages initialized successfully');
+      loadWages(); // Reload data
+    } catch (error) {
+      console.error('Failed to initialize minimum wages:', error);
+      alert(error.response?.data?.detail || 'Failed to initialize minimum wages');
+    } finally {
+      setInitializing(false);
+    }
+  };
+
   const handleEdit = (province) => {
     setEditingProvince(province.province_code);
     setEditForm({
