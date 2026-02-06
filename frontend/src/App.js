@@ -57,6 +57,7 @@ import WorkforceSettings from './pages/workforce/Settings';
 import WorkforceDocuments from './pages/workforce/Documents';
 import EmployerSettings from './pages/employer/Settings';
 import EmployerDocuments from './pages/employer/Documents';
+import EmployerInsuranceUpload from './pages/employer/InsuranceUpload';
 import InstitutionDocuments from './pages/institution/Documents';
 import InstitutionDashboard from './pages/institution/InstitutionDashboard';
 import InstitutionSettings from './pages/institution/Settings';
