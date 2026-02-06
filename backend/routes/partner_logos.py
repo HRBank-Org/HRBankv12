@@ -15,27 +15,35 @@ async def get_partner_logos():
     try:
         db = await get_database()
         
-        # Fetch institutions that have logos uploaded
+        # Fetch institutions that have logos uploaded (check both field names for compatibility)
         institutions = await db.institution_profiles.find(
             {
-                "institution_logo_url": {"$exists": True, "$ne": ""},
+                "$or": [
+                    {"institution_logo_url": {"$exists": True, "$ne": "", "$not": {"$regex": "placeholder"}}},
+                    {"logo_url": {"$exists": True, "$ne": "", "$not": {"$regex": "placeholder"}}}
+                ],
                 "onboarding_completed": True
             },
             {
                 "_id": 0,
                 "institution_id": 1,
                 "institution_name": 1,
-                "institution_logo_url": 1
+                "institution_logo_url": 1,
+                "logo_url": 1
             }
         ).limit(20).to_list(20)
         
         # Format response for carousel
         partner_logos = []
         for inst in institutions:
+            logo_url = inst.get("institution_logo_url") or inst.get("logo_url", "")
+            # Skip if no valid logo URL or if it's a placeholder
+            if not logo_url or "placeholder" in logo_url.lower():
+                continue
             partner_logos.append({
                 "id": inst.get("institution_id", ""),
                 "institution_name": inst.get("institution_name", "Partner Institution"),
-                "logo_url": inst.get("institution_logo_url", "")
+                "logo_url": logo_url
             })
         
         return partner_logos
