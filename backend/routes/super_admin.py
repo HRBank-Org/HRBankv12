@@ -5,7 +5,7 @@ Comprehensive admin management with role-based access control,
 franchise management, and regional assignments.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
 from auth.dependencies import get_current_user
