@@ -6,17 +6,21 @@ FROM node:20-slim AS builder
 WORKDIR /app
 
 # Copy package files
-COPY frontend/package.json frontend/yarn.lock ./
+COPY frontend/package.json ./
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+# Install dependencies (regenerate lockfile if needed)
+RUN yarn install --network-timeout 100000
 
 # Copy frontend code
 COPY frontend/ .
 
 # Build argument for backend URL
 ARG REACT_APP_BACKEND_URL=https://hrbank.ca
+ARG REACT_APP_GOOGLE_CLIENT_ID
+ARG REACT_APP_POSTHOG_KEY
 ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
+ENV REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
+ENV REACT_APP_POSTHOG_KEY=$REACT_APP_POSTHOG_KEY
 
 # Build the app
 RUN yarn build
