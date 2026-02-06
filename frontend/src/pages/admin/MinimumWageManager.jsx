@@ -9,6 +9,7 @@ import { FiEdit2, FiCheck, FiX, FiAlertCircle, FiDollarSign, FiCalendar, FiClock
 const MinimumWageManager = () => {
   const [wages, setWages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initializing, setInitializing] = useState(false);
   const [editingProvince, setEditingProvince] = useState(null);
   const [editForm, setEditForm] = useState({
     minimum_wage: '',
