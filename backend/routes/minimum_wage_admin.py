@@ -35,26 +35,27 @@ async def initialize_minimum_wages(
 ):
     """
     Initialize minimum wage data for all Canadian provinces
-    Current rates as of 2024
+    Current rates as of February 2026
     """
     
     initial_wages = [
-        {"province_code": "ON", "minimum_wage": 16.55, "province_name": "Ontario"},
-        {"province_code": "BC", "minimum_wage": 16.75, "province_name": "British Columbia"},
-        {"province_code": "AB", "minimum_wage": 15.00, "province_name": "Alberta"},
-        {"province_code": "QC", "minimum_wage": 15.25, "province_name": "Quebec"},
-        {"province_code": "MB", "minimum_wage": 15.30, "province_name": "Manitoba"},
-        {"province_code": "SK", "minimum_wage": 14.00, "province_name": "Saskatchewan"},
-        {"province_code": "NS", "minimum_wage": 15.00, "province_name": "Nova Scotia"},
-        {"province_code": "NB", "minimum_wage": 14.75, "province_name": "New Brunswick"},
-        {"province_code": "NL", "minimum_wage": 15.00, "province_name": "Newfoundland and Labrador"},
-        {"province_code": "PE", "minimum_wage": 15.00, "province_name": "Prince Edward Island"},
-        {"province_code": "NT", "minimum_wage": 16.05, "province_name": "Northwest Territories"},
-        {"province_code": "YT", "minimum_wage": 16.77, "province_name": "Yukon"},
-        {"province_code": "NU", "minimum_wage": 19.00, "province_name": "Nunavut"}
+        {"province_code": "ON", "minimum_wage": 17.60, "student_wage": 16.60, "province_name": "Ontario"},
+        {"province_code": "BC", "minimum_wage": 17.85, "province_name": "British Columbia"},
+        {"province_code": "AB", "minimum_wage": 15.00, "student_wage": 13.00, "province_name": "Alberta"},
+        {"province_code": "QC", "minimum_wage": 16.10, "tipped_wage": 12.20, "province_name": "Quebec"},
+        {"province_code": "MB", "minimum_wage": 16.00, "province_name": "Manitoba"},
+        {"province_code": "SK", "minimum_wage": 15.35, "province_name": "Saskatchewan"},
+        {"province_code": "NS", "minimum_wage": 16.50, "province_name": "Nova Scotia"},
+        {"province_code": "NB", "minimum_wage": 15.65, "province_name": "New Brunswick"},
+        {"province_code": "NL", "minimum_wage": 16.00, "province_name": "Newfoundland and Labrador"},
+        {"province_code": "PE", "minimum_wage": 16.50, "province_name": "Prince Edward Island"},
+        {"province_code": "NT", "minimum_wage": 16.95, "province_name": "Northwest Territories"},
+        {"province_code": "YT", "minimum_wage": 17.94, "province_name": "Yukon"},
+        {"province_code": "NU", "minimum_wage": 19.75, "province_name": "Nunavut"}
     ]
     
     created = 0
+    updated = 0
     for wage_data in initial_wages:
         existing = await db.minimum_wages.find_one({"province_code": wage_data["province_code"]})
         
