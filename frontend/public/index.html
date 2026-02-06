@@ -147,12 +147,24 @@
                     }),
                     (e.__SV = 1));
             })(document, window.posthog || []);
-            // PostHog initialization - key injected at build time
-            if (window.REACT_APP_POSTHOG_KEY) {
-                posthog.init(window.REACT_APP_POSTHOG_KEY, {
-                    api_host: "https://us.i.posthog.com",
-                    person_profiles: "identified_only",
-                });
+            // PostHog initialization with error handling
+            try {
+                if (window.REACT_APP_POSTHOG_KEY && window.REACT_APP_POSTHOG_KEY !== '%REACT_APP_POSTHOG_KEY%') {
+                    posthog.init(window.REACT_APP_POSTHOG_KEY, {
+                        api_host: "https://us.i.posthog.com",
+                        person_profiles: "identified_only",
+                        autocapture: true,
+                        capture_pageview: true,
+                        capture_pageleave: true,
+                        cross_subdomain_cookie: true,
+                        persistence: "localStorage+cookie",
+                        loaded: function(posthog) {
+                            console.log('PostHog loaded successfully');
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('PostHog initialization failed:', e);
             }
         </script>
     </body>
