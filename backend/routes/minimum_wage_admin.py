@@ -64,15 +64,30 @@ async def initialize_minimum_wages(
                 **wage_data,
                 effective_date=datetime.now(timezone.utc),
                 updated_by=current_user['user_id'],
-                notes="Initial system setup"
+                notes="Initial system setup - Feb 2026 rates"
             )
             
             await db.minimum_wages.insert_one(wage.model_dump())
             created += 1
+        else:
+            # Update existing record with latest rates
+            await db.minimum_wages.update_one(
+                {"province_code": wage_data["province_code"]},
+                {"$set": {
+                    "minimum_wage": wage_data["minimum_wage"],
+                    "student_wage": wage_data.get("student_wage"),
+                    "tipped_wage": wage_data.get("tipped_wage"),
+                    "effective_date": datetime.now(timezone.utc).isoformat(),
+                    "updated_by": current_user['user_id'],
+                    "notes": "Updated to Feb 2026 rates"
+                }}
+            )
+            updated += 1
     
     return {
         "success": True,
-        "message": f"Initialized minimum wages for {created} provinces"
+        "message": f"Initialized {created} new provinces, updated {updated} existing",
+        "data": {"created": created, "updated": updated}
     }
 
 @router.get("/list", response_model=Dict)
