@@ -607,8 +607,8 @@ async def get_pending_activations(
             detail="Permission denied: cannot view pending activations"
         )
     
-    # Build query for pending users
-    query = {"profile_status": {"$in": ["pending", "under_review"]}}
+    # Build query for pending users - include all pending-like statuses
+    query = {"profile_status": {"$in": ["pending", "pending verification", "pending_verification", "under_review"]}}
     
     if user_type:
         query["user_type"] = user_type
