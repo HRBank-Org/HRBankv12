@@ -25,14 +25,19 @@ const AdminLogin = () => {
         user_type: 'admin'
       });
 
+      console.log('Login response:', response);
+      console.log('User type from response:', response?.data?.user_type);
+
       if (response.success) {
+        const userType = response.data?.user_type;
         // Verify it's an admin or super_admin
-        if (response.data.user_type === 'admin' || response.data.user_type === 'super_admin') {
+        if (userType === 'admin' || userType === 'super_admin') {
           // Small delay to ensure token is stored
           setTimeout(() => {
             navigate('/admin/super-dashboard');
           }, 100);
         } else {
+          console.error('User type mismatch. Expected admin/super_admin, got:', userType);
           setError('Access denied. Admin credentials required.');
           logout();
         }
