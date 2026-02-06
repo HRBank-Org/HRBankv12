@@ -119,6 +119,16 @@ const ModernSidebar = () => {
     },
     {
       type: 'category',
+      label: 'Compliance'
+    },
+    {
+      type: 'item',
+      label: 'Insurance',
+      icon: FiUploadCloud,
+      path: '/employer/insurance'
+    },
+    {
+      type: 'category',
       label: 'Support'
     },
     {
