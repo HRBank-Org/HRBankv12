@@ -686,7 +686,7 @@ async def get_pending_activations(
 @router.post("/activate-user/{user_id}", response_model=Dict)
 async def activate_user_account(
     user_id: str,
-    activation_data: dict = None,
+    activation_data: dict = Body(default={}),
     current_user: dict = Depends(require_super_admin),
     db = Depends(get_db)
 ):
