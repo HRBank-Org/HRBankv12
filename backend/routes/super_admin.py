@@ -123,13 +123,16 @@ async def list_admins(
 ):
     """List all admin users with filtering and pagination"""
     
-    # Check permission
-    admin = await get_admin_user(current_user["user_id"], db)
-    if admin and not admin.is_super_admin and not admin.has_permission("can_edit_admins"):
-        # Non-super admins can only see admins in their region
-        query = {"assigned_provinces": {"$in": admin.assigned_provinces or []}}
-    else:
+    # Check permission - super_admins can see all admins
+    if current_user.get("user_type") == "super_admin":
         query = {}
+    else:
+        admin = await get_admin_user(current_user["user_id"], db)
+        if admin and not admin.is_super_admin and not admin.has_permission("can_edit_admins"):
+            # Non-super admins can only see admins in their region
+            query = {"assigned_provinces": {"$in": admin.assigned_provinces or []}}
+        else:
+            query = {}
     
     if role:
         query["role"] = role
