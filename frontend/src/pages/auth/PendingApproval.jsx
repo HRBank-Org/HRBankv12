@@ -1,11 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const PendingApproval = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const theme = useTheme();
+  const navigate = useNavigate();
+
+  // Check if user status has changed (e.g., admin activated the account)
+  useEffect(() => {
+    const checkStatus = async () => {
+      if (refreshUser) {
+        await refreshUser();
+      }
+      
+      if (user?.profile_status === 'active') {
+        // Redirect to appropriate dashboard
+        const redirectMap = {
+          workforce: '/workforce/dashboard',
+          employer: '/employer/home',
+          institution: '/institution/dashboard',
+          workpassport: '/workpassport/dashboard',
+          admin: '/admin/super-dashboard',
+          super_admin: '/admin/super-dashboard'
+        };
+        navigate(redirectMap[user.user_type] || '/');
+      }
+    };
+    
+    // Check immediately and then every 30 seconds
+    checkStatus();
+    const interval = setInterval(checkStatus, 30000);
+    return () => clearInterval(interval);
+  }, [user, navigate, refreshUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: theme.bgColor }}>
