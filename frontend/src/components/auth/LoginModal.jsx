@@ -111,8 +111,8 @@ const LoginModal = ({ isOpen, onClose, userType = 'workforce' }) => {
         return;
       }
 
-      // Check profile status
-      if (profile_status === 'pending') {
+      // Check profile status - handle all pending states
+      if (profile_status === 'pending' || profile_status === 'pending verification' || profile_status === 'pending_verification') {
         navigate('/pending-approval');
         onClose();
         return;
@@ -124,8 +124,8 @@ const LoginModal = ({ isOpen, onClose, userType = 'workforce' }) => {
         return;
       }
 
-      // Check if needs onboarding
-      if (needs_onboarding) {
+      // Check if needs onboarding (only for active accounts)
+      if (needs_onboarding && profile_status === 'active') {
         if (user_type === 'employer') {
           navigate('/employer/onboarding');
         } else if (user_type === 'workforce') {
@@ -140,7 +140,9 @@ const LoginModal = ({ isOpen, onClose, userType = 'workforce' }) => {
         workforce: '/workforce/dashboard',
         employer: '/employer/home',
         institution: '/institution/dashboard',
-        admin: '/admin/super-dashboard'
+        workpassport: '/workpassport/dashboard',
+        admin: '/admin/super-dashboard',
+        super_admin: '/admin/super-dashboard'
       };
       
       navigate(redirectMap[user_type] || '/');
