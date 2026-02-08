@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -7,6 +7,13 @@ const WorkforceOnboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+
+  // If user is already active, redirect to dashboard
+  useEffect(() => {
+    if (user?.profile_status === 'active' || user?.account_status === 'active') {
+      navigate('/workforce/dashboard');
+    }
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
