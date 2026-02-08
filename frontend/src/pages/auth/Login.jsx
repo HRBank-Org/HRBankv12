@@ -75,8 +75,8 @@ const LoginForm = () => {
       const response = await login({ email, password });
       const { user_type, profile_status, needs_onboarding } = response.data;
       
-      // Check profile status first
-      if (profile_status === 'pending') {
+      // Check profile status first - handle all pending states
+      if (profile_status === 'pending' || profile_status === 'pending verification' || profile_status === 'pending_verification') {
         navigate('/pending-approval');
         return;
       }
@@ -87,8 +87,8 @@ const LoginForm = () => {
         return;
       }
       
-      // Check if needs onboarding
-      if (needs_onboarding) {
+      // Check if needs onboarding (only for active accounts)
+      if (needs_onboarding && profile_status === 'active') {
         if (user_type === 'employer') {
           navigate('/employer/onboarding');
         } else if (user_type === 'workforce') {
