@@ -85,12 +85,26 @@ const PendingApproval = () => {
             <p>Questions? Contact us at <a href="mailto:support@hrbank.ca" className="hover:underline" style={{ color: theme.primaryColor }}>support@hrbank.ca</a></p>
           </div>
 
-          <button
-            onClick={logout}
-            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
-          >
-            Logout
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={async () => {
+                if (refreshUser) {
+                  await refreshUser();
+                }
+                window.location.reload();
+              }}
+              className="px-6 py-3 rounded-lg text-white font-medium"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              Check Status
+            </button>
+            <button
+              onClick={logout}
+              className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </div>
