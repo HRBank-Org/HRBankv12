@@ -70,7 +70,7 @@
 ## Penetration Testing Scope
 
 ### In-Scope Systems
-1. **Web Application**: `https://hrmanagement-3.preview.emergentagent.com`
+1. **Web Application**: `https://go-live-v2.preview.emergentagent.com`
 2. **API Endpoints**: All `/api/*` routes
 3. **Authentication**: Login, signup, password reset, OAuth
 4. **File Upload**: Resume, document, image uploads
