@@ -128,6 +128,12 @@ const ModernSidebar = () => {
       path: '/employer/insurance'
     },
     {
+      type: 'item',
+      label: 'Jurisdictions',
+      icon: FiGlobe,
+      path: '/employer/jurisdiction-settings'
+    },
+    {
       type: 'category',
       label: 'Support'
     },
