@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
 const BulkInvite = () => {
@@ -118,221 +119,215 @@ const BulkInvite = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/institution/dashboard')} className="hover:opacity-80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+    <InstitutionLayout title="Invite Students/Graduates" subtitle="Send bulk invitations to students and graduates">
+      <div className="bg-white rounded-lg shadow-sm p-8" data-testid="bulk-invite-page">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Bulk Invite Students</h2>
+            <p className="text-gray-600 mt-1">
+              Invite your students and graduates to join HR Bank and find employment
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={downloadTemplate}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
+              data-testid="download-template-btn"
+            >
+              Download CSV Template
             </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <h1 className="text-xl font-bold">Invite Students/Graduates</h1>
+            <label className="px-4 py-2 rounded-lg text-sm font-medium text-white cursor-pointer bg-indigo-600 hover:bg-indigo-700"
+                   data-testid="upload-csv-label">
+              Upload CSV
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleCSVUpload}
+                className="hidden"
+                data-testid="csv-file-input"
+              />
+            </label>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Bulk Invite Students</h2>
-              <p className="text-gray-600 mt-1">
-                Invite your students and graduates to join HR Bank and find employment
+        {/* CSV Upload Info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1">
+              <h3 className="font-semibold text-blue-900 mb-2">
+                {uploadMode === 'csv' ? 'CSV Loaded' : 'CSV Format:'}
+              </h3>
+              {uploadMode === 'csv' ? (
+                <div className="text-sm text-blue-800">
+                  <p><strong>{invites.length} students loaded from CSV</strong></p>
+                  <p className="text-xs mt-1">Review the table below and click Send to invite them all.</p>
+                </div>
+              ) : (
+                <div className="text-sm text-blue-800">
+                  <p className="mb-2">
+                    <strong>Columns:</strong> full_name, email, phone, program, graduation_year
+                  </p>
+                  <p className="text-xs">
+                    Example: John Doe, john@example.com, +1-519-555-0001, Personal Support Worker, 2024
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Message Display */}
+        {message.text && (
+          <div className={`rounded-lg p-4 mb-6 ${
+            message.type === 'success' 
+              ? 'bg-green-50 border border-green-200 text-green-800' 
+              : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-center gap-2">
+              {message.type === 'success' ? (
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+              <span className="font-medium">{message.text}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Manual Entry Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Program</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Grad Year</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {invites.map((invite, index) => (
+                  <tr key={index}>
+                    <td className="px-4 py-3">
+                      <input
+                        type="text"
+                        value={invite.full_name}
+                        onChange={(e) => updateRow(index, 'full_name', e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="John Doe"
+                        data-testid={`invite-name-${index}`}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="email"
+                        value={invite.email}
+                        onChange={(e) => updateRow(index, 'email', e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="john@example.com"
+                        data-testid={`invite-email-${index}`}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="tel"
+                        value={invite.phone}
+                        onChange={(e) => updateRow(index, 'phone', e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="+1-519-555-0001"
+                        data-testid={`invite-phone-${index}`}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="text"
+                        value={invite.program}
+                        onChange={(e) => updateRow(index, 'program', e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="PSW"
+                        data-testid={`invite-program-${index}`}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="number"
+                        value={invite.graduation_year}
+                        onChange={(e) => updateRow(index, 'graduation_year', e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="2024"
+                        data-testid={`invite-year-${index}`}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      {invites.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeRow(index)}
+                          className="text-red-600 hover:text-red-800"
+                          data-testid={`remove-invite-${index}`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <button
+            type="button"
+            onClick={addRow}
+            className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 transition-colors"
+            data-testid="add-row-btn"
+          >
+            + Add Another Person
+          </button>
+
+          {result && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+              <h3 className="font-semibold text-green-900 mb-2">Invitations Sent!</h3>
+              <p className="text-sm text-green-800">
+                Successfully sent <strong>{result.successful_invites}</strong> invitations
+                {result.failed_rows > 0 && ` (${result.failed_rows} failed)`}
               </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={downloadTemplate}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
-              >
-                📥 Download CSV Template
-              </button>
-              <label className="px-4 py-2 rounded-lg text-sm font-medium text-white cursor-pointer"
-                     style={{ backgroundColor: theme.primaryColor }}>
-                📤 Upload CSV
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleCSVUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          </div>
-
-          {/* CSV Upload Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-            <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div className="flex-1">
-                <h3 className="font-semibold text-blue-900 mb-2">
-                  {uploadMode === 'csv' ? '✅ CSV Loaded' : 'CSV Format:'}
-                </h3>
-                {uploadMode === 'csv' ? (
-                  <div className="text-sm text-blue-800">
-                    <p><strong>{invites.length} students loaded from CSV</strong></p>
-                    <p className="text-xs mt-1">Review the table below and click Send to invite them all.</p>
-                  </div>
-                ) : (
-                  <div className="text-sm text-blue-800">
-                    <p className="mb-2">
-                      <strong>Columns:</strong> full_name, email, phone, program, graduation_year
-                    </p>
-                    <p className="text-xs">
-                      Example: John Doe, john@example.com, +1-519-555-0001, Personal Support Worker, 2024
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Message Display */}
-          {message.text && (
-            <div className={`rounded-lg p-4 mb-6 ${
-              message.type === 'success' 
-                ? 'bg-green-50 border border-green-200 text-green-800' 
-                : 'bg-red-50 border border-red-200 text-red-800'
-            }`}>
-              <div className="flex items-center gap-2">
-                {message.type === 'success' ? (
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                )}
-                <span className="font-medium">{message.text}</span>
-              </div>
             </div>
           )}
 
-          {/* Manual Entry Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Program</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Grad Year</th>
-                    <th className="px-4 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {invites.map((invite, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          value={invite.full_name}
-                          onChange={(e) => updateRow(index, 'full_name', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                          placeholder="John Doe"
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          type="email"
-                          value={invite.email}
-                          onChange={(e) => updateRow(index, 'email', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                          placeholder="john@example.com"
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          type="tel"
-                          value={invite.phone}
-                          onChange={(e) => updateRow(index, 'phone', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                          placeholder="+1-519-555-0001"
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          value={invite.program}
-                          onChange={(e) => updateRow(index, 'program', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                          placeholder="PSW"
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          type="number"
-                          value={invite.graduation_year}
-                          onChange={(e) => updateRow(index, 'graduation_year', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                          placeholder="2024"
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        {invites.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeRow(index)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
+          <div className="flex gap-4 pt-6 border-t border-gray-200">
             <button
               type="button"
-              onClick={addRow}
-              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 transition-colors"
+              onClick={() => navigate('/institution/dashboard')}
+              className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+              data-testid="cancel-btn"
             >
-              + Add Another Person
+              Cancel
             </button>
-
-            {result && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                <h3 className="font-semibold text-green-900 mb-2">Invitations Sent!</h3>
-                <p className="text-sm text-green-800">
-                  Successfully sent <strong>{result.successful_invites}</strong> invitations
-                  {result.failed_rows > 0 && ` (${result.failed_rows} failed)`}
-                </p>
-              </div>
-            )}
-
-            <div className="flex gap-4 pt-6 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={() => navigate('/institution/dashboard')}
-                className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={uploading || invites.filter(i => i.email && i.full_name).length === 0}
-                className="flex-1 py-3 rounded-lg text-white font-semibold disabled:opacity-50"
-                style={{ backgroundColor: theme.primaryColor }}
-              >
-                {uploading ? 'Sending Invitations...' : `Send ${invites.filter(i => i.email && i.full_name).length} Invitation(s)`}
-              </button>
-            </div>
-          </form>
-        </div>
-      </main>
-    </div>
+            <button
+              type="submit"
+              disabled={uploading || invites.filter(i => i.email && i.full_name).length === 0}
+              className="flex-1 py-3 rounded-lg text-white font-semibold disabled:opacity-50 bg-indigo-600 hover:bg-indigo-700"
+              data-testid="send-invites-btn"
+            >
+              {uploading ? 'Sending Invitations...' : `Send ${invites.filter(i => i.email && i.full_name).length} Invitation(s)`}
+            </button>
+          </div>
+        </form>
+      </div>
+    </InstitutionLayout>
   );
 };
 
