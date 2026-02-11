@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
+import { Upload, X, Camera } from 'lucide-react';
 
 const InstitutionSettings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -31,10 +28,8 @@ const InstitutionSettings = () => {
   // Logo upload states
   const [showLogoUpload, setShowLogoUpload] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [crop, setCrop] = useState({ unit: '%', width: 100, aspect: 1 });
-  const [completedCrop, setCompletedCrop] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
-  const imgRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Password change states
