@@ -45,12 +45,13 @@ class ClassTemplate(BaseModel):
 
 
 class InstitutionClass(BaseModel):
-    """A class/course offered by institution"""
+    """A class/cohort offered by institution - optionally linked to a program"""
     model_config = ConfigDict(extra="ignore")
     
     class_id: str = Field(default_factory=lambda: f"class_{uuid.uuid4().hex[:12]}")
     institution_id: str
     template_id: Optional[str] = None  # If created from template
+    program_id: Optional[str] = None  # Link to program (NEW - for hierarchy)
     
     # Class details
     title: str
