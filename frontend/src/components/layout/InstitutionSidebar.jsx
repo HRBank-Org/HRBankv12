@@ -54,12 +54,6 @@ const InstitutionSidebar = () => {
       path: '/institution/classes'
     },
     {
-      type: 'item',
-      label: 'Templates',
-      icon: ClipboardList,
-      path: '/institution/templates'
-    },
-    {
       type: 'category',
       label: 'Credentials'
     },
