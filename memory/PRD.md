@@ -1061,4 +1061,4 @@ Shifts → PayrollEntry → Adapter (Gusto/Dayforce/ADP) → Export File
 - **Google Analytics**: Website traffic analysis
 
 ---
-*Last Updated: January 28, 2026*
+*Last Updated: December 2025*
