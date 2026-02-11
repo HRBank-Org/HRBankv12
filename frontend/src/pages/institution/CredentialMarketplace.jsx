@@ -101,23 +101,21 @@ const CredentialMarketplace = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <InstitutionLayout title="Credential Marketplace">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      </InstitutionLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <UserHeader />
-      
-      <div className="pt-[64px]">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-8 py-8">
+    <InstitutionLayout>
+      <div data-testid="credential-marketplace-page">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-8 py-8 rounded-xl mb-6">
           <h1 className="text-3xl font-bold mb-2">Credential Marketplace</h1>
           <p className="text-indigo-100">Issue and sell blockchain-verified credentials</p>
         </div>
-
-        <div className="p-8 max-w-7xl mx-auto">
           {/* Summary Stats */}
           {summary && (
             <div className="grid grid-cols-4 gap-4 mb-8">
