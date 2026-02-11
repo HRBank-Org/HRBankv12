@@ -849,16 +849,41 @@ const LandingPage = () => {
 
       {/* Partner Logos Carousel - Only show if we have partners */}
       {partnerLogos.length > 0 && (
-        <section className="py-12 bg-gray-50">
+        <section className="py-16 bg-gray-50 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Trusted By</p>
+            <div className="text-center mb-10">
+              <p className="text-gray-500 text-sm font-medium uppercase tracking-wider">Trusted By Leading Institutions</p>
             </div>
-            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-14">
+          </div>
+          
+          {/* Infinite scrolling carousel */}
+          <div className="relative">
+            <div 
+              className="flex gap-12 animate-scroll-left"
+              style={{
+                width: 'max-content',
+                animation: 'scrollLeft 30s linear infinite'
+              }}
+            >
+              {/* First set of logos */}
               {partnerLogos.map((logo, index) => (
                 <div
-                  key={`${logo.id}-${index}`}
-                  className="w-40 h-20 bg-white rounded-lg flex items-center justify-center p-2 shadow-sm grayscale hover:grayscale-0 hover:shadow-md transition-all"
+                  key={`${logo.id}-${index}-1`}
+                  className="flex-shrink-0 w-56 h-28 bg-white rounded-xl flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
+                >
+                  <img
+                    src={logo.logo_url}
+                    alt={logo.institution_name}
+                    className="max-w-full max-h-full object-contain"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                </div>
+              ))}
+              {/* Duplicate set for seamless loop */}
+              {partnerLogos.map((logo, index) => (
+                <div
+                  key={`${logo.id}-${index}-2`}
+                  className="flex-shrink-0 w-56 h-28 bg-white rounded-xl flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
                 >
                   <img
                     src={logo.logo_url}
@@ -870,6 +895,14 @@ const LandingPage = () => {
               ))}
             </div>
           </div>
+          
+          {/* CSS Animation */}
+          <style>{`
+            @keyframes scrollLeft {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+          `}</style>
         </section>
       )}
 
