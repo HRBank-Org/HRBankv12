@@ -955,108 +955,141 @@ const LandingPage = () => {
           {/* Compliance Badges Section */}
           <div className="border-t border-gray-800 pt-8 mb-8">
             <div className="text-center mb-6">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-6">Security & Compliance</p>
-              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-                {/* SOC2 Badge */}
-                <div className="flex flex-col items-center group cursor-pointer" title="SOC 2 Type II Compliant">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-blue-500 transition-all shadow-lg">
-                      <div className="text-center">
-                        <span className="text-blue-400 font-bold text-sm block leading-tight">SOC 2</span>
-                        <span className="text-[9px] text-slate-400">TYPE II</span>
-                      </div>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-6">Security & Compliance Standards</p>
+              
+              {/* North America Standards */}
+              <div className="mb-8">
+                <p className="text-[10px] text-gray-600 mb-4">North America</p>
+                <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
+                  {/* SOC 2 */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-blue-500/50 transition-colors">
+                    <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                      <span className="text-white font-bold text-xs">SOC</span>
                     </div>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3 text-white" />
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-gray-500">AICPA</span>
-                </div>
-                
-                {/* PIPEDA Badge */}
-                <div className="flex flex-col items-center group cursor-pointer" title="PIPEDA Compliant">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-red-500 transition-all shadow-lg">
-                      <div className="text-center">
-                        <span className="text-red-400 font-bold text-[11px] block leading-tight">PIPEDA</span>
-                        <span className="text-[8px] text-slate-400">CANADA</span>
-                      </div>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">SOC 2 Type II</p>
+                      <p className="text-gray-500 text-[10px]">AICPA Certified</p>
                     </div>
                   </div>
-                  <span className="text-[10px] text-gray-500">Privacy</span>
-                </div>
-                
-                {/* ESA Badge */}
-                <div className="flex flex-col items-center group cursor-pointer" title="Employment Standards Act Compliant">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-amber-500 transition-all shadow-lg">
-                      <div className="text-center">
-                        <span className="text-amber-400 font-bold text-sm block leading-tight">ESA</span>
-                        <span className="text-[8px] text-slate-400">ONTARIO</span>
-                      </div>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3 text-white" />
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-gray-500">Employment</span>
-                </div>
-                
-                {/* PCI-DSS Badge */}
-                <div className="flex flex-col items-center group cursor-pointer" title="PCI-DSS Level 1 via Stripe">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-green-500 transition-all shadow-lg">
-                      <div className="text-center">
-                        <span className="text-green-400 font-bold text-[10px] block leading-tight">PCI DSS</span>
-                        <span className="text-[8px] text-slate-400">LEVEL 1</span>
-                      </div>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3 text-white" />
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-gray-500">Payments</span>
-                </div>
-                
-                {/* ISO 27001 Badge */}
-                <div className="flex flex-col items-center group cursor-pointer" title="ISO 27001 Information Security">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-purple-500 transition-all shadow-lg">
-                      <div className="text-center">
-                        <span className="text-purple-400 font-bold text-[10px] block leading-tight">ISO</span>
-                        <span className="text-purple-400 font-bold text-[10px] block leading-tight">27001</span>
-                      </div>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3 text-white" />
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-gray-500">Security</span>
-                </div>
-                
-                {/* Polygon Blockchain Badge */}
-                <div className="flex flex-col items-center group cursor-pointer" title="Polygon Blockchain Verified">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-indigo-500 transition-all shadow-lg p-2">
-                      <svg viewBox="0 0 38 33" className="w-8 h-8" fill="none">
-                        <path d="M28.6 10.3L20.3 5.4C19.5 4.9 18.5 4.9 17.7 5.4L9.4 10.3C8.6 10.8 8.1 11.6 8.1 12.6V22.4C8.1 23.3 8.6 24.2 9.4 24.7L17.7 29.6C18.5 30.1 19.5 30.1 20.3 29.6L28.6 24.7C29.4 24.2 29.9 23.3 29.9 22.4V12.6C29.9 11.6 29.4 10.8 28.6 10.3Z" fill="#8247E5"/>
-                        <path d="M24.1 14.5L19.8 12C19.3 11.7 18.7 11.7 18.2 12L13.9 14.5C13.4 14.8 13.1 15.3 13.1 15.9V20.9C13.1 21.5 13.4 22 13.9 22.3L18.2 24.8C18.7 25.1 19.3 25.1 19.8 24.8L24.1 22.3C24.6 22 24.9 21.5 24.9 20.9V15.9C24.9 15.3 24.6 14.8 24.1 14.5Z" fill="white"/>
+                  
+                  {/* PIPEDA */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-red-500/50 transition-colors">
+                    <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                       </svg>
                     </div>
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">PIPEDA</p>
+                      <p className="text-gray-500 text-[10px]">Canada Privacy</p>
                     </div>
                   </div>
-                  <span className="text-[10px] text-gray-500">Blockchain</span>
+                  
+                  {/* PCI DSS */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-green-500/50 transition-colors">
+                    <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">PCI DSS</p>
+                      <p className="text-gray-500 text-[10px]">Level 1 via Stripe</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* EU Standards */}
+              <div className="mb-8">
+                <p className="text-[10px] text-gray-600 mb-4">European Union</p>
+                <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
+                  {/* GDPR */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-blue-400/50 transition-colors">
+                    <div className="w-8 h-8 bg-[#003399] rounded flex items-center justify-center">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="#003399"/>
+                        <g fill="#FFCC00">
+                          <circle cx="12" cy="4" r="1"/>
+                          <circle cx="16.5" cy="5.5" r="1"/>
+                          <circle cx="19" cy="9" r="1"/>
+                          <circle cx="20" cy="12" r="1"/>
+                          <circle cx="19" cy="15" r="1"/>
+                          <circle cx="16.5" cy="18.5" r="1"/>
+                          <circle cx="12" cy="20" r="1"/>
+                          <circle cx="7.5" cy="18.5" r="1"/>
+                          <circle cx="5" cy="15" r="1"/>
+                          <circle cx="4" cy="12" r="1"/>
+                          <circle cx="5" cy="9" r="1"/>
+                          <circle cx="7.5" cy="5.5" r="1"/>
+                        </g>
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">GDPR</p>
+                      <p className="text-gray-500 text-[10px]">EU Data Protection</p>
+                    </div>
+                  </div>
+                  
+                  {/* eIDAS */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-indigo-500/50 transition-colors">
+                    <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">eIDAS</p>
+                      <p className="text-gray-500 text-[10px]">Electronic ID</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* International Standards */}
+              <div className="mb-6">
+                <p className="text-[10px] text-gray-600 mb-4">International</p>
+                <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
+                  {/* ISO 27001 */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-purple-500/50 transition-colors">
+                    <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center">
+                      <span className="text-white font-bold text-[10px]">ISO</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">ISO 27001</p>
+                      <p className="text-gray-500 text-[10px]">Info Security</p>
+                    </div>
+                  </div>
+                  
+                  {/* ISO 27701 */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-purple-500/50 transition-colors">
+                    <div className="w-8 h-8 bg-purple-700 rounded flex items-center justify-center">
+                      <span className="text-white font-bold text-[10px]">ISO</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">ISO 27701</p>
+                      <p className="text-gray-500 text-[10px]">Privacy Info Mgmt</p>
+                    </div>
+                  </div>
+                  
+                  {/* Polygon Blockchain */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-[#8247E5]/50 transition-colors">
+                    <div className="w-8 h-8 rounded flex items-center justify-center bg-[#8247E5]">
+                      <svg viewBox="0 0 38 33" className="w-5 h-5" fill="white">
+                        <path d="M29 10.2c-.7-.4-1.6-.4-2.4 0L21 13.5l-3.8 2.1-5.5 3.3c-.7.4-1.6.4-2.4 0l-4.3-2.6c-.7-.4-1.2-1.2-1.2-2.1v-5c0-.8.4-1.6 1.2-2.1l4.3-2.5c.7-.4 1.6-.4 2.4 0l4.3 2.6c.7.4 1.2 1.2 1.2 2.1v3.3l3.8-2.2V7c0-.8-.4-1.6-1.2-2.1l-8-4.7c-.7-.4-1.6-.4-2.4 0L1.2 5C.4 5.4 0 6.2 0 7v9.4c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l5.5-3.2 3.8-2.2 5.5-3.2c.7-.4 1.6-.4 2.4 0l4.3 2.5c.7.4 1.2 1.2 1.2 2.1v5c0 .8-.4 1.6-1.2 2.1L29 29.2c-.7.4-1.6.4-2.4 0l-4.3-2.5c-.7-.4-1.2-1.2-1.2-2.1v-3.2l-3.8 2.2v3.3c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l8.1-4.7c.7-.4 1.2-1.2 1.2-2.1V17c0-.8-.4-1.6-1.2-2.1L29 10.2z"/>
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold">Polygon</p>
+                      <p className="text-gray-500 text-[10px]">Blockchain Verified</p>
+                    </div>
+                  </div>
                 </div>
               </div>
               
               {/* Trust statement */}
-              <p className="text-[11px] text-gray-600 mt-6 max-w-2xl mx-auto">
-                Your data is protected with enterprise-grade security. All credentials are verified on Polygon blockchain for tamper-proof authenticity.
+              <p className="text-[11px] text-gray-600 mt-4 max-w-2xl mx-auto">
+                Enterprise-grade security protecting your data. All credentials verified on Polygon blockchain for tamper-proof authenticity.
               </p>
             </div>
           </div>
