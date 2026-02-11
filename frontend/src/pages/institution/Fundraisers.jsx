@@ -122,16 +122,18 @@ const InstitutionFundraisers = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <InstitutionLayout title="Fundraisers">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </InstitutionLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto">
+    <InstitutionLayout title="Fundraisers" subtitle="Create and manage fundraising campaigns for your graduates">
+      <div data-testid="fundraisers-page">
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Fundraisers</h1>
@@ -140,6 +142,7 @@ const InstitutionFundraisers = () => {
           <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            data-testid="create-fundraiser-btn"
           >
             <FiPlus size={18} />
             Create Fundraiser
