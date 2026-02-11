@@ -10,6 +10,7 @@ from models.institution_classes import (
     ClassTemplate, InstitutionClass, CredentialIssuance, VerificationRequest,
     CREDENTIAL_TYPES, CLASS_STATUS
 )
+from utils.credential_guardrails import validate_credential_issuance, get_credential_types_for_institution
 import uuid
 
 router = APIRouter(prefix="/api/institution", tags=["Institution Classes"])
