@@ -859,17 +859,17 @@ const LandingPage = () => {
           {/* Infinite scrolling carousel */}
           <div className="relative">
             <div 
-              className="flex gap-12 animate-scroll-left"
+              className="flex gap-10 animate-scroll-left"
               style={{
                 width: 'max-content',
-                animation: 'scrollLeft 30s linear infinite'
+                animation: 'scrollLeft 35s linear infinite'
               }}
             >
               {/* First set of logos */}
               {partnerLogos.map((logo, index) => (
                 <div
                   key={`${logo.id}-${index}-1`}
-                  className="flex-shrink-0 w-56 h-28 bg-white rounded-xl flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
+                  className="flex-shrink-0 w-72 h-36 bg-white rounded-xl flex items-center justify-center p-3 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
                 >
                   <img
                     src={logo.logo_url}
@@ -883,7 +883,7 @@ const LandingPage = () => {
               {partnerLogos.map((logo, index) => (
                 <div
                   key={`${logo.id}-${index}-2`}
-                  className="flex-shrink-0 w-56 h-28 bg-white rounded-xl flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
+                  className="flex-shrink-0 w-72 h-36 bg-white rounded-xl flex items-center justify-center p-3 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
                 >
                   <img
                     src={logo.logo_url}
