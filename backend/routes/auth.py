@@ -112,7 +112,14 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
         "full_name": user_data.full_name,
         "phone": user_data.phone,
         "created_date": datetime.now(timezone.utc).isoformat(),
-        "onboarding_completed": False
+        "onboarding_completed": False,
+        # Location & Jurisdiction
+        "country": user_data.country or "CA",
+        "province": user_data.province,
+        "city": user_data.city,
+        "postal_code": user_data.postal_code,
+        "jurisdiction_code": jurisdiction_code,
+        "authorized_jurisdictions": [jurisdiction_code]
     }
     
     if user_data.user_type == "workforce":
@@ -130,8 +137,8 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
         profile_doc["rating_avg"] = 0.0
         profile_doc["rating_count"] = 0
         profile_doc["address"] = ""
-        profile_doc["postal_code"] = ""
-        profile_doc["industry"] = ""
+        # Employers start with only their registration jurisdiction
+        # They must request expansion to hire in other provinces/states
         await db.employer_profiles.insert_one(profile_doc)
     elif user_data.user_type == "institution":
         profile_doc["institution_name"] = user_data.full_name
