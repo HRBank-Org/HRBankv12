@@ -279,7 +279,8 @@ const VerificationRequests = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </InstitutionLayout>
   );
 };
 
