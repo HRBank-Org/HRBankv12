@@ -480,6 +480,10 @@ function AppRoutes() {
         <Route path="/admin/chat" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminChat /></ProtectedRoute>} />
         <Route path="/admin/geo-access" element={<ProtectedRoute allowedUserTypes={['super_admin']}><GeoAccessSettings /></ProtectedRoute>} />
         <Route path="/admin/insurance-review" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><InsuranceReview /></ProtectedRoute>} />
+        <Route path="/admin/jurisdiction-expansion" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><JurisdictionExpansionReview /></ProtectedRoute>} />
+        
+        {/* Employer Jurisdiction Settings */}
+        <Route path="/employer/jurisdiction-settings" element={<ProtectedRoute allowedUserTypes={['employer']}><JurisdictionSettings /></ProtectedRoute>} />
         
         {/* Donation Success/Cancel Routes */}
         <Route path="/donation/success" element={<DonationSuccess />} />
