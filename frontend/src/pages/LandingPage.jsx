@@ -854,11 +854,11 @@ const LandingPage = () => {
             <div className="text-center mb-8">
               <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Trusted By</p>
             </div>
-            <div className="flex flex-wrap justify-center items-center gap-8">
+            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-14">
               {partnerLogos.map((logo, index) => (
                 <div
                   key={`${logo.id}-${index}`}
-                  className="w-32 h-16 bg-white rounded-lg flex items-center justify-center p-3 shadow-sm grayscale hover:grayscale-0 transition-all"
+                  className="w-40 h-20 bg-white rounded-lg flex items-center justify-center p-2 shadow-sm grayscale hover:grayscale-0 hover:shadow-md transition-all"
                 >
                   <img
                     src={logo.logo_url}
