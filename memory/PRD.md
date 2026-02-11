@@ -215,6 +215,47 @@ Removed 10 unused/duplicate admin pages:
 
 ---
 
+## What's Been Implemented (December 2025)
+
+### Institution Dashboard UI Fix ✅ (Dec 2025) - NEW
+Fixed critical UI bugs causing 10+ institution pages to be missing header and sidebar navigation.
+
+**Issues Fixed:**
+| Issue | Root Cause | Fix |
+|-------|-----------|-----|
+| 10 pages missing sidebar/header | Pages using UserHeader instead of InstitutionLayout | Wrapped all pages with InstitutionLayout component |
+| Logo upload broken | Incomplete JSX structure, missing functions | Rewrote Settings.jsx with working logo upload |
+| JSX syntax errors | Extra `</main>` closing tags left from old code | Removed orphan closing tags |
+| Navigation impossible | No sidebar on pages like Settings, Templates, etc. | Added InstitutionSidebar to all pages |
+
+**Pages Fixed:**
+1. `/institution/settings` - Settings (logo upload now works)
+2. `/institution/students/invite` - Bulk Invite Students
+3. `/institution/transcripts` - Transcripts Management
+4. `/institution/marketplace` - Credentials Marketplace
+5. `/institution/credentials/issue` - Issue Credential
+6. `/institution/credentials` - Manage Credentials
+7. `/institution/templates` - Class Templates
+8. `/institution/financials` - Financial Summary
+9. `/institution/fundraisers` - Fundraisers
+10. `/institution/classes` - Classes Management
+
+**Files Modified:**
+- `frontend/src/pages/institution/Settings.jsx` - Complete rewrite with InstitutionLayout wrapper
+- `frontend/src/pages/institution/BulkInvite.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/TranscriptsManagement.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/CredentialMarketplace.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/IssueCredential.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/ManageCredentials.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/ClassTemplates.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/FinancialSummary.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/Fundraisers.jsx` - Added InstitutionLayout wrapper
+- `frontend/src/pages/institution/ClassesManagement.jsx` - Added InstitutionLayout wrapper
+
+**Test Results:** All 10 pages verified working with sidebar and header (100% pass rate)
+
+---
+
 ## What's Been Implemented (February 2026)
 
 ### Admin Dashboard API Fixes ✅ (Feb 5, 2026) - NEW
