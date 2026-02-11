@@ -146,6 +146,7 @@ import ManageOccupations from './pages/admin/ManageOccupations';
 import WorkforceTimeOff from './pages/workforce/TimeOff';
 import EmployerTimeOffManagement from './pages/employer/TimeOffManagement';
 import WorkforceWorkPassportSettings from './pages/workforce/WorkPassportSettings';
+import WorkPassportBuilder from './pages/workforce/WorkPassportBuilder';
 import PendingCredentials from './pages/workforce/PendingCredentials';
 import PaymentSuccess from './pages/workforce/PaymentSuccess';
 import WorkerRoutes from './pages/workforce/WorkerRoutes';
