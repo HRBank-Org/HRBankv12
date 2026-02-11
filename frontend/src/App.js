@@ -114,6 +114,8 @@ import AdminSettings from './pages/admin/Settings';
 import InstitutionDirectory from './pages/admin/InstitutionDirectory';
 import GeoAccessSettings from './pages/admin/GeoAccessSettings';
 import InsuranceReview from './pages/admin/InsuranceReview';
+import JurisdictionExpansionReview from './pages/admin/JurisdictionExpansionReview';
+import JurisdictionSettings from './pages/employer/JurisdictionSettings';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import VerifyCredential from './pages/public/VerifyCredential';
