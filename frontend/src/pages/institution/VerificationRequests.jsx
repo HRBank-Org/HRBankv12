@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
 const VerificationRequests = () => {
