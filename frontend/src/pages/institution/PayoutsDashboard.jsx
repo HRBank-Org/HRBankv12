@@ -143,19 +143,19 @@ const PayoutsDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <InstitutionLayout title="Payouts Dashboard">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        </div>
+      </InstitutionLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <UserHeader />
-      
-      <div className="pt-[64px]">
+    <InstitutionLayout>
+      <div data-testid="payouts-dashboard-page">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-8 py-8">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-8 py-8 rounded-xl mb-6">
           <div className="flex items-center gap-3 mb-2">
             <Wallet className="w-8 h-8" />
             <h1 className="text-3xl font-bold">Payouts Dashboard</h1>
