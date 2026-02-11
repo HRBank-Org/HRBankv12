@@ -387,13 +387,26 @@ const SuperAdminSidebar = () => {
         } catch (e) {
           console.error('Failed to fetch insurance count:', e);
         }
+
+        // Fetch pending jurisdiction expansion requests count
+        let expansionCount = 0;
+        try {
+          const expansionRes = await fetch(`${baseUrl}/api/jurisdiction/admin/expansion-requests?request_status=pending`, { headers });
+          if (expansionRes.ok) {
+            const data = await expansionRes.json();
+            expansionCount = data.data?.status_counts?.pending || 0;
+          }
+        } catch (e) {
+          console.error('Failed to fetch expansion count:', e);
+        }
         
         setBadgeCounts({
           pending: pendingCount,
           documents: documentsCount,
           tickets: ticketsCount,
           expiring: expiringCount,
-          insurance: insuranceCount
+          insurance: insuranceCount,
+          expansion: expansionCount
         });
       } catch (error) {
         console.error('Failed to fetch badge counts:', error);
