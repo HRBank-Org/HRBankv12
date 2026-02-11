@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
-  Bell, Settings, LogOut, User, ChevronDown,
-  Search, HelpCircle, GraduationCap
+  Bell, LogOut, User, ChevronDown,
+  Search, HelpCircle, GraduationCap, Settings
 } from 'lucide-react';
 
 const InstitutionHeader = () => {
