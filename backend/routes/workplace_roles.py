@@ -90,7 +90,8 @@ async def create_workplace_role(
     # Combine occupation-required certs with employer's additional certs
     all_required_certs = list(set(occupation_required_certs + role_data.additional_certifications))
     
-    # Verify workplace belongs to employer (if provided)
+    # Verify workplace belongs to employer (if provided) and get jurisdiction
+    workplace = None
     if role_data.workplace_id:
         workplace = await db.workplaces.find_one({
             'workplace_id': role_data.workplace_id,
@@ -103,8 +104,29 @@ async def create_workplace_role(
                 detail="Workplace not found or doesn't belong to you"
             )
     
+    # Get jurisdiction from workplace address (automatic - no user action needed)
+    jurisdiction_info = enrich_with_jurisdiction(
+        workplace_data=workplace if workplace else {"province": employer_province, "country": "Canada"}
+    )
+    
+    # Use jurisdiction-based minimum wage if available (supports global locations)
+    jurisdiction_minimum = jurisdiction_info.get("minimum_wage") or provincial_minimum
+    
+    # Effective minimum is the HIGHER of jurisdiction, provincial, and occupation minimums
+    effective_minimum = max(jurisdiction_minimum, occupation_minimum)
+    
+    # Validate hourly rate against jurisdiction requirements
+    if role_data.hourly_rate:
+        wage_validation = validate_wage_compliance(role_data.hourly_rate, jurisdiction_info["jurisdiction_code"])
+        if not wage_validation["compliant"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Hourly rate ${role_data.hourly_rate:.2f} is below the minimum of ${effective_minimum:.2f} "
+                       f"for {jurisdiction_info['jurisdiction_name']}. Occupation minimum: ${occupation_minimum:.2f}"
+            )
+    
     # Validate work_type
-    valid_work_types = ["on_site", "route_based", "continental"]
+    valid_work_types = ["on_site", "route_based", "continental", "remote"]
     work_type = role_data.work_type if role_data.work_type in valid_work_types else "on_site"
     
     # Create role
@@ -127,12 +149,22 @@ async def create_workplace_role(
         positions_available=role_data.positions_available
     )
     
-    # Add minimum rates and fee calculation to role
+    # Add minimum rates, fee calculation, and jurisdiction to role
     role_dict = role.model_dump()
     role_dict['provincial_minimum_wage'] = provincial_minimum
     role_dict['occupation_minimum_rate'] = occupation_minimum
     role_dict['effective_minimum_rate'] = effective_minimum
     role_dict['province_code'] = employer_province
+    
+    # Add jurisdiction info (automatic - derived from workplace address)
+    role_dict['jurisdiction'] = {
+        "code": jurisdiction_info["jurisdiction_code"],
+        "name": jurisdiction_info["jurisdiction_name"],
+        "country": jurisdiction_info["country"],
+        "currency": jurisdiction_info.get("currency", "CAD"),
+        "compliance_badges": jurisdiction_info.get("compliance_badges", []),
+        "overtime_rules": jurisdiction_info.get("overtime_rules", {})
+    }
     
     # Calculate fees if rate is provided
     if role_data.hourly_rate:
@@ -152,6 +184,7 @@ async def create_workplace_role(
             "occupation_minimum_rate": occupation_minimum,
             "effective_minimum_rate": effective_minimum,
             "province": employer_province,
+            "jurisdiction": role_dict['jurisdiction'],
             "fee_breakdown": role_dict.get('fee_breakdown')
         },
         "message": f"Role '{role.role_name}' created successfully"
