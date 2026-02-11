@@ -498,8 +498,8 @@ const TranscriptsManagement = () => {
             </div>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </InstitutionLayout>
   );
 };
 
