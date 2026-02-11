@@ -25,7 +25,10 @@ class UserCreate(BaseModel):
     user_type: Literal['workforce', 'employer', 'institution']
     full_name: str = Field(..., min_length=2, max_length=100)
     phone: Optional[str] = Field(None, pattern=r'^\+1-\d{3}-\d{3}-\d{4}$')
-    country: Optional[str] = None  # For international institutions
+    country: Optional[str] = "CA"  # Default to Canada, supports international
+    province: Optional[str] = None  # State/Province code (e.g., ON, TX, MH)
+    postal_code: Optional[str] = None  # Postal/ZIP code for jurisdiction detection
+    city: Optional[str] = None
     date_of_birth: Optional[str] = None  # Required for workforce, format: YYYY-MM-DD
     
     @validator('phone', always=True)
