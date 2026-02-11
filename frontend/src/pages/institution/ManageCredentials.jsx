@@ -260,7 +260,8 @@ const ManageCredentials = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </InstitutionLayout>
   );
 };
 
