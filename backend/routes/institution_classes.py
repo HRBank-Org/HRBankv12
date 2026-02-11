@@ -592,6 +592,22 @@ async def issue_credentials(
             detail="No credential type defined. Set it on the Program."
         )
     
+    # GUARDRAIL: Validate institution is authorized to issue this credential type
+    institution_profile = await db.institution_profiles.find_one(
+        {"institution_id": current_user["user_id"]},
+        {"_id": 0, "institution_type": 1, "institution_name": 1}
+    )
+    
+    institution_type = institution_profile.get("institution_type", "other") if institution_profile else "other"
+    institution_name = institution_profile.get("institution_name", "Institution") if institution_profile else "Institution"
+    
+    # This will raise HTTPException if not authorized
+    validate_credential_issuance(
+        institution_type=institution_type,
+        credential_type=credential_type,
+        institution_name=institution_name
+    )
+    
     # Calculate expiry date
     issue_date = datetime.now(timezone.utc)
     validity_months = institution_class.get("validity_period_months") or program.get("validity_period_months")
