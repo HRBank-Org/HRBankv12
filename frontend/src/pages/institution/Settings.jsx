@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 import { Upload, X, Camera } from 'lucide-react';
@@ -8,6 +9,7 @@ import { Upload, X, Camera } from 'lucide-react';
 const InstitutionSettings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -293,7 +295,7 @@ const InstitutionSettings = () => {
 
   if (loading) {
     return (
-      <InstitutionLayout>
+      <InstitutionLayout title="Institution Settings">
         <div className="flex items-center justify-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
         </div>
@@ -302,10 +304,8 @@ const InstitutionSettings = () => {
   }
 
   return (
-    <InstitutionLayout>
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Institution Settings</h1>
-
+    <InstitutionLayout title="Institution Settings">
+      <div className="max-w-4xl mx-auto" data-testid="institution-settings-page">
         {message.text && (
           <div className={`rounded-lg p-4 mb-6 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
             {message.text}
@@ -325,6 +325,7 @@ const InstitutionSettings = () => {
                 onChange={(e) => setProfile({...profile, institution_name: e.target.value})}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                 placeholder="e.g., Toronto Medical College"
+                data-testid="institution-name-input"
               />
             </div>
 
@@ -334,6 +335,7 @@ const InstitutionSettings = () => {
                 value={profile.institution_type}
                 onChange={(e) => setProfile({...profile, institution_type: e.target.value})}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                data-testid="institution-type-select"
               >
                 <option value="">Select type...</option>
                 <option value="college">College</option>
@@ -355,6 +357,7 @@ const InstitutionSettings = () => {
                       src={profile.institution_logo_url.startsWith('http') ? profile.institution_logo_url : `${process.env.REACT_APP_BACKEND_URL}${profile.institution_logo_url}`}
                       alt="Institution Logo"
                       className="w-24 h-24 rounded-lg object-cover border-2 border-gray-200"
+                      data-testid="institution-logo-preview"
                     />
                   ) : (
                     <div className="w-24 h-24 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
@@ -369,68 +372,19 @@ const InstitutionSettings = () => {
                     onChange={handleLogoSelect}
                     accept="image/*"
                     className="hidden"
+                    data-testid="logo-file-input"
                   />
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+                    data-testid="upload-logo-btn"
                   >
                     <Upload className="w-4 h-4" />
                     {profile.institution_logo_url ? 'Change Logo' : 'Upload Logo'}
                   </button>
                   <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Logo Preview Modal */}
-            {showLogoUpload && previewUrl && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl max-w-md w-full p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Preview Logo</h3>
-                    <button onClick={cancelLogoUpload} className="text-gray-500 hover:text-gray-700">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="flex justify-center mb-4">
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
-                      className="max-w-full max-h-64 rounded-lg object-contain"
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={cancelLogoUpload}
-                      className="flex-1 px-4 py-2 border text-gray-700 rounded-lg hover:bg-gray-50"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleLogoUpload}
-                      disabled={uploadingLogo}
-                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-                    >
-                      {uploadingLogo ? 'Uploading...' : 'Save Logo'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoSelect}
-                  className="hidden"
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-all"
-                >
-                  {profile.institution_logo_url ? 'Change Logo' : 'Upload Logo'}
-                </button>
               </div>
             </div>
           </div>
@@ -449,6 +403,7 @@ const InstitutionSettings = () => {
                 onChange={(e) => setProfile({...profile, contact_name: e.target.value})}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                 placeholder="e.g., Dr. John Smith"
+                data-testid="contact-name-input"
               />
             </div>
 
@@ -460,6 +415,7 @@ const InstitutionSettings = () => {
                 onChange={(e) => setProfile({...profile, title: e.target.value})}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                 placeholder="e.g., Registrar, Dean, Director"
+                data-testid="contact-title-input"
               />
             </div>
           </div>
@@ -480,20 +436,22 @@ const InstitutionSettings = () => {
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   disabled={emailVerified}
                   placeholder="your.email@institution.edu"
+                  data-testid="email-input"
                 />
                 {emailVerified ? (
-                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium whitespace-nowrap">✓ Verified</span>
+                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium whitespace-nowrap">Verified</span>
                 ) : (
                   <button
                     onClick={sendEmailOTP}
                     className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-all whitespace-nowrap"
+                    data-testid="verify-email-btn"
                   >
                     Verify Email
                   </button>
                 )}
               </div>
               {emailVerified && (
-                <p className="text-xs text-gray-500 mt-1">✓ Email is verified and locked for security</p>
+                <p className="text-xs text-gray-500 mt-1">Email is verified and locked for security</p>
               )}
               {showEmailOTP && (
                 <div className="mt-2 flex gap-2">
@@ -504,12 +462,13 @@ const InstitutionSettings = () => {
                     placeholder="Enter 6-digit OTP"
                     maxLength={6}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                    data-testid="email-otp-input"
                   />
                   <button
                     onClick={verifyEmailOTP}
                     disabled={verifyingEmail}
-                    className="px-4 py-2 rounded-lg text-white font-medium"
-                    style={{ backgroundColor: theme.primaryColor }}
+                    className="px-4 py-2 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                    data-testid="submit-email-otp-btn"
                   >
                     {verifyingEmail ? 'Verifying...' : 'Verify'}
                   </button>
@@ -526,13 +485,15 @@ const InstitutionSettings = () => {
                   onChange={(e) => setProfile({...profile, phone: e.target.value})}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                   placeholder="e.g., +1 (555) 123-4567"
+                  data-testid="phone-input"
                 />
                 {phoneVerified ? (
-                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">✓ Verified</span>
+                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">Verified</span>
                 ) : (
                   <button
                     onClick={sendPhoneOTP}
                     className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-all"
+                    data-testid="verify-phone-btn"
                   >
                     Verify
                   </button>
@@ -547,12 +508,13 @@ const InstitutionSettings = () => {
                     placeholder="Enter 6-digit OTP"
                     maxLength={6}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                    data-testid="phone-otp-input"
                   />
                   <button
                     onClick={verifyPhoneOTP}
                     disabled={verifyingPhone}
-                    className="px-4 py-2 rounded-lg text-white font-medium"
-                    style={{ backgroundColor: theme.primaryColor }}
+                    className="px-4 py-2 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                    data-testid="submit-phone-otp-btn"
                   >
                     {verifyingPhone ? 'Verifying...' : 'Verify'}
                   </button>
@@ -575,6 +537,7 @@ const InstitutionSettings = () => {
                 onChange={(e) => setProfile({...profile, address: e.target.value})}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                 placeholder="e.g., 123 University Ave"
+                data-testid="address-input"
               />
             </div>
 
@@ -587,6 +550,7 @@ const InstitutionSettings = () => {
                   onChange={(e) => setProfile({...profile, city: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                   placeholder="Toronto"
+                  data-testid="city-input"
                 />
               </div>
 
@@ -596,6 +560,7 @@ const InstitutionSettings = () => {
                   value={profile.province}
                   onChange={(e) => setProfile({...profile, province: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                  data-testid="province-select"
                 >
                   <option value="">Select...</option>
                   <option value="ON">Ontario</option>
@@ -622,6 +587,7 @@ const InstitutionSettings = () => {
                   onChange={(e) => setProfile({...profile, postal_code: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                   placeholder="M5H 2N2"
+                  data-testid="postal-code-input"
                 />
               </div>
             </div>
@@ -636,6 +602,7 @@ const InstitutionSettings = () => {
             <button
               onClick={() => setShowPasswordChange(true)}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-all"
+              data-testid="change-password-btn"
             >
               Change Password
             </button>
@@ -648,6 +615,7 @@ const InstitutionSettings = () => {
                   value={passwordData.current_password}
                   onChange={(e) => setPasswordData({...passwordData, current_password: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                  data-testid="current-password-input"
                 />
               </div>
 
@@ -658,6 +626,7 @@ const InstitutionSettings = () => {
                   value={passwordData.new_password}
                   onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                  data-testid="new-password-input"
                 />
               </div>
 
@@ -668,6 +637,7 @@ const InstitutionSettings = () => {
                   value={passwordData.confirm_password}
                   onChange={(e) => setPasswordData({...passwordData, confirm_password: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                  data-testid="confirm-password-input"
                 />
               </div>
 
@@ -678,14 +648,15 @@ const InstitutionSettings = () => {
                     setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-all"
+                  data-testid="cancel-password-change-btn"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePasswordChange}
                   disabled={changingPassword}
-                  className="px-4 py-2 rounded-lg text-white font-medium"
-                  style={{ backgroundColor: theme.primaryColor }}
+                  className="px-4 py-2 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                  data-testid="submit-password-change-btn"
                 >
                   {changingPassword ? 'Changing...' : 'Change Password'}
                 </button>
@@ -699,67 +670,59 @@ const InstitutionSettings = () => {
           <button
             onClick={() => navigate('/institution/dashboard')}
             className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-all"
+            data-testid="cancel-settings-btn"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all disabled:opacity-50"
-            style={{ backgroundColor: theme.primaryColor }}
+            className="flex-1 px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all disabled:opacity-50 bg-indigo-600 hover:bg-indigo-700"
+            data-testid="save-settings-btn"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
-      </main>
+      </div>
 
-      {/* Logo Upload Modal */}
-      {showLogoUpload && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Crop Institution Logo</h2>
+      {/* Logo Preview Modal */}
+      {showLogoUpload && previewUrl && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6" data-testid="logo-preview-modal">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Preview Logo</h3>
+              <button onClick={cancelLogoUpload} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
             </div>
-
-            <div className="p-6">
-              <ReactCrop
-                crop={crop}
-                onChange={(c) => setCrop(c)}
-                onComplete={(c) => setCompletedCrop(c)}
-                aspect={1}
-              >
-                <img
-                  ref={imgRef}
-                  src={selectedImage}
-                  alt="Crop"
-                  style={{ maxHeight: '400px' }}
-                />
-              </ReactCrop>
+            <div className="flex justify-center mb-4">
+              <img 
+                src={previewUrl} 
+                alt="Preview" 
+                className="max-w-full max-h-64 rounded-lg object-contain"
+              />
             </div>
-
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="flex gap-3">
               <button
-                onClick={() => {
-                  setShowLogoUpload(false);
-                  setSelectedImage(null);
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-all"
+                onClick={cancelLogoUpload}
+                className="flex-1 px-4 py-2 border text-gray-700 rounded-lg hover:bg-gray-50"
+                data-testid="cancel-logo-upload-btn"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogoUpload}
                 disabled={uploadingLogo}
-                className="flex-1 px-4 py-2 rounded-lg text-white font-medium"
-                style={{ backgroundColor: theme.primaryColor }}
+                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                data-testid="confirm-logo-upload-btn"
               >
-                {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                {uploadingLogo ? 'Uploading...' : 'Save Logo'}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </InstitutionLayout>
   );
 };
 
