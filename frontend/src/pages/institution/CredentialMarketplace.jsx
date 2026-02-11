@@ -114,7 +114,7 @@ const CredentialMarketplace = () => {
       <div data-testid="credential-marketplace-page">
         <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-8 py-8 rounded-xl mb-6">
           <h1 className="text-3xl font-bold mb-2">Credential Marketplace</h1>
-          <p className="text-indigo-100">Issue and sell blockchain-verified credentials</p>
+          <p className="text-indigo-100">Issue blockchain-verified credentials to your students</p>
         </div>
           {/* Summary Stats */}
           {summary && (
