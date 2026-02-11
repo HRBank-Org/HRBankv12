@@ -425,6 +425,7 @@ function AppRoutes() {
         {/* Institution Routes */}
         <Route path="/institution/dashboard" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDashboard /></ProtectedRoute>} />
         <Route path="/institution/templates" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassTemplates /></ProtectedRoute>} />
+        <Route path="/institution/programs" element={<ProtectedRoute allowedUserTypes={['institution']}><ProgramsManagement /></ProtectedRoute>} />
         <Route path="/institution/classes" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassesManagement /></ProtectedRoute>} />
         <Route path="/institution/classes/create" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassesManagement /></ProtectedRoute>} />
         <Route path="/institution/classes/:classId" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassDetails /></ProtectedRoute>} />
