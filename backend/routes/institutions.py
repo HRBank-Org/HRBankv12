@@ -17,7 +17,7 @@ async def get_my_profile(
     db = Depends(get_db)
 ):
     """Get institution profile (creates empty if doesn't exist)"""
-    # Try both institution_id and user_id for backwards compatibility
+    # Try institution_profiles collection first
     profile = await db.institution_profiles.find_one(
         {"$or": [
             {"institution_id": current_user["user_id"]},
@@ -25,6 +25,16 @@ async def get_my_profile(
         ]},
         {"_id": 0}
     )
+    
+    # If not found, try institutions collection
+    if not profile:
+        profile = await db.institutions.find_one(
+            {"$or": [
+                {"institution_id": current_user["user_id"]},
+                {"email": current_user.get("email")}
+            ]},
+            {"_id": 0}
+        )
     
     if not profile:
         # Get user info to populate defaults
