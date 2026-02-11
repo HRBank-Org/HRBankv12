@@ -106,6 +106,13 @@ const SuperAdminSidebar = () => {
           badgeColor: 'bg-green-500'
         },
         {
+          label: 'Jurisdiction Expansion',
+          icon: Globe2,
+          path: '/admin/jurisdiction-expansion',
+          badge: 'expansion',
+          badgeColor: 'bg-indigo-500'
+        },
+        {
           label: 'Document Expiry',
           icon: FileWarning,
           path: '/admin/document-expiry',
