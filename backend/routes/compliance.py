@@ -518,3 +518,363 @@ async def admin_terminate_user_sessions(
             "sessions_terminated": count
         }
     }
+
+
+# ==================== JURISDICTION & GLOBAL COMPLIANCE ====================
+
+@router.get("/jurisdictions")
+async def list_supported_jurisdictions():
+    """
+    Get all supported jurisdictions with basic compliance info.
+    Public endpoint - no auth required.
+    
+    Jurisdictions are automatically determined by the workplace/role address.
+    """
+    jurisdictions = get_all_supported_jurisdictions()
+    
+    # Group by country
+    by_country = {}
+    for j in jurisdictions:
+        country = j.get("country", "Other")
+        if country not in by_country:
+            by_country[country] = []
+        by_country[country].append(j)
+    
+    return {
+        "success": True,
+        "data": {
+            "jurisdictions": jurisdictions,
+            "by_country": by_country,
+            "total": len(jurisdictions),
+            "enabled_count": len([j for j in jurisdictions if j.get("enabled")])
+        }
+    }
+
+
+@router.get("/detect-jurisdiction")
+async def detect_jurisdiction(
+    province: Optional[str] = Query(None, description="Province or state code (e.g., ON, CA, TX)"),
+    state: Optional[str] = Query(None, description="State code (alias for province)"),
+    country: Optional[str] = Query(None, description="Country code or name (e.g., CA, US, Canada)"),
+    postal_code: Optional[str] = Query(None, description="Postal/ZIP code"),
+    city: Optional[str] = Query(None, description="City name")
+):
+    """
+    Detect jurisdiction from address components.
+    Public endpoint - useful for forms and previews.
+    
+    Jurisdiction determines which labor laws, minimum wage, overtime rules,
+    and data privacy regulations apply to workers at that location.
+    """
+    jurisdiction = get_jurisdiction_from_address(
+        province=province,
+        state=state,
+        country=country,
+        postal_code=postal_code,
+        city=city
+    )
+    
+    return {
+        "success": True,
+        "data": jurisdiction
+    }
+
+
+@router.get("/rules/{jurisdiction_code}")
+async def get_jurisdiction_rules(jurisdiction_code: str):
+    """
+    Get detailed compliance rules for a specific jurisdiction.
+    
+    Includes: minimum wage, overtime rules, data privacy laws, 
+    required compliance badges, and more.
+    """
+    rules = get_compliance_rules(jurisdiction_code.upper())
+    
+    if rules.get("jurisdiction_code") == "UNKNOWN":
+        raise HTTPException(
+            status_code=404,
+            detail=f"Jurisdiction '{jurisdiction_code}' not found or not supported"
+        )
+    
+    return {
+        "success": True,
+        "data": rules
+    }
+
+
+@router.get("/validate-wage")
+async def validate_wage(
+    hourly_rate: float = Query(..., description="Proposed hourly rate"),
+    jurisdiction_code: str = Query(..., description="Jurisdiction code (e.g., CA-ON, US-TX)")
+):
+    """
+    Validate if a proposed wage meets jurisdiction's minimum wage requirements.
+    """
+    validation = validate_wage_compliance(hourly_rate, jurisdiction_code.upper())
+    
+    return {
+        "success": True,
+        "data": validation
+    }
+
+
+@router.get("/workplace/{workplace_id}/jurisdiction")
+async def get_workplace_jurisdiction(
+    workplace_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get jurisdiction and compliance info for a specific workplace.
+    Automatically detects jurisdiction from workplace address.
+    """
+    workplace = await db.workplaces.find_one(
+        {"workplace_id": workplace_id},
+        {"_id": 0}
+    )
+    
+    if not workplace:
+        raise HTTPException(status_code=404, detail="Workplace not found")
+    
+    # Enrich with jurisdiction info
+    jurisdiction_info = enrich_with_jurisdiction(workplace_data=workplace)
+    
+    return {
+        "success": True,
+        "data": {
+            "workplace_id": workplace_id,
+            "workplace_name": workplace.get("workplace_name"),
+            "address": {
+                "city": workplace.get("city"),
+                "province": workplace.get("province"),
+                "postal_code": workplace.get("postal_code"),
+                "country": workplace.get("country", "Canada")
+            },
+            "jurisdiction": jurisdiction_info
+        }
+    }
+
+
+@router.get("/role/{role_id}/jurisdiction")
+async def get_role_jurisdiction(
+    role_id: str,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get jurisdiction and compliance info for a specific role.
+    Jurisdiction is determined by the workplace where the role is performed.
+    """
+    role = await db.workplace_roles.find_one(
+        {"role_id": role_id},
+        {"_id": 0}
+    )
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Get workplace if role has one
+    workplace = None
+    if role.get("workplace_id"):
+        workplace = await db.workplaces.find_one(
+            {"workplace_id": role["workplace_id"]},
+            {"_id": 0}
+        )
+    
+    # If no workplace, try employer's default location
+    if not workplace:
+        employer_profile = await db.employer_profiles.find_one(
+            {"employer_id": role.get("employer_id")},
+            {"_id": 0, "province": 1, "city": 1, "postal_code": 1, "country": 1}
+        )
+        if employer_profile:
+            workplace = employer_profile
+    
+    # Enrich with jurisdiction info
+    jurisdiction_info = enrich_with_jurisdiction(
+        workplace_data=workplace,
+        role_data=role
+    )
+    
+    # Validate current wage if set
+    wage_validation = None
+    if role.get("hourly_rate") and jurisdiction_info.get("minimum_wage"):
+        wage_validation = validate_wage_compliance(
+            role["hourly_rate"],
+            jurisdiction_info["jurisdiction_code"]
+        )
+    
+    return {
+        "success": True,
+        "data": {
+            "role_id": role_id,
+            "role_name": role.get("role_name"),
+            "hourly_rate": role.get("hourly_rate"),
+            "jurisdiction": jurisdiction_info,
+            "wage_compliance": wage_validation
+        }
+    }
+
+
+@router.get("/employer/jurisdictions")
+async def get_employer_jurisdictions(
+    current_user: dict = Depends(require_role("employer")),
+    db = Depends(get_db)
+):
+    """
+    Get all jurisdictions where this employer has workplaces.
+    Useful for understanding compliance obligations across locations.
+    """
+    employer_id = current_user["user_id"]
+    
+    # Get all workplaces
+    workplaces = await db.workplaces.find(
+        {"employer_id": employer_id},
+        {"_id": 0}
+    ).to_list(100)
+    
+    # Get unique jurisdictions
+    jurisdictions_map = {}
+    for wp in workplaces:
+        jurisdiction_info = enrich_with_jurisdiction(workplace_data=wp)
+        code = jurisdiction_info["jurisdiction_code"]
+        
+        if code not in jurisdictions_map:
+            jurisdictions_map[code] = {
+                **jurisdiction_info,
+                "workplaces": [],
+                "roles_count": 0
+            }
+        
+        jurisdictions_map[code]["workplaces"].append({
+            "workplace_id": wp.get("workplace_id"),
+            "workplace_name": wp.get("workplace_name"),
+            "city": wp.get("city")
+        })
+    
+    # Get role counts per jurisdiction
+    for code in jurisdictions_map:
+        workplace_ids = [w["workplace_id"] for w in jurisdictions_map[code]["workplaces"]]
+        roles_count = await db.workplace_roles.count_documents({
+            "employer_id": employer_id,
+            "workplace_id": {"$in": workplace_ids}
+        })
+        jurisdictions_map[code]["roles_count"] = roles_count
+    
+    return {
+        "success": True,
+        "data": {
+            "jurisdictions": list(jurisdictions_map.values()),
+            "total_jurisdictions": len(jurisdictions_map),
+            "total_workplaces": len(workplaces)
+        }
+    }
+
+
+@router.get("/global-summary")
+async def get_global_compliance_summary(
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Get a global compliance summary based on user type.
+    
+    For employers: Summary of compliance across all workplaces & jurisdictions
+    For workforce: Compliance info and worker rights for their work locations
+    """
+    user_type = current_user.get("user_type")
+    user_id = current_user["user_id"]
+    
+    if user_type == "employer":
+        # Get employer's workplaces and roles
+        workplaces = await db.workplaces.find(
+            {"employer_id": user_id},
+            {"_id": 0}
+        ).to_list(100)
+        
+        roles = await db.workplace_roles.find(
+            {"employer_id": user_id},
+            {"_id": 0, "role_id": 1, "role_name": 1, "hourly_rate": 1, "workplace_id": 1}
+        ).to_list(500)
+        
+        # Build compliance summary
+        issues = []
+        jurisdictions_used = set()
+        
+        for role in roles:
+            wp = next((w for w in workplaces if w.get("workplace_id") == role.get("workplace_id")), None)
+            jurisdiction_info = enrich_with_jurisdiction(workplace_data=wp, role_data=role)
+            jurisdictions_used.add(jurisdiction_info["jurisdiction_code"])
+            
+            # Check wage compliance
+            if role.get("hourly_rate") and jurisdiction_info.get("minimum_wage"):
+                validation = validate_wage_compliance(
+                    role["hourly_rate"],
+                    jurisdiction_info["jurisdiction_code"]
+                )
+                if not validation["compliant"]:
+                    issues.append({
+                        "type": "wage_below_minimum",
+                        "role_id": role["role_id"],
+                        "role_name": role["role_name"],
+                        "current_rate": role["hourly_rate"],
+                        "minimum_required": validation["minimum_wage"],
+                        "jurisdiction": jurisdiction_info["jurisdiction_name"]
+                    })
+        
+        return {
+            "success": True,
+            "data": {
+                "compliant": len(issues) == 0,
+                "issues": issues,
+                "jurisdictions_count": len(jurisdictions_used),
+                "jurisdictions": list(jurisdictions_used),
+                "workplaces_count": len(workplaces),
+                "roles_count": len(roles)
+            }
+        }
+    
+    elif user_type == "workforce":
+        # Get workforce's occupation profiles and employment
+        profile = await db.workforce_profiles.find_one(
+            {"workforce_id": user_id},
+            {"_id": 0}
+        )
+        
+        # Get current employment jurisdiction
+        if profile and profile.get("current_employer_id"):
+            # Get employer's workplace
+            workplace = await db.workplaces.find_one(
+                {"employer_id": profile["current_employer_id"]},
+                {"_id": 0}
+            )
+            
+            jurisdiction_info = enrich_with_jurisdiction(workplace_data=workplace)
+            
+            return {
+                "success": True,
+                "data": {
+                    "current_jurisdiction": jurisdiction_info,
+                    "rights_summary": {
+                        "minimum_wage": jurisdiction_info.get("minimum_wage"),
+                        "currency": jurisdiction_info.get("currency"),
+                        "overtime_rules": jurisdiction_info.get("overtime_rules"),
+                        "compliance_badges": jurisdiction_info.get("compliance_badges")
+                    }
+                }
+            }
+        
+        return {
+            "success": True,
+            "data": {
+                "current_jurisdiction": None,
+                "message": "No current employment found"
+            }
+        }
+    
+    return {
+        "success": True,
+        "data": {
+            "message": "Compliance summary not available for this user type"
+        }
+    }
