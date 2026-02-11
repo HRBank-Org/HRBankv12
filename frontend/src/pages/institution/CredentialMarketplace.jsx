@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 import {
   Award, DollarSign, Users, Send, CheckCircle, Clock, AlertCircle,
