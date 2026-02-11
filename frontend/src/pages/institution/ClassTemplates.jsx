@@ -215,7 +215,6 @@ const ClassTemplates = () => {
             </button>
           </div>
         )}
-      </main>
 
       {/* Create/Edit Modal */}
       {showModal && (
