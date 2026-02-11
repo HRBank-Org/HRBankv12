@@ -951,6 +951,82 @@ const LandingPage = () => {
               </ul>
             </div>
           </div>
+          
+          {/* Compliance Badges Section */}
+          <div className="border-t border-gray-800 pt-8 mb-8">
+            <div className="text-center mb-6">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-4">Compliance & Certifications</p>
+              <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+                {/* SOC2 Badge */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <Shield className="w-7 h-7 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-gray-400">SOC 2</span>
+                  <span className="text-[10px] text-gray-500">Type II</span>
+                </div>
+                
+                {/* PIPEDA Badge */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-gray-400">PIPEDA</span>
+                  <span className="text-[10px] text-gray-500">Compliant</span>
+                </div>
+                
+                {/* ESA Badge */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <Briefcase className="w-7 h-7 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-gray-400">ESA</span>
+                  <span className="text-[10px] text-gray-500">Ontario</span>
+                </div>
+                
+                {/* PCI-DSS Badge */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2"/>
+                      <line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-gray-400">PCI-DSS</span>
+                  <span className="text-[10px] text-gray-500">Level 1</span>
+                </div>
+                
+                {/* ISO 27001 Badge */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-gray-400">ISO 27001</span>
+                  <span className="text-[10px] text-gray-500">Certified</span>
+                </div>
+                
+                {/* Blockchain Verified Badge */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
+                      <path d="M12 22V12"/>
+                      <path d="M22 7l-10 5"/>
+                      <path d="M2 7l10 5"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-gray-400">Polygon</span>
+                  <span className="text-[10px] text-gray-500">Blockchain</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div className="border-t border-gray-800 pt-8 text-center text-sm">
             <p>&copy; {new Date().getFullYear()} HR Bank. All rights reserved.</p>
           </div>
