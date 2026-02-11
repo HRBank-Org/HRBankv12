@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import InstitutionHeader from '../../components/layout/InstitutionHeader';
+import InstitutionSidebar from '../../components/layout/InstitutionSidebar';
 import api from '../../utils/api';
 import { FiExternalLink, FiCheckCircle } from 'react-icons/fi';
 
