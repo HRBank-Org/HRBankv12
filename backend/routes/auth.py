@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from models.user import UserCreate, UserLogin, TokenResponse, User, UserInDB, EmailVerification
 from auth.password import hash_password, verify_password
 from auth.jwt_handler import create_access_token, create_refresh_token
+from utils.jurisdiction import get_jurisdiction_from_address
 from datetime import datetime, timedelta, timezone
 from typing import Dict
 from pydantic import BaseModel
