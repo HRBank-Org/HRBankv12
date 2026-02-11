@@ -215,6 +215,7 @@ def validate_province(province: str) -> Dict[str, any]:
             "valid": True,
             "code": province_upper,
             "name": CANADIAN_PROVINCES[province_upper],
+            "country": "CA",
             "error": None
         }
     
@@ -225,6 +226,7 @@ def validate_province(province: str) -> Dict[str, any]:
                 "valid": True,
                 "code": code,
                 "name": name,
+                "country": "CA",
                 "error": None
             }
     
@@ -232,6 +234,53 @@ def validate_province(province: str) -> Dict[str, any]:
         "valid": False,
         "error": f"Invalid province. Must be one of: {', '.join(CANADIAN_PROVINCES.keys())}"
     }
+
+
+def validate_state_province_global(state_province: str, country: str = None) -> Dict[str, any]:
+    """
+    Validate state/province for any supported country.
+    Auto-detects country if not specified.
+    """
+    if not state_province:
+        return {"valid": False, "error": "State/Province is required", "country": None}
+    
+    sp_upper = state_province.upper().strip()
+    country_upper = (country or "").upper().strip()
+    
+    # Check Canadian provinces
+    if not country_upper or country_upper in ["CA", "CANADA"]:
+        if sp_upper in CANADIAN_PROVINCES:
+            return {"valid": True, "code": sp_upper, "name": CANADIAN_PROVINCES[sp_upper], "country": "CA", "error": None}
+        for code, name in CANADIAN_PROVINCES.items():
+            if name.upper() == sp_upper:
+                return {"valid": True, "code": code, "name": name, "country": "CA", "error": None}
+    
+    # Check US states
+    if not country_upper or country_upper in ["US", "USA", "UNITED STATES"]:
+        if sp_upper in US_STATES:
+            return {"valid": True, "code": sp_upper, "name": US_STATES[sp_upper], "country": "US", "error": None}
+        for code, name in US_STATES.items():
+            if name.upper() == sp_upper:
+                return {"valid": True, "code": code, "name": name, "country": "US", "error": None}
+    
+    # Check Indian states
+    if not country_upper or country_upper in ["IN", "INDIA"]:
+        if sp_upper in INDIAN_STATES:
+            return {"valid": True, "code": sp_upper, "name": INDIAN_STATES[sp_upper], "country": "IN", "error": None}
+        for code, name in INDIAN_STATES.items():
+            if name.upper() == sp_upper:
+                return {"valid": True, "code": code, "name": name, "country": "IN", "error": None}
+    
+    # Accept but mark as unvalidated for other countries
+    return {
+        "valid": True,
+        "code": sp_upper[:2] if len(sp_upper) >= 2 else sp_upper,
+        "name": state_province,
+        "country": country_upper or None,
+        "note": "State/Province not in validation list. Please verify.",
+        "error": None
+    }
+
 
 def validate_phone_number(phone: str) -> Dict[str, any]:
     """
