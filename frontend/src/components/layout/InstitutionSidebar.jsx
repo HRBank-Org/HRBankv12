@@ -9,6 +9,12 @@ import {
   UserPlus, ClipboardList, BarChart3, ShoppingBag
 } from 'lucide-react';
 
+// Convert LANGUAGES object to array for iteration
+const languageList = Object.entries(LANGUAGES).map(([code, data]) => ({
+  code,
+  ...data
+}));
+
 const InstitutionSidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hovering, setHovering] = useState(false);
