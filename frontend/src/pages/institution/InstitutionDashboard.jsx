@@ -377,9 +377,9 @@ const InstitutionDashboard = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <QuickActionCard
-              icon="💰"
+              icon="🎓"
               title="Credential Marketplace"
-              description="Issue & sell credentials, track revenue"
+              description="Issue credentials, track revenue"
               onClick={() => navigate('/institution/marketplace')}
               color="#f59e0b"
             />

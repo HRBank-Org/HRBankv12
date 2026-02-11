@@ -107,14 +107,6 @@ const InstitutionHeader = () => {
           )}
         </div>
 
-        {/* Settings */}
-        <button 
-          onClick={() => navigate('/institution/settings')}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500"
-        >
-          <Settings className="w-5 h-5" />
-        </button>
-
         {/* Divider */}
         <div className="w-px h-8 bg-gray-200"></div>
 
