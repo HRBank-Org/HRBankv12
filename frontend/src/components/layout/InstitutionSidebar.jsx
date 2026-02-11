@@ -39,6 +39,28 @@ const InstitutionSidebar = () => {
     },
     {
       type: 'category',
+      label: 'Programs'
+    },
+    {
+      type: 'item',
+      label: 'All Programs',
+      icon: GraduationCap,
+      path: '/institution/programs'
+    },
+    {
+      type: 'item',
+      label: 'Cohorts',
+      icon: BookOpen,
+      path: '/institution/classes'
+    },
+    {
+      type: 'item',
+      label: 'Templates',
+      icon: ClipboardList,
+      path: '/institution/templates'
+    },
+    {
+      type: 'category',
       label: 'Credentials'
     },
     {
@@ -50,13 +72,13 @@ const InstitutionSidebar = () => {
     {
       type: 'item',
       label: 'Manage Credentials',
-      icon: ClipboardList,
+      icon: FileText,
       path: '/institution/credentials'
     },
     {
       type: 'item',
       label: 'Verification Requests',
-      icon: FileText,
+      icon: FileCheck,
       path: '/institution/verification-requests'
     },
     {
@@ -67,25 +89,13 @@ const InstitutionSidebar = () => {
     },
     {
       type: 'category',
-      label: 'Students & Classes'
+      label: 'Students'
     },
     {
       type: 'item',
       label: 'Invite Students',
       icon: UserPlus,
       path: '/institution/students/invite'
-    },
-    {
-      type: 'item',
-      label: 'Classes',
-      icon: BookOpen,
-      path: '/institution/classes'
-    },
-    {
-      type: 'item',
-      label: 'Templates',
-      icon: GraduationCap,
-      path: '/institution/templates'
     },
     {
       type: 'item',
