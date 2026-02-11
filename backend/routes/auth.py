@@ -65,6 +65,15 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
     user_id = f"usr_{uuid.uuid4().hex[:12]}"
     hashed_password = hash_password(user_data.password)
     
+    # Detect jurisdiction from user's location (province/postal_code/country)
+    jurisdiction = get_jurisdiction_from_address(
+        province=user_data.province,
+        country=user_data.country or "CA",
+        postal_code=user_data.postal_code,
+        city=user_data.city
+    )
+    jurisdiction_code = jurisdiction.get("jurisdiction_code", "CA-ON")  # Default to Ontario
+    
     # Set initial status based on user type
     # - workpassport: pending email verification, then active
     # - workforce: pending email verification, then pending document verification (admin approval)
@@ -85,7 +94,14 @@ async def signup(request: Request, user_data: UserCreate, db: AsyncIOMotorDataba
         "mfa_enabled": False,
         "created_date": datetime.now(timezone.utc).isoformat(),
         "last_login_date": None,
-        "deleted_at": None
+        "deleted_at": None,
+        # Jurisdiction info - determines applicable labor laws
+        "country": user_data.country or "CA",
+        "province": user_data.province,
+        "city": user_data.city,
+        "postal_code": user_data.postal_code,
+        "jurisdiction_code": jurisdiction_code,
+        "authorized_jurisdictions": [jurisdiction_code]  # Start with home jurisdiction
     }
     
     await db.users.insert_one(user_doc)
