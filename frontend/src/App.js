@@ -64,6 +64,7 @@ import InstitutionSettings from './pages/institution/Settings';
 import InstitutionNotificationSettings from './pages/institution/NotificationSettings';
 import ClassTemplates from './pages/institution/ClassTemplates';
 import ClassesManagement from './pages/institution/ClassesManagement';
+import ProgramsManagement from './pages/institution/ProgramsManagement';
 import ClassDetails from './pages/institution/ClassDetails';
 import VerificationRequests from './pages/institution/VerificationRequests';
 import ManageCredentials from './pages/institution/ManageCredentials';
