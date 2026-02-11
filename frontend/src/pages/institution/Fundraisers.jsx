@@ -533,7 +533,8 @@ const InstitutionFundraisers = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </InstitutionLayout>
   );
 };
 
