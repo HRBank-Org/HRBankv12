@@ -31,7 +31,8 @@ import {
   Activity,
   FileWarning,
   Receipt,
-  Link2
+  Link2,
+  Globe2
 } from 'lucide-react';
 
 const SuperAdminSidebar = () => {
