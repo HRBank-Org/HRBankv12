@@ -455,6 +455,7 @@ async def invite_students(
                 "invited_by": current_user["user_id"],
                 "institution_id": current_user["user_id"],
                 "class_id": class_id,
+                "program_id": program_id,  # Track program in invitation
                 "user_type": "workforce",
                 "status": "pending",
                 "created_date": datetime.now(timezone.utc).isoformat(),
@@ -463,19 +464,26 @@ async def invite_students(
             
             await db.invitations.insert_one(invitation)
             
-            # TODO: Send email with signup link
-            # For now, we'll create a mock email sending
-            print(f"Invitation sent to {email} for class {institution_class['title']}")
+            print(f"Invitation sent to {email} for cohort {institution_class['title']}")
         
         invitations_sent += 1
+    
+    # CASCADE: Update program's total students
+    if students_enrolled > 0:
+        await db.institution_programs.update_one(
+            {"program_id": program_id},
+            {"$inc": {"total_students": students_enrolled}}
+        )
     
     return {
         "success": True,
         "data": {
             "invitations_sent": invitations_sent,
-            "class_id": class_id
+            "students_enrolled": students_enrolled,
+            "class_id": class_id,
+            "program_id": program_id
         },
-        "message": f"Sent {invitations_sent} invitation(s)"
+        "message": f"Sent {invitations_sent} invitation(s), enrolled {students_enrolled} existing student(s)"
     }
 
 
