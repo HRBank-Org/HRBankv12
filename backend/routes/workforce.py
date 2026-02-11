@@ -185,7 +185,7 @@ async def update_personal_info(
     
     if existing_profile:
         # Update existing
-        result = await db.workforce_profiles.update_one(
+        await db.workforce_profiles.update_one(
             {"workforce_id": current_user["user_id"]},
             {"$set": data}
         )
