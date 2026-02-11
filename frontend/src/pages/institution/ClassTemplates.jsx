@@ -125,20 +125,17 @@ const ClassTemplates = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <InstitutionLayout title="Class Templates">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      </InstitutionLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        onBackClick={() => navigate('/institution/dashboard')}
-        showBack={true}
-      />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
+    <InstitutionLayout title="Class Templates" subtitle="Create reusable templates for your classes">
+      <div data-testid="class-templates-page">
         {message.text && (
           <div className={`rounded-lg p-4 mb-6 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
             {message.text}
@@ -153,8 +150,8 @@ const ClassTemplates = () => {
           </div>
           <button
             onClick={() => openModal()}
-            className="px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all"
-            style={{ backgroundColor: theme.primaryColor }}
+            className="px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all bg-indigo-600 hover:bg-indigo-700"
+            data-testid="create-template-btn"
           >
             + Create Template
           </button>
