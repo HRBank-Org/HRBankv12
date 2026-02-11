@@ -422,14 +422,14 @@ const IssueCredential = () => {
                   className="flex-1 py-3 rounded-lg text-white font-semibold disabled:opacity-50"
                   style={{ backgroundColor: theme.accentColor }}
                 >
-                  Issue Credential on Blockchain ⛓️
+                  Issue Credential on Blockchain
                 </button>
               </div>
             </div>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </InstitutionLayout>
   );
 };
 
