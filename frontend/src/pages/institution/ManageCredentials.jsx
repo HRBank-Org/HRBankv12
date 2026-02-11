@@ -201,7 +201,6 @@ const ManageCredentials = () => {
             ))}
           </div>
         )}
-      </main>
 
       {/* Revoke Modal */}
       {revokeModal && (
