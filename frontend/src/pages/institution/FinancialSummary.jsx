@@ -156,12 +156,12 @@ const FinancialSummary = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading financial data...</p>
+      <InstitutionLayout title="Financial Summary">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+          <p className="text-gray-600 ml-4">Loading financial data...</p>
         </div>
-      </div>
+      </InstitutionLayout>
     );
   }
 
@@ -173,10 +173,8 @@ const FinancialSummary = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50" data-testid="financial-summary-page">
-      <UserHeader />
-      
-      <div className="pt-[64px]">
+    <InstitutionLayout title="Financial Summary">
+      <div data-testid="financial-summary-page">
         {/* Header */}
         <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-8 py-8">
           <div className="max-w-7xl mx-auto">
