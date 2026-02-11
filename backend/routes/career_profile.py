@@ -310,27 +310,37 @@ async def get_public_career_profile(
                         })
                 occ_data["credentials"] = credentials
             
-            # Employment history
+            # Employment history - filter by occupation_id if available
             if privacy.get("show_employment_history", True):
+                # First try to get employment linked to this specific occupation
+                occupation_id = occ.get("occupation_id")
+                emp_query = {"workforce_id": workforce_id}
+                if occupation_id:
+                    emp_query["occupation_id"] = occupation_id
+                
                 employment = await db.employment_relationships.find(
-                    {"workforce_id": workforce_id},
+                    emp_query,
                     {"_id": 0}
                 ).to_list(None)
                 
-                emp_history = []
-                for emp in employment:
-                    employer = await db.employer_profiles.find_one(
-                        {"employer_id": emp.get("employer_id")},
-                        {"company_name": 1, "_id": 0}
-                    )
-                    emp_history.append({
-                        "company_name": employer.get("company_name", "Company") if employer else "Company",
-                        "position_title": emp.get("position_title"),
-                        "status": emp.get("status"),
-                        "total_shifts": emp.get("total_shifts_completed", 0),
-                        "total_hours": round(emp.get("total_hours_worked", 0))
-                    })
-                occ_data["employment_history"] = emp_history
+                # If no occupation-specific employment found, check if occupation has embedded employment_history
+                if not employment and occ.get("employment_history"):
+                    occ_data["employment_history"] = occ.get("employment_history")
+                else:
+                    emp_history = []
+                    for emp in employment:
+                        employer = await db.employer_profiles.find_one(
+                            {"employer_id": emp.get("employer_id")},
+                            {"company_name": 1, "_id": 0}
+                        )
+                        emp_history.append({
+                            "company_name": employer.get("company_name", emp.get("company_name", "Company")) if employer else emp.get("company_name", "Company"),
+                            "position_title": emp.get("position_title"),
+                            "status": emp.get("status"),
+                            "total_shifts": emp.get("total_shifts_completed", 0),
+                            "total_hours": round(emp.get("total_hours_worked", 0))
+                        })
+                    occ_data["employment_history"] = emp_history
             
             occupation_profiles.append(occ_data)
     
