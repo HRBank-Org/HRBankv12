@@ -293,20 +293,17 @@ const InstitutionSettings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <InstitutionLayout>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      </InstitutionLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        onBackClick={() => navigate('/institution/dashboard')}
-        showBack={true}
-      />
-
-      <main className="max-w-4xl mx-auto px-4 py-8">
+    <InstitutionLayout>
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Institution Settings</h1>
 
         {message.text && (
@@ -348,16 +345,79 @@ const InstitutionSettings = () => {
               </select>
             </div>
 
+            {/* Logo Upload Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Institution Logo</label>
               <div className="flex items-center gap-4">
-                {profile.institution_logo_url && (
-                  <img 
-                    src={`${process.env.REACT_APP_BACKEND_URL}${profile.institution_logo_url}`}
-                    alt="Institution Logo"
-                    className="w-20 h-20 rounded-lg object-cover border border-gray-200"
+                <div className="relative">
+                  {profile.institution_logo_url ? (
+                    <img 
+                      src={profile.institution_logo_url.startsWith('http') ? profile.institution_logo_url : `${process.env.REACT_APP_BACKEND_URL}${profile.institution_logo_url}`}
+                      alt="Institution Logo"
+                      className="w-24 h-24 rounded-lg object-cover border-2 border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleLogoSelect}
+                    accept="image/*"
+                    className="hidden"
                   />
-                )}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {profile.institution_logo_url ? 'Change Logo' : 'Upload Logo'}
+                  </button>
+                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Logo Preview Modal */}
+            {showLogoUpload && previewUrl && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-xl max-w-md w-full p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Preview Logo</h3>
+                    <button onClick={cancelLogoUpload} className="text-gray-500 hover:text-gray-700">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="flex justify-center mb-4">
+                    <img 
+                      src={previewUrl} 
+                      alt="Preview" 
+                      className="max-w-full max-h-64 rounded-lg object-contain"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={cancelLogoUpload}
+                      className="flex-1 px-4 py-2 border text-gray-700 rounded-lg hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleLogoUpload}
+                      disabled={uploadingLogo}
+                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {uploadingLogo ? 'Uploading...' : 'Save Logo'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
                 <input
                   ref={fileInputRef}
                   type="file"
