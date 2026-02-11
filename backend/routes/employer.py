@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user, require_role
 from utils.google_maps import google_maps_service
+from utils.jurisdiction import get_jurisdiction_from_address, enrich_with_jurisdiction
 from models.employer import Workplace, Shift, Role
 from typing import Dict, List
 from datetime import datetime, time, date, timezone
@@ -21,6 +22,54 @@ async def create_workplace(
     db = Depends(get_db)
 ):
     """Create a new workplace"""
+    employer_id = current_user["user_id"]
+    
+    # Get employer's authorized jurisdictions
+    employer = await db.employer_profiles.find_one(
+        {"employer_id": employer_id},
+        {"_id": 0, "authorized_jurisdictions": 1, "province": 1, "country": 1}
+    )
+    
+    # Determine workplace jurisdiction from address
+    province = workplace_data.get("province")
+    country = workplace_data.get("country", "CA")  # Default to Canada
+    postal_code = workplace_data.get("postal_code")
+    
+    jurisdiction = get_jurisdiction_from_address(
+        province=province,
+        country=country,
+        postal_code=postal_code
+    )
+    jurisdiction_code = jurisdiction["jurisdiction_code"]
+    
+    # Get employer's authorized jurisdictions (or derive default from registration)
+    authorized = employer.get("authorized_jurisdictions", []) if employer else []
+    
+    # If no authorized jurisdictions, set default from employer's registration province
+    if not authorized and employer:
+        emp_province = employer.get("province", "ON")
+        emp_country = employer.get("country", "CA")
+        default_code = f"{emp_country}-{emp_province}" if emp_country and emp_province else "CA-ON"
+        authorized = [default_code]
+        
+        # Update employer with default authorization
+        await db.employer_profiles.update_one(
+            {"employer_id": employer_id},
+            {"$set": {"authorized_jurisdictions": authorized}}
+        )
+    
+    # JURISDICTION ENFORCEMENT: Check if employer is authorized for this jurisdiction
+    if jurisdiction_code != "UNKNOWN" and jurisdiction_code not in authorized:
+        # Get the jurisdiction name for the error message
+        jurisdiction_name = jurisdiction.get("jurisdiction_name", jurisdiction_code)
+        authorized_names = ", ".join(authorized) if authorized else "None"
+        
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"You are not authorized to create workplaces in {jurisdiction_name}. "
+                   f"Your current authorized jurisdictions: {authorized_names}. "
+                   f"To expand operations, submit a jurisdiction expansion request."
+        )
     
     # Geocode address (optional - won't fail if geocoding unavailable)
     address = workplace_data.get("address")
@@ -37,9 +86,17 @@ async def create_workplace(
             workplace_data["lat"] = None
             workplace_data["long"] = None
     
+    # Add jurisdiction info to workplace
+    workplace_data["jurisdiction"] = {
+        "code": jurisdiction_code,
+        "name": jurisdiction.get("jurisdiction_name"),
+        "country": jurisdiction.get("country"),
+        "country_code": jurisdiction.get("country_code")
+    }
+    
     # Create workplace
     workplace = Workplace(
-        employer_id=current_user["user_id"],
+        employer_id=employer_id,
         **workplace_data
     )
     
@@ -47,7 +104,10 @@ async def create_workplace(
     
     return {
         "success": True,
-        "data": {"workplace_id": workplace.workplace_id},
+        "data": {
+            "workplace_id": workplace.workplace_id,
+            "jurisdiction": workplace_data["jurisdiction"]
+        },
         "message": "Workplace created successfully"
     }
 
