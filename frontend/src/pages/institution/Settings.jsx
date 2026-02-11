@@ -127,58 +127,57 @@ const InstitutionSettings = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setSelectedImage(reader.result);
-      setShowLogoUpload(true);
-    };
-    reader.readAsDataURL(file);
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'Please select an image file' });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Image must be less than 5MB' });
+      return;
+    }
+
+    setSelectedImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setShowLogoUpload(true);
   };
 
   const handleLogoUpload = async () => {
-    if (!completedCrop || !imgRef.current) return;
+    if (!selectedImage) return;
 
     setUploadingLogo(true);
     setMessage({ type: '', text: '' });
 
     try {
-      const canvas = document.createElement('canvas');
-      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
-      
-      canvas.width = completedCrop.width * scaleX;
-      canvas.height = completedCrop.height * scaleY;
-      
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(
-        imgRef.current,
-        completedCrop.x * scaleX,
-        completedCrop.y * scaleY,
-        completedCrop.width * scaleX,
-        completedCrop.height * scaleY,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+      const formData = new FormData();
+      formData.append('file', selectedImage);
 
-      canvas.toBlob(async (blob) => {
-        const formData = new FormData();
-        formData.append('file', blob, 'logo.jpg');
+      const response = await api.post('/api/files/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
-        const response = await api.post('/api/files/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-
-        setProfile(prev => ({ ...prev, institution_logo_url: response.data.data.file_url }));
-        setMessage({ type: 'success', text: 'Logo uploaded successfully!' });
-        setShowLogoUpload(false);
-        setSelectedImage(null);
-      }, 'image/jpeg', 0.95);
+      const logoUrl = response.data.data?.file_url || response.data.file_url;
+      setProfile(prev => ({ ...prev, institution_logo_url: logoUrl }));
+      setMessage({ type: 'success', text: 'Logo uploaded successfully!' });
+      setShowLogoUpload(false);
+      setSelectedImage(null);
+      setPreviewUrl(null);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to upload logo' });
+      console.error('Logo upload error:', error);
+      setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to upload logo' });
     } finally {
       setUploadingLogo(false);
+    }
+  };
+
+  const cancelLogoUpload = () => {
+    setShowLogoUpload(false);
+    setSelectedImage(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
