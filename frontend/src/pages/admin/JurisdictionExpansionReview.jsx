@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminHeader from '../../components/layout/AdminHeader';
-import AdminSidebar from '../../components/layout/AdminSidebar';
+import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 import {
   Globe2,
