@@ -1,6 +1,7 @@
 """
-Compliance API Routes for SOC2 and PIPEDA
-Provides endpoints for audit logs, data export, consent management, and security controls.
+Compliance API Routes for SOC2, PIPEDA, and Multi-Jurisdiction Support
+Provides endpoints for audit logs, data export, consent management, security controls,
+and automatic jurisdiction detection based on work location.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -8,7 +9,17 @@ from typing import Dict, Optional, List
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 
-from auth.dependencies import require_role
+from auth.dependencies import require_role, get_current_user
+from utils.jurisdiction import (
+    get_jurisdiction_from_address,
+    get_compliance_rules,
+    get_all_supported_jurisdictions,
+    validate_wage_compliance,
+    enrich_with_jurisdiction,
+    get_compliance_badges,
+    get_minimum_wage,
+    COMPLIANCE_RULES
+)
 
 router = APIRouter(prefix="/compliance", tags=["Compliance"])
 
