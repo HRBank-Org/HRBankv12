@@ -292,6 +292,7 @@ app.include_router(payroll_sync.router, tags=["payroll_sync"])
 app.include_router(admin_messaging.router, prefix="/api", tags=["admin_messaging"])
 app.include_router(geo_access_admin.router, prefix="/api", tags=["geo_access"])
 app.include_router(employer_insurance.router, prefix="/api", tags=["employer_insurance"])
+app.include_router(jurisdiction_authorization.router, tags=["jurisdiction_authorization"])
 
 # Stripe webhook at root /api level
 @app.post("/api/webhook/stripe")
