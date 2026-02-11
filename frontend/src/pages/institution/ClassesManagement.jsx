@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
 const ClassesManagement = () => {
