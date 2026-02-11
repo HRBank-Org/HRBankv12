@@ -1,9 +1,10 @@
 """
 Institution Classes, Templates, and Credential Management Routes
+Hierarchy: Faculty → Program → Cohort (Class) → Students → Credentials
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from auth.dependencies import get_current_user, require_role
 from models.institution_classes import (
     ClassTemplate, InstitutionClass, CredentialIssuance, VerificationRequest,
