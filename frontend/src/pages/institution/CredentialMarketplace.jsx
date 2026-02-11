@@ -453,8 +453,7 @@ const CredentialMarketplace = () => {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </InstitutionLayout>
   );
 };
 
