@@ -54,6 +54,9 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 | **Partner Logos Cleanup (Feb 6)** | ✅ Placeholders filtered |
 | **Admin Dashboard Cleanup (Feb 6)** | ✅ 10 unused pages removed |
 
+| **Multi-Jurisdiction System (Dec 2025)** | ✅ Complete |
+| **Leaderboard Header Fix (Dec 2025)** | ✅ Complete |
+
 ### GO-LIVE CHECKLIST ✅
 - [x] All APIs tested (100% pass rate)
 - [x] Frontend pages load correctly
