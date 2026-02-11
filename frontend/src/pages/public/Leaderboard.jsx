@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import {
   Trophy, Medal, Building2, Users, FileCheck,
   MapPin, TrendingUp, Search, Mail, CheckCircle,
-  Globe, Star, ArrowRight, Sparkles, Zap, Target, ArrowLeft
+  Globe, Star, ArrowRight, Sparkles, Zap, Target
 } from 'lucide-react';
 import { LOGOS } from '../../utils/logoUtils';
+import LanguageSelector from '../../components/common/LanguageSelector';
+import LoginModal from '../../components/auth/LoginModal';
 
 const Leaderboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState([]);
   const [allInstitutions, setAllInstitutions] = useState([]);
@@ -27,6 +30,7 @@ const Leaderboard = () => {
   const [inviteMessage, setInviteMessage] = useState('');
   const [inviteSubmitting, setInviteSubmitting] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     loadData();
