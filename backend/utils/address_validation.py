@@ -84,8 +84,114 @@ def validate_canadian_postal_code(postal_code: str) -> Dict[str, any]:
     return {
         "valid": True,
         "formatted": formatted,
+        "country": "CA",
         "error": None
     }
+
+
+def validate_us_zip_code(zip_code: str) -> Dict[str, any]:
+    """
+    Validate US ZIP code format
+    Format: 12345 or 12345-6789
+    """
+    if not zip_code:
+        return {"valid": False, "error": "ZIP code is required"}
+    
+    cleaned = zip_code.replace(" ", "").replace("-", "")
+    
+    if re.match(r'^\d{5}$', cleaned):
+        return {"valid": True, "formatted": cleaned, "country": "US", "error": None}
+    elif re.match(r'^\d{9}$', cleaned):
+        return {"valid": True, "formatted": f"{cleaned[:5]}-{cleaned[5:]}", "country": "US", "error": None}
+    
+    return {"valid": False, "error": "Invalid US ZIP code. Expected format: 12345 or 12345-6789"}
+
+
+def validate_indian_pin_code(pin_code: str) -> Dict[str, any]:
+    """
+    Validate Indian PIN code format
+    Format: 6 digits
+    """
+    if not pin_code:
+        return {"valid": False, "error": "PIN code is required"}
+    
+    cleaned = pin_code.replace(" ", "")
+    
+    if re.match(r'^\d{6}$', cleaned):
+        return {"valid": True, "formatted": cleaned, "country": "IN", "error": None}
+    
+    return {"valid": False, "error": "Invalid Indian PIN code. Expected 6 digits"}
+
+
+def validate_uk_postcode(postcode: str) -> Dict[str, any]:
+    """
+    Validate UK postcode format
+    Various formats like SW1A 1AA, M1 1AE, etc.
+    """
+    if not postcode:
+        return {"valid": False, "error": "Postcode is required"}
+    
+    cleaned = postcode.upper().replace(" ", "")
+    
+    # UK postcode pattern (simplified)
+    pattern = r'^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$'
+    
+    if re.match(pattern, cleaned):
+        # Format with space
+        formatted = f"{cleaned[:-3]} {cleaned[-3:]}"
+        return {"valid": True, "formatted": formatted, "country": "GB", "error": None}
+    
+    return {"valid": False, "error": "Invalid UK postcode format"}
+
+
+def validate_postal_code_global(postal_code: str, country: str = None) -> Dict[str, any]:
+    """
+    Validate postal code based on detected or specified country.
+    Auto-detects country from postal code format if not specified.
+    """
+    if not postal_code:
+        return {"valid": False, "error": "Postal code is required", "country": None}
+    
+    # If country specified, validate accordingly
+    if country:
+        country_upper = country.upper()
+        if country_upper in ["CA", "CANADA"]:
+            return validate_canadian_postal_code(postal_code)
+        elif country_upper in ["US", "USA", "UNITED STATES"]:
+            return validate_us_zip_code(postal_code)
+        elif country_upper in ["IN", "INDIA"]:
+            return validate_indian_pin_code(postal_code)
+        elif country_upper in ["GB", "UK", "UNITED KINGDOM"]:
+            return validate_uk_postcode(postal_code)
+    
+    # Auto-detect from format
+    cleaned = postal_code.replace(" ", "").replace("-", "").upper()
+    
+    # Canadian: A1A1A1
+    if re.match(r'^[A-Z]\d[A-Z]\d[A-Z]\d$', cleaned):
+        return validate_canadian_postal_code(postal_code)
+    
+    # US: 5 or 9 digits
+    if re.match(r'^\d{5}(\d{4})?$', cleaned):
+        return validate_us_zip_code(postal_code)
+    
+    # Indian: 6 digits
+    if re.match(r'^\d{6}$', cleaned):
+        return validate_indian_pin_code(postal_code)
+    
+    # UK pattern
+    if re.match(r'^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$', cleaned):
+        return validate_uk_postcode(postal_code)
+    
+    # Accept but mark as unvalidated
+    return {
+        "valid": True,
+        "formatted": postal_code,
+        "country": None,
+        "note": "Postal code format not recognized. Please verify.",
+        "error": None
+    }
+
 
 def validate_province(province: str) -> Dict[str, any]:
     """
