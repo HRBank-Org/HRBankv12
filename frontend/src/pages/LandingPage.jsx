@@ -10,6 +10,7 @@ import { LOGOS } from '../utils/logoUtils';
 import EmmaLandingChat from '../components/emma/EmmaLandingChat';
 import LoginModal from '../components/auth/LoginModal';
 import LandingHeader from '../components/layout/LandingHeader';
+import WorkPassportInteractiveDemo from '../components/landing/WorkPassportInteractiveDemo';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
