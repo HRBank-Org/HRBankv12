@@ -200,74 +200,101 @@ async def get_class_details(
 
 
 @router.post("/classes", response_model=Dict)
-
 async def create_class(
     class_data: dict,
     current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
-    """Create a new class (cohort) - optionally linked to a program"""
+    """
+    Create a new cohort (class) - MUST be linked to a program.
+    
+    Hierarchy enforcement:
+    - Faculty → Program → Cohort → Students → Credentials
+    - Cohort inherits credential_type from Program
+    - Stats cascade up to Program
+    """
     institution_id = current_user["user_id"]
     
-    # If program_id provided, verify it exists and get program info
+    # GUARDRAIL: program_id is REQUIRED
     program_id = class_data.get("program_id")
-    program_info = None
-    if program_id:
-        program = await db.institution_programs.find_one({
-            "program_id": program_id,
-            "institution_id": institution_id,
-            "is_active": True
-        })
-        if not program:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Program not found"
-            )
-        program_info = {
-            "program_id": program["program_id"],
-            "program_name": program["program_name"],
-            "faculty_id": program["faculty_id"]
-        }
-        # Use program's credential type and validity if not specified
-        if not class_data.get("credential_type"):
-            class_data["credential_type"] = program.get("credential_type")
-        if not class_data.get("validity_period_months"):
-            class_data["validity_period_months"] = program.get("validity_period_months")
+    if not program_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="program_id is required. Every cohort must belong to a program."
+        )
+    
+    # Verify program exists and belongs to this institution
+    program = await db.institution_programs.find_one({
+        "program_id": program_id,
+        "institution_id": institution_id,
+        "is_active": True
+    })
+    
+    if not program:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Program not found or inactive"
+        )
+    
+    # Get faculty info for full hierarchy tracking
+    faculty = await db.institution_faculties.find_one({
+        "faculty_id": program["faculty_id"],
+        "institution_id": institution_id
+    })
+    
+    # Build hierarchy info (for display and auditing)
+    hierarchy_info = {
+        "faculty_id": program["faculty_id"],
+        "faculty_name": faculty["faculty_name"] if faculty else None,
+        "program_id": program["program_id"],
+        "program_name": program["program_name"],
+        "program_credential_type": program.get("credential_type")
+    }
+    
+    # INHERITANCE: credential_type comes from Program (can be overridden if needed)
+    credential_type = class_data.get("credential_type") or program.get("credential_type")
+    if not credential_type:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="credential_type is required. Set it on the Program or provide it here."
+        )
+    
+    # Validity period inherited from program
+    validity_period = class_data.get("validity_period_months") or program.get("validity_period_months")
     
     institution_class = InstitutionClass(
         institution_id=institution_id,
         template_id=class_data.get("template_id"),
-        program_id=program_id,  # Link to program
+        program_id=program_id,
         title=class_data.get("title"),
         description=class_data.get("description"),
-        credential_type=class_data.get("credential_type"),
+        credential_type=credential_type,
         start_date=class_data.get("start_date"),
         end_date=class_data.get("end_date"),
-        validity_period_months=class_data.get("validity_period_months"),
+        validity_period_months=validity_period,
         status=class_data.get("status", "draft"),
         created_by=current_user["user_id"]
     )
     
     class_dict = institution_class.model_dump()
-    if program_info:
-        class_dict["program_info"] = program_info
+    class_dict["hierarchy"] = hierarchy_info  # Store full hierarchy for queries
     
     await db.institution_classes.insert_one(class_dict)
     
-    # Update program's cohort count if linked
-    if program_id:
-        await db.institution_programs.update_one(
-            {"program_id": program_id},
-            {"$inc": {"total_cohorts": 1}}
-        )
+    # CASCADE: Update program's cohort count
+    await db.institution_programs.update_one(
+        {"program_id": program_id},
+        {"$inc": {"total_cohorts": 1}}
+    )
     
     return {
         "success": True,
         "data": {
             "class_id": institution_class.class_id,
-            "program_id": program_id
+            "program_id": program_id,
+            "hierarchy": hierarchy_info
         },
-        "message": "Cohort created successfully"
+        "message": f"Cohort created under program '{program['program_name']}'"
     }
 
 
