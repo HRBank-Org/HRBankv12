@@ -341,13 +341,15 @@ async def update_class(
 
 
 @router.delete("/classes/{class_id}", response_model=Dict)
-
 async def delete_class(
     class_id: str,
     current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
-    """Delete a class (only if no credentials issued)"""
+    """
+    Delete a cohort (only if no credentials issued).
+    Cascades count decrement up to Program.
+    """
     existing_class = await db.institution_classes.find_one({
         "class_id": class_id,
         "institution_id": current_user["user_id"]
@@ -356,21 +358,35 @@ async def delete_class(
     if not existing_class:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Class not found"
+            detail="Cohort not found"
         )
     
     # Check if credentials have been issued
     if existing_class.get("credentials_issued", 0) > 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete class with issued credentials. Archive it instead."
+            detail="Cannot delete cohort with issued credentials. Archive it instead."
+        )
+    
+    # CASCADE: Decrement program's cohort count
+    program_id = existing_class.get("program_id")
+    if program_id:
+        students_count = existing_class.get("total_enrolled", 0)
+        await db.institution_programs.update_one(
+            {"program_id": program_id},
+            {
+                "$inc": {
+                    "total_cohorts": -1,
+                    "total_students": -students_count
+                }
+            }
         )
     
     await db.institution_classes.delete_one({"class_id": class_id})
     
     return {
         "success": True,
-        "message": "Class deleted successfully"
+        "message": "Cohort deleted successfully"
     }
 
 
