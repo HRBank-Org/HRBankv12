@@ -949,6 +949,32 @@ Shifts → PayrollEntry → Adapter (Gusto/Dayforce/ADP) → Export File
 - Multi-region deployment
 
 ### P4 - Future Roadmap
+- **Multi-Jurisdiction Compliance System** ✅ (Dec 2025) - NEW
+  - Purpose: Make platform usable worldwide while preserving Canadian foundation
+  - Architecture: Role-based jurisdiction (compliance determined by workplace address)
+  - Key Insight: Compliance follows work location, not company headquarters
+  - Implementation:
+    - `/app/backend/utils/jurisdiction.py` - Jurisdiction detection engine
+    - `/app/backend/routes/compliance.py` - Updated with jurisdiction endpoints
+    - Auto-detects jurisdiction from workplace/role address
+    - Validates wages against jurisdiction minimums
+    - Returns applicable compliance badges per jurisdiction
+  - Supported Regions:
+    - Canada: All 13 provinces/territories (ESA, PIPEDA, OHSA)
+    - USA: Major states (CA, TX, NY, FL, etc. - FLSA, state laws)
+    - India: Major states (MH, KA, TN, DL - Labour Codes 2020)
+    - UK: England, Scotland, Wales, NIR (ERA, GDPR)
+    - EU: Germany, France, Netherlands (GDPR)
+  - API Endpoints:
+    - `GET /api/compliance/jurisdictions` - List all supported jurisdictions
+    - `GET /api/compliance/detect-jurisdiction` - Auto-detect from address
+    - `GET /api/compliance/rules/{code}` - Get jurisdiction rules
+    - `GET /api/compliance/validate-wage` - Check wage compliance
+    - `GET /api/compliance/workplace/{id}/jurisdiction` - Workplace jurisdiction
+    - `GET /api/compliance/role/{id}/jurisdiction` - Role jurisdiction
+    - `GET /api/compliance/employer/jurisdictions` - All employer jurisdictions
+  - Status: ✅ Foundation complete, automatic integration with role creation
+
 - **SAP Integration** (Planned)
   - Target: SAP SuccessFactors (Cloud HCM)
   - Data Sync Options:
