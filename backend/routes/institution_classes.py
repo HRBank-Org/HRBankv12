@@ -476,7 +476,6 @@ async def invite_students(
     
     # Get institution info
     institution = await db.institution_profiles.find_one({"institution_id": current_user["user_id"]})
-    institution_name = institution.get("institution_name", "Institution") if institution else "Institution"
     
     # Create invitation records
     invitations_sent = 0
