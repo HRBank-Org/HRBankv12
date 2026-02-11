@@ -310,8 +310,7 @@ const ClassTemplates = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all"
-                  style={{ backgroundColor: theme.primaryColor }}
+                  className="flex-1 px-4 py-2 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all bg-indigo-600 hover:bg-indigo-700"
                 >
                   {editingTemplate ? 'Update Template' : 'Create Template'}
                 </button>
@@ -320,7 +319,8 @@ const ClassTemplates = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </InstitutionLayout>
   );
 };
 
