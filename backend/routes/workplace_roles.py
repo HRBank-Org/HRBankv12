@@ -3,6 +3,7 @@ from typing import Dict, List
 from datetime import datetime, timedelta, timezone
 from auth.dependencies import require_role, get_current_user
 from models.workplace_roles import WorkplaceRole, WorkplaceRoleCreate, WorkplaceRoleUpdate
+from utils.jurisdiction import enrich_with_jurisdiction, validate_wage_compliance
 import uuid
 
 router = APIRouter(prefix="/api/employer/workplace-roles", tags=["Workplace Roles"])
