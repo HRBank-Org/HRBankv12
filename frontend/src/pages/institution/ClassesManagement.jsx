@@ -144,20 +144,17 @@ const ClassesManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <InstitutionLayout title="Classes">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      </InstitutionLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        onBackClick={() => navigate('/institution/dashboard')}
-        showBack={true}
-      />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
+    <InstitutionLayout title="Classes" subtitle="Manage your classes and enrolled students">
+      <div data-testid="classes-management-page">
         {message.text && (
           <div className={`rounded-lg p-4 mb-6 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
             {message.text}
