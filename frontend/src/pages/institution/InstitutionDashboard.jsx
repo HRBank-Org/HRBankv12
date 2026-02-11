@@ -212,9 +212,10 @@ const InstitutionDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader />
+      <InstitutionSidebar />
+      <InstitutionHeader />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="transition-all duration-300 pt-20 px-6 pb-8" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
         {/* Stripe Connect Banner - Show if not connected and has earnings */}
         {stripeStatus && !stripeStatus.has_account && payoutBalance && payoutBalance.total_earned_cad > 0 && (
           <div 
