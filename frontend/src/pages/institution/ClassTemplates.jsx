@@ -208,8 +208,7 @@ const ClassTemplates = () => {
             <p className="text-gray-600 mb-6">Create your first class template to get started</p>
             <button
               onClick={() => openModal()}
-              className="px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all"
-              style={{ backgroundColor: theme.primaryColor }}
+              className="px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all bg-indigo-600 hover:bg-indigo-700"
             >
               + Create Template
             </button>
