@@ -20,6 +20,38 @@ def get_db():
     return db
 
 
+# ==================== CREDENTIAL TYPE AUTHORIZATION ====================
+
+@router.get("/allowed-credential-types", response_model=Dict)
+async def get_allowed_credential_types(
+    current_user: dict = Depends(require_role(["institution"])),
+    db = Depends(get_db)
+):
+    """
+    Get the list of credential types this institution is authorized to issue.
+    Based on institution_type (college, university, training_center, etc.)
+    """
+    # Get institution profile
+    institution_profile = await db.institution_profiles.find_one(
+        {"institution_id": current_user["user_id"]},
+        {"_id": 0, "institution_type": 1, "institution_name": 1}
+    )
+    
+    institution_type = institution_profile.get("institution_type", "other") if institution_profile else "other"
+    
+    # Get allowed credential types for this institution
+    allowed_types = get_credential_types_for_institution(institution_type)
+    
+    return {
+        "success": True,
+        "data": {
+            "institution_type": institution_type,
+            "allowed_credential_types": allowed_types,
+            "message": f"Your institution ({institution_type}) is authorized to issue: {', '.join([t['name'] for t in allowed_types])}"
+        }
+    }
+
+
 # ==================== CLASS TEMPLATES ====================
 
 @router.get("/class-templates", response_model=Dict)
