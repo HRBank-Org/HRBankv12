@@ -6,7 +6,7 @@ import {
   Home, GraduationCap, Award, FileText, Users, 
   Settings, CreditCard, Globe, ChevronRight, ChevronLeft,
   BookOpen, Upload, Bell, Wallet, TrendingUp, 
-  UserPlus, ClipboardList, BarChart3, ShoppingBag
+  UserPlus, ClipboardList, BarChart3, ShoppingBag, FileCheck
 } from 'lucide-react';
 
 // Convert LANGUAGES object to array for iteration
