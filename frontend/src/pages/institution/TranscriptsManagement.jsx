@@ -477,8 +477,7 @@ const TranscriptsManagement = () => {
                     <button
                       onClick={() => handleIssueCredential(selectedTranscript.transcript_id)}
                       disabled={issuingCredential}
-                      className="px-4 py-2 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
-                      style={{ backgroundColor: theme.primaryColor }}
+                      className="px-4 py-2 text-white rounded-lg flex items-center gap-2 disabled:opacity-50 bg-indigo-600 hover:bg-indigo-700"
                     >
                       {issuingCredential ? (
                         <FiLoader className="w-4 h-4 animate-spin" />
