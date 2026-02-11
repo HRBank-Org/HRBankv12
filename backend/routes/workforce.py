@@ -56,6 +56,72 @@ async def get_my_profile(
         "data": profile
     }
 
+@router.get("/my-profile", response_model=Dict)
+async def get_complete_profile(
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """Get complete workforce profile with occupation profiles, credentials, education for WorkPassport Builder"""
+    workforce_id = current_user["user_id"]
+    
+    # Get basic profile
+    profile = await db.workforce_profiles.find_one(
+        {"workforce_id": workforce_id},
+        {"_id": 0}
+    )
+    
+    if not profile:
+        profile = {
+            "workforce_id": workforce_id,
+            "full_name": current_user.get("full_name", ""),
+            "photo_url": "",
+            "city": "",
+            "province": "",
+            "country": "Canada"
+        }
+    
+    # Get occupation profiles with embedded employment history
+    occupation_profiles = await db.occupation_profiles.find(
+        {"workforce_id": workforce_id},
+        {"_id": 0}
+    ).to_list(50)
+    
+    # Get credentials
+    credentials = await db.workforce_credentials.find(
+        {"workforce_id": workforce_id, "status": "verified"},
+        {"_id": 0}
+    ).to_list(50)
+    
+    # Get education
+    education = await db.education.find(
+        {"workforce_id": workforce_id},
+        {"_id": 0}
+    ).to_list(20)
+    
+    # Calculate totals
+    total_hours = sum(occ.get("total_hours_worked", 0) for occ in occupation_profiles)
+    total_experience = sum(occ.get("years_of_experience", 0) for occ in occupation_profiles)
+    ratings = [occ.get("skill_rating_avg") for occ in occupation_profiles if occ.get("skill_rating_avg")]
+    avg_rating = round(sum(ratings) / len(ratings), 1) if ratings else None
+    
+    return {
+        "success": True,
+        "data": {
+            **profile,
+            "occupation_profiles": occupation_profiles,
+            "credentials": credentials,
+            "education": education,
+            "total_hours": total_hours,
+            "total_experience": total_experience,
+            "avg_rating": avg_rating,
+            "location": {
+                "city": profile.get("city"),
+                "province": profile.get("province"),
+                "country": profile.get("country", "Canada")
+            }
+        }
+    }
+
 @router.patch("/me/profile/personal-info", response_model=Dict)
 async def update_personal_info(
     data: dict,
