@@ -47,27 +47,19 @@ const IssueCredential = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        title="Issue Blockchain Credential"
-        subtitle={`Step ${step} of 5`}
-        onBackClick={() => navigate('/institution/dashboard')}
-        showBack={true}
-      />
-
-      <main className="max-w-4xl mx-auto px-6 py-8">
+    <InstitutionLayout title="Issue Blockchain Credential" subtitle={`Step ${step} of 5`}>
+      <div className="max-w-4xl mx-auto" data-testid="issue-credential-page">
         {/* Progress Steps */}
         <div className="flex items-center justify-between mb-8">
           {['Student', 'Template', 'Details', 'Preview', 'Blockchain'].map((label, idx) => (
             <div key={idx} className="flex items-center flex-1">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                idx + 1 <= step ? 'text-white' : 'bg-gray-200 text-gray-600'
-              }`} style={{ backgroundColor: idx + 1 <= step ? theme.primaryColor : undefined }}>
+                idx + 1 <= step ? 'text-white bg-indigo-600' : 'bg-gray-200 text-gray-600'
+              }`}>
                 {idx + 1}
               </div>
               {idx < 4 && (
-                <div className={`flex-1 h-1 mx-2 ${idx + 1 < step ? '' : 'bg-gray-200'}`} 
-                     style={{ backgroundColor: idx + 1 < step ? theme.primaryColor : undefined }} />
+                <div className={`flex-1 h-1 mx-2 ${idx + 1 < step ? 'bg-indigo-600' : 'bg-gray-200'}`} />
               )}
             </div>
           ))}
