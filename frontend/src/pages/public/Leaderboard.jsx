@@ -171,7 +171,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Fixed Header */}
+      {/* Fixed Header - Consistent with Landing Page */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -199,16 +199,29 @@ const Leaderboard = () => {
                 Jobs
               </Link>
             </div>
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 px-4 py-2 text-white/70 hover:text-white text-sm font-medium transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Link>
+            <div className="flex items-center gap-4">
+              {/* Language Selector */}
+              <div className="w-[70px]">
+                <LanguageSelector variant="compact" />
+              </div>
+              {/* Sign In Button */}
+              <button 
+                onClick={() => setShowLoginModal(true)}
+                className="px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-colors"
+                data-testid="leaderboard-signin"
+              >
+                Sign In
+              </button>
+            </div>
           </div>
         </div>
       </nav>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+      />
 
       {/* Hero Header */}
       <div className="relative overflow-hidden pt-16">
