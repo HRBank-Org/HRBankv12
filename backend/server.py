@@ -236,6 +236,7 @@ app.include_router(otp_verification.router, prefix="/api/otp", tags=["otp_verifi
 app.include_router(file_upload.router, prefix="/api", tags=["file_upload"])
 app.include_router(validation.router, prefix="/api/validation", tags=["validation"])
 app.include_router(institution_classes.router, tags=["institution_classes"])
+app.include_router(institution_programs.router, tags=["institution_programs"])
 app.include_router(credential_verification.router, tags=["credential_verification"])
 app.include_router(compliance.router, prefix="/api", tags=["compliance"])
 app.include_router(payroll.router, prefix="/api", tags=["payroll"])
