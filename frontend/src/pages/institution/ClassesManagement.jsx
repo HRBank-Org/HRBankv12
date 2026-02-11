@@ -45,7 +45,7 @@ const ClassesManagement = () => {
   const loadPrograms = async () => {
     try {
       const response = await api.get('/api/institution/programs');
-      setPrograms(response.data.data || []);
+      setPrograms(response.data.data?.programs || []);
     } catch (error) {
       console.error('Failed to load programs:', error);
     }
