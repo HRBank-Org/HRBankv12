@@ -377,15 +377,26 @@ async def delete_class(
 # ==================== STUDENT INVITATIONS ====================
 
 @router.post("/students/invite", response_model=Dict)
-
 async def invite_students(
     invitation_data: dict,
     current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
-    """Invite students to join HR Bank and enroll in class"""
+    """
+    Invite students to join HR Bank and enroll in cohort.
+    
+    Hierarchy enforcement:
+    - Cohort must belong to a Program
+    - Student count cascades up to Program
+    """
     class_id = invitation_data.get("class_id")
-    emails = invitation_data.get("emails", [])  # List of email addresses
+    emails = invitation_data.get("emails", [])
+    
+    if not class_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="class_id (cohort) is required"
+        )
     
     if not emails:
         raise HTTPException(
@@ -393,7 +404,7 @@ async def invite_students(
             detail="No email addresses provided"
         )
     
-    # Verify class exists
+    # Verify cohort exists
     institution_class = await db.institution_classes.find_one({
         "class_id": class_id,
         "institution_id": current_user["user_id"]
@@ -402,22 +413,31 @@ async def invite_students(
     if not institution_class:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Class not found"
+            detail="Cohort not found"
+        )
+    
+    # GUARDRAIL: Cohort must belong to a program
+    program_id = institution_class.get("program_id")
+    if not program_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This cohort is not linked to a program. Link it first."
         )
     
     # Get institution info
-    institution = await db.institution_profiles.find_one({"user_id": current_user["user_id"]})
+    institution = await db.institution_profiles.find_one({"institution_id": current_user["user_id"]})
     institution_name = institution.get("institution_name", "Institution") if institution else "Institution"
     
-    # Create invitation records and send emails
+    # Create invitation records
     invitations_sent = 0
+    students_enrolled = 0
     
     for email in emails:
         # Check if user already exists
         existing_user = await db.users.find_one({"email": email})
         
         if existing_user and existing_user.get("user_type") == "workforce":
-            # User exists, just enroll them in class
+            # User exists, just enroll them in cohort
             await db.institution_classes.update_one(
                 {"class_id": class_id},
                 {
@@ -425,6 +445,7 @@ async def invite_students(
                     "$inc": {"total_enrolled": 1}
                 }
             )
+            students_enrolled += 1
         else:
             # Create invitation token
             invite_token = f"inv_{uuid.uuid4().hex[:12]}"
