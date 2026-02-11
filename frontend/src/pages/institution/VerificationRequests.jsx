@@ -159,7 +159,6 @@ const VerificationRequests = () => {
             <p className="text-gray-600">You're all caught up! No verification requests at the moment.</p>
           </div>
         )}
-      </main>
 
       {/* Review Modal */}
       {showModal && selectedRequest && (
