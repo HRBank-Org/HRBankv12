@@ -234,7 +234,7 @@ const InstitutionSidebar = () => {
             {showExpanded && (
               <>
                 <span className="text-sm font-medium flex-1 text-left">
-                  {LANGUAGES.find(l => l.code === language)?.flag} {LANGUAGES.find(l => l.code === language)?.name}
+                  {LANGUAGES[language]?.flag} {LANGUAGES[language]?.name}
                 </span>
                 <ChevronRight className={`w-4 h-4 transition-transform ${showLangMenu ? 'rotate-90' : ''}`} />
               </>
@@ -243,7 +243,7 @@ const InstitutionSidebar = () => {
 
           {showLangMenu && showExpanded && (
             <div className="absolute bottom-full left-0 mb-2 w-full bg-slate-800 rounded-lg shadow-xl border border-white/10 py-1 max-h-48 overflow-y-auto">
-              {LANGUAGES.map((lang) => (
+              {languageList.map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => { setLanguage(lang.code); setShowLangMenu(false); }}
