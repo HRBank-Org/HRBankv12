@@ -461,17 +461,30 @@ async def invite_students(
 # ==================== CREDENTIAL ISSUANCE ====================
 
 @router.post("/credentials/issue", response_model=Dict)
-
 async def issue_credentials(
     issuance_data: dict,
     current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
-    """Issue credentials to students in a class"""
+    """
+    Issue credentials to students in a cohort.
+    
+    Hierarchy enforcement:
+    - MUST have class_id (cohort)
+    - Cohort MUST belong to a Program
+    - Credential type is inherited from Program → Cohort
+    - Stats cascade up: Cohort → Program → Faculty
+    """
     class_id = issuance_data.get("class_id")
     student_ids = issuance_data.get("student_ids", [])  # List of user_ids or "all"
     
-    # Get class details
+    if not class_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="class_id is required. Credentials must be issued through a cohort."
+        )
+    
+    # Get cohort details
     institution_class = await db.institution_classes.find_one({
         "class_id": class_id,
         "institution_id": current_user["user_id"]
@@ -480,8 +493,37 @@ async def issue_credentials(
     if not institution_class:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Class not found"
+            detail="Cohort not found"
         )
+    
+    # GUARDRAIL: Cohort must belong to a program
+    program_id = institution_class.get("program_id")
+    if not program_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This cohort is not linked to a program. Please link it to a program first."
+        )
+    
+    # Get program for hierarchy tracking
+    program = await db.institution_programs.find_one({
+        "program_id": program_id,
+        "institution_id": current_user["user_id"]
+    })
+    
+    if not program:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Program not found"
+        )
+    
+    # Build full hierarchy info for the credential
+    hierarchy = {
+        "faculty_id": program.get("faculty_id"),
+        "program_id": program_id,
+        "program_name": program.get("program_name"),
+        "cohort_id": class_id,
+        "cohort_name": institution_class.get("title")
+    }
     
     # Determine which students to issue credentials to
     if student_ids == "all":
@@ -495,11 +537,20 @@ async def issue_credentials(
             detail="No students to issue credentials to"
         )
     
+    # INHERITANCE: Credential type comes from cohort (which inherited from program)
+    credential_type = institution_class.get("credential_type") or program.get("credential_type")
+    if not credential_type:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No credential type defined. Set it on the Program."
+        )
+    
     # Calculate expiry date
     issue_date = datetime.now(timezone.utc)
+    validity_months = institution_class.get("validity_period_months") or program.get("validity_period_months")
     expiry_date = None
-    if institution_class.get("validity_period_months"):
-        expiry_date = issue_date + timedelta(days=institution_class["validity_period_months"] * 30)
+    if validity_months:
+        expiry_date = issue_date + timedelta(days=validity_months * 30)
     
     # Issue credentials
     credentials_issued = 0
@@ -518,29 +569,43 @@ async def issue_credentials(
             institution_id=current_user["user_id"],
             class_id=class_id,
             student_id=student_id,
-            credential_type=institution_class["credential_type"],
+            credential_type=credential_type,
             credential_name=institution_class["title"],
             issue_date=issue_date.isoformat(),
             expiry_date=expiry_date.isoformat() if expiry_date else None,
             issued_by=current_user["user_id"]
         )
         
-        await db.credential_issuances.insert_one(credential.model_dump())
+        cred_dict = credential.model_dump()
+        cred_dict["hierarchy"] = hierarchy  # Store full hierarchy
+        cred_dict["program_id"] = program_id
+        cred_dict["program_name"] = program.get("program_name")
+        
+        await db.credential_issuances.insert_one(cred_dict)
         credentials_issued += 1
     
-    # Update class credentials count
+    # CASCADE STATS UP: Update cohort count
     await db.institution_classes.update_one(
         {"class_id": class_id},
         {"$inc": {"credentials_issued": credentials_issued}}
+    )
+    
+    # CASCADE STATS UP: Update program's total credentials
+    await db.institution_programs.update_one(
+        {"program_id": program_id},
+        {"$inc": {"total_credentials_issued": credentials_issued}}
     )
     
     return {
         "success": True,
         "data": {
             "credentials_issued": credentials_issued,
-            "class_id": class_id
+            "class_id": class_id,
+            "program_id": program_id,
+            "credential_type": credential_type,
+            "hierarchy": hierarchy
         },
-        "message": f"Issued {credentials_issued} credential(s)"
+        "message": f"Issued {credentials_issued} credential(s) for program '{program['program_name']}'"
     }
 
 
