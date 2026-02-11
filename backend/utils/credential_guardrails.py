@@ -172,9 +172,6 @@ def validate_credential_issuance(
     is_authorized = normalized_cred_type in auth_config["allowed_types"]
     
     if not is_authorized:
-        cred_level = CREDENTIAL_TYPE_LEVELS.get(normalized_cred_type, 0)
-        max_level = auth_config["max_level"]
-        
         # Build helpful error message
         allowed_names = [CREDENTIAL_TYPE_NAMES.get(t, t) for t in auth_config["allowed_types"]]
         requested_name = CREDENTIAL_TYPE_NAMES.get(normalized_cred_type, credential_type)
