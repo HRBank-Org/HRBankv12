@@ -955,75 +955,109 @@ const LandingPage = () => {
           {/* Compliance Badges Section */}
           <div className="border-t border-gray-800 pt-8 mb-8">
             <div className="text-center mb-6">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-4">Compliance & Certifications</p>
-              <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-6">Security & Compliance</p>
+              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
                 {/* SOC2 Badge */}
-                <div className="flex flex-col items-center group">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                    <Shield className="w-7 h-7 text-white" />
+                <div className="flex flex-col items-center group cursor-pointer" title="SOC 2 Type II Compliant">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-blue-500 transition-all shadow-lg">
+                      <div className="text-center">
+                        <span className="text-blue-400 font-bold text-sm block leading-tight">SOC 2</span>
+                        <span className="text-[9px] text-slate-400">TYPE II</span>
+                      </div>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </div>
                   </div>
-                  <span className="text-xs font-medium text-gray-400">SOC 2</span>
-                  <span className="text-[10px] text-gray-500">Type II</span>
+                  <span className="text-[10px] text-gray-500">AICPA</span>
                 </div>
                 
                 {/* PIPEDA Badge */}
-                <div className="flex flex-col items-center group">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
+                <div className="flex flex-col items-center group cursor-pointer" title="PIPEDA Compliant">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-red-500 transition-all shadow-lg">
+                      <div className="text-center">
+                        <span className="text-red-400 font-bold text-[11px] block leading-tight">PIPEDA</span>
+                        <span className="text-[8px] text-slate-400">CANADA</span>
+                      </div>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </div>
                   </div>
-                  <span className="text-xs font-medium text-gray-400">PIPEDA</span>
-                  <span className="text-[10px] text-gray-500">Compliant</span>
+                  <span className="text-[10px] text-gray-500">Privacy</span>
                 </div>
                 
                 {/* ESA Badge */}
-                <div className="flex flex-col items-center group">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                    <Briefcase className="w-7 h-7 text-white" />
+                <div className="flex flex-col items-center group cursor-pointer" title="Employment Standards Act Compliant">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-amber-500 transition-all shadow-lg">
+                      <div className="text-center">
+                        <span className="text-amber-400 font-bold text-sm block leading-tight">ESA</span>
+                        <span className="text-[8px] text-slate-400">ONTARIO</span>
+                      </div>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </div>
                   </div>
-                  <span className="text-xs font-medium text-gray-400">ESA</span>
-                  <span className="text-[10px] text-gray-500">Ontario</span>
+                  <span className="text-[10px] text-gray-500">Employment</span>
                 </div>
                 
                 {/* PCI-DSS Badge */}
-                <div className="flex flex-col items-center group">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="2" y="5" width="20" height="14" rx="2"/>
-                      <line x1="2" y1="10" x2="22" y2="10"/>
-                    </svg>
+                <div className="flex flex-col items-center group cursor-pointer" title="PCI-DSS Level 1 via Stripe">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-green-500 transition-all shadow-lg">
+                      <div className="text-center">
+                        <span className="text-green-400 font-bold text-[10px] block leading-tight">PCI DSS</span>
+                        <span className="text-[8px] text-slate-400">LEVEL 1</span>
+                      </div>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </div>
                   </div>
-                  <span className="text-xs font-medium text-gray-400">PCI-DSS</span>
-                  <span className="text-[10px] text-gray-500">Level 1</span>
+                  <span className="text-[10px] text-gray-500">Payments</span>
                 </div>
                 
                 {/* ISO 27001 Badge */}
-                <div className="flex flex-col items-center group">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M12 6v6l4 2"/>
-                    </svg>
+                <div className="flex flex-col items-center group cursor-pointer" title="ISO 27001 Information Security">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-purple-500 transition-all shadow-lg">
+                      <div className="text-center">
+                        <span className="text-purple-400 font-bold text-[10px] block leading-tight">ISO</span>
+                        <span className="text-purple-400 font-bold text-[10px] block leading-tight">27001</span>
+                      </div>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </div>
                   </div>
-                  <span className="text-xs font-medium text-gray-400">ISO 27001</span>
-                  <span className="text-[10px] text-gray-500">Certified</span>
+                  <span className="text-[10px] text-gray-500">Security</span>
                 </div>
                 
-                {/* Blockchain Verified Badge */}
-                <div className="flex flex-col items-center group">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-                      <path d="M12 22V12"/>
-                      <path d="M22 7l-10 5"/>
-                      <path d="M2 7l10 5"/>
-                    </svg>
+                {/* Polygon Blockchain Badge */}
+                <div className="flex flex-col items-center group cursor-pointer" title="Polygon Blockchain Verified">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center mb-2 group-hover:border-indigo-500 transition-all shadow-lg p-2">
+                      <svg viewBox="0 0 38 33" className="w-8 h-8" fill="none">
+                        <path d="M28.6 10.3L20.3 5.4C19.5 4.9 18.5 4.9 17.7 5.4L9.4 10.3C8.6 10.8 8.1 11.6 8.1 12.6V22.4C8.1 23.3 8.6 24.2 9.4 24.7L17.7 29.6C18.5 30.1 19.5 30.1 20.3 29.6L28.6 24.7C29.4 24.2 29.9 23.3 29.9 22.4V12.6C29.9 11.6 29.4 10.8 28.6 10.3Z" fill="#8247E5"/>
+                        <path d="M24.1 14.5L19.8 12C19.3 11.7 18.7 11.7 18.2 12L13.9 14.5C13.4 14.8 13.1 15.3 13.1 15.9V20.9C13.1 21.5 13.4 22 13.9 22.3L18.2 24.8C18.7 25.1 19.3 25.1 19.8 24.8L24.1 22.3C24.6 22 24.9 21.5 24.9 20.9V15.9C24.9 15.3 24.6 14.8 24.1 14.5Z" fill="white"/>
+                      </svg>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </div>
                   </div>
-                  <span className="text-xs font-medium text-gray-400">Polygon</span>
                   <span className="text-[10px] text-gray-500">Blockchain</span>
                 </div>
               </div>
+              
+              {/* Trust statement */}
+              <p className="text-[11px] text-gray-600 mt-6 max-w-2xl mx-auto">
+                Your data is protected with enterprise-grade security. All credentials are verified on Polygon blockchain for tamper-proof authenticity.
+              </p>
             </div>
           </div>
           
