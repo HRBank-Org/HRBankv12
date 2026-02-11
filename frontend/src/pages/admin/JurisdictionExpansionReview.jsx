@@ -98,7 +98,7 @@ const JurisdictionExpansionReview = () => {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
       <div className="flex">
-        <AdminSidebar />
+        <SuperAdminSidebar />
         <main className="flex-1 lg:ml-[260px] pt-20">
           <div className="p-6">
             <div className="max-w-6xl mx-auto">
