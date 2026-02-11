@@ -24,7 +24,7 @@ def get_db():
 
 @router.get("/allowed-credential-types", response_model=Dict)
 async def get_allowed_credential_types(
-    current_user: dict = Depends(require_role(["institution"])),
+    current_user: dict = Depends(require_role("institution")),
     db = Depends(get_db)
 ):
     """
