@@ -78,7 +78,7 @@ def test_credential_minting_flow(results):
     print("\n🧪 Testing Complete Credential Minting Flow (Priority: HIGH)...")
     print("   Testing Institution login, credential issuance, verification, transcript flow, and analytics")
     print("   Test credentials: demo@stclairecollege.ca / Demo123!")
-    print("   Base URL: https://go-live-v2.preview.emergentagent.com")
+    print("   Base URL: https://hrbank-demo.preview.emergentagent.com")
     
     # Test credentials from review request
     institution_creds = {"email": "demo@stclairecollege.ca", "password": "Demo123!", "user_type": "institution"}
