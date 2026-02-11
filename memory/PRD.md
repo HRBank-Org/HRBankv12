@@ -67,6 +67,34 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 - [x] Insurance Review UI complete
 - [x] SOC2 Dashboard accessible
 - [x] Revenue Dashboard accessible
+- [x] Credential Type Guardrails implemented
+
+---
+
+### Credential Type Guardrails ✅ (Dec 2025) - NEW
+Prevents institutions from issuing credentials beyond their accreditation level.
+
+**Authorization Levels:**
+| Institution Type | Max Credential Level | Can Issue |
+|-----------------|---------------------|-----------|
+| Training Center | Certificate (3) | Badge, Micro-credential, Certificate |
+| Certification Body | Certificate (3) | Badge, Micro-credential, Certificate |
+| Technical Institute | Diploma (4) | Badge, Micro-credential, Certificate, Diploma |
+| College | Associate Degree (5) | Badge, Micro-credential, Certificate, Diploma, Associate Degree |
+| University | Doctoral Degree (9) | All credential types up to Doctoral |
+| Government | Professional License (10) | Badge, Micro-credential, Certificate, Professional License |
+| Employer | Micro-credential (2) | Badge, Micro-credential only |
+
+**Implementation Files:**
+- `/app/backend/utils/credential_guardrails.py` - Authorization logic
+- `/app/backend/routes/institution_classes.py` - API endpoint + validation
+
+**API Endpoint:**
+- `GET /api/institution/allowed-credential-types` - Returns authorized credential types for the logged-in institution
+
+**UI Changes:**
+- Removed "Sell Credentials" text from all UI (replaced with "Issue credentials")
+- Removed redundant Settings icon from Institution header (kept in dropdown)
 
 ---
 
