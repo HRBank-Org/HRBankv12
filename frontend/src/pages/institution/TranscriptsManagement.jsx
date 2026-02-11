@@ -164,28 +164,26 @@ const TranscriptsManagement = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <UserHeader title="Transcripts" />
-
-      <main className="max-w-7xl mx-auto px-4 py-6">
+    <InstitutionLayout title="Transcript Management" subtitle="Upload, extract, and verify academic transcripts">
+      <div data-testid="transcripts-management-page">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Transcript Management</h1>
-            <p className="text-gray-600">Upload, extract, and verify academic transcripts</p>
+            <p className="text-gray-600">Upload PDF transcripts to extract and verify academic data</p>
           </div>
           
-          <label className="relative cursor-pointer">
+          <label className="relative cursor-pointer" data-testid="upload-transcript-label">
             <input
               type="file"
               accept=".pdf"
               onChange={handleFileUpload}
               className="hidden"
               disabled={uploading}
+              data-testid="transcript-file-input"
             />
             <span 
-              className="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors"
-              style={{ backgroundColor: theme.primaryColor }}
+              className="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors bg-indigo-600 hover:bg-indigo-700"
             >
               {uploading ? (
                 <>
