@@ -163,10 +163,6 @@ const ClassesManagement = () => {
 
         {/* Header with Filters */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Classes</h1>
-            <p className="text-gray-600">Manage your classes and enrolled students</p>
-          </div>
           <div className="flex gap-3">
             <select
               value={statusFilter}

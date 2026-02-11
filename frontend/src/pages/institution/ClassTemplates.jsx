@@ -142,12 +142,8 @@ const ClassTemplates = () => {
           </div>
         )}
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Class Templates</h1>
-            <p className="text-gray-600">Create reusable templates for your classes</p>
-          </div>
+        {/* Action Button */}
+        <div className="flex items-center justify-end mb-6">
           <button
             onClick={() => openModal()}
             className="px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all bg-indigo-600 hover:bg-indigo-700"
