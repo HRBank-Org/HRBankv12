@@ -178,7 +178,6 @@ async def request_jurisdiction_expansion(
     
     # Get target jurisdiction info
     target_info = JURISDICTIONS[target]
-    target_rules = COMPLIANCE_RULES.get(target, {})
     
     # Create expansion request
     request_id = f"exp_{uuid.uuid4().hex[:12]}"
@@ -346,7 +345,7 @@ async def cancel_expansion_request(
 
 @router.get("/admin/expansion-requests")
 async def get_all_expansion_requests(
-    status: Optional[str] = None,
+    request_status: Optional[str] = None,
     country_code: Optional[str] = None,
     current_user: dict = Depends(require_role("admin", "super_admin")),
     db = Depends(get_db)
@@ -356,8 +355,8 @@ async def get_all_expansion_requests(
     Filter by status: pending, approved, rejected, cancelled
     """
     query = {}
-    if status:
-        query["status"] = status
+    if request_status:
+        query["status"] = request_status
     if country_code:
         query["target_country_code"] = country_code
     
