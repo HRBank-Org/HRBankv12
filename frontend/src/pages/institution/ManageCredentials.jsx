@@ -60,35 +60,28 @@ const ManageCredentials = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <InstitutionLayout title="Manage Credentials">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      </InstitutionLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/institution/dashboard')} className="hover:opacity-80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-            <h1 className="text-xl font-bold">Manage Blockchain Credentials</h1>
-          </div>
+    <InstitutionLayout title="Manage Blockchain Credentials">
+      <div data-testid="manage-credentials-page">
+        {/* Issue New Button */}
+        <div className="flex justify-end mb-6">
           <button
-            onClick={() => navigate('/institution/issue-credential')}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-medium text-sm"
+            onClick={() => navigate('/institution/credentials/issue')}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm"
+            data-testid="issue-new-btn"
           >
             + Issue New
           </button>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-sm p-6">
