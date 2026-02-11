@@ -509,7 +509,7 @@ const PayoutsDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+    </InstitutionLayout>
   );
 };
 
