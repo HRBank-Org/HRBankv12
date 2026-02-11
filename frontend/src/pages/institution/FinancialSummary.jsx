@@ -489,7 +489,7 @@ const FinancialSummary = () => {
           </div>
         </div>
       </div>
-    </div>
+    </InstitutionLayout>
   );
 };
 
