@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { useToast } from '../../hooks/use-toast';
+import EmployerLayout from '../../components/layout/EmployerLayout';
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -266,14 +267,10 @@ const FieldServiceRoutes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <EmployerLayout title="Field Service Routes" subtitle="Manage delivery, patrol, cleaning, and service routes">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Field Service Routes</h1>
-            <p className="text-gray-500">Manage delivery, patrol, cleaning, and service routes</p>
-          </div>
+        {/* Header Actions */}
+        <div className="flex items-center justify-end mb-6">
           <div className="flex items-center gap-3">
             <Button 
               variant="outline"
@@ -409,7 +406,7 @@ const FieldServiceRoutes = () => {
           </Card>
         )}
       </div>
-    </div>
+    </EmployerLayout>
   );
 };
 

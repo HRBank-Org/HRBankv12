@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
+import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 import { Check, ChevronLeft, Save, Sun, Sunset, Moon, Clock } from 'lucide-react';
 
@@ -158,35 +159,17 @@ const Availability = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <WorkforceLayout title="My Availability">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+        </div>
+      </WorkforceLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      {/* Header */}
-      <header className="text-white px-4 py-4 shadow-md" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/workforce/dashboard')} className="hover:opacity-80">
-              <ChevronLeft size={24} />
-            </button>
-            <h1 className="text-xl font-bold">My Availability</h1>
-          </div>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-medium transition-colors disabled:opacity-50"
-          >
-            <Save size={18} />
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <WorkforceLayout title="My Availability">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Days Selection */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-1">Which days can you work?</h2>
@@ -400,8 +383,8 @@ const Availability = () => {
         >
           {saving ? 'Saving...' : 'Save Availability'}
         </button>
-      </main>
-    </div>
+      </div>
+    </WorkforceLayout>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import EmployerLayout from '../../components/layout/EmployerLayout';
 import api from '../../utils/api';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -243,21 +243,17 @@ const EmployerSettings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <EmployerLayout title="Settings">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+        </div>
+      </EmployerLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader
-        onBackClick={() => navigate('/employer/home')}
-        showBack={true}
-        title="Settings"
-      />
-
-      <main className="max-w-3xl mx-auto px-4 py-8">
+    <EmployerLayout title="Settings">
+      <div className="max-w-3xl mx-auto">
         {message.text && (
           <div className={`rounded-lg p-4 mb-6 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
             {message.text}
@@ -572,7 +568,7 @@ const EmployerSettings = () => {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* Photo Crop Modal */}
       {showPhotoUpload && selectedImage && (
@@ -636,7 +632,7 @@ const EmployerSettings = () => {
           </div>
         </div>
       )}
-    </div>
+    </EmployerLayout>
   );
 };
 

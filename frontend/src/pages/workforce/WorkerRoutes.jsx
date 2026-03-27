@@ -7,6 +7,7 @@ import {
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
+import WorkforceLayout from '../../components/layout/WorkforceLayout';
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -129,18 +130,19 @@ const WorkerRoutes = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-[#ff5f00] border-t-transparent rounded-full" />
-      </div>
+      <WorkforceLayout title="My Routes">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin w-8 h-8 border-4 border-[#ff5f00] border-t-transparent rounded-full" />
+        </div>
+      </WorkforceLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <WorkforceLayout title="My Routes">
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">My Routes</h1>
           <p className="text-gray-500 flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -176,7 +178,7 @@ const WorkerRoutes = () => {
           </Card>
         )}
       </div>
-    </div>
+    </WorkforceLayout>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -389,14 +389,8 @@ const WorkforceSettings = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        onBackClick={() => navigate('/workforce/dashboard')}
-        showBack={true}
-        title="Settings"
-      />
-
-      <main className="max-w-3xl mx-auto px-4 py-8">
+    <WorkforceLayout title="Settings">
+      <div className="max-w-3xl mx-auto">
         {/* Account Status Banner */}
         {!isAccountActive && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
@@ -764,7 +758,7 @@ const WorkforceSettings = () => {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* OTP Verification Modal */}
       {otpModal.show && (
@@ -890,7 +884,7 @@ const WorkforceSettings = () => {
           </div>
         </div>
       )}
-    </div>
+    </WorkforceLayout>
   );
 };
 
