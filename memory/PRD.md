@@ -57,6 +57,7 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 | **Multi-Jurisdiction System (Dec 2025)** | ✅ Complete |
 | **Leaderboard Header Fix (Dec 2025)** | ✅ Complete |
 | **Institution Dashboard UI Fix (Dec 2025)** | ✅ Complete - 10 pages fixed |
+| **Sidebar Navigation Fix (Mar 2026)** | ✅ Complete - All user types fixed |
 
 ### GO-LIVE CHECKLIST ✅
 - [x] All APIs tested (100% pass rate)
@@ -73,6 +74,28 @@ Build a comprehensive HR platform (HR Bank) for workforce management with:
 
 ### Credential Type Guardrails ✅ (Dec 2025) - NEW
 Prevents institutions from issuing credentials beyond their accreditation level.
+
+### Sidebar Navigation Fix ✅ (Mar 2026) - NEW
+Fixed sidebar disappearing when navigating to certain pages from the dashboard.
+
+**Problem:** Users reported that when navigating to Settings, Profile, Documents, and other pages from the sidebar, the sidebar would disappear, making it impossible to navigate back to the dashboard.
+
+**Solution:** Created reusable Layout wrapper components for each user type:
+- `WorkforceLayout.jsx` - Wraps workforce pages with WorkforceSidebar + WorkforceHeader
+- `EmployerLayout.jsx` - Wraps employer pages with ModernSidebar + GenericHeader
+- `InstitutionLayout.jsx` - Already existed, used as pattern
+
+**Fixed Pages (Workforce):**
+- Settings, Availability, WorkerRoutes, MyCredentials, Profile, Documents
+- MyTasks, NotificationSettings, EmploymentHistory, ClockInOut
+
+**Fixed Pages (Employer):**
+- Settings, Profile, Documents, Messages, EmployerBilling
+- FieldServiceRoutes, NotificationSettings
+
+**Test Results:** 100% pass rate - All tested pages now correctly display sidebar navigation.
+
+---
 
 **Authorization Levels:**
 | Institution Type | Max Credential Level | Can Issue |
