@@ -15,7 +15,7 @@ const LandingHeader = ({ onSignInClick }) => {
   const navItems = [
     { path: '/', label: 'WorkPassport™', exact: true },
     { path: '/institutions', label: 'Institutions' },
-    { path: '/leaderboard', label: 'Leaderboard' },
+    // { path: '/leaderboard', label: 'Leaderboard' }, // Hidden until institutions join - can re-enable for gamification
     { path: '/employers', label: 'Employers', badge: 'Beta' },
     { path: '/jobs', label: 'Jobs' },
   ];

@@ -1,0 +1,154 @@
+<analysis>**original_problem_statement:** The user needed help debugging a critical production server outage () and an admin login failure on their live AWS Lightsail environment. Following the resolution of deployment issues, the user requested a comprehensive fix for a bug where the sidebar navigation disappeared when navigating to certain pages within the Workforce and Employer dashboards. Finally, the user requested to temporarily hide the Leaderboard feature from the platform. PRODUCT REQUIREMENTS: Ensure persistent layout/sidebar navigation across all user type dashboards.
+
+**User's preferred language**: English (INSTRUCT next agent to respond in English only)
+
+**what currently exists?** 
+A full-stack HR compliance and management application with specialized dashboards for Admin, Employer, Workforce, and Institution users. The application is containerized using Docker. The UI uses standardized Layout wrappers (, , ) to ensure persistent sidebar navigation across all internal pages. The production environment runs on an AWS Lightsail Ubuntu instance utilizing Docker containers and an AWS Load Balancer. The Leaderboard gamification feature is currently built but temporarily hidden from the public UI.
+
+**Last working item**: 
+    - Last item agent was working: Hiding the Leaderboard feature from the public landing pages and navigation headers, as requested by the user because no institutions have joined yet.
+    - Status: USER VERIFICATION PENDING
+    - Agent Testing Done: Y (Self-tested via code verification, but no explicit testing subagent call for this specific minor UI change).
+    - Which testing method agent to use? Frontend testing agent / Screenshot tool
+    - User Testing Done: N
+
+**All Pending/In progress Issue list**: 
+  Issue 1: Delete obsolete ClassTemplates feature (Carried over from previous session) - P2
+  Issue 2: Partner institution logos hotlinking issue (Carried over from previous session) - P2
+
+  Issues Detail:
+  - Issue 1: 
+     - Attempted fixes: None in this session. The previous agent identified it as obsolete but forgot to delete it.
+     - Next debug checklist: Delete  and remove its corresponding route from .
+     - Why fix this issue and what will be achieved with the fix? Cleans up dead code and prevents routing errors or confusion.
+     - Status: NOT STARTED
+     - Is recurring issue? N
+     - Should Test frontend/backend/both after fix? Frontend
+     - Blocked on other issue: None
+  - Issue 2: 
+     - Attempted fixes: A Current Mongosh Log ID:	69c5d9a089837f697f9c28ed
+Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.8.1
+Using MongoDB:		7.0.31
+Using Mongosh:		2.8.1
+
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2026-03-27T01:12:57.603+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+   2026-03-27T01:12:59.080+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+   2026-03-27T01:12:59.080+00:00: You are running this process as the root user, which is not recommended
+   2026-03-27T01:12:59.080+00:00: Soft rlimits for open file descriptors too low
+------
+
+test>  script was provided to the user in a previous session to fix broken logo URLs in their production database.
+     - Next debug checklist: Check with the user if they successfully ran the script on their production database, or if they need further assistance with it.
+     - Why fix this issue and what will be achieved with the fix? Ensures landing page carousel displays correctly.
+     - Status: USER VERIFICATION PENDING
+     - Is recurring issue? Y
+     - Should Test frontend/backend/both after fix? Frontend
+     - Blocked on other issue: User action required.
+
+**In progress Task List**: 
+  None
+
+**Upcoming and Future Tasks**
+    Upcoming Tasks:
+    - Clean up  (P2).
+    
+    Future Tasks:
+    - Implement a notification system to automatically prompt institutions to issue credentials when a cohort's scheduled end date is reached (P2).
+    - Re-enable the Leaderboard feature once institutions are onboarded to the platform.
+
+**Completed work in this session**
+- Production Server Debugging & Deployment (DONE): Fixed Nginx/Docker port conflicts, updated DB  for admin, updated Dockerfile to , and guided user through Docker Hub push/pull on AWS Lightsail.
+- Sidebar Navigation Bug Fix (DONE): Created  and . Wrapped 40+ pages in Workforce and Employer directories to ensure the sidebar persists during navigation. (Verified via testing agent iterations 25 & 26).
+- Hide Leaderboard (DONE): Commented out leaderboard links and sections in , , , and .
+
+**Earlier issues found/mentioned but not fixed**
+   - Issue 1: Agent missed cleaning up  as highlighted in the previous fork's handoff summary.
+   - Debug checklist: Remove the file and its import/route in .
+   - Why to solve this issue and what will be achieved with this: Codebase cleanliness.
+   - Should Test frontend/backend/both after fix: Frontend
+   - Is recurring issue? Y
+
+**Known issue recurrence from previous fork**
+  - Issue recurrence in previous fork: None applicable to current code state.
+  - Recurrence count: 0
+  - Status: RESOLVED
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- Frontend: React, TailwindCSS, Vite
+- Backend: FastAPI, MongoDB (Motor Async)
+- Deployment: Docker, AWS Lightsail Instance (Ubuntu), AWS Load Balancer
+
+**key DB schema**
+  - : 
+  - : Contains legacy admin records, but auth relies on the  collection mapping.
+  - Database name:  (Note: NOT ).
+
+**changes in tech stack**
+  - Frontend Docker image requirement updated from  to  to support .
+
+**All files of reference** 
+  -  (Created to fix sidebar issue)
+  -  (Created to fix sidebar issue)
+  -  (Updated Node version)
+  -  (Updated to hide leaderboard)
+  -  (Updated to hide leaderboard)
+  -  (Updated to hide leaderboard)
+  -  (Updated to hide leaderboard)
+  - Various pages in  and  (Updated with Layout wrappers).
+
+**Areas that need refactoring**: 
+-  (needs deletion).
+- The authentication logic checks  collection but some scripts look at  collection. Ensure consistency moving forward.
+
+**key api endpoints**
+- : Authentication endpoint (Requires  in DB, not just ).
+
+**Critical Info for New Agent** 
+- **Production Environment Specifics**: The user's live deployment () runs on an **AWS Lightsail Ubuntu Instance** running Docker containers directly (connected to a Load Balancer). *Do not confuse this with AWS Lightsail Container Services.*
+- **Production Admin Credentials**: The user's live DB was modified to allow login. The email is  and the temporary password is . The user needs to change this.
+- **Docker Hub**: The user pushes images to Docker Hub under the namespace .
+
+**documents and test reports created in this job** 
+  -  (Sidebar bug identification)
+  -  (Sidebar bug fix verification - 100% pass)
+  - 
+
+**Last 10 User Messages and any pending HUMAN messages** 
+ -  (Agent implemented, pending user review)
+ -  (User approved agent's plan to fix remaining sidebar pages)
+ -  (Agent successfully fixed via Layout wrappers)
+ -  (Agent clarified the difference between Lightsail Container Services and their EC2-style Instance deployment)
+ -  (User pulling Docker image on server)
+ -  (User struggled with Docker pull due to missing push)
+ -  (User clarified their AWS Load Balancer setup)
+ -  (User looking for image on Lightsail Container registry instead of Docker Hub)
+ -  (User authenticated to Docker Hub)
+ -  (User debugging Docker login)
+
+**Project Health Check:**
+- Functional. Leaderboard feature is safely mocked/hidden.
+
+**3rd Party Integrations**
+- MongoDB Atlas
+- AWS Lightsail (Compute Instance + Load Balancer)
+- Docker Hub (User-provided PAT)
+
+**Testing status**
+  - Testing agent used after significant changes: YES (Iterations 25 and 26 for Sidebar persistence).
+  - Troubleshoot agent used after agent stuck in loop: NO
+  - Test files created: None
+  - Known regressions: None
+
+**Credentials to test flow:**
+- General Admin (Local/Preview): Refer to standard  or create via backend scripts if needed.
+- Production Admin (User's live server ONLY):  / 
+
+**What agent forgot to execute**
+- The agent forgot to execute the low-priority cleanup task from the previous handoff: deleting .</analysis>

@@ -72,6 +72,7 @@ const InstitutionsLanding = () => {
                 Partner With HR Bank
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
+              {/* Hidden until institutions join - Leaderboard button
               <Button
                 size="lg"
                 variant="outline"
@@ -81,6 +82,7 @@ const InstitutionsLanding = () => {
                 <Trophy className="mr-2 w-5 h-5" />
                 View Leaderboard
               </Button>
+              */}
             </div>
           </div>
         </div>
@@ -424,7 +426,7 @@ const InstitutionsLanding = () => {
         </div>
       </section>
 
-      {/* Leaderboard Preview */}
+      {/* Leaderboard Preview - Hidden until institutions join
       <section className="py-20 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -478,6 +480,7 @@ const InstitutionsLanding = () => {
           </div>
         </div>
       </section>
+      */}
 
       {/* Can't Find Your School */}
       <section className="py-16 bg-blue-50">
@@ -490,7 +493,7 @@ const InstitutionsLanding = () => {
             Search our directory of 1,800+ Canadian institutions. Request your school to join and start issuing verified credentials.
           </p>
           <Button
-            onClick={() => navigate('/leaderboard')}
+            onClick={() => navigate('/institutions')}
             className="bg-[#30496d] hover:bg-[#243a56] text-white"
           >
             <Search className="mr-2 w-4 h-4" />

@@ -133,12 +133,14 @@ const About = () => {
             >
               Create Account <ArrowRight className="w-5 h-5" />
             </Link>
+            {/* Hidden until institutions join
             <Link 
               to="/leaderboard" 
               className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
             >
               View Leaderboard
             </Link>
+            */}
           </div>
         </div>
       </div>
