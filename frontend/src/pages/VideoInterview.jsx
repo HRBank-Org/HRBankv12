@@ -4,11 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import api from '../utils/api';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const VideoInterview = () => {
   const { interviewId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);

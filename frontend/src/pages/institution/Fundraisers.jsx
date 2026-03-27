@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiPlus, 
   FiDollarSign, 
@@ -20,6 +22,7 @@ import {
 
 const InstitutionFundraisers = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [fundraisers, setFundraisers] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -136,7 +139,7 @@ const InstitutionFundraisers = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Fundraisers</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('pages.institution.fundraisersTitle')}</h1>
             <p className="text-gray-600 mt-1">Create and manage fundraising campaigns for your graduates</p>
           </div>
           <button

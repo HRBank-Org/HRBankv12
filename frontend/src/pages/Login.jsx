@@ -8,10 +8,13 @@ import { useToast } from '../hooks/use-toast';
 import { getLogoByUserType, getLogoBackgroundColor } from '../utils/logoUtils';
 import { useAuth } from '../contexts/AuthContext';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login: authLogin } = useAuth();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const userTypeFromUrl = searchParams.get('type') || 'workforce';
   const [activeTab, setActiveTab] = useState(userTypeFromUrl);

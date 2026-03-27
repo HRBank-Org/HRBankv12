@@ -6,8 +6,10 @@ import { FiArrowLeft } from 'react-icons/fi';
 import LinkedInButton from '../../components/auth/LinkedInButton';
 import LanguageSelector from '../../components/common/LanguageSelector';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const USER_TYPES = [
-  { value: 'workforce', label: 'WorkPassport™' },
+  { value: 'workforce', label: 'WorkPassport\u2122' },
   { value: 'employer', label: 'Employer' },
   { value: 'institution', label: 'Institution' }
 ];
@@ -23,7 +25,15 @@ const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
+
+  // Translated user type labels
+  const userTypeLabels = {
+    workforce: 'WorkPassport\u2122',
+    employer: t('landing.forEmployers'),
+    institution: t('landing.forInstitutions')
+  };
 
   // Check for OAuth error, verification status, and set initial user type from URL
   React.useEffect(() => {
@@ -131,7 +141,7 @@ const LoginForm = () => {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <FiArrowLeft size={20} />
-          <span>Back</span>
+          <span>{t("common.back")}</span>
         </button>
         <LanguageSelector variant="compact" />
       </div>

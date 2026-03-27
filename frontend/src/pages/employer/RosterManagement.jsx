@@ -5,8 +5,11 @@ import { Calendar, Plus, Users, Clock, MapPin } from 'lucide-react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const RosterManagement = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [rosters, setRosters] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -3,6 +3,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   MessageSquare,
   Plus,
@@ -42,6 +44,7 @@ const CATEGORY_ICONS = {
 const Support = () => {
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [tickets, setTickets] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -384,7 +387,7 @@ const NewTicketModal = ({ categories, onClose, onCreated, theme }) => {
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.description")}</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData(d => ({ ...d, description: e.target.value }))}

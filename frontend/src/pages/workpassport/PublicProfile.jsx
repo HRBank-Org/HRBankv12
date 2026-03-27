@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Globe,
   Award,
@@ -17,6 +19,7 @@ import {
 } from 'lucide-react';
 
 const PublicProfile = () => {
+  const { t } = useLanguage();
   const { shareToken } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

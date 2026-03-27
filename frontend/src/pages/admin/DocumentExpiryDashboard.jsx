@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FileWarning, 
   Clock, 
@@ -23,6 +25,7 @@ import {
 
 const DocumentExpiryDashboard = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [expiringDocs, setExpiringDocs] = useState([]);
@@ -310,9 +313,9 @@ const DocumentExpiryDashboard = () => {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Document</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">User</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Expiry Date</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">{t("pages.common.status")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Last Reminder</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">Actions</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">{t("pages.common.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -437,7 +440,7 @@ const DocumentExpiryDashboard = () => {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">User</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Restricted Since</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Expired Documents</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">Actions</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">{t("pages.common.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">

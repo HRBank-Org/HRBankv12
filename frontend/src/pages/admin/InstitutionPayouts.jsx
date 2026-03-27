@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import UserHeader from '../../components/common/UserHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Building2, CheckCircle, Clock, AlertCircle, DollarSign,
   Search, RefreshCw, ExternalLink, TrendingUp, Filter
@@ -10,6 +12,7 @@ import {
 
 const InstitutionPayouts = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [institutions, setInstitutions] = useState([]);
   const [filter, setFilter] = useState('all'); // all, connected, pending, not_connected
@@ -206,7 +209,7 @@ const InstitutionPayouts = () => {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Institution</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Email</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">{t("pages.common.email")}</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Province</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Stripe Status</th>
                   <th className="text-right px-6 py-4 text-sm font-semibold text-gray-900">Credentials Sold</th>

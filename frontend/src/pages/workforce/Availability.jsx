@@ -5,6 +5,8 @@ import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 import { Check, ChevronLeft, Save, Sun, Sunset, Moon, Clock } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const DAYS = [
   { id: 'monday', label: 'Mon', full: 'Monday' },
   { id: 'tuesday', label: 'Tue', full: 'Tuesday' },
@@ -31,6 +33,7 @@ const Availability = () => {
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadAvailability();

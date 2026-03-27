@@ -4,7 +4,10 @@ import api from '../../services/api';
 import PushNotificationSettings from '../../components/common/PushNotificationSettings';
 import EmployerLayout from '../../components/layout/EmployerLayout';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const NotificationSettings = () => {
+  const { t } = useLanguage();
   const [preferences, setPreferences] = useState(null);
   const [notificationTypes, setNotificationTypes] = useState({});
   const [loading, setLoading] = useState(true);
@@ -167,7 +170,7 @@ const NotificationSettings = () => {
                             className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                           />
                           <FiMail className="w-4 h-4 text-gray-600" />
-                          <span className="text-sm text-gray-700">Email</span>
+                          <span className="text-sm text-gray-700">{t("pages.common.email")}</span>
                         </label>
 
                         {/* SMS Toggle */}

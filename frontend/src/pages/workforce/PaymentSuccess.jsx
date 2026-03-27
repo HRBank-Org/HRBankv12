@@ -3,9 +3,12 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { CheckCircle, Award, ExternalLink, Loader2, XCircle } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);

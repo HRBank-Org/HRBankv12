@@ -5,8 +5,11 @@ import api from '../../utils/api';
 import moment from 'moment';
 import { FiCheckCircle, FiCircle, FiClock, FiMapPin, FiCalendar } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const MyTasks = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [shifts, setShifts] = useState([]);
   const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
   const [loading, setLoading] = useState(true);

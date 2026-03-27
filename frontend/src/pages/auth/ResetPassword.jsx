@@ -3,9 +3,12 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { FiLock, FiCheck, FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const token = searchParams.get('token');
   
   const [password, setPassword] = useState('');

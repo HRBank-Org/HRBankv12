@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Calendar,
   Clock,
@@ -19,6 +21,7 @@ import {
 
 const TimeOff = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [requests, setRequests] = useState([]);
@@ -95,7 +98,7 @@ const TimeOff = () => {
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Time Off</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{t('pages.workforce.timeOffTitle')}</h1>
                 <p className="text-gray-600">Manage your leave requests and balances</p>
               </div>
               <button
@@ -322,7 +325,7 @@ const TimeOffRequestModal = ({ onClose, onSuccess, employers, theme }) => {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Request Time Off</h2>
+          <h2 className="text-lg font-semibold">{t('pages.workforce.requestTimeOff')}</h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
             <X className="w-5 h-5" />
           </button>

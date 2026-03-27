@@ -7,10 +7,13 @@ import api from '../../utils/api';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkforceSettings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Link2,
   Plus,
@@ -24,6 +26,7 @@ import {
 
 const PartnerManagement = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [partners, setPartners] = useState([]);
   const [territories, setTerritories] = useState([]);
@@ -168,10 +171,10 @@ const PartnerManagement = () => {
                       <tr>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Partner</th>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Contact</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Status</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.status")}</th>
                         <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Orders</th>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Registered</th>
-                        <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                        <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -356,7 +359,7 @@ const RegisterPartnerModal = ({ onClose, onSuccess }) => {
             <p className="text-xs text-gray-500 mt-1">URL to receive status updates</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.description")}</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}

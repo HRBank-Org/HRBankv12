@@ -4,9 +4,12 @@ import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const MyCredentials = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [credentials, setCredentials] = useState([]);
   const [selectedCredential, setSelectedCredential] = useState(null);

@@ -5,10 +5,13 @@ import { useTheme } from '../../contexts/ThemeContext';
 import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ClassDetails = () => {
   const { classId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [classData, setClassData] = useState(null);
   const [showInviteModal, setShowInviteModal] = useState(false);

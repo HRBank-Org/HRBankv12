@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiCheck, FiX, FiAlertTriangle, FiShield, FiAward, 
   FiCalendar, FiUser, FiBook, FiLoader, FiExternalLink 
 } from 'react-icons/fi';
 
 const VerifyCredential = () => {
+  const { t } = useLanguage();
   const { credentialId } = useParams();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);

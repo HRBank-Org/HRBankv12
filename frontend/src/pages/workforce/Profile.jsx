@@ -7,8 +7,11 @@ import { Button } from '../../components/ui/button';
 import BlockchainVerifiedBadge, { BlockchainCredentialsSection } from '../../components/common/BlockchainVerifiedBadge';
 import WorkforceLayout from '../../components/layout/WorkforceLayout';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkforceProfile = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -125,7 +128,7 @@ const WorkforceProfile = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <div className="text-sm font-medium text-gray-500 mb-1">Email</div>
+              <div className="text-sm font-medium text-gray-500 mb-1">{t("pages.common.email")}</div>
               <div className="flex items-center gap-2 text-gray-900">
                 <Mail className="w-4 h-4 text-gray-400" />
                 {user?.email || 'Not set'}

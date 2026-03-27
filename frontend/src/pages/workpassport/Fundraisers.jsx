@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiHeart, 
   FiDollarSign, 
@@ -17,6 +19,7 @@ import {
 
 const GraduateFundraisers = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [fundraisers, setFundraisers] = useState([]);
   const [selectedFundraiser, setSelectedFundraiser] = useState(null);

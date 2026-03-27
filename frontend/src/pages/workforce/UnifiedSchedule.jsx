@@ -5,6 +5,8 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import SignaturePad from '../../components/common/SignaturePad';
 import api from '../../utils/api';
 import moment from 'moment';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiMapPin, FiClock, FiPhone, FiUser, FiCheck, FiPlay, 
   FiNavigation, FiCalendar, FiChevronLeft, FiChevronRight,
@@ -14,6 +16,7 @@ import {
 
 const UnifiedSchedule = () => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
   const [shifts, setShifts] = useState([]);
   const [serviceTasks, setServiceTasks] = useState([]);

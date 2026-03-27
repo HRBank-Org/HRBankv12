@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import GenericHeader from '../../components/layout/GenericHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiMapPin, FiClock, FiUser, FiCheck, FiX, FiCalendar, 
   FiFilter, FiRefreshCw, FiNavigation, FiPhone, FiDollarSign,
@@ -12,6 +14,7 @@ import {
 
 const ServiceTasksManagement = () => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const [tasks, setTasks] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
@@ -160,11 +163,11 @@ const ServiceTasksManagement = () => {
             </div>
             <div className="bg-orange-50 rounded-xl shadow-sm p-4 border border-orange-200">
               <p className="text-2xl font-bold text-orange-700">{stats.inProgress}</p>
-              <p className="text-xs text-orange-600">In Progress</p>
+              <p className="text-xs text-orange-600">{t("pages.common.inProgress")}</p>
             </div>
             <div className="bg-green-50 rounded-xl shadow-sm p-4 border border-green-200">
               <p className="text-2xl font-bold text-green-700">{stats.completed}</p>
-              <p className="text-xs text-green-600">Completed</p>
+              <p className="text-xs text-green-600">{t("pages.common.completed")}</p>
             </div>
           </div>
 
@@ -199,11 +202,11 @@ const ServiceTasksManagement = () => {
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
               >
                 <option value="all">All Status</option>
-                <option value="pending">Pending</option>
+                <option value="pending">{t("pages.common.pending")}</option>
                 <option value="assigned">Assigned</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="in_progress">{t("pages.common.inProgress")}</option>
+                <option value="completed">{t("pages.common.completed")}</option>
+                <option value="cancelled">{t("pages.common.cancelled")}</option>
               </select>
               
               {/* Date Filter */}
@@ -249,9 +252,9 @@ const ServiceTasksManagement = () => {
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Client / Location</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Schedule</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Worker</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("pages.common.status")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Price</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">{t("pages.common.actions")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">

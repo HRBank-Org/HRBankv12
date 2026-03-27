@@ -8,11 +8,14 @@ import { Upload, Trash2, LogOut } from 'lucide-react';
 import axios from 'axios';
 import { LOGOS } from '../utils/logoUtils';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const InstitutionSettings = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [user, setUser] = useState(null);
   const [logoUrl, setLogoUrl] = useState('');

@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   ArrowLeft, Download, FileSpreadsheet, FileJson, Clock, 
   Users, DollarSign, Calendar, CheckCircle, AlertCircle,
@@ -26,6 +28,7 @@ const PROVIDER_ICONS = {
 export default function PayrollExport() {
   const navigate = useNavigate();
   const { token } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [formats, setFormats] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -171,7 +174,7 @@ export default function PayrollExport() {
               Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Payroll Export</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('pages.employer.payrollExportTitle')}</h1>
               <p className="text-gray-500 dark:text-gray-400">Export timesheets to your payroll system</p>
             </div>
           </div>

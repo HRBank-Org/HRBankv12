@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiPlus, 
   FiBriefcase, 
@@ -37,6 +39,7 @@ const POPULAR_OCCUPATIONS = [
 const WorkPassportOccupations = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [occupations, setOccupations] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);

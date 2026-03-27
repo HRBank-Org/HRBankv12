@@ -13,6 +13,8 @@ import RecruitmentPanel from '../../components/employer/workforce/RecruitmentPan
 import { InviteModalWrapper, TerminateModal, RehireModal } from '../../components/employer/workforce/WorkforceModals';
 import { ESA_LIMITS, getAvailabilityStatus } from '../../components/employer/workforce/esaCompliance';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiUserPlus, FiMail, FiClock, FiCheck, FiX, FiRefreshCw, FiTrendingUp, 
   FiActivity, FiGrid, FiList, FiAlertTriangle, FiFileText, FiDownload,
@@ -43,6 +45,7 @@ const WorkforceManagement = () => {
   const [recordsSortConfig, setRecordsSortConfig] = useState([{ key: 'full_name', direction: 'asc' }]);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadData();
@@ -212,14 +215,14 @@ const WorkforceManagement = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
+                  <th>{t("pages.common.name")}</th>
                   <th>Position</th>
                   <th>Start Date</th>
                   <th>End Date</th>
                   <th>Shifts</th>
                   <th>Hours</th>
                   <th>Total Pay</th>
-                  <th>Status</th>
+                  <th>{t("pages.common.status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -367,7 +370,7 @@ const WorkforceManagement = () => {
         <div className="flex-shrink-0 bg-white border-b border-gray-200 sticky top-0 z-10">
           {/* Page Title */}
           <div className="px-8 py-4 border-b border-gray-100">
-            <h1 className="text-2xl font-bold text-gray-900">Team Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('pages.employer.teamTitle')}</h1>
             <p className="text-sm text-gray-600">Manage your workforce and view worker details</p>
           </div>
 
@@ -479,7 +482,7 @@ const WorkforceManagement = () => {
                   style={{ focusRingColor: theme.primaryColor }}
                 >
                   <option value="workplace">Workplace / Department</option>
-                  <option value="name">Name</option>
+                  <option value="name">{t("pages.common.name")}</option>
                   <option value="hours">Hours (High → Low)</option>
                   <option value="status">Availability Status</option>
                 </select>
@@ -540,12 +543,12 @@ const WorkforceManagement = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.name")}</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.status")}</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t("pages.common.actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -650,11 +653,11 @@ const WorkforceManagement = () => {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">{t("pages.common.status")}</th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">This Week</th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Attendance</th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Total</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t("pages.common.actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">

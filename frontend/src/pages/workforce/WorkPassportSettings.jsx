@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Shield, Eye, EyeOff, QrCode, Link2, Copy, Check,
   RefreshCw, ExternalLink, Download, Share2, Lock,
@@ -13,6 +15,7 @@ import {
 const WorkPassportSettings = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState(null);

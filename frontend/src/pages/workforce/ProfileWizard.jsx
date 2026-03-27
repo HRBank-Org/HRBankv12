@@ -9,6 +9,8 @@ import AvailabilityStep from '../../components/workforce/AvailabilityStep';
 import DocumentsStep from '../../components/workforce/DocumentsStep';
 import ReviewStep from '../../components/workforce/ReviewStep';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const STEPS = [
   { number: 1, title: 'Personal Info', component: PersonalInfoStep },
   { number: 2, title: 'Skills', component: SkillsStep },
@@ -31,6 +33,7 @@ const ProfileWizard = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const progress = (currentStep / STEPS.length) * 100;
 

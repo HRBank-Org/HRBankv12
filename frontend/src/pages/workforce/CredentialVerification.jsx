@@ -4,9 +4,12 @@ import { useTheme } from '../../contexts/ThemeContext';
 import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const CredentialVerification = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [credentialTypes, setCredentialTypes] = useState([]);
   const [requests, setRequests] = useState([]);
   const [showModal, setShowModal] = useState(false);

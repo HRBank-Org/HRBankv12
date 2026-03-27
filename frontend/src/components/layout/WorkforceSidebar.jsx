@@ -11,7 +11,7 @@ const WorkforceSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   
   const showExpanded = isExpanded || hovering;
 
@@ -23,101 +23,101 @@ const WorkforceSidebar = () => {
   const menuItems = [
     {
       type: 'item',
-      label: 'Dashboard',
+      label: t('nav.workforce.dashboard'),
       icon: FiHome,
       path: '/workforce/dashboard'
     },
     {
       type: 'category',
-      label: 'Work & Schedule'
+      label: t('nav.workforce.workAndSchedule')
     },
     {
       type: 'item',
-      label: 'My Schedule',
+      label: t('nav.workforce.mySchedule'),
       icon: FiCalendar,
       path: '/workforce/schedule'
     },
     {
       type: 'item',
-      label: 'Performance',
+      label: t('nav.workforce.performance'),
       icon: FiAward,
       path: '/workforce/performance'
     },
     {
       type: 'item',
-      label: 'Attendance',
+      label: t('nav.workforce.attendance'),
       icon: FiClock,
       path: '/workforce/attendance'
     },
     {
       type: 'item',
-      label: 'My Routes',
+      label: t('nav.workforce.myRoutes'),
       icon: FiTruck,
       path: '/workforce/routes'
     },
     {
       type: 'item',
-      label: 'Availability',
+      label: t('nav.workforce.availability'),
       icon: FiCheckSquare,
       path: '/workforce/availability'
     },
     {
       type: 'category',
-      label: 'Earnings'
+      label: t('nav.workforce.earnings')
     },
     {
       type: 'item',
-      label: 'Wallet',
+      label: t('nav.workforce.wallet'),
       icon: FiDollarSign,
       path: '/workforce/wallet'
     },
     {
       type: 'item',
-      label: 'Timesheets',
+      label: t('nav.workforce.timesheets'),
       icon: FiFileText,
       path: '/workforce/timesheets'
     },
     {
       type: 'item',
-      label: 'Invoices',
+      label: t('nav.workforce.invoices'),
       icon: FiCreditCard,
       path: '/workforce/invoices'
     },
     {
       type: 'item',
-      label: 'Time Off',
+      label: t('nav.workforce.timeOff'),
       icon: FiSun,
       path: '/workforce/time-off'
     },
     {
       type: 'category',
-      label: 'Career'
+      label: t('nav.workforce.career')
     },
     {
       type: 'item',
-      label: 'My Profiles',
+      label: t('nav.workforce.myProfiles'),
       icon: FiBriefcase,
       path: '/workforce/occupations'
     },
     {
       type: 'item',
-      label: 'WorkPassport',
+      label: t('nav.workforce.workPassport'),
       icon: FiGlobe,
       path: '/workforce/work-passport'
     },
     {
       type: 'item',
-      label: 'Find Jobs',
+      label: t('nav.workforce.findJobs'),
       icon: FiSearch,
       path: '/workforce/find-jobs'
     },
     {
       type: 'category',
-      label: 'Support'
+      label: t('nav.workforce.support')
     },
     {
       type: 'item',
-      label: 'Help & Support',
+      label: t('nav.workforce.helpAndSupport'),
       icon: FiHelpCircle,
       path: '/workforce/support'
     }

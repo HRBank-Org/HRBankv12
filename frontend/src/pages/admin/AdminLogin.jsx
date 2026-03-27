@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { FiArrowLeft } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -12,6 +14,7 @@ const AdminLogin = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login, logout } = useAuth();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

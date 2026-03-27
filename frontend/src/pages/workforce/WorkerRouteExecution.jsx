@@ -11,11 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Badge } from '../../components/ui/badge';
 import { useToast } from '../../hooks/use-toast';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const API = process.env.REACT_APP_BACKEND_URL;
 
 const WorkerRouteExecution = () => {
   const { routeId } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const watchIdRef = useRef(null);
   

@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   FileText,
   Download,
@@ -28,6 +30,7 @@ import {
 
 const AdminInvoices = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const [summary, setSummary] = useState({});
@@ -165,7 +168,7 @@ const AdminInvoices = () => {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-gray-900">{formatCurrency(summary.pending_amount)}</p>
-                    <p className="text-xs text-gray-500">Pending</p>
+                    <p className="text-xs text-gray-500">{t("pages.common.pending")}</p>
                   </div>
                 </div>
               </div>
@@ -187,7 +190,7 @@ const AdminInvoices = () => {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-gray-900">{summary.pending_count || 0}</p>
-                    <p className="text-xs text-gray-500">Pending</p>
+                    <p className="text-xs text-gray-500">{t("pages.common.pending")}</p>
                   </div>
                 </div>
               </div>
@@ -217,7 +220,7 @@ const AdminInvoices = () => {
                   <option value="sent">Sent</option>
                   <option value="overdue">Overdue</option>
                   <option value="draft">Draft</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="cancelled">{t("pages.common.cancelled")}</option>
                 </select>
                 <select
                   value={filters.customer_type}
@@ -257,10 +260,10 @@ const AdminInvoices = () => {
                         <tr>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Invoice</th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Customer</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Amount</th>
-                          <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("pages.common.date")}</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("pages.common.status")}</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">{t("pages.common.amount")}</th>
+                          <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">{t("pages.common.actions")}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -295,7 +298,7 @@ const AdminInvoices = () => {
                                   <option value="sent">Sent</option>
                                   <option value="paid">Paid</option>
                                   <option value="overdue">Overdue</option>
-                                  <option value="cancelled">Cancelled</option>
+                                  <option value="cancelled">{t("pages.common.cancelled")}</option>
                                 </select>
                               </td>
                               <td className="px-4 py-3 text-right">
@@ -400,8 +403,8 @@ const InvoiceDetailModal = ({ invoice, onClose }) => {
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left">Description</th>
-                  <th className="px-4 py-2 text-right">Amount</th>
+                  <th className="px-4 py-2 text-left">{t("pages.common.description")}</th>
+                  <th className="px-4 py-2 text-right">{t("pages.common.amount")}</th>
                 </tr>
               </thead>
               <tbody>

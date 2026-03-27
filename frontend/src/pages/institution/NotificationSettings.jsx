@@ -4,8 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import PushNotificationSettings from '../../components/common/PushNotificationSettings';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const NotificationSettings = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [preferences, setPreferences] = useState({
     credential_issued: { email: true, push: true },
     credential_revoked: { email: true, push: true },
@@ -105,7 +108,7 @@ const NotificationSettings = () => {
                       className="w-4 h-4 text-blue-600 rounded"
                     />
                     <Mail className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">Email</span>
+                    <span className="text-sm text-gray-600">{t("pages.common.email")}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input

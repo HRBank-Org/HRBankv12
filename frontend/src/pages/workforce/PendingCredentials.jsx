@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Shield, CreditCard, CheckCircle, Clock, AlertCircle,
   Award, Building2, DollarSign, ExternalLink, Loader2,
@@ -13,6 +15,7 @@ import {
 const PendingCredentials = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [pendingCredentials, setPendingCredentials] = useState([]);

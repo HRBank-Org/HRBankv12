@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const VerificationQueue = () => {
   const [credentials, setCredentials] = useState([]);
   const [filter, setFilter] = useState('pending'); // pending, verified, all
@@ -12,6 +14,7 @@ const VerificationQueue = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadCredentials();

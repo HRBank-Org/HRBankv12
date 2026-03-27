@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Users,
   UserCheck,
@@ -20,6 +22,7 @@ import {
 const SuperAdminDashboard = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState(null);
   const [roles, setRoles] = useState([]);

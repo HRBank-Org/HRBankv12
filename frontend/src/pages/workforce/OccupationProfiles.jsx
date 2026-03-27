@@ -6,6 +6,8 @@ import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const OccupationProfiles = () => {
   const [occupations, setOccupations] = useState([]);
   const [canAddMore, setCanAddMore] = useState(true);
@@ -17,6 +19,7 @@ const OccupationProfiles = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadOccupations();
@@ -107,7 +110,7 @@ const OccupationProfiles = () => {
       
       <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
         <div className="bg-white border-b border-gray-200 px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">My Profiles</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">{t('pages.workforce.profilesTitle')}</h1>
           <p className="text-gray-600">
             Manage your occupation profiles ({occupations.length} of 3 profiles)
           </p>

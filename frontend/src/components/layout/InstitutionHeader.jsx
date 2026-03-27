@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import LanguageSelector from '../common/LanguageSelector';
 import {
   Bell, LogOut, User, ChevronDown,
   Search, HelpCircle, GraduationCap, Settings
@@ -11,6 +13,7 @@ const InstitutionHeader = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef(null);
@@ -64,6 +67,9 @@ const InstitutionHeader = () => {
 
       {/* Right Section */}
       <div className="flex items-center gap-3">
+        {/* Language Selector */}
+        <LanguageSelector variant="compact" />
+        
         {/* Help */}
         <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500">
           <HelpCircle className="w-5 h-5" />

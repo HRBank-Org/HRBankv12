@@ -6,8 +6,11 @@ import {
 } from 'lucide-react';
 import LoginModal from '../../components/auth/LoginModal';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const InstitutionLanding = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const benefits = [
@@ -125,7 +128,7 @@ const InstitutionLanding = () => {
                   </div>
                   <div className="flex items-center gap-1 text-green-600">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">Verified</span>
+                    <span className="text-sm font-medium">{t("pages.common.verified")}</span>
                   </div>
                 </div>
                 <div className="border-t border-b py-6 mb-6">

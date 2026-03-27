@@ -2,9 +2,12 @@ import React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FiXCircle, FiArrowLeft, FiHeart } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const DonationCancelled = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const fundraiserId = searchParams.get('fundraiser_id');
 
   return (

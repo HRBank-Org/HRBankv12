@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ManageOccupations = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -27,6 +29,7 @@ const ManageOccupations = () => {
   const [showCertDropdown, setShowCertDropdown] = useState(false);
   
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadCategories();
@@ -300,7 +303,7 @@ const ManageOccupations = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.description")}</label>
                 <input
                   type="text"
                   value={categoryForm.description}

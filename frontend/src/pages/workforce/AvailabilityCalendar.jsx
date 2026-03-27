@@ -5,6 +5,8 @@ import Calendar from '../../components/common/Calendar';
 import api from '../../utils/api';
 import moment from 'moment';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const AvailabilityCalendar = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +25,7 @@ const AvailabilityCalendar = () => {
 
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadAvailability();
@@ -242,7 +245,7 @@ const AvailabilityCalendar = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.type")}</label>
                 <select
                   value={eventForm.type}
                   onChange={(e) => setEventForm({ ...eventForm, type: e.target.value })}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   DollarSign,
   TrendingUp,
@@ -22,6 +24,7 @@ import {
 
 const RevenueDashboard = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30');
   const [revenueData, setRevenueData] = useState(null);

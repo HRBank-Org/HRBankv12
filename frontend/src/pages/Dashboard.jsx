@@ -5,8 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { LogOut, Briefcase, Users, Building2 } from 'lucide-react';
 import { getLogoByUserType, getLogoBackgroundColor } from '../utils/logoUtils';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [user, setUser] = useState(null);
 
   useEffect(() => {

@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   UserCheck,
   UserX,
@@ -40,6 +42,7 @@ const PROVINCES = [
 
 const PendingActivations = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
@@ -197,7 +200,7 @@ const PendingActivations = () => {
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Pending Activations</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{t('pages.admin.activationsTitle')}</h1>
                 <p className="text-gray-600">{total} users waiting for activation</p>
               </div>
               <button
@@ -492,7 +495,7 @@ const UserDetailModal = ({ user, onClose, onActivate, activating, theme }) => (
       <div className="p-4 space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-gray-500">Email</label>
+            <label className="text-sm text-gray-500">{t("pages.common.email")}</label>
             <p className="font-medium">{user.email}</p>
           </div>
           <div>
@@ -500,11 +503,11 @@ const UserDetailModal = ({ user, onClose, onActivate, activating, theme }) => (
             <p className="font-medium capitalize">{user.user_type}</p>
           </div>
           <div>
-            <label className="text-sm text-gray-500">Name</label>
+            <label className="text-sm text-gray-500">{t("pages.common.name")}</label>
             <p className="font-medium">{user.full_name || 'N/A'}</p>
           </div>
           <div>
-            <label className="text-sm text-gray-500">Status</label>
+            <label className="text-sm text-gray-500">{t("pages.common.status")}</label>
             <p className="font-medium capitalize">{user.profile_status}</p>
           </div>
           {(user.city || user.province) && (

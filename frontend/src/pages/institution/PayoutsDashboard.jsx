@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Wallet, DollarSign, Building2, CheckCircle, Clock, AlertCircle,
   ExternalLink, Loader2, TrendingUp, CreditCard, Calendar, RefreshCw,
@@ -10,6 +12,7 @@ import {
 
 const PayoutsDashboard = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [balanceData, setBalanceData] = useState(null);
   const [accountStatus, setAccountStatus] = useState(null);
@@ -130,7 +133,7 @@ const PayoutsDashboard = () => {
       case 'paid':
         return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Paid</span>;
       case 'pending':
-        return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pending</span>;
+        return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">{t("pages.common.pending")}</span>;
       case 'in_transit':
         return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">In Transit</span>;
       case 'canceled':

@@ -4,8 +4,11 @@ import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import { AlertTriangle, Search, Flag, Clock, CheckCircle, XCircle } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ReportedIssues = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const issues = [
     { id: 1, title: 'Inappropriate behavior reported', reporter: 'employer@company.ca', reported: 'worker@email.com', status: 'open', priority: 'high', date: '2024-01-20' },
@@ -91,8 +94,8 @@ const ReportedIssues = () => {
                       <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Reporter</th>
                       <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Reported User</th>
                       <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Priority</th>
-                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Status</th>
-                      <th className="text-right px-6 py-3 text-sm font-semibold text-gray-900">Actions</th>
+                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">{t("pages.common.status")}</th>
+                      <th className="text-right px-6 py-3 text-sm font-semibold text-gray-900">{t("pages.common.actions")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">

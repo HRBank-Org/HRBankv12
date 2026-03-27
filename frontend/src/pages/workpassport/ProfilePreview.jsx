@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import api from '../../utils/api';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiGlobe, 
   FiEye, 
@@ -21,6 +23,7 @@ import {
 const ProfilePreview = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [credentials, setCredentials] = useState([]);

@@ -2,7 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Lock, Eye, Database, UserCheck, FileText, ArrowLeft } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Privacy = () => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}

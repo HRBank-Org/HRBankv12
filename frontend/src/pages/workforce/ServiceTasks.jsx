@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import GenericHeader from '../../components/layout/GenericHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiMapPin, FiClock, FiPhone, FiUser, FiCheck, FiPlay, 
   FiNavigation, FiCalendar, FiChevronRight, FiAlertCircle,
@@ -11,6 +13,7 @@ import {
 
 const ServiceTasks = () => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -380,11 +383,11 @@ const ServiceTasks = () => {
               </div>
               <div className="bg-white rounded-xl shadow-sm p-4 text-center">
                 <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
-                <p className="text-xs text-gray-500">Completed</p>
+                <p className="text-xs text-gray-500">{t("pages.common.completed")}</p>
               </div>
               <div className="bg-white rounded-xl shadow-sm p-4 text-center">
                 <p className="text-2xl font-bold text-orange-600">{stats.inProgress}</p>
-                <p className="text-xs text-gray-500">In Progress</p>
+                <p className="text-xs text-gray-500">{t("pages.common.inProgress")}</p>
               </div>
               <div className="bg-white rounded-xl shadow-sm p-4 text-center">
                 <p className="text-2xl font-bold text-blue-600">{stats.remaining}</p>

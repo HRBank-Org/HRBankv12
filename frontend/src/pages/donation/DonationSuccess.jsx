@@ -3,9 +3,12 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { FiCheckCircle, FiHeart, FiArrowRight, FiShare2 } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const DonationSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [donation, setDonation] = useState(null);
   const [error, setError] = useState('');

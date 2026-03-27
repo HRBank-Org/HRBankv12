@@ -4,8 +4,11 @@ import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import { Clock, Search, Filter, User, FileText, Settings, Shield } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const AuditLogs = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const logs = [
     { id: 1, action: 'User Activated', user: 'qnizami@hrbank.ca', target: 'john.doe@email.com', ip: '192.168.1.1', timestamp: '2024-01-20 14:32:15' },
@@ -38,7 +41,7 @@ const AuditLogs = () => {
                     <Clock className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Audit Logs</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('pages.admin.auditTitle')}</h1>
                     <p className="text-gray-600">System activity and change history</p>
                   </div>
                 </div>

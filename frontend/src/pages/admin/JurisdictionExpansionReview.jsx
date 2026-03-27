@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Globe2,
   Building2,
@@ -22,6 +24,7 @@ import {
 } from 'lucide-react';
 
 const JurisdictionExpansionReview = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [statusCounts, setStatusCounts] = useState({});

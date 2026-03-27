@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const PendingApproval = () => {
   const { user, logout, refreshUser } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Check if user status has changed (e.g., admin activated the account)
   useEffect(() => {

@@ -5,8 +5,11 @@ import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 import { GraduationCap, Search, MapPin, Mail, CheckCircle, Clock } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const InstitutionsList = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [institutions, setInstitutions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

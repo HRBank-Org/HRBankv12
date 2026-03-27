@@ -5,9 +5,12 @@ import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 import { FiBell, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Notifications = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);

@@ -7,6 +7,8 @@ import InstitutionSidebar from '../../components/layout/InstitutionSidebar';
 import api from '../../utils/api';
 import { FiExternalLink, FiCheckCircle } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 // Stat Card Component
 const StatCard = ({ icon, label, value, color, bgColor, onClick, primaryColor }) => (
   <div 
@@ -84,7 +86,7 @@ const WalletStatusWidget = ({ walletLoading, walletStatus }) => {
               <span className="font-semibold text-gray-900">{network}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Status</span>
+              <span className="text-sm text-gray-600">{t("pages.common.status")}</span>
               <span className="text-sm font-semibold text-green-600">Active ✓</span>
             </div>
             {walletStatus?.issuer_address && (
@@ -125,6 +127,7 @@ const InstitutionDashboard = () => {
   const { updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
   const [profile, setProfile] = useState(null);

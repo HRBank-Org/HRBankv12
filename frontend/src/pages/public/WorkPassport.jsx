@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   Shield, Award, Briefcase, MapPin, Clock, Star, 
   CheckCircle, ExternalLink, Download, QrCode,
@@ -8,6 +10,7 @@ import {
 } from 'lucide-react';
 
 const WorkPassport = () => {
+  const { t } = useLanguage();
   const { profileCode } = useParams();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
@@ -283,7 +286,7 @@ const WorkPassport = () => {
 
                     {/* Status */}
                     <div>
-                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1 print:text-gray-500">Status</p>
+                      <p className="text-slate-400 text-xs uppercase tracking-wider mb-1 print:text-gray-500">{t("pages.common.status")}</p>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30 print:bg-green-100 print:text-green-700 print:border-green-300">
                         <CheckCircle className="w-4 h-4" />
                         Verified

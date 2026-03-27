@@ -5,9 +5,12 @@ import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import { FiDollarSign, FiTrendingUp, FiClock, FiCalendar } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Wallet = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   // Mock data - will be replaced with API

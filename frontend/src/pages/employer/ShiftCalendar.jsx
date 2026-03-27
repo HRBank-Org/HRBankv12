@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 /**
  * ShiftCalendar - Redirect to New Calendar Scheduling System
  * 
@@ -9,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
  */
 const ShiftCalendar = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   // Automatically redirect to new calendar scheduling page
   useEffect(() => {

@@ -4,12 +4,15 @@ import { useTheme } from '../../contexts/ThemeContext';
 import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const EmploymentHistory = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadEmploymentHistory();

@@ -62,7 +62,7 @@ import InstitutionDocuments from './pages/institution/Documents';
 import InstitutionDashboard from './pages/institution/InstitutionDashboard';
 import InstitutionSettings from './pages/institution/Settings';
 import InstitutionNotificationSettings from './pages/institution/NotificationSettings';
-import ClassTemplates from './pages/institution/ClassTemplates';
+
 import ClassesManagement from './pages/institution/ClassesManagement';
 import ProgramsManagement from './pages/institution/ProgramsManagement';
 import ClassDetails from './pages/institution/ClassDetails';
@@ -424,7 +424,6 @@ function AppRoutes() {
         
         {/* Institution Routes */}
         <Route path="/institution/dashboard" element={<ProtectedRoute allowedUserTypes={['institution']}><InstitutionDashboard /></ProtectedRoute>} />
-        <Route path="/institution/templates" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassTemplates /></ProtectedRoute>} />
         <Route path="/institution/programs" element={<ProtectedRoute allowedUserTypes={['institution']}><ProgramsManagement /></ProtectedRoute>} />
         <Route path="/institution/classes" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassesManagement /></ProtectedRoute>} />
         <Route path="/institution/classes/create" element={<ProtectedRoute allowedUserTypes={['institution']}><ClassesManagement /></ProtectedRoute>} />

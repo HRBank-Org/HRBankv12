@@ -5,6 +5,8 @@ import api from '../../utils/api';
 import LinkedInButton from '../../components/auth/LinkedInButton';
 import LanguageSelector from '../../components/common/LanguageSelector';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const COUNTRIES = [
   { code: 'CA', name: 'Canada', flag: '🇨🇦' },
   { code: 'US', name: 'United States', flag: '🇺🇸' },
@@ -35,6 +37,7 @@ const COUNTRIES = [
 
 const WorkPassportSignup = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -132,7 +135,7 @@ const WorkPassportSignup = () => {
           className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
         >
           <FiArrowLeft size={20} />
-          <span>Back</span>
+          <span>{t("common.back")}</span>
         </button>
         <LanguageSelector variant="compact" className="text-white" />
       </div>

@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   ArrowLeft, RefreshCw, CheckCircle, AlertCircle, Clock,
   Building2, Users, Calendar, Zap, Settings, History,
@@ -42,6 +44,7 @@ const PROVIDER_INFO = {
 export default function PayrollSync() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const token = localStorage.getItem('access_token');
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(null);
@@ -186,7 +189,7 @@ export default function PayrollSync() {
               Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Payroll Sync</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('pages.employer.payrollSyncTitle')}</h1>
               <p className="text-gray-500 dark:text-gray-400">Direct API integration with payroll providers</p>
             </div>
           </div>

@@ -10,8 +10,11 @@ import { LOGOS } from '../../utils/logoUtils';
 import LoginModal from '../../components/auth/LoginModal';
 import LandingHeader from '../../components/layout/LandingHeader';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const EmployersLanding = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   return (

@@ -5,6 +5,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiAward, 
   FiEye, 
@@ -26,6 +28,7 @@ const WorkPassportDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [credentials, setCredentials] = useState([]);

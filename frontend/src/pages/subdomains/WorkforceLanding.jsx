@@ -6,8 +6,11 @@ import {
 } from 'lucide-react';
 import LoginModal from '../../components/auth/LoginModal';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkforceLanding = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const benefits = [

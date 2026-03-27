@@ -6,6 +6,8 @@ import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 import BreakReminderBanner from '../../components/workforce/BreakReminderBanner';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ClockInOut = () => {
   const { bookingId } = useParams();
   const { user } = useAuth();
@@ -16,6 +18,7 @@ const ClockInOut = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadBooking();

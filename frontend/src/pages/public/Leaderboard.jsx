@@ -10,8 +10,11 @@ import { LOGOS } from '../../utils/logoUtils';
 import LanguageSelector from '../../components/common/LanguageSelector';
 import LoginModal from '../../components/auth/LoginModal';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Leaderboard = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState([]);
   const [allInstitutions, setAllInstitutions] = useState([]);

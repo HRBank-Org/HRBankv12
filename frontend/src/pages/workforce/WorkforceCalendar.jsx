@@ -5,6 +5,8 @@ import Calendar from '../../components/common/Calendar';
 import api from '../../utils/api';
 import moment from 'moment';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkforceCalendar = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,7 @@ const WorkforceCalendar = () => {
 
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadAvailability();

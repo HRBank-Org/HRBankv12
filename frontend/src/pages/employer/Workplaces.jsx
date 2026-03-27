@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Workplaces = () => {
   const [workplaces, setWorkplaces] = useState([]);
   const [employerProfile, setEmployerProfile] = useState(null);
@@ -11,6 +13,7 @@ const Workplaces = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadWorkplaces();

@@ -5,8 +5,11 @@ import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import { Activity, Clock, UserPlus, CheckCircle, FileCheck, AlertTriangle, Shield, Loader2 } from 'lucide-react';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ActivityFeed = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');

@@ -5,7 +5,10 @@ import moment from 'moment';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const LiveAttendance = () => {
+  const { t } = useLanguage();
   const [attendance, setAttendance] = useState([]);
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(true);
@@ -94,7 +97,7 @@ const LiveAttendance = () => {
         <div className="px-8 py-6 bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Live Attendance</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{t('pages.employer.liveAttendanceTitle')}</h1>
               <p className="text-gray-600 mt-1">
                 {moment(selectedDate).format('dddd, MMMM DD, YYYY')} • Last updated: {moment().format('h:mm A')}
               </p>
@@ -142,7 +145,7 @@ const LiveAttendance = () => {
             <div className="text-2xl font-bold text-green-700">{summary.clocked_in || 0}</div>
           </div>
           <div className="bg-blue-50 rounded-lg shadow-sm p-4 border border-blue-200">
-            <div className="text-blue-700 text-sm mb-1">Completed</div>
+            <div className="text-blue-700 text-sm mb-1">{t("pages.common.completed")}</div>
             <div className="text-2xl font-bold text-blue-700">{summary.clocked_out || 0}</div>
           </div>
           <div className="bg-orange-50 rounded-lg shadow-sm p-4 border border-orange-200">
@@ -175,7 +178,7 @@ const LiveAttendance = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Scheduled</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clock In</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clock Out</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.status")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">

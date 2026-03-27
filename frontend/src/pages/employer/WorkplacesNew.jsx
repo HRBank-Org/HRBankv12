@@ -8,10 +8,13 @@ import GoogleWorkplaceMap from '../../components/maps/GoogleWorkplaceMap';
 import api from '../../utils/api';
 import { FiMapPin, FiUsers, FiCalendar, FiPlus, FiGrid, FiList, FiNavigation, FiHome } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkplacesNew = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [workplaces, setWorkplaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
@@ -271,7 +274,7 @@ const WorkplacesNew = () => {
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Address</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Workers</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Shifts</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t("pages.common.status")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">

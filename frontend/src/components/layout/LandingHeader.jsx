@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { LOGOS } from '../../utils/logoUtils';
 import LanguageSelector from '../common/LanguageSelector';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 /**
  * Shared navigation header for all landing pages
@@ -11,13 +12,13 @@ import LanguageSelector from '../common/LanguageSelector';
 const LandingHeader = ({ onSignInClick }) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { t } = useLanguage();
 
   const navItems = [
-    { path: '/', label: 'WorkPassport™', exact: true },
-    { path: '/institutions', label: 'Institutions' },
-    // { path: '/leaderboard', label: 'Leaderboard' }, // Hidden until institutions join - can re-enable for gamification
-    { path: '/employers', label: 'Employers', badge: 'Beta' },
-    { path: '/jobs', label: 'Jobs' },
+    { path: '/', label: 'WorkPassport\u2122', exact: true },
+    { path: '/institutions', label: t('landing.forInstitutions') },
+    { path: '/employers', label: t('landing.forEmployers'), badge: 'Beta' },
+    { path: '/jobs', label: t('workpassport.jobs') },
   ];
 
   const isActive = (item) => {
@@ -89,7 +90,7 @@ const LandingHeader = ({ onSignInClick }) => {
             className="text-gray-700 hover:text-gray-900 font-medium"
             data-testid="landing-signin"
           >
-            Sign In
+            {t('auth.login')}
           </Button>
         </div>
       </div>

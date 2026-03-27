@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   DollarSign,
   TrendingUp,
@@ -24,6 +26,7 @@ import {
 
 const FinancialSummary = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('all');
   const [financialData, setFinancialData] = useState(null);

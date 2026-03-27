@@ -5,6 +5,8 @@ import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import LinkedInProfileCard from '../../components/linkedin/LinkedInProfileCard';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiUser, 
   FiGlobe, 
@@ -32,6 +34,7 @@ const COUNTRIES = [
 const WorkPassportSettings = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -179,7 +182,7 @@ const WorkPassportSettings = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("pages.common.email")}</label>
                     <input
                       type="email"
                       value={profile.email}

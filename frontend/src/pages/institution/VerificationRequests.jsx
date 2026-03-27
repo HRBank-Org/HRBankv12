@@ -4,9 +4,12 @@ import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const VerificationRequests = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);

@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkforceOnboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   // Redirect based on user status
   useEffect(() => {

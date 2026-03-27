@@ -6,10 +6,13 @@ import api from '../../utils/api';
 import { FiBriefcase, FiUsers, FiMapPin, FiDollarSign, FiClock, FiStar, FiCheckCircle, FiXCircle, FiSearch } from 'react-icons/fi';
 import UserHeader from '../../components/common/UserHeader';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const JobsCandidates = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);

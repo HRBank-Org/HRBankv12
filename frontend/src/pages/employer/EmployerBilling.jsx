@@ -7,11 +7,14 @@ import { Badge } from '../../components/ui/badge';
 import { ArrowLeft, Clock, MapPin, DollarSign, FileText, TrendingUp, Calendar, Download } from 'lucide-react';
 import EmployerLayout from '../../components/layout/EmployerLayout';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function EmployerBilling() {
   const navigate = useNavigate();
   const { token } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [weeklyData, setWeeklyData] = useState(null);

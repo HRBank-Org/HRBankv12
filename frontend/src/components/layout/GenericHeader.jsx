@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import LanguageSelector from '../common/LanguageSelector';
 import { FiBell, FiMessageSquare, FiSettings, FiLogOut, FiFolder } from 'react-icons/fi';
 
 const GenericHeader = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [notificationCount] = useState(3);
   const [messageCount] = useState(5);
 
@@ -52,11 +55,14 @@ const GenericHeader = () => {
 
         {/* Right: Action Icons */}
         <div className="flex items-center gap-2">
+          {/* Language Selector */}
+          <LanguageSelector variant="compact" className="text-white" />
+          
           {/* Notifications */}
           <button
             onClick={() => navigate(`/${user?.user_type}/notifications`)}
             className="relative p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors group"
-            title="Notifications"
+            title={t('pages.common.notificationsTitle')}
           >
             <FiBell size={20} className="text-white" />
             {notificationCount > 0 && (
@@ -65,7 +71,7 @@ const GenericHeader = () => {
               </span>
             )}
             <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Notifications
+              {t('pages.common.notificationsTitle')}
             </div>
           </button>
 
@@ -73,7 +79,7 @@ const GenericHeader = () => {
           <button
             onClick={() => navigate(`/${user?.user_type}/messages`)}
             className="relative p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors group"
-            title="Messages"
+            title={t('pages.common.messagesTitle')}
           >
             <FiMessageSquare size={20} className="text-white" />
             {messageCount > 0 && (
@@ -82,7 +88,7 @@ const GenericHeader = () => {
               </span>
             )}
             <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Messages
+              {t('pages.common.messagesTitle')}
             </div>
           </button>
 
@@ -90,11 +96,11 @@ const GenericHeader = () => {
           <button
             onClick={() => navigate(`/${user?.user_type}/documents`)}
             className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors group"
-            title="Documents"
+            title={t('pages.common.documentsTitle')}
           >
             <FiFolder size={20} className="text-white" />
             <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Documents
+              {t('pages.common.documentsTitle')}
             </div>
           </button>
 
@@ -102,11 +108,11 @@ const GenericHeader = () => {
           <button
             onClick={() => navigate(`/${user?.user_type}/settings`)}
             className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors group"
-            title="Settings"
+            title={t('pages.common.settingsTitle')}
           >
             <FiSettings size={20} className="text-white" />
             <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Settings
+              {t('pages.common.settingsTitle')}
             </div>
           </button>
 
@@ -117,11 +123,11 @@ const GenericHeader = () => {
           <button
             onClick={logout}
             className="p-2 hover:bg-red-600 hover:bg-opacity-30 rounded-lg transition-colors group"
-            title="Logout"
+            title={t('nav.admin.signOut')}
           >
             <FiLogOut size={20} className="text-white" />
             <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Logout
+              {t('nav.admin.signOut')}
             </div>
           </button>
         </div>

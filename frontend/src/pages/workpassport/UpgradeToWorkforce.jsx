@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiArrowLeft, 
   FiCheck, 
@@ -20,6 +22,7 @@ import {
 const UpgradeToWorkforce = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const fileInputRef = useRef(null);
   
   // Redirect non-Canadian users - Workforce is Canada-only

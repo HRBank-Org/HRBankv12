@@ -5,6 +5,8 @@ import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 import { FiArrowLeft } from 'react-icons/fi';
 import LinkedInButton from '../../components/auth/LinkedInButton';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const USER_TYPES = [
   { value: 'workforce', label: 'WorkPassport™' },
   { value: 'employer', label: 'Employer' },
@@ -32,6 +34,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
   const { signup } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   // Check if Google OAuth is available
   React.useEffect(() => {
@@ -151,7 +154,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <FiArrowLeft size={20} />
-          <span>Back</span>
+          <span>{t("common.back")}</span>
         </button>
       </div>
       
@@ -164,7 +167,7 @@ const SignupForm = ({ selectedUserType, setSelectedUserType, applyJobId }) => {
               alt="HR Bank Logo"
               className="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-lg"
             />
-            <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('auth.createAccount')}</h1>
             <p className="text-gray-600 mt-2">Join HR Bank today</p>
           </div>
 

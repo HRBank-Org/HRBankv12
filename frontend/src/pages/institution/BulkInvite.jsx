@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const BulkInvite = () => {
   const [invites, setInvites] = useState([{ full_name: '', email: '', phone: '', program: '', graduation_year: '' }]);
   const [uploadMode, setUploadMode] = useState('manual'); // manual or csv
@@ -12,6 +14,7 @@ const BulkInvite = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const handleCSVUpload = (e) => {
     const file = e.target.files[0];
@@ -208,7 +211,7 @@ const BulkInvite = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.email")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Program</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Grad Year</th>

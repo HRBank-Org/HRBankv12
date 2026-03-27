@@ -5,9 +5,12 @@ import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import { FiClock, FiCalendar, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Attendance = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('day'); // 'day' or 'week'
   const [loading, setLoading] = useState(false);

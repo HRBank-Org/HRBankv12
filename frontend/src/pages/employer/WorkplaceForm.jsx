@@ -7,10 +7,13 @@ import AddressAutocomplete from '../../components/common/AddressAutocomplete';
 import api from '../../utils/api';
 import { FiMapPin, FiUsers, FiClock, FiSave, FiX, FiChevronRight, FiCalendar, FiTrash2, FiToggleLeft, FiToggleRight, FiAlertTriangle, FiNavigation, FiHome } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkplaceForm = () => {
   const { workplaceId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const isEditMode = !!workplaceId;
   
   const [loading, setLoading] = useState(isEditMode);
@@ -618,7 +621,7 @@ const WorkplaceForm = () => {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t("pages.common.email")}</label>
                       {mode === 'edit' ? (
                         <input
                           type="email"

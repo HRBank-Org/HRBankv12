@@ -5,10 +5,13 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import UserHeader from '../../components/common/UserHeader';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const FindJobs = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('matched'); // matched, offers, interviews
   const [matchedJobs, setMatchedJobs] = useState([]);
   const [jobOffers, setJobOffers] = useState([]);

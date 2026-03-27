@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Receipt,
   Download,
@@ -24,6 +26,7 @@ import {
 
 const AdminInvoices = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const [summary, setSummary] = useState({});
@@ -172,7 +175,7 @@ const AdminInvoices = () => {
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{formatCurrency(summary.pending_amount)}</p>
-                  <p className="text-xs text-gray-500">Pending</p>
+                  <p className="text-xs text-gray-500">{t("pages.common.pending")}</p>
                 </div>
               </div>
             </div>
@@ -194,7 +197,7 @@ const AdminInvoices = () => {
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{summary.pending_count || 0}</p>
-                  <p className="text-xs text-gray-500">Pending</p>
+                  <p className="text-xs text-gray-500">{t("pages.common.pending")}</p>
                 </div>
               </div>
             </div>
@@ -229,7 +232,7 @@ const AdminInvoices = () => {
                 <option value="sent">Sent</option>
                 <option value="overdue">Overdue</option>
                 <option value="draft">Draft</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="cancelled">{t("pages.common.cancelled")}</option>
               </select>
               <select
                 value={filters.customerType}
@@ -272,10 +275,10 @@ const AdminInvoices = () => {
                       <tr>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Invoice</th>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Customer</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Date</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Status</th>
-                        <th className="text-right px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Amount</th>
-                        <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.date")}</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.status")}</th>
+                        <th className="text-right px-4 py-3 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.amount")}</th>
+                        <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -449,10 +452,10 @@ const InvoiceDetailModal = ({ invoice, onClose, onDownload, onUpdateStatus, down
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="text-left px-4 py-2 text-xs font-semibold text-gray-600">Description</th>
+                    <th className="text-left px-4 py-2 text-xs font-semibold text-gray-600">{t("pages.common.description")}</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600">Qty</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600">Price</th>
-                    <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600">Amount</th>
+                    <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600">{t("pages.common.amount")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">

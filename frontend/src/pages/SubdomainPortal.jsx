@@ -5,7 +5,10 @@ import EmployerLanding from './subdomains/EmployerLanding';
 import InstitutionLanding from './subdomains/InstitutionLanding';
 import AdminLanding from './subdomains/AdminLanding';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const SubdomainPortal = () => {
+  const { t } = useLanguage();
   const userType = getSubdomainUserType();
 
   // Route to the appropriate landing page based on subdomain

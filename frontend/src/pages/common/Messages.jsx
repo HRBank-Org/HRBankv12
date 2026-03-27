@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Messages = () => {
   const [threads, setThreads] = useState([]);
   const [selectedThread, setSelectedThread] = useState(null);
@@ -14,6 +16,7 @@ const Messages = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadThreads();

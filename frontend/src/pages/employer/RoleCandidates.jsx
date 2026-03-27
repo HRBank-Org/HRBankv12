@@ -5,10 +5,13 @@ import api from '../../utils/api';
 import { FiUsers, FiMapPin, FiStar, FiCheckCircle, FiXCircle, FiCalendar, FiArrowLeft, FiClock } from 'react-icons/fi';
 import UserHeader from '../../components/common/UserHeader';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const RoleCandidates = () => {
   const { roleId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [role, setRole] = useState(null);
   const [activeTab, setActiveTab] = useState('internal');

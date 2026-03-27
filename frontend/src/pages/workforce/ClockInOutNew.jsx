@@ -8,6 +8,8 @@ import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import { FiMapPin, FiClock, FiCheckCircle, FiAlertCircle, FiNavigation, FiRefreshCw } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const GEOFENCE_RADIUS = 50; // 50 meters
 
 const ClockInOutNew = () => {
@@ -19,6 +21,7 @@ const ClockInOutNew = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [shift, setShift] = useState(null);
   const [attendance, setAttendance] = useState(null);

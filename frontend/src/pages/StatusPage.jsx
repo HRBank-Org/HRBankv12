@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FiCheckCircle, FiAlertCircle, FiXCircle, FiRefreshCw, FiClock, FiActivity } from 'react-icons/fi';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const StatusPage = () => {
+  const { t } = useLanguage();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);

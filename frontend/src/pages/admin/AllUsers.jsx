@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   Users, Search, ChevronLeft, ChevronRight, UserCheck, Building2, GraduationCap, Shield,
   CheckCircle, XCircle, Eye, X, Mail, Phone, MapPin, Calendar, MoreVertical, AlertTriangle,
@@ -11,6 +13,7 @@ import {
 
 const AllUsers = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -220,11 +223,11 @@ const AllUsers = () => {
                     <thead className="bg-gray-50 border-b">
                       <tr>
                         <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">User</th>
-                        <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Type</th>
-                        <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Status</th>
+                        <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">{t("pages.common.type")}</th>
+                        <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">{t("pages.common.status")}</th>
                         <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Province</th>
                         <th className="text-left px-6 py-3 text-sm font-semibold text-gray-900">Joined</th>
-                        <th className="text-right px-6 py-3 text-sm font-semibold text-gray-900">Actions</th>
+                        <th className="text-right px-6 py-3 text-sm font-semibold text-gray-900">{t("pages.common.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -394,7 +397,7 @@ const AllUsers = () => {
 
               {/* Actions */}
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900">Actions</h4>
+                <h4 className="font-medium text-gray-900">{t("pages.common.actions")}</h4>
                 
                 {isPending(selectedUser) && (
                   <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">

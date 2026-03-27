@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 import { FiMail, FiPhone, FiCheckCircle, FiRefreshCw, FiClock, FiShield } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const OTPInput = ({ length = 6, value, onChange, disabled }) => {
   const inputRefs = useRef([]);
 
@@ -75,6 +77,7 @@ const VerifyOTPForm = ({ userId, userType }) => {
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   // Fetch verification status
   useEffect(() => {

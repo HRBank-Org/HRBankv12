@@ -6,9 +6,12 @@ import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
 import { FiCalendar, FiClock, FiMapPin, FiDollarSign } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const MyShifts = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('upcoming'); // upcoming, completed, all
@@ -151,7 +154,7 @@ const MyShifts = () => {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Date</div>
+                      <div className="text-xs text-gray-500 mb-1">{t("pages.common.date")}</div>
                       <div className="text-sm font-medium text-gray-900">{formatDate(shift.shift_date)}</div>
                     </div>
                     <div>

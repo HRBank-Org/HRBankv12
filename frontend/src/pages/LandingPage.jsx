@@ -12,11 +12,14 @@ import LoginModal from '../components/auth/LoginModal';
 import LandingHeader from '../components/layout/LandingHeader';
 import WorkPassportInteractiveDemo from '../components/landing/WorkPassportInteractiveDemo';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 // Animated Trust Flow Component
 const TrustFlowAnimation = () => {
+  const { t } = useLanguage();
   return (
     <div className="relative py-8">
       {/* Flow Container */}
@@ -27,8 +30,8 @@ const TrustFlowAnimation = () => {
           <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#30496d] to-[#1a2d42] flex items-center justify-center shadow-lg animate-pulse-slow">
             <Building2 className="w-10 h-10 md:w-12 md:h-12 text-white" />
           </div>
-          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">Institution</p>
-          <p className="text-xs text-gray-500">Issues Credential</p>
+          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">{t('landing.institution')}</p>
+          <p className="text-xs text-gray-500">{t('landing.issuesCredential')}</p>
         </div>
 
         {/* Animated Arrow 1 */}
@@ -54,8 +57,8 @@ const TrustFlowAnimation = () => {
           <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
             <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
           </div>
-          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">Worker</p>
-          <p className="text-xs text-gray-500">Carries Proof</p>
+          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">{t('landing.worker')}</p>
+          <p className="text-xs text-gray-500">{t('landing.carriesProof')}</p>
         </div>
 
         {/* Animated Arrow 2 */}
@@ -81,8 +84,8 @@ const TrustFlowAnimation = () => {
           <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
             <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12 text-white" />
           </div>
-          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">Employer</p>
-          <p className="text-xs text-gray-500">Verifies Instantly</p>
+          <p className="mt-3 text-sm md:text-base font-semibold text-gray-900">{t('landing.employer2')}</p>
+          <p className="text-xs text-gray-500">{t('landing.verifiesInstantly')}</p>
         </div>
       </div>
 
@@ -131,6 +134,7 @@ const TrustFlowAnimation = () => {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const videoRef = useRef(null);
   
   const [partnerLogos, setPartnerLogos] = useState([]);
@@ -188,17 +192,17 @@ const LandingPage = () => {
         <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full text-green-400 text-sm font-semibold mb-6 border border-green-500/30">
             <span className="animate-pulse w-2 h-2 bg-green-400 rounded-full" />
-            The Standard for Workforce Trust
+            {t('landing.heroTag')}
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Proof Replaces
+            {t('landing.heroTitle1')}
             <br />
-            <span className="text-amber-400">Claims.</span>
+            <span className="text-amber-400">{t('landing.heroTitle2')}</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            HR Bank turns workforce credibility into a verifiable, portable standard — so employers hire with confidence, and workers prove themselves without hype or connections.
+            {t('landing.heroSubtitleFull')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -208,7 +212,7 @@ const LandingPage = () => {
               className="bg-amber-500 hover:bg-amber-400 text-slate-900 h-14 px-10 text-lg font-semibold"
               data-testid="hero-get-passport-btn"
             >
-              Get My Free Passport
+              {t('landing.getPassport')}
               <ChevronRight className="ml-2 w-5 h-5" />
             </Button>
             <Button
@@ -219,7 +223,7 @@ const LandingPage = () => {
               data-testid="hero-see-example-btn"
             >
               <Play className="mr-2 w-5 h-5" />
-              See Example
+              {t('landing.seeExample')}
             </Button>
           </div>
 
@@ -958,29 +962,29 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <img src={LOGOS.master} alt="HR Bank" className="h-8 w-auto mb-4" />
-              <p className="text-sm">The standard for trust in employment.</p>
+              <p className="text-sm">{t('landing.trustInEmployment')}</p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">For Workers</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landing.forWorkers')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/jobs" className="hover:text-white transition-colors">Work Opportunities</Link></li>
-                <li><Link to="/signup?type=workforce" className="hover:text-white transition-colors">Create Passport</Link></li>
+                <li><Link to="/jobs" className="hover:text-white transition-colors">{t('landing.workOpportunities')}</Link></li>
+                <li><Link to="/signup?type=workforce" className="hover:text-white transition-colors">{t('landing.createPassport')}</Link></li>
                 {/* <li><Link to="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link></li> */}
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">For Business</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landing.forBusiness')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/employers" className="hover:text-white transition-colors">Employers (Beta)</Link></li>
-                <li><Link to="/institutions" className="hover:text-white transition-colors">Institutions</Link></li>
+                <li><Link to="/employers" className="hover:text-white transition-colors">{t('landing.employersBeta')}</Link></li>
+                <li><Link to="/institutions" className="hover:text-white transition-colors">{t('landing.forInstitutions')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landing.company')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/about" className="hover:text-white transition-colors">{t('landing.aboutUs')}</Link></li>
+                <li><Link to="/contact" className="hover:text-white transition-colors">{t('landing.contact')}</Link></li>
+                <li><Link to="/privacy" className="hover:text-white transition-colors">{t('landing.privacyPolicy')}</Link></li>
               </ul>
             </div>
           </div>
@@ -988,7 +992,7 @@ const LandingPage = () => {
           {/* Compliance Badges Section */}
           <div className="border-t border-gray-800 pt-8 mb-8">
             <div className="text-center mb-6">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-6">Security & Compliance Standards</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-6">{t('landing.securityCompliance')}</p>
               
               {/* North America Standards */}
               <div className="mb-8">

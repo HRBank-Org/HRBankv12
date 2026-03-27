@@ -5,9 +5,12 @@ import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const MyTimesheets = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [timesheets, setTimesheets] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);

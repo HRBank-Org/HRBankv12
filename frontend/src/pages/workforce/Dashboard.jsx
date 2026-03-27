@@ -9,10 +9,13 @@ import api from '../../utils/api';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { FiCalendar, FiClock, FiDollarSign, FiAward, FiTrendingUp, FiAlertCircle, FiBriefcase, FiStar } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkforceDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [pendingRatings, setPendingRatings] = useState([]);
   const [showRatingModal, setShowRatingModal] = useState(false);
@@ -73,9 +76,9 @@ const WorkforceDashboard = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return t('common.goodMorning');
+    if (hour < 18) return t('common.goodAfternoon');
+    return t('common.goodEvening');
   };
 
   const getUserName = () => {
@@ -225,7 +228,7 @@ const WorkforceDashboard = () => {
                   <FiCalendar size={24} style={{ color: '#8b5cf6' }} />
                 </div>
               </div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Upcoming Shifts</h3>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">{t('pages.workforce.upcomingShifts')}</h3>
               <div className="text-3xl font-bold text-gray-900 mb-1">
                 {stats.upcomingShifts.length}
               </div>
@@ -378,7 +381,7 @@ const WorkforceDashboard = () => {
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FiClock size={20} className="text-blue-600" />
-                Hours This Week
+                {t('pages.workforce.hoursThisWeek')}
               </h3>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={hoursTrend}>
@@ -404,7 +407,7 @@ const WorkforceDashboard = () => {
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <FiCalendar size={20} className="text-purple-600" />
-              Upcoming Shifts
+              {t('pages.workforce.upcomingShifts')}
             </h3>
             
             {stats.upcomingShifts.length === 0 ? (

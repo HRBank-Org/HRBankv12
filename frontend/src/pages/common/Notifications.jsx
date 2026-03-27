@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
@@ -11,6 +13,7 @@ const Notifications = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadNotifications();

@@ -6,6 +6,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import GoogleCalendarSettings from '../../components/common/GoogleCalendarSettings';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('documents');
   const [documents, setDocuments] = useState([]);
@@ -17,6 +19,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadData();
@@ -159,7 +162,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <div className="p-4 bg-green-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">Verified</p>
+                  <p className="text-sm text-gray-600 mb-1">{t("pages.common.verified")}</p>
                   <p className="text-3xl font-bold text-green-600">
                     {compliance.uploaded_required || 0}
                   </p>

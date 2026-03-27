@@ -6,9 +6,12 @@ import CalendarView from '../../components/scheduling/CalendarView';
 import api from '../../utils/api';
 import { FiPlus, FiMapPin, FiBriefcase } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Roster = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const workplaceParam = searchParams.get('workplace') || 'all';
   
   const [workplaces, setWorkplaces] = useState([]);

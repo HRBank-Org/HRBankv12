@@ -11,11 +11,14 @@ import RatingModal from '../../components/ratings/RatingModal';
 import WorkerDetailModal from '../../components/workforce/WorkerDetailModal';
 import InvitationManager from '../../components/workforce/InvitationManager';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const EmployerDashboardNew = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [activeTab, setActiveTab] = useState('schedule'); // schedule (embedded calendar), kpis, finances, workforce
   const [employerProfile, setEmployerProfile] = useState(null);
@@ -1337,11 +1340,11 @@ const FinancesTab = ({ theme, navigate }) => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.name")}</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job Title</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.amount")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.actions")}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -1428,7 +1431,7 @@ const FinancesTab = ({ theme, navigate }) => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.status")}</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clock In</th>
                 </tr>
               </thead>
@@ -1514,11 +1517,11 @@ const FinancesTab = ({ theme, navigate }) => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.name")}</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job Title</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workplace</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.amount")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.actions")}</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">

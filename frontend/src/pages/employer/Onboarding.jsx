@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const STEPS = [
   { number: 1, title: 'Company Info', description: 'Tell us about your business' },
   { number: 2, title: 'First Workplace', description: 'Add your main location' },
@@ -48,6 +50,7 @@ const EmployerOnboarding = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const progress = (currentStep / STEPS.length) * 100;
 

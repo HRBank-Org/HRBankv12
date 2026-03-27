@@ -11,6 +11,8 @@ import { Badge } from '../../components/ui/badge';
 import { useToast } from '../../hooks/use-toast';
 import EmployerLayout from '../../components/layout/EmployerLayout';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const API = process.env.REACT_APP_BACKEND_URL;
 
 const routeTypeIcons = {
@@ -174,6 +176,7 @@ const LiveRouteCard = ({ route, onNavigate }) => {
 
 const FieldServiceRoutes = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -346,9 +349,9 @@ const FieldServiceRoutes = () => {
               >
                 <option value="">All Status</option>
                 <option value="scheduled">Scheduled</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="in_progress">{t("pages.common.inProgress")}</option>
+                <option value="completed">{t("pages.common.completed")}</option>
+                <option value="cancelled">{t("pages.common.cancelled")}</option>
               </select>
               
               <select

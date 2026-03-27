@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   MessageSquare,
   Search,
@@ -20,6 +22,7 @@ import {
 
 const AdminChat = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [threads, setThreads] = useState([]);
   const [contacts, setContacts] = useState([]);

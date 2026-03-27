@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Calendar,
   Clock,
@@ -21,6 +23,7 @@ import {
 
 const TimeOffManagement = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('requests'); // requests, calendar, policies
   const [summary, setSummary] = useState(null);

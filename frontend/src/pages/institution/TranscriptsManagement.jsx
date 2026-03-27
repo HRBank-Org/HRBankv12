@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiUpload, FiFile, FiCheck, FiAlertCircle, FiEye, 
   FiTrash2, FiAward, FiLoader, FiSearch, FiFilter 
@@ -11,6 +13,7 @@ import {
 const TranscriptsManagement = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [transcripts, setTranscripts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -222,7 +225,7 @@ const TranscriptsManagement = () => {
               <option value="">All Status</option>
               <option value="extracted">Extracted</option>
               <option value="pending_manual_entry">Manual Entry Needed</option>
-              <option value="verified">Verified</option>
+              <option value="verified">{t("pages.common.verified")}</option>
               <option value="credentialed">Credentialed</option>
             </select>
           </div>
@@ -411,7 +414,7 @@ const TranscriptsManagement = () => {
                       <p className="text-sm font-semibold text-gray-600">
                         {selectedTranscript.extracted_data?.academic_record?.status || 'N/A'}
                       </p>
-                      <p className="text-xs text-gray-500">Status</p>
+                      <p className="text-xs text-gray-500">{t("pages.common.status")}</p>
                     </div>
                   </div>
                 </div>
@@ -427,7 +430,7 @@ const TranscriptsManagement = () => {
                         <thead>
                           <tr className="text-left text-gray-500">
                             <th className="pb-2">Code</th>
-                            <th className="pb-2">Name</th>
+                            <th className="pb-2">{t("pages.common.name")}</th>
                             <th className="pb-2">Credits</th>
                             <th className="pb-2">Grade</th>
                           </tr>

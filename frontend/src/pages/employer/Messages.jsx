@@ -5,9 +5,12 @@ import EmployerLayout from '../../components/layout/EmployerLayout';
 import api from '../../utils/api';
 import { FiMessageSquare, FiPlus, FiX, FiSend } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Messages = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNewChat, setShowNewChat] = useState(false);
@@ -80,7 +83,7 @@ const Messages = () => {
     <EmployerLayout title="Messages">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('pages.employer.messagesTitle')}</h1>
           <button
             onClick={handleNewChat}
             className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors"

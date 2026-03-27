@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Grid,
   Plus,
@@ -19,6 +21,7 @@ import {
 
 const FranchiseManagement = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [franchises, setFranchises] = useState([]);
   const [total, setTotal] = useState(0);
@@ -403,7 +406,7 @@ const FranchiseDetailModal = ({ franchise, analytics, onClose, theme }) => (
             <p className="font-medium capitalize">{franchise.subscription_tier}</p>
           </div>
           <div>
-            <label className="text-sm text-gray-500">Status</label>
+            <label className="text-sm text-gray-500">{t("pages.common.status")}</label>
             <p className="font-medium capitalize">{franchise.status}</p>
           </div>
           <div>

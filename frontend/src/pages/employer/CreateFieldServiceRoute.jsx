@@ -11,6 +11,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useToast } from '../../hooks/use-toast';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const API = process.env.REACT_APP_BACKEND_URL;
 
 const routeTypes = [
@@ -64,6 +66,7 @@ const TaskRow = ({ task, index, onUpdate, onRemove }) => (
 
 const CreateFieldServiceRoute = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [workers, setWorkers] = useState([]);
@@ -381,7 +384,7 @@ const CreateFieldServiceRoute = () => {
             </div>
             
             <div>
-              <Label>Description</Label>
+              <Label>{t("pages.common.description")}</Label>
               <textarea
                 placeholder="Route description (optional)"
                 value={route.route_description}

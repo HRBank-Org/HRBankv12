@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Building2, Users, Mail, Phone, Globe, MapPin,
   Search, Filter, ChevronDown, ExternalLink, TrendingUp,
@@ -7,6 +9,7 @@ import {
 } from 'lucide-react';
 
 const InstitutionDirectory = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [institutions, setInstitutions] = useState([]);
@@ -289,9 +292,9 @@ const InstitutionDirectory = () => {
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Institution</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.type")}</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.status")}</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Requests</th>
               </tr>
             </thead>

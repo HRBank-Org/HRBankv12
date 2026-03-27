@@ -11,8 +11,11 @@ import api from '../../utils/api';
 import LoginModal from '../../components/auth/LoginModal';
 import LandingHeader from '../../components/layout/LandingHeader';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const InstitutionsLanding = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [topInstitutions, setTopInstitutions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   FileCheck,
   Building2,
@@ -23,6 +25,7 @@ import {
 } from 'lucide-react';
 
 const InsuranceReview = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [submissions, setSubmissions] = useState([]);
   const [statusCounts, setStatusCounts] = useState({});
@@ -258,8 +261,8 @@ const InsuranceReview = () => {
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Document</th>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Submitted</th>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Expiry</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                        <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">{t("pages.common.status")}</th>
+                        <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">{t("pages.common.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -476,7 +479,7 @@ const InsuranceReview = () => {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.description")}</label>
                             <textarea
                               defaultValue={req.description}
                               id={`description-${code}`}

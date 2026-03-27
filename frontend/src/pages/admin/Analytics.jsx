@@ -4,7 +4,10 @@ import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 import { BarChart3, Users, Building2, TrendingUp, DollarSign, Calendar, RefreshCw } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Analytics = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -71,7 +74,7 @@ const Analytics = () => {
                     <BarChart3 className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Platform Analytics</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('pages.admin.analyticsTitle')}</h1>
                     <p className="text-gray-600">Comprehensive platform metrics and insights</p>
                   </div>
                 </div>
@@ -158,15 +161,15 @@ const Analytics = () => {
                   </h2>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                      <span className="font-medium text-green-900">Completed</span>
+                      <span className="font-medium text-green-900">{t("pages.common.completed")}</span>
                       <span className="text-2xl font-bold text-green-600">{formatNumber(shifts.completed)}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                      <span className="font-medium text-yellow-900">Pending</span>
+                      <span className="font-medium text-yellow-900">{t("pages.common.pending")}</span>
                       <span className="text-2xl font-bold text-yellow-600">{formatNumber(shifts.pending)}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                      <span className="font-medium text-red-900">Cancelled</span>
+                      <span className="font-medium text-red-900">{t("pages.common.cancelled")}</span>
                       <span className="text-2xl font-bold text-red-600">{formatNumber(shifts.cancelled)}</span>
                     </div>
                   </div>

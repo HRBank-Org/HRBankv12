@@ -6,10 +6,13 @@ import api from '../../utils/api';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import UserHeader from '../../components/common/UserHeader';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkforceDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('financial'); // financial, shifts, career
   const [acceptedShifts, setAcceptedShifts] = useState([]);
   const [availabilityData, setAvailabilityData] = useState({});
@@ -265,7 +268,7 @@ const WorkforceDashboard = () => {
                   <p className="text-xs text-gray-500 mt-1">This week</p>
                 </div>
                 <div className="p-4 bg-yellow-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">Pending</p>
+                  <p className="text-sm text-gray-600 mb-1">{t("pages.common.pending")}</p>
                   <p className="text-2xl font-bold text-gray-900">${stats.pending_payment}</p>
                   <p className="text-xs text-gray-500 mt-1">Awaiting approval</p>
                 </div>

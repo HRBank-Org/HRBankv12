@@ -5,10 +5,13 @@ import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
 import { FiSend, FiArrowLeft, FiPaperclip, FiUser } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const MessageThread = () => {
   const { threadId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const messagesEndRef = useRef(null);
   
   const [messages, setMessages] = useState([]);

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import LanguageSelector from '../common/LanguageSelector';
 import { Bell, Search, HelpCircle } from 'lucide-react';
 import api from '../../utils/api';
 
@@ -9,6 +11,7 @@ const AdminHeader = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [notificationCount, setNotificationCount] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,6 +91,9 @@ const AdminHeader = () => {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
+          {/* Language Selector */}
+          <LanguageSelector variant="compact" />
+          
           {/* Search Toggle */}
           {showSearch ? (
             <form onSubmit={handleSearch} className="relative">

@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   MessageSquare,
   Search,
@@ -26,6 +28,7 @@ import {
 
 const SupportTickets = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [tickets, setTickets] = useState([]);
   const [stats, setStats] = useState({});
@@ -161,7 +164,7 @@ const SupportTickets = () => {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{stats.in_progress || 0}</p>
-                    <p className="text-sm text-gray-500">In Progress</p>
+                    <p className="text-sm text-gray-500">{t("pages.common.inProgress")}</p>
                   </div>
                 </div>
               </div>
@@ -227,7 +230,7 @@ const SupportTickets = () => {
                 >
                   <option value="">All Status</option>
                   <option value="open">Open</option>
-                  <option value="in_progress">In Progress</option>
+                  <option value="in_progress">{t("pages.common.inProgress")}</option>
                   <option value="waiting_user">Waiting User</option>
                   <option value="resolved">Resolved</option>
                   <option value="closed">Closed</option>
@@ -491,7 +494,7 @@ const TicketDetailModal = ({ ticket, onClose, onUpdate, theme }) => {
             <div className="p-4 border-b bg-gray-50">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <label className="text-gray-500 block mb-1">Status</label>
+                  <label className="text-gray-500 block mb-1">{t("pages.common.status")}</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
@@ -499,7 +502,7 @@ const TicketDetailModal = ({ ticket, onClose, onUpdate, theme }) => {
                     className="w-full px-2 py-1.5 border rounded-lg text-sm"
                   >
                     <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
+                    <option value="in_progress">{t("pages.common.inProgress")}</option>
                     <option value="waiting_user">Waiting User</option>
                     <option value="resolved">Resolved</option>
                     <option value="closed">Closed</option>

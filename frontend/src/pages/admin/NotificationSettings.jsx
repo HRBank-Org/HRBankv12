@@ -5,8 +5,11 @@ import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import { Bell, Mail, MessageSquare, Smartphone, Globe, ToggleLeft, ToggleRight } from 'lucide-react';
 import PushNotificationSettings from '../../components/common/PushNotificationSettings';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const NotificationSettings = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const notificationTypes = [
     {
@@ -50,7 +53,7 @@ const NotificationSettings = () => {
                     <Bell className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Notification Settings</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('pages.admin.notificationsTitle')}</h1>
                     <p className="text-gray-600">Configure admin notification preferences</p>
                   </div>
                 </div>
@@ -68,7 +71,7 @@ const NotificationSettings = () => {
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
                       <Mail className="w-5 h-5 text-blue-600" />
-                      <span className="font-medium">Email</span>
+                      <span className="font-medium">{t("pages.common.email")}</span>
                     </div>
                     <ToggleRight className="w-8 h-8 text-green-500" />
                   </div>

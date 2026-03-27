@@ -5,6 +5,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import UserHeader from '../../components/common/UserHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Package,
   Clock,
@@ -29,6 +31,7 @@ const WorkOrders = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [workOrders, setWorkOrders] = useState([]);
   const [summary, setSummary] = useState({});
@@ -193,7 +196,7 @@ const WorkOrders = () => {
         <div className="p-6">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Work Orders</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('pages.employer.workOrdersTitle')}</h1>
             <p className="text-gray-600 text-sm mt-1">
               Incoming work orders from CleanGrid - Accept and assign to your workers
             </p>
@@ -208,7 +211,7 @@ const WorkOrders = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{summary.pending || 0}</p>
-                  <p className="text-xs text-gray-500">Pending</p>
+                  <p className="text-xs text-gray-500">{t("pages.common.pending")}</p>
                 </div>
               </div>
             </div>
@@ -241,7 +244,7 @@ const WorkOrders = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{summary.completed || 0}</p>
-                  <p className="text-xs text-gray-500">Completed</p>
+                  <p className="text-xs text-gray-500">{t("pages.common.completed")}</p>
                 </div>
               </div>
             </div>
@@ -262,10 +265,10 @@ const WorkOrders = () => {
                 data-testid="filter-status"
               >
                 <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
+                <option value="pending">{t("pages.common.pending")}</option>
                 <option value="accepted">Accepted</option>
                 <option value="assigned">Assigned</option>
-                <option value="completed">Completed</option>
+                <option value="completed">{t("pages.common.completed")}</option>
                 <option value="declined">Declined</option>
               </select>
               <input

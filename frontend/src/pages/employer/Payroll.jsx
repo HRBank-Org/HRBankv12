@@ -3,7 +3,10 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import { FiDollarSign, FiCalendar, FiUsers, FiDownload } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Payroll = () => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-gray-50">
       <GenericHeader />

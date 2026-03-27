@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Badge } from '../../components/ui/badge';
 import { useToast } from '../../hooks/use-toast';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const API = process.env.REACT_APP_BACKEND_URL;
 const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
@@ -42,6 +44,7 @@ const stopStatusColors = {
 const LiveRouteTracking = () => {
   const { routeId } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -356,7 +359,7 @@ const LiveRouteTracking = () => {
             <div className="space-y-1 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span>Completed</span>
+                <span>{t("pages.common.completed")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#ff5f00]" />
@@ -368,7 +371,7 @@ const LiveRouteTracking = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-gray-400" />
-                <span>Pending</span>
+                <span>{t("pages.common.pending")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500" />

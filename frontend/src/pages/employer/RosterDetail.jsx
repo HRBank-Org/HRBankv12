@@ -5,9 +5,12 @@ import { ArrowLeft, Plus, Calendar, Users } from 'lucide-react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const RosterDetail = () => {
   const { rosterId } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [roster, setRoster] = useState(null);
   const [loading, setLoading] = useState(true);
 

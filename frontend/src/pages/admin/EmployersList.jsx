@@ -5,8 +5,11 @@ import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 import { Building2, Search, MapPin, Users, Phone, Mail, ExternalLink } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const EmployersList = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [employers, setEmployers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

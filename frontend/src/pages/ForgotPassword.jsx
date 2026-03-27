@@ -7,7 +7,10 @@ import { useToast } from '../hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { LOGOS } from '../utils/logoUtils';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const ForgotPassword = () => {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);

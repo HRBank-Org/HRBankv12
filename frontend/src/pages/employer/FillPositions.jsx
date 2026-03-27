@@ -7,10 +7,13 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import BulkInviteModal from '../../components/employer/BulkInviteModal';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const FillPositions = () => {
   const { roleId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const [role, setRole] = useState(null);
   const [pendingInvites, setPendingInvites] = useState([]);
@@ -225,7 +228,7 @@ const FillPositions = () => {
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs text-blue-600 font-medium">Pending</span>
+                  <span className="text-xs text-blue-600 font-medium">{t("pages.common.pending")}</span>
                 </div>
               ))}
             </div>

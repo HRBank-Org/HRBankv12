@@ -4,8 +4,11 @@ import api from '../../utils/api';
 import moment from 'moment';
 import { FiPlus, FiFilter, FiCalendar, FiList, FiClock, FiUsers, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ShiftScheduler = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [viewMode, setViewMode] = useState('calendar'); // calendar or list
   const [currentWeek, setCurrentWeek] = useState(moment().startOf('week'));
   const [shifts, setShifts] = useState([]);

@@ -4,8 +4,11 @@ import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ManageOccupationCertifications = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [categories, setCategories] = useState({});
   const [availableCertifications, setAvailableCertifications] = useState([]);
   const [loading, setLoading] = useState(true);

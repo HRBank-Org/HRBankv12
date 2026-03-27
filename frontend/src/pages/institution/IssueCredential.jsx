@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const IssueCredential = () => {
   const [step, setStep] = useState(1); // 1: Student, 2: Template, 3: Details, 4: Preview, 5: Blockchain
   const [templates, setTemplates] = useState([]);
@@ -26,6 +28,7 @@ const IssueCredential = () => {
   const [issuing, setIssuing] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const handleIssue = async () => {
     setIssuing(true);

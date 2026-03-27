@@ -5,6 +5,8 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const WorkplaceDetail = () => {
   const { workplaceId } = useParams();
   const [workplace, setWorkplace] = useState(null);
@@ -14,6 +16,7 @@ const WorkplaceDetail = () => {
   const [newDates, setNewDates] = useState(['']);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadWorkplaceData();

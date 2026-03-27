@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, CheckCircle, ArrowLeft } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Contact = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -66,7 +69,7 @@ const Contact = () => {
                   <Mail className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Email</h3>
+                  <h3 className="font-semibold text-gray-900">{t("pages.common.email")}</h3>
                   <p className="text-gray-600">support@hrbank.ca</p>
                   <p className="text-gray-600">partnerships@hrbank.ca</p>
                 </div>
@@ -120,7 +123,7 @@ const Contact = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.name")}</label>
                     <input
                       type="text"
                       required
@@ -132,7 +135,7 @@ const Contact = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.email")}</label>
                     <input
                       type="email"
                       required

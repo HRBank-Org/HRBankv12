@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ManageTasks = () => {
   const { roleId } = useParams();
   const [tasks, setTasks] = useState([]);
@@ -16,6 +18,7 @@ const ManageTasks = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadTasks();

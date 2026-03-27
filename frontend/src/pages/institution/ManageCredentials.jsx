@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ManageCredentials = () => {
   const [credentials, setCredentials] = useState([]);
   const [filter, setFilter] = useState('all'); // all, active, revoked, expired
@@ -12,6 +14,7 @@ const ManageCredentials = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadCredentials();
@@ -89,7 +92,7 @@ const ManageCredentials = () => {
             <p className="text-3xl font-bold text-gray-900">{credentials.length}</p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-sm text-gray-600">Active</p>
+            <p className="text-sm text-gray-600">{t("pages.common.active")}</p>
             <p className="text-3xl font-bold text-green-600">
               {credentials.filter(c => c.status === 'issued').length}
             </p>

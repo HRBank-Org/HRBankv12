@@ -6,10 +6,13 @@ import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 import { Upload, X, Camera } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const InstitutionSettings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -439,7 +442,7 @@ const InstitutionSettings = () => {
                   data-testid="email-input"
                 />
                 {emailVerified ? (
-                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium whitespace-nowrap">Verified</span>
+                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium whitespace-nowrap">{t("pages.common.verified")}</span>
                 ) : (
                   <button
                     onClick={sendEmailOTP}
@@ -488,7 +491,7 @@ const InstitutionSettings = () => {
                   data-testid="phone-input"
                 />
                 {phoneVerified ? (
-                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">Verified</span>
+                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">{t("pages.common.verified")}</span>
                 ) : (
                   <button
                     onClick={sendPhoneOTP}

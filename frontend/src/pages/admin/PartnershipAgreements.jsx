@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiFileText, 
   FiCheckCircle, 
@@ -24,6 +26,7 @@ import {
 const PartnershipAgreements = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [loading, setLoading] = useState(true);
   const [agreements, setAgreements] = useState([]);
@@ -178,7 +181,7 @@ const PartnershipAgreements = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-amber-600">{summary.pending}</p>
-                  <p className="text-xs text-gray-500">Pending</p>
+                  <p className="text-xs text-gray-500">{t("pages.common.pending")}</p>
                 </div>
               </div>
             </div>
@@ -220,7 +223,7 @@ const PartnershipAgreements = () => {
               >
                 <option value="all">All Status</option>
                 <option value="signed">Signed</option>
-                <option value="pending">Pending</option>
+                <option value="pending">{t("pages.common.pending")}</option>
               </select>
             </div>
           </div>
@@ -248,10 +251,10 @@ const PartnershipAgreements = () => {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Institution</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Country</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{t("pages.common.status")}</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Signatory</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Signed Date</th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{t("pages.common.actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -361,7 +364,7 @@ const PartnershipAgreements = () => {
                         <FiMail className="text-gray-400" size={18} />
                         <div>
                           <p className="text-sm text-gray-900">{institutionDetails.institution.email}</p>
-                          <p className="text-xs text-gray-500">Email</p>
+                          <p className="text-xs text-gray-500">{t("pages.common.email")}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">

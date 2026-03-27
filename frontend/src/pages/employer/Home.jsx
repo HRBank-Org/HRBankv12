@@ -6,6 +6,8 @@ import GenericHeader from '../../components/layout/GenericHeader';
 import ModernSidebar from '../../components/layout/ModernSidebar';
 import UnstaffedShiftsAlert from '../../components/dashboard/UnstaffedShiftsAlert';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiCalendar, FiUsers, FiClock, FiMapPin, FiAlertCircle, 
   FiTruck, FiBriefcase, FiRefreshCw, FiChevronRight,
@@ -16,6 +18,7 @@ const Home = () => {
   const { user } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [operationalKpis, setOperationalKpis] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,9 +41,9 @@ const Home = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return t('common.goodMorning');
+    if (hour < 18) return t('common.goodAfternoon');
+    return t('common.goodEvening');
   };
 
   if (loading) {
@@ -98,7 +101,7 @@ const Home = () => {
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
               <div className="flex items-center gap-2 mb-2">
                 <FiClock size={18} className="text-blue-200" />
-                <span className="text-sm text-blue-100">Hours This Week</span>
+                <span className="text-sm text-blue-100">{t('pages.workforce.hoursThisWeek')}</span>
               </div>
               <div className="text-3xl font-bold">{kpis.summary.total_hours_this_week}</div>
               <div className="text-xs text-blue-200 mt-1">

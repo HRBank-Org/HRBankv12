@@ -6,8 +6,11 @@ import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import EmployerLayout from '../../components/layout/EmployerLayout';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const EmployerProfile = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState(null);
   const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -212,7 +215,7 @@ const EmployerProfile = () => {
               </div>
 
               <div>
-                <div className="text-sm font-medium text-gray-500 mb-1">Email</div>
+                <div className="text-sm font-medium text-gray-500 mb-1">{t("pages.common.email")}</div>
                 <div className="flex items-center gap-2 text-gray-900">
                   <Mail className="w-4 h-4 text-gray-400" />
                   {user?.email || 'Not set'}

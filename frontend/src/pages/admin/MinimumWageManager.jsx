@@ -6,6 +6,8 @@ import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
 import { FiEdit2, FiCheck, FiX, FiAlertCircle, FiDollarSign, FiCalendar, FiClock } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const MinimumWageManager = () => {
   const [wages, setWages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +21,7 @@ const MinimumWageManager = () => {
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (user?.user_type !== 'admin' && user?.user_type !== 'super_admin') {

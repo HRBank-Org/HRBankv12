@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const LinkedInCallback = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(true);

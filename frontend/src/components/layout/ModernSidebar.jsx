@@ -11,7 +11,7 @@ const ModernSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   
   const showExpanded = isExpanded || hovering;
 
@@ -23,123 +23,123 @@ const ModernSidebar = () => {
   const menuItems = [
     {
       type: 'item',
-      label: 'Home',
+      label: t('nav.employer.home'),
       icon: FiHome,
       path: '/employer/home'
     },
     {
       type: 'category',
-      label: 'Operations'
+      label: t('nav.employer.operations')
     },
     {
       type: 'item',
-      label: 'Roster',
+      label: t('nav.employer.roster'),
       icon: FiCalendar,
       path: '/employer/roster'
     },
     {
       type: 'item',
-      label: 'Work Orders',
+      label: t('nav.employer.workOrders'),
       icon: FiPackage,
       path: '/employer/work-orders'
     },
     {
       type: 'item',
-      label: 'Field Service',
+      label: t('nav.employer.fieldService'),
       icon: FiTruck,
       path: '/employer/field-service'
     },
     {
       type: 'item',
-      label: 'Workplaces',
+      label: t('nav.employer.workplaces'),
       icon: FiMapPin,
       path: '/employer/workplaces'
     },
     {
       type: 'category',
-      label: 'HR Management'
+      label: t('nav.employer.hrManagement')
     },
     {
       type: 'item',
-      label: 'Roles',
+      label: t('nav.employer.roles'),
       icon: FiUsers,
       path: '/employer/roles'
     },
     {
       type: 'item',
-      label: 'Team',
+      label: t('nav.employer.team'),
       icon: FiUserCheck,
       path: '/employer/workforce-management'
     },
     {
       type: 'item',
-      label: 'Live Attendance',
+      label: t('nav.employer.liveAttendance'),
       icon: FiClock,
       path: '/employer/live-attendance'
     },
     {
       type: 'item',
-      label: 'Time Off',
+      label: t('nav.employer.timeOff'),
       icon: FiSun,
       path: '/employer/time-off'
     },
     {
       type: 'category',
-      label: 'Finances'
+      label: t('nav.employer.finances')
     },
     {
       type: 'item',
-      label: 'Timesheets',
+      label: t('nav.employer.timesheets'),
       icon: FiFileText,
       path: '/employer/timesheets'
     },
     {
       type: 'item',
-      label: 'Payroll',
+      label: t('nav.employer.payroll'),
       icon: FiDollarSign,
       path: '/employer/payroll'
     },
     {
       type: 'item',
-      label: 'Payroll Export',
+      label: t('nav.employer.payrollExport'),
       icon: FiUploadCloud,
       path: '/employer/payroll-export'
     },
     {
       type: 'item',
-      label: 'Payroll Sync',
+      label: t('nav.employer.payrollSync'),
       icon: FiRefreshCw,
       path: '/employer/payroll-sync'
     },
     {
       type: 'item',
-      label: 'Invoices',
+      label: t('nav.employer.invoices'),
       icon: FiCreditCard,
       path: '/employer/invoices'
     },
     {
       type: 'category',
-      label: 'Compliance'
+      label: t('nav.employer.compliance')
     },
     {
       type: 'item',
-      label: 'Insurance',
+      label: t('nav.employer.insurance'),
       icon: FiUploadCloud,
       path: '/employer/insurance'
     },
     {
       type: 'item',
-      label: 'Jurisdictions',
+      label: t('nav.employer.jurisdictions'),
       icon: FiGlobe,
       path: '/employer/jurisdiction-settings'
     },
     {
       type: 'category',
-      label: 'Support'
+      label: t('nav.employer.support')
     },
     {
       type: 'item',
-      label: 'Help & Support',
+      label: t('nav.employer.helpAndSupport'),
       icon: FiHelpCircle,
       path: '/employer/support'
     }

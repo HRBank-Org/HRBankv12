@@ -6,10 +6,13 @@ import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const FindJobs = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('matched');
   const [matchedJobs, setMatchedJobs] = useState([]);
   const [jobOffers, setJobOffers] = useState([]);
@@ -65,7 +68,7 @@ const FindJobs = () => {
       
       <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
         <div className="bg-white border-b border-gray-200 px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">Find Jobs</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">{t('pages.workforce.findJobsTitle')}</h1>
           <p className="text-gray-600">Discover job opportunities that match your skills and preferences</p>
         </div>
 

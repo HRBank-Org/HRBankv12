@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   FileCheck,
   Upload,
@@ -17,6 +19,7 @@ import {
 
 const InsuranceUpload = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [requirements, setRequirements] = useState(null);
@@ -189,7 +192,7 @@ const InsuranceUpload = () => {
           {isVerified ? (
             <div className="flex items-center gap-2 px-4 py-2 bg-green-100 rounded-lg">
               <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="font-medium text-green-800">Verified</span>
+              <span className="font-medium text-green-800">{t("pages.common.verified")}</span>
             </div>
           ) : currentSubmission?.status === 'pending' ? (
             <div className="flex items-center gap-2 px-4 py-2 bg-yellow-100 rounded-lg">

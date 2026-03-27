@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const PostJob = () => {
   const [workplaces, setWorkplaces] = useState([]);
   const [credentialTypes, setCredentialTypes] = useState([]);
@@ -21,6 +23,7 @@ const PostJob = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadData();

@@ -2,7 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Users, Award, Globe, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const About = () => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}

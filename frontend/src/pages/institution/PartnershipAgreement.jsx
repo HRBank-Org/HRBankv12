@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import UserHeader from '../../components/common/UserHeader';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiFileText, 
   FiCheckCircle, 
@@ -20,6 +22,7 @@ const PartnershipAgreement = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [loading, setLoading] = useState(true);
   const [agreementData, setAgreementData] = useState(null);

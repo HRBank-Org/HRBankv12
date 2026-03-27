@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiShield, 
   FiActivity, 
@@ -20,6 +22,7 @@ import {
 
 const SOC2Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [securityStatus, setSecurityStatus] = useState(null);
   const [auditSummary, setAuditSummary] = useState(null);
@@ -288,7 +291,7 @@ const SOC2Dashboard = () => {
                     <th className="pb-3 font-medium">Time</th>
                     <th className="pb-3 font-medium">Event Type</th>
                     <th className="pb-3 font-medium">Severity</th>
-                    <th className="pb-3 font-medium">Description</th>
+                    <th className="pb-3 font-medium">{t("pages.common.description")}</th>
                     <th className="pb-3 font-medium">Actor</th>
                   </tr>
                 </thead>

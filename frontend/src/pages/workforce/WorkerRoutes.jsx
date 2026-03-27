@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Badge } from '../../components/ui/badge';
 import WorkforceLayout from '../../components/layout/WorkforceLayout';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const API = process.env.REACT_APP_BACKEND_URL;
 
 const routeTypeIcons = {
@@ -94,6 +96,7 @@ const RouteCard = ({ route, onNavigate }) => {
 
 const WorkerRoutes = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeRoute, setActiveRoute] = useState(null);

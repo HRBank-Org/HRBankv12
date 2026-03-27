@@ -3,6 +3,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import GenericHeader from '../../components/layout/GenericHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   FileText,
   Download,
@@ -22,6 +24,7 @@ import {
 const Invoices = () => {
   const { user } = useAuth();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const [summary, setSummary] = useState({});
@@ -132,7 +135,7 @@ const Invoices = () => {
               </div>
               <div>
                 <p className="text-xl font-bold text-gray-900">{formatCurrency(summary.total_pending)}</p>
-                <p className="text-xs text-gray-500">Pending</p>
+                <p className="text-xs text-gray-500">{t("pages.common.pending")}</p>
               </div>
             </div>
           </div>
@@ -313,7 +316,7 @@ const InvoiceDetailModal = ({ invoice, onClose, onDownload, downloading, theme }
           {/* Status & Dates */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">{t("pages.common.status")}</p>
               <p className={`font-semibold capitalize ${invoice.status === 'paid' ? 'text-green-600' : invoice.status === 'overdue' ? 'text-red-600' : 'text-blue-600'}`}>
                 {invoice.status}
               </p>
@@ -341,10 +344,10 @@ const InvoiceDetailModal = ({ invoice, onClose, onDownload, downloading, theme }
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="text-left px-4 py-2 text-xs font-semibold text-gray-600 uppercase">Description</th>
+                    <th className="text-left px-4 py-2 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.description")}</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600 uppercase">Qty</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600 uppercase">Price</th>
-                    <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600 uppercase">Amount</th>
+                    <th className="text-right px-4 py-2 text-xs font-semibold text-gray-600 uppercase">{t("pages.common.amount")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">

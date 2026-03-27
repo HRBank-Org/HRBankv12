@@ -5,9 +5,12 @@ import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import { FiChevronLeft, FiChevronRight, FiCheckSquare, FiSquare, FiCamera } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Tasks = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +34,7 @@ const Tasks = () => {
       
       <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
         <div className="bg-white border-b border-gray-200 px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">My Tasks</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">{t('pages.workforce.tasksTitle')}</h1>
           <p className="text-gray-600">Track and complete your daily tasks</p>
         </div>
 

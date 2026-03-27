@@ -7,8 +7,11 @@ import { Input } from '../components/ui/input';
 import { useToast } from '../hooks/use-toast';
 import { getLogoByUserType, getLogoBackgroundColor } from '../utils/logoUtils';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const Signup = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const userTypeFromUrl = searchParams.get('type') || 'workforce';

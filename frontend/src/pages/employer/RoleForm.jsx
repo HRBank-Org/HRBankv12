@@ -6,10 +6,13 @@ import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
 import { FiSave, FiX, FiUsers, FiDollarSign, FiAward, FiMapPin } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const RoleForm = () => {
   const { roleId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   const isEditMode = !!roleId;
 
   const [loading, setLoading] = useState(isEditMode);

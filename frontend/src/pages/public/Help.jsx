@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   BookOpen, MessageCircle, FileText, Shield, Users, Settings,
   ChevronRight, Search, Phone, Mail, ArrowLeft
@@ -84,6 +86,7 @@ const colorMap = {
 };
 
 const Help = () => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import {
   LayoutDashboard,
   Users,
@@ -44,6 +45,7 @@ const SuperAdminSidebar = () => {
   const location = useLocation();
   const theme = useTheme();
   const { logout, user } = useAuth();
+  const { t } = useLanguage();
   
   const showExpanded = isExpanded || hovering;
 
@@ -59,16 +61,16 @@ const SuperAdminSidebar = () => {
   const menuGroups = [
     {
       id: 'dashboard',
-      label: 'Overview',
+      label: t('nav.admin.overview'),
       items: [
         {
-          label: 'Dashboard',
+          label: t('nav.admin.dashboard'),
           icon: LayoutDashboard,
           path: '/admin/super-dashboard',
           badge: null
         },
         {
-          label: 'Activity Feed',
+          label: t('nav.admin.activityFeed'),
           icon: Activity,
           path: '/admin/activity',
           badge: null
@@ -77,44 +79,44 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'users',
-      label: 'Account Management',
+      label: t('nav.admin.accountManagement'),
       items: [
         {
-          label: 'Account Activations',
+          label: t('nav.admin.accountActivations'),
           icon: UserCheck,
           path: '/admin/pending-activations',
           badge: 'pending',
           badgeColor: 'bg-orange-500'
         },
         {
-          label: 'All Users',
+          label: t('nav.admin.allUsers'),
           icon: Users,
           path: '/admin/users',
           badge: null
         },
         {
-          label: 'ID Document Review',
+          label: t('nav.admin.idDocumentReview'),
           icon: FileText,
           path: '/admin/documents',
           badge: 'documents',
           badgeColor: 'bg-blue-500'
         },
         {
-          label: 'Insurance Review',
+          label: t('nav.admin.insuranceReview'),
           icon: FileCheck,
           path: '/admin/insurance-review',
           badge: 'insurance',
           badgeColor: 'bg-green-500'
         },
         {
-          label: 'Jurisdiction Expansion',
+          label: t('nav.admin.jurisdictionExpansion'),
           icon: Globe2,
           path: '/admin/jurisdiction-expansion',
           badge: 'expansion',
           badgeColor: 'bg-indigo-500'
         },
         {
-          label: 'Document Expiry',
+          label: t('nav.admin.documentExpiry'),
           icon: FileWarning,
           path: '/admin/document-expiry',
           badge: 'expiring',
@@ -124,16 +126,16 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'admin',
-      label: 'Administration',
+      label: t('nav.admin.administration'),
       items: [
         {
-          label: 'Admin Users',
+          label: t('nav.admin.adminUsers'),
           icon: Shield,
           path: '/admin/admins',
           badge: null
         },
         {
-          label: 'Admin Messaging',
+          label: t('nav.admin.adminMessaging'),
           icon: MessageSquare,
           path: '/admin/chat',
           badge: null
@@ -142,28 +144,28 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'platform',
-      label: 'Platform Config',
+      label: t('nav.admin.platformConfig'),
       items: [
         {
-          label: 'Occupation Templates',
+          label: t('nav.admin.occupationTemplates'),
           icon: Briefcase,
           path: '/admin/manage-occupations',
           badge: null
         },
         {
-          label: 'Occupation Certifications',
+          label: t('nav.admin.occupationCertifications'),
           icon: FileCheck,
           path: '/admin/occupation-certifications',
           badge: null
         },
         {
-          label: 'Minimum Wage',
+          label: t('nav.admin.minimumWage'),
           icon: DollarSign,
           path: '/admin/minimum-wage',
           badge: null
         },
         {
-          label: 'Zones & Regions',
+          label: t('nav.admin.zonesAndRegions'),
           icon: MapPin,
           path: '/admin/zones',
           badge: null
@@ -172,46 +174,46 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'business',
-      label: 'Business',
+      label: t('nav.admin.business'),
       items: [
         {
-          label: 'Franchises',
+          label: t('nav.admin.franchises'),
           icon: Building2,
           path: '/admin/franchises',
           badge: null
         },
         {
-          label: 'Employers',
+          label: t('nav.admin.employers'),
           icon: Briefcase,
           path: '/admin/employers',
           badge: null
         },
         {
-          label: 'Institutions',
+          label: t('nav.admin.institutions'),
           icon: Globe,
           path: '/admin/institutions',
           badge: null
         },
         {
-          label: 'Institution Payouts',
+          label: t('nav.admin.institutionPayouts'),
           icon: DollarSign,
           path: '/admin/institution-payouts',
           badge: null
         },
         {
-          label: 'Partnership Agreements',
+          label: t('nav.admin.partnershipAgreements'),
           icon: FileText,
           path: '/admin/partnership-agreements',
           badge: null
         },
         {
-          label: 'Invoices',
+          label: t('nav.admin.invoices'),
           icon: Receipt,
           path: '/admin/invoices',
           badge: null
         },
         {
-          label: 'API Partners',
+          label: t('nav.admin.apiPartners'),
           icon: Link2,
           path: '/admin/partners',
           badge: null
@@ -220,10 +222,10 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'regions',
-      label: 'Regional',
+      label: t('nav.admin.regional'),
       items: [
         {
-          label: 'Regional Stats',
+          label: t('nav.admin.regionalStats'),
           icon: BarChart3,
           path: '/admin/regional-stats',
           badge: null
@@ -232,17 +234,17 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'support',
-      label: 'Support',
+      label: t('nav.admin.support'),
       items: [
         {
-          label: 'Support Tickets',
+          label: t('nav.admin.supportTickets'),
           icon: MessageSquare,
           path: '/admin/support-tickets',
           badge: 'tickets',
           badgeColor: 'bg-red-500'
         },
         {
-          label: 'Reported Issues',
+          label: t('nav.admin.reportedIssues'),
           icon: AlertTriangle,
           path: '/admin/reported-issues',
           badge: null
@@ -251,28 +253,28 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'analytics',
-      label: 'Analytics & Reports',
+      label: t('nav.admin.analyticsAndReports'),
       items: [
         {
-          label: 'Platform Analytics',
+          label: t('nav.admin.platformAnalytics'),
           icon: BarChart3,
           path: '/admin/analytics',
           badge: null
         },
         {
-          label: 'Revenue Dashboard',
+          label: t('nav.admin.revenueDashboard'),
           icon: DollarSign,
           path: '/admin/revenue',
           badge: null
         },
         {
-          label: 'SOC2 Compliance',
+          label: t('nav.admin.soc2Compliance'),
           icon: Shield,
           path: '/admin/soc2',
           badge: null
         },
         {
-          label: 'Audit Logs',
+          label: t('nav.admin.auditLogs'),
           icon: Clock,
           path: '/admin/audit-logs',
           badge: null
@@ -281,22 +283,22 @@ const SuperAdminSidebar = () => {
     },
     {
       id: 'settings',
-      label: 'System',
+      label: t('nav.admin.system'),
       items: [
         {
-          label: 'Platform Settings',
+          label: t('nav.admin.platformSettings'),
           icon: Settings,
           path: '/admin/settings',
           badge: null
         },
         {
-          label: 'Geo-Access Control',
+          label: t('nav.admin.geoAccessControl'),
           icon: Globe,
           path: '/admin/geo-access',
           badge: null
         },
         {
-          label: 'Notifications',
+          label: t('nav.admin.notifications'),
           icon: Bell,
           path: '/admin/notification-settings',
           badge: null
@@ -449,7 +451,7 @@ const SuperAdminSidebar = () => {
           {showExpanded && (
             <div className="flex flex-col">
               <span className="text-white font-bold text-base">HR Bank</span>
-              <span className="text-xs text-orange-400 font-medium">Super Admin</span>
+              <span className="text-xs text-orange-400 font-medium">{t('nav.admin.superAdmin')}</span>
             </div>
           )}
         </div>
@@ -464,7 +466,7 @@ const SuperAdminSidebar = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{user.full_name || user.email}</p>
-              <p className="text-xs text-gray-500 truncate">Super Administrator</p>
+              <p className="text-xs text-gray-500 truncate">{t('nav.admin.superAdministrator')}</p>
             </div>
           </div>
         </div>
@@ -571,7 +573,7 @@ const SuperAdminSidebar = () => {
             className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
           >
             <LogOut size={20} />
-            <span className="text-sm font-medium">Sign Out</span>
+            <span className="text-sm font-medium">{t('nav.admin.signOut')}</span>
           </button>
         ) : (
           <button
@@ -580,7 +582,7 @@ const SuperAdminSidebar = () => {
           >
             <LogOut size={20} />
             <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow-xl z-50">
-              Sign Out
+              {t('nav.admin.signOut')}
             </div>
           </button>
         )}

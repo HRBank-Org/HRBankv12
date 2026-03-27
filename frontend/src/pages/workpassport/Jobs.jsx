@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiBriefcase, 
   FiMapPin, 
@@ -19,6 +21,7 @@ import {
 const WorkPassportJobs = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
   const [upgradeInfo, setUpgradeInfo] = useState(null);

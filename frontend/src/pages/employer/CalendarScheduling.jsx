@@ -11,8 +11,11 @@ import ShiftDetailModal from '../../components/scheduling/ShiftDetailModal';
 import AssignWorkerModal from '../../components/scheduling/AssignWorkerModal';
 import CopyShiftModal from '../../components/scheduling/CopyShiftModal';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const CalendarScheduling = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [viewMode, setViewMode] = useState('roster'); // week, day, month, roster - Default to roster
   const [currentDate, setCurrentDate] = useState(moment());
   const [shifts, setShifts] = useState([]);

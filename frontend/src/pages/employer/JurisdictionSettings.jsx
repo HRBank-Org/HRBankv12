@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Globe2,
   MapPin,
@@ -20,6 +22,7 @@ import {
 
 const JurisdictionSettings = ({ embedded = false }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [authorizations, setAuthorizations] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);

@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const AddCertification = () => {
   const { occupationId } = useParams();
   const [occupation, setOccupation] = useState(null);
@@ -20,6 +22,7 @@ const AddCertification = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadData();

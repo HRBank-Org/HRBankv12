@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Search, HelpCircle, ArrowLeft } from 'lucide-react';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const faqData = [
   {
     category: 'Getting Started',
@@ -87,6 +89,7 @@ const faqData = [
 ];
 
 const FAQ = () => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [openQuestions, setOpenQuestions] = useState({});
 

@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import UserHeader from '../../components/common/UserHeader';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const OccupationDetail = () => {
   const { occupationId } = useParams();
   const [occupation, setOccupation] = useState(null);
@@ -14,6 +16,7 @@ const OccupationDetail = () => {
   const [occupationRequiredCerts, setOccupationRequiredCerts] = useState([]);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -149,7 +152,7 @@ const OccupationDetail = () => {
             <p className="text-4xl font-bold mt-2" style={{ color: theme.primaryColor }}>
               {occupation.credential_details?.filter(c => c.status === 'verified').length || 0}
             </p>
-            <p className="text-xs text-gray-500 mt-2">Verified</p>
+            <p className="text-xs text-gray-500 mt-2">{t("pages.common.verified")}</p>
           </div>
         </div>
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   GraduationCap,
   FolderOpen,
@@ -21,6 +23,7 @@ import {
 } from 'lucide-react';
 
 const ProgramsManagement = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [faculties, setFaculties] = useState([]);
   const [programs, setPrograms] = useState([]);
@@ -297,7 +300,7 @@ const ProgramsManagement = () => {
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Programs</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{t('nav.institution.programs')}</h1>
                 <p className="text-gray-600">Manage your academic programs and faculties</p>
               </div>
             </div>
@@ -560,7 +563,7 @@ const ProgramsManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.description")}</label>
                     <textarea
                       value={facultyForm.description}
                       onChange={(e) => setFacultyForm({ ...facultyForm, description: e.target.value })}
@@ -731,7 +734,7 @@ const ProgramsManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.status")}</label>
                     <select
                       value={programForm.status}
                       onChange={(e) => setProgramForm({ ...programForm, status: e.target.value })}
@@ -753,7 +756,7 @@ const ProgramsManagement = () => {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("pages.common.description")}</label>
                     <textarea
                       value={programForm.description}
                       onChange={(e) => setProgramForm({ ...programForm, description: e.target.value })}

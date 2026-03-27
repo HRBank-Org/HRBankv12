@@ -10,11 +10,14 @@ import { LOGOS } from '../utils/logoUtils';
 import LandingHeader from '../components/layout/LandingHeader';
 import LoginModal from '../components/auth/LoginModal';
 
+import { useLanguage } from '../contexts/LanguageContext';
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const PublicJobsPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');

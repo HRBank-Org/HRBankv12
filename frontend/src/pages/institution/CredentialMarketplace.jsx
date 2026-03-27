@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import {
   Award, DollarSign, Users, CheckCircle, Clock, AlertCircle,
   Loader2, Search, TrendingUp, GraduationCap
@@ -9,6 +11,7 @@ import {
 
 const CredentialMarketplace = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [programs, setPrograms] = useState([]);
   const [pricingTiers, setPricingTiers] = useState(null);
@@ -425,7 +428,7 @@ const CredentialMarketplace = () => {
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
                 <option value="all">All Status</option>
-                <option value="pending">Pending</option>
+                <option value="pending">{t("pages.common.pending")}</option>
                 <option value="paid">Paid</option>
                 <option value="expired">Expired</option>
               </select>
@@ -439,7 +442,7 @@ const CredentialMarketplace = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipient</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Credential</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issue Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t("pages.common.status")}</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                     </tr>
                   </thead>

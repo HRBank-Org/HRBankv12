@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { FiMail, FiArrowLeft, FiCheck } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ForgotPassword = () => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);

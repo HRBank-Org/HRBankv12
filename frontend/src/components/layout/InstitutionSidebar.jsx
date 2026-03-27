@@ -22,7 +22,7 @@ const InstitutionSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   
   const showExpanded = isExpanded || hovering;
 
@@ -33,105 +33,105 @@ const InstitutionSidebar = () => {
   const menuItems = [
     {
       type: 'item',
-      label: 'Dashboard',
+      label: t('nav.institution.dashboard'),
       icon: Home,
       path: '/institution/dashboard'
     },
     {
       type: 'category',
-      label: 'Programs'
+      label: t('nav.institution.programs')
     },
     {
       type: 'item',
-      label: 'All Programs',
+      label: t('nav.institution.allPrograms'),
       icon: GraduationCap,
       path: '/institution/programs'
     },
     {
       type: 'item',
-      label: 'Cohorts',
+      label: t('nav.institution.cohorts'),
       icon: BookOpen,
       path: '/institution/classes'
     },
     {
       type: 'category',
-      label: 'Credentials'
+      label: t('nav.institution.credentials')
     },
     {
       type: 'item',
-      label: 'Issue Credential',
+      label: t('nav.institution.issueCredential'),
       icon: Award,
       path: '/institution/credentials/issue'
     },
     {
       type: 'item',
-      label: 'Manage Credentials',
+      label: t('nav.institution.manageCredentials'),
       icon: FileText,
       path: '/institution/credentials'
     },
     {
       type: 'item',
-      label: 'Verification Requests',
+      label: t('nav.institution.verificationRequests'),
       icon: FileCheck,
       path: '/institution/verification-requests'
     },
     {
       type: 'item',
-      label: 'Marketplace',
+      label: t('nav.institution.marketplace'),
       icon: ShoppingBag,
       path: '/institution/marketplace'
     },
     {
       type: 'category',
-      label: 'Students'
+      label: t('nav.institution.students')
     },
     {
       type: 'item',
-      label: 'Invite Students',
+      label: t('nav.institution.inviteStudents'),
       icon: UserPlus,
       path: '/institution/students/invite'
     },
     {
       type: 'item',
-      label: 'Transcripts',
+      label: t('nav.institution.transcripts'),
       icon: FileText,
       path: '/institution/transcripts'
     },
     {
       type: 'category',
-      label: 'Finance'
+      label: t('nav.institution.finance')
     },
     {
       type: 'item',
-      label: 'Payouts',
+      label: t('nav.institution.payouts'),
       icon: Wallet,
       path: '/institution/payouts'
     },
     {
       type: 'item',
-      label: 'Financial Summary',
+      label: t('nav.institution.financialSummary'),
       icon: BarChart3,
       path: '/institution/financials'
     },
     {
       type: 'item',
-      label: 'Fundraisers',
+      label: t('nav.institution.fundraisers'),
       icon: TrendingUp,
       path: '/institution/fundraisers'
     },
     {
       type: 'category',
-      label: 'Settings'
+      label: t('nav.institution.settings')
     },
     {
       type: 'item',
-      label: 'Institution Settings',
+      label: t('nav.institution.institutionSettings'),
       icon: Settings,
       path: '/institution/settings'
     },
     {
       type: 'item',
-      label: 'Notifications',
+      label: t('nav.institution.notifications'),
       icon: Bell,
       path: '/institution/notifications'
     }
@@ -168,7 +168,7 @@ const InstitutionSidebar = () => {
         {showExpanded && (
           <div className="ml-3 overflow-hidden">
             <span className="text-white font-bold text-lg whitespace-nowrap">HR Bank</span>
-            <p className="text-xs text-gray-400 whitespace-nowrap">Institution Portal</p>
+            <p className="text-xs text-gray-400 whitespace-nowrap">{t('nav.institution.portalLabel')}</p>
           </div>
         )}
       </div>

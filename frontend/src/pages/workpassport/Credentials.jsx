@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import WorkPassportHeader from '../../components/layout/WorkPassportHeader';
 import WorkPassportSidebar from '../../components/layout/WorkPassportSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FiAward, 
   FiCheckCircle, 
@@ -38,6 +40,7 @@ const BlockchainIcon = ({ className = "w-5 h-5" }) => (
 
 const WorkPassportCredentials = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [credentials, setCredentials] = useState([]);
   const [pendingCredentials, setPendingCredentials] = useState([]);

@@ -4,6 +4,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import api from '../../utils/api';
 import InviteModal from '../../components/employer/InviteModal';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const ShiftDetail = () => {
   const { shiftId } = useParams();
   const [shift, setShift] = useState(null);
@@ -13,6 +15,7 @@ const ShiftDetail = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadShiftData();

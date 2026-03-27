@@ -6,9 +6,12 @@ import ModernSidebar from '../../components/layout/ModernSidebar';
 import api from '../../utils/api';
 import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiMapPin, FiDollarSign, FiAward, FiFilter, FiSearch, FiChevronRight, FiUserPlus, FiAlertTriangle } from 'react-icons/fi';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const Roles = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useLanguage();
   
   const [roles, setRoles] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);

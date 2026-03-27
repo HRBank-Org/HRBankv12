@@ -3,6 +3,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import AdminHeader from '../../components/layout/AdminHeader';
 import SuperAdminSidebar from '../../components/layout/SuperAdminSidebar';
 import api from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 import { 
   FileText, 
   Search, 
@@ -21,6 +23,7 @@ import {
 
 const IDVerification = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [pendingVerifications, setPendingVerifications] = useState([]);
   const [verifiedWorkers, setVerifiedWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
