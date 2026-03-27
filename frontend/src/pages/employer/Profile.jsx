@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { Building2, Mail, Phone, MapPin, Edit2, Save, X } from 'lucide-react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
+import EmployerLayout from '../../components/layout/EmployerLayout';
 
 const EmployerProfile = () => {
   const navigate = useNavigate();
@@ -59,41 +60,40 @@ const EmployerProfile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <EmployerLayout title="Company Profile">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </EmployerLayout>
     );
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Company Profile</h1>
-          <p className="text-gray-600 mt-1">Manage your company information</p>
+    <EmployerLayout title="Company Profile" subtitle="Manage your company information">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Actions */}
+        <div className="flex justify-end mb-6">
+          {!editing ? (
+            <Button onClick={() => setEditing(true)} variant="outline">
+              <Edit2 className="w-4 h-4 mr-2" />
+              Edit Profile
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button onClick={() => setEditing(false)} variant="outline">
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+              <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Save className="w-4 h-4 mr-2" />
+                Save Changes
+              </Button>
+            </div>
+          )}
         </div>
-        {!editing ? (
-          <Button onClick={() => setEditing(true)} variant="outline">
-            <Edit2 className="w-4 h-4 mr-2" />
-            Edit Profile
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={() => setEditing(false)} variant="outline">
-              <X className="w-4 h-4 mr-2" />
-              Cancel
-            </Button>
-            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </Button>
-          </div>
-        )}
-      </div>
 
-      {/* Profile Content */}
-      <Card className="p-8">
+        {/* Profile Content */}
+        <Card className="p-8">
         {editing ? (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -251,7 +251,8 @@ const EmployerProfile = () => {
           </div>
         )}
       </Card>
-    </div>
+      </div>
+    </EmployerLayout>
   );
 };
 

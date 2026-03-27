@@ -5,6 +5,7 @@ import { User, Mail, Phone, MapPin, Calendar, Edit2, Shield } from 'lucide-react
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import BlockchainVerifiedBadge, { BlockchainCredentialsSection } from '../../components/common/BlockchainVerifiedBadge';
+import WorkforceLayout from '../../components/layout/WorkforceLayout';
 
 const WorkforceProfile = () => {
   const navigate = useNavigate();
@@ -62,28 +63,27 @@ const WorkforceProfile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <WorkforceLayout title="My Profile">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </WorkforceLayout>
     );
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-gray-600 mt-1">View and manage your information</p>
+    <WorkforceLayout title="My Profile" subtitle="View and manage your information">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Actions */}
+        <div className="flex justify-end mb-6">
+          <Button
+            onClick={() => navigate('/workforce/settings')}
+            variant="outline"
+          >
+            <Edit2 className="w-4 h-4 mr-2" />
+            Edit Profile
+          </Button>
         </div>
-        <Button
-          onClick={() => navigate('/workforce/settings')}
-          variant="outline"
-        >
-          <Edit2 className="w-4 h-4 mr-2" />
-          Edit Profile
-        </Button>
-      </div>
 
       {/* Profile Card */}
       <Card className="p-8">
@@ -238,7 +238,8 @@ const WorkforceProfile = () => {
           </div>
         )}
       </Card>
-    </div>
+      </div>
+    </WorkforceLayout>
   );
 };
 

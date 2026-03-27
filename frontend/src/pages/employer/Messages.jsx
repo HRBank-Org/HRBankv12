@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import EmployerLayout from '../../components/layout/EmployerLayout';
 import api from '../../utils/api';
 import { FiMessageSquare, FiPlus, FiX, FiSend } from 'react-icons/fi';
 
@@ -77,10 +77,8 @@ const Messages = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <UserHeader title="Messages" />
-      
-      <main className="max-w-6xl mx-auto px-4 py-6">
+    <EmployerLayout title="Messages">
+      <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
           <button
@@ -237,8 +235,8 @@ const Messages = () => {
             </div>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </EmployerLayout>
   );
 };
 

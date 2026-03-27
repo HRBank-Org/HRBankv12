@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../..
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { ArrowLeft, Clock, MapPin, DollarSign, FileText, TrendingUp, Calendar, Download } from 'lucide-react';
+import EmployerLayout from '../../components/layout/EmployerLayout';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -54,7 +55,7 @@ export default function EmployerBilling() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <EmployerLayout title="Platform Billing">
         <div className="max-w-6xl mx-auto">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
@@ -62,25 +63,15 @@ export default function EmployerBilling() {
             <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
           </div>
         </div>
-      </div>
+      </EmployerLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+    <EmployerLayout title="Platform Billing" subtitle="View hours, fees, and invoice details">
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/employer/dashboard')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Platform Billing</h1>
-              <p className="text-gray-500 dark:text-gray-400">View hours, fees, and invoice details</p>
-            </div>
-          </div>
+        {/* Header Actions */}
+        <div className="flex items-center justify-end">
           <div className="flex gap-2">
             <select
               value={period}
@@ -305,6 +296,6 @@ export default function EmployerBilling() {
           </Button>
         </div>
       </div>
-    </div>
+    </EmployerLayout>
   );
 }

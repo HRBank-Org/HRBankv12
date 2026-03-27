@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 import BreakReminderBanner from '../../components/workforce/BreakReminderBanner';
 
@@ -113,14 +114,16 @@ const ClockInOut = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <WorkforceLayout title="Clock In/Out">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+        </div>
+      </WorkforceLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
+    <WorkforceLayout title="Clock In/Out" subtitle={booking?.role_title}>
       {/* Break Reminder Banner - shows when worker needs a break */}
       {attendance && booking?.shift_id && user?.user_id && (
         <BreakReminderBanner 
@@ -130,22 +133,7 @@ const ClockInOut = () => {
         />
       )}
       
-      <header className="text-white px-6 py-4" style={{ backgroundColor: theme.primaryColor }}>
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <button onClick={() => navigate('/workforce/dashboard')} className="hover:opacity-80">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
-          <img src={theme.logo} alt="HR Bank" className="w-10 h-10 rounded-lg" />
-          <div>
-            <h1 className="text-lg font-bold">Clock In/Out</h1>
-            <p className="text-sm opacity-90">{booking?.role_title}</p>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-8">
           {/* Shift Info */}
           <div className="mb-8 pb-6 border-b border-gray-200">
@@ -246,8 +234,8 @@ const ClockInOut = () => {
             </div>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </WorkforceLayout>
   );
 };
 

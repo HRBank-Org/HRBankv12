@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiBell, FiMail, FiMessageSquare, FiSmartphone, FiRefreshCw } from 'react-icons/fi';
 import api from '../../services/api';
 import PushNotificationSettings from '../../components/common/PushNotificationSettings';
+import EmployerLayout from '../../components/layout/EmployerLayout';
 
 const NotificationSettings = () => {
   const [preferences, setPreferences] = useState(null);
@@ -77,12 +78,14 @@ const NotificationSettings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading settings...</p>
+      <EmployerLayout title="Notification Settings">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading settings...</p>
+          </div>
         </div>
-      </div>
+      </EmployerLayout>
     );
   }
 
@@ -97,7 +100,7 @@ const NotificationSettings = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <EmployerLayout title="Notification Settings" subtitle="Manage how you receive notifications">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -215,7 +218,7 @@ const NotificationSettings = () => {
           </div>
         </div>
       </div>
-    </div>
+    </EmployerLayout>
   );
 };
 

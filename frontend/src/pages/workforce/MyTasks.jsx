@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 import moment from 'moment';
 import { FiCheckCircle, FiCircle, FiClock, FiMapPin, FiCalendar } from 'react-icons/fi';
@@ -88,26 +88,18 @@ const MyTasks = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-        <UserHeader />
+      <WorkforceLayout title="My Tasks">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
         </div>
-      </div>
+      </WorkforceLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader />
-      
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Tasks</h1>
-            <p className="text-gray-600 mt-1">Daily task checklist for your shifts</p>
-          </div>
-          
+    <WorkforceLayout title="My Tasks" subtitle="Daily task checklist for your shifts">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center justify-end mb-8">
           {/* Date Selector */}
           <div className="flex items-center gap-4">
             <button
@@ -256,7 +248,7 @@ const MyTasks = () => {
           </div>
         )}
       </div>
-    </div>
+    </WorkforceLayout>
   );
 };
 

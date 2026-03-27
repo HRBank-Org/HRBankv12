@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import WorkforceLayout from '../../components/layout/WorkforceLayout';
 import api from '../../utils/api';
 
 const MyCredentials = () => {
@@ -54,26 +54,19 @@ const MyCredentials = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.bgColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
-      </div>
+      <WorkforceLayout title="My Verified Credentials">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+        </div>
+      </WorkforceLayout>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        onBackClick={() => navigate('/workforce/dashboard')}
-        showBack={true}
-      />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Verified Credentials</h1>
-            <p className="text-gray-600">Blockchain-verified credentials from institutions</p>
-          </div>
+    <WorkforceLayout title="My Verified Credentials" subtitle="Blockchain-verified credentials from institutions">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Actions */}
+        <div className="flex items-center justify-end mb-6">
           <button
             onClick={() => navigate('/workforce/credentials/verify')}
             className="px-6 py-3 rounded-lg text-white font-medium shadow-sm hover:shadow transition-all"
@@ -160,7 +153,6 @@ const MyCredentials = () => {
             </button>
           </div>
         )}
-      </main>
 
       {/* Credential Detail Modal */}
       {showModal && selectedCredential && (
@@ -273,7 +265,8 @@ const MyCredentials = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </WorkforceLayout>
   );
 };
 
