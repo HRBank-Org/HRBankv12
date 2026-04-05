@@ -15,57 +15,45 @@ Full-stack HR compliance and management application with specialized dashboards 
 - **Deployment**: Docker, AWS Lightsail Instance + Load Balancer
 - **Database**: MongoDB (`hrbank_db`)
 
-## Key Technical Details
-- Production: `hrbank.ca` on AWS Lightsail Ubuntu with Docker
-- Docker Hub: `qaisijoe/hrbank-frontend:latest`
-- Node version: `node:20-alpine`
-- Auth: JWT-based, `users` collection with `password_hash`
-- Admin test account: `admin@test.com` / `Admin123!` (super_admin)
-
 ## What's Been Implemented
 
+### WorkPassport Resume Print Redesign (Feb 2026)
+- **Dual-mode rendering**: Screen shows dark WorkPassport card, Print shows professional white resume
+- **No photo in print** — removed as per user request
+- **QR code** in print top-right corner (using `qrcode.react`) — links to digital WorkPassport URL when scanned
+- **Professional resume layout**: Serif typography, name at top, occupation subtitle, stats grid, Professional Experience sections with skills + work history, footer with verify URL
+- **Screen version preserved**: Dark card with photo, blockchain verification badge, stats, career entries
+- **WorkPassport™** trademark renders correctly across both modes
+- **CSS `@media print`** toggles visibility between `.screen-passport` and `.print-resume` divs
+- **TESTED**: Iteration 31 — 100% pass (11/11 features)
+
 ### Auto-Repair Data Health Feature (Feb 2026)
-- **POST `/api/admin/data-health/repair`**: One-click auto-repair endpoint
-  - Purges orphan records across 12 collections (profiles, attendance, timesheets, notifications, etc.)
-  - Links blockchain credentials missing `workforce_id`
-  - Syncs occupation counts on workforce profiles
-  - Re-propagates shift ratings to workforce profiles
-  - Returns detailed repair log with counts per collection
-  - Idempotent — safe to run repeatedly
-- **Frontend**: Red "Auto-Repair" button appears only when issues detected, repair result panel shows breakdown
-- **TESTED**: Iteration 30 — 100% pass (18/18 backend + all frontend)
+- POST `/api/admin/data-health/repair` — one-click orphan cleanup + rating re-propagation
+- **TESTED**: Iteration 30 — 100% pass (18/18)
+
+### Data Health Monitor Dashboard (Feb 2026)
+- GET `/api/admin/data-health` — real-time integrity scan
+- **TESTED**: Iteration 29 — 100% pass
 
 ### Pydantic Model Standardization (Feb 2026)
-- Fixed deprecated `datetime.utcnow` → `datetime.now(timezone.utc)` across 8 model files
-- Added `ConfigDict(extra="ignore")` to 4 models missing it
-- All linting passes
+- Fixed `datetime.utcnow` → `datetime.now(timezone.utc)` across 8 models
+- Added `ConfigDict(extra="ignore")` to 4 models
 
 ### Deployment Readiness (Feb 2026)
 - Fixed `.gitignore` and `.dockerignore` blocking `.env` files
-- App deployment-ready for AWS Lightsail Docker setup
-
-### Data Health Monitor Dashboard (Feb 2026)
-- **GET `/api/admin/data-health`**: Real-time integrity scan
-- Admin page at `/admin/data-health` with color-coded cards
-- **TESTED**: Iteration 29 — 100% pass
+- Fixed LinkedIn OAuth redirect URI hardcoding (now dynamic via `request.base_url`)
 
 ### Data Integrity Migration v1 + v2 (Feb 2026)
 - 241+ orphaned records cleaned across all profile types
-- Backend routes updated with `$or` queries for backward compatibility
-- **TESTED**: Iterations 28, 29 — 100% pass
+- **TESTED**: Iterations 28, 29
 
 ### Multi-Language Translation System (Feb 2026)
-- 7 languages, 195+ pages, all headers/sidebars translated
-- **TESTED**: Iteration 27 — 100% pass
+- 7 languages, 195+ pages
+- **TESTED**: Iteration 27
 
 ### Sidebar Navigation Persistence (Dec 2025)
 - Layout wrappers for all dashboard types
-- **TESTED**: Iterations 25, 26 — 100% pass
-
-### Leaderboard Feature
-- Built but temporarily hidden
-
-## Database Integrity Status: HEALTHY (0 issues)
+- **TESTED**: Iterations 25, 26
 
 ## Prioritized Backlog
 
@@ -78,19 +66,18 @@ Full-stack HR compliance and management application with specialized dashboards 
 - Re-enable Leaderboard when institutions onboard
 
 ### P3 (Low/Future)
-- Full deep translation of all pages
-- Franchise Management UI
+- Full deep translation of all pages (form labels, table columns)
 - CI/CD pipeline
 
 ## Testing History
-| Iteration | Scope | Result |
-|-----------|-------|--------|
-| 25 | Sidebar bug identification | Pass |
-| 26 | Sidebar fix verification | 100% |
-| 27 | Translation UI testing | 100% |
-| 28 | Data migration v1 (backend) | 100% (12/12) |
-| 29 | Data health dashboard (full) | 100% (11/11 + frontend) |
-| 30 | Auto-repair feature | 100% (18/18 + frontend) |
+| Iter | Scope | Result |
+|------|-------|--------|
+| 25-26 | Sidebar persistence | 100% |
+| 27 | Translation UI | 100% |
+| 28 | Data migration v1 | 100% (12/12) |
+| 29 | Data health dashboard | 100% (11/11) |
+| 30 | Auto-repair feature | 100% (18/18) |
+| 31 | WorkPassport print resume | 100% (11/11) |
 
 ---
 *Last Updated: February 2026*
