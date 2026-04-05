@@ -23,6 +23,18 @@ Full-stack HR compliance and management application with specialized dashboards 
 
 ## What's Been Implemented
 
+### Data Integrity Migration v1 (Feb 2026)
+- **Purged 86 orphaned occupation_profiles** referencing non-existent users
+- **Propagated 41 shift_ratings** to 8 workforce_profiles (general_rating_avg/count)
+- **Cleaned 12 broken employment_relationships** with missing workforce refs
+- **Added workforce_id** alias to 16 blockchain_credentials (worker_id -> workforce_id)
+- **Synced occupation_count** on 2 workforce_profiles
+- **Created 6 database indexes** for query performance
+- **Updated backend routes** with $or queries for backward compatibility (workforce_id/user_id fallback)
+- Files updated: `occupations.py`, `shift_ratings.py`, `workpassport.py`, `workforce.py`
+- Migration script: `/app/backend/scripts/data_migration_v1.py`
+- **TESTED**: Iteration 28 - 100% pass (12/12 tests)
+
 ### Multi-Language Translation System (Feb 2026)
 - **7 languages supported**: English, French, Spanish, Portuguese, Chinese, Arabic, Hindi
 - **Translation infrastructure**: `LanguageContext.jsx` with `t()` function, `translations.json` with comprehensive keys
@@ -31,13 +43,13 @@ Full-stack HR compliance and management application with specialized dashboards 
 - **Landing page fully translated**: Hero section, CTA buttons, navigation, footer
 - **Auth pages translated**: Login, Signup, ForgotPassword
 - **195 pages wired**: All page files have `useLanguage` import and `t` function available
-- **Page titles/headings translated**: Dashboard pages, common pages across all sections
-- **Common UI elements**: Buttons (Save, Cancel, Delete), status labels (Pending, Approved, Rejected), table headers
+- **TESTED**: Iteration 27 - 100% pass
 
 ### Sidebar Navigation Persistence (Dec 2025)
 - Created `WorkforceLayout.jsx` and `EmployerLayout.jsx` wrapper components
 - All 40+ pages in Workforce and Employer directories wrapped with Layout components
 - `InstitutionLayout.jsx` already existed
+- **TESTED**: Iterations 25, 26 - 100% pass
 
 ### Leaderboard Feature (Dec 2025)
 - Built but **temporarily hidden** from public UI (no institutions onboarded yet)
@@ -58,7 +70,8 @@ Full-stack HR compliance and management application with specialized dashboards 
 /app
 ├── backend/
 │   ├── routes/
-│   ├── models/
+│   ├── models/ (occupation.py, credentials.py, ratings.py, employment.py)
+│   ├── scripts/data_migration_v1.py
 │   └── server.py
 └── frontend/
     └── src/
@@ -82,16 +95,25 @@ Full-stack HR compliance and management application with specialized dashboards 
         └── pages/ (195 pages with useLanguage available)
 ```
 
+## Database Integrity Status (Post Migration v1)
+- `occupation_profiles`: 6 valid records, 0 orphans
+- `shift_ratings`: 41 records (legacy schema: rated_user_id, rating, rating_type, review)
+- `employment_relationships`: 14 valid records, 0 broken refs
+- `blockchain_credentials`: 16 records, all with workforce_id
+- `workforce_profiles`: 115, 13 with ratings propagated
+- Indexes: idx_occ_workforce_id, idx_occ_occupation_id, idx_sr_rated_user_id, idx_sr_shift_worker, idx_bc_workforce_id, idx_wfc_workforce_id
+
 ## Prioritized Backlog
 
 ### P0 (Critical)
 - None currently
 
 ### P1 (High)
+- Standardize backend Pydantic models for occupation.py, workforce.py to prevent future schema regressions
 - Partner institution logos hotlinking fix (user verification pending on mongosh script)
-- Remaining page content translation (deeper page-level text beyond titles/headings)
 
 ### P2 (Medium)
+- Browser locale-based auto-detect language feature
 - Notification system for cohort end dates
 - Re-enable Leaderboard when institutions onboard
 - SAP Integration planning
@@ -105,10 +127,10 @@ Full-stack HR compliance and management application with specialized dashboards 
 - Full deep translation of all 195 pages (form labels, table columns, error messages)
 
 ## Testing Status
+- Data migration v1: **TESTED** (Iteration 28 - 100% pass, 12/12)
 - Translation system: **TESTED** (Iteration 27 - 100% pass)
 - Sidebar persistence: **TESTED** (Iterations 25, 26 - 100% pass)
-- Leaderboard hiding: **VERIFIED** (Iteration 27 confirmed hidden)
-- ClassTemplates cleanup: **VERIFIED** (Iteration 27 confirmed removed)
+- Leaderboard hiding: **VERIFIED** (Iteration 27)
 
 ---
 *Last Updated: February 2026*
