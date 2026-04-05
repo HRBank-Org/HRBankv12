@@ -17,18 +17,20 @@ Full-stack HR compliance and management application with specialized dashboards 
 
 ## What's Been Implemented
 
-### WorkPassport Resume Print Redesign (Feb 2026)
-- **Dual-mode rendering**: Screen shows dark WorkPassport card, Print shows professional white resume
-- **No photo in print** — removed as per user request
-- **QR code** in print top-right corner (using `qrcode.react`) — links to digital WorkPassport URL when scanned
-- **Professional resume layout**: Serif typography, name at top, occupation subtitle, stats grid, Professional Experience sections with skills + work history, footer with verify URL
-- **Screen version preserved**: Dark card with photo, blockchain verification badge, stats, career entries
-- **WorkPassport™** trademark renders correctly across both modes
-- **CSS `@media print`** toggles visibility between `.screen-passport` and `.print-resume` divs
-- **TESTED**: Iteration 31 — 100% pass (11/11 features)
+### WorkPassport Two-Column Print Resume (Feb 2026)
+- **Two-column layout**: Dark navy sidebar (~30%) + white main area (~70%)
+- **Sidebar**: Name, occupation titles, Overview stats (occupations, years, hours, rating), aggregated Skills, Certifications, QR code at bottom
+- **Main area**: Contact bar (location, member since, ID), Professional Experience with employment bullets + skill tags, Verified Credentials, Footer with verify URL
+- **CSS `@media print`** toggles between `.screen-passport` (screen) and `.print-resume` (print)
+- **`-webkit-print-color-adjust: exact`** ensures navy sidebar background prints
+- **TESTED**: Iteration 32 — 100% pass (21/21 features)
+
+### WorkPassport QR Code (Feb 2026)
+- QR code using `qrcode.react` links to digital WorkPassport URL
+- Positioned in sidebar bottom on print, top-right on older layout
 
 ### Auto-Repair Data Health Feature (Feb 2026)
-- POST `/api/admin/data-health/repair` — one-click orphan cleanup + rating re-propagation
+- POST `/api/admin/data-health/repair` — one-click orphan cleanup
 - **TESTED**: Iteration 30 — 100% pass (18/18)
 
 ### Data Health Monitor Dashboard (Feb 2026)
@@ -42,6 +44,7 @@ Full-stack HR compliance and management application with specialized dashboards 
 ### Deployment Readiness (Feb 2026)
 - Fixed `.gitignore` and `.dockerignore` blocking `.env` files
 - Fixed LinkedIn OAuth redirect URI hardcoding (now dynamic via `request.base_url`)
+- Frontend Dockerfile updated: `node:18-alpine` → `node:20-alpine`
 
 ### Data Integrity Migration v1 + v2 (Feb 2026)
 - 241+ orphaned records cleaned across all profile types
@@ -58,7 +61,7 @@ Full-stack HR compliance and management application with specialized dashboards 
 ## Prioritized Backlog
 
 ### P1 (High)
-- Partner institution logos hotlinking fix (user verification pending)
+- Partner institution logos hotlinking fix (production DB — user needs to run mongosh script)
 
 ### P2 (Medium)
 - Browser locale-based auto-detect language feature
@@ -69,6 +72,13 @@ Full-stack HR compliance and management application with specialized dashboards 
 - Full deep translation of all pages (form labels, table columns)
 - CI/CD pipeline
 
+## Deployment Notes
+- Frontend Docker image: `node:20-alpine` (required for react-router-dom@7.9.6)
+- Backend Docker image: `python:3.11-slim`
+- Blockchain dependencies (web3, eth-account, etc.) are core features — required for production
+- Health check: `/api/health` returns `{"status": "healthy"}`
+- No hardcoded secrets in source — all via .env
+
 ## Testing History
 | Iter | Scope | Result |
 |------|-------|--------|
@@ -77,7 +87,8 @@ Full-stack HR compliance and management application with specialized dashboards 
 | 28 | Data migration v1 | 100% (12/12) |
 | 29 | Data health dashboard | 100% (11/11) |
 | 30 | Auto-repair feature | 100% (18/18) |
-| 31 | WorkPassport print resume | 100% (11/11) |
+| 31 | WorkPassport print resume (v1) | 100% (11/11) |
+| 32 | WorkPassport two-column print resume (v2) | 100% (21/21) |
 
 ---
 *Last Updated: February 2026*
