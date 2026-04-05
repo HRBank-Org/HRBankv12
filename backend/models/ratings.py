@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class WorkforceRating(BaseModel):
@@ -29,8 +29,8 @@ class WorkforceRating(BaseModel):
     comments: Optional[str] = None
     
     # Metadata
-    review_date: datetime = Field(default_factory=datetime.utcnow)
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    review_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class EmployerRating(BaseModel):
     """Workforce rates employer after shift completion"""
@@ -57,5 +57,5 @@ class EmployerRating(BaseModel):
     comments: Optional[str] = None
     
     # Metadata
-    review_date: datetime = Field(default_factory=datetime.utcnow)
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    review_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

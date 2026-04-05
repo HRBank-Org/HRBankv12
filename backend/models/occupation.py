@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class OccupationProfile(BaseModel):
@@ -36,8 +36,8 @@ class OccupationProfile(BaseModel):
     active: bool = True  # Can be set to false to "pause" this occupation
     profile_completeness: int = 0  # Calculated: skills (33%), certs (33%), rate (34%)
     
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class OccupationRating(BaseModel):
     """Rating for a specific occupation (skill-based)"""
@@ -56,7 +56,7 @@ class OccupationRating(BaseModel):
     
     skill_rating_overall: float  # Average of above
     comment: Optional[str] = None
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class GeneralRating(BaseModel):
     """General rating for workforce (behavior, not occupation-specific)"""
@@ -75,7 +75,7 @@ class GeneralRating(BaseModel):
     
     general_rating_overall: float  # Average of above
     comment: Optional[str] = None
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CredentialApproval(BaseModel):
     """Admin approval step for verified credentials"""
@@ -98,4 +98,4 @@ class CredentialApproval(BaseModel):
     admin_rejection_reason: Optional[str] = None
     
     status: str = 'pending_institution'  # pending_institution, pending_admin, approved, rejected
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

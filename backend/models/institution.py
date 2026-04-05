@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class InstitutionProfile(BaseModel):
@@ -35,8 +35,8 @@ class InstitutionProfile(BaseModel):
     api_key_created_date: Optional[datetime] = None
     total_verified: int = 0
     avg_verification_time_days: float = 0.0
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CredentialVerificationRequest(BaseModel):
     """Verification request for institution"""
@@ -46,11 +46,11 @@ class CredentialVerificationRequest(BaseModel):
     workforce_id: str
     credential_id: str
     assigned_to_institution_id: str
-    requested_date: datetime = Field(default_factory=datetime.utcnow)
+    requested_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     status: str = 'pending'  # pending, in_progress, verified, rejected
     verified_by_institution_id: Optional[str] = None
     verification_date: Optional[datetime] = None
     rejection_reason: Optional[str] = None
     notes: Optional[str] = None
     priority: str = 'normal'  # normal, urgent
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

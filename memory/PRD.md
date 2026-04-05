@@ -20,44 +20,35 @@ Full-stack HR compliance and management application with specialized dashboards 
 - Docker Hub: `qaisijoe/hrbank-frontend:latest`
 - Node version: `node:20-alpine`
 - Auth: JWT-based, `users` collection with `password_hash`
+- Admin test account: `admin@test.com` / `Admin123!` (super_admin)
 
 ## What's Been Implemented
 
+### Deployment Readiness (Feb 2026)
+- **Fixed `.gitignore`**: Removed blocking of `.env` files for deployment
+- **Fixed `.dockerignore`**: Removed blocking of `backend/.env` from Docker builds
+- **Deployment status**: App is deployment-ready for AWS Lightsail Docker setup
+- Blockchain dependencies noted (works on user's own Docker/Lightsail, not Emergent managed hosting)
+
+### Pydantic Model Standardization (Feb 2026)
+- **Fixed `datetime.utcnow`** → `datetime.now(timezone.utc)` across ALL 8 model files (deprecated in Python 3.12+)
+- **Added `ConfigDict(extra="ignore")`** to `CredentialRequest`, `VerifiedCredential`, `ShiftRatingRequest`, `ShiftRating` models
+- **Added `timezone` import** to all model files needing it
+- Files updated: `occupation.py`, `workforce.py`, `employment.py`, `ratings.py`, `employer.py`, `institution.py`, `credentials.py`, `shift_ratings.py`
+
 ### Data Health Monitor Dashboard (Feb 2026)
 - **New admin page**: `/admin/data-health` with real-time integrity scanning
-- **Backend API**: `GET /api/admin/data-health` (auth-protected, admin/super_admin only)
-- Shows: Profile collections health, related data orphan counts, special checks (ratings, credentials, sync)
-- Color-coded cards: green checkmarks for clean, red alerts for issues
-- Refresh button for on-demand scanning
-- Sidebar link added to SuperAdminSidebar under Analytics
+- **Backend API**: `GET /api/admin/data-health` (auth-protected)
+- Shows: Profile collections health, related data orphan counts, special checks
 - **TESTED**: Iteration 29 — 100% pass (11/11 backend, all frontend UI tests)
 
 ### Data Integrity Migration v1 + v2 (Feb 2026)
-- **Migration v1** (workforce-focused):
-  - Purged 86 orphaned `occupation_profiles`
-  - Propagated 41 `shift_ratings` to workforce_profiles (general_rating_avg/count)
-  - Cleaned 12 broken `employment_relationships`
-  - Added `workforce_id` to 16 `blockchain_credentials`
-  - Synced `occupation_count` on workforce_profiles
-  - Created 6 database indexes
-- **Migration v2** (all profile types):
-  - Cleaned 2 orphan `admin_profiles`
-  - Cleaned 5 orphan `employer_profiles`
-  - Cleaned 77 orphan `institution_profiles` (test/seed data)
-  - Cleaned 1 orphan `workpassport_profile`
-  - Cleaned 43 orphan `workforce_profiles` (including 30 with null workforce_id)
-  - Cleaned 52 orphan `attendance_records`
-  - Cleaned 13 orphan `timesheets`
-  - Cleaned 17 orphan `notifications`
-  - Cleaned 22 orphan `eula_acceptances`
-  - Plus 9 more orphans from one user (wkr_78b3bac9cc7d)
-  - **Total cleaned: 241 orphaned records**
-- **Backend route updates**: `occupations.py`, `shift_ratings.py`, `workpassport.py`, `workforce.py` — all updated with `$or` queries for backward compatibility
-- **TESTED**: Iterations 28 (backend 100%), 29 (full 100%)
+- **Total cleaned: 241+ orphaned records** across all profile types and related collections
+- Backend routes updated with `$or` queries for backward compatibility
+- **TESTED**: Iterations 28, 29 — 100% pass
 
 ### Multi-Language Translation System (Feb 2026)
-- 7 languages: English, French, Spanish, Portuguese, Chinese, Arabic, Hindi
-- All 195+ pages, 4 headers, 4 sidebars translated
+- 7 languages, 195+ pages, all headers/sidebars translated
 - **TESTED**: Iteration 27 — 100% pass
 
 ### Sidebar Navigation Persistence (Dec 2025)
@@ -67,28 +58,16 @@ Full-stack HR compliance and management application with specialized dashboards 
 ### Leaderboard Feature
 - Built but temporarily hidden (no institutions onboarded yet)
 
-## Database Integrity Status (Post All Migrations)
-- `occupation_profiles`: 3 valid records, 0 orphans
-- `shift_ratings`: 41 records, all linked
-- `employment_relationships`: 11 valid, 0 broken
-- `blockchain_credentials`: 16, all with workforce_id
-- `workforce_profiles`: 72 valid, 0 orphans
-- `employer_profiles`: 35 valid, 0 orphans
-- `institution_profiles`: 23 valid, 0 orphans
-- `workpassport_profiles`: 17 valid, 0 orphans
-- `attendance_records`: 121, 0 orphans
-- `timesheets`: 22, 0 orphans
-- `notifications`: 123, 0 orphans
-- **Health Status: HEALTHY (0 total issues)**
+## Database Integrity Status (Healthy)
+- All profile collections: 0 orphans
+- All related data: 0 orphans
+- Shift ratings propagated, occupation counts synced
+- 6 database indexes for query performance
 
 ## Prioritized Backlog
 
-### P0 (Critical)
-- None
-
 ### P1 (High)
-- Standardize backend Pydantic models for occupation.py, workforce.py (schema enforcement)
-- Partner institution logos hotlinking fix (user verification pending)
+- Partner institution logos hotlinking fix (user verification pending on production DB)
 
 ### P2 (Medium)
 - Browser locale-based auto-detect language feature
@@ -107,7 +86,7 @@ Full-stack HR compliance and management application with specialized dashboards 
 | 26 | Sidebar fix verification | 100% |
 | 27 | Translation UI testing | 100% |
 | 28 | Data migration v1 (backend) | 100% (12/12) |
-| 29 | Data health dashboard (full) | 100% (11/11 backend + all frontend) |
+| 29 | Data health dashboard (full) | 100% (11/11 backend + frontend) |
 
 ---
 *Last Updated: February 2026*

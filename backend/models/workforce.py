@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import uuid
 
 class WorkforceProfile(BaseModel):
@@ -100,8 +100,8 @@ class WorkforceProfile(BaseModel):
     
     # Account status
     onboarding_completed: bool = False
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class WorkforceCredential(BaseModel):
     """Worker credential with 3-step approval (submit → institution verify → admin approve)"""
@@ -119,7 +119,7 @@ class WorkforceCredential(BaseModel):
     document_url: str
     
     # Step 1: Worker submission
-    submitted_date: datetime = Field(default_factory=datetime.utcnow)
+    submitted_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Step 2: Institution verification
     institution_verification_status: str = 'pending'  # pending, verified, rejected
@@ -149,4 +149,4 @@ class CredentialType(BaseModel):
     description: str
     typical_expiration_years: Optional[int] = None
     verifying_institutions: List[str] = []  # institution_ids that can verify
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

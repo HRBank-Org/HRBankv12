@@ -1,10 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime, timezone
 import uuid
 
 class CredentialRequest(BaseModel):
     """Worker's credential pending institution verification"""
+    model_config = ConfigDict(extra="ignore")
+    
     credential_id: str = Field(default_factory=lambda: f"cred_{uuid.uuid4().hex[:12]}")
     worker_id: str
     worker_name: str
@@ -38,6 +40,8 @@ class CredentialRequest(BaseModel):
     
 class VerifiedCredential(BaseModel):
     """Verified credential displayed on worker profile"""
+    model_config = ConfigDict(extra="ignore")
+    
     credential_id: str
     credential_type: str
     credential_name: str

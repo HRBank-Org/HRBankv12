@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict
 from datetime import datetime
 
@@ -22,6 +22,8 @@ class EmployerRatingCategories(BaseModel):
 
 class ShiftRatingRequest(BaseModel):
     """Request to submit shift rating"""
+    model_config = ConfigDict(extra="ignore")
+    
     shift_id: str
     worker_id: str
     worker_ratings: WorkerRatingCategories
@@ -31,6 +33,8 @@ class ShiftRatingRequest(BaseModel):
 
 class ShiftRating(BaseModel):
     """Shift rating document"""
+    model_config = ConfigDict(extra="ignore")
+    
     rating_id: str
     shift_id: str
     employer_id: str

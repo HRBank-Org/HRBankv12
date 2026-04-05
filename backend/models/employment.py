@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class EmploymentRelationship(BaseModel):
@@ -18,7 +18,7 @@ class EmploymentRelationship(BaseModel):
     
     # Status tracking
     status: str = 'active'  # active, inactive, terminated, suspended
-    employment_start_date: datetime = Field(default_factory=datetime.utcnow)
+    employment_start_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     employment_end_date: Optional[datetime] = None
     last_worked_date: Optional[datetime] = None
     
@@ -37,8 +37,8 @@ class EmploymentRelationship(BaseModel):
     rehire_notes: Optional[str] = None
     
     # Metadata
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class TerminationRequest(BaseModel):

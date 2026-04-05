@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict
-from datetime import datetime, time, date
+from datetime import datetime, time, date, timezone
 import uuid
 
 class EmployerProfile(BaseModel):
@@ -34,8 +34,8 @@ class EmployerProfile(BaseModel):
     rating_count: int = 0
     total_workers_hired: int = 0
     onboarding_completed: bool = False
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Workplace(BaseModel):
     """Workplace/Location for employer"""
@@ -83,8 +83,8 @@ class Workplace(BaseModel):
     auto_scheduling_enabled: bool = False
     notification_preferences: Dict = Field(default_factory=dict)
     status: str = 'active'  # 'active' | 'inactive'
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ShiftTemplate(BaseModel):
     """Reusable shift template"""
@@ -108,7 +108,7 @@ class ShiftTemplate(BaseModel):
         }
     )
     roles_template: List[Dict] = []  # [{role_title, required_skills, hourly_rate}]
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Shift(BaseModel):
     """Work shift"""
@@ -130,8 +130,8 @@ class Shift(BaseModel):
         }
     )
     status: str = 'open'  # open, filled, completed
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Role(BaseModel):
     """Role within a shift"""
@@ -148,7 +148,7 @@ class Role(BaseModel):
     estimated_overtime_hours: Optional[float] = None
     tasks: List[str] = []  # task_ids
     status: str = 'open'  # open, filled, completed
-    created_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Booking(BaseModel):
     """Worker booking for a role"""
@@ -161,5 +161,5 @@ class Booking(BaseModel):
     status: str = 'pending'  # pending, accepted, declined, completed
     accepted_date: Optional[datetime] = None
     auto_scheduled: bool = False
-    created_date: datetime = Field(default_factory=datetime.utcnow)
-    updated_date: datetime = Field(default_factory=datetime.utcnow)
+    created_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
