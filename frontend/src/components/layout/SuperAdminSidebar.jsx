@@ -278,6 +278,12 @@ const SuperAdminSidebar = () => {
           icon: Clock,
           path: '/admin/audit-logs',
           badge: null
+        },
+        {
+          label: 'Data Health',
+          icon: Activity,
+          path: '/admin/data-health',
+          badge: null
         }
       ]
     },

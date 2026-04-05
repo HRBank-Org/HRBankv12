@@ -116,6 +116,7 @@ import InstitutionDirectory from './pages/admin/InstitutionDirectory';
 import GeoAccessSettings from './pages/admin/GeoAccessSettings';
 import InsuranceReview from './pages/admin/InsuranceReview';
 import JurisdictionExpansionReview from './pages/admin/JurisdictionExpansionReview';
+import DataHealthDashboard from './pages/admin/DataHealthDashboard';
 import JurisdictionSettings from './pages/employer/JurisdictionSettings';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
@@ -475,6 +476,7 @@ function AppRoutes() {
         <Route path="/admin/support-tickets" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><SupportTickets /></ProtectedRoute>} />
         <Route path="/admin/reported-issues" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><ReportedIssues /></ProtectedRoute>} />
         <Route path="/admin/audit-logs" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AuditLogs /></ProtectedRoute>} />
+        <Route path="/admin/data-health" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><DataHealthDashboard /></ProtectedRoute>} />
         <Route path="/admin/notification-settings" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><NotificationSettings /></ProtectedRoute>} />
         <Route path="/admin/invoices" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><AdminInvoices /></ProtectedRoute>} />
         <Route path="/admin/partners" element={<ProtectedRoute allowedUserTypes={['admin', 'super_admin']}><PartnerManagement /></ProtectedRoute>} />
