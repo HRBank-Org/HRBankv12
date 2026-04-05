@@ -16,7 +16,7 @@ backend/__pycache__
 backend/*.pyc
 backend/*.pyo
 backend/.pytest_cache
-backend/.env
+# backend/.env is required for deployment
 backend/venv
 backend/.venv
 *.egg-info

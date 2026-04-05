@@ -1,18 +1,8 @@
 # ============================================
-# SECURITY - Environment & Secrets (CRITICAL)
+# SECURITY - Environment & Secrets
 # ============================================
-# All .env files - NEVER commit credentials
-.env
-.env.*
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production
-.env.production.local
-**/.env
-**/.env.*
+# Note: .env files are tracked for deployment
+# Do NOT commit real secrets to public repos
 
 # API keys, tokens, credentials
 *token.json*
