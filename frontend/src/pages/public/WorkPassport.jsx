@@ -739,163 +739,183 @@ const WorkPassport = () => {
         </div>
       </div>
 
-      {/* ============ PRINT VERSION — Professional Resume ============ */}
+      {/* ============ PRINT VERSION — Two-Column Professional Resume ============ */}
       <div className="print-resume" data-testid="print-resume">
 
-        {/* Resume Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ flex: 1 }}>
-            <h1 className="resume-name">{profile.full_name}</h1>
-            <p className="resume-subtitle">
-              {profile.occupation_profiles?.length > 0
-                ? profile.occupation_profiles.map(o => o.occupation_title).join(' | ')
-                : 'Verified Professional'}
-            </p>
-            <div className="resume-meta" style={{ marginTop: '6px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              {profile.location && (
-                <span>{[profile.location.city, profile.location.province, profile.location.country].filter(Boolean).join(', ')}</span>
+        {/* LEFT SIDEBAR — Dark Navy */}
+        <div className="resume-sidebar">
+          <div className="resume-sidebar-name">{profile.full_name}</div>
+          <div className="resume-sidebar-titles">
+            {profile.occupation_profiles?.length > 0
+              ? profile.occupation_profiles.map(o => o.occupation_title).join(' | ')
+              : 'Verified Professional'}
+          </div>
+
+          {/* Summary Stats */}
+          {profile.summary && (
+            <div className="resume-sidebar-section">
+              <div className="resume-sidebar-heading">Overview</div>
+              <div className="resume-sidebar-stat">
+                <span className="resume-sidebar-stat-label">Occupations</span>
+                <span className="resume-sidebar-stat-val">{profile.summary.total_occupations}</span>
+              </div>
+              {profile.summary.years_of_experience !== null && (
+                <div className="resume-sidebar-stat">
+                  <span className="resume-sidebar-stat-label">Years Exp.</span>
+                  <span className="resume-sidebar-stat-val">{profile.summary.years_of_experience}</span>
+                </div>
               )}
-              {profile.member_since && (
-                <span>Member since {new Date(profile.member_since).toLocaleDateString('en-CA', { month: 'long', year: 'numeric' })}</span>
+              {profile.summary.total_hours_worked !== null && (
+                <div className="resume-sidebar-stat">
+                  <span className="resume-sidebar-stat-label">Hours Worked</span>
+                  <span className="resume-sidebar-stat-val">{profile.summary.total_hours_worked?.toLocaleString()}</span>
+                </div>
               )}
-              <span>WorkPassport&trade; {profile.profile_code}</span>
+              {profile.summary.average_rating !== null && (
+                <div className="resume-sidebar-stat">
+                  <span className="resume-sidebar-stat-label">Avg Rating</span>
+                  <span className="resume-sidebar-stat-val">{profile.summary.average_rating}/5</span>
+                </div>
+              )}
             </div>
-          </div>
-          <div className="resume-qr-block" style={{ marginLeft: '20px', flexShrink: 0 }}>
-            <QRCodeSVG value={passportUrl} size={72} level="M" />
-            <p style={{ fontSize: '7pt', color: '#888', marginTop: '2px' }}>Scan to verify</p>
-          </div>
-        </div>
+          )}
 
-        <hr className="resume-hr" />
-
-        {/* Summary Stats */}
-        {profile.summary && (
-          <div className="resume-stats-grid">
-            <div className="resume-stat-cell">
-              <div className="resume-stat-val">{profile.summary.total_occupations}</div>
-              <div className="resume-stat-label">Occupations</div>
-            </div>
-            {profile.summary.years_of_experience !== null && (
-              <div className="resume-stat-cell">
-                <div className="resume-stat-val">{profile.summary.years_of_experience}</div>
-                <div className="resume-stat-label">Years Experience</div>
-              </div>
-            )}
-            {profile.summary.total_hours_worked !== null && (
-              <div className="resume-stat-cell">
-                <div className="resume-stat-val">{profile.summary.total_hours_worked?.toLocaleString()}</div>
-                <div className="resume-stat-label">Hours Worked</div>
-              </div>
-            )}
-            {profile.summary.average_rating !== null && (
-              <div className="resume-stat-cell">
-                <div className="resume-stat-val">{profile.summary.average_rating} / 5</div>
-                <div className="resume-stat-label">Avg Rating</div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Security Clearances */}
-        {profile.security_verifications?.length > 0 && (
-          <div style={{ marginBottom: '12px' }}>
-            <div className="resume-section-title">Security Clearances</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {profile.security_verifications.map((v, i) => (
-                <span key={i} className="resume-skill-tag">{v.label}</span>
+          {/* Aggregated Skills */}
+          {profile.occupation_profiles?.some(o => o.skills?.length > 0) && (
+            <div className="resume-sidebar-section">
+              <div className="resume-sidebar-heading">Skills</div>
+              {[...new Set(profile.occupation_profiles.flatMap(o => o.skills || []))].map((skill, idx) => (
+                <div key={idx} className="resume-sidebar-skill">{skill}</div>
               ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Career Entries (Occupations + Experience) */}
-        {profile.occupation_profiles?.length > 0 && (
-          <div>
-            <div className="resume-section-title">Professional Experience</div>
-            {profile.occupation_profiles.map((occ, index) => (
-              <div key={occ.occupation_id || index} className="resume-entry">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span className="resume-entry-title">{occ.occupation_title}</span>
-                  <span className="resume-entry-sub">
-                    {[
-                      occ.years_of_experience !== undefined && `${occ.years_of_experience} yrs`,
-                      occ.total_hours_worked !== undefined && `${occ.total_hours_worked.toLocaleString()} hrs`,
-                      occ.skill_rating_avg && `${occ.skill_rating_avg.toFixed(1)}/5 rating`
-                    ].filter(Boolean).join(' \u00b7 ')}
-                  </span>
+          {/* Security Clearances */}
+          {profile.security_verifications?.length > 0 && (
+            <div className="resume-sidebar-section">
+              <div className="resume-sidebar-heading">Clearances</div>
+              {profile.security_verifications.map((v, i) => (
+                <span key={i} className="resume-sidebar-badge">{v.label}</span>
+              ))}
+            </div>
+          )}
+
+          {/* Certifications in sidebar */}
+          {profile.blockchain_credentials?.length > 0 && (
+            <div className="resume-sidebar-section">
+              <div className="resume-sidebar-heading">Certifications</div>
+              {profile.blockchain_credentials.map((cred, idx) => (
+                <div key={cred.credential_id || idx} className="resume-sidebar-skill">
+                  {cred.credential_name}
                 </div>
-                {occ.occupation_category && (
-                  <p className="resume-entry-sub" style={{ marginTop: '1px' }}>{occ.occupation_category}</p>
-                )}
+              ))}
+            </div>
+          )}
 
-                {/* Skills inline */}
-                {occ.skills?.length > 0 && (
-                  <div style={{ marginTop: '4px' }}>
-                    {occ.skills.map((skill, idx) => (
-                      <span key={idx} className="resume-skill-tag">{skill}</span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Credentials under this occupation */}
-                {occ.credentials?.length > 0 && (
-                  <div style={{ marginTop: '6px', paddingLeft: '8px', borderLeft: '2px solid #ddd' }}>
-                    {occ.credentials.map((cred, idx) => (
-                      <div key={idx} className="resume-cred-row">
-                        <span className="resume-entry-detail">{cred.credential_name}</span>
-                        <span className="resume-entry-sub">{cred.institution_name} &mdash; Verified</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Employment history under this occupation */}
-                {occ.employment_history?.length > 0 && (
-                  <div style={{ marginTop: '6px', paddingLeft: '8px', borderLeft: '2px solid #ddd' }}>
-                    {occ.employment_history.slice(0, 5).map((emp, idx) => (
-                      <div key={idx} className="resume-cred-row">
-                        <span className="resume-entry-detail">
-                          {emp.company_name}{emp.position_title ? ` \u2014 ${emp.position_title}` : ''}
-                        </span>
-                        <span className="resume-entry-sub">
-                          {emp.total_shifts} shifts &middot; {emp.total_hours} hrs
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {index < profile.occupation_profiles.length - 1 && <hr className="resume-hr-thin" />}
-              </div>
-            ))}
+          {/* QR Code — pinned to bottom */}
+          <div className="resume-sidebar-qr">
+            <QRCodeSVG value={passportUrl} size={64} level="M" />
+            <p>Scan to verify</p>
           </div>
-        )}
-
-        {/* Blockchain Credentials */}
-        {profile.blockchain_credentials?.length > 0 && (
-          <div style={{ marginTop: '12px' }}>
-            <div className="resume-section-title">Verified Credentials</div>
-            {profile.blockchain_credentials.map((cred, index) => (
-              <div key={cred.credential_id || index} className="resume-cred-row resume-entry">
-                <div>
-                  <span className="resume-entry-detail" style={{ fontWeight: 600 }}>{cred.credential_name}</span>
-                  {cred.program_name && <span className="resume-entry-sub"> &mdash; {cred.program_name}</span>}
-                </div>
-                <span className="resume-entry-sub">
-                  {cred.institution_name}{cred.on_chain ? ' \u00b7 Blockchain Verified' : ''}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="resume-footer">
-          <p>This resume was generated from a blockchain-verified WorkPassport&trade; by HR Bank</p>
-          <p style={{ marginTop: '2px' }}>Verify at: {passportUrl}</p>
-          <p style={{ marginTop: '2px' }}>&copy; {new Date().getFullYear()} HR Bank &mdash; hrbank.ca</p>
         </div>
+
+        {/* RIGHT MAIN CONTENT — White */}
+        <div className="resume-main">
+
+          {/* Contact Bar */}
+          <div className="resume-main-contact">
+            {profile.location && (
+              <span>{[profile.location.city, profile.location.province, profile.location.country].filter(Boolean).join(', ')}</span>
+            )}
+            {profile.member_since && (
+              <span>Member since {new Date(profile.member_since).toLocaleDateString('en-CA', { month: 'long', year: 'numeric' })}</span>
+            )}
+            <span>ID: {profile.profile_code}</span>
+          </div>
+
+          {/* Professional Experience */}
+          {profile.occupation_profiles?.length > 0 && (
+            <div className="resume-section">
+              <div className="resume-section-heading">Professional Experience</div>
+              {profile.occupation_profiles.map((occ, index) => (
+                <div key={occ.occupation_id || index} className="resume-exp-entry">
+                  <div className="resume-exp-header">
+                    <span className="resume-exp-title">{occ.occupation_title}</span>
+                    <span className="resume-exp-meta">
+                      {[
+                        occ.years_of_experience !== undefined && `${occ.years_of_experience} yrs`,
+                        occ.total_hours_worked !== undefined && `${occ.total_hours_worked.toLocaleString()} hrs`,
+                        occ.skill_rating_avg && `${occ.skill_rating_avg.toFixed(1)}/5`
+                      ].filter(Boolean).join(' · ')}
+                    </span>
+                  </div>
+                  {occ.occupation_category && (
+                    <div className="resume-exp-category">{occ.occupation_category}</div>
+                  )}
+
+                  {/* Employment history as bullet points */}
+                  {occ.employment_history?.length > 0 && (
+                    <ul className="resume-exp-bullets">
+                      {occ.employment_history.slice(0, 5).map((emp, idx) => (
+                        <li key={idx} className="resume-exp-bullet">
+                          {emp.company_name}{emp.position_title ? ` — ${emp.position_title}` : ''} ({emp.total_shifts} shifts, {emp.total_hours} hrs)
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Credentials under this occupation */}
+                  {occ.credentials?.length > 0 && (
+                    <ul className="resume-exp-bullets">
+                      {occ.credentials.map((cred, idx) => (
+                        <li key={idx} className="resume-exp-bullet">
+                          {cred.credential_name} — {cred.institution_name} (Verified)
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Skills tags */}
+                  {occ.skills?.length > 0 && (
+                    <div className="resume-exp-skills">
+                      {occ.skills.map((skill, idx) => (
+                        <span key={idx} className="resume-exp-skill-tag">{skill}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Verified Credentials */}
+          {profile.blockchain_credentials?.length > 0 && (
+            <div className="resume-section">
+              <div className="resume-section-heading">Verified Credentials</div>
+              {profile.blockchain_credentials.map((cred, index) => (
+                <div key={cred.credential_id || index} className="resume-cred-item">
+                  <div>
+                    <div className="resume-cred-name">{cred.credential_name}</div>
+                    <div className="resume-cred-issuer">
+                      {cred.institution_name}{cred.program_name ? ` — ${cred.program_name}` : ''}
+                    </div>
+                  </div>
+                  {cred.on_chain && (
+                    <span className="resume-cred-badge">BLOCKCHAIN</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="resume-print-footer">
+            <p>Generated from a blockchain-verified WorkPassport&trade; by HR Bank</p>
+            <p>Verify: {passportUrl}</p>
+            <p>&copy; {new Date().getFullYear()} HR Bank — hrbank.ca</p>
+          </div>
+        </div>
+
       </div>
     </>
   );
