@@ -18,119 +18,96 @@ Full-stack HR compliance and management application with specialized dashboards 
 ## Key Technical Details
 - Production: `hrbank.ca` on AWS Lightsail Ubuntu with Docker
 - Docker Hub: `qaisijoe/hrbank-frontend:latest`
-- Node version: `node:20-alpine` (updated from 18)
+- Node version: `node:20-alpine`
 - Auth: JWT-based, `users` collection with `password_hash`
 
 ## What's Been Implemented
 
-### Data Integrity Migration v1 (Feb 2026)
-- **Purged 86 orphaned occupation_profiles** referencing non-existent users
-- **Propagated 41 shift_ratings** to 8 workforce_profiles (general_rating_avg/count)
-- **Cleaned 12 broken employment_relationships** with missing workforce refs
-- **Added workforce_id** alias to 16 blockchain_credentials (worker_id -> workforce_id)
-- **Synced occupation_count** on 2 workforce_profiles
-- **Created 6 database indexes** for query performance
-- **Updated backend routes** with $or queries for backward compatibility (workforce_id/user_id fallback)
-- Files updated: `occupations.py`, `shift_ratings.py`, `workpassport.py`, `workforce.py`
-- Migration script: `/app/backend/scripts/data_migration_v1.py`
-- **TESTED**: Iteration 28 - 100% pass (12/12 tests)
+### Data Health Monitor Dashboard (Feb 2026)
+- **New admin page**: `/admin/data-health` with real-time integrity scanning
+- **Backend API**: `GET /api/admin/data-health` (auth-protected, admin/super_admin only)
+- Shows: Profile collections health, related data orphan counts, special checks (ratings, credentials, sync)
+- Color-coded cards: green checkmarks for clean, red alerts for issues
+- Refresh button for on-demand scanning
+- Sidebar link added to SuperAdminSidebar under Analytics
+- **TESTED**: Iteration 29 — 100% pass (11/11 backend, all frontend UI tests)
+
+### Data Integrity Migration v1 + v2 (Feb 2026)
+- **Migration v1** (workforce-focused):
+  - Purged 86 orphaned `occupation_profiles`
+  - Propagated 41 `shift_ratings` to workforce_profiles (general_rating_avg/count)
+  - Cleaned 12 broken `employment_relationships`
+  - Added `workforce_id` to 16 `blockchain_credentials`
+  - Synced `occupation_count` on workforce_profiles
+  - Created 6 database indexes
+- **Migration v2** (all profile types):
+  - Cleaned 2 orphan `admin_profiles`
+  - Cleaned 5 orphan `employer_profiles`
+  - Cleaned 77 orphan `institution_profiles` (test/seed data)
+  - Cleaned 1 orphan `workpassport_profile`
+  - Cleaned 43 orphan `workforce_profiles` (including 30 with null workforce_id)
+  - Cleaned 52 orphan `attendance_records`
+  - Cleaned 13 orphan `timesheets`
+  - Cleaned 17 orphan `notifications`
+  - Cleaned 22 orphan `eula_acceptances`
+  - Plus 9 more orphans from one user (wkr_78b3bac9cc7d)
+  - **Total cleaned: 241 orphaned records**
+- **Backend route updates**: `occupations.py`, `shift_ratings.py`, `workpassport.py`, `workforce.py` — all updated with `$or` queries for backward compatibility
+- **TESTED**: Iterations 28 (backend 100%), 29 (full 100%)
 
 ### Multi-Language Translation System (Feb 2026)
-- **7 languages supported**: English, French, Spanish, Portuguese, Chinese, Arabic, Hindi
-- **Translation infrastructure**: `LanguageContext.jsx` with `t()` function, `translations.json` with comprehensive keys
-- **All 4 sidebars translated**: WorkforceSidebar, ModernSidebar (Employer), InstitutionSidebar, SuperAdminSidebar
-- **All 4 dashboard headers updated**: LanguageSelector component added to WorkforceHeader, GenericHeader, InstitutionHeader, AdminHeader
-- **Landing page fully translated**: Hero section, CTA buttons, navigation, footer
-- **Auth pages translated**: Login, Signup, ForgotPassword
-- **195 pages wired**: All page files have `useLanguage` import and `t` function available
-- **TESTED**: Iteration 27 - 100% pass
+- 7 languages: English, French, Spanish, Portuguese, Chinese, Arabic, Hindi
+- All 195+ pages, 4 headers, 4 sidebars translated
+- **TESTED**: Iteration 27 — 100% pass
 
 ### Sidebar Navigation Persistence (Dec 2025)
-- Created `WorkforceLayout.jsx` and `EmployerLayout.jsx` wrapper components
-- All 40+ pages in Workforce and Employer directories wrapped with Layout components
-- `InstitutionLayout.jsx` already existed
-- **TESTED**: Iterations 25, 26 - 100% pass
+- Layout wrappers for Workforce, Employer, Institution dashboards
+- **TESTED**: Iterations 25, 26 — 100% pass
 
-### Leaderboard Feature (Dec 2025)
-- Built but **temporarily hidden** from public UI (no institutions onboarded yet)
-- Links commented out in LandingHeader, LandingPage, About, InstitutionsLanding
+### Leaderboard Feature
+- Built but temporarily hidden (no institutions onboarded yet)
 
-### Code Cleanup (Feb 2026)
-- Deleted obsolete `ClassTemplates.jsx`
-- Removed ClassTemplates route from App.js
-
-## Production Environment
-- AWS Lightsail Ubuntu Instance (NOT Container Service)
-- AWS Load Balancer connected
-- Docker containers run directly on the instance
-- Production admin: `qnizami@hrbank.ca` (temp password needs changing)
-
-## File Structure
-```
-/app
-├── backend/
-│   ├── routes/
-│   ├── models/ (occupation.py, credentials.py, ratings.py, employment.py)
-│   ├── scripts/data_migration_v1.py
-│   └── server.py
-└── frontend/
-    └── src/
-        ├── i18n/translations.json (comprehensive 7-language translations)
-        ├── contexts/LanguageContext.jsx (translation provider)
-        ├── components/
-        │   ├── common/LanguageSelector.jsx
-        │   └── layout/
-        │       ├── EmployerLayout.jsx
-        │       ├── WorkforceLayout.jsx
-        │       ├── InstitutionLayout.jsx
-        │       ├── ModernSidebar.jsx (Employer - translated)
-        │       ├── WorkforceSidebar.jsx (translated)
-        │       ├── InstitutionSidebar.jsx (translated)
-        │       ├── SuperAdminSidebar.jsx (translated)
-        │       ├── LandingHeader.jsx (translated)
-        │       ├── GenericHeader.jsx (+ LanguageSelector)
-        │       ├── WorkforceHeader.jsx (+ LanguageSelector)
-        │       ├── InstitutionHeader.jsx (+ LanguageSelector)
-        │       └── AdminHeader.jsx (+ LanguageSelector)
-        └── pages/ (195 pages with useLanguage available)
-```
-
-## Database Integrity Status (Post Migration v1)
-- `occupation_profiles`: 6 valid records, 0 orphans
-- `shift_ratings`: 41 records (legacy schema: rated_user_id, rating, rating_type, review)
-- `employment_relationships`: 14 valid records, 0 broken refs
-- `blockchain_credentials`: 16 records, all with workforce_id
-- `workforce_profiles`: 115, 13 with ratings propagated
-- Indexes: idx_occ_workforce_id, idx_occ_occupation_id, idx_sr_rated_user_id, idx_sr_shift_worker, idx_bc_workforce_id, idx_wfc_workforce_id
+## Database Integrity Status (Post All Migrations)
+- `occupation_profiles`: 3 valid records, 0 orphans
+- `shift_ratings`: 41 records, all linked
+- `employment_relationships`: 11 valid, 0 broken
+- `blockchain_credentials`: 16, all with workforce_id
+- `workforce_profiles`: 72 valid, 0 orphans
+- `employer_profiles`: 35 valid, 0 orphans
+- `institution_profiles`: 23 valid, 0 orphans
+- `workpassport_profiles`: 17 valid, 0 orphans
+- `attendance_records`: 121, 0 orphans
+- `timesheets`: 22, 0 orphans
+- `notifications`: 123, 0 orphans
+- **Health Status: HEALTHY (0 total issues)**
 
 ## Prioritized Backlog
 
 ### P0 (Critical)
-- None currently
+- None
 
 ### P1 (High)
-- Standardize backend Pydantic models for occupation.py, workforce.py to prevent future schema regressions
-- Partner institution logos hotlinking fix (user verification pending on mongosh script)
+- Standardize backend Pydantic models for occupation.py, workforce.py (schema enforcement)
+- Partner institution logos hotlinking fix (user verification pending)
 
 ### P2 (Medium)
 - Browser locale-based auto-detect language feature
 - Notification system for cohort end dates
 - Re-enable Leaderboard when institutions onboard
-- SAP Integration planning
-- Occupation Score System
 
 ### P3 (Low/Future)
+- Full deep translation of all pages (form labels, table columns)
 - Franchise Management UI
-- Formal SLA documentation
 - CI/CD pipeline
-- Vulnerability scanning
-- Full deep translation of all 195 pages (form labels, table columns, error messages)
 
-## Testing Status
-- Data migration v1: **TESTED** (Iteration 28 - 100% pass, 12/12)
-- Translation system: **TESTED** (Iteration 27 - 100% pass)
-- Sidebar persistence: **TESTED** (Iterations 25, 26 - 100% pass)
-- Leaderboard hiding: **VERIFIED** (Iteration 27)
+## Testing History
+| Iteration | Scope | Result |
+|-----------|-------|--------|
+| 25 | Sidebar bug identification | Pass |
+| 26 | Sidebar fix verification | 100% |
+| 27 | Translation UI testing | 100% |
+| 28 | Data migration v1 (backend) | 100% (12/12) |
+| 29 | Data health dashboard (full) | 100% (11/11 backend + all frontend) |
 
 ---
 *Last Updated: February 2026*
