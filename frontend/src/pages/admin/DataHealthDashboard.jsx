@@ -21,7 +21,8 @@ import {
   Bell,
   Star,
   Link2,
-  Activity
+  Activity,
+  Wrench
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
@@ -79,6 +80,8 @@ const DataHealthDashboard = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [repairing, setRepairing] = useState(false);
+  const [repairResult, setRepairResult] = useState(null);
 
   const loadHealth = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -94,6 +97,21 @@ const DataHealthDashboard = () => {
       setRefreshing(false);
     }
   }, []);
+
+  const runRepair = async () => {
+    setRepairing(true);
+    setRepairResult(null);
+    try {
+      const res = await api.post('/api/admin/data-health/repair');
+      setRepairResult(res.data.data);
+      await loadHealth(true);
+    } catch (err) {
+      setError('Repair failed: ' + (err?.response?.data?.detail || err.message));
+      console.error(err);
+    } finally {
+      setRepairing(false);
+    }
+  };
 
   useEffect(() => { loadHealth(); }, [loadHealth]);
 
@@ -148,6 +166,17 @@ const DataHealthDashboard = () => {
             </div>
             <div className="flex items-center gap-3">
               {data && <StatusBadge status={data.health_status} />}
+              {data && data.total_issues > 0 && (
+                <button
+                  data-testid="repair-btn"
+                  onClick={runRepair}
+                  disabled={repairing}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-500 transition-colors disabled:opacity-50"
+                >
+                  <Wrench size={14} className={repairing ? 'animate-spin' : ''} />
+                  {repairing ? 'Repairing...' : 'Auto-Repair'}
+                </button>
+              )}
               <button
                 data-testid="refresh-btn"
                 onClick={() => loadHealth(true)}
@@ -164,6 +193,48 @@ const DataHealthDashboard = () => {
           {error && (
             <div className="bg-red-950/30 border border-red-500/30 rounded-xl p-4 mb-6 text-red-300 text-sm">
               {error}
+            </div>
+          )}
+
+          {repairResult && (
+            <div data-testid="repair-result" className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-5 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-emerald-300 flex items-center gap-2">
+                  <CheckCircle size={16} />
+                  Repair Complete
+                </h3>
+                <button onClick={() => setRepairResult(null)} className="text-slate-400 hover:text-white text-xs">
+                  Dismiss
+                </button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                <div className="bg-slate-900/60 rounded-lg p-3">
+                  <p className="text-xs text-slate-400">Total Fixed</p>
+                  <p className="text-xl font-bold text-emerald-400">{repairResult.total_repaired}</p>
+                </div>
+                <div className="bg-slate-900/60 rounded-lg p-3">
+                  <p className="text-xs text-slate-400">Repaired By</p>
+                  <p className="text-sm font-medium text-slate-200 truncate">{repairResult.repaired_by}</p>
+                </div>
+                <div className="bg-slate-900/60 rounded-lg p-3">
+                  <p className="text-xs text-slate-400">Timestamp</p>
+                  <p className="text-sm font-medium text-slate-200">{new Date(repairResult.repair_timestamp).toLocaleTimeString()}</p>
+                </div>
+                <div className="bg-slate-900/60 rounded-lg p-3">
+                  <p className="text-xs text-slate-400">Ratings Synced</p>
+                  <p className="text-xl font-bold text-amber-400">{repairResult.repairs?.ratings_propagated || 0}</p>
+                </div>
+              </div>
+              {Object.entries(repairResult.repairs || {}).filter(([, v]) => v > 0).length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(repairResult.repairs).filter(([, v]) => v > 0).map(([key, val]) => (
+                    <span key={key} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-800/60 text-xs text-slate-300">
+                      <span className="capitalize">{key.replace(/_/g, ' ')}</span>
+                      <span className="font-bold text-emerald-400">{val}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
