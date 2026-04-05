@@ -253,28 +253,50 @@ async def get_rating_analytics(
 
 async def update_worker_average_rating(db, worker_id: str, position_title: str):
     """
-    Update worker's average rating in their occupation profile
+    Update worker's average rating in their occupation profile AND workforce profile.
+    Handles both new schema (worker_overall_rating) and legacy schema (rating field).
     """
-    # Get all ratings for this worker
-    ratings = await db.shift_ratings.find({
-        "worker_id": worker_id
-    }, {"_id": 0, "worker_overall_rating": 1}).to_list(1000)
+    # Get all ratings for this worker (handle both schemas)
+    new_ratings = await db.shift_ratings.find(
+        {"worker_id": worker_id},
+        {"_id": 0, "worker_overall_rating": 1}
+    ).to_list(1000)
     
-    if not ratings:
+    legacy_ratings = await db.shift_ratings.find(
+        {"rated_user_id": worker_id},
+        {"_id": 0, "rating": 1}
+    ).to_list(1000)
+    
+    all_scores = []
+    for r in new_ratings:
+        if r.get("worker_overall_rating") is not None:
+            all_scores.append(r["worker_overall_rating"])
+    for r in legacy_ratings:
+        if r.get("rating") is not None:
+            all_scores.append(r["rating"])
+    
+    if not all_scores:
         return
     
-    avg_rating = sum(r["worker_overall_rating"] for r in ratings) / len(ratings)
+    avg_rating = round(sum(all_scores) / len(all_scores), 2)
+    total_count = len(all_scores)
     
-    # Update occupation profile
-    await db.occupation_profiles.update_one(
-        {
-            "workforce_id": worker_id,
-            "occupation_title": position_title
-        },
-        {
-            "$set": {
-                "general_rating_avg": round(avg_rating, 2),
-                "general_rating_count": len(ratings)
-            }
-        }
+    # Update occupation profile if matching one exists
+    if position_title:
+        await db.occupation_profiles.update_one(
+            {"workforce_id": worker_id, "occupation_title": position_title},
+            {"$set": {
+                "skill_rating_avg": avg_rating,
+                "skill_rating_count": total_count
+            }}
+        )
+    
+    # Always update workforce profile's general rating
+    await db.workforce_profiles.update_one(
+        {"workforce_id": worker_id},
+        {"$set": {
+            "general_rating_avg": avg_rating,
+            "general_rating_count": total_count,
+            "updated_date": datetime.now(timezone.utc).isoformat()
+        }}
     )

@@ -80,9 +80,9 @@ async def get_complete_profile(
             "country": "Canada"
         }
     
-    # Get occupation profiles with embedded employment history
+    # Get occupation profiles with embedded employment history (handle both field names)
     occupation_profiles = await db.occupation_profiles.find(
-        {"workforce_id": workforce_id},
+        {"$or": [{"workforce_id": workforce_id}, {"user_id": workforce_id}]},
         {"_id": 0}
     ).to_list(50)
     

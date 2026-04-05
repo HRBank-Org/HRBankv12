@@ -19,8 +19,12 @@ async def get_my_occupations(
     db = Depends(get_db)
 ):
     """Get all occupation profiles for current worker (max 3) with detailed credential and employment info"""
+    # Query by workforce_id, with fallback to user_id for legacy records
     occupations = await db.occupation_profiles.find(
-        {"workforce_id": current_user["user_id"]},
+        {"$or": [
+            {"workforce_id": current_user["user_id"]},
+            {"user_id": current_user["user_id"]}
+        ]},
         {"_id": 0}
     ).to_list(3)
     
@@ -176,10 +180,13 @@ async def delete_occupation_profile(
 ):
     """Delete occupation profile (only if no active jobs or financial obligations)"""
     
-    # Verify occupation belongs to worker
+    # Verify occupation belongs to worker (check both workforce_id and user_id)
     occupation = await db.occupation_profiles.find_one({
         "occupation_id": occupation_id,
-        "workforce_id": current_user["user_id"]
+        "$or": [
+            {"workforce_id": current_user["user_id"]},
+            {"user_id": current_user["user_id"]}
+        ]
     })
     
     if not occupation:
@@ -234,10 +241,13 @@ async def update_occupation_profile(
 ):
     """Update occupation profile (skills, availability, rate)"""
     
-    # Verify ownership
+    # Verify ownership (check both workforce_id and user_id)
     occupation = await db.occupation_profiles.find_one({
         "occupation_id": occupation_id,
-        "workforce_id": current_user["user_id"]
+        "$or": [
+            {"workforce_id": current_user["user_id"]},
+            {"user_id": current_user["user_id"]}
+        ]
     })
     
     if not occupation:

@@ -350,7 +350,8 @@ async def get_my_credentials(
 ):
     """Get all blockchain-verified credentials for current user"""
     # Query blockchain_credentials - the unified collection for all verified credentials
-    query = {"worker_id": user_id}
+    # Support both worker_id and workforce_id for backward compatibility
+    query = {"$or": [{"worker_id": user_id}, {"workforce_id": user_id}]}
     if status:
         query["status"] = status
     
@@ -414,7 +415,7 @@ async def get_public_profile(share_token: str):
     
     # Get verified blockchain credentials for public view
     credentials = await db.blockchain_credentials.find(
-        {"worker_id": full_profile["user_id"], "status": {"$in": ["verified", "issued"]}},
+        {"$or": [{"worker_id": full_profile["user_id"]}, {"workforce_id": full_profile["user_id"]}], "status": {"$in": ["verified", "issued"]}},
         {"_id": 0, "worker_id": 0}
     ).to_list(50)
     
