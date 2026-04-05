@@ -3,7 +3,7 @@ LinkedIn OAuth Integration Routes
 Handles LinkedIn login, profile import, and sharing
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query, Header
+from fastapi import APIRouter, HTTPException, Depends, Query, Header, Request
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
@@ -24,6 +24,15 @@ LINKEDIN_CLIENT_ID = os.environ.get("LINKEDIN_CLIENT_ID")
 LINKEDIN_CLIENT_SECRET = os.environ.get("LINKEDIN_CLIENT_SECRET")
 LINKEDIN_REDIRECT_URI = os.environ.get("LINKEDIN_REDIRECT_URI")
 JWT_SECRET = os.environ.get("JWT_SECRET", "your-secret-key")
+
+def get_linkedin_redirect_uri(request=None):
+    """Build LinkedIn redirect URI dynamically from request or env fallback."""
+    if request:
+        base = str(request.base_url).rstrip('/')
+        if 'hrbank.ca' in base or 'preview.emergentagent.com' in base:
+            base = base.replace('http://', 'https://')
+        return f"{base}/api/linkedin/callback"
+    return LINKEDIN_REDIRECT_URI
 
 # LinkedIn API endpoints
 LINKEDIN_AUTH_URL = "https://www.linkedin.com/oauth/v2/authorization"
@@ -58,6 +67,7 @@ class LinkedInImportRequest(BaseModel):
 
 @router.get("/authorize")
 async def linkedin_authorize(
+    request: Request,
     redirect_after: str = Query(default="/workpassport/dashboard"),
     link_to_user: Optional[str] = Query(default=None)
 ):
@@ -72,11 +82,15 @@ async def linkedin_authorize(
     # Generate state for CSRF protection
     state = uuid.uuid4().hex
     
+    # Build redirect URI dynamically from request
+    dynamic_redirect_uri = get_linkedin_redirect_uri(request)
+    
     # Store state with metadata in database
     await db.oauth_states.insert_one({
         "state": state,
         "redirect_after": redirect_after,
         "link_to_user": link_to_user,
+        "redirect_uri": dynamic_redirect_uri,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "expires_at": datetime.now(timezone.utc).isoformat()
     })
@@ -88,7 +102,7 @@ async def linkedin_authorize(
         f"{LINKEDIN_AUTH_URL}?"
         f"response_type=code&"
         f"client_id={LINKEDIN_CLIENT_ID}&"
-        f"redirect_uri={LINKEDIN_REDIRECT_URI}&"
+        f"redirect_uri={dynamic_redirect_uri}&"
         f"state={state}&"
         f"scope={scopes}"
     )
@@ -98,6 +112,7 @@ async def linkedin_authorize(
 
 @router.get("/callback")
 async def linkedin_callback(
+    request: Request,
     code: str = Query(...),
     state: str = Query(...)
 ):
@@ -116,6 +131,9 @@ async def linkedin_callback(
     redirect_after = stored_state.get("redirect_after", "/workpassport/dashboard")
     link_to_user = stored_state.get("link_to_user")
     
+    # Use the same redirect_uri that was used during authorization
+    callback_redirect_uri = stored_state.get("redirect_uri") or get_linkedin_redirect_uri(request)
+    
     # Exchange authorization code for access token
     async with httpx.AsyncClient() as client:
         token_response = await client.post(
@@ -125,7 +143,7 @@ async def linkedin_callback(
                 "code": code,
                 "client_id": LINKEDIN_CLIENT_ID,
                 "client_secret": LINKEDIN_CLIENT_SECRET,
-                "redirect_uri": LINKEDIN_REDIRECT_URI
+                "redirect_uri": callback_redirect_uri
             },
             headers={"Content-Type": "application/x-www-form-urlencoded"}
         )
