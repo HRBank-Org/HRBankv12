@@ -10,8 +10,8 @@ Both containers share `localhost` networking inside Lightsail Container Service.
 ---
 
 ## Docker Hub Images
-- `qnizami/hrbank-frontend:latest`
-- `qnizami/hrbank-backend:latest`
+- `qaisijoe/hrbank-frontend:latest`
+- `qaisijoe/hrbank-backend:latest`
 
 ---
 
@@ -31,12 +31,12 @@ cd hrbank
 # Build FRONTEND image
 docker build \
   --build-arg REACT_APP_BACKEND_URL=https://hrbank.ca \
-  -t qnizami/hrbank-frontend:latest \
+  -t qaisijoe/hrbank-frontend:latest \
   ./frontend
 
 # Build BACKEND image
 docker build \
-  -t qnizami/hrbank-backend:latest \
+  -t qaisijoe/hrbank-backend:latest \
   ./backend
 ```
 
@@ -45,10 +45,10 @@ docker build \
 ## Step 3: Push Both Images to Docker Hub
 
 ```bash
-docker login -u qnizami
+docker login -u qaisijoe
 
-docker push qnizami/hrbank-frontend:latest
-docker push qnizami/hrbank-backend:latest
+docker push qaisijoe/hrbank-frontend:latest
+docker push qaisijoe/hrbank-backend:latest
 ```
 
 ---
@@ -63,7 +63,7 @@ docker push qnizami/hrbank-backend:latest
 | Field | Value |
 |-------|-------|
 | Container name | `hrbank-backend` |
-| Image | `qnizami/hrbank-backend:latest` |
+| Image | `qaisijoe/hrbank-backend:latest` |
 | Port | `8001` (HTTP) |
 
 **Environment variables** (set in the GUI):
@@ -107,7 +107,7 @@ GOOGLE_TIMEZONE_API_KEY = AIzaSy...
 | Field | Value |
 |-------|-------|
 | Container name | `hrbank-frontend` |
-| Image | `qnizami/hrbank-frontend:latest` |
+| Image | `qaisijoe/hrbank-frontend:latest` |
 | Port | `80` (HTTP) |
 
 No environment variables needed (all baked into the build).
@@ -143,25 +143,25 @@ When you make code changes and want to redeploy:
 ### Update Frontend only:
 ```bash
 # On your local machine
-docker build --build-arg REACT_APP_BACKEND_URL=https://hrbank.ca -t qnizami/hrbank-frontend:latest ./frontend
-docker push qnizami/hrbank-frontend:latest
+docker build --build-arg REACT_APP_BACKEND_URL=https://hrbank.ca -t qaisijoe/hrbank-frontend:latest ./frontend
+docker push qaisijoe/hrbank-frontend:latest
 ```
 Then in Lightsail GUI → Modify deployment → Save (it pulls the latest image).
 
 ### Update Backend only:
 ```bash
 # On your local machine
-docker build -t qnizami/hrbank-backend:latest ./backend
-docker push qnizami/hrbank-backend:latest
+docker build -t qaisijoe/hrbank-backend:latest ./backend
+docker push qaisijoe/hrbank-backend:latest
 ```
 Then in Lightsail GUI → Modify deployment → Save.
 
 ### Update Both:
 ```bash
-docker build --build-arg REACT_APP_BACKEND_URL=https://hrbank.ca -t qnizami/hrbank-frontend:latest ./frontend
-docker build -t qnizami/hrbank-backend:latest ./backend
-docker push qnizami/hrbank-frontend:latest
-docker push qnizami/hrbank-backend:latest
+docker build --build-arg REACT_APP_BACKEND_URL=https://hrbank.ca -t qaisijoe/hrbank-frontend:latest ./frontend
+docker build -t qaisijoe/hrbank-backend:latest ./backend
+docker push qaisijoe/hrbank-frontend:latest
+docker push qaisijoe/hrbank-backend:latest
 ```
 Then in Lightsail GUI → Modify deployment → Save.
 

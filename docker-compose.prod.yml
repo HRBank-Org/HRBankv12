@@ -9,7 +9,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: qnizami/hrbank-backend:latest
+    image: qaisijoe/hrbank-backend:latest
     container_name: hrbank-backend
     env_file:
       - backend/.env
@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
       args:
         REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL:-https://hrbank.ca}
-    image: qnizami/hrbank-frontend:latest
+    image: qaisijoe/hrbank-frontend:latest
     container_name: hrbank-frontend
     depends_on:
       - backend
