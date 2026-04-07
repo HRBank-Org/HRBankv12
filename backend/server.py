@@ -309,6 +309,11 @@ UPLOAD_DIR = Path("/app/backend/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
+# Mount static files for institution logos
+LOGOS_DIR = Path("/app/backend/static/logos")
+LOGOS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/api/static/logos", StaticFiles(directory=str(LOGOS_DIR)), name="logos")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
