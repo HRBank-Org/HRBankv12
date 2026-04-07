@@ -12,22 +12,26 @@ Full-stack HR compliance and management application with specialized dashboards 
 ## Core Architecture
 - **Frontend**: React + TailwindCSS + Vite (Port 3000)
 - **Backend**: FastAPI + MongoDB Motor Async (Port 8001)
-- **Deployment**: Docker, AWS Lightsail Instance + Load Balancer
+- **Deployment**: Docker (two-container), AWS Lightsail Container Service + Load Balancer
 - **Database**: MongoDB (`hrbank_db`)
+- **Docker Images**: `qnizami/hrbank-frontend:latest`, `qnizami/hrbank-backend:latest`
 
 ## What's Been Implemented
 
+### Deployment — Two-Container Lightsail Setup (Feb 2026)
+- Separate frontend (nginx + React) and backend (FastAPI) Docker images
+- Frontend nginx proxies `/api/` to `localhost:8001` (Lightsail shared network)
+- Root `Dockerfile` updated: `node:20-slim`, added `--extra-index-url` for emergentintegrations
+- Frontend `Dockerfile`: `node:20-alpine`
+- Deployment guide: `deploy/LIGHTSAIL_DEPLOYMENT.md`
+- `docker-compose.prod.yml` for local testing with `network_mode: host`
+
 ### WorkPassport Two-Column Print Resume (Feb 2026)
 - **Two-column layout**: Dark navy sidebar (~30%) + white main area (~70%)
-- **Sidebar**: Name, occupation titles, Overview stats (occupations, years, hours, rating), aggregated Skills, Certifications, QR code at bottom
-- **Main area**: Contact bar (location, member since, ID), Professional Experience with employment bullets + skill tags, Verified Credentials, Footer with verify URL
-- **CSS `@media print`** toggles between `.screen-passport` (screen) and `.print-resume` (print)
-- **`-webkit-print-color-adjust: exact`** ensures navy sidebar background prints
+- **Sidebar**: Name, occupation titles, Overview stats, aggregated Skills, Certifications, QR code
+- **Main area**: Contact bar, Professional Experience with bullets + skill tags, Credentials, Footer
+- **Print/Export button**: `window.print()` triggers browser print dialog (Save as PDF)
 - **TESTED**: Iteration 32 — 100% pass (21/21 features)
-
-### WorkPassport QR Code (Feb 2026)
-- QR code using `qrcode.react` links to digital WorkPassport URL
-- Positioned in sidebar bottom on print, top-right on older layout
 
 ### Auto-Repair Data Health Feature (Feb 2026)
 - POST `/api/admin/data-health/repair` — one-click orphan cleanup
@@ -39,24 +43,18 @@ Full-stack HR compliance and management application with specialized dashboards 
 
 ### Pydantic Model Standardization (Feb 2026)
 - Fixed `datetime.utcnow` → `datetime.now(timezone.utc)` across 8 models
-- Added `ConfigDict(extra="ignore")` to 4 models
 
-### Deployment Readiness (Feb 2026)
-- Fixed `.gitignore` and `.dockerignore` blocking `.env` files
-- Fixed LinkedIn OAuth redirect URI hardcoding (now dynamic via `request.base_url`)
-- Frontend Dockerfile updated: `node:18-alpine` → `node:20-alpine`
+### Dynamic OAuth Redirect URIs (Feb 2026)
+- Google & LinkedIn OAuth redirect URIs derived from `request.base_url`
 
 ### Data Integrity Migration v1 + v2 (Feb 2026)
 - 241+ orphaned records cleaned across all profile types
-- **TESTED**: Iterations 28, 29
 
 ### Multi-Language Translation System (Feb 2026)
-- 7 languages, 195+ pages
-- **TESTED**: Iteration 27
+- 7 languages, 195+ pages — **TESTED**: Iteration 27
 
 ### Sidebar Navigation Persistence (Dec 2025)
-- Layout wrappers for all dashboard types
-- **TESTED**: Iterations 25, 26
+- Layout wrappers for all dashboard types — **TESTED**: Iterations 25, 26
 
 ## Prioritized Backlog
 
@@ -72,13 +70,6 @@ Full-stack HR compliance and management application with specialized dashboards 
 - Full deep translation of all pages (form labels, table columns)
 - CI/CD pipeline
 
-## Deployment Notes
-- Frontend Docker image: `node:20-alpine` (required for react-router-dom@7.9.6)
-- Backend Docker image: `python:3.11-slim`
-- Blockchain dependencies (web3, eth-account, etc.) are core features — required for production
-- Health check: `/api/health` returns `{"status": "healthy"}`
-- No hardcoded secrets in source — all via .env
-
 ## Testing History
 | Iter | Scope | Result |
 |------|-------|--------|
@@ -88,7 +79,7 @@ Full-stack HR compliance and management application with specialized dashboards 
 | 29 | Data health dashboard | 100% (11/11) |
 | 30 | Auto-repair feature | 100% (18/18) |
 | 31 | WorkPassport print resume (v1) | 100% (11/11) |
-| 32 | WorkPassport two-column print resume (v2) | 100% (21/21) |
+| 32 | WorkPassport two-column print (v2) | 100% (21/21) |
 
 ---
 *Last Updated: February 2026*

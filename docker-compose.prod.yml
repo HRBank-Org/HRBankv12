@@ -1,28 +1,35 @@
 version: '3.8'
 
+# Local testing mirror of Lightsail Container Service setup
+# In Lightsail, both containers share localhost — network_mode: host mimics this
+# Usage: docker-compose -f docker-compose.prod.yml up -d
+
 services:
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     image: qnizami/hrbank-backend:latest
     container_name: hrbank-backend
-    ports:
-      - "8001:8001"
     env_file:
-      - .env
+      - backend/.env
     restart: unless-stopped
-    networks:
-      - hrbank-network
+    volumes:
+      - uploads:/app/uploads
+    network_mode: "host"
 
   frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL:-https://hrbank.ca}
     image: qnizami/hrbank-frontend:latest
     container_name: hrbank-frontend
-    ports:
-      - "80:80"
     depends_on:
       - backend
     restart: unless-stopped
-    networks:
-      - hrbank-network
+    network_mode: "host"
 
-networks:
-  hrbank-network:
-    driver: bridge
+volumes:
+  uploads:
