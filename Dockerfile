@@ -1,7 +1,7 @@
 # HR Bank - Full Stack Application
 # Dockerfile for AWS Lightsail Deployment
 
-FROM node:18-slim AS frontend-builder
+FROM node:20-slim AS frontend-builder
 
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock ./
@@ -27,7 +27,7 @@ WORKDIR /app
 
 # Copy backend requirements and install
 COPY backend/requirements.txt /app/backend/
-RUN pip install --no-cache-dir -r /app/backend/requirements.txt
+RUN pip install --no-cache-dir -r /app/backend/requirements.txt --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/
 
 # Copy backend code
 COPY backend/ /app/backend/
