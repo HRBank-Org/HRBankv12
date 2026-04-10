@@ -475,7 +475,15 @@ async def invite_students(
         )
     
     # Get institution info
-    institution = await db.institution_profiles.find_one({"institution_id": current_user["user_id"]})
+    institution = await db.institution_profiles.find_one(
+        {"$or": [
+            {"user_id": current_user["user_id"]},
+            {"institution_id": current_user["user_id"]},
+            {"institution_id": current_user.get("institution_id", "")}
+        ]},
+        {"_id": 0, "institution_name": 1}
+    )
+    institution_name = institution.get("institution_name", "Institution") if institution else "Institution"
     
     # Create invitation records
     invitations_sent = 0
@@ -502,7 +510,7 @@ async def invite_students(
                 "invite_token": invite_token,
                 "email": email,
                 "invited_by": current_user["user_id"],
-                "institution_id": current_user["user_id"],
+                "institution_id": current_user.get("institution_id", current_user["user_id"]),
                 "class_id": class_id,
                 "program_id": program_id,  # Track program in invitation
                 "user_type": "workforce",
@@ -513,7 +521,53 @@ async def invite_students(
             
             await db.invitations.insert_one(invitation)
             
-            print(f"Invitation sent to {email} for cohort {institution_class['title']}")
+            # Send invitation email
+            try:
+                from utils.email_service import email_service
+                import os
+                frontend_url = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
+                invite_link = f"{frontend_url}/signup?invite={invite_token}"
+                
+                program_name = institution_class.get("program_name", institution_class.get("title", ""))
+                subject = f"You're invited to join {institution_name} on HR Bank"
+                html_content = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 28px;">WorkPassport</h1>
+                        <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">by HR Bank</p>
+                    </div>
+                    <div style="padding: 40px 30px; background: #ffffff;">
+                        <h2 style="color: #1e3a5f; margin-bottom: 20px;">You're Invited!</h2>
+                        <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+                            <strong>{institution_name}</strong> has invited you to join their
+                            <strong>{program_name}</strong> program on HR Bank.
+                        </p>
+                        <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+                            Create your free WorkPassport account to receive blockchain-verified credentials 
+                            for your training and certifications.
+                        </p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="{invite_link}" 
+                               style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; 
+                                      padding: 18px 50px; text-decoration: none; border-radius: 8px; 
+                                      display: inline-block; font-weight: bold; font-size: 16px;">
+                                Accept Invitation
+                            </a>
+                        </div>
+                        <div style="background: #fef3c7; border-radius: 8px; padding: 15px; margin: 25px 0;">
+                            <p style="color: #92400e; font-size: 14px; margin: 0;">
+                                Use <strong>{email}</strong> when signing up to link your invitation automatically.
+                            </p>
+                        </div>
+                    </div>
+                    <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 12px; margin: 0;">WorkPassport by HR Bank | hrbank.ca</p>
+                    </div>
+                </div>
+                """
+                await email_service.send_email(email, subject, html_content)
+            except Exception as e:
+                print(f"Failed to send invite email to {email}: {e}")
         
         invitations_sent += 1
     

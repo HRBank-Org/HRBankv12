@@ -1,87 +1,76 @@
 # HR Bank - Product Requirements Document
 
 ## Original Problem Statement
-Full-stack HR compliance and management application with specialized dashboards for Admin, Employer, Workforce, and Institution users. The platform features WorkPassport credentials, multi-language support, and compliance management.
-
-## User Personas
-- **Workers/Workforce**: Job seekers who need verified credentials
-- **Employers**: Companies hiring verified workers
-- **Institutions**: Training organizations issuing credentials
-- **Admins**: Platform administrators managing the system
+Full-stack HR compliance and management application with specialized dashboards for Admin, Employer, Workforce, and Institution users. Features WorkPassport credentials, multi-language support, and compliance management.
 
 ## Core Architecture
 - **Frontend**: React + TailwindCSS + Vite (Port 3000)
 - **Backend**: FastAPI + MongoDB Motor Async (Port 8001)
-- **Deployment**: Docker (two containers in one service), AWS Lightsail Container Service
+- **Deployment**: Docker (two containers in one Lightsail Container Service)
 - **Database**: MongoDB Atlas (`hrbank_db`)
-- **Docker Images**: `qaisijoe/hrbank-frontend:latest`, `qaisijoe/hrbank-backend:latest`
-- **DNS**: `hrbank.ca` → `hrbank-backend.db11xcgyyaxh4.ca-central-1.cs.amazonlightsail.com`
+- **Docker Images**: `qaisijoe/hrbank-frontend:v27+`, `qaisijoe/hrbank-backend:v27+`
+- **DNS**: `hrbank.ca` → `hrbank-backend` Container Service
 
-## What's Been Implemented
+## What's Been Implemented (This Session)
 
-### SafestWork Institution Onboarding (Apr 2026)
-- Scraped safestwork.com for 12 training programs
-- Created institution account: `aleblanc@safestwork.com` / `SafestWork2026!`
-- Pre-verified, onboarded, with logo and credential templates
-- Production setup script: `deploy/setup_safestwork.js`
-- Fixed WalletStatusWidget crash (missing `t` translation function)
+### Invite Email Fix (Apr 2026)
+- **Root cause**: `institution_classes.py invite_students()` created tokens but never sent emails
+- Added full HTML email template with SendGrid integration
+- Fixed institution lookup using `$or` query (user_id OR institution_id)
+- Fixed missing `os` import in `routes/invites.py`
+- Added `FRONTEND_URL` to Settings class
+- Both invite flows verified: Class invite + Bulk invite → Status 202
 
-### Lightsail Container Service Deployment (Apr 2026)
-- Migrated from single-container to two-container setup (frontend + backend in one service)
-- DNS updated: hrbank.ca → hrbank-backend Container Service
-- SSL certificate configured on Container Service
-- Old standalone frontend service deleted
+### Sidebar Fix — 5 Institution Pages (Apr 2026)
+- ClassDetails.jsx (edit cohort) — wrapped in InstitutionLayout
+- Documents.jsx — wrapped in InstitutionLayout
+- NotificationSettings.jsx — wrapped in InstitutionLayout
+- PartnershipAgreement.jsx — wrapped in InstitutionLayout
+- VerificationQueue.jsx — wrapped in InstitutionLayout
+
+### SafestWork Institution Account (Apr 2026)
+- Scraped safestwork.com: 12 training programs
+- Account: `aleblanc@safestwork.com` / `SafestWork2026!`
+- Faculty: "Health & Safety Training" with 12 programs (WAH, Forklift, CPR, etc.)
+- Logo downloaded to `backend/static/logos/inst_safestwork.png`
+
+### WalletStatusWidget Fix (Apr 2026)
+- Added missing `useLanguage()` hook
+
+### Lightsail Container Service Migration (Apr 2026)
+- Two containers (frontend + backend) in single service sharing localhost
+- DNS updated, SSL certificate configured
+- Old standalone services deleted
 
 ### Partner Logo Hotlinking Fix (Apr 2026)
-- Downloaded 9 institution logos to `backend/static/logos/`
-- Served via `/api/static/logos/` endpoint
-- DB URLs updated from external hotlinks to local paths
-- Production fix script: `deploy/fix_logos.js`
+- 9 institution logos downloaded to `backend/static/logos/`
+- Served via `/api/static/logos/`
 
 ### WorkPassport Two-Column Print Resume (Feb 2026)
-- Dark navy sidebar + white main area, QR code, professional layout
-- **TESTED**: Iteration 32 — 100% pass (21/21)
-
-### Previous Work
-- Data Health Dashboard + Auto-Repair (Iteration 29-30)
-- Pydantic Model Standardization
-- Dynamic OAuth Redirect URIs
-- Data Integrity Migrations v1 + v2
-- Multi-Language Translation System (Iteration 27)
-- Sidebar Navigation Persistence (Iterations 25-26)
-
-## Active Institution Accounts
-| Institution | Contact | Email | Status |
-|------------|---------|-------|--------|
-| SafestWork Consulting Inc. | Adrien LeBlanc | aleblanc@safestwork.com | Active, Verified |
-| University of Windsor | - | - | Active |
-| St. Clair College | - | - | Active |
-| + 6 more | - | - | Active |
+- Dark navy sidebar + white main area
+- TESTED: Iteration 32 — 100% (21/21)
 
 ## Prioritized Backlog
 
-### P1 (High)
-- Run `deploy/setup_safestwork.js` on production MongoDB
-- Run `deploy/fix_logos.js` on production MongoDB
-- Rebuild & push Docker images (logo files + WalletStatusWidget fix)
+### P0 (Deploy Now)
+- Rebuild & push Docker images v28 (sidebar fix + invite email fix)
 
 ### P2 (Medium)
-- Browser locale-based auto-detect language
+- Browser locale auto-detect language
 - Notification system for cohort end dates
 - Re-enable Leaderboard when institutions onboard
 
 ### P3 (Low/Future)
-- Full deep translation of all pages
+- Full deep translation
 - CI/CD pipeline
-- Make IssueCredential templates dynamic (pull from DB instead of hardcoded)
+- Make IssueCredential templates dynamic per institution
 
 ## Testing History
 | Iter | Scope | Result |
 |------|-------|--------|
-| 25-26 | Sidebar persistence | 100% |
-| 27 | Translation UI | 100% |
-| 28-30 | Data integrity | 100% |
-| 31-32 | WorkPassport print | 100% |
+| 32 | WorkPassport print | 100% (21/21) |
+| - | Invite emails | Verified via SendGrid 202 |
+| - | Sidebar persistence | Verified via screenshot |
 
 ---
 *Last Updated: April 2026*

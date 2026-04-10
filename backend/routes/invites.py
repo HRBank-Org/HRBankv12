@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 import csv
 import io
 import uuid
+import os
 
 router = APIRouter(prefix="/invites", tags=["Invites"])
 
@@ -83,12 +84,16 @@ async def bulk_upload_invites(
             # Send invitation email
             from utils.email_service import email_service
             
-            invite_link = f"{os.environ.get('FRONTEND_URL', 'https://vault.hrbank.ca')}/signup?invite={invite.invite_token}"
+            invite_link = f"{os.environ.get('FRONTEND_URL', 'https://hrbank.ca')}/signup?invite={invite.invite_token}"
             
             if current_user["user_type"] == "institution":
-                # Get institution name
+                # Get institution name - try both user_id and institution_id fields
                 institution = await db.institution_profiles.find_one(
-                    {"institution_id": current_user["user_id"]},
+                    {"$or": [
+                        {"user_id": current_user["user_id"]},
+                        {"institution_id": current_user["user_id"]},
+                        {"institution_id": current_user.get("institution_id", "")}
+                    ]},
                     {"_id": 0, "institution_name": 1}
                 )
                 institution_name = institution.get("institution_name", "Institution") if institution else "Institution"

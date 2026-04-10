@@ -33,6 +33,9 @@ class Settings:
     # CORS
     CORS_ORIGINS: str = os.environ.get('CORS_ORIGINS', '*')
     
+    # Frontend URL for email links
+    FRONTEND_URL: str = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
+    
     # Platform
     PLATFORM_FEE_PERCENTAGE: float = 5.0  # 5% platform fee
     
