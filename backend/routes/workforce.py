@@ -122,6 +122,37 @@ async def get_complete_profile(
         }
     }
 
+@router.get("/me/employment-status", response_model=Dict)
+async def get_employment_status(
+    current_user: dict = Depends(require_role("workforce")),
+    db = Depends(get_db)
+):
+    """Check if the workforce user has any active employment."""
+    workforce_id = current_user.get("workforce_id") or current_user.get("user_id")
+
+    # Check employment_relationships collection
+    active_employment = await db.employment_relationships.find_one(
+        {"workforce_id": workforce_id, "status": "active"},
+        {"_id": 0, "employer_id": 1, "position_title": 1}
+    )
+
+    # Also check if workforce_profile has an employer_id
+    profile = await db.workforce_profiles.find_one(
+        {"$or": [{"workforce_id": workforce_id}, {"user_id": workforce_id}]},
+        {"_id": 0, "employer_id": 1}
+    )
+    has_employer = bool(profile and profile.get("employer_id"))
+
+    return {
+        "success": True,
+        "data": {
+            "has_active_employment": bool(active_employment) or has_employer,
+            "employer_id": (active_employment or {}).get("employer_id") or (profile or {}).get("employer_id"),
+            "position_title": (active_employment or {}).get("position_title")
+        }
+    }
+
+
 @router.patch("/me/profile/personal-info", response_model=Dict)
 async def update_personal_info(
     data: dict,
