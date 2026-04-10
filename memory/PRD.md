@@ -8,62 +8,61 @@ Full-stack HR compliance and management application with specialized dashboards 
 - **Backend**: FastAPI + MongoDB Motor Async (Port 8001)
 - **Deployment**: Docker (two containers in one Lightsail Container Service)
 - **Database**: MongoDB Atlas (`hrbank_db`)
-- **Docker Images**: `qaisijoe/hrbank-frontend:v27+`, `qaisijoe/hrbank-backend:v27+`
+- **Docker Images**: `qaisijoe/hrbank-frontend:v28`, `qaisijoe/hrbank-backend:v28`
 - **DNS**: `hrbank.ca` → `hrbank-backend` Container Service
 - **Email**: SendGrid integration
 
 ## What's Been Implemented
 
 ### P0: Notification System (Apr 2026)
-- **Cohort End-Date Scheduler**: Background task runs daily, checks `institution_classes` for cohorts ending within 7 days or overdue. Creates in-app notifications + sends emails to institution admins prompting them to issue credentials. Thresholds: 7 days, 3 days, today, overdue.
-  - Service: `backend/services/cohort_notification_service.py`
-  - Deduplication via `cohort_notification_log` collection
-  - Manual trigger: `POST /api/admin/trigger-cohort-notifications`
-- **Workforce Notifications on Credential Receipt**: When credentials are issued via `/api/institution/credentials/issue`, each student receives an in-app notification (type: `credential_received`) + email.
-- **Workforce Notifications on Enrollment**: When existing users are invited via `/api/institution/students/invite`, they receive an in-app notification (type: `enrollment`).
-- **Bulk Invite Notifications**: When existing users are bulk-invited via `/api/invites/bulk-upload`, they receive an in-app notification (type: `invitation`).
-- Fixed institution profile lookup in `institution_classes.py` to use `$or` query (user_id OR institution_id) for credential type authorization.
+- **Cohort End-Date Scheduler**: Background task runs daily, checks cohorts ending within 7 days or overdue. Creates in-app notifications + emails to institution admins.
+- **Workforce Notifications on Credential Receipt**: In-app notification + email when credentials issued.
+- **Workforce Notifications on Enrollment**: In-app notification when enrolled via class invite or bulk invite.
+- Service: `backend/services/cohort_notification_service.py`
 
 ### P1: Browser Locale Auto-Detect Language (Apr 2026)
-- Expanded frontend language support from 7 to 19 languages (added: Punjabi, Tagalog, Urdu, Persian, Tamil, Korean, Vietnamese, Gujarati, Russian, Ukrainian, Bengali, Polish).
-- Improved browser locale detection to handle regional codes (e.g., zh-CN → zh).
+- Frontend language support expanded from 7 to 19 languages (Punjabi, Tagalog, Urdu, Persian, Tamil, Korean, Vietnamese, Gujarati, Russian, Ukrainian, Bengali, Polish).
 - Language preference synced to backend profile on login via `PUT /api/users/preferred-language`.
-- Backend notifications already support AI translation for all 21 languages.
+
+### UX Improvements (Apr 2026) — 6 Fixes
+1. **Empty Dashboard "Getting Started" Checklist**: When stats are zero, flat-line charts replaced with 4-step guided checklist (Complete profile → Add occupation → Get verified → Find jobs). Green checkmarks for completed steps.
+2. **WorkPassport/Workforce Merge**: Deferred to lighter approach — noted for future.
+3. **Share Profile Hero Card**: Elevated share link to a prominent hero card on WorkPassport dashboard with LinkedIn, WhatsApp, and Email quick-share buttons.
+4. **Dynamic OG Meta Tags**: Public WorkPassport pages now include `og:title`, `og:description`, `og:image`, `og:url`, `twitter:card` for proper social previews. Backend fallback at `/api/og/passport/{share_token}` for JS-less crawlers.
+5. **Richer Credential Cards**: Public WorkPassport shows credential type badge, issue date, and expiry status (green Valid / amber Expiring / red Expired).
+6. **Notification Bell Dropdown**: Bell click now opens an inline dropdown with recent notifications, unread dots, timestamps, and "View all" link (replaces full-page redirect).
 
 ### Previous Session Work
-- WorkPassport Two-Column Print Resume (TESTED: Iteration 32 — 100%)
-- AWS Lightsail Container Service Deployment config
+- WorkPassport Two-Column Print Resume
+- AWS Lightsail Container Service Deployment
 - Partner Logos Hotlinking Fix
 - SafestWork Institution Demo Setup
-- Sidebar Navigation Fixes (InstitutionLayout wrappers)
+- Sidebar Navigation Fixes
 - Student Invite Email Logic Fix
-- WalletStatusWidget Fix
+
+## Key New Files
+- `/app/frontend/src/components/common/NotificationDropdown.jsx`
+- `/app/backend/services/cohort_notification_service.py`
 
 ## Prioritized Backlog
 
 ### P2 (Deploy)
-- Rebuild & push Docker images v28 — **READY** (guide at `/app/deploy/DEPLOY_V28.md`)
+- Rebuild & push Docker images v29 with all UX fixes
 
 ### P2 (Medium)
+- WorkPassport/Workforce sidebar unification (Fix 2 — deferred)
 - Re-enable Leaderboard when institutions onboard
-- Notification system for document expiry cohort integration
 
 ### P3 (Low/Future)
 - Full deep translation of form labels/table columns
 - CI/CD pipeline
-- Make IssueCredential templates dynamic per institution
 
 ## Testing History
 | Iter | Scope | Result |
 |------|-------|--------|
+| 34 | UX Improvements (6 fixes) | 100% frontend, 93% backend (1 skipped auth) |
 | 33 | P0 Notifications + P1 Language | 100% (13/13 backend, 9/9 frontend) |
 | 32 | WorkPassport print | 100% (21/21) |
-| - | Invite emails | Verified via SendGrid 202 |
-| - | Sidebar persistence | Verified via screenshot |
-
-## Key Collections Added
-- `cohort_notification_log`: Deduplication for daily cohort reminders (`class_id`, `reminder_type`, `sent_date`)
-- `notifications`: Extended with types: `credential_received`, `enrollment`, `invitation`, `cohort_ending_7days`, `cohort_ending_3days`, `cohort_ended_today`, `cohort_credentials_overdue`
 
 ## Test Credentials
 - Institution: `aleblanc@safestwork.com` / `SafestWork2026!`
