@@ -62,7 +62,51 @@ async def bulk_upload_invites(
             # Check if user already exists
             existing = await db.users.find_one({"email": email})
             if existing:
-                failed_rows.append({"row": idx + 1, "reason": "Email already registered"})
+                # Notify existing user about the invitation
+                try:
+                    from utils.email_service import email_service
+                    frontend_url = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
+                    inst = await db.institution_profiles.find_one(
+                        {"$or": [
+                            {"user_id": current_user["user_id"]},
+                            {"institution_id": current_user.get("institution_id", "")}
+                        ]},
+                        {"_id": 0, "institution_name": 1}
+                    )
+                    inst_name = inst.get("institution_name", "An institution") if inst else "An institution"
+                    prog = invite_data.get("program", "a program")
+                    subject = f"{inst_name} has invited you on HR Bank"
+                    html_content = f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">WorkPassport</h1>
+                            <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">by HR Bank</p>
+                        </div>
+                        <div style="padding: 40px 30px; background: #ffffff;">
+                            <h2 style="color: #1e3a5f;">You've Been Invited!</h2>
+                            <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                <strong>{inst_name}</strong> has invited you to their <strong>{prog}</strong> program.
+                                Log in to view and accept your invitation.
+                            </p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{frontend_url}/workforce/dashboard"
+                                   style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white;
+                                          padding: 18px 50px; text-decoration: none; border-radius: 8px;
+                                          display: inline-block; font-weight: bold; font-size: 16px;">
+                                    View My WorkPassport
+                                </a>
+                            </div>
+                        </div>
+                        <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+                            <p style="color: #94a3b8; font-size: 12px; margin: 0;">WorkPassport by HR Bank | hrbank.ca</p>
+                        </div>
+                    </div>
+                    """
+                    await email_service.send_email(email, subject, html_content)
+                    successful_invites.append(f"notified_{email}")
+                except Exception as e:
+                    print(f"Failed to notify existing user {email}: {e}")
+                    failed_rows.append({"row": idx + 1, "reason": f"Existing user, notification failed: {str(e)}"})
                 continue
             
             # Create invite token

@@ -494,7 +494,7 @@ async def invite_students(
         existing_user = await db.users.find_one({"email": email})
         
         if existing_user and existing_user.get("user_type") == "workforce":
-            # User exists, just enroll them in cohort
+            # User exists, enroll them in cohort
             await db.institution_classes.update_one(
                 {"class_id": class_id},
                 {
@@ -503,6 +503,48 @@ async def invite_students(
                 }
             )
             students_enrolled += 1
+            
+            # Notify existing user they've been enrolled
+            try:
+                from utils.email_service import email_service
+                import os
+                frontend_url = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
+                program_name = institution_class.get("program_name", institution_class.get("title", ""))
+                class_name = institution_class.get("title", institution_class.get("class_name", ""))
+                
+                subject = f"{institution_name} enrolled you in {program_name}"
+                html_content = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 28px;">WorkPassport</h1>
+                        <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">by HR Bank</p>
+                    </div>
+                    <div style="padding: 40px 30px; background: #ffffff;">
+                        <h2 style="color: #1e3a5f; margin-bottom: 20px;">You've Been Enrolled!</h2>
+                        <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+                            <strong>{institution_name}</strong> has enrolled you in the
+                            <strong>{program_name}</strong> cohort: <strong>{class_name}</strong>.
+                        </p>
+                        <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+                            Log in to your WorkPassport to view your enrollment and upcoming credentials.
+                        </p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="{frontend_url}/workforce/dashboard" 
+                               style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; 
+                                      padding: 18px 50px; text-decoration: none; border-radius: 8px; 
+                                      display: inline-block; font-weight: bold; font-size: 16px;">
+                                View My WorkPassport
+                            </a>
+                        </div>
+                    </div>
+                    <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 12px; margin: 0;">WorkPassport by HR Bank | hrbank.ca</p>
+                    </div>
+                </div>
+                """
+                await email_service.send_email(email, subject, html_content)
+            except Exception as e:
+                print(f"Failed to send enrollment email to {email}: {e}")
         else:
             # Create invitation token
             invite_token = f"inv_{uuid.uuid4().hex[:12]}"
