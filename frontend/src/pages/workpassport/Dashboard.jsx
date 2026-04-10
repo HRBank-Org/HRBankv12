@@ -63,13 +63,10 @@ const WorkPassportDashboard = () => {
       
       const [profileRes, credentialsRes, occupationsRes, pendingPaymentsRes] = await Promise.all([
         api.get('/api/workpassport/profile', {
-          headers: { 'X-User-ID': user.user_id }
         }).catch(() => ({ data: { success: false } })),
         api.get('/api/workpassport/credentials', {
-          headers: { 'X-User-ID': user.user_id }
         }).catch(() => ({ data: { data: { credentials: [], summary: {} } } })),
         api.get('/api/workpassport/occupations', {
-          headers: { 'X-User-ID': user.user_id }
         }).catch(() => ({ data: { data: { occupations: [] } } })),
         api.get('/api/credential-payments/my-pending').catch(() => ({ data: { data: { pending_credentials: [] } } }))
       ]);

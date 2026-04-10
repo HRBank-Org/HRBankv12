@@ -29,8 +29,9 @@ class ResendOTPRequest(BaseModel):
     otp_type: str  # "email", "phone", or "both"
 
 def generate_otp():
-    """Generate a 6-digit OTP"""
-    return str(random.randint(100000, 999999))
+    """Generate a cryptographically secure 6-digit OTP"""
+    import secrets
+    return str(secrets.randbelow(900000) + 100000)
 
 def get_db():
     """Dependency to get database instance"""

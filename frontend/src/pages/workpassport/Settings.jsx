@@ -58,7 +58,6 @@ const WorkPassportSettings = () => {
   const loadProfile = async () => {
     try {
       const response = await api.get('/api/workpassport/profile', {
-        headers: { 'X-User-ID': user.user_id }
       });
       
       if (response.data.success) {
@@ -86,7 +85,6 @@ const WorkPassportSettings = () => {
       setError(null);
       
       await api.put('/api/workpassport/profile', profile, {
-        headers: { 'X-User-ID': user.user_id }
       });
       
       setSuccess(true);

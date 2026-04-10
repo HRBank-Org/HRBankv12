@@ -1,14 +1,10 @@
 """
 Admin Seeding API - Protected endpoint to seed demo data
 =========================================================
-This endpoint allows seeding demo data via a secure API call.
-Usage: GET /api/admin/seed-demo?key=YOUR_SECRET_KEY
-
-The secret key is set via environment variable: ADMIN_SEED_KEY
-Default key for initial setup: HRBank2024Demo!
+Requires ADMIN_SEED_KEY environment variable to be set.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime, timezone, timedelta
 from uuid import uuid4
@@ -30,8 +26,8 @@ def get_db():
     from server import db
     return db
 
-# Secret key for seeding - change this in production!
-SEED_SECRET_KEY = os.environ.get("ADMIN_SEED_KEY", "HRBank2024Demo!")
+# Secret key for seeding - MUST be set via environment variable
+SEED_SECRET_KEY = os.environ.get("ADMIN_SEED_KEY")
 
 
 @router.get("/seed-demo")
@@ -39,13 +35,13 @@ async def seed_demo_data(
     key: str = Query(..., description="Secret key to authorize seeding")
 ):
     """
-    Seed complete Swan Pizza demo scenario.
-    Protected by secret key.
-    
-    Usage: GET /api/admin/seed-demo?key=HRBank2024Demo!
+    Seed complete demo scenario.
+    Protected by secret key set via ADMIN_SEED_KEY env var.
     """
     
-    # Verify secret key
+    # Verify secret key is configured and matches
+    if not SEED_SECRET_KEY:
+        raise HTTPException(status_code=503, detail="Seeding is disabled. Set ADMIN_SEED_KEY environment variable.")
     if key != SEED_SECRET_KEY:
         raise HTTPException(status_code=403, detail="Invalid secret key")
     

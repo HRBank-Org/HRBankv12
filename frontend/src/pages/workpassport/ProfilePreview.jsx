@@ -42,13 +42,10 @@ const ProfilePreview = () => {
       setLoading(true);
       const [profileRes, credRes, occRes] = await Promise.all([
         api.get('/api/workpassport/profile', {
-          headers: { 'X-User-ID': user.user_id }
         }),
         api.get('/api/workpassport/credentials', {
-          headers: { 'X-User-ID': user.user_id }
         }),
         api.get('/api/workpassport/occupations', {
-          headers: { 'X-User-ID': user.user_id }
         })
       ]);
 

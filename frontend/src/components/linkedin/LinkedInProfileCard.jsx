@@ -41,7 +41,6 @@ const LinkedInProfileCard = ({ onImportComplete }) => {
     try {
       setLoading(true);
       const response = await api.get('/api/linkedin/profile', {
-        headers: { 'X-User-ID': user.user_id }
       });
       
       if (response.data.success) {
@@ -65,7 +64,6 @@ const LinkedInProfileCard = ({ onImportComplete }) => {
     
     try {
       await api.delete('/api/linkedin/disconnect', {
-        headers: { 'X-User-ID': user.user_id }
       });
       setLinkedinData(null);
     } catch (err) {
@@ -84,7 +82,6 @@ const LinkedInProfileCard = ({ onImportComplete }) => {
         import_skills: true,
         import_certifications: true
       }, {
-        headers: { 'X-User-ID': user.user_id }
       });
 
       if (response.data.success) {

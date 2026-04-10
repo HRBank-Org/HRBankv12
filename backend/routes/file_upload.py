@@ -6,6 +6,7 @@ import uuid
 from pathlib import Path
 from typing import Dict
 import shutil
+import magic
 
 router = APIRouter()
 
@@ -13,8 +14,9 @@ router = APIRouter()
 UPLOAD_DIR = Path("/app/backend/uploads/profile_photos")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# Allowed image extensions
+# Allowed image extensions and MIME types
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+ALLOWED_MIME_TYPES = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 def get_file_extension(filename: str) -> str:
@@ -24,6 +26,14 @@ def get_file_extension(filename: str) -> str:
 def is_allowed_file(filename: str) -> bool:
     """Check if file extension is allowed"""
     return get_file_extension(filename) in ALLOWED_EXTENSIONS
+
+def validate_mime_type(file_bytes: bytes) -> bool:
+    """Validate actual file content MIME type (not just extension)"""
+    try:
+        mime = magic.from_buffer(file_bytes[:2048], mime=True)
+        return mime in ALLOWED_MIME_TYPES
+    except Exception:
+        return False
 
 @router.post("/upload-profile-photo", response_model=Dict)
 async def upload_profile_photo(
@@ -36,7 +46,7 @@ async def upload_profile_photo(
     Returns the URL to access the photo
     """
     
-    # Validate file type
+    # Validate file extension
     if not is_allowed_file(file.filename):
         raise HTTPException(
             status_code=400,
@@ -48,7 +58,14 @@ async def upload_profile_photo(
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"File too large. Maximum size: 5MB"
+            detail="File too large. Maximum size: 5MB"
+        )
+    
+    # Validate actual MIME type (prevents extension spoofing)
+    if not validate_mime_type(contents):
+        raise HTTPException(
+            status_code=400,
+            detail="File content does not match an allowed image type. Upload a real image file."
         )
     
     # Reset file pointer
@@ -113,7 +130,7 @@ async def upload_file(
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"File too large. Maximum size: 5MB"
+            detail="File too large. Maximum size: 5MB"
         )
     
     # Reset file pointer

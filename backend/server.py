@@ -13,6 +13,7 @@ from typing import List
 import uuid
 from datetime import datetime, timezone
 from auth.dependencies import get_current_user
+from services.document_scheduler import start_scheduler, stop_scheduler
 
 # Rate limiting
 from utils.rate_limiter import limiter, _rate_limit_exceeded_handler
@@ -24,13 +25,75 @@ from routes import auth, users, credentials, admin, workforce, employer, occupat
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'hrbank_db')]
+# MongoDB connection — single source from database.py
+from database import client, db
 
 # Create the main app without a prefix
-app = FastAPI(title="HR Bank API", version="1.0.0")
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(the_app):
+    """Application lifecycle — startup and shutdown"""
+    import asyncio
+    logger.info("Starting HR Bank API...")
+    
+    # Start document expiry reminder scheduler
+    try:
+        start_scheduler(db)
+        logger.info("Document expiry scheduler initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to start document expiry scheduler: {str(e)}")
+    
+    # Start session cleanup scheduler
+    try:
+        from services.session_manager import session_manager
+        
+        async def session_cleanup_task():
+            while True:
+                try:
+                    await asyncio.sleep(900)
+                    results = await session_manager.run_security_cleanup()
+                    if results["total_cleaned"] > 0:
+                        logger.info(f"Session cleanup: {results['total_cleaned']} stale sessions removed")
+                except Exception as e:
+                    logger.error(f"Session cleanup error: {e}")
+        
+        asyncio.create_task(session_cleanup_task())
+        logger.info("Session cleanup scheduler initialized (runs every 15 minutes)")
+    except Exception as e:
+        logger.error(f"Failed to start session cleanup scheduler: {str(e)}")
+    
+    # Start cohort end-date notification scheduler (runs daily)
+    try:
+        from services.cohort_notification_service import check_cohort_end_dates
+        
+        async def cohort_notification_task():
+            await asyncio.sleep(60)
+            while True:
+                try:
+                    results = await check_cohort_end_dates(db)
+                    logger.info(f"Cohort notification check: {results.get('notifications_sent', 0)} sent")
+                except Exception as e:
+                    logger.error(f"Cohort notification error: {e}")
+                await asyncio.sleep(86400)
+        
+        asyncio.create_task(cohort_notification_task())
+        logger.info("Cohort end-date notification scheduler initialized (runs daily)")
+    except Exception as e:
+        logger.error(f"Failed to start cohort notification scheduler: {str(e)}")
+    
+    yield  # App is running
+    
+    # Shutdown
+    logger.info("Shutting down HR Bank API...")
+    try:
+        stop_scheduler()
+        logger.info("Document expiry scheduler stopped")
+    except Exception as e:
+        logger.error(f"Error stopping scheduler: {str(e)}")
+    client.close()
+
+app = FastAPI(title="HR Bank API", version="1.0.0", lifespan=lifespan)
 
 # Add rate limiter to the app
 app.state.limiter = limiter
@@ -362,7 +425,7 @@ app.mount("/api/static/logos", StaticFiles(directory=str(LOGOS_DIR)), name="logo
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=os.environ.get('CORS_ORIGINS', 'https://hrbank.ca,https://www.hrbank.ca').split(','),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -402,74 +465,3 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-# Document expiry scheduler
-from services.document_scheduler import start_scheduler, stop_scheduler
-
-@app.on_event("startup")
-async def startup_tasks():
-    """Initialize background tasks on startup"""
-    logger.info("Starting HR Bank API...")
-    
-    # Start document expiry reminder scheduler
-    try:
-        start_scheduler(db)
-        logger.info("Document expiry scheduler initialized successfully")
-    except Exception as e:
-        logger.error(f"Failed to start document expiry scheduler: {str(e)}")
-    
-    # Start session cleanup scheduler
-    try:
-        import asyncio
-        from services.session_manager import session_manager
-        
-        async def session_cleanup_task():
-            """Run session cleanup every 15 minutes"""
-            while True:
-                try:
-                    await asyncio.sleep(900)  # 15 minutes
-                    results = await session_manager.run_security_cleanup()
-                    if results["total_cleaned"] > 0:
-                        logger.info(f"Session cleanup: {results['total_cleaned']} stale sessions removed")
-                except Exception as e:
-                    logger.error(f"Session cleanup error: {e}")
-        
-        asyncio.create_task(session_cleanup_task())
-        logger.info("Session cleanup scheduler initialized (runs every 15 minutes)")
-    except Exception as e:
-        logger.error(f"Failed to start session cleanup scheduler: {str(e)}")
-    
-    # Start cohort end-date notification scheduler (runs daily at 8 AM UTC)
-    try:
-        from services.cohort_notification_service import check_cohort_end_dates
-        
-        async def cohort_notification_task():
-            """Run cohort end-date check daily"""
-            await asyncio.sleep(60)  # Wait 1 min after startup
-            while True:
-                try:
-                    results = await check_cohort_end_dates(db)
-                    logger.info(f"Cohort notification check: {results.get('notifications_sent', 0)} sent")
-                except Exception as e:
-                    logger.error(f"Cohort notification error: {e}")
-                await asyncio.sleep(86400)  # 24 hours
-        
-        asyncio.create_task(cohort_notification_task())
-        logger.info("Cohort end-date notification scheduler initialized (runs daily)")
-    except Exception as e:
-        logger.error(f"Failed to start cohort notification scheduler: {str(e)}")
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    """Cleanup on shutdown"""
-    logger.info("Shutting down HR Bank API...")
-    
-    # Stop scheduler
-    try:
-        stop_scheduler()
-        logger.info("Document expiry scheduler stopped")
-    except Exception as e:
-        logger.error(f"Error stopping scheduler: {str(e)}")
-    
-    # Close database connection
-    client.close()

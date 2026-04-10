@@ -13,7 +13,7 @@ class Settings:
     # JWT
     JWT_SECRET: str = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
     JWT_ALGORITHM: str = 'HS256'
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 1 hour (refresh tokens handle longer sessions)
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # Third-Party APIs
@@ -30,8 +30,8 @@ class Settings:
     BCRYPT_ROUNDS: int = 12
     PASSWORD_MIN_LENGTH: int = 8
     
-    # CORS
-    CORS_ORIGINS: str = os.environ.get('CORS_ORIGINS', '*')
+    # CORS — explicit origin list for production security
+    CORS_ORIGINS: str = os.environ.get('CORS_ORIGINS', 'https://hrbank.ca,https://www.hrbank.ca')
     
     # Frontend URL for email links
     FRONTEND_URL: str = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')

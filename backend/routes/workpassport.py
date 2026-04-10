@@ -3,11 +3,12 @@ WorkPassport Routes - Global Credential Network
 Allows anyone worldwide to build a verified credential portfolio
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Header, Query
+from fastapi import APIRouter, HTTPException, Depends, Query
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List, Dict
 from datetime import datetime, timezone, timedelta
 from database import db
+from auth.dependencies import get_current_user
 import uuid
 import hashlib
 import logging
@@ -236,8 +237,9 @@ async def resend_verification_email(email: str = Query(...)):
         raise HTTPException(status_code=500, detail="Failed to send verification email")
 
 @router.get("/profile")
-async def get_my_profile(user_id: str = Header(..., alias="X-User-ID")):
+async def get_my_profile(current_user: dict = Depends(get_current_user)):
     """Get current user's WorkPassport profile"""
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one(
         {"user_id": user_id},
         {"_id": 0}
@@ -251,9 +253,10 @@ async def get_my_profile(user_id: str = Header(..., alias="X-User-ID")):
 @router.patch("/profile")
 async def update_profile(
     updates: WorkPassportProfile,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """Update WorkPassport profile"""
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -270,8 +273,9 @@ async def update_profile(
 
 
 @router.get("/profile/share-link")
-async def get_share_link(user_id: str = Header(..., alias="X-User-ID")):
+async def get_share_link(current_user: dict = Depends(get_current_user)):
     """Get shareable profile link"""
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one(
         {"user_id": user_id},
         {"share_token": 1, "passport_id": 1}
@@ -300,11 +304,12 @@ class ProfileUpdate(BaseModel):
 
 
 @router.put("/profile")
-async def update_profile(
+async def replace_profile(
     data: ProfileUpdate,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """Update WorkPassport profile"""
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -346,11 +351,10 @@ async def update_profile(
 @router.get("/credentials")
 async def get_my_credentials(
     status: Optional[str] = None,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """Get all blockchain-verified credentials for current user"""
-    # Query blockchain_credentials - the unified collection for all verified credentials
-    # Support both worker_id and workforce_id for backward compatibility
+    user_id = current_user["user_id"]
     query = {"$or": [{"worker_id": user_id}, {"workforce_id": user_id}]}
     if status:
         query["status"] = status
@@ -469,7 +473,7 @@ async def verify_credential(passport_id: str, credential_id: str):
         try:
             expiry = datetime.fromisoformat(credential["expiry_date"].replace("Z", "+00:00"))
             is_expired = expiry < datetime.now(timezone.utc)
-        except:
+        except (ValueError, KeyError, TypeError):
             pass
     
     return {
@@ -496,12 +500,13 @@ async def verify_credential(passport_id: str, credential_id: str):
 @router.post("/upgrade-to-workforce")
 async def upgrade_to_workforce(
     data: dict,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Upgrade WorkPassport to full Workforce account.
     Requires work eligibility verification for the target region.
     """
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -563,9 +568,10 @@ class OccupationProfile(BaseModel):
 
 @router.get("/occupations")
 async def get_user_occupations(
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """Get all occupation profiles for a WorkPassport user"""
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -587,9 +593,10 @@ async def get_user_occupations(
 @router.post("/occupations")
 async def create_occupation(
     data: OccupationProfile,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """Create a new occupation profile (max 3 allowed)"""
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -637,9 +644,10 @@ async def create_occupation(
 async def update_occupation(
     occupation_id: str,
     data: OccupationProfile,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """Update an existing occupation profile"""
+    user_id = current_user["user_id"]
     occupation = await db.workpassport_occupations.find_one({
         "occupation_id": occupation_id,
         "user_id": user_id
@@ -671,9 +679,10 @@ async def update_occupation(
 @router.delete("/occupations/{occupation_id}")
 async def delete_occupation(
     occupation_id: str,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """Delete an occupation profile"""
+    user_id = current_user["user_id"]
     occupation = await db.workpassport_occupations.find_one({
         "occupation_id": occupation_id,
         "user_id": user_id
@@ -701,7 +710,7 @@ async def delete_occupation(
 
 @router.get("/jobs")
 async def view_available_jobs(
-    user_id: str = Header(..., alias="X-User-ID"),
+    current_user: dict = Depends(get_current_user),
     location: Optional[str] = None,
     occupation: Optional[str] = None,
     page: int = 1,
@@ -711,6 +720,7 @@ async def view_available_jobs(
     View job postings available in Canada.
     WorkPassport users can view jobs but must upgrade to Workforce to apply.
     """
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -764,12 +774,13 @@ async def view_available_jobs(
 @router.get("/jobs/{job_id}")
 async def view_job_details(
     job_id: str,
-    user_id: str = Header(..., alias="X-User-ID")
+    current_user: dict = Depends(get_current_user)
 ):
     """
     View detailed job posting.
     WorkPassport users see job details but with upgrade prompt.
     """
+    user_id = current_user["user_id"]
     profile = await db.workpassport_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")

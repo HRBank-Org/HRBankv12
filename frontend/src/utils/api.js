@@ -11,25 +11,12 @@ const api = axios.create({
   }
 });
 
-// Add token and user ID to requests automatically
+// Add JWT token to all requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    // Add X-User-ID header for workpassport routes
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        if (user?.user_id) {
-          config.headers['X-User-ID'] = user.user_id;
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
     }
     return config;
   },

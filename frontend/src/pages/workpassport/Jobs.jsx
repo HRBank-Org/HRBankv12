@@ -50,7 +50,6 @@ const WorkPassportJobs = () => {
       }
 
       const response = await api.get(`/api/workpassport/jobs?${params}`, {
-        headers: { 'X-User-ID': user.user_id }
       });
 
       if (response.data.success) {
