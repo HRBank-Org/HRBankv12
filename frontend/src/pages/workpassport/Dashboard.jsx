@@ -248,31 +248,80 @@ const WorkPassportDashboard = () => {
             </div>
           )}
 
-          {/* Share Profile Card */}
-          <div className="mb-8 bg-white rounded-2xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Share Your Profile</h3>
-                <p className="text-sm text-gray-500">Share your verified credentials with employers worldwide</p>
+          {/* Share Profile — Hero Card */}
+          <div className="mb-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 shadow-lg" data-testid="share-profile-hero">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-white mb-1">Your WorkPassport is live</h3>
+                <p className="text-slate-400 text-sm">Share your verified credentials with employers. Anyone with this link can see your public profile.</p>
               </div>
-              <button
-                onClick={copyShareLink}
-                className="flex items-center gap-2 px-4 py-2 bg-cyan-50 text-cyan-600 rounded-lg hover:bg-cyan-100 transition-colors"
-              >
-                {copied ? <FiCheckCircle /> : <FiCopy />}
-                {copied ? 'Copied!' : 'Copy Link'}
-              </button>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => profile?.share_token && window.open(`/passport/${profile.share_token}`, '_blank')}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors text-sm font-medium"
+                  data-testid="preview-passport-btn"
+                >
+                  <FiExternalLink size={16} />
+                  Preview
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex-1 bg-gray-100 rounded-lg px-4 py-3 font-mono text-sm text-gray-600 truncate">
+
+            {/* Share Link Bar */}
+            <div className="mt-4 flex items-center gap-2">
+              <div className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 font-mono text-sm text-slate-300 truncate">
                 {profile?.share_token ? `${window.location.origin}/passport/${profile.share_token}` : 'Loading...'}
               </div>
               <button
-                onClick={() => profile?.share_token && window.open(`/passport/${profile.share_token}`, '_blank')}
-                className="flex items-center gap-2 px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={copyShareLink}
+                data-testid="copy-share-link-btn"
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                  copied
+                    ? 'bg-green-500 text-white'
+                    : 'bg-amber-500 hover:bg-amber-400 text-slate-900'
+                }`}
               >
-                <FiExternalLink />
-                Preview
+                {copied ? <FiCheckCircle size={16} /> : <FiCopy size={16} />}
+                {copied ? 'Copied!' : 'Copy Link'}
+              </button>
+            </div>
+
+            {/* Quick Share Buttons */}
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-xs text-slate-500 mr-1">Share via:</span>
+              <button
+                onClick={() => {
+                  const url = profile?.share_token ? `${window.location.origin}/passport/${profile.share_token}` : '';
+                  const text = `Check out my verified WorkPassport profile on HR Bank`;
+                  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+                }}
+                className="px-3 py-1.5 bg-[#0077b5]/20 text-[#0077b5] rounded-md text-xs font-medium hover:bg-[#0077b5]/30 transition-colors"
+                data-testid="share-linkedin-btn"
+              >
+                LinkedIn
+              </button>
+              <button
+                onClick={() => {
+                  const url = profile?.share_token ? `${window.location.origin}/passport/${profile.share_token}` : '';
+                  const text = `Check out my verified WorkPassport profile: ${url}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                }}
+                className="px-3 py-1.5 bg-[#25d366]/20 text-[#25d366] rounded-md text-xs font-medium hover:bg-[#25d366]/30 transition-colors"
+                data-testid="share-whatsapp-btn"
+              >
+                WhatsApp
+              </button>
+              <button
+                onClick={() => {
+                  const url = profile?.share_token ? `${window.location.origin}/passport/${profile.share_token}` : '';
+                  const subject = 'My Verified WorkPassport Profile';
+                  const body = `Hi,\n\nCheck out my blockchain-verified WorkPassport profile:\n${url}\n\nBest regards`;
+                  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                }}
+                className="px-3 py-1.5 bg-white/10 text-slate-300 rounded-md text-xs font-medium hover:bg-white/20 transition-colors"
+                data-testid="share-email-btn"
+              >
+                Email
               </button>
             </div>
           </div>

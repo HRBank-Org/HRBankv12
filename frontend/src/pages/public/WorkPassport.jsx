@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../../utils/api';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { QRCodeSVG } from 'qrcode.react';
@@ -86,6 +87,22 @@ const WorkPassport = () => {
 
   return (
     <>
+      {/* Dynamic OG Meta Tags for Social Sharing */}
+      {profile && (
+        <Helmet>
+          <title>{profile.full_name} — WorkPassport | HR Bank</title>
+          <meta name="description" content={`Verified WorkPassport profile for ${profile.full_name}. ${profile.summary?.total_occupations || 0} occupations, ${profile.summary?.verified_credentials || 0} blockchain-verified credentials.`} />
+          <meta property="og:title" content={`${profile.full_name} — Verified WorkPassport`} />
+          <meta property="og:description" content={`${profile.summary?.verified_credentials || 0} verified credentials | ${profile.summary?.total_occupations || 0} occupations${profile.summary?.years_of_experience ? ` | ${profile.summary.years_of_experience} years experience` : ''} | Blockchain verified on HR Bank`} />
+          <meta property="og:url" content={passportUrl} />
+          <meta property="og:type" content="profile" />
+          <meta property="og:image" content={profile.photo_url?.startsWith('http') ? profile.photo_url : `${window.location.origin}/work-passport-seal.png`} />
+          <meta property="og:site_name" content="HR Bank — WorkPassport" />
+          <meta name="twitter:card" content="summary" />
+          <meta name="twitter:title" content={`${profile.full_name} — Verified WorkPassport`} />
+          <meta name="twitter:description" content={`${profile.summary?.verified_credentials || 0} blockchain-verified credentials on HR Bank`} />
+        </Helmet>
+      )}
       {/* Print Styles — transforms into a professional resume */}
       <style>{`
         @media print {
@@ -696,6 +713,35 @@ const WorkPassport = () => {
                           <h4 className="font-semibold text-white truncate">{cred.credential_name}</h4>
                           {cred.program_name && <p className="text-sm text-slate-300 truncate">{cred.program_name}</p>}
                           {cred.institution_name && <p className="text-sm text-slate-400 mt-1">{cred.institution_name}</p>}
+                          
+                          {/* Credential details row */}
+                          <div className="flex flex-wrap items-center gap-2 mt-2 text-xs">
+                            {cred.credential_type && (
+                              <span className="px-2 py-0.5 bg-slate-700/60 text-slate-300 rounded font-medium">
+                                {cred.credential_type}
+                              </span>
+                            )}
+                            {cred.issue_date && (
+                              <span className="text-slate-400">
+                                Issued {new Date(cred.issue_date).toLocaleDateString('en-CA', { month: 'short', year: 'numeric' })}
+                              </span>
+                            )}
+                            {cred.expiry_date && (() => {
+                              const exp = new Date(cred.expiry_date);
+                              const now = new Date();
+                              const daysLeft = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+                              const isExpired = daysLeft < 0;
+                              const isExpiring = daysLeft >= 0 && daysLeft <= 90;
+                              return (
+                                <span className={`px-2 py-0.5 rounded font-medium ${
+                                  isExpired ? 'bg-red-500/20 text-red-400' : isExpiring ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'
+                                }`}>
+                                  {isExpired ? 'Expired' : isExpiring ? `Expires in ${daysLeft}d` : `Valid until ${exp.toLocaleDateString('en-CA', { month: 'short', year: 'numeric' })}`}
+                                </span>
+                              );
+                            })()}
+                          </div>
+
                           <div className="flex items-center gap-2 mt-3">
                             {cred.on_chain && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs font-medium border border-green-500/30">

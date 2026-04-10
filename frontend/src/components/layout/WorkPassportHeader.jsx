@@ -2,8 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { FiBell, FiSettings, FiLogOut, FiUser } from 'react-icons/fi';
+import { FiSettings, FiLogOut } from 'react-icons/fi';
 import LanguageSelector from '../common/LanguageSelector';
+import NotificationDropdown from '../common/NotificationDropdown';
 
 const WorkPassportHeader = () => {
   const navigate = useNavigate();
@@ -41,14 +42,8 @@ const WorkPassportHeader = () => {
         {/* Language Selector */}
         <LanguageSelector variant="compact" />
         
-        {/* Notifications */}
-        <button 
-          className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-          onClick={() => navigate('/workpassport/notifications')}
-        >
-          <FiBell size={20} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+        {/* Notifications Dropdown */}
+        <NotificationDropdown variant="light" />
 
         {/* Settings */}
         <button 

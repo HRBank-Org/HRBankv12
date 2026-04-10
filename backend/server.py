@@ -314,6 +314,40 @@ async def trigger_cohort_notifications(current_user: dict = Depends(get_current_
     results = await check_cohort_end_dates(db)
     return {"success": True, "data": results}
 
+# OG meta tags for social media crawlers (LinkedIn, Facebook, Twitter)
+from fastapi.responses import HTMLResponse
+@app.get("/api/og/passport/{share_token}", response_class=HTMLResponse)
+async def passport_og_tags(share_token: str):
+    """Return minimal HTML with OG meta tags for social crawlers."""
+    profile = await db.workpassport_profiles.find_one(
+        {"share_token": share_token},
+        {"_id": 0, "full_name": 1, "profile_code": 1, "photo_url": 1}
+    )
+    if not profile:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    name = profile.get("full_name", "Professional")
+    frontend_url = os.environ.get("FRONTEND_URL", "https://hrbank.ca")
+    passport_url = f"{frontend_url}/passport/{share_token}"
+    photo = profile.get("photo_url") or f"{frontend_url}/work-passport-seal.png"
+    if photo and not photo.startswith("http"):
+        photo = f"{frontend_url}{photo}"
+
+    desc = f"View {name}'s blockchain-verified WorkPassport on HR Bank"
+
+    html = f"""<!DOCTYPE html><html><head>
+    <title>{name} — WorkPassport | HR Bank</title>
+    <meta property="og:title" content="{name} — Verified WorkPassport" />
+    <meta property="og:description" content="{desc}" />
+    <meta property="og:image" content="{photo}" />
+    <meta property="og:url" content="{passport_url}" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="HR Bank" />
+    <meta name="twitter:card" content="summary" />
+    <meta http-equiv="refresh" content="0;url={passport_url}" />
+    </head><body>Redirecting to <a href="{passport_url}">{name}'s WorkPassport</a>...</body></html>"""
+    return HTMLResponse(content=html)
+
 # Mount static files for uploaded photos
 from pathlib import Path
 UPLOAD_DIR = Path("/app/backend/uploads")

@@ -4,7 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LanguageSelector from '../common/LanguageSelector';
-import { FiBell, FiMessageSquare, FiSettings, FiLogOut } from 'react-icons/fi';
+import { FiMessageSquare, FiSettings, FiLogOut } from 'react-icons/fi';
+import NotificationDropdown from '../common/NotificationDropdown';
 import api from '../../utils/api';
 
 const WorkforceHeader = () => {
@@ -12,7 +13,6 @@ const WorkforceHeader = () => {
   const { user, logout } = useAuth();
   const theme = useTheme();
   const { t } = useLanguage();
-  const [notificationCount, setNotificationCount] = useState(0);
   const [messageCount, setMessageCount] = useState(0);
   const [occupations, setOccupations] = useState([]);
 
@@ -23,12 +23,7 @@ const WorkforceHeader = () => {
 
   const loadCounts = async () => {
     try {
-      const [notifRes, msgRes] = await Promise.all([
-        api.get('/api/notifications/my-notifications?unread_only=true').catch(() => ({ data: { data: { unread_count: 0 } } })),
-        api.get('/api/messages/threads').catch(() => ({ data: { data: { total_unread: 0 } } }))
-      ]);
-      
-      setNotificationCount(notifRes.data.data?.unread_count || 0);
+      const msgRes = await api.get('/api/messages/threads').catch(() => ({ data: { data: { total_unread: 0 } } }));
       setMessageCount(msgRes.data.data?.total_unread || 0);
     } catch (error) {
       console.error('Failed to load counts:', error);
@@ -96,22 +91,8 @@ const WorkforceHeader = () => {
           {/* Language Selector */}
           <LanguageSelector variant="compact" className="text-white" />
           
-          {/* Notifications */}
-          <button
-            onClick={() => navigate('/workforce/notifications')}
-            className="relative p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors group"
-            title={t('pages.common.notificationsTitle')}
-          >
-            <FiBell size={20} className="text-white" />
-            {notificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                {notificationCount}
-              </span>
-            )}
-            <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              {t('pages.common.notificationsTitle')}
-            </div>
-          </button>
+          {/* Notifications Dropdown */}
+          <NotificationDropdown variant="dark" />
 
           {/* Messages */}
           <button

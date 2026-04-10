@@ -344,7 +344,8 @@ const WorkforceDashboard = () => {
             </div>
           )}
 
-          {/* Charts Section */}
+          {/* Charts Section — only show when there's real data */}
+          {(stats.thisWeekEarnings > 0 || stats.thisWeekHours > 0 || earningsTrend.some(d => d.amount > 0)) ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Earnings Trend */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -402,6 +403,68 @@ const WorkforceDashboard = () => {
               </ResponsiveContainer>
             </div>
           </div>
+          ) : (
+          /* Getting Started — shown when worker has no activity yet */
+          <div className="mb-8 bg-white rounded-2xl p-8 shadow-sm" data-testid="getting-started-checklist">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Getting Started</h2>
+            <p className="text-gray-500 text-sm mb-6">Complete these steps to start receiving job offers and building your career profile.</p>
+            <div className="space-y-4">
+              {[
+                {
+                  done: !!user?.profile?.first_name,
+                  label: 'Complete your profile',
+                  desc: 'Add your name, photo, and contact details',
+                  action: () => navigate('/workforce/profile'),
+                  btn: 'Edit Profile'
+                },
+                {
+                  done: stats.occupationCount > 0,
+                  label: 'Add your first occupation',
+                  desc: 'Tell employers what you do and your skill level',
+                  action: () => navigate('/workforce/occupations'),
+                  btn: 'Add Occupation'
+                },
+                {
+                  done: false,
+                  label: 'Get verified by an institution',
+                  desc: 'Blockchain-verified credentials make you stand out',
+                  action: () => navigate('/institutions'),
+                  btn: 'Find Institutions'
+                },
+                {
+                  done: stats.upcomingShifts.length > 0,
+                  label: 'Land your first job',
+                  desc: 'Browse job offers and apply to get started',
+                  action: () => navigate('/workforce/find-jobs'),
+                  btn: 'Browse Jobs'
+                }
+              ].map((step, idx) => (
+                <div key={idx} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${step.done ? 'border-green-200 bg-green-50/50' : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50/30'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                    {step.done ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                    ) : (
+                      <span className="font-bold text-sm">{idx + 1}</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold ${step.done ? 'text-green-800 line-through' : 'text-gray-900'}`}>{step.label}</p>
+                    <p className="text-sm text-gray-500">{step.desc}</p>
+                  </div>
+                  {!step.done && (
+                    <button
+                      onClick={step.action}
+                      className="px-4 py-2 text-sm font-medium rounded-lg text-white flex-shrink-0"
+                      style={{ backgroundColor: theme.primaryColor }}
+                    >
+                      {step.btn}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          )}
 
           {/* Upcoming Shifts List */}
           <div className="bg-white rounded-2xl p-6 shadow-sm">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -504,6 +505,7 @@ function AppRoutes() {
 // App wrapper with AuthProvider
 function App() {
   return (
+    <HelmetProvider>
     <Router>
       <LanguageProvider>
         <AuthProvider>
@@ -512,6 +514,7 @@ function App() {
         </AuthProvider>
       </LanguageProvider>
     </Router>
+    </HelmetProvider>
   );
 }
 
