@@ -57,6 +57,7 @@ const QuickActionCard = ({ icon, title, description, onClick, color }) => (
 
 // Wallet Status Widget Component
 const WalletStatusWidget = ({ walletLoading, walletStatus }) => {
+  const { t } = useLanguage();
   if (walletLoading) {
     return (
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-200 animate-pulse">

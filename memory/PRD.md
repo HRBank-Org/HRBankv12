@@ -12,74 +12,76 @@ Full-stack HR compliance and management application with specialized dashboards 
 ## Core Architecture
 - **Frontend**: React + TailwindCSS + Vite (Port 3000)
 - **Backend**: FastAPI + MongoDB Motor Async (Port 8001)
-- **Deployment**: Docker (two-container), AWS Lightsail Container Service + Load Balancer
-- **Database**: MongoDB (`hrbank_db`)
-- **Docker Images**: `qnizami/hrbank-frontend:latest`, `qnizami/hrbank-backend:latest`
+- **Deployment**: Docker (two containers in one service), AWS Lightsail Container Service
+- **Database**: MongoDB Atlas (`hrbank_db`)
+- **Docker Images**: `qaisijoe/hrbank-frontend:latest`, `qaisijoe/hrbank-backend:latest`
+- **DNS**: `hrbank.ca` → `hrbank-backend.db11xcgyyaxh4.ca-central-1.cs.amazonlightsail.com`
 
 ## What's Been Implemented
 
-### Deployment — Two-Container Lightsail Setup (Feb 2026)
-- Separate frontend (nginx + React) and backend (FastAPI) Docker images
-- Frontend nginx proxies `/api/` to `localhost:8001` (Lightsail shared network)
-- Root `Dockerfile` updated: `node:20-slim`, added `--extra-index-url` for emergentintegrations
-- Frontend `Dockerfile`: `node:20-alpine`
-- Deployment guide: `deploy/LIGHTSAIL_DEPLOYMENT.md`
-- `docker-compose.prod.yml` for local testing with `network_mode: host`
+### SafestWork Institution Onboarding (Apr 2026)
+- Scraped safestwork.com for 12 training programs
+- Created institution account: `aleblanc@safestwork.com` / `SafestWork2026!`
+- Pre-verified, onboarded, with logo and credential templates
+- Production setup script: `deploy/setup_safestwork.js`
+- Fixed WalletStatusWidget crash (missing `t` translation function)
+
+### Lightsail Container Service Deployment (Apr 2026)
+- Migrated from single-container to two-container setup (frontend + backend in one service)
+- DNS updated: hrbank.ca → hrbank-backend Container Service
+- SSL certificate configured on Container Service
+- Old standalone frontend service deleted
+
+### Partner Logo Hotlinking Fix (Apr 2026)
+- Downloaded 9 institution logos to `backend/static/logos/`
+- Served via `/api/static/logos/` endpoint
+- DB URLs updated from external hotlinks to local paths
+- Production fix script: `deploy/fix_logos.js`
 
 ### WorkPassport Two-Column Print Resume (Feb 2026)
-- **Two-column layout**: Dark navy sidebar (~30%) + white main area (~70%)
-- **Sidebar**: Name, occupation titles, Overview stats, aggregated Skills, Certifications, QR code
-- **Main area**: Contact bar, Professional Experience with bullets + skill tags, Credentials, Footer
-- **Print/Export button**: `window.print()` triggers browser print dialog (Save as PDF)
-- **TESTED**: Iteration 32 — 100% pass (21/21 features)
+- Dark navy sidebar + white main area, QR code, professional layout
+- **TESTED**: Iteration 32 — 100% pass (21/21)
 
-### Auto-Repair Data Health Feature (Feb 2026)
-- POST `/api/admin/data-health/repair` — one-click orphan cleanup
-- **TESTED**: Iteration 30 — 100% pass (18/18)
+### Previous Work
+- Data Health Dashboard + Auto-Repair (Iteration 29-30)
+- Pydantic Model Standardization
+- Dynamic OAuth Redirect URIs
+- Data Integrity Migrations v1 + v2
+- Multi-Language Translation System (Iteration 27)
+- Sidebar Navigation Persistence (Iterations 25-26)
 
-### Data Health Monitor Dashboard (Feb 2026)
-- GET `/api/admin/data-health` — real-time integrity scan
-- **TESTED**: Iteration 29 — 100% pass
-
-### Pydantic Model Standardization (Feb 2026)
-- Fixed `datetime.utcnow` → `datetime.now(timezone.utc)` across 8 models
-
-### Dynamic OAuth Redirect URIs (Feb 2026)
-- Google & LinkedIn OAuth redirect URIs derived from `request.base_url`
-
-### Data Integrity Migration v1 + v2 (Feb 2026)
-- 241+ orphaned records cleaned across all profile types
-
-### Multi-Language Translation System (Feb 2026)
-- 7 languages, 195+ pages — **TESTED**: Iteration 27
-
-### Sidebar Navigation Persistence (Dec 2025)
-- Layout wrappers for all dashboard types — **TESTED**: Iterations 25, 26
+## Active Institution Accounts
+| Institution | Contact | Email | Status |
+|------------|---------|-------|--------|
+| SafestWork Consulting Inc. | Adrien LeBlanc | aleblanc@safestwork.com | Active, Verified |
+| University of Windsor | - | - | Active |
+| St. Clair College | - | - | Active |
+| + 6 more | - | - | Active |
 
 ## Prioritized Backlog
 
 ### P1 (High)
-- Partner institution logos hotlinking fix (production DB — user needs to run mongosh script)
+- Run `deploy/setup_safestwork.js` on production MongoDB
+- Run `deploy/fix_logos.js` on production MongoDB
+- Rebuild & push Docker images (logo files + WalletStatusWidget fix)
 
 ### P2 (Medium)
-- Browser locale-based auto-detect language feature
+- Browser locale-based auto-detect language
 - Notification system for cohort end dates
 - Re-enable Leaderboard when institutions onboard
 
 ### P3 (Low/Future)
-- Full deep translation of all pages (form labels, table columns)
+- Full deep translation of all pages
 - CI/CD pipeline
+- Make IssueCredential templates dynamic (pull from DB instead of hardcoded)
 
 ## Testing History
 | Iter | Scope | Result |
 |------|-------|--------|
 | 25-26 | Sidebar persistence | 100% |
 | 27 | Translation UI | 100% |
-| 28 | Data migration v1 | 100% (12/12) |
-| 29 | Data health dashboard | 100% (11/11) |
-| 30 | Auto-repair feature | 100% (18/18) |
-| 31 | WorkPassport print resume (v1) | 100% (11/11) |
-| 32 | WorkPassport two-column print (v2) | 100% (21/21) |
+| 28-30 | Data integrity | 100% |
+| 31-32 | WorkPassport print | 100% |
 
 ---
-*Last Updated: February 2026*
+*Last Updated: April 2026*
