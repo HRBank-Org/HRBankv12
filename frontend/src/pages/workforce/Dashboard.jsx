@@ -6,9 +6,7 @@ import WorkforceHeader from '../../components/layout/WorkforceHeader';
 import WorkforceSidebar from '../../components/layout/WorkforceSidebar';
 import RateEmployer from '../../components/ratings/RateEmployer';
 import api from '../../utils/api';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { FiCalendar, FiClock, FiDollarSign, FiAward, FiTrendingUp, FiAlertCircle, FiBriefcase, FiStar } from 'react-icons/fi';
-
+import { FiCalendar, FiClock, FiDollarSign, FiAward, FiAlertCircle, FiBriefcase, FiStar, FiSun, FiLogIn, FiSearch, FiArrowRight } from 'react-icons/fi';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const WorkforceDashboard = () => {
@@ -20,6 +18,8 @@ const WorkforceDashboard = () => {
   const [pendingRatings, setPendingRatings] = useState([]);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [hasEmployment, setHasEmployment] = useState(null);
+  const [employmentInfo, setEmploymentInfo] = useState({});
   const [stats, setStats] = useState({
     upcomingShifts: [],
     thisWeekHours: 0,
@@ -29,44 +29,37 @@ const WorkforceDashboard = () => {
     averageRating: 0,
     occupationCount: 0,
     jobOffers: 0,
-    totalBadges: 0
+    totalBadges: 0,
+    timeOffBalance: 0,
+    nextPayday: null,
+    nextShift: null,
+    isClockedIn: false
   });
-  
-  const [earningsTrend, setEarningsTrend] = useState([
-    { week: 'W1', amount: 0 },
-    { week: 'W2', amount: 0 },
-    { week: 'W3', amount: 0 },
-    { week: 'W4', amount: 0 }
-  ]);
-
-  const [hoursTrend, setHoursTrend] = useState([
-    { day: 'Mon', hours: 0 },
-    { day: 'Tue', hours: 0 },
-    { day: 'Wed', hours: 0 },
-    { day: 'Thu', hours: 0 },
-    { day: 'Fri', hours: 0 },
-    { day: 'Sat', hours: 0 },
-    { day: 'Sun', hours: 0 }
-  ]);
 
   useEffect(() => {
     loadDashboard();
     checkPendingJobApplication();
+    checkEmployment();
   }, []);
 
-  // Check and process pending job application from signup flow
+  const checkEmployment = async () => {
+    try {
+      const res = await api.get('/api/workforce/me/employment-status');
+      setHasEmployment(res.data.data?.has_active_employment || false);
+      setEmploymentInfo(res.data.data || {});
+    } catch {
+      setHasEmployment(false);
+    }
+  };
+
   const checkPendingJobApplication = async () => {
     const pendingJobId = localStorage.getItem('pending_job_application');
     if (pendingJobId) {
       try {
-        // Apply to the job
         await api.post(`/api/jobs/${pendingJobId}/apply`);
         localStorage.removeItem('pending_job_application');
-        // Show success notification
-        alert('🎉 Your job application has been submitted successfully!');
+        alert('Your job application has been submitted successfully!');
       } catch (error) {
-        console.error('Failed to submit pending job application:', error);
-        // Only remove if job doesn't exist or already applied
         if (error.response?.status === 404 || error.response?.status === 409) {
           localStorage.removeItem('pending_job_application');
         }
@@ -101,8 +94,7 @@ const WorkforceDashboard = () => {
       
       setPendingRatings(pendingRatingsData);
 
-      // Calculate stats
-      const upcomingShifts = shifts.filter(s => s.status !== 'completed').slice(0, 3);
+      const upcomingShifts = shifts.filter(s => s.status !== 'completed').slice(0, 5);
       const thisWeekShifts = shifts.filter(s => {
         const shiftDate = new Date(s.shift_date);
         const now = new Date();
@@ -114,8 +106,7 @@ const WorkforceDashboard = () => {
         if (s.start_time && s.end_time) {
           const start = new Date(`2000-01-01 ${s.start_time}`);
           const end = new Date(`2000-01-01 ${s.end_time}`);
-          const hours = (end - start) / (1000 * 60 * 60);
-          return sum + hours;
+          return sum + (end - start) / (1000 * 60 * 60);
         }
         return sum;
       }, 0);
@@ -124,29 +115,61 @@ const WorkforceDashboard = () => {
         if (s.hourly_rate && s.start_time && s.end_time) {
           const start = new Date(`2000-01-01 ${s.start_time}`);
           const end = new Date(`2000-01-01 ${s.end_time}`);
-          const hours = (end - start) / (1000 * 60 * 60);
-          return sum + (hours * s.hourly_rate);
+          return sum + ((end - start) / (1000 * 60 * 60)) * s.hourly_rate;
         }
         return sum;
       }, 0);
+
+      // Find next upcoming shift
+      const now = new Date();
+      const nextShift = shifts
+        .filter(s => new Date(s.shift_date) >= now && s.status !== 'completed')
+        .sort((a, b) => new Date(a.shift_date) - new Date(b.shift_date))[0] || null;
 
       setStats({
         upcomingShifts,
         thisWeekHours: Math.round(thisWeekHours),
         thisWeekEarnings: Math.round(thisWeekEarnings),
-        expectedWeeklyIncome: Math.round(thisWeekEarnings * 1.2), // Mock expected
+        expectedWeeklyIncome: Math.round(thisWeekEarnings * 1.2),
         pendingTasks: 0,
         averageRating: 4.7,
         occupationCount: occupations.length,
         jobOffers: offers.length,
-        totalBadges: 3
+        totalBadges: 3,
+        timeOffBalance: 0,
+        nextShift,
+        isClockedIn: false
       });
-
     } catch (error) {
       console.error('Failed to load dashboard:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Time helpers
+  const formatShiftTime = (shift) => {
+    if (!shift) return '';
+    const date = new Date(shift.shift_date);
+    const today = new Date();
+    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+    let dayLabel = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    if (date.toDateString() === today.toDateString()) dayLabel = 'Today';
+    else if (date.toDateString() === tomorrow.toDateString()) dayLabel = 'Tomorrow';
+    return `${dayLabel} \u2022 ${shift.start_time} - ${shift.end_time}`;
+  };
+
+  const getShiftCountdown = (shift) => {
+    if (!shift) return null;
+    const now = new Date();
+    const shiftDateTime = new Date(`${shift.shift_date}T${shift.start_time}`);
+    const diffMs = shiftDateTime - now;
+    if (diffMs < 0) return 'In progress';
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours > 24) return `in ${Math.ceil(hours / 24)} day(s)`;
+    if (hours > 0) return `in ${hours}h ${mins}m`;
+    return `in ${mins} min`;
   };
 
   if (loading) {
@@ -162,364 +185,320 @@ const WorkforceDashboard = () => {
       <WorkforceHeader />
       <WorkforceSidebar />
       
-      {/* Main Content */}
       <div className="transition-all duration-300 pt-[64px]" style={{ marginLeft: 'var(--sidebar-width, 70px)' }}>
-        {/* Page Title Section */}
+        {/* Greeting Header */}
         <div className="bg-white border-b border-gray-200 px-8 py-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-1">
-            {getGreeting()}, {getUserName()}! 👋
+            {getGreeting()}, {getUserName()}!
           </h1>
-          <p className="text-gray-600">
-            Here&apos;s your work overview and earnings
+          <p className="text-gray-500 text-sm">
+            {hasEmployment
+              ? `${employmentInfo.position_title || 'Employed'} \u2022 ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`
+              : "Here's your career overview"
+            }
           </p>
         </div>
 
-        {/* Content */}
         <div className="p-8">
-          {/* Quick Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* This Week Earnings */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#10b98115' }}
+          {/* ============ EMPLOYED VIEW: "Today" Dashboard ============ */}
+          {hasEmployment ? (
+            <>
+              {/* Quick Actions Row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" data-testid="quick-actions">
+                <button
+                  onClick={() => navigate('/workforce/schedule')}
+                  data-testid="quick-action-clockin"
+                  className="flex items-center gap-3 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-2xl p-5 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
                 >
-                  <FiDollarSign size={24} style={{ color: '#10b981' }} />
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">This Week Earnings</h3>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
-                ${stats.thisWeekEarnings}
-              </div>
-              <p className="text-sm text-gray-500">
-                {stats.thisWeekHours}h worked
-              </p>
-            </div>
+                  <FiLogIn size={24} />
+                  <div className="text-left">
+                    <div className="font-bold text-base">Clock In</div>
+                    <div className="text-xs text-emerald-100">Start your shift</div>
+                  </div>
+                </button>
 
-            {/* Expected Income */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#3b82f615' }}
+                <button
+                  onClick={() => navigate('/workforce/time-off')}
+                  data-testid="quick-action-timeoff"
+                  className="flex items-center gap-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-5 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
                 >
-                  <FiTrendingUp size={24} style={{ color: '#3b82f6' }} />
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Expected Weekly</h3>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
-                ${stats.expectedWeeklyIncome}
-              </div>
-              <p className="text-sm text-gray-500">
-                Based on scheduled shifts
-              </p>
-            </div>
+                  <FiSun size={24} />
+                  <div className="text-left">
+                    <div className="font-bold text-base">Time Off</div>
+                    <div className="text-xs text-blue-100">Request leave</div>
+                  </div>
+                </button>
 
-            {/* Upcoming Shifts */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
-              onClick={() => navigate('/workforce/my-shifts')}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#8b5cf615' }}
+                <button
+                  onClick={() => navigate('/workforce/schedule')}
+                  data-testid="quick-action-schedule"
+                  className="flex items-center gap-3 bg-gradient-to-br from-violet-500 to-violet-600 text-white rounded-2xl p-5 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
                 >
-                  <FiCalendar size={24} style={{ color: '#8b5cf6' }} />
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">{t('pages.workforce.upcomingShifts')}</h3>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
-                {stats.upcomingShifts.length}
-              </div>
-              <p className="text-sm text-gray-500">
-                Next 7 days
-              </p>
-            </div>
-
-            {/* Average Rating */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
-              onClick={() => navigate('/workforce/performance')}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#f59e0b15' }}
-                >
-                  <FiAward size={24} style={{ color: '#f59e0b' }} />
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Your Rating</h3>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
-                {stats.averageRating} ⭐
-              </div>
-              <p className="text-sm text-gray-500">
-                {stats.totalBadges} badges earned
-              </p>
-            </div>
-          </div>
-
-          {/* Action Items / Alerts */}
-          {(stats.pendingTasks > 0 || stats.jobOffers > 0 || pendingRatings.length > 0) && (
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiAlertCircle className="text-orange-500" size={24} />
-                Needs Your Attention
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Pending Ratings Alert */}
-                {pendingRatings.length > 0 && (
-                  <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5">
-                    <h3 className="font-semibold text-amber-900 mb-1 flex items-center gap-2">
-                      <FiStar className="text-amber-500" />
-                      {pendingRatings.length} Employer{pendingRatings.length > 1 ? 's' : ''} to Rate
-                    </h3>
-                    <p className="text-sm text-amber-700 mb-3">
-                      Share your experience from completed shifts
-                    </p>
-                    <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
-                      {pendingRatings.slice(0, 3).map((rating, index) => (
-                        <div 
-                          key={index}
-                          className="flex items-center justify-between bg-white rounded-lg p-2 text-sm"
-                        >
-                          <div>
-                            <span className="font-medium text-gray-800">{rating.employer_name || 'Employer'}</span>
-                            <span className="text-gray-500 ml-2">{rating.role_title}</span>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSelectedBooking(rating);
-                              setShowRatingModal(true);
-                            }}
-                            className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition-colors"
-                          >
-                            Rate
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    {pendingRatings.length > 3 && (
-                      <p className="text-xs text-amber-600 text-center">
-                        +{pendingRatings.length - 3} more to rate
-                      </p>
-                    )}
+                  <FiCalendar size={24} />
+                  <div className="text-left">
+                    <div className="font-bold text-base">Schedule</div>
+                    <div className="text-xs text-violet-100">View shifts</div>
                   </div>
-                )}
+                </button>
 
-                {stats.jobOffers > 0 && (
-                  <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
-                    <h3 className="font-semibold text-blue-900 mb-1">
-                      {stats.jobOffers} New Job Offers
-                    </h3>
-                    <p className="text-sm text-blue-700 mb-3">
-                      Employers are interested in hiring you
-                    </p>
-                    <button
-                      onClick={() => navigate('/workforce/find-jobs')}
-                      className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                    >
-                      View Offers
-                    </button>
-                  </div>
-                )}
-
-                {stats.occupationCount === 0 && (
-                  <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-5">
-                    <h3 className="font-semibold text-yellow-900 mb-1">
-                      Complete Your Profile
-                    </h3>
-                    <p className="text-sm text-yellow-700 mb-3">
-                      Add occupation profiles to start receiving job offers
-                    </p>
-                    <button
-                      onClick={() => navigate('/workforce/occupations')}
-                      className="w-full py-2 px-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors"
-                    >
-                      Create Profile
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Charts Section — only show when there's real data */}
-          {(stats.thisWeekEarnings > 0 || stats.thisWeekHours > 0 || earningsTrend.some(d => d.amount > 0)) ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Earnings Trend */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <FiTrendingUp size={20} className="text-green-600" />
-                Earnings Trend (Last 4 Weeks)
-              </h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={earningsTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="week" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                    formatter={(value) => `$${value}`}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="amount" 
-                    stroke="#10b981" 
-                    strokeWidth={3}
-                    dot={{ fill: '#10b981', r: 5 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Hours This Week */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <FiClock size={20} className="text-blue-600" />
-                {t('pages.workforce.hoursThisWeek')}
-              </h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={hoursTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="day" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                    formatter={(value) => `${value}h`}
-                  />
-                  <Bar dataKey="hours" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          ) : (
-          /* Getting Started — shown when worker has no activity yet */
-          <div className="mb-8 bg-white rounded-2xl p-8 shadow-sm" data-testid="getting-started-checklist">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Getting Started</h2>
-            <p className="text-gray-500 text-sm mb-6">Complete these steps to start receiving job offers and building your career profile.</p>
-            <div className="space-y-4">
-              {[
-                {
-                  done: !!user?.profile?.first_name,
-                  label: 'Complete your profile',
-                  desc: 'Add your name, photo, and contact details',
-                  action: () => navigate('/workforce/profile'),
-                  btn: 'Edit Profile'
-                },
-                {
-                  done: stats.occupationCount > 0,
-                  label: 'Add your first occupation',
-                  desc: 'Tell employers what you do and your skill level',
-                  action: () => navigate('/workforce/occupations'),
-                  btn: 'Add Occupation'
-                },
-                {
-                  done: false,
-                  label: 'Get verified by an institution',
-                  desc: 'Blockchain-verified credentials make you stand out',
-                  action: () => navigate('/institutions'),
-                  btn: 'Find Institutions'
-                },
-                {
-                  done: stats.upcomingShifts.length > 0,
-                  label: 'Land your first job',
-                  desc: 'Browse job offers and apply to get started',
-                  action: () => navigate('/workforce/find-jobs'),
-                  btn: 'Browse Jobs'
-                }
-              ].map((step, idx) => (
-                <div key={idx} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${step.done ? 'border-green-200 bg-green-50/50' : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50/30'}`}>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
-                    {step.done ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                    ) : (
-                      <span className="font-bold text-sm">{idx + 1}</span>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-semibold ${step.done ? 'text-green-800 line-through' : 'text-gray-900'}`}>{step.label}</p>
-                    <p className="text-sm text-gray-500">{step.desc}</p>
-                  </div>
-                  {!step.done && (
-                    <button
-                      onClick={step.action}
-                      className="px-4 py-2 text-sm font-medium rounded-lg text-white flex-shrink-0"
-                      style={{ backgroundColor: theme.primaryColor }}
-                    >
-                      {step.btn}
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          )}
-
-          {/* Upcoming Shifts List */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <FiCalendar size={20} className="text-purple-600" />
-              {t('pages.workforce.upcomingShifts')}
-            </h3>
-            
-            {stats.upcomingShifts.length === 0 ? (
-              <div className="text-center py-12">
-                <FiCalendar size={48} className="text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 mb-2">No upcoming shifts scheduled</p>
-                <p className="text-sm text-gray-500">Check out available job offers</p>
                 <button
                   onClick={() => navigate('/workforce/find-jobs')}
-                  className="mt-4 px-6 py-2 rounded-lg text-white font-medium"
-                  style={{ backgroundColor: theme.primaryColor }}
+                  data-testid="quick-action-findjobs"
+                  className="flex items-center gap-3 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-2xl p-5 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
                 >
-                  Browse Jobs
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {stats.upcomingShifts.map((shift, index) => (
-                  <div 
-                    key={index}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer"
-                    onClick={() => navigate('/workforce/my-shifts')}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{shift.role_title}</h4>
-                        <p className="text-sm text-gray-600">{shift.company_name}</p>
-                      </div>
-                      <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {shift.status || 'Scheduled'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <span>📅 {new Date(shift.shift_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-                      <span>⏰ {shift.start_time} - {shift.end_time}</span>
-                      <span>💰 ${shift.hourly_rate}/hr</span>
-                    </div>
+                  <FiSearch size={24} />
+                  <div className="text-left">
+                    <div className="font-bold text-base">Find Shifts</div>
+                    <div className="text-xs text-amber-100">Extra work</div>
                   </div>
-                ))}
-                
-                <button
-                  onClick={() => navigate('/workforce/my-shifts')}
-                  className="w-full py-3 text-center text-sm font-medium text-gray-600 hover:text-gray-900 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
-                >
-                  View All Shifts →
                 </button>
               </div>
-            )}
-          </div>
+
+              {/* Today's Focus: Next Shift + Pay Summary */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                {/* Next Shift Card — takes 2 cols */}
+                <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm overflow-hidden" data-testid="next-shift-card">
+                  <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                      <FiClock size={18} className="text-violet-500" />
+                      Next Shift
+                    </h3>
+                    {stats.nextShift && (
+                      <span className="text-xs font-medium text-violet-600 bg-violet-50 px-3 py-1 rounded-full">
+                        {getShiftCountdown(stats.nextShift)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-6">
+                    {stats.nextShift ? (
+                      <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 bg-gradient-to-br from-violet-100 to-blue-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                          <FiBriefcase size={28} className="text-violet-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-lg font-bold text-gray-900">{stats.nextShift.role_title || stats.nextShift.position_title || 'Shift'}</h4>
+                          <p className="text-gray-500">{stats.nextShift.company_name || stats.nextShift.workplace_name || ''}</p>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                            <span className="flex items-center gap-1"><FiCalendar size={14} /> {formatShiftTime(stats.nextShift)}</span>
+                            {stats.nextShift.hourly_rate && (
+                              <span className="flex items-center gap-1"><FiDollarSign size={14} /> ${stats.nextShift.hourly_rate}/hr</span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => navigate('/workforce/schedule')}
+                          className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all text-white flex-shrink-0"
+                          style={{ backgroundColor: theme.primaryColor }}
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-6">
+                        <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                          <FiCalendar size={24} className="text-gray-400" />
+                        </div>
+                        <p className="text-gray-600 font-medium">No upcoming shifts</p>
+                        <p className="text-sm text-gray-400 mt-1">Check for available shifts in your area</p>
+                        <button
+                          onClick={() => navigate('/workforce/find-jobs')}
+                          className="mt-4 px-5 py-2 text-sm font-medium rounded-lg text-white"
+                          style={{ backgroundColor: theme.primaryColor }}
+                        >
+                          Find Shifts
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Upcoming shifts mini-list */}
+                  {stats.upcomingShifts.length > 1 && (
+                    <div className="border-t border-gray-100 px-6 py-3 bg-gray-50/50">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          +{stats.upcomingShifts.length - 1} more this week
+                        </span>
+                        <button
+                          onClick={() => navigate('/workforce/schedule')}
+                          className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                        >
+                          View all <FiArrowRight size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Pay & Hours Summary */}
+                <div className="space-y-4">
+                  {/* This Week Earnings */}
+                  <div className="bg-white rounded-2xl p-5 shadow-sm" data-testid="weekly-earnings-card">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                        <FiDollarSign size={20} className="text-emerald-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-500">This Week</span>
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900">${stats.thisWeekEarnings}</div>
+                    <div className="text-sm text-gray-500 mt-1">{stats.thisWeekHours}h worked</div>
+                    <button
+                      onClick={() => navigate('/workforce/wallet')}
+                      className="mt-3 text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                    >
+                      View earnings <FiArrowRight size={12} />
+                    </button>
+                  </div>
+
+                  {/* Hours & Rating */}
+                  <div className="bg-white rounded-2xl p-5 shadow-sm" data-testid="rating-card">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                        <FiStar size={20} className="text-amber-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-500">Your Rating</span>
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900">{stats.averageRating}</div>
+                    <div className="text-sm text-gray-500 mt-1">{stats.totalBadges} badges earned</div>
+                    <button
+                      onClick={() => navigate('/workforce/performance')}
+                      className="mt-3 text-xs font-medium text-amber-600 hover:text-amber-700 flex items-center gap-1"
+                    >
+                      View performance <FiArrowRight size={12} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Items */}
+              {(pendingRatings.length > 0 || stats.jobOffers > 0) && (
+                <div className="mb-8">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FiAlertCircle className="text-orange-500" size={20} />
+                    Needs Your Attention
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {pendingRatings.length > 0 && (
+                      <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5">
+                        <h3 className="font-semibold text-amber-900 mb-1 flex items-center gap-2">
+                          <FiStar className="text-amber-500" />
+                          {pendingRatings.length} Employer{pendingRatings.length > 1 ? 's' : ''} to Rate
+                        </h3>
+                        <p className="text-sm text-amber-700 mb-3">Share your experience from completed shifts</p>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {pendingRatings.slice(0, 3).map((rating, index) => (
+                            <div key={index} className="flex items-center justify-between bg-white rounded-lg p-2 text-sm">
+                              <div>
+                                <span className="font-medium text-gray-800">{rating.employer_name || 'Employer'}</span>
+                                <span className="text-gray-500 ml-2">{rating.role_title}</span>
+                              </div>
+                              <button
+                                onClick={() => { setSelectedBooking(rating); setShowRatingModal(true); }}
+                                className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition-colors"
+                              >
+                                Rate
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {stats.jobOffers > 0 && (
+                      <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
+                        <h3 className="font-semibold text-blue-900 mb-1">{stats.jobOffers} New Job Offers</h3>
+                        <p className="text-sm text-blue-700 mb-3">Employers are interested in hiring you</p>
+                        <button
+                          onClick={() => navigate('/workforce/find-jobs')}
+                          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                          View Offers
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* ============ NON-EMPLOYED VIEW: Getting Started ============ */
+            <>
+              {/* Quick Stats for Building Mode */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => navigate('/workforce/occupations')}
+                >
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: '#3b82f615' }}>
+                    <FiBriefcase size={24} style={{ color: '#3b82f6' }} />
+                  </div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Occupations</h3>
+                  <div className="text-3xl font-bold text-gray-900">{stats.occupationCount}</div>
+                  <p className="text-sm text-gray-500">profiles created</p>
+                </div>
+
+                <div
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => navigate('/workforce/credentials')}
+                >
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: '#10b98115' }}>
+                    <FiAward size={24} style={{ color: '#10b981' }} />
+                  </div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Credentials</h3>
+                  <div className="text-3xl font-bold text-gray-900">0</div>
+                  <p className="text-sm text-gray-500">verified</p>
+                </div>
+
+                <div
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => navigate('/workforce/find-jobs')}
+                >
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: '#f59e0b15' }}>
+                    <FiSearch size={24} style={{ color: '#f59e0b' }} />
+                  </div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Job Offers</h3>
+                  <div className="text-3xl font-bold text-gray-900">{stats.jobOffers}</div>
+                  <p className="text-sm text-gray-500">available</p>
+                </div>
+              </div>
+
+              {/* Getting Started Checklist */}
+              <div className="mb-8 bg-white rounded-2xl p-8 shadow-sm" data-testid="getting-started-checklist">
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Getting Started</h2>
+                <p className="text-gray-500 text-sm mb-6">Complete these steps to start receiving job offers and building your career profile.</p>
+                <div className="space-y-4">
+                  {[
+                    { done: !!user?.profile?.first_name, label: 'Complete your profile', desc: 'Add your name, photo, and contact details', action: () => navigate('/workforce/profile'), btn: 'Edit Profile' },
+                    { done: stats.occupationCount > 0, label: 'Add your first occupation', desc: 'Tell employers what you do and your skill level', action: () => navigate('/workforce/occupations'), btn: 'Add Occupation' },
+                    { done: false, label: 'Get verified by an institution', desc: 'Blockchain-verified credentials make you stand out', action: () => navigate('/institutions'), btn: 'Find Institutions' },
+                    { done: stats.jobOffers > 0, label: 'Browse job opportunities', desc: 'Find your first job or shift', action: () => navigate('/workforce/find-jobs'), btn: 'Browse Jobs' }
+                  ].map((step, idx) => (
+                    <div key={idx} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${step.done ? 'border-green-200 bg-green-50/50' : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50/30'}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                        {step.done ? (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                        ) : (
+                          <span className="font-bold text-sm">{idx + 1}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-semibold ${step.done ? 'text-green-800 line-through' : 'text-gray-900'}`}>{step.label}</p>
+                        <p className="text-sm text-gray-500">{step.desc}</p>
+                      </div>
+                      {!step.done && (
+                        <button
+                          onClick={step.action}
+                          className="px-4 py-2 text-sm font-medium rounded-lg text-white flex-shrink-0"
+                          style={{ backgroundColor: theme.primaryColor }}
+                        >
+                          {step.btn}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -530,7 +509,6 @@ const WorkforceDashboard = () => {
           onComplete={() => {
             setShowRatingModal(false);
             setSelectedBooking(null);
-            // Refresh pending ratings
             setPendingRatings(prev => prev.filter(r => r.booking_id !== selectedBooking.booking_id));
           }}
           onCancel={() => {
