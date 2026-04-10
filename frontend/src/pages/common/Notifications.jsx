@@ -71,6 +71,13 @@ const Notifications = () => {
       rating: '⭐',
       employment_terminated: '🚫',
       rehired: '🎉',
+      credential_received: '🎓',
+      enrollment: '📚',
+      invitation: '📩',
+      cohort_ending_soon: '⏰',
+      cohort_ended_today: '📋',
+      cohort_ended: '📋',
+      cohort_credentials_overdue: '🚨',
       default: '🔔'
     };
     return icons[type] || icons.default;

@@ -76,6 +76,14 @@ export const AuthProvider = ({ children }) => {
         const userData = profileResponse.data.data;
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Sync browser language to backend profile
+        const currentLang = localStorage.getItem('language') || navigator.language?.split('-')[0] || 'en';
+        try {
+          await axios.put(`${API_URL}/api/users/preferred-language`, { preferred_language: currentLang }, {
+            headers: { Authorization: `Bearer ${access_token}` }
+          });
+        } catch (langErr) { /* non-critical */ }
       } catch (profileError) {
         console.warn('Failed to fetch user profile:', profileError);
         // Don't logout on profile fetch failure during login

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Request
+from fastapi import FastAPI, APIRouter, Request, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 import uuid
 from datetime import datetime, timezone
+from auth.dependencies import get_current_user
 
 # Rate limiting
 from utils.rate_limiter import limiter, _rate_limit_exceeded_handler
@@ -303,6 +304,16 @@ async def stripe_webhook_handler(request: Request):
     from routes.credential_payments import stripe_webhook
     return await stripe_webhook(request, db)
 
+# Manual trigger for cohort end-date notifications (admin use / testing)
+@app.post("/api/admin/trigger-cohort-notifications")
+async def trigger_cohort_notifications(current_user: dict = Depends(get_current_user)):
+    """Manually trigger the cohort end-date notification check."""
+    if current_user.get("user_type") not in ["admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Admin only")
+    from services.cohort_notification_service import check_cohort_end_dates
+    results = await check_cohort_end_dates(db)
+    return {"success": True, "data": results}
+
 # Mount static files for uploaded photos
 from pathlib import Path
 UPLOAD_DIR = Path("/app/backend/uploads")
@@ -393,6 +404,26 @@ async def startup_tasks():
         logger.info("Session cleanup scheduler initialized (runs every 15 minutes)")
     except Exception as e:
         logger.error(f"Failed to start session cleanup scheduler: {str(e)}")
+    
+    # Start cohort end-date notification scheduler (runs daily at 8 AM UTC)
+    try:
+        from services.cohort_notification_service import check_cohort_end_dates
+        
+        async def cohort_notification_task():
+            """Run cohort end-date check daily"""
+            await asyncio.sleep(60)  # Wait 1 min after startup
+            while True:
+                try:
+                    results = await check_cohort_end_dates(db)
+                    logger.info(f"Cohort notification check: {results.get('notifications_sent', 0)} sent")
+                except Exception as e:
+                    logger.error(f"Cohort notification error: {e}")
+                await asyncio.sleep(86400)  # 24 hours
+        
+        asyncio.create_task(cohort_notification_task())
+        logger.info("Cohort end-date notification scheduler initialized (runs daily)")
+    except Exception as e:
+        logger.error(f"Failed to start cohort notification scheduler: {str(e)}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import translations from '../i18n/translations.json';
+import api from '../utils/api';
 
 const LanguageContext = createContext();
 
@@ -11,13 +12,29 @@ export const LANGUAGES = {
   pt: { name: 'Portuguese', nativeName: 'Português', flag: '🇧🇷', rtl: false },
   zh: { name: 'Chinese', nativeName: '中文', flag: '🇨🇳', rtl: false },
   ar: { name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦', rtl: true },
-  hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳', rtl: false }
+  hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳', rtl: false },
+  pa: { name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', flag: '🇮🇳', rtl: false },
+  tl: { name: 'Tagalog', nativeName: 'Tagalog', flag: '🇵🇭', rtl: false },
+  ur: { name: 'Urdu', nativeName: 'اردو', flag: '🇵🇰', rtl: true },
+  fa: { name: 'Persian', nativeName: 'فارسی', flag: '🇮🇷', rtl: true },
+  ta: { name: 'Tamil', nativeName: 'தமிழ்', flag: '🇮🇳', rtl: false },
+  ko: { name: 'Korean', nativeName: '한국어', flag: '🇰🇷', rtl: false },
+  vi: { name: 'Vietnamese', nativeName: 'Tiếng Việt', flag: '🇻🇳', rtl: false },
+  gu: { name: 'Gujarati', nativeName: 'ગુજરાતી', flag: '🇮🇳', rtl: false },
+  ru: { name: 'Russian', nativeName: 'Русский', flag: '🇷🇺', rtl: false },
+  uk: { name: 'Ukrainian', nativeName: 'Українська', flag: '🇺🇦', rtl: false },
+  bn: { name: 'Bengali', nativeName: 'বাংলা', flag: '🇧🇩', rtl: false },
+  pl: { name: 'Polish', nativeName: 'Polski', flag: '🇵🇱', rtl: false }
 };
 
-// Detect browser language
+// Detect browser language — supports both simple (fr) and regional (zh-CN, zh-HK) codes
 const getBrowserLanguage = () => {
-  const browserLang = navigator.language?.split('-')[0] || 'en';
-  return LANGUAGES[browserLang] ? browserLang : 'en';
+  const fullLang = navigator.language || 'en';
+  const baseLang = fullLang.split('-')[0];
+  // Check full code first for regional variants (zh-CN → zh), then base
+  if (LANGUAGES[fullLang]) return fullLang;
+  if (LANGUAGES[baseLang]) return baseLang;
+  return 'en';
 };
 
 // Get stored language or detect from browser
@@ -37,12 +54,21 @@ export const LanguageProvider = ({ children }) => {
     if (LANGUAGES[lang]) {
       localStorage.setItem('language', lang);
       setLanguageState(lang);
-      // Update HTML lang attribute for accessibility
       document.documentElement.lang = lang;
-      // Update direction for RTL languages
       document.documentElement.dir = LANGUAGES[lang].rtl ? 'rtl' : 'ltr';
     }
   };
+
+  // Sync language preference to backend profile (call after login)
+  const syncLanguageToBackend = useCallback(async (lang) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+      await api.put('/api/users/preferred-language', { preferred_language: lang || language });
+    } catch (err) {
+      // Silent fail — non-critical
+    }
+  }, [language]);
 
   // Set initial HTML lang and direction attributes
   useEffect(() => {
@@ -85,6 +111,7 @@ export const LanguageProvider = ({ children }) => {
   const value = {
     language,
     setLanguage,
+    syncLanguageToBackend,
     t,
     languages: LANGUAGES,
     isRTL: LANGUAGES[language]?.rtl || false

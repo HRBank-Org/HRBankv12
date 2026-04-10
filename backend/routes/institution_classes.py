@@ -33,7 +33,10 @@ async def get_allowed_credential_types(
     """
     # Get institution profile
     institution_profile = await db.institution_profiles.find_one(
-        {"institution_id": current_user["user_id"]},
+        {"$or": [
+            {"institution_id": current_user["user_id"]},
+            {"user_id": current_user["user_id"]}
+        ]},
         {"_id": 0, "institution_type": 1, "institution_name": 1}
     )
     
@@ -504,7 +507,27 @@ async def invite_students(
             )
             students_enrolled += 1
             
-            # Notify existing user they've been enrolled
+            # Create in-app notification for the enrolled user
+            try:
+                program_name = institution_class.get("program_name", institution_class.get("title", ""))
+                class_name = institution_class.get("title", institution_class.get("class_name", ""))
+                notif = {
+                    "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                    "user_id": existing_user["user_id"],
+                    "notification_type": "enrollment",
+                    "notification_subtype": "cohort_enrollment",
+                    "title": f"Enrolled in {class_name}",
+                    "message": f"{institution_name} has enrolled you in the {program_name} cohort: {class_name}.",
+                    "action_url": "/workforce/credentials",
+                    "priority": "normal",
+                    "read_status": False,
+                    "created_date": datetime.now(timezone.utc).isoformat()
+                }
+                await db.notifications.insert_one(notif)
+            except Exception as e:
+                print(f"Failed to create enrollment notification for {existing_user['user_id']}: {e}")
+            
+            # Notify existing user they've been enrolled (email)
             try:
                 from utils.email_service import email_service
                 import os
@@ -721,7 +744,10 @@ async def issue_credentials(
     
     # GUARDRAIL: Validate institution is authorized to issue this credential type
     institution_profile = await db.institution_profiles.find_one(
-        {"institution_id": current_user["user_id"]},
+        {"$or": [
+            {"institution_id": current_user["user_id"]},
+            {"user_id": current_user["user_id"]}
+        ]},
         {"_id": 0, "institution_type": 1, "institution_name": 1}
     )
     
@@ -773,6 +799,67 @@ async def issue_credentials(
         
         await db.credential_issuances.insert_one(cred_dict)
         credentials_issued += 1
+        
+        # --- Notify the workforce user ---
+        try:
+            # In-app notification
+            notif = {
+                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                "user_id": student_id,
+                "notification_type": "credential_received",
+                "notification_subtype": "credential_issued",
+                "title": f"New Credential: {institution_class['title']}",
+                "message": f"{institution_name} has issued you a {credential_type} for \"{institution_class['title']}\" under {program.get('program_name', 'their program')}.",
+                "action_url": "/workforce/credentials",
+                "priority": "high",
+                "read_status": False,
+                "created_date": datetime.now(timezone.utc).isoformat()
+            }
+            await db.notifications.insert_one(notif)
+        except Exception as e:
+            print(f"Failed to create credential notification for {student_id}: {e}")
+        
+        # Email notification to student
+        try:
+            student_user = await db.users.find_one({"user_id": student_id}, {"_id": 0, "email": 1})
+            if student_user and student_user.get("email"):
+                from utils.email_service import email_service
+                import os
+                frontend_url = os.environ.get('FRONTEND_URL', 'https://hrbank.ca')
+                cred_subject = f"You received a new credential from {institution_name}"
+                cred_html = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 28px;">WorkPassport</h1>
+                        <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 14px;">by HR Bank</p>
+                    </div>
+                    <div style="padding: 40px 30px; background: #ffffff;">
+                        <h2 style="color: #1e3a5f; margin-bottom: 20px;">New Credential Issued!</h2>
+                        <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+                            <strong>{institution_name}</strong> has issued you a blockchain-verified credential:
+                        </p>
+                        <div style="background: #f0fdf4; border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; border: 2px solid #bbf7d0;">
+                            <p style="color: #166534; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Credential</p>
+                            <p style="font-size: 22px; font-weight: 700; color: #1e3a5f; margin: 0;">{institution_class['title']}</p>
+                            <p style="color: #64748b; font-size: 14px; margin: 10px 0 0 0;">{credential_type} &bull; {program.get('program_name', '')}</p>
+                        </div>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="{frontend_url}/workforce/credentials"
+                               style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white;
+                                      padding: 18px 50px; text-decoration: none; border-radius: 8px;
+                                      display: inline-block; font-weight: bold; font-size: 16px;">
+                                View My Credentials
+                            </a>
+                        </div>
+                    </div>
+                    <div style="background: #1e3a5f; padding: 25px; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 12px; margin: 0;">WorkPassport by HR Bank | hrbank.ca</p>
+                    </div>
+                </div>
+                """
+                await email_service.send_email(student_user["email"], cred_subject, cred_html)
+        except Exception as e:
+            print(f"Failed to send credential email to student {student_id}: {e}")
     
     # CASCADE STATS UP: Update cohort count
     await db.institution_classes.update_one(

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.dependencies import get_current_user
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -105,3 +105,32 @@ async def get_user_by_id(
             "profile": profile or {}
         }
     }
+
+
+
+@router.put("/preferred-language", response_model=Dict)
+async def update_preferred_language(
+    body: dict,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Update the user's preferred language (synced from browser locale).
+    Stores in the type-specific profile collection so notification translation can use it.
+    """
+    lang = body.get("preferred_language", "en")
+    user_type = current_user.get("user_type")
+    user_id = current_user.get("user_id")
+
+    update = {"preferred_language": lang, "language_updated_at": datetime.now(timezone.utc).isoformat()}
+
+    if user_type == "workforce":
+        await db.workforce_profiles.update_one({"workforce_id": user_id}, {"$set": update}, upsert=False)
+    elif user_type == "employer":
+        await db.employer_profiles.update_one({"employer_id": user_id}, {"$set": update}, upsert=False)
+    elif user_type == "institution":
+        await db.institution_profiles.update_one({"institution_id": user_id}, {"$set": update}, upsert=False)
+    elif user_type == "workpassport":
+        await db.workpassport_profiles.update_one({"user_id": user_id}, {"$set": update}, upsert=False)
+
+    return {"success": True, "message": f"Preferred language set to {lang}"}

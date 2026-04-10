@@ -75,6 +75,23 @@ async def bulk_upload_invites(
                     )
                     inst_name = inst.get("institution_name", "An institution") if inst else "An institution"
                     prog = invite_data.get("program", "a program")
+                    
+                    # Create in-app notification
+                    notif = {
+                        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                        "user_id": existing["user_id"],
+                        "notification_type": "invitation",
+                        "notification_subtype": "bulk_invite",
+                        "title": f"Invitation from {inst_name}",
+                        "message": f"{inst_name} has invited you to their {prog} program.",
+                        "action_url": "/workforce/dashboard",
+                        "priority": "normal",
+                        "read_status": False,
+                        "created_date": datetime.now(timezone.utc).isoformat()
+                    }
+                    await db.notifications.insert_one(notif)
+                    
+                    # Send email
                     subject = f"{inst_name} has invited you on HR Bank"
                     html_content = f"""
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
