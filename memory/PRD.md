@@ -42,7 +42,7 @@ Full-stack HR compliance and management application with specialized dashboards 
 ## Prioritized Backlog
 
 ### P2 (Deploy)
-- Rebuild & push Docker images with all notification + language fixes
+- Rebuild & push Docker images v28 — **READY** (guide at `/app/deploy/DEPLOY_V28.md`)
 
 ### P2 (Medium)
 - Re-enable Leaderboard when institutions onboard
