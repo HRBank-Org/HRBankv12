@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
-import UserHeader from '../../components/common/UserHeader';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 import { 
@@ -138,10 +138,8 @@ const PartnershipAgreement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <UserHeader title="Partnership Agreement" />
-      
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <InstitutionLayout title={t("pages.institution.partnership.title", "Partnership Agreement")}>
+      <div className="max-w-5xl mx-auto">
         {/* Back Button */}
         <button
           onClick={() => navigate('/institution/dashboard')}
@@ -375,7 +373,7 @@ const PartnershipAgreement = () => {
           </div>
         )}
       </div>
-    </div>
+    </InstitutionLayout>
   );
 };
 

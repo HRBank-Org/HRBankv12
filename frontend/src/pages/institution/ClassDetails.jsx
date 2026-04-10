@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import UserHeader from '../../components/common/UserHeader';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 import api from '../../utils/api';
 
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -132,13 +132,8 @@ const ClassDetails = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.bgColor }}>
-      <UserHeader 
-        onBackClick={() => navigate('/institution/classes')}
-        showBack={true}
-      />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
+    <InstitutionLayout title={classData?.class_name || t("pages.institution.classes.details", "Cohort Details")} subtitle={classData?.program_name}>
+      <div className="max-w-7xl mx-auto">
         {message.text && (
           <div className={`rounded-lg p-4 mb-6 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
             {message.text}
@@ -281,7 +276,6 @@ const ClassDetails = () => {
             </div>
           )}
         </div>
-      </main>
 
       {/* Invite Students Modal */}
       {showInviteModal && (
@@ -427,7 +421,8 @@ const ClassDetails = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </InstitutionLayout>
   );
 };
 

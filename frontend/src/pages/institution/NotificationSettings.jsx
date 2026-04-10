@@ -3,6 +3,7 @@ import { Bell, Mail, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import PushNotificationSettings from '../../components/common/PushNotificationSettings';
+import InstitutionLayout from '../../components/layout/InstitutionLayout';
 
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -51,7 +52,7 @@ const NotificationSettings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <InstitutionLayout title={t("pages.institution.notificationSettings.title", "Notification Settings")}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
@@ -136,7 +137,7 @@ const NotificationSettings = () => {
           </div>
         </div>
       </div>
-    </div>
+    </InstitutionLayout>
   );
 };
 
