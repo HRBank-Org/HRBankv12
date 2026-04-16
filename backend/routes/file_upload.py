@@ -6,7 +6,12 @@ import uuid
 from pathlib import Path
 from typing import Dict
 import shutil
-import magic
+
+try:
+    import magic
+    HAS_MAGIC = True
+except (ImportError, OSError):
+    HAS_MAGIC = False
 
 router = APIRouter()
 
@@ -29,6 +34,8 @@ def is_allowed_file(filename: str) -> bool:
 
 def validate_mime_type(file_bytes: bytes) -> bool:
     """Validate actual file content MIME type (not just extension)"""
+    if not HAS_MAGIC:
+        return True  # Skip MIME check if libmagic unavailable
     try:
         mime = magic.from_buffer(file_bytes[:2048], mime=True)
         return mime in ALLOWED_MIME_TYPES
